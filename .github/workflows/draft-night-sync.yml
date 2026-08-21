@@ -36,8 +36,9 @@ on:
   workflow_dispatch:
     inputs:
       draft_id:
-        description: 'Sleeper draft_id to sync (from the league draft URL)'
-        required: true
+        description: 'Sleeper draft_id — LEAVE BLANK to resolve it from league_config.json automatically (recommended; it refuses rather than guessing)'
+        required: false
+        default: ''
       max_minutes:
         description: 'Give up after this many minutes if the draft never completes'
         required: false
@@ -47,6 +48,42 @@ on:
         required: false
         default: false
         type: boolean
+
+  # ⏰ SELF-STARTING, ADDED 2026-08-21 — THE CAPTURE MUST NOT DEPEND ON SOMEBODY
+  # REMEMBERING. Until now this workflow was `workflow_dispatch` only: on draft
+  # night a human had to open Sleeper, find the draft_id, paste it here and hit
+  # run, under time pressure, or THE DRAFT WAS NEVER CAPTURED. A draft cannot be
+  # re-run, and everything Cory wants to simulate next year — every pick, every
+  # counterfactual, the opponent models — rests on that one JSONL existing.
+  #
+  # The draft is 2026-08-22 6:00 PM CDT (league_config.json draft.start_time),
+  # which is 23:00 UTC. This fires at 22:45 UTC to give GitHub's scheduler its
+  # usual slack; the job then polls until the draft completes, so starting early
+  # costs nothing but a few idle polls.
+  #
+  # `draft_id` is now OPTIONAL: with none supplied, log_draft_picks.py resolves
+  # it from league_config.json's league_id via Sleeper, and REFUSES rather than
+  # guessing if it cannot name exactly one draft for this season
+  # (draft/tests/test_draft_id_discovery.py pins both refusals).
+  #
+  # A scheduled workflow only runs from the DEFAULT BRANCH — this file is on
+  # main, which is where it must stay for the cron to fire at all.
+  schedule:
+    - cron: '45 22 22 8 *'
+
+# ⚠️ ONE SYNC AT A TIME. With the cron above AND the runbook's manual dispatch,
+# two jobs can now poll the same draft and both `git push` the same JSONL — a
+# race that ends with one push rejected and, worse, an operator watching a run
+# that is no longer the one doing the work. The pick log itself tolerates
+# duplicate rows (the rehearsal covers duplicates, out-of-order events and
+# reconnects), so the data was never the risk; the PUSH was.
+#
+# `cancel-in-progress: false` deliberately: if Cory dispatches manually because
+# he thinks nothing started, the run already capturing picks must NOT be killed
+# by the newcomer. The second run queues and finds nothing left to do.
+concurrency:
+  group: draft-night-sync
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -60,11 +97,43 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: '3.11' }
 
+      # ⚙️ VERIFY THE LOGGER BEFORE THE ONE NIGHT IT MATTERS (A, 2026-08-21).
+      # Adding the schedule above made this a SCHEDULED workflow that COMMITS
+      # DATA with nothing verifying it — `test_every_gate_can_fail.py`'s ratchet
+      # caught that immediately and correctly, and its own note says to lower the
+      # number by earning it rather than raising the line.
+      #
+      # Earned here: 39 checks across the rehearsal (a real 150-pick Sleeper
+      # draft replayed through 7 edge cases — duplicates, out-of-order events,
+      # reconnects), the chaos drill, the log-path override, and the new
+      # draft_id discovery refusals. All offline, ~12s.
+      #
+      # It runs BEFORE the poll, so a broken logger fails the job while the
+      # draft is still ahead of us, instead of being discovered afterwards from
+      # an empty pick log that cannot be refilled.
+      - name: Verify the pick logger before draft night depends on it
+        run: |
+          pip install --quiet -r draft/requirements.txt
+          # ⚠️ PATHS IMMEDIATELY AFTER `pytest`, FLAGS AFTERWARDS — NOT STYLE.
+          # `test_every_gate_can_fail.py` detects verification with
+          # `(?:pytest|node)\s+\S*draft/tests/\S+`, which cannot span a space, so
+          # `pytest -q draft/tests/...` reads as UNVERIFIED even though it plainly
+          # runs the tests. Written the other way round it matches. The detector
+          # is brittle in the safe direction — it under-counts verification and
+          # fails loud — so it is left alone the night before the draft and noted
+          # here instead of quietly worked around.
+          python -m pytest draft/tests/test_pick_log_rehearsal.py \
+            draft/tests/chaos_drill_pick_log_test.py \
+            draft/tests/test_log_draft_picks_path_override.py \
+            draft/tests/test_draft_id_discovery.py -q
+
       - name: Poll Sleeper and log picks until the draft completes
         env:
+          # `inputs.*` is EMPTY on a scheduled run — the defaults below are what
+          # make the cron path work rather than silently no-op.
           DRAFT_ID: ${{ github.event.inputs.draft_id }}
-          MAX_MINUTES: ${{ github.event.inputs.max_minutes }}
-          DRY_RUN: ${{ github.event.inputs.dry_run }}
+          MAX_MINUTES: ${{ github.event.inputs.max_minutes || '270' }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
         run: |
           set -uo pipefail
           git config user.name lab-bot

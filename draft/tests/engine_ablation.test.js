@@ -154,10 +154,30 @@ const baseCtx = over => Object.assign({
     && E.CFG.ONESIE_HARD_CAP === undefined);
 }
 {
-  // ONESIE_NEED_DISCOUNT and FLEX_DISCOUNT rewrite need.value, which
-  // MEASURED_WEIGHTS multiplies by 0. Mechanism proven live under
-  // DEFAULT_WEIGHTS; inert under MEASURED_WEIGHTS — BOTH pinned, because the
-  // in-frame zero these layers measure is exactly this arithmetic.
+  /* ONESIE_NEED_DISCOUNT and FLEX_DISCOUNT both rewrite `need.value`, so
+   * whether they do anything at all is decided by ONE number: the shipped
+   * `need` weight.
+   *
+   * ⚠️ THIS BLOCK ASSERTED "INERT under MEASURED_WEIGHTS (w.need=0)" AS A
+   * CONSTANT, AND THE CONSTANT WAS RETIRED. Cory ruled `need` 0 -> 1.0 on
+   * 2026-08-20 (engine.js:826), which switched both layers ON, and the two arms
+   * went red still describing the pre-ruling world. That is register 5h — a
+   * weight ruling ships and the prose quoting the old number never follows —
+   * happening inside a guard, which is the one place it should be impossible.
+   *
+   * So the arms below READ the live weight instead of restating it. Under
+   * `need = 0` they demand inertness; under any non-zero weight they demand the
+   * mechanism actually moves the score. Either ruling is expressible and neither
+   * can go stale: the next time Cory moves this weight, the assertion moves with
+   * it and the failure — if there is one — is about the MECHANISM, not about a
+   * number someone forgot to update.
+   *
+   * The DEFAULT_WEIGHTS arms above each of them are unchanged and remain the
+   * proof that the flag plumbing works at all, independent of any ruling. */
+  const NEED_W = E.MEASURED_WEIGHTS.need;
+  ck('CONTROL: the shipped need weight is readable off the engine, so the two '
+    + 'arms below are following the ruling rather than quoting it (need='
+    + NEED_W + ')', typeof NEED_W === 'number');
   const rosterEmptyQB = [mk('r2', 'RB', 250, 70), mk('r3', 'RB', 240, 60),
     mk('r4', 'WR', 260, 70), mk('r5', 'WR', 250, 60), mk('r6', 'TE', 180, 40)];
   const board = [mk('1', 'QB', 330, 40), mk('2', 'QB', 300, 10), mk('3', 'RB', 150, 5)];
@@ -170,8 +190,14 @@ const baseCtx = over => Object.assign({
   const mOn = E.scorePlayer(qb, baseCtx({ board, roster: rosterEmptyQB, weights: E.MEASURED_WEIGHTS }));
   const mOff = EA.withFlags([['E', 'ONESIE_NEED_DISCOUNT', false]],
     () => E.scorePlayer(qb, baseCtx({ board, roster: rosterEmptyQB, weights: E.MEASURED_WEIGHTS })));
-  ck('…and is INERT under MEASURED_WEIGHTS (w.need=0) — the vacuous-by-weights '
-    + 'finding the audit reports, pinned', mOn.score === mOff.score);
+  ck(NEED_W === 0
+    ? '…and is INERT under MEASURED_WEIGHTS (need=0) — the vacuous-by-weights '
+      + 'finding the audit reports, pinned'
+    : '…and under the SHIPPED need weight (' + NEED_W + ', Cory 08-20) it is LIVE: '
+      + 'the onesie need discount really moves the score the board is built from '
+      + '(' + mOn.score + ' vs ' + mOff.score + ')',
+  NEED_W === 0 ? mOn.score === mOff.score : mOn.score !== mOff.score,
+  { need: NEED_W, on: mOn.score, off: mOff.score });
 
   const rosterFlex = [mk('r1', 'QB', 380, 60), mk('r2', 'RB', 250, 70), mk('r3', 'RB', 240, 60),
     mk('r4', 'WR', 260, 70), mk('r5', 'WR', 250, 60), mk('r6', 'TE', 180, 40)];
@@ -185,8 +211,13 @@ const baseCtx = over => Object.assign({
   const fmOn = E.scorePlayer(rb, baseCtx({ board: boardF, roster: rosterFlex, weights: E.MEASURED_WEIGHTS }));
   const fmOff = EA.withFlags([['E', 'FLEX_DISCOUNT', false]],
     () => E.scorePlayer(rb, baseCtx({ board: boardF, roster: rosterFlex, weights: E.MEASURED_WEIGHTS })));
-  ck('…and FLEX_DISCOUNT is likewise INERT under MEASURED_WEIGHTS, pinned',
-    fmOn.score === fmOff.score);
+  ck(NEED_W === 0
+    ? '…and FLEX_DISCOUNT is likewise INERT under MEASURED_WEIGHTS, pinned'
+    : '…and FLEX_DISCOUNT is likewise LIVE under the shipped need weight ('
+      + NEED_W + ') — a flex-only RB is really discounted on Cory\'s board '
+      + '(' + fmOn.score + ' vs ' + fmOff.score + ')',
+  NEED_W === 0 ? fmOn.score === fmOff.score : fmOn.score !== fmOff.score,
+  { need: NEED_W, on: fmOn.score, off: fmOff.score });
 }
 {
   // VONA_WIRE_BENCH: unreachable in the shipped config (slot-aware false ⇒

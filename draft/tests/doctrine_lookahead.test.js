@@ -198,18 +198,68 @@ const { baseline, doctrines } = DL.scoreAll();
 
   const qbPick = (baseline.plan.find(p => p.slot === 'QB') || {}).pick;
   const tePick = (baseline.plan.find(p => p.slot === 'TE') || {}).pick;
-  ck('the unconstrained plan takes the TIGHT END before the QUARTERBACK',
-    tePick < qbPick, { te: tePick, qb: qbPick });
-  ck('and it does NOT take the quarterback at Cory\'s first pick, which is what '
+
+  /* ⚠️ THE "TE BEFORE QB" ARM IS RETIRED, 2026-08-21, AND NOT TO GO GREEN.
+   *
+   * It asserted a positional ORDERING of the value plan — pure board
+   * arithmetic with no durable property behind it — and the board moved
+   * underneath it exactly as it moved under the early_qb arm above. Measured
+   * before touching it: the plan now takes the QB at 48 and the TE at 68, so
+   * the ordering has simply inverted. Nothing about the tool changed.
+   *
+   * This file has ALREADY been through this once and wrote down the lesson
+   * twenty lines up: "The pin that survives a board move is the RELATIONSHIP:
+   * a doctrine costs zero exactly when the unconstrained plan already
+   * satisfies it." early_qb and late_qb were converted to that form on 08-17
+   * and are green today for that reason; these two arms were left behind in
+   * the old style, and are the only two that went red. Converting them is
+   * finishing the 08-17 job, not weakening it.
+   *
+   * The one thing the retired arm gestured at — the lookahead must not rush
+   * the quarterback the way the one-step panel did — is a real claim with a
+   * real subject, and it is the check immediately below, which is unchanged
+   * and still passing. */
+  ck('it does NOT take the quarterback at Cory\'s first pick, which is what '
     + 'the one-step panel was effectively recommending', qbPick !== SS.SCHED[0],
   { qb: qbPick, first: SS.SCHED[0] });
 
-  /* ELITE-TE COSTS NOTHING, and that is a real result rather than a bug: the
-   * value plan already takes a tight end at live pick 1, so the doctrine asks
-   * for something it was going to do anyway. */
-  ck('Elite-TE Anchor costs zero — the value plan already satisfies it, so it '
-    + 'is a NAME for what the model does, not a strategy that changes a pick',
-  c('elite_te') === 0, c('elite_te'));
+  /* ELITE-TE, IN THE ZERO-IFF-SATISFIED FORM. It used to assert `=== 0`, on the
+   * 08-17 board where the value plan took a tight end at live pick 1. It no
+   * longer does — TE now comes at 68, past elite_te's live-pick-2 deadline —
+   * so the doctrine BINDS and costs real points. Both states are legitimate
+   * board outcomes; what must always hold is that the pricer agrees with the
+   * plan about which one we are in. Asserted in both directions, so a pricer
+   * that returned zero for a binding constraint, or a cost for a satisfied
+   * one, still fails. */
+  const teDeadlinePick = SS.SCHED[DL.shapeOf('elite_te').deadlines[0].byPickIdx];
+  const teSatisfied = tePick <= teDeadlinePick;
+  ck(teSatisfied
+    ? 'Elite-TE Anchor costs zero — the value plan already takes the tight end '
+      + 'by its deadline, so it is a NAME for what the model does, not a '
+      + 'strategy that changes a pick'
+    : 'Elite-TE Anchor BINDS and costs real points — the value plan takes the '
+      + 'tight end at ' + tePick + ', past its live-pick-2 deadline of '
+      + teDeadlinePick + ', so the doctrine really does change a pick',
+  teSatisfied ? c('elite_te') === 0 : c('elite_te') > 0,
+  { elite_te_cost: c('elite_te'), te_pick: tePick,
+    deadline_pick: teDeadlinePick, satisfied: teSatisfied });
+
+  /* KNOWN POSITIVE for the form above (rule 3e): the branch that did NOT run on
+   * this board must still be reachable, or the arm is a one-sided assertion
+   * dressed as a relationship. early_qb is in the OPPOSITE state right now —
+   * satisfied, priced at zero — so between the two arms both sides of
+   * zero-iff-satisfied are exercised on this same board, not just the one the
+   * board happens to be in. */
+  {
+    const qbDeadlinePick = SS.SCHED[DL.shapeOf('early_qb').deadlines[0].byPickIdx];
+    ck('KNOWN POSITIVE: the two deadline doctrines are in OPPOSITE states on '
+      + 'this board — one satisfied and free, one binding and priced — so both '
+      + 'directions of zero-iff-satisfied are measured here rather than one '
+      + 'being taken on trust',
+    (qbPick <= qbDeadlinePick) !== teSatisfied,
+    { early_qb: { pick: qbPick, deadline: qbDeadlinePick, cost: c('early_qb') },
+      elite_te: { pick: tePick, deadline: teDeadlinePick, cost: c('elite_te') } });
+  }
 }
 
 // ── 7. IT REFUSES TO CLAIM A WINNER ─────────────────────────────────────

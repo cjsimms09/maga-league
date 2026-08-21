@@ -29,9 +29,31 @@ const block = cfg.ruled_roster_target;
 // 1 · the block exists and carries the ruling exactly
 check('config block exists', !!block && !!block.targets);
 const want = { QB: 1.56, RB: 4.78, WR: 5, TE: 1.67, K: 1, DEF: 1 };
-check('values are the measured n=9 target, exactly',
-  block && JSON.stringify(block.targets) === JSON.stringify(want),
-  block && JSON.stringify(block.targets));
+/* ⚠️ COMPARED BY VALUE, NOT BY SERIALIZATION — 2026-08-21. This read
+ * `JSON.stringify(block.targets) === JSON.stringify(want)`, which is
+ * order-sensitive, and it went red with the VALUES PERFECTLY CORRECT: the
+ * nightly board rebuild (b17f3fc3) rewrote league_config.json with the keys
+ * alphabetised (DEF,K,QB,RB,TE,WR) where `want` is positional
+ * (QB,RB,WR,TE,K,DEF). Nothing about the ruling changed.
+ *
+ * That is not a one-off — the rebuild re-serializes that config every night,
+ * so this would have re-broken after tonight's post-keeper-lock rebuild too,
+ * and a check that reddens on cadence rather than on defect is one people
+ * learn to ignore.
+ *
+ * The property is "the six values ARE the ruled target, and there are no
+ * others" — which is what is asserted now, key order left to whatever writes
+ * the file. */
+const sameTargets = (a, b) => {
+  if (!a || !b) return false;
+  const ka = Object.keys(a).sort(), kb = Object.keys(b).sort();
+  if (ka.join(',') !== kb.join(',')) return false;
+  return ka.every(k => Number(a[k]) === Number(b[k]));
+};
+check('values are the measured n=9 target, exactly (order-independent — the '
+  + 'nightly rebuild re-serializes this config)',
+block && sameTargets(block.targets, want),
+block && JSON.stringify(block.targets));
 check('provenance names the ruling', !!block && /top 3 finishers/i.test(block._ruling || ''));
 check('the P120 4.44 confusable is named as a known-negative',
   !!block && /4\.44/.test(block._not_to_be_confused_with || '') && /P120/.test(block._not_to_be_confused_with || ''));

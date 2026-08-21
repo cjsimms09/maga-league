@@ -46,6 +46,13 @@ import json
 import sys
 from pathlib import Path
 
+# Imported both as a package module and as a bare sibling (the test does
+# `import practice_participation`), so both spellings have to work.
+try:                                     # pragma: no cover
+    from . import id_crosswalk as _CROSSWALK
+except ImportError:                      # pragma: no cover
+    import id_crosswalk as _CROSSWALK
+
 HERE = Path(__file__).resolve().parent
 DRAFT = HERE.parent
 ROOT = DRAFT.parent
@@ -161,14 +168,27 @@ def _fetch_practice_rows(season: int) -> list:  # pragma: no cover  (egress)
 
 
 def _fetch_crosswalk() -> dict:  # pragma: no cover  (egress)
-    import nfl_data_py as nfl
-    df = nfl.import_ids()
-    out = {}
-    for row in df.to_dict("records"):
-        g, s = row.get("gsis_id"), row.get("sleeper_id")
-        if g and s and s == s:  # s == s excludes NaN
-            out[g] = str(int(s)) if float(s).is_integer() else str(s)
-    return out
+    """gsis_id -> sleeper_id, from nflverse's player crosswalk.
+
+    ⚠️ VERSION-TOLERANT, AND THE REASON FIRST GIVEN FOR IT WAS WRONG. This
+    called `nfl.import_ids()` flat and CI went red with `module 'nfl_data_py'
+    has no attribute 'import_ids'` while the same call worked locally. That was
+    read as an upstream rename under an unpinned requirement. **It was a test
+    leaking a one-attribute fake into `sys.modules` with no cleanup, so every
+    later test in the session saw a module with neither name** (A, `e12b3c2e`,
+    register 219; leak fixed there). Confirmed rather than accepted: pre-fix,
+    this file passes ALONE and fails when run after the leaking one.
+
+    The first fallback written for it — `import_players` — was measured
+    afterwards and **carries `gsis_id` and no `sleeper_id`**, so it would not
+    have cured a real rename either (E, register 232). The chain stays anyway:
+    the dependency really is unpinned and this really was a single flat call.
+
+    The chain now ends somewhere no rename can reach — see
+    `id_crosswalk.DYNASTYPROCESS_IDS_URL`, which is the file `import_ids`
+    itself reads. All three sources return the SAME 6,183 pairs, checked.
+    """
+    return _CROSSWALK.crosswalk()
 
 
 def run(seasons=SEASONS) -> dict:  # pragma: no cover  (egress)

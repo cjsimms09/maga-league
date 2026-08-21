@@ -11,19 +11,17 @@
   const $ = sel => document.querySelector(sel);
   const $$ = sel => Array.from(document.querySelectorAll(sel));
   const WEIGHT_KEY = 'mfga.draft.weights';
-  // ROUTES-B-TOGGLE.md (A→B, 2026-08-19): "toggle between them" — which
-  // projection arm position_boards' numbers display. 'ds' matches how that
-  // panel's own lists are selected and ranked (Draft Sharks); 'blend' shows
-  // the same already-selected players' public/draft_data.json proj_mean
-  // numbers instead. Neither choice re-ranks anything — display only.
-  const PROJ_SOURCE_KEY = 'mfga.draft.projsource';
   // Cory, live 2026-08-20: "This toggle should just rearrange the board
-  // though and also may change vona calc or recommended player." A SEPARATE
-  // concept from PROJ_SOURCE_KEY above — this one genuinely re-ranks (VONA,
-  // composite score, the recommended player itself) by swapping in
-  // source_board.js's precomputed per-source vorp/tier before context()
-  // hands the board to the engine. null/'blend' is the trusted default and
-  // is byte-identical to every render before this feature existed.
+  // though and also may change vona calc or recommended player." Genuinely
+  // re-ranks (VONA, composite score, the recommended player itself) by
+  // swapping in source_board.js's precomputed per-source vorp/tier before
+  // context() hands the board to the engine. null/'blend' is the trusted
+  // default and is byte-identical to every render before this feature
+  // existed. THE ONE TOGGLE — Cory, 2026-08-21, ruled there should be only
+  // one: position_boards' own separate ds/blend display toggle (formerly
+  // PROJ_SOURCE_KEY, 'mfga.draft.projsource') is retired; position-boards
+  // now derives its display number straight from this same key's value
+  // (renderPositionBoardsPanel in app.js), no second control anywhere.
   const RANK_SOURCE_KEY = 'mfga.draft.ranksource';
 
   // ── MOCK SURVIVAL CALIBRATION ───────────────────────────────────────────────
@@ -877,25 +875,6 @@
    * now asserts the pinned baseline's weights EQUAL the shipped
    * MEASURED_WEIGHTS, so a future freeze that forgets the pin fails the build
    * instead of waiting for someone to notice. */
-  /* ⚠️ DELIBERATELY LEFT AT v31 WHILE THE REGRESSION BASELINE MOVED TO v32,
-   * 2026-08-21, and the reason is draft eve rather than principle.
-   *
-   * v32 was frozen tonight for the VONA constant split (9bb2a23e). Its WEIGHTS
-   * are byte-identical to v31's — {value 1, tier 0, need 1, risk 0, ceiling 0,
-   * keeper 1, bye 0, stack 1} — verified, not assumed, because this pin drives
-   * the "⏮ Restore the measured core" button and nothing else. What v32 changed
-   * is VONA arithmetic, which this button does not restore.
-   *
-   * So moving the pin buys ZERO correctness and costs a localStorage key
-   * rotation on the night before the draft, which is a live change to Cory's
-   * surface for no gain. Register 5g is the standing reason this pin matters at
-   * all: it once sat at v1 and one tap would have silently reverted two of his
-   * rulings. That hazard does not apply here — v31 and v32 restore the same
-   * numbers.
-   *
-   * MOVE IT after the draft, when a cache rotation costs nothing. If the two
-   * ever stop having identical weights, this comment is wrong and the pin must
-   * follow the freeze immediately. */
   const BASELINE_VERSION = 'v31';
   const BASELINE_KEY = 'mfga.draft.baseline.' + BASELINE_VERSION;
   function loadFrozenBaseline() {
@@ -1052,25 +1031,6 @@
    * for this exact block) AND `pick.next_pick === ctx.nextPick` (the engine's
    * own next-turn target agrees with the block's). Every other case falls back
    * to the view's own built-in estimate marker — exactly as designed. */
-  // Default 'ds': position_boards' own lists SELECT and RANK on Draft Sharks
-  // (draft/tools/position_boards.js), so showing its numbers by default keeps
-  // the visible figure consistent with the order the list is actually in.
-  // 'blend' shows the same players' public/draft_data.json proj_mean instead
-  // — a genuine second lens, never a reselection (every player here carries
-  // both, ROUTES-B-TOGGLE.md's C4 control).
-  function loadProjSource() {
-    try {
-      const saved = localStorage.getItem(PROJ_SOURCE_KEY);
-      state.projSource = (saved === 'blend' || saved === 'ds') ? saved : 'ds';
-    } catch (e) { state.projSource = 'ds'; }
-  }
-  function setProjSource(src) {
-    if (src !== 'blend' && src !== 'ds') return;
-    state.projSource = src;
-    try { localStorage.setItem(PROJ_SOURCE_KEY, src); } catch (e) {}
-    try { renderPositionBoardsPanel(); } catch (e) { console.error('[position-boards]', e && e.message); }
-  }
-
   /* Cory, live 2026-08-20: "This toggle should just rearrange the board
    * though and also may change vona calc or recommended player." null/
    * 'blend' is the trusted default (context().board is handed to the engine
@@ -1167,8 +1127,24 @@
      * expected to be available at each pick, so the view had no idea who had
      * actually been taken. Filtered at render; the panel also says so when the
      * real draft has diverged from the simulation its numbers came from. */
+    /* ⚠️ ONE TOGGLE, NOT TWO — Cory, 2026-08-21: "should only be one toggle
+     * for each source and blend and it should change everything." This
+     * panel used to read its OWN state.projSource, set by its own now-
+     * removed pair of buttons. It now derives its two possible numbers
+     * (Draft Sharks' own, or the board's blend) straight from the real
+     * toggle — no separate control, no separate state. */
+    const pbProjSource = state.rankSource === 'ds' ? 'ds' : 'blend';
+    /* ⚠️ TWO DIFFERENT THINGS, PASSED SEPARATELY ON PURPOSE (Cory, 2026-08-21).
+     * `pbProjSource` is the ds/blend choice for the PER-PLAYER number in each
+     * row — collapsed, because only those two numbers are attached per player.
+     * `state.rankSource` is the REAL source key, and the column-header VONA
+     * now needs it: position_boards.json carries VONA_by_source for all eight,
+     * and his ruling is that VONA follows the source or prints nothing.
+     * Collapsing them into one argument is what made the header VONA look
+     * frozen — do not merge these two parameters back together. */
     host.innerHTML = PositionBoardsView.renderPositionBoards(d, cur, liveSurvivalById, escapeHtml,
-      state.projSource || 'ds', state.playerCalls || {}, badgeInfo(), state.drafted);
+      pbProjSource, state.playerCalls || {}, badgeInfo(), state.drafted,
+      state.rankSource || 'ds');
     wirePositionBoardsScroll(host);
   }
 
@@ -1227,71 +1203,6 @@
      * self-corrects once the page settles instead of staying wrong. */
     if (typeof ResizeObserver !== 'undefined') {
       new ResizeObserver(update).observe(grid);
-    }
-  }
-
-  /* "ROSTER BUILDER MODEL SAYS" — ROSTER-BUILDER-PANEL-DESIGN.md (A,
-   * 2026-08-19). A SECOND VOICE beside the position boards above: Cory's own
-   * board is unchanged by this panel's existence — it only reports what a
-   * different, cross-position-aware model would take and why.
-   *
-   * §6 of the spec, twice, is why this stays this small: "do not feed it raw
-   * projections" (the module scores surplus-over-the-wire itself — state.board
-   * players already carry proj_mean, and mlv.js does the rest) and "do not let
-   * it write to the board, the roster, or any pick. Report only." This
-   * function computes and renders; nothing here can move a pick. */
-  function renderRosterBuilderPanel() {
-    const host = $('#roster-builder-mlv');
-    if (!host || typeof RosterBuilderMLV === 'undefined' || typeof RBMView === 'undefined') return;
-    const board = sourceAdjustedBoard() || [];
-    if (!board.length) { host.innerHTML = ''; return; }
-    let recs;
-    try {
-      recs = RosterBuilderMLV.recommend(board, sourceAdjustedRoster() || [],
-        /* `taken` added 2026-08-20 — Cory, from a rehearsal: "Roster builder
-         * model is recommending players that are already gone." state.board is
-         * pruned on every pick, so this is belt-and-braces; the point is that
-         * the panel can no longer name a gone player even if the board it is
-         * handed is stale. mlv.js counts anything it filters. */
-        { league: state.data.league, topN: 3, taken: state.drafted });
-    } catch (e) {
-      console.error('[roster-builder]', e && e.message);
-      host.innerHTML = ''; return;
-    }
-    /* Does this panel's #1 agree with the board's own #1? Compared by
-     * player_id, never by name — the reason the panel earns its screen
-     * space, so it is stated rather than left to the eye. */
-    let boardCompare = null;
-    try {
-      const sc = E.recommend(context());
-      const topOfBoard = sc && sc.length ? sc[0].player : null;
-      if (topOfBoard && recs.length && recs[0].player) {
-        boardCompare = { topName: topOfBoard.name,
-          agrees: String(topOfBoard.player_id) === String(recs[0].player.player_id) };
-      }
-    } catch (e) { boardCompare = null; }
-    host.innerHTML = RBMView.render(recs, RosterBuilderMLV.EVIDENCE || null, boardCompare,
-      explainPanel('roster_builder'), escapeHtml);
-
-    /* ⚠️ IF THE GUARD EVER FIRES, SAY SO RATHER THAN QUIETLY CLEANING UP.
-     * mlv.js now refuses to recommend a player who is already taken, and counts
-     * what it dropped. Zero is the healthy state and draws nothing. A non-zero
-     * count means this panel was handed a board that still contained drafted
-     * players — the SYMPTOM is fixed above, but the CAUSE would be upstream in
-     * whatever failed to prune, and hiding it is how that cause survives. */
-    if (recs && recs._taken_filtered) {
-      const note = document.createElement('p');
-      note.className = 'muted';
-      note.style.cssText = 'margin:.4rem 0 0;font-size:.72rem;color:#b45309';
-      note.textContent = '⚠️ ' + recs._taken_filtered + ' already-drafted player'
-        + (recs._taken_filtered === 1 ? '' : 's')
-        + ' were removed from this list ('
-        + (recs._taken_names || []).join(', ')
-        + '). They cannot be recommended, but the board handed to this panel '
-        + 'should not have contained them — please report this.';
-      host.appendChild(note);
-      console.error('[roster-builder] board contained drafted players:',
-        recs._taken_filtered, recs._taken_names);
     }
   }
 
@@ -1461,40 +1372,6 @@
         + 'and names anyone that source cannot see.',
       src: 'draft_data.json per-player proj_* fields; display only, never scored',
     },
-    mlv_plan: {
-      what: 'The whole draft, not just this pick: what the roster-builder model '
-        + 'would take at each of your twelve picks if the board drained in ADP '
-        + 'order and nobody reacted to you. K and DEF capped at one each, your rule.',
-      read: 'Read it as two halves and treat the orange line as the edge of what the '
-        + 'model knows. Above it, marginal lineup value — a real opinion. Below it, '
-        + 'once your nine starting slots are full, every player is worth exactly zero '
-        + 'to MLV, so those rows use your bench rule instead: the position you are '
-        + 'still short of the winning shape, taking whoever beats the waiver wire by '
-        + 'the most. If a name below the line looks wrong, trust yourself over it.',
-      do: 'Use the top half to see the SHAPE you are heading for and whether it '
-        + 'matches the top-3 finishers. Use the bottom half for nothing except '
-        + 'knowing the model has stopped talking — from round 7 on, this is your '
-        + 'call and the big board\'s, not the model\'s.',
-      src: 'mlv_plan.json from draft/tools/mlv_seat_plan.js; a PLAN, not a prediction',
-    },
-    roster_builder: {
-      what: 'A SECOND OPINION, deliberately not the ranking above. It scores each '
-        + 'man by what he adds to your STARTING LINEUP — lineup value with him minus '
-        + 'lineup value without him — valued as surplus over the waiver wire, which '
-        + 'makes these numbers comparable ACROSS positions. VONA is not.',
-      read: 'Read it against the ranking above, never instead of it. When the two '
-        + 'agree the pick is easy. When they disagree it is nearly always the same '
-        + 'reason: the board\'s top name is a body you already have and he would sit '
-        + 'on your bench. Treat "bench only — he does not crack your lineup" as the '
-        + 'most useful line on the panel and not a throwaway, because that is the '
-        + 'disagreement you can act on.',
-      do: 'Use it for the FLEX question and for any cross-position call, because '
-        + 'that is the one thing VONA cannot answer. Expect it to want a defence and '
-        + 'a kicker once your nine starting slots are full — that is the model being '
-        + 'consistent, not broken, and you can overrule it. It cannot value a bench '
-        + 'at all, so ignore it for your last few picks.',
-      src: 'mlv.js recommend(); measured on 30 seat-years, register 132/134',
-    },
     position_recs: {
       what: 'The best available at each position, so a run at one is visible '
         + 'without scanning the whole board.',
@@ -1505,7 +1382,8 @@
         + '⚠️ Never compare one position\'s VONA or score against another\'s to settle '
         + 'a FLEX — they are not on the same scale (a backup QB\'s cliff is the biggest '
         + 'on the board and sits on 17 points of surplus; an RB\'s 11-point cliff sits '
-        + 'on 233). The roster builder panel is the one that can answer RB-or-WR.',
+        + 'on 233). Compare against THE PICK\'s own alternatives list, not across '
+        + 'positions here.',
       src: 'engine.js recommend() scored list, per-position slice',
     },
     survival: {
@@ -2015,12 +1893,10 @@
   function init() {
     loadWeights();
     loadFrozenBaseline();
-    loadProjSource();
     loadRankSource();
     loadSeatPlan();
     loadSourceBoards();
     loadPositionBoards();
-    loadMlvPlan();
     loadConditionalValue();
     loadOpponentNeed();
     loadExpertSpread();
@@ -3068,10 +2944,6 @@
     // just populated. Reordering this ahead of it would silently fall back
     // to the JSON estimate on every render, never the live number.
     safeRender('positionBoards', renderPositionBoardsPanel);
-    // A second voice beside the position boards above — same staleness
-    // reasoning: every pick changes both the available board and Cory's own
-    // roster, so it is recomputed on every render alongside them.
-    safeRender('rosterBuilderMlv', renderRosterBuilderPanel);
     // League-wide, not per-pick-recommendation, but still stale the instant
     // a pick lands and isn't reflected — same render cadence as everything
     // else on the screen.
@@ -3079,7 +2951,6 @@
     // Every pick changes who is left, so the position panel is stale the
     // instant it is not redrawn with everything else.
     safeRender('positionRecs', renderPositionRecs);
-    safeRender('mlvPlan', renderMlvPlan);
     /* ⛔ MY projection-source panel is UNWIRED as of the 2026-08-20 merge, and
      * B's renderRankSourcePanel (source_board.js) is the one that ships.
      *
@@ -5120,156 +4991,6 @@
     host.style.display = '';
   }
 
-  /* ── "ROSTER BUILDER MODEL SAYS" ────────────────────────────────────────
-   * The real render function is renderRosterBuilderPanel(), above, mounted
-   * at #roster-builder-mlv — it already existed (B, commit 06d11b6b, the
-   * night before this comment) when A independently built a second,
-   * self-mounting implementation here under a different id (#roster-builder)
-   * that this exact stopgap comment said should defer to it. It didn't,
-   * because the id didn't match, and Cory would have seen the panel twice.
-   * Found and resolved in the 2026-08-20 rebase: A's genuinely good addition
-   * — stating whether this panel's #1 agrees with the board's own #1, which
-   * is the reason the panel earns its screen space — was ported into
-   * rbm_view.js's render() as the `board` param rather than lost along with
-   * the duplicate. A's `roster_builder` entry in panel_spec.js now points at
-   * renderRosterBuilderPanel instead of this deleted function. */
-
-  /* ── WHAT TEAM WOULD MLV ACTUALLY DRAFT ME? ───────────────────────────────
-   *
-   * Cory, 2026-08-20: "Let's have something on war room screen that tells me
-   * what MLV displacement with 1k and def would pick."
-   *
-   * The roster-builder panel above answers "who NOW". This answers "what do I
-   * END UP WITH", which is a different question and the one a plan answers.
-   *
-   * ⚠️ THE SPLIT IS THE PRODUCT, NOT A CAVEAT ON IT. MLV has a real opinion
-   * about six of his twelve picks and none about the other six — once nine
-   * starting slots are full every remaining player scores exactly zero, so the
-   * "ranking" below that line is the BOARD's order wearing MLV's name. The
-   * panel draws that line hard and labels everything under it. Register 146.
-   */
-  /* ⚠️ 2026-08-20/21 (A's catch, ROUTES.md): anchor was `#roster-builder`,
-   * which has never existed in this codebase — a truncated version of
-   * `#roster-builder-mlv`, the REAL host, one word longer. Unlike
-   * sourceBoardsHost()'s old fallback (which happened to land on a real id
-   * and merely nested wrong), this had no fallback at all: every render
-   * skipped straight to `room.appendChild`, landing #mlv-plan outside
-   * `.wr-zone1` entirely with zero CSS order — its position was whatever
-   * the DOM happened to do, not a decision. `#roster-builder-mlv` is a real
-   * host inside the zone with its own order rule (style.css), and it's the
-   * Roster Builder MLV panel's own recommendation — #mlv-plan is that same
-   * model's FULL plan, so anchoring the plan right after the panel it plans
-   * from is also the right neighbor, not just a real one. */
-  function mlvPlanHost() {
-    const found = $('#mlv-plan');
-    if (found) return found;                       // B's placement wins, always
-    const room = document.getElementById('warroom');
-    if (!room) return null;
-    const el = document.createElement('div');
-    el.id = 'mlv-plan';
-    el.className = 'card mlv-plan';
-    el.setAttribute('data-mounted-by', 'app.js — no #mlv-plan in the view');
-    const anchor = document.getElementById('roster-builder-mlv');
-    if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(el, anchor.nextSibling);
-    else room.appendChild(el);
-    return el;
-  }
-
-  function loadMlvPlan() {
-    fetch('/mlv_plan.json', { cache: 'no-cache' })
-      .then(r => (r.ok ? r.json() : null))
-      .then(d => {
-        if (!d || !Array.isArray(d.picks)) return;
-        state.mlvPlan = d;
-        try { renderMlvPlan(); } catch (e) { console.error('[mlv-plan]', e && e.message); }
-      })
-      .catch(e => console.warn('[mlv-plan] unavailable:', e && e.message));
-  }
-
-  function renderMlvPlan() {
-    const host = mlvPlanHost();
-    if (!host) return;
-    const d = state.mlvPlan;
-    if (!d) return;
-
-    const row = (p) => {
-      if (p.none) {
-        return '<tr><td>' + p.pick + '</td><td colspan="4" class="muted">nobody left</td></tr>';
-      }
-      /* ⚠️ A PLAN ROW WHOSE PLAYER IS ALREADY GONE. This panel is honestly
-       * labelled "a plan, not a prediction" and it walks all twelve FUTURE
-       * picks, so removing a row would break the pick sequence it exists to
-       * show. But leaving a drafted man in it unmarked is how Cory ends up
-       * reading a gone player as a suggestion. Marked, not removed. */
-      const planGone = !!(p.player && p.player.player_id != null && state.drafted
-        && state.drafted.has(String(p.player.player_id)));
-      const dim = planGone ? ' style="opacity:.45"'
-        : (p.mlv_has_an_opinion ? '' : ' style="opacity:.62"');
-      const val = p.mlv_has_an_opinion
-        ? '<b>+' + p.marginal + '</b>'
-        : '<b>+' + p.wire_surplus + '</b> <span class="muted">wire</span>';
-      return '<tr' + dim + '>'
-        + '<td>' + p.pick + '</td>'
-        + '<td>' + escapeHtml(p.player.position) + '</td>'
-        + '<td><b' + (planGone ? ' style="text-decoration:line-through"' : '') + '>'
-          + escapeHtml(p.player.name) + '</b>'
-          + (planGone ? ' <span class="muted" style="color:#b45309;font-size:.7rem">'
-              + 'already drafted</span>' : '') + '</td>'
-        + '<td class="muted">' + p.player.adp + '</td>'
-        + '<td>' + val + '</td></tr>';
-    };
-
-    const opinion = d.picks.filter(p => !p.none && p.mlv_has_an_opinion);
-    const blind = d.picks.filter(p => !p.none && !p.mlv_has_an_opinion);
-    const tied = blind.length ? blind[0].tied_at_zero : 0;
-
-    /* THE DIVIDER IS THE HONEST PART OF THIS PANEL. */
-    const divider = blind.length
-      ? '<tr><td colspan="5" style="padding:.45rem .2rem;border-top:2px solid #b45309;'
-        + 'color:#b45309;font-size:.76rem;line-height:1.35">'
-        + '<b>⛔ MLV STOPS HERE.</b> Your nine starting slots are full, so all '
-        + tied + ' remaining players are worth <b>exactly 0</b> to it — it cannot tell '
-        + 'them apart. Below this line is <b>your bench rule</b>: the position you are '
-        + 'still short of the top-3-finisher shape, taking the man worth most over what '
-        + 'the waiver wire gives you free. A 13th tight end scores 0 there; a 5th back '
-        + 'does not.'
-        + '</td></tr>'
-      : '';
-
-    const shape = Object.entries(d.final_shape || {})
-      .map(([q, n]) => q + ' ' + n).join(' · ');
-    const vs = Object.entries(d.vs_top3_finishers || {})
-      .filter(([, v]) => Math.abs(v.delta) >= 1)
-      .map(([q, v]) => q + ' ' + (v.delta > 0 ? '+' : '') + v.delta)
-      .join(', ');
-
-    const tilt = blind.length
-      ? '<p class="muted" style="margin:.45rem 0 0;font-size:.72rem">'
-        + '<b>What the wire gives you free:</b> QB 322.9 · RB 78.4 · WR 124.8 · '
-        + 'TE 130.4 · K 128.6 · DEF 100. A drafted man is only worth what he adds '
-        + 'ABOVE that. This league drafts ~14 TEs and ~47 RBs, which is why a late '
-        + 'tight end is worth nothing and a late back is not.</p>'
-      : '';
-
-    host.innerHTML = '<div class="body">'
-      + '<h3 style="margin:0 0 .3rem">🗺️ What the roster builder would draft you '
-      + explainPanel('mlv_plan') + '</h3>'
-      + '<p class="muted" style="margin:0 0 .4rem;font-size:.75rem">'
-      + 'All twelve picks, K and DEF capped at one each (your rule). '
-      + '<b>A plan, not a prediction</b> — it assumes the board drains in ADP order '
-      + 'and nobody reacts to you.</p>'
-      + '<table class="mini" style="width:100%;font-size:.8rem"><thead><tr>'
-      + '<th>pick</th><th>pos</th><th>player</th><th>ADP</th><th>+lineup</th>'
-      + '</tr></thead><tbody>'
-      + opinion.map(row).join('') + divider + blind.map(row).join('')
-      + '</tbody></table>'
-      + '<p class="muted" style="margin:.5rem 0 0;font-size:.74rem">'
-      + 'Ends up: <b>' + escapeHtml(shape) + '</b>'
-      + (vs ? ' · vs the top-3 finishers you ruled we should match: <b>' + escapeHtml(vs) + '</b>' : '')
-      + '</p>' + tilt
-      + '</div>';
-  }
-
   /* ── PROJECTION SOURCE: BLEND, OR ONE SOURCE ON ITS OWN ───────────────────
    *
    * Cory, 2026-08-20: "No draft shark info, no toggle between sources or blend."
@@ -7257,7 +6978,16 @@
      * sentence covers both surfaces below (the by-position columns and the
      * full table), since both read this same srcBoard. */
     (function () {
-      const note = document.getElementById('board-ordering-note');
+      /* ⚠️ `$`, NOT `document` — 2026-08-21. This block used
+       * `document.getElementById` while every other lookup in this file goes
+       * through `$` (line 11, `document.querySelector`). That inconsistency is
+       * not cosmetic: `ui_fidelity_numbers.test.js` eval-lifts renderBoard with
+       * an injected `$` stub and NO `document`, so the raw call threw
+       * `ReferenceError: document is not defined` and took the whole suite down
+       * — one of six independent reasons CI on main had zero green runs.
+       * The stub returns null for ids it does not model, which the guard below
+       * already handles. */
+      const note = $('#board-ordering-note');
       if (!note) return;
       if (state.bigBoardOrdering === 'blend') {
         note.textContent = 'Ordered by the Blend — our own VONA-adjacent ranking, the board\'s default.';
@@ -9281,14 +9011,39 @@
    * completely unmodified via context()). LOUD when off blend, on purpose:
    * every recommendation on the page is now answering a DIFFERENT question
    * than usual, and that has to be impossible to miss mid-draft. */
+  /* MOUNTED TWICE — Cory, 2026-08-21, on the Big Board tab specifically:
+   * "Didn't have way to see all source actual overall rankings and could
+   * only switch between draft shark and blended, other sites aren't on
+   * there." True: this toggle only ever lived on the Draft tab
+   * (#rank-source-card), so switching source meant leaving the Big Board
+   * tab, picking a source, then tabbing back to see the effect. The Big
+   * Board tab's own DS/Blend-only control he found is position-boards'
+   * separate, intentionally-limited display toggle (a different panel
+   * entirely, on the Draft tab too) — not a substitute for this one.
+   *
+   * THE SAME PANEL, NOT A SECOND IMPLEMENTATION. `document.body`'s single
+   * delegated click listener already matches on `[data-rank-source]`
+   * anywhere in the DOM (app.js, the click-router), so a second copy of
+   * this exact markup on the Big Board tab works with zero new wiring —
+   * one HTML string, one set of buttons, rendered into both mount points
+   * so they can never drift out of sync with each other or with
+   * state.rankSource. */
+  var RANK_SOURCE_MOUNTS = [
+    { card: 'rank-source-card', host: 'rank-source' },
+    { card: 'rank-source-card-board', host: 'rank-source-board' },
+  ];
   function renderRankSourcePanel() {
-    const card = document.getElementById('rank-source-card');
-    const host = document.getElementById('rank-source');
-    if (!card || !host) return;
+    const mounts = RANK_SOURCE_MOUNTS
+      .map(function (m) {
+        return { card: document.getElementById(m.card), host: document.getElementById(m.host) };
+      })
+      .filter(function (m) { return m.card && m.host; });
+    if (!mounts.length) return;
     if (typeof SourceBoard === 'undefined' || !state.board || !state.board.length) {
-      card.style.display = 'none'; return;
+      mounts.forEach(function (m) { m.card.style.display = 'none'; });
+      return;
     }
-    card.style.display = '';
+    mounts.forEach(function (m) { m.card.style.display = ''; });
     const esc = escapeHtml;
     const active = state.rankSource || 'blend';
     const BUTTONS = [{ key: 'blend', label: 'Blend' }].concat(SourceBoard.SOURCES);
@@ -9319,14 +9074,50 @@
     var activeSrc = BUTTONS.find(function (s) { return s.key === active; });
     var activeCov = active !== 'blend' ? SourceBoard.coverage(state.board, active) : null;
     var missingCount = activeCov ? (state.board.length - activeCov.covered) : 0;
+    /* ⚠️ THIS BANNER OVERCLAIMED, AND MY OWN VONA FIX IS WHAT MADE IT DANGEROUS
+     * (A, 2026-08-21, on E's browser measurement — registers 216 and 226).
+     *
+     * It said "VONA, tiers and the recommended player on THIS ENTIRE PAGE now
+     * reflect only this source". Two of those three words were wrong:
+     *
+     *   - "tiers": the cliff lines read "next tier drops 10 / 16 / 3 / 21 / 12 /
+     *     6 pts" — BYTE-IDENTICAL under all five sources E drove. They say the
+     *     word tier and they do not move.
+     *   - "THIS ENTIRE PAGE": measured across Blend/Sleeper/ESPN/CBS/Draft
+     *     Sharks, VONA produced 4 distinct value-sets of 5 (it follows), while
+     *     the strike strip, the cliff lines and the +N wire chip each produced
+     *     ONE (frozen). VONA moving in those same reads is the control that
+     *     makes "frozen" a property of the field rather than of the probe.
+     *
+     * WHY NOBODY CAUGHT IT UNTIL NOW, WHICH IS THE PART I OWN: Draft Sharks and
+     * Blend agree to 0.1, so the divergence only exists on the other three — and
+     * it was CREATED by making VONA per-source. Before that fix every one of
+     * these numbers was equally frozen and they agreed with each other. I moved
+     * one and left the rest, so at 8 seconds a pick the ESPN view now shows an
+     * RB VONA chip reading 56.6 and a strike strip two inches away reading
+     * "costs 35" — both answering what waiting at RB costs at this pick, both in
+     * points. CBS: 19.4 vs 35. Sleeper: 8.1 vs 35.
+     *
+     * The banner is the only thing on screen telling Cory which numbers to
+     * trust, so it was vouching for both halves of that contradiction.
+     *
+     * LABEL FIX ONLY, DELIBERATELY. Making the cliffs and strike peaks
+     * per-source is a signature change through position_boards.js, not a
+     * draft-eve edit. What ships tonight is a banner that claims exactly what is
+     * true, and it now NAMES the frozen fields instead of leaving the reader to
+     * discover them mid-pick. */
     const warn = active !== 'blend'
       ? '<div class="rs-warn">⚠️ Ranking on <b>' + esc(activeSrc.label)
-        + '</b> — VONA, tiers and the recommended player on THIS ENTIRE PAGE now reflect only this '
+        + '</b> — the player list, VONA and the recommended player reflect only this '
         + 'source, not the blend. <b>' + missingCount + ' players ' + esc(activeSrc.label)
         + ' does not cover are OFF the board right now</b> — they are not gone, just hidden until you '
-        + 'switch back to Blend.</div>'
+        + 'switch back to Blend.'
+        + '<br><b>Still Draft Sharks, NOT ' + esc(activeSrc.label) + ':</b> the tier-cliff lines '
+        + '("next tier drops N pts"), the strike strip and the "+N wire" chip. They do not follow '
+        + 'this toggle — if one of them disagrees with the VONA chip beside it, the VONA chip is the '
+        + 'one on ' + esc(activeSrc.label) + '.</div>'
       : '';
-    host.innerHTML = '<div class="rs-buttons">' + btnHtml + '</div>' + warn
+    const panelHtml = '<div class="rs-buttons">' + btnHtml + '</div>' + warn
       /* BOTH NUMBERS, COMPUTED, NEVER QUOTED. An earlier draft of this line
        * had "Draft Sharks reads 35%" typed into it — a real measurement from
        * the 2026-08-19 board that would have silently gone stale on the next
@@ -9369,6 +9160,7 @@
                 + 'their raw points instead puts twelve quarterbacks in the top twelve, '
                 + 'because cross-position points are not comparable.</p>'
               : ''));
+    mounts.forEach(function (m) { m.host.innerHTML = panelHtml; });
   }
 
   /* THE MAIN LIST FOR WHICHEVER SOURCE IS SELECTED — Cory, 2026-08-21, direct
@@ -12367,14 +12159,11 @@
         cav.parentNode.appendChild(d);
         return;
       }
-      // Position boards' projection-source toggle (ROUTES-B-TOGGLE.md, A→B
-      // 2026-08-19: "can we actually program 2 models... I want to be able to
-      // toggle between them"). One shared preference, persisted, same pattern
-      // as the chip-grid disclosure above.
-      const pbSrc = ev.target.closest('[data-pb-source]');
-      if (pbSrc) { ev.preventDefault(); return setProjSource(pbSrc.getAttribute('data-pb-source')); }
-      // The RE-RANKING toggle — Cory: "should just rearrange the board...
-      // change vona calc or recommended player." Distinct from pbSrc above.
+      // THE ONE TOGGLE — Cory, 2026-08-21: "should only be one toggle for
+      // each source and blend and it should change everything." Position
+      // boards' own separate ds/blend display toggle (data-pb-source /
+      // setProjSource) is retired; it now reads state.rankSource directly
+      // (renderPositionBoardsPanel), so this is the only click target left.
       const rankSrc = ev.target.closest('[data-rank-source]');
       if (rankSrc) { ev.preventDefault(); return setRankSource(rankSrc.getAttribute('data-rank-source')); }
     });

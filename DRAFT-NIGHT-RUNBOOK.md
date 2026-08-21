@@ -132,10 +132,23 @@ the exposure numbers describe the real slate or the predicted one.
    the starter password — chase stragglers before draft chatter starts.
 
 ## The moment the Sleeper draft room opens
-6. Get the **draft_id** from the Sleeper draft room URL.
-7. Actions → `draft-night-sync.yml` → Run workflow → paste draft_id →
-   dispatch. (Fallback if Actions is down:
-   `python3 draft/log_draft_picks.py --sync <draft_id>` in a loop, any laptop.)
+6. **DO NOTHING — it starts itself.** As of 2026-08-21 `draft-night-sync.yml`
+   runs on a schedule (`45 22 22 8 *` = 22:45 UTC, 15 minutes before the 6:00 PM
+   CDT first pick) and resolves the Sleeper `draft_id` itself from
+   `league_config.json`. It used to require a human to find the id and paste it
+   under time pressure, which meant the one unrepeatable event of the year was
+   captured only if somebody remembered.
+7. **Check it actually started** (Actions → `draft-night-sync`, a run in
+   progress ~22:45 UTC), then go to step 8 and verify pick 1 on GitHub.
+   - **If no run appeared:** dispatch it manually — Actions → Run workflow, and
+     **leave `draft_id` BLANK** so it discovers the id (paste one only if the
+     discovery step reported that it could not name a single draft).
+   - Starting a manual run when one is already going is SAFE: a `concurrency`
+     group means the second queues rather than racing the first to push, and it
+     will not cancel the run that is already capturing picks.
+   - **Fallback if Actions is down entirely:**
+     `python3 draft/log_draft_picks.py --sync` in a loop, any laptop — the
+     draft_id argument is optional now.
 8. **Verify pick 1 — ON GITHUB, not in the workflow log**: captured, committed,
    and PUSHED are three different states; only the last one survives the
    runner. Within ~2 minutes of the first pick, refresh

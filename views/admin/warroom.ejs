@@ -213,7 +213,16 @@
           <div id="paths-coinflip" class="paths-coinflip" style="display:none"></div>
           <div id="paths-panel" class="paths-panel"></div>
           <div id="movement-line" class="movement-line" style="display:none"></div>
-          <details id="recs-details" class="recs-details" open>
+          <%# ⚠️ WAS HARDCODED `open` — CONTRADICTING THIS CARD'S OWN DESIGN
+              INTENT. initDisclosures() (app.js, 2026-08-17) says outright: "The
+              ranked list... ship COLLAPSED — the fold belongs to the one
+              answer... Default stays the shell's (collapsed); only a recorded
+              choice differs." The markup disagreed with its own JS. Measured
+              live: this element alone was 1659 of #recs-card's 2995px (E's
+              draft-value audit, finding 1 — "THE PICK" burying six panels
+              below it). Collapsed by default now; a tap still opens it and
+              that choice still persists via DISCLOSE_KEY, unchanged. %>
+          <details id="recs-details" class="recs-details">
             <summary>Ranked shortlist — top 10</summary>
             <div id="recs"></div>
           </details>
@@ -272,17 +281,6 @@
           in app.js, from public/position_boards.json. Empty/absent on a
           missing artifact — degrades to nothing, never a broken panel. %>
       <div id="position-boards" class="position-boards"></div>
-
-      <%# ROSTER BUILDER MODEL SAYS — ROSTER-BUILDER-PANEL-DESIGN.md (A,
-          2026-08-19), Cory's direct ruling: "it needs to be clear what
-          player model is recommending and why and I still want to retain
-          my current view." A SECOND VOICE beside the position boards above
-          — it never reorders or replaces them. Populated by
-          public/js/draft/rbm_view.js via renderRosterBuilderPanel() in
-          app.js, from RosterBuilderMLV.recommend() (public/js/draft/mlv.js).
-          Empty/absent on missing board or roster state — degrades to
-          nothing, never a broken panel. %>
-      <div id="roster-builder-mlv"></div>
 
       <%# Minimum-viable summary — retained host (hidden on warroom by CSS). %>
       <div id="mvs" class="mvs" style="display:none">
@@ -422,6 +420,19 @@
         "unshown field" defect class this project keeps finding. One honest
         sentence covers both the by-position columns below and the full table
         further down — they share the same ordering, computed once. %>
+    <%# Cory, 2026-08-21, on THIS tab specifically: "Didn't have way to see
+        all source actual overall rankings and could only switch between
+        draft shark and blended, other sites aren't on there." Right — the
+        Ranking Source toggle (all five sources) only ever lived on the
+        Draft tab; switching source meant leaving this tab entirely. Same
+        card, same #rank-source markup, mounted a second time here —
+        renderRankSourcePanel() in app.js fills both from one HTML string,
+        so they can never disagree with each other or with the toggle's
+        own state. %>
+    <div class="card" id="rank-source-card-board" style="display:none">
+      <h2>🔀 Ranking Source</h2>
+      <div class="body"><div id="rank-source-board"></div></div>
+    </div>
     <p class="muted wr-board-ordering" id="board-ordering-note"></p>
     <%# The columnar board — per-position side-scrolling columns, tier cliffs
         drawn as red lines, count in each header. warroom_charts.js renders. %>

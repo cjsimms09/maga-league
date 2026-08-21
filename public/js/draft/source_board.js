@@ -27,19 +27,78 @@
   /* Every alternate source this board can be re-ranked on, keyed the same
    * way alt_source_rankings.py's SOURCES dict is, so the suffix on a field
    * name ("vorp_ds") always matches a key here ("ds") without translation. */
+  /* ⚠️ EIGHT, NOT FOUR — Cory, 2026-08-21: "Where are all the other sources we
+   * got?? We got more than that?" He was right. The blend is built from SEVEN
+   * sources and `source_boards.json` has shown all of them in the best-available
+   * panel for days, but this list knew four, so the Big Board toggle could not
+   * offer CBS, ESPN, FFToday or Mike Clay. They were ingested, committed and
+   * blended into the number he drafts on, and invisible on the tab he asked to
+   * see them on.
+   *
+   * AND THE TWO THAT WERE HERE ARE THE WORST-COVERED. Inside his top 200:
+   * ESPN 99%, CBS 97%, FFToday 94%, Clay 89% — against Draft Sharks 95% and
+   * FantasyPros 90%. The missing four were not a thin tail.
+   *
+   * Order is coverage-descending within the "not ours" group, so the toggle
+   * reads best-covered first rather than in the order they happened to be
+   * ingested. `ownmodel` stays last: Cory ruled our own projections out of the
+   * peer comparison (2026-08-19, "lets exclude our own projections") and
+   * source_boards.json already honours that by omitting it entirely — it is
+   * kept here only because this toggle re-ranks rather than compares. */
   var SOURCES = [
-    { key: 'ds', label: 'Draft Sharks' },
     { key: 'sleeper', label: 'Sleeper' },
-    { key: 'ownmodel', label: 'Our model' },
+    { key: 'espn', label: 'ESPN' },
+    { key: 'cbs', label: 'CBS' },
+    { key: 'ds', label: 'Draft Sharks' },
+    { key: 'fftoday', label: 'FFToday' },
     { key: 'fantasypros', label: 'FantasyPros' },
+    /* ⚠️ NOT AN INDEPENDENT EIGHTH OPINION, AND THE LABEL SAYS SO. Mike Clay
+     * IS ESPN's projections man, and both stores score RAW STAT LINES under
+     * this league's table, so `proj_clay` and `proj_espn` come out identical on
+     * 306 of the 331 players they share — 92.4%, where every other pair on the
+     * board is under 5%. Toggling between them and seeing the same board is
+     * correct behaviour, not a bug; reading it as two sources agreeing is the
+     * mistake, which is why the parenthesis is in the label rather than in a
+     * note some surface might not render. Register 197. */
+    { key: 'clay', label: 'Mike Clay (= ESPN)' },
+    { key: 'ownmodel', label: 'Our model' },
   ];
 
   /* Fields engine.js actually reads for scoring/VONA/tiers. Swapped from the
    * suffixed source fields when present; left as-is (the blend value) when a
    * player was never run through alt_source_rankings.py at all — an older
    * cached artifact degrades to the blend rather than a crash or a hole. */
+  /* ⚠️ `proj_ceiling` AND `proj_floor` ADDED 2026-08-21 — Cory asked directly
+   * whether EVERYTHING that should change actually changes with the source, and
+   * these two did not.
+   *
+   * `alt_source_rankings.py` has been writing `proj_ceiling_<src>` and
+   * `proj_floor_<src>` all along; they were simply never listed here. So under a
+   * source view a player showed that SOURCE'S mean beside the BLEND'S ceiling —
+   * two different sources on one line, which is the exact class Cory has already
+   * caught twice (the frozen-to-Draft-Sharks VONA, and the two VONAs on one
+   * page). Measured under CBS: 398 players. Bijan Robinson read mean 354.8 (CBS)
+   * with ceiling 369.5 (blend) while CBS's own ceiling, sitting unused on the
+   * same row, was 415.26.
+   *
+   * IT DOES NOT MOVE A PICK, AND THAT WAS MEASURED BEFORE SHIPPING RATHER THAN
+   * ASSUMED: `MEASURED_WEIGHTS.ceiling` is 0, so the ceiling never enters the
+   * composite. Top-10 at pick 33 is byte-identical before and after under cbs,
+   * espn, sleeper, fantasypros and ownmodel.
+   *
+   * WHAT IT DOES FIX is every number a human reads. The floor/mean/ceiling band
+   * becomes one source's opinion instead of two spliced together, and E[$] stops
+   * being wrong: `playerDollars` computes `DG_HIGH_K x (ceiling - mean)` off CFG
+   * directly, so for Bijan under CBS the boom term was 369.5 - 354.8 = 14.7
+   * where the coherent number is 415.26 - 354.8 = 60.5 — a 4x error in the
+   * LARGEST coefficient of the dollar figure on the compare tray.
+   *
+   * The swap is conditional (`if (p[sf] != null)`), so a player the source
+   * carries no band for keeps his blend band rather than losing it — the same
+   * degrade-to-trusted rule the rest of this file uses. */
   var SWAP_FIELDS = ['proj_mean', 'vorp', 'tier', 'pos_rank', 'overall_rank',
-    'replacement', 'tier_size', 'tier_drop', 'tier_rank'];
+    'replacement', 'tier_size', 'tier_drop', 'tier_rank',
+    'proj_ceiling', 'proj_floor'];
 
   function isValidSource(key) {
     return SOURCES.some(function (s) { return s.key === key; });

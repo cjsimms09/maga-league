@@ -111,8 +111,29 @@ def scan(root: Path = ROOT, dirs=SEARCH_DIRS) -> list:
     return rows
 
 
-def prose_hits(root: Path, q: str, files=PROSE_FILES, cap: int = 12) -> list:
-    """Lines in the mailboxes that mention `q` AND read like a measurement."""
+def prose_hits(root: Path, q: str, files=PROSE_FILES, cap: int = None) -> list:
+    """Lines in the mailboxes that mention `q` AND read like a measurement.
+
+    ⚠️ `cap` DEFAULTED TO 12 AND RETURNED EARLY, AND THAT MADE THIS TOOL BLIND A
+    SECOND TIME (A, 2026-08-21). This function exists because someone almost
+    rebuilt a study that had already failed — P9's ledger row says so in those
+    words — and the fix then was to scan prose as well as JSON. It then went
+    blind a different way: as `ROUTES.md` grew, the mailboxes carried 21 lines
+    matching "capital" and this returned the first 12 IN FILE ORDER, stopping
+    dead. The 08-18 line that says the capital-only rookie prior MEASURABLY
+    FAILED sits at index 13. It was dropped, silently, and the caller printed a
+    confident list of twelve.
+
+    That is the shape this repo files under rule 3e — a truncated payload
+    printed as absence — landing in the one tool whose entire job is to prove a
+    thing is NOT absent. A prior-art search that quietly stops is worse than no
+    prior-art search, because it answers.
+
+    So the default is now NO CAP: every match is returned. `cap` survives for
+    callers that genuinely want a slice, and `main()` caps for DISPLAY while
+    stating out loud how many it is not showing. Truncation is allowed; silent
+    truncation is not.
+    """
     out = []
     if not q:
         return out
@@ -123,7 +144,7 @@ def prose_hits(root: Path, q: str, files=PROSE_FILES, cap: int = 12) -> list:
         for i, line in enumerate(f.read_text().splitlines(), 1):
             if q in line.lower() and MEASURED_RE.search(line):
                 out.append((name, i, " ".join(line.split())))
-                if len(out) >= cap:
+                if cap is not None and len(out) >= cap:
                     return out
     return out
 
@@ -137,6 +158,12 @@ def main() -> int:
     rows = scan()
     q = a.grep.lower()
     prose = prose_hits(ROOT, q)
+    # DISPLAY cap, stated. See prose_hits' docstring for why this is not allowed
+    # to be silent: the number it does not show is the number a reader would
+    # otherwise conclude does not exist.
+    PROSE_SHOWN = 12
+    prose_hidden = max(0, len(prose) - PROSE_SHOWN)
+    prose = prose[:PROSE_SHOWN]
     if q:
         rows = [(p, v) for p, v in rows
                 if q in p.lower() or any(q in (k + s).lower() for k, s in v)]
@@ -163,9 +190,18 @@ def main() -> int:
         print("   how this tool missed A's dead capital-only rookie prior on 08-18):")
         for name, i, line in prose:
             print(f"    {name}:{i}  {line[:a.width]}")
+        if prose_hidden:
+            print(f"\n    ⚠️  {prose_hidden} MORE prose line(s) matched and are NOT shown.")
+            print("        This tool once returned twelve and stopped, and the line that")
+            print("        said the study had already FAILED was the thirteenth. Narrow the")
+            print("        filter, or read them all:")
+            print(f"        grep -ni {q!r} ROUTES.md CORY-ASKS.md DEFECT-REGISTER.md "
+                  "OPEN-QUESTIONS.md PREDICTION-LEDGER.md")
 
     print(f"\n  {len(rows)} artifact(s) carry a graded answer"
-          + (f", {len(prose)} prose line(s) report a measurement." if prose else "."))
+          + (f", {len(prose) + prose_hidden} prose line(s) report a measurement"
+             + (f" ({prose_hidden} not shown)." if prose_hidden else ".")
+             if prose else "."))
     print("  Read before filing. Two of the relay's own 08-18 rows duplicated work")
     print("  that was already sitting in these files.")
     return 0

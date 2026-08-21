@@ -109,8 +109,18 @@ check('CONTROL — the artifact really does carry a pre-simulated list at this '
 }
 
 /* ── 4. THE CALLER ACTUALLY PASSES THE DRAFTED SET ───────────────────────── */
+/* ⚠️ THE REGEX USED TO REQUIRE `state.drafted)` — a CLOSING PAREN, which pins
+ * the ARGUMENT POSITION rather than the property. It went red on 2026-08-21
+ * when `rankKey` was appended after it (Cory's per-source VONA ruling), even
+ * though `state.drafted` was still being passed exactly as before. The filter
+ * was never unfed; the test was asserting "last argument" and calling it
+ * "passed".
+ *
+ * It now checks the property it names: the drafted set reaches the call. The
+ * anchor is still the call itself, so a `state.drafted` mentioned elsewhere in
+ * app.js cannot satisfy it. */
 check('app.js passes state.drafted into the view — a filter nobody feeds is not '
-  + 'a filter', /renderPositionBoards\([\s\S]{0,240}state\.drafted\)/.test(APP));
+  + 'a filter', /renderPositionBoards\([\s\S]{0,300}state\.drafted\b/.test(APP));
 
 console.log('\n  THE LEFT RAIL CANNOT SHOW A PLAYER WHO IS GONE\n');
 console.log('    the artifact is a pre-simulated snapshot; the names are now');

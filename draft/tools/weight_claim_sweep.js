@@ -189,13 +189,47 @@ function main(argv) {
         + 'control needs history, so CI must checkout with fetch-depth 0 (it does).');
       return 1;
     }
+    /* ⚠️⚠️ AND IT HAPPENED AGAIN ON 2026-08-21, BY THE OTHER HALF OF THE SAME
+     * MISTAKE. The comment above congratulates this control for pinning the FILE
+     * to a fixed commit after a HEAD-anchoring bug. It pinned one moving
+     * reference and left the other: the historical file was compared against the
+     * LIVE weights.
+     *
+     * Cory ruled `ceiling` 0.45 -> 0.0 on 08-20. The two stale claims in the
+     * pre-fix brief both read `ceiling = 0` — they were stale when the engine
+     * shipped 0.45, and the revert made them TRUE AGAIN. Stale count went to
+     * zero, the control printed MISSED, and the guard for register 5h — this
+     * repo's most-repeated failure class — went red saying it could no longer
+     * find the instance it was built for.
+     *
+     * A known positive must not depend on a value anyone is allowed to change.
+     * BOTH SIDES ARE NOW HISTORY: the pre-fix brief is compared against the
+     * ENGINE AS IT STOOD AT THE SAME COMMIT, read from git rather than typed
+     * here, so the pair is immutable and the two halves can never drift apart
+     * again. If this ever goes MISSED now, the MATCHER really did break. */
+    let controlWeights;
+    try {
+      const engineThen = execSync(
+        'git show ' + PRE_FIX_BRIEF + ':public/js/draft/engine.js',
+        { cwd: ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024,
+          stdio: ['ignore', 'pipe', 'ignore'] });
+      controlWeights = liveWeights(engineThen);
+    } catch (e) {
+      console.log('CONTROL COULD NOT RUN — could not read engine.js at '
+        + PRE_FIX_BRIEF + ' (' + e.message.split('\n')[0] + '). Both halves of '
+        + 'this known positive come from history; a shallow clone breaks it.');
+      return 1;
+    }
     const stale = claimsIn(before).filter((c) => {
-      const M = weights.MEASURED_WEIGHTS[c.key];
+      const M = controlWeights.MEASURED_WEIGHTS[c.key];
       return M != null && Math.abs(M - c.value) > 1e-9;
     });
     const now = sweep(['DRAFT-WEEK-BRIEF.md'], weights).flagged;
     const ok = stale.length >= 1 && now.length === 0;
     console.log('KNOWN-POSITIVE CONTROL (register 5h, instances 7-8)');
+    console.log('  both halves from history: brief AND engine at ' + PRE_FIX_BRIEF
+      + ' -> ceiling ' + controlWeights.MEASURED_WEIGHTS.ceiling
+      + ' (live today: ' + weights.MEASURED_WEIGHTS.ceiling + ')');
     console.log(`  ${PRE_FIX_BRIEF}:DRAFT-WEEK-BRIEF.md: ${stale.length} stale claim(s) `
       + `-> ${stale.length ? 'FOUND' : 'MISSED'}`);
     console.log(`  working tree                 : ${now.length} flagged`);

@@ -2746,18 +2746,6 @@ body.warroom-page .preset-why { max-width: 42em; line-height: 1.55; }
  * right beside rank-source-card (the toggle it's the fuller companion to). */
 .wr-zone1 > #source-boards     { order: 7; }   /* per-source best-available table — was nested inside #recs-card, not a real panel */
 .wr-zone1 > #position-boards   { order: 8; }   /* six columns + strike bar + the toggle */
-/* Same order as #position-boards, immediately after it in the DOM — flex
- * ties break by source order, so this needs no number of its own. A SECOND
- * VOICE belongs right beside the board it comments on, not buried past the
- * retired recommendation card (ROSTER-BUILDER-PANEL-DESIGN.md §1). */
-.wr-zone1 > #roster-builder-mlv { order: 8; }
-/* Same order again, immediately after #roster-builder-mlv in the DOM (app.js
- * inserts it as that element's next sibling) — flex ties break by source
- * order. 2026-08-20/21: mlvPlanHost() anchored at the never-existed
- * `#roster-builder` (a truncated id) and had no fallback, so it appended
- * outside `.wr-zone1` entirely with no order rule at all — this line is
- * half the fix, the anchor correction in app.js is the other half. */
-.wr-zone1 > #mlv-plan          { order: 8; }   /* the roster-builder model's full 12-pick plan, beside its own top pick */
 .wr-zone1 > #recs-card         { order: 9; }   /* the retired one-answer card — still fully present, now second */
 /* E's war-room draft-value audit (2026-08-20/21, finding 2): model-compare-
  * card answers "do the models even agree on this pick" — four lenses, four
@@ -3005,26 +2993,29 @@ body.warroom-page #doctrine-banner .db-confidence { white-space: normal; overflo
    tools and features. More clear and interactive." Pill shape, hover lift,
    the active pill gets a warm gradient + glow instead of a flat tint, same
    motion tokens as the tab bar (one interaction language across the page). */
-#rank-source .rs-buttons {
+/* #rank-source-board — Cory, 2026-08-21: the Big Board tab had no way to
+ * switch source without leaving it. Same panel, mounted a second time
+ * there (app.js's renderRankSourcePanel), so it needs the same rules. */
+#rank-source .rs-buttons, #rank-source-board .rs-buttons {
   display: flex; flex-wrap: wrap; gap: .3rem; padding: .25rem;
   background: rgba(0,0,0,.18); border-radius: 999px; width: fit-content;
 }
-#rank-source .rs-btn {
+#rank-source .rs-btn, #rank-source-board .rs-btn {
   font-size: .78rem; padding: .32rem .7rem; border-radius: 999px; cursor: pointer;
   border: 1px solid transparent; background: transparent; color: inherit;
   transition: color .14s cubic-bezier(.2,.7,.3,1), background .14s cubic-bezier(.2,.7,.3,1),
     transform .14s cubic-bezier(.2,.7,.3,1), box-shadow .14s cubic-bezier(.2,.7,.3,1);
 }
-#rank-source .rs-btn:hover:not(.rs-active) { background: rgba(255,255,255,.08); transform: translateY(-1px); }
-#rank-source .rs-btn.rs-active {
+#rank-source .rs-btn:hover:not(.rs-active), #rank-source-board .rs-btn:hover:not(.rs-active) { background: rgba(255,255,255,.08); transform: translateY(-1px); }
+#rank-source .rs-btn.rs-active, #rank-source-board .rs-btn.rs-active {
   background: linear-gradient(155deg, #d68a2e, #b45309); color: #fff; font-weight: 700;
   box-shadow: 0 2px 8px -2px rgba(180,83,9,.65);
 }
-#rank-source .rs-warn {
+#rank-source .rs-warn, #rank-source-board .rs-warn {
   margin-top: .5rem; padding: .5rem .6rem; border-radius: 8px; font-size: .82rem;
   line-height: 1.4; background: rgba(245,196,69,.14); border: 1px solid rgba(245,196,69,.55);
 }
-#rank-source .rs-note { margin: .45rem 0 0; font-size: .72rem; }
+#rank-source .rs-note, #rank-source-board .rs-note { margin: .45rem 0 0; font-size: .72rem; }
 
 /* Cory, 2026-08-21: "need more options on Home Screen and I'll toggle
  * source" — the source's own top-N per position, reactive to #rank-source's

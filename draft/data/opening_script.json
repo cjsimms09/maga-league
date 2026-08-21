@@ -2,12 +2,12 @@
  "meta": {
   "generated_from": "opening_script.py \u2014 derives from board + REAL designations (supersede) + predicted slates (fill); regenerate on any input change",
   "fingerprint": {
-   "board_built_at": "2026-08-21T00:29:00Z",
-   "board_content_hash": "ca22d6cdc18b",
+   "board_built_at": "2026-08-21T17:09:12Z",
+   "board_content_hash": "571e25bb1198",
    "my_slot": 8,
    "my_keepers_hash": "bbd8bddb8d18",
    "predicted_slates_hash": "2679fc681370",
-   "designated_slates_hash": "5d857bbdee99"
+   "designated_slates_hash": "432953debe1b"
   },
   "slot_provenance": "site-claimed \u2014 Sleeper draft order pending (regenerates on assignment)",
   "doctrine": {
@@ -15,9 +15,16 @@
    "why": "19b race ran; no archetype cleared the paired CI + even-money band"
   },
   "keeper_basis": {
-   "designated_teams": 6,
+   "designated_teams": 7,
    "predicted_slate_teams": 2,
    "supersessions": [
+    {
+     "handle": "Sadbru",
+     "freed": [],
+     "kept_unpredicted": [
+      "CeeDee Lamb"
+     ]
+    },
     {
      "handle": "cashworth",
      "freed": [],
@@ -70,7 +77,7 @@
       "name": "Breece Hall",
       "position": "RB",
       "vorp": 46.9,
-      "survival": 0.29,
+      "survival": 0.3,
       "adp": 29.8,
       "_onesie_reach": false
      },
@@ -88,7 +95,7 @@
       "name": "Travis Etienne",
       "position": "RB",
       "vorp": 35.2,
-      "survival": 0.87,
+      "survival": 0.89,
       "adp": 38.1,
       "_onesie_reach": false
      },
@@ -156,7 +163,7 @@
       "name": "Bhayshul Tuten",
       "position": "RB",
       "vorp": 15.4,
-      "survival": 0.86,
+      "survival": 0.87,
       "adp": 53.8,
       "_onesie_reach": false
      }
@@ -179,7 +186,7 @@
       "name": "Joe Burrow",
       "position": "QB",
       "vorp": 16.9,
-      "survival": 0.37,
+      "survival": 0.38,
       "adp": 49.8,
       "_onesie_reach": false
      },
@@ -222,7 +229,7 @@
       "name": "Breece Hall",
       "position": "RB",
       "vorp": 46.9,
-      "survival": 0.29,
+      "survival": 0.3,
       "adp": 29.8,
       "_onesie_reach": false
      },
@@ -240,7 +247,7 @@
       "name": "Travis Etienne",
       "position": "RB",
       "vorp": 35.2,
-      "survival": 0.87,
+      "survival": 0.89,
       "adp": 38.1,
       "_onesie_reach": false
      },
@@ -308,7 +315,7 @@
       "name": "Bhayshul Tuten",
       "position": "RB",
       "vorp": 15.4,
-      "survival": 0.86,
+      "survival": 0.87,
       "adp": 53.8,
       "_onesie_reach": false
      }
@@ -331,7 +338,7 @@
       "name": "Joe Burrow",
       "position": "QB",
       "vorp": 16.9,
-      "survival": 0.37,
+      "survival": 0.38,
       "adp": 49.8,
       "_onesie_reach": false
      },

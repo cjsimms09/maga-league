@@ -103,6 +103,45 @@ function check(before, after) {
   return { lost, renumbered };
 }
 
+/* ── MODE 2: ARTIFACT FILES (added after fd33cd15 EMPTIED 15 preregs/audits
+ * to zero bytes while its message claimed to publish one prereg — 1,777
+ * deletions against 100 insertions, unnoticed until D diffed main against
+ * its own history and restored 88,281 bytes). Row-level guarding cannot see
+ * this class: the mailbox files were untouched. The rule: NO tracked .md
+ * goes nonzero→zero bytes or vanishes without saying so ([mailbox-prune]
+ * in the commit message). Renames pass (same blob appears elsewhere). */
+function mdSizes(rev, cwd) {
+  const out = new Map(); // path -> {size, blob}
+  let txt;
+  try {
+    txt = execFileSync('git', ['ls-tree', '-r', '-l', rev],
+      { cwd, maxBuffer: 64 * 1024 * 1024 }).toString();
+  } catch (e) { return out; }
+  for (const line of txt.split('\n')) {
+    /* .md anywhere; DATA STORES under draft/ too (Cory 08-21: the 2027
+     * season-simulation captures "must stay safe" — a zeroed JSONL is a
+     * season of decisions gone, and mode 2 only watched documents).
+     * Regenerated stores are always nonzero, so rebuilds never flag. */
+    const m = line.match(/^\d+ blob ([0-9a-f]+)\s+(\d+)\t(.+\.md|draft\/(?:data|backtest)\/.+\.jsonl?)$/);
+    if (m) out.set(m[3], { blob: m[1], size: Number(m[2]) });
+  }
+  return out;
+}
+
+function artifactLosses(from, to, cwd) {
+  const b = mdSizes(from, cwd), a = mdSizes(to, cwd);
+  const aBlobs = new Set([...a.values()].map(v => v.blob));
+  const lost = [];
+  for (const [p, v] of b) {
+    if (v.size === 0) continue;                       // was already empty
+    const now = a.get(p);
+    if (now && now.size > 0) continue;                // alive
+    if (!now && aBlobs.has(v.blob)) continue;         // renamed, content intact
+    lost.push({ path: p, was: v.size, now: now ? 0 : 'REMOVED' });
+  }
+  return lost;
+}
+
 function main() {
   const args = process.argv.slice(2);
   const cwd = process.cwd();
@@ -125,13 +164,19 @@ function main() {
     console.log(`\n${f}: ${lost.length} row(s) present at ${from} and GONE at ${to}:`);
     for (const l of lost) console.log('  - ' + l.line);
   }
-  if (!total) { console.log(`mailbox guard: no rows lost ${from}..${to}.`); return 0; }
+  const losses = artifactLosses(from, to, cwd);
+  if (losses.length) {
+    total += losses.length;
+    console.log(`\nARTIFACT FILES emptied or removed ${from}..${to} (the fd33cd15 class):`);
+    for (const l of losses) console.log(`  - ${l.path}  (${l.was} bytes -> ${l.now})`);
+  }
+  if (!total) { console.log(`mailbox guard: no rows or artifacts lost ${from}..${to}.`); return 0; }
   if (acknowledged) {
     console.log(`\n${total} deletion(s), acknowledged by [mailbox-prune] in the commit message. Passing.`);
     return 0;
   }
   console.log(
-    `\n⛔ ${total} mailbox row(s) SILENTLY DELETED. A mailbox push is append-and-tick-only ` +
+    `\n⛔ ${total} mailbox row(s) and/or artifact file(s) SILENTLY LOST. A mailbox push is append-and-tick-only ` +
     `for rows you do not own (register 190 — the first clobber deleted three rows within ` +
     `an hour of the push grant). If the deletion is deliberate, say so: put [mailbox-prune] ` +
     `in the commit message. Otherwise restore the rows: git show ${from}:<file> has them.`);

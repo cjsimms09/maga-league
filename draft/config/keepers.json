@@ -153,13 +153,27 @@
           "years_kept": 1
         }
       ]
+    },
+    {
+      "draft_slot": 6,
+      "slot_provisional": true,
+      "owner_id": "739930057887334400",
+      "keepers": [
+        {
+          "player_id": "6786",
+          "name": "CeeDee Lamb",
+          "position": "WR",
+          "original_round": 1,
+          "years_kept": 1
+        }
+      ]
     }
   ],
   "_note": "generated from final_rosters keeper designations. Slots marked slot_provisional=true are placeholders: the COUNT is real and drives the pool and my pick numbers correctly, but WHICH seat that team occupies is not known until the draft order is set.",
-  "_placed_teams": 6,
-  "_provisional_slots": 5,
-  "_total_keepers": 16,
-  "_designating_teams": 6,
+  "_placed_teams": 7,
+  "_provisional_slots": 6,
+  "_total_keepers": 17,
+  "_designating_teams": 7,
   "_designations_source": "sleeper",
   "_problems": []
 }

@@ -117,8 +117,28 @@ jobs:
           def matches(got):
               return got and (got == want or got.startswith(want[:12]) or want.startswith(got[:12]))
 
-          deadline = time.time() + 8 * 60      # Netlify prod deploys are ~1-3 min
+          # ⚠️ 8 MINUTES WAS TOO SHORT AND IT PRODUCED A FALSE RED ON DRAFT EVE
+          # (register 217, 2026-08-21). The comment that used to sit here said
+          # "Netlify prod deploys are ~1-3 min"; measured on 70ec7abc, the build
+          # command stamped itself at 14:09:06Z and the deploy was NOT live when
+          # this poll gave up around 14:17. A re-run on the SAME sha, with no
+          # push and no code change in between, passed at 14:21:46 — the only
+          # variable was elapsed time. So the deploy was slow, not starved.
+          #
+          # A verifier that cries wolf is the failure this file's own header
+          # warns about ("train everyone to ignore the red X"), and it cost a
+          # lane an urgent escalation the night before the draft.
+          #
+          # 25 minutes is chosen on ASYMMETRIC COST, and is not presented as a
+          # measured central estimate — n=1 on the observed build->live time. The
+          # cost of waiting too long is wall-clock on a job that blocks nothing;
+          # the cost of stopping too early is a false red on the one night
+          # attention is scarcest. If a real deploy failure occurs, the poll
+          # still fails — 17 minutes later than it used to, having reported the
+          # live stamp's age on every iteration.
+          deadline = time.time() + 25 * 60
           last = None
+          last_built_at = None
           while time.time() < deadline:
               try:
                   req = urllib.request.Request(stamp_url, headers={'accept': 'application/json',
@@ -127,6 +147,7 @@ jobs:
                       stamp = json.loads(r.read().decode('utf-8'))
                   got = (stamp.get('commit') or '')
                   last = got
+                  last_built_at = stamp.get('built_at')
                   if matches(got):
                       print(f'OK — live site build-stamp is {got[:12]} (branch {stamp.get("branch")}, '
                             f'built {stamp.get("built_at")})')
@@ -147,15 +168,27 @@ jobs:
                       except Exception as he:               # noqa: BLE001
                           print(f'  (storage guard skipped — /api/health {type(he).__name__})')
                       sys.exit(0)
-                  print(f'  live stamp is {got[:12] or "(none yet)"} — waiting for {want[:12]} ...')
+                  print(f'  live stamp is {got[:12] or "(none yet)"} '
+                        f'(built {last_built_at or "?"}) — waiting for {want[:12]} ...')
               except urllib.error.HTTPError as e:
                   print(f'  HTTP {e.code} from /build-stamp.json — waiting (deploy in flight) ...')
               except Exception as e:                       # noqa: BLE001
                   print(f'  {type(e).__name__}: {e} — waiting ...')
               time.sleep(20)
 
-          print(f'::error::live build-stamp never reported commit {want[:12]} within 8 min '
-                f'(last seen: {last or "unreachable / no build-stamp"}). '
-                f'Deploy may have failed, been buried by a later push, or been skipped by the gate.')
+          # SAY WHICH FAILURE THIS IS. "never reported the commit" reads the same
+          # whether nothing built at all or a build is still propagating, and
+          # those need opposite responses — the first is an emergency, the second
+          # is patience. Report what the live stamp DOES say and how old it is,
+          # so the reader does not have to infer it (register 217).
+          age = ''
+          if isinstance(last_built_at, str) and last_built_at:
+              age = f' Live stamp was built at {last_built_at}.'
+          print(f'::error::live build-stamp never reported commit {want[:12]} within 25 min '
+                f'(last seen: {last or "unreachable / no build-stamp"}).{age} '
+                f'Deploy may have failed, been buried by a later push, or been skipped by the gate. '
+                f'A live stamp that is RECENT but not this commit means a deploy is still '
+                f'propagating or a later push superseded it; an OLD or absent stamp means '
+                f'nothing built.')
           sys.exit(1)
           PY

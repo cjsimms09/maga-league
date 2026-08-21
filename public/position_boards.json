@@ -4,7 +4,7 @@
  "_sources": "projections/floor/ceiling = Draft Sharks; ADP/adp_sd = our board (Sleeper/FantasyPros)",
  "_blend_toggle_caveat": "proj/floor/ceiling are Draft Sharks, which SELECTS and RANKS every list here — that is unchanged. proj_blend/floor_blend/ceiling_blend carry the SAME already-selected player's blend numbers (public/draft_data.json's proj_mean/proj_floor/proj_ceiling) for the war room's toggle to display instead. They never change who is in the list or its order — every player here has a Draft Sharks line by construction, so the blend fields are always present too.",
  "_survival_caveat": "pct_still_there_next_pick is ADP-DRAIN ONLY over 300 simulated rooms. The war room MUST override it with survival.js, which composes ADP with opponent-need Layer 2 and needs live draft context.",
- "built_at": "2026-08-21T00:29:00Z",
+ "built_at": "2026-08-21T17:09:12Z",
  "rooms": 300,
  "adjuster_a": 0,
  "top_n": {
@@ -32,7 +32,47 @@
     "QB": {
      "best_now": 340,
      "expected_best_at_next_pick": 338.8,
-     "VONA": 1.3,
+     "VONA": 1.2,
+     "VONA_by_source": {
+      "ds": 1.2,
+      "sleeper": 6.5,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 4.4,
+      "clay": null,
+      "ownmodel": 0
+     },
+     "best_now_by_source": {
+      "ds": 340,
+      "sleeper": 372,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 372,
+      "clay": null,
+      "ownmodel": 333.1
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 338.8,
+      "sleeper": 365.5,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 367.6,
+      "clay": null,
+      "ownmodel": 333.1
+     },
+     "covered_by_source": {
+      "ds": 29,
+      "sleeper": 29,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 29,
+      "clay": 0,
+      "ownmodel": 29
+     },
      "surplus_over_wire": 17.1,
      "cliff_after_rank": 2,
      "cliff_size": 3,
@@ -51,7 +91,7 @@
        "floor_blend": 331,
        "ceiling_blend": 484.8,
        "adp": 34.4,
-       "pct_available_now": 71,
+       "pct_available_now": 72,
        "pct_still_there_next_pick": 13,
        "surplus_over_wire": 17.1
       },
@@ -69,7 +109,7 @@
        "ceiling_blend": 470.8,
        "adp": 48.8,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 79,
+       "pct_still_there_next_pick": 80,
        "surplus_over_wire": 17.1
       },
       {
@@ -103,7 +143,7 @@
        "ceiling_blend": 467.6,
        "adp": 56.1,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 94,
+       "pct_still_there_next_pick": 95,
        "surplus_over_wire": 11.1
       },
       {
@@ -120,7 +160,7 @@
        "ceiling_blend": 472.9,
        "adp": 58.8,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 90,
+       "pct_still_there_next_pick": 89,
        "surplus_over_wire": 8.1
       },
       {
@@ -144,8 +184,48 @@
     },
     "RB": {
      "best_now": 234,
-     "expected_best_at_next_pick": 198.9,
-     "VONA": 35.1,
+     "expected_best_at_next_pick": 198.8,
+     "VONA": 35.2,
+     "VONA_by_source": {
+      "ds": 35.2,
+      "sleeper": 8,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 29.5,
+      "clay": null,
+      "ownmodel": 66.4
+     },
+     "best_now_by_source": {
+      "ds": 234,
+      "sleeper": 192.5,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 230.9,
+      "clay": null,
+      "ownmodel": 223.4
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 198.8,
+      "sleeper": 184.5,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 201.4,
+      "clay": null,
+      "ownmodel": 156.9
+     },
+     "covered_by_source": {
+      "ds": 68,
+      "sleeper": 68,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 65,
+      "clay": 0,
+      "ownmodel": 66
+     },
      "surplus_over_wire": 155.6,
      "cliff_after_rank": 1,
      "cliff_size": 10,
@@ -181,8 +261,8 @@
        "floor_blend": 186.7,
        "ceiling_blend": 279,
        "adp": 29.8,
-       "pct_available_now": 50,
-       "pct_still_there_next_pick": 0,
+       "pct_available_now": 49,
+       "pct_still_there_next_pick": 1,
        "surplus_over_wire": 145.6
       },
       {
@@ -198,7 +278,7 @@
        "floor_blend": 187.4,
        "ceiling_blend": 273.3,
        "adp": 28.8,
-       "pct_available_now": 49,
+       "pct_available_now": 48,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 144.6
       },
@@ -232,7 +312,7 @@
        "floor_blend": 193.8,
        "ceiling_blend": 320,
        "adp": 23.1,
-       "pct_available_now": 9,
+       "pct_available_now": 5,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 136.6
       },
@@ -250,7 +330,7 @@
        "ceiling_blend": 285.1,
        "adp": 38.1,
        "pct_available_now": 98,
-       "pct_still_there_next_pick": 9,
+       "pct_still_there_next_pick": 7,
        "surplus_over_wire": 129.6
       },
       {
@@ -267,7 +347,7 @@
        "ceiling_blend": 262.8,
        "adp": 47.1,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 73,
+       "pct_still_there_next_pick": 75,
        "surplus_over_wire": 128.6
       },
       {
@@ -283,7 +363,7 @@
        "floor_blend": 167.3,
        "ceiling_blend": 276.1,
        "adp": 33.5,
-       "pct_available_now": 90,
+       "pct_available_now": 91,
        "pct_still_there_next_pick": 1,
        "surplus_over_wire": 124.6
       },
@@ -301,7 +381,7 @@
        "ceiling_blend": 255.8,
        "adp": 45.5,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 61,
+       "pct_still_there_next_pick": 62,
        "surplus_over_wire": 118.6
       },
       {
@@ -317,7 +397,7 @@
        "floor_blend": 167.4,
        "ceiling_blend": 272.9,
        "adp": 43.3,
-       "pct_available_now": 100,
+       "pct_available_now": 99,
        "pct_still_there_next_pick": 52,
        "surplus_over_wire": 111.6
       }
@@ -325,11 +405,51 @@
     },
     "WR": {
      "best_now": 224,
-     "expected_best_at_next_pick": 194.2,
-     "VONA": 29.8,
+     "expected_best_at_next_pick": 194.3,
+     "VONA": 29.7,
+     "VONA_by_source": {
+      "ds": 29.7,
+      "sleeper": 7.9,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 36,
+      "clay": null,
+      "ownmodel": 5.8
+     },
+     "best_now_by_source": {
+      "ds": 224,
+      "sleeper": 194.9,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 224.5,
+      "clay": null,
+      "ownmodel": 173.7
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 194.3,
+      "sleeper": 187,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 188.5,
+      "clay": null,
+      "ownmodel": 168
+     },
+     "covered_by_source": {
+      "ds": 61,
+      "sleeper": 61,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 61,
+      "clay": 0,
+      "ownmodel": 61
+     },
      "surplus_over_wire": 99.2,
      "cliff_after_rank": 1,
-     "cliff_size": 16,
+     "cliff_size": 13,
      "note": "STRIKE — waiting costs 30 and he is +99 over the wire",
      "players": [
       {
@@ -345,9 +465,26 @@
        "floor_blend": 165,
        "ceiling_blend": 263,
        "adp": 28.1,
-       "pct_available_now": 38,
+       "pct_available_now": 37,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 99.2
+      },
+      {
+       "player_id": "8144",
+       "name": "Chris Olave",
+       "team": "NO",
+       "bye": 8,
+       "proj": 211,
+       "floor": 177,
+       "ceiling": 253,
+       "injury_risk_pct": 75,
+       "proj_blend": 207.1,
+       "floor_blend": 173.7,
+       "ceiling_blend": 248.3,
+       "adp": 25.3,
+       "pct_available_now": 5,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 86.2
       },
       {
        "player_id": "9997",
@@ -379,8 +516,8 @@
        "floor_blend": 164.8,
        "ceiling_blend": 230,
        "adp": 35.3,
-       "pct_available_now": 92,
-       "pct_still_there_next_pick": 2,
+       "pct_available_now": 93,
+       "pct_still_there_next_pick": 3,
        "surplus_over_wire": 80.2
       },
       {
@@ -431,7 +568,7 @@
        "ceiling_blend": 235.9,
        "adp": 42,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 33,
+       "pct_still_there_next_pick": 36,
        "surplus_over_wire": 72.2
       },
       {
@@ -465,7 +602,7 @@
        "ceiling_blend": 232.8,
        "adp": 54.6,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 100,
+       "pct_still_there_next_pick": 99,
        "surplus_over_wire": 68.2
       },
       {
@@ -484,34 +621,57 @@
        "pct_available_now": 100,
        "pct_still_there_next_pick": 53,
        "surplus_over_wire": 68.2
-      },
-      {
-       "player_id": "12526",
-       "name": "Tetairoa McMillan",
-       "team": "CAR",
-       "bye": 5,
-       "proj": 185,
-       "floor": 165,
-       "ceiling": 240,
-       "injury_risk_pct": 37,
-       "proj_blend": 189.5,
-       "floor_blend": 169,
-       "ceiling_blend": 245.8,
-       "adp": 36.2,
-       "pct_available_now": 97,
-       "pct_still_there_next_pick": 2,
-       "surplus_over_wire": 60.2
       }
      ]
     },
     "TE": {
      "best_now": 209,
-     "expected_best_at_next_pick": 177.4,
-     "VONA": 31.6,
+     "expected_best_at_next_pick": 177.7,
+     "VONA": 31.3,
+     "VONA_by_source": {
+      "ds": 31.3,
+      "sleeper": 40.5,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 38.8,
+      "clay": null,
+      "ownmodel": 68.1
+     },
+     "best_now_by_source": {
+      "ds": 209,
+      "sleeper": 202.5,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 199.8,
+      "clay": null,
+      "ownmodel": 213.9
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 177.7,
+      "sleeper": 162,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 161,
+      "clay": null,
+      "ownmodel": 145.7
+     },
+     "covered_by_source": {
+      "ds": 26,
+      "sleeper": 26,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 26,
+      "clay": 0,
+      "ownmodel": 26
+     },
      "surplus_over_wire": 78.6,
      "cliff_after_rank": 4,
      "cliff_size": 21,
-     "note": "STRIKE — waiting costs 32 and he is +79 over the wire",
+     "note": "STRIKE — waiting costs 31 and he is +79 over the wire",
      "players": [
       {
        "player_id": "11604",
@@ -526,7 +686,7 @@
        "floor_blend": 179.7,
        "ceiling_blend": 239.4,
        "adp": 18.8,
-       "pct_available_now": 7,
+       "pct_available_now": 8,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 78.6
       },
@@ -543,7 +703,7 @@
        "floor_blend": 181.3,
        "ceiling_blend": 233.7,
        "adp": 19.9,
-       "pct_available_now": 7,
+       "pct_available_now": 5,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 70.6
       },
@@ -560,8 +720,8 @@
        "floor_blend": 142.8,
        "ceiling_blend": 209,
        "adp": 39.2,
-       "pct_available_now": 86,
-       "pct_still_there_next_pick": 32,
+       "pct_available_now": 85,
+       "pct_still_there_next_pick": 31,
        "surplus_over_wire": 66.6
       },
       {
@@ -594,8 +754,8 @@
        "floor_blend": 126.5,
        "ceiling_blend": 193.8,
        "adp": 62.2,
-       "pct_available_now": 99,
-       "pct_still_there_next_pick": 86,
+       "pct_available_now": 98,
+       "pct_still_there_next_pick": 84,
        "surplus_over_wire": 30.6
       },
       {
@@ -621,6 +781,46 @@
      "best_now": 177,
      "expected_best_at_next_pick": 177,
      "VONA": 0,
+     "VONA_by_source": {
+      "ds": 0,
+      "sleeper": 0,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "best_now_by_source": {
+      "ds": 177,
+      "sleeper": 107,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 177,
+      "sleeper": 107,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "covered_by_source": {
+      "ds": 22,
+      "sleeper": 22,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 0,
+      "clay": 0,
+      "ownmodel": 0
+     },
      "surplus_over_wire": 48.4,
      "cliff_after_rank": 2,
      "cliff_size": 12,
@@ -689,7 +889,7 @@
        "proj_blend": 127.2,
        "floor_blend": 119.7,
        "ceiling_blend": 146.3,
-       "adp": 257.6,
+       "adp": 258.3,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 24.4
@@ -700,6 +900,46 @@
      "best_now": 125,
      "expected_best_at_next_pick": 125,
      "VONA": 0,
+     "VONA_by_source": {
+      "ds": 0,
+      "sleeper": 0,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "best_now_by_source": {
+      "ds": 125,
+      "sleeper": 132,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 125,
+      "sleeper": 132,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "covered_by_source": {
+      "ds": 21,
+      "sleeper": 21,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 0,
+      "clay": 0,
+      "ownmodel": 0
+     },
      "surplus_over_wire": 25,
      "cliff_after_rank": 3,
      "cliff_size": 6,
@@ -786,6 +1026,46 @@
      "best_now": 340,
      "expected_best_at_next_pick": 336.7,
      "VONA": 3.3,
+     "VONA_by_source": {
+      "ds": 3.3,
+      "sleeper": 11.1,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 7,
+      "clay": null,
+      "ownmodel": 0
+     },
+     "best_now_by_source": {
+      "ds": 340,
+      "sleeper": 372,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 372,
+      "clay": null,
+      "ownmodel": 333.1
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 336.7,
+      "sleeper": 360.9,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 365,
+      "clay": null,
+      "ownmodel": 333.1
+     },
+     "covered_by_source": {
+      "ds": 29,
+      "sleeper": 29,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 29,
+      "clay": 0,
+      "ownmodel": 29
+     },
      "surplus_over_wire": 17.1,
      "cliff_after_rank": 2,
      "cliff_size": 3,
@@ -821,7 +1101,7 @@
        "floor_blend": 325.6,
        "ceiling_blend": 470.8,
        "adp": 48.8,
-       "pct_available_now": 79,
+       "pct_available_now": 80,
        "pct_still_there_next_pick": 54,
        "surplus_over_wire": 17.1
       },
@@ -839,7 +1119,7 @@
        "ceiling_blend": 460,
        "adp": 49.8,
        "pct_available_now": 73,
-       "pct_still_there_next_pick": 55,
+       "pct_still_there_next_pick": 54,
        "surplus_over_wire": 14.1
       },
       {
@@ -855,7 +1135,7 @@
        "floor_blend": 309.2,
        "ceiling_blend": 467.6,
        "adp": 56.1,
-       "pct_available_now": 94,
+       "pct_available_now": 95,
        "pct_still_there_next_pick": 81,
        "surplus_over_wire": 11.1
       },
@@ -872,7 +1152,7 @@
        "floor_blend": 316.8,
        "ceiling_blend": 472.9,
        "adp": 58.8,
-       "pct_available_now": 90,
+       "pct_available_now": 89,
        "pct_still_there_next_pick": 81,
        "surplus_over_wire": 8.1
       },
@@ -897,8 +1177,48 @@
     },
     "RB": {
      "best_now": 208,
-     "expected_best_at_next_pick": 188.2,
-     "VONA": 19.8,
+     "expected_best_at_next_pick": 187.8,
+     "VONA": 20.2,
+     "VONA_by_source": {
+      "ds": 20.2,
+      "sleeper": 19.2,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 19.4,
+      "clay": null,
+      "ownmodel": 17.5
+     },
+     "best_now_by_source": {
+      "ds": 208,
+      "sleeper": 190.1,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 212.3,
+      "clay": null,
+      "ownmodel": 167.3
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 187.8,
+      "sleeper": 170.9,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 192.9,
+      "clay": null,
+      "ownmodel": 149.8
+     },
+     "covered_by_source": {
+      "ds": 62,
+      "sleeper": 62,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 59,
+      "clay": 0,
+      "ownmodel": 60
+     },
      "surplus_over_wire": 129.6,
      "cliff_after_rank": 2,
      "cliff_size": 10,
@@ -917,7 +1237,7 @@
        "floor_blend": 186.5,
        "ceiling_blend": 285.1,
        "adp": 38.1,
-       "pct_available_now": 9,
+       "pct_available_now": 7,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 129.6
       },
@@ -934,8 +1254,8 @@
        "floor_blend": 168.8,
        "ceiling_blend": 262.8,
        "adp": 47.1,
-       "pct_available_now": 73,
-       "pct_still_there_next_pick": 35,
+       "pct_available_now": 75,
+       "pct_still_there_next_pick": 33,
        "surplus_over_wire": 128.6
       },
       {
@@ -951,8 +1271,8 @@
        "floor_blend": 155.5,
        "ceiling_blend": 255.8,
        "adp": 45.5,
-       "pct_available_now": 61,
-       "pct_still_there_next_pick": 29,
+       "pct_available_now": 62,
+       "pct_still_there_next_pick": 30,
        "surplus_over_wire": 118.6
       },
       {
@@ -1036,7 +1356,7 @@
        "floor_blend": 143.3,
        "ceiling_blend": 270,
        "adp": 50.6,
-       "pct_available_now": 87,
+       "pct_available_now": 88,
        "pct_still_there_next_pick": 66,
        "surplus_over_wire": 94.6
       },
@@ -1054,7 +1374,7 @@
        "ceiling_blend": 301.5,
        "adp": 53.8,
        "pct_available_now": 97,
-       "pct_still_there_next_pick": 85,
+       "pct_still_there_next_pick": 86,
        "surplus_over_wire": 91.6
       },
       {
@@ -1080,6 +1400,46 @@
      "best_now": 197,
      "expected_best_at_next_pick": 194,
      "VONA": 3,
+     "VONA_by_source": {
+      "ds": 3,
+      "sleeper": 1.6,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 7.9,
+      "clay": null,
+      "ownmodel": 1.6
+     },
+     "best_now_by_source": {
+      "ds": 197,
+      "sleeper": 187.7,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 194.7,
+      "clay": null,
+      "ownmodel": 169.1
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 194,
+      "sleeper": 186.1,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 186.8,
+      "clay": null,
+      "ownmodel": 167.5
+     },
+     "covered_by_source": {
+      "ds": 54,
+      "sleeper": 54,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 54,
+      "clay": 0,
+      "ownmodel": 54
+     },
      "surplus_over_wire": 72.2,
      "cliff_after_rank": 4,
      "cliff_size": 9,
@@ -1098,8 +1458,8 @@
        "floor_blend": 172.5,
        "ceiling_blend": 235.9,
        "adp": 42,
-       "pct_available_now": 33,
-       "pct_still_there_next_pick": 1,
+       "pct_available_now": 36,
+       "pct_still_there_next_pick": 2,
        "surplus_over_wire": 72.2
       },
       {
@@ -1132,7 +1492,7 @@
        "floor_blend": 151.4,
        "ceiling_blend": 232.8,
        "adp": 54.6,
-       "pct_available_now": 100,
+       "pct_available_now": 99,
        "pct_still_there_next_pick": 91,
        "surplus_over_wire": 68.2
       },
@@ -1150,7 +1510,7 @@
        "ceiling_blend": 224.6,
        "adp": 44,
        "pct_available_now": 53,
-       "pct_still_there_next_pick": 21,
+       "pct_still_there_next_pick": 22,
        "surplus_over_wire": 68.2
       },
       {
@@ -1166,7 +1526,7 @@
        "floor_blend": 158.6,
        "ceiling_blend": 250.1,
        "adp": 37,
-       "pct_available_now": 10,
+       "pct_available_now": 8,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 59.2
       },
@@ -1184,7 +1544,7 @@
        "ceiling_blend": 230.8,
        "adp": 51.4,
        "pct_available_now": 86,
-       "pct_still_there_next_pick": 63,
+       "pct_still_there_next_pick": 64,
        "surplus_over_wire": 58.2
       },
       {
@@ -1201,7 +1561,7 @@
        "ceiling_blend": 231.5,
        "adp": 59.8,
        "pct_available_now": 99,
-       "pct_still_there_next_pick": 94,
+       "pct_still_there_next_pick": 93,
        "surplus_over_wire": 58.2
       },
       {
@@ -1259,8 +1619,48 @@
     },
     "TE": {
      "best_now": 197,
-     "expected_best_at_next_pick": 170,
-     "VONA": 27,
+     "expected_best_at_next_pick": 170.1,
+     "VONA": 26.9,
+     "VONA_by_source": {
+      "ds": 26.9,
+      "sleeper": 14.8,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 13.4,
+      "clay": null,
+      "ownmodel": 0.2
+     },
+     "best_now_by_source": {
+      "ds": 197,
+      "sleeper": 173.4,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 171.9,
+      "clay": null,
+      "ownmodel": 145.8
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 170.1,
+      "sleeper": 158.6,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 158.5,
+      "clay": null,
+      "ownmodel": 145.6
+     },
+     "covered_by_source": {
+      "ds": 24,
+      "sleeper": 24,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 24,
+      "clay": 0,
+      "ownmodel": 24
+     },
      "surplus_over_wire": 66.6,
      "cliff_after_rank": 2,
      "cliff_size": 21,
@@ -1279,7 +1679,7 @@
        "floor_blend": 142.8,
        "ceiling_blend": 209,
        "adp": 39.2,
-       "pct_available_now": 32,
+       "pct_available_now": 31,
        "pct_still_there_next_pick": 17,
        "surplus_over_wire": 66.6
       },
@@ -1297,7 +1697,7 @@
        "ceiling_blend": 194.5,
        "adp": 46.3,
        "pct_available_now": 66,
-       "pct_still_there_next_pick": 45,
+       "pct_still_there_next_pick": 46,
        "surplus_over_wire": 51.6
       },
       {
@@ -1313,7 +1713,7 @@
        "floor_blend": 126.5,
        "ceiling_blend": 193.8,
        "adp": 62.2,
-       "pct_available_now": 86,
+       "pct_available_now": 84,
        "pct_still_there_next_pick": 76,
        "surplus_over_wire": 30.6
       },
@@ -1347,8 +1747,8 @@
        "floor_blend": 133.5,
        "ceiling_blend": 190.3,
        "adp": 64.5,
-       "pct_available_now": 99,
-       "pct_still_there_next_pick": 98,
+       "pct_available_now": 100,
+       "pct_still_there_next_pick": 99,
        "surplus_over_wire": 27.6
       },
       {
@@ -1374,6 +1774,46 @@
      "best_now": 177,
      "expected_best_at_next_pick": 177,
      "VONA": 0,
+     "VONA_by_source": {
+      "ds": 0,
+      "sleeper": 0,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "best_now_by_source": {
+      "ds": 177,
+      "sleeper": 107,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 177,
+      "sleeper": 107,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "covered_by_source": {
+      "ds": 22,
+      "sleeper": 22,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 0,
+      "clay": 0,
+      "ownmodel": 0
+     },
      "surplus_over_wire": 48.4,
      "cliff_after_rank": 2,
      "cliff_size": 12,
@@ -1442,7 +1882,7 @@
        "proj_blend": 127.2,
        "floor_blend": 119.7,
        "ceiling_blend": 146.3,
-       "adp": 257.6,
+       "adp": 258.3,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 24.4
@@ -1453,6 +1893,46 @@
      "best_now": 125,
      "expected_best_at_next_pick": 125,
      "VONA": 0,
+     "VONA_by_source": {
+      "ds": 0,
+      "sleeper": 0,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "best_now_by_source": {
+      "ds": 125,
+      "sleeper": 132,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 125,
+      "sleeper": 132,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "covered_by_source": {
+      "ds": 21,
+      "sleeper": 21,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 0,
+      "clay": 0,
+      "ownmodel": 0
+     },
      "surplus_over_wire": 25,
      "cliff_after_rank": 3,
      "cliff_size": 6,
@@ -1537,8 +2017,48 @@
    "positions": {
     "QB": {
      "best_now": 340,
-     "expected_best_at_next_pick": 330.2,
+     "expected_best_at_next_pick": 330.3,
      "VONA": 9.8,
+     "VONA_by_source": {
+      "ds": 9.8,
+      "sleeper": 18.9,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 13.8,
+      "clay": null,
+      "ownmodel": 0
+     },
+     "best_now_by_source": {
+      "ds": 340,
+      "sleeper": 372,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 372,
+      "clay": null,
+      "ownmodel": 333.1
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 330.3,
+      "sleeper": 353.1,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 358.3,
+      "clay": null,
+      "ownmodel": 333.1
+     },
+     "covered_by_source": {
+      "ds": 29,
+      "sleeper": 29,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 29,
+      "clay": 0,
+      "ownmodel": 29
+     },
      "surplus_over_wire": 17.1,
      "cliff_after_rank": 2,
      "cliff_size": 3,
@@ -1591,8 +2111,8 @@
        "floor_blend": 316.9,
        "ceiling_blend": 460,
        "adp": 49.8,
-       "pct_available_now": 55,
-       "pct_still_there_next_pick": 7,
+       "pct_available_now": 54,
+       "pct_still_there_next_pick": 8,
        "surplus_over_wire": 14.1
       },
       {
@@ -1609,7 +2129,7 @@
        "ceiling_blend": 467.6,
        "adp": 56.1,
        "pct_available_now": 81,
-       "pct_still_there_next_pick": 20,
+       "pct_still_there_next_pick": 21,
        "surplus_over_wire": 11.1
       },
       {
@@ -1650,8 +2170,48 @@
     },
     "RB": {
      "best_now": 207,
-     "expected_best_at_next_pick": 177.6,
-     "VONA": 29.4,
+     "expected_best_at_next_pick": 177.5,
+     "VONA": 29.5,
+     "VONA_by_source": {
+      "ds": 29.5,
+      "sleeper": 35,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 31.1,
+      "clay": null,
+      "ownmodel": 21.7
+     },
+     "best_now_by_source": {
+      "ds": 207,
+      "sleeper": 190.1,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 205.8,
+      "clay": null,
+      "ownmodel": 167.3
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 177.5,
+      "sleeper": 155.1,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 174.8,
+      "clay": null,
+      "ownmodel": 145.6
+     },
+     "covered_by_source": {
+      "ds": 61,
+      "sleeper": 61,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 58,
+      "clay": 0,
+      "ownmodel": 59
+     },
      "surplus_over_wire": 128.6,
      "cliff_after_rank": 1,
      "cliff_size": 10,
@@ -1670,7 +2230,7 @@
        "floor_blend": 168.8,
        "ceiling_blend": 262.8,
        "adp": 47.1,
-       "pct_available_now": 35,
+       "pct_available_now": 33,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 128.6
       },
@@ -1687,7 +2247,7 @@
        "floor_blend": 155.5,
        "ceiling_blend": 255.8,
        "adp": 45.5,
-       "pct_available_now": 29,
+       "pct_available_now": 30,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 118.6
       },
@@ -1739,7 +2299,7 @@
        "ceiling_blend": 238.4,
        "adp": 71.3,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 86,
+       "pct_still_there_next_pick": 88,
        "surplus_over_wire": 101.6
       },
       {
@@ -1756,7 +2316,7 @@
        "ceiling_blend": 226.6,
        "adp": 65.4,
        "pct_available_now": 99,
-       "pct_still_there_next_pick": 66,
+       "pct_still_there_next_pick": 65,
        "surplus_over_wire": 96.6
       },
       {
@@ -1789,7 +2349,7 @@
        "floor_blend": 155.5,
        "ceiling_blend": 301.5,
        "adp": 53.8,
-       "pct_available_now": 85,
+       "pct_available_now": 86,
        "pct_still_there_next_pick": 5,
        "surplus_over_wire": 91.6
       },
@@ -1831,8 +2391,48 @@
     },
     "WR": {
      "best_now": 194,
-     "expected_best_at_next_pick": 181,
-     "VONA": 13,
+     "expected_best_at_next_pick": 180.9,
+     "VONA": 13.1,
+     "VONA_by_source": {
+      "ds": 13.1,
+      "sleeper": 11.2,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 20,
+      "clay": null,
+      "ownmodel": 3
+     },
+     "best_now_by_source": {
+      "ds": 194,
+      "sleeper": 187.2,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 187.9,
+      "clay": null,
+      "ownmodel": 167.9
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 180.9,
+      "sleeper": 176,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 167.9,
+      "clay": null,
+      "ownmodel": 164.9
+     },
+     "covered_by_source": {
+      "ds": 51,
+      "sleeper": 51,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 51,
+      "clay": 0,
+      "ownmodel": 51
+     },
      "surplus_over_wire": 69.2,
      "cliff_after_rank": 3,
      "cliff_size": 10,
@@ -1885,7 +2485,7 @@
        "floor_blend": 149.1,
        "ceiling_blend": 224.6,
        "adp": 44,
-       "pct_available_now": 21,
+       "pct_available_now": 22,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 68.2
       },
@@ -1902,8 +2502,8 @@
        "floor_blend": 141.4,
        "ceiling_blend": 230.8,
        "adp": 51.4,
-       "pct_available_now": 63,
-       "pct_still_there_next_pick": 3,
+       "pct_available_now": 64,
+       "pct_still_there_next_pick": 2,
        "surplus_over_wire": 58.2
       },
       {
@@ -1919,7 +2519,7 @@
        "floor_blend": 143.2,
        "ceiling_blend": 231.5,
        "adp": 59.8,
-       "pct_available_now": 94,
+       "pct_available_now": 93,
        "pct_still_there_next_pick": 30,
        "surplus_over_wire": 58.2
       },
@@ -1937,7 +2537,7 @@
        "ceiling_blend": 232.7,
        "adp": 52.8,
        "pct_available_now": 83,
-       "pct_still_there_next_pick": 1,
+       "pct_still_there_next_pick": 2,
        "surplus_over_wire": 57.2
       },
       {
@@ -1954,7 +2554,7 @@
        "ceiling_blend": 240.4,
        "adp": 56.9,
        "pct_available_now": 97,
-       "pct_still_there_next_pick": 6,
+       "pct_still_there_next_pick": 5,
        "surplus_over_wire": 54.2
       },
       {
@@ -1971,7 +2571,7 @@
        "ceiling_blend": 200.8,
        "adp": 69.7,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 83,
+       "pct_still_there_next_pick": 82,
        "surplus_over_wire": 50.2
       },
       {
@@ -1987,7 +2587,7 @@
        "floor_blend": 140.7,
        "ceiling_blend": 225.6,
        "adp": 48.1,
-       "pct_available_now": 49,
+       "pct_available_now": 48,
        "pct_still_there_next_pick": 1,
        "surplus_over_wire": 49.2
       },
@@ -2005,7 +2605,7 @@
        "ceiling_blend": 247.9,
        "adp": 60.8,
        "pct_available_now": 99,
-       "pct_still_there_next_pick": 35,
+       "pct_still_there_next_pick": 34,
        "surplus_over_wire": 48.2
       }
      ]
@@ -2014,6 +2614,46 @@
      "best_now": 197,
      "expected_best_at_next_pick": 159.2,
      "VONA": 37.8,
+     "VONA_by_source": {
+      "ds": 37.8,
+      "sleeper": 23.5,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 17.7,
+      "clay": null,
+      "ownmodel": 6.5
+     },
+     "best_now_by_source": {
+      "ds": 197,
+      "sleeper": 173.4,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 171.9,
+      "clay": null,
+      "ownmodel": 145.8
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 159.2,
+      "sleeper": 149.9,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 154.2,
+      "clay": null,
+      "ownmodel": 139.3
+     },
+     "covered_by_source": {
+      "ds": 24,
+      "sleeper": 24,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 24,
+      "clay": 0,
+      "ownmodel": 24
+     },
      "surplus_over_wire": 66.6,
      "cliff_after_rank": 2,
      "cliff_size": 21,
@@ -2049,7 +2689,7 @@
        "floor_blend": 137.8,
        "ceiling_blend": 194.5,
        "adp": 46.3,
-       "pct_available_now": 45,
+       "pct_available_now": 46,
        "pct_still_there_next_pick": 3,
        "surplus_over_wire": 51.6
       },
@@ -2067,7 +2707,7 @@
        "ceiling_blend": 193.8,
        "adp": 62.2,
        "pct_available_now": 76,
-       "pct_still_there_next_pick": 46,
+       "pct_still_there_next_pick": 47,
        "surplus_over_wire": 30.6
       },
       {
@@ -2100,8 +2740,8 @@
        "floor_blend": 133.5,
        "ceiling_blend": 190.3,
        "adp": 64.5,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 52,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 53,
        "surplus_over_wire": 27.6
       },
       {
@@ -2127,6 +2767,46 @@
      "best_now": 177,
      "expected_best_at_next_pick": 177,
      "VONA": 0,
+     "VONA_by_source": {
+      "ds": 0,
+      "sleeper": 0,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "best_now_by_source": {
+      "ds": 177,
+      "sleeper": 107,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 177,
+      "sleeper": 107,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "covered_by_source": {
+      "ds": 22,
+      "sleeper": 22,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 0,
+      "clay": 0,
+      "ownmodel": 0
+     },
      "surplus_over_wire": 48.4,
      "cliff_after_rank": 2,
      "cliff_size": 12,
@@ -2195,7 +2875,7 @@
        "proj_blend": 127.2,
        "floor_blend": 119.7,
        "ceiling_blend": 146.3,
-       "adp": 257.6,
+       "adp": 258.3,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 24.4
@@ -2206,6 +2886,46 @@
      "best_now": 125,
      "expected_best_at_next_pick": 125,
      "VONA": 0,
+     "VONA_by_source": {
+      "ds": 0,
+      "sleeper": 0,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "best_now_by_source": {
+      "ds": 125,
+      "sleeper": 132,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 125,
+      "sleeper": 132,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "covered_by_source": {
+      "ds": 21,
+      "sleeper": 21,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 0,
+      "clay": 0,
+      "ownmodel": 0
+     },
      "surplus_over_wire": 25,
      "cliff_after_rank": 3,
      "cliff_size": 6,
@@ -2290,8 +3010,48 @@
    "positions": {
     "QB": {
      "best_now": 337,
-     "expected_best_at_next_pick": 329.2,
-     "VONA": 7.8,
+     "expected_best_at_next_pick": 329.3,
+     "VONA": 7.7,
+     "VONA_by_source": {
+      "ds": 7.7,
+      "sleeper": 9.7,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 9.1,
+      "clay": null,
+      "ownmodel": 0
+     },
+     "best_now_by_source": {
+      "ds": 337,
+      "sleeper": 362.1,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 365.9,
+      "clay": null,
+      "ownmodel": 333.1
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 329.3,
+      "sleeper": 352.5,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 356.8,
+      "clay": null,
+      "ownmodel": 333.1
+     },
+     "covered_by_source": {
+      "ds": 27,
+      "sleeper": 27,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 27,
+      "clay": 0,
+      "ownmodel": 27
+     },
      "surplus_over_wire": 14.1,
      "cliff_after_rank": 1,
      "cliff_size": 3,
@@ -2310,7 +3070,7 @@
        "floor_blend": 316.9,
        "ceiling_blend": 460,
        "adp": 49.8,
-       "pct_available_now": 7,
+       "pct_available_now": 8,
        "pct_still_there_next_pick": 3,
        "surplus_over_wire": 14.1
       },
@@ -2327,7 +3087,7 @@
        "floor_blend": 309.2,
        "ceiling_blend": 467.6,
        "adp": 56.1,
-       "pct_available_now": 20,
+       "pct_available_now": 21,
        "pct_still_there_next_pick": 9,
        "surplus_over_wire": 11.1
       },
@@ -2345,7 +3105,7 @@
        "ceiling_blend": 472.9,
        "adp": 58.8,
        "pct_available_now": 27,
-       "pct_still_there_next_pick": 14,
+       "pct_still_there_next_pick": 15,
        "surplus_over_wire": 8.1
       },
       {
@@ -2395,7 +3155,7 @@
        "floor_blend": 297,
        "ceiling_blend": 441.8,
        "adp": 74.3,
-       "pct_available_now": 79,
+       "pct_available_now": 80,
        "pct_still_there_next_pick": 68,
        "surplus_over_wire": 3.1
       }
@@ -2403,8 +3163,48 @@
     },
     "RB": {
      "best_now": 180,
-     "expected_best_at_next_pick": 172.9,
-     "VONA": 7.1,
+     "expected_best_at_next_pick": 173,
+     "VONA": 7,
+     "VONA_by_source": {
+      "ds": 7,
+      "sleeper": 8.5,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 20.1,
+      "clay": null,
+      "ownmodel": 2.1
+     },
+     "best_now_by_source": {
+      "ds": 180,
+      "sleeper": 160.5,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 192.7,
+      "clay": null,
+      "ownmodel": 146.1
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 173,
+      "sleeper": 152,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 172.5,
+      "clay": null,
+      "ownmodel": 144
+     },
+     "covered_by_source": {
+      "ds": 56,
+      "sleeper": 56,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 53,
+      "clay": 0,
+      "ownmodel": 54
+     },
      "surplus_over_wire": 101.6,
      "cliff_after_rank": 9,
      "cliff_size": 9,
@@ -2423,8 +3223,8 @@
        "floor_blend": 141.6,
        "ceiling_blend": 238.4,
        "adp": 71.3,
-       "pct_available_now": 86,
-       "pct_still_there_next_pick": 64,
+       "pct_available_now": 88,
+       "pct_still_there_next_pick": 65,
        "surplus_over_wire": 101.6
       },
       {
@@ -2440,7 +3240,7 @@
        "floor_blend": 135.2,
        "ceiling_blend": 226.6,
        "adp": 65.4,
-       "pct_available_now": 66,
+       "pct_available_now": 65,
        "pct_still_there_next_pick": 32,
        "surplus_over_wire": 96.6
       },
@@ -2525,7 +3325,7 @@
        "floor_blend": 136,
        "ceiling_blend": 253.2,
        "adp": 83.8,
-       "pct_available_now": 98,
+       "pct_available_now": 99,
        "pct_still_there_next_pick": 92,
        "surplus_over_wire": 82.6
       },
@@ -2584,8 +3384,48 @@
     },
     "WR": {
      "best_now": 194,
-     "expected_best_at_next_pick": 174.9,
-     "VONA": 19.1,
+     "expected_best_at_next_pick": 174.7,
+     "VONA": 19.3,
+     "VONA_by_source": {
+      "ds": 19.3,
+      "sleeper": 17.8,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 19.6,
+      "clay": null,
+      "ownmodel": 3.1
+     },
+     "best_now_by_source": {
+      "ds": 194,
+      "sleeper": 187.2,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 185,
+      "clay": null,
+      "ownmodel": 167.9
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 174.7,
+      "sleeper": 169.4,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 165.4,
+      "clay": null,
+      "ownmodel": 164.8
+     },
+     "covered_by_source": {
+      "ds": 46,
+      "sleeper": 46,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 46,
+      "clay": 0,
+      "ownmodel": 46
+     },
      "surplus_over_wire": 69.2,
      "cliff_after_rank": 1,
      "cliff_size": 11,
@@ -2605,7 +3445,7 @@
        "ceiling_blend": 215,
        "adp": 63.6,
        "pct_available_now": 50,
-       "pct_still_there_next_pick": 14,
+       "pct_still_there_next_pick": 15,
        "surplus_over_wire": 69.2
       },
       {
@@ -2638,7 +3478,7 @@
        "floor_blend": 158.6,
        "ceiling_blend": 240.4,
        "adp": 56.9,
-       "pct_available_now": 6,
+       "pct_available_now": 5,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 54.2
       },
@@ -2655,7 +3495,7 @@
        "floor_blend": 130,
        "ceiling_blend": 200.8,
        "adp": 69.7,
-       "pct_available_now": 83,
+       "pct_available_now": 82,
        "pct_still_there_next_pick": 52,
        "surplus_over_wire": 50.2
       },
@@ -2672,8 +3512,8 @@
        "floor_blend": 150.3,
        "ceiling_blend": 247.9,
        "adp": 60.8,
-       "pct_available_now": 35,
-       "pct_still_there_next_pick": 7,
+       "pct_available_now": 34,
+       "pct_still_there_next_pick": 8,
        "surplus_over_wire": 48.2
       },
       {
@@ -2690,7 +3530,7 @@
        "ceiling_blend": 203.4,
        "adp": 80.5,
        "pct_available_now": 99,
-       "pct_still_there_next_pick": 96,
+       "pct_still_there_next_pick": 97,
        "surplus_over_wire": 48.2
       },
       {
@@ -2706,8 +3546,8 @@
        "floor_blend": 124.8,
        "ceiling_blend": 208.3,
        "adp": 68.9,
-       "pct_available_now": 78,
-       "pct_still_there_next_pick": 49,
+       "pct_available_now": 75,
+       "pct_still_there_next_pick": 51,
        "surplus_over_wire": 41.2
       },
       {
@@ -2765,12 +3605,52 @@
     },
     "TE": {
      "best_now": 161,
-     "expected_best_at_next_pick": 157,
-     "VONA": 4,
+     "expected_best_at_next_pick": 156.9,
+     "VONA": 4.1,
+     "VONA_by_source": {
+      "ds": 4.1,
+      "sleeper": 11.8,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 3.9,
+      "clay": null,
+      "ownmodel": 10.2
+     },
+     "best_now_by_source": {
+      "ds": 161,
+      "sleeper": 158.5,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 155.9,
+      "clay": null,
+      "ownmodel": 145.8
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 156.9,
+      "sleeper": 146.7,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 152,
+      "clay": null,
+      "ownmodel": 135.6
+     },
+     "covered_by_source": {
+      "ds": 22,
+      "sleeper": 22,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 22,
+      "clay": 0,
+      "ownmodel": 22
+     },
      "surplus_over_wire": 30.6,
      "cliff_after_rank": 3,
      "cliff_size": 7,
-     "note": "wait — only 4 lost by waiting, the tier holds",
+     "note": "neutral — 4 to wait, +31 over the wire",
      "players": [
       {
        "player_id": "9484",
@@ -2785,7 +3665,7 @@
        "floor_blend": 126.5,
        "ceiling_blend": 193.8,
        "adp": 62.2,
-       "pct_available_now": 46,
+       "pct_available_now": 47,
        "pct_still_there_next_pick": 33,
        "surplus_over_wire": 30.6
       },
@@ -2803,7 +3683,7 @@
        "ceiling_blend": 195.4,
        "adp": 66.8,
        "pct_available_now": 56,
-       "pct_still_there_next_pick": 44,
+       "pct_still_there_next_pick": 43,
        "surplus_over_wire": 29.6
       },
       {
@@ -2819,8 +3699,8 @@
        "floor_blend": 133.5,
        "ceiling_blend": 190.3,
        "adp": 64.5,
-       "pct_available_now": 52,
-       "pct_still_there_next_pick": 28,
+       "pct_available_now": 53,
+       "pct_still_there_next_pick": 26,
        "surplus_over_wire": 27.6
       },
       {
@@ -2853,8 +3733,8 @@
        "floor_blend": 137.2,
        "ceiling_blend": 195.7,
        "adp": 72.1,
-       "pct_available_now": 84,
-       "pct_still_there_next_pick": 64,
+       "pct_available_now": 85,
+       "pct_still_there_next_pick": 65,
        "surplus_over_wire": 17.6
       },
       {
@@ -2870,8 +3750,8 @@
        "floor_blend": 122.4,
        "ceiling_blend": 171.3,
        "adp": 93.2,
-       "pct_available_now": 95,
-       "pct_still_there_next_pick": 92,
+       "pct_available_now": 96,
+       "pct_still_there_next_pick": 93,
        "surplus_over_wire": 15.6
       }
      ]
@@ -2880,6 +3760,46 @@
      "best_now": 177,
      "expected_best_at_next_pick": 177,
      "VONA": 0,
+     "VONA_by_source": {
+      "ds": 0,
+      "sleeper": 0,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "best_now_by_source": {
+      "ds": 177,
+      "sleeper": 107,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 177,
+      "sleeper": 107,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "covered_by_source": {
+      "ds": 22,
+      "sleeper": 22,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 0,
+      "clay": 0,
+      "ownmodel": 0
+     },
      "surplus_over_wire": 48.4,
      "cliff_after_rank": 2,
      "cliff_size": 12,
@@ -2948,7 +3868,7 @@
        "proj_blend": 127.2,
        "floor_blend": 119.7,
        "ceiling_blend": 146.3,
-       "adp": 257.6,
+       "adp": 258.3,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 24.4
@@ -2959,6 +3879,46 @@
      "best_now": 125,
      "expected_best_at_next_pick": 125,
      "VONA": 0,
+     "VONA_by_source": {
+      "ds": 0,
+      "sleeper": 0,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "best_now_by_source": {
+      "ds": 125,
+      "sleeper": 132,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 125,
+      "sleeper": 132,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "covered_by_source": {
+      "ds": 21,
+      "sleeper": 21,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 0,
+      "clay": 0,
+      "ownmodel": 0
+     },
      "surplus_over_wire": 25,
      "cliff_after_rank": 3,
      "cliff_size": 6,
@@ -3045,6 +4005,46 @@
      "best_now": 334,
      "expected_best_at_next_pick": 327.6,
      "VONA": 6.4,
+     "VONA_by_source": {
+      "ds": 6.4,
+      "sleeper": 3.3,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 7.9,
+      "clay": null,
+      "ownmodel": 0
+     },
+     "best_now_by_source": {
+      "ds": 334,
+      "sleeper": 352.9,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 361.4,
+      "clay": null,
+      "ownmodel": 333.1
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 327.6,
+      "sleeper": 349.6,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 353.4,
+      "clay": null,
+      "ownmodel": 333.1
+     },
+     "covered_by_source": {
+      "ds": 26,
+      "sleeper": 26,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 26,
+      "clay": 0,
+      "ownmodel": 26
+     },
      "surplus_over_wire": 11.1,
      "cliff_after_rank": 1,
      "cliff_size": 3,
@@ -3080,7 +4080,7 @@
        "floor_blend": 316.8,
        "ceiling_blend": 472.9,
        "adp": 58.8,
-       "pct_available_now": 14,
+       "pct_available_now": 15,
        "pct_still_there_next_pick": 2,
        "surplus_over_wire": 8.1
       },
@@ -3132,7 +4132,7 @@
        "ceiling_blend": 441.8,
        "adp": 74.3,
        "pct_available_now": 68,
-       "pct_still_there_next_pick": 24,
+       "pct_still_there_next_pick": 23,
        "surplus_over_wire": 3.1
       },
       {
@@ -3158,6 +4158,46 @@
      "best_now": 180,
      "expected_best_at_next_pick": 159.2,
      "VONA": 20.8,
+     "VONA_by_source": {
+      "ds": 20.8,
+      "sleeper": 15.3,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 19,
+      "clay": null,
+      "ownmodel": 10.2
+     },
+     "best_now_by_source": {
+      "ds": 180,
+      "sleeper": 160.5,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 176.6,
+      "clay": null,
+      "ownmodel": 146.1
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 159.2,
+      "sleeper": 145.2,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 157.6,
+      "clay": null,
+      "ownmodel": 136
+     },
+     "covered_by_source": {
+      "ds": 55,
+      "sleeper": 55,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 52,
+      "clay": 0,
+      "ownmodel": 53
+     },
      "surplus_over_wire": 101.6,
      "cliff_after_rank": 2,
      "cliff_size": 10,
@@ -3176,8 +4216,8 @@
        "floor_blend": 141.6,
        "ceiling_blend": 238.4,
        "adp": 71.3,
-       "pct_available_now": 64,
-       "pct_still_there_next_pick": 5,
+       "pct_available_now": 65,
+       "pct_still_there_next_pick": 4,
        "surplus_over_wire": 101.6
       },
       {
@@ -3194,7 +4234,7 @@
        "ceiling_blend": 226.6,
        "adp": 65.4,
        "pct_available_now": 32,
-       "pct_still_there_next_pick": 0,
+       "pct_still_there_next_pick": 1,
        "surplus_over_wire": 96.6
       },
       {
@@ -3228,7 +4268,7 @@
        "ceiling_blend": 243.9,
        "adp": 75.1,
        "pct_available_now": 83,
-       "pct_still_there_next_pick": 10,
+       "pct_still_there_next_pick": 11,
        "surplus_over_wire": 86.6
       },
       {
@@ -3262,7 +4302,7 @@
        "ceiling_blend": 253.2,
        "adp": 83.8,
        "pct_available_now": 92,
-       "pct_still_there_next_pick": 53,
+       "pct_still_there_next_pick": 52,
        "surplus_over_wire": 82.6
       },
       {
@@ -3296,7 +4336,7 @@
        "ceiling_blend": 226.4,
        "adp": 99,
        "pct_available_now": 98,
-       "pct_still_there_next_pick": 85,
+       "pct_still_there_next_pick": 86,
        "surplus_over_wire": 76.6
       },
       {
@@ -3339,6 +4379,46 @@
      "best_now": 194,
      "expected_best_at_next_pick": 166.3,
      "VONA": 27.7,
+     "VONA_by_source": {
+      "ds": 27.7,
+      "sleeper": 24.5,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 11,
+      "clay": null,
+      "ownmodel": 0
+     },
+     "best_now_by_source": {
+      "ds": 194,
+      "sleeper": 187.2,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 173.9,
+      "clay": null,
+      "ownmodel": 164.8
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 166.3,
+      "sleeper": 162.7,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 163,
+      "clay": null,
+      "ownmodel": 164.8
+     },
+     "covered_by_source": {
+      "ds": 45,
+      "sleeper": 45,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 45,
+      "clay": 0,
+      "ownmodel": 45
+     },
      "surplus_over_wire": 69.2,
      "cliff_after_rank": 1,
      "cliff_size": 11,
@@ -3357,7 +4437,7 @@
        "floor_blend": 139.6,
        "ceiling_blend": 215,
        "adp": 63.6,
-       "pct_available_now": 14,
+       "pct_available_now": 15,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 69.2
       },
@@ -3392,7 +4472,7 @@
        "ceiling_blend": 200.8,
        "adp": 69.7,
        "pct_available_now": 52,
-       "pct_still_there_next_pick": 2,
+       "pct_still_there_next_pick": 3,
        "surplus_over_wire": 50.2
       },
       {
@@ -3408,7 +4488,7 @@
        "floor_blend": 150.3,
        "ceiling_blend": 247.9,
        "adp": 60.8,
-       "pct_available_now": 7,
+       "pct_available_now": 8,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 48.2
       },
@@ -3425,8 +4505,8 @@
        "floor_blend": 134.6,
        "ceiling_blend": 203.4,
        "adp": 80.5,
-       "pct_available_now": 96,
-       "pct_still_there_next_pick": 33,
+       "pct_available_now": 97,
+       "pct_still_there_next_pick": 32,
        "surplus_over_wire": 48.2
       },
       {
@@ -3442,8 +4522,8 @@
        "floor_blend": 124.8,
        "ceiling_blend": 208.3,
        "adp": 68.9,
-       "pct_available_now": 49,
-       "pct_still_there_next_pick": 2,
+       "pct_available_now": 51,
+       "pct_still_there_next_pick": 3,
        "surplus_over_wire": 41.2
       },
       {
@@ -3460,7 +4540,7 @@
        "ceiling_blend": 214,
        "adp": 86.4,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 66,
+       "pct_still_there_next_pick": 68,
        "surplus_over_wire": 40.2
       },
       {
@@ -3518,8 +4598,48 @@
     },
     "TE": {
      "best_now": 161,
-     "expected_best_at_next_pick": 149.6,
-     "VONA": 11.4,
+     "expected_best_at_next_pick": 149.8,
+     "VONA": 11.2,
+     "VONA_by_source": {
+      "ds": 11.2,
+      "sleeper": 18.8,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 9.1,
+      "clay": null,
+      "ownmodel": 15.2
+     },
+     "best_now_by_source": {
+      "ds": 161,
+      "sleeper": 158.5,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 155.9,
+      "clay": null,
+      "ownmodel": 145.8
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 149.8,
+      "sleeper": 139.7,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 146.8,
+      "clay": null,
+      "ownmodel": 130.5
+     },
+     "covered_by_source": {
+      "ds": 22,
+      "sleeper": 22,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 22,
+      "clay": 0,
+      "ownmodel": 22
+     },
      "surplus_over_wire": 30.6,
      "cliff_after_rank": 3,
      "cliff_size": 7,
@@ -3539,7 +4659,7 @@
        "ceiling_blend": 193.8,
        "adp": 62.2,
        "pct_available_now": 33,
-       "pct_still_there_next_pick": 11,
+       "pct_still_there_next_pick": 14,
        "surplus_over_wire": 30.6
       },
       {
@@ -3555,8 +4675,8 @@
        "floor_blend": 133.4,
        "ceiling_blend": 195.4,
        "adp": 66.8,
-       "pct_available_now": 44,
-       "pct_still_there_next_pick": 12,
+       "pct_available_now": 43,
+       "pct_still_there_next_pick": 11,
        "surplus_over_wire": 29.6
       },
       {
@@ -3572,7 +4692,7 @@
        "floor_blend": 133.5,
        "ceiling_blend": 190.3,
        "adp": 64.5,
-       "pct_available_now": 28,
+       "pct_available_now": 26,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 27.6
       },
@@ -3606,7 +4726,7 @@
        "floor_blend": 137.2,
        "ceiling_blend": 195.7,
        "adp": 72.1,
-       "pct_available_now": 64,
+       "pct_available_now": 65,
        "pct_still_there_next_pick": 9,
        "surplus_over_wire": 17.6
       },
@@ -3623,8 +4743,8 @@
        "floor_blend": 122.4,
        "ceiling_blend": 171.3,
        "adp": 93.2,
-       "pct_available_now": 92,
-       "pct_still_there_next_pick": 71,
+       "pct_available_now": 93,
+       "pct_still_there_next_pick": 72,
        "surplus_over_wire": 15.6
       }
      ]
@@ -3633,6 +4753,46 @@
      "best_now": 177,
      "expected_best_at_next_pick": 176.6,
      "VONA": 0.4,
+     "VONA_by_source": {
+      "ds": 0.4,
+      "sleeper": 0.2,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "best_now_by_source": {
+      "ds": 177,
+      "sleeper": 107,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 176.6,
+      "sleeper": 106.8,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "covered_by_source": {
+      "ds": 22,
+      "sleeper": 22,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 0,
+      "clay": 0,
+      "ownmodel": 0
+     },
      "surplus_over_wire": 48.4,
      "cliff_after_rank": 2,
      "cliff_size": 12,
@@ -3701,7 +4861,7 @@
        "proj_blend": 127.2,
        "floor_blend": 119.7,
        "ceiling_blend": 146.3,
-       "adp": 257.6,
+       "adp": 258.3,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 24.4
@@ -3712,6 +4872,46 @@
      "best_now": 125,
      "expected_best_at_next_pick": 125,
      "VONA": 0,
+     "VONA_by_source": {
+      "ds": 0,
+      "sleeper": 0,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "best_now_by_source": {
+      "ds": 125,
+      "sleeper": 132,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 125,
+      "sleeper": 132,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "covered_by_source": {
+      "ds": 21,
+      "sleeper": 21,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 0,
+      "clay": 0,
+      "ownmodel": 0
+     },
      "surplus_over_wire": 25,
      "cliff_after_rank": 3,
      "cliff_size": 6,
@@ -3796,8 +4996,48 @@
    "positions": {
     "QB": {
      "best_now": 329,
-     "expected_best_at_next_pick": 327.2,
-     "VONA": 1.8,
+     "expected_best_at_next_pick": 327.1,
+     "VONA": 1.9,
+     "VONA_by_source": {
+      "ds": 1.9,
+      "sleeper": 4.8,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 4.4,
+      "clay": null,
+      "ownmodel": 0.2
+     },
+     "best_now_by_source": {
+      "ds": 329,
+      "sleeper": 352.9,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 356.7,
+      "clay": null,
+      "ownmodel": 333.1
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 327.1,
+      "sleeper": 348.1,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 352.4,
+      "clay": null,
+      "ownmodel": 332.9
+     },
+     "covered_by_source": {
+      "ds": 24,
+      "sleeper": 24,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 24,
+      "clay": 0,
+      "ownmodel": 24
+     },
      "surplus_over_wire": 6.1,
      "cliff_after_rank": 1,
      "cliff_size": 2,
@@ -3850,8 +5090,8 @@
        "floor_blend": 297,
        "ceiling_blend": 441.8,
        "adp": 74.3,
-       "pct_available_now": 24,
-       "pct_still_there_next_pick": 15,
+       "pct_available_now": 23,
+       "pct_still_there_next_pick": 14,
        "surplus_over_wire": 3.1
       },
       {
@@ -3884,7 +5124,7 @@
        "floor_blend": 266.5,
        "ceiling_blend": 409,
        "adp": 124,
-       "pct_available_now": 99,
+       "pct_available_now": 100,
        "pct_still_there_next_pick": 99,
        "surplus_over_wire": 2.1
       },
@@ -3901,7 +5141,7 @@
        "floor_blend": 299.5,
        "ceiling_blend": 451.9,
        "adp": 67.9,
-       "pct_available_now": 15,
+       "pct_available_now": 13,
        "pct_still_there_next_pick": 6,
        "surplus_over_wire": 1.1
       }
@@ -3911,6 +5151,46 @@
      "best_now": 165,
      "expected_best_at_next_pick": 156.3,
      "VONA": 8.7,
+     "VONA_by_source": {
+      "ds": 8.7,
+      "sleeper": 3.6,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 20.2,
+      "clay": null,
+      "ownmodel": 11.3
+     },
+     "best_now_by_source": {
+      "ds": 165,
+      "sleeper": 147.2,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 171.8,
+      "clay": null,
+      "ownmodel": 146.1
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 156.3,
+      "sleeper": 143.6,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 151.6,
+      "clay": null,
+      "ownmodel": 134.8
+     },
+     "covered_by_source": {
+      "ds": 52,
+      "sleeper": 52,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 49,
+      "clay": 0,
+      "ownmodel": 50
+     },
      "surplus_over_wire": 86.6,
      "cliff_after_rank": 5,
      "cliff_size": 9,
@@ -3946,8 +5226,8 @@
        "floor_blend": 137.5,
        "ceiling_blend": 243.9,
        "adp": 75.1,
-       "pct_available_now": 10,
-       "pct_still_there_next_pick": 1,
+       "pct_available_now": 11,
+       "pct_still_there_next_pick": 2,
        "surplus_over_wire": 86.6
       },
       {
@@ -3963,7 +5243,7 @@
        "floor_blend": 136,
        "ceiling_blend": 253.2,
        "adp": 83.8,
-       "pct_available_now": 53,
+       "pct_available_now": 52,
        "pct_still_there_next_pick": 32,
        "surplus_over_wire": 82.6
       },
@@ -3981,7 +5261,7 @@
        "ceiling_blend": 245.6,
        "adp": 85.6,
        "pct_available_now": 54,
-       "pct_still_there_next_pick": 41,
+       "pct_still_there_next_pick": 42,
        "surplus_over_wire": 80.6
       },
       {
@@ -3997,7 +5277,7 @@
        "floor_blend": 111,
        "ceiling_blend": 226.4,
        "adp": 99,
-       "pct_available_now": 85,
+       "pct_available_now": 86,
        "pct_still_there_next_pick": 78,
        "surplus_over_wire": 76.6
       },
@@ -4015,7 +5295,7 @@
        "ceiling_blend": 229.7,
        "adp": 97.5,
        "pct_available_now": 85,
-       "pct_still_there_next_pick": 75,
+       "pct_still_there_next_pick": 76,
        "surplus_over_wire": 67.6
       },
       {
@@ -4032,7 +5312,7 @@
        "ceiling_blend": 224.3,
        "adp": 79.7,
        "pct_available_now": 35,
-       "pct_still_there_next_pick": 22,
+       "pct_still_there_next_pick": 21,
        "surplus_over_wire": 63.6
       },
       {
@@ -4049,7 +5329,7 @@
        "ceiling_blend": 250.4,
        "adp": 89.1,
        "pct_available_now": 68,
-       "pct_still_there_next_pick": 54,
+       "pct_still_there_next_pick": 53,
        "surplus_over_wire": 60.6
       },
       {
@@ -4065,8 +5345,8 @@
        "floor_blend": 132.8,
        "ceiling_blend": 279.5,
        "adp": 77.8,
-       "pct_available_now": 27,
-       "pct_still_there_next_pick": 9,
+       "pct_available_now": 28,
+       "pct_still_there_next_pick": 10,
        "surplus_over_wire": 59.6
       },
       {
@@ -4082,7 +5362,7 @@
        "floor_blend": 120.7,
        "ceiling_blend": 253.2,
        "adp": 90.3,
-       "pct_available_now": 63,
+       "pct_available_now": 62,
        "pct_still_there_next_pick": 50,
        "surplus_over_wire": 56.6
       }
@@ -4090,8 +5370,48 @@
     },
     "WR": {
      "best_now": 173,
-     "expected_best_at_next_pick": 165.1,
-     "VONA": 7.9,
+     "expected_best_at_next_pick": 165.2,
+     "VONA": 7.8,
+     "VONA_by_source": {
+      "ds": 7.8,
+      "sleeper": 0.3,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 7.2,
+      "clay": null,
+      "ownmodel": 0.1
+     },
+     "best_now_by_source": {
+      "ds": 173,
+      "sleeper": 162.6,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 164.9,
+      "clay": null,
+      "ownmodel": 164.8
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 165.2,
+      "sleeper": 162.3,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 157.8,
+      "clay": null,
+      "ownmodel": 164.7
+     },
+     "covered_by_source": {
+      "ds": 39,
+      "sleeper": 39,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 39,
+      "clay": 0,
+      "ownmodel": 39
+     },
      "surplus_over_wire": 48.2,
      "cliff_after_rank": 1,
      "cliff_size": 8,
@@ -4110,8 +5430,8 @@
        "floor_blend": 134.6,
        "ceiling_blend": 203.4,
        "adp": 80.5,
-       "pct_available_now": 33,
-       "pct_still_there_next_pick": 10,
+       "pct_available_now": 32,
+       "pct_still_there_next_pick": 9,
        "surplus_over_wire": 48.2
       },
       {
@@ -4127,8 +5447,8 @@
        "floor_blend": 138.8,
        "ceiling_blend": 214,
        "adp": 86.4,
-       "pct_available_now": 66,
-       "pct_still_there_next_pick": 32,
+       "pct_available_now": 68,
+       "pct_still_there_next_pick": 31,
        "surplus_over_wire": 40.2
       },
       {
@@ -4162,7 +5482,7 @@
        "ceiling_blend": 225.1,
        "adp": 73.1,
        "pct_available_now": 9,
-       "pct_still_there_next_pick": 1,
+       "pct_still_there_next_pick": 2,
        "surplus_over_wire": 39.2
       },
       {
@@ -4229,7 +5549,7 @@
        "floor_blend": 117.8,
        "ceiling_blend": 204.1,
        "adp": 102.2,
-       "pct_available_now": 98,
+       "pct_available_now": 99,
        "pct_still_there_next_pick": 95,
        "surplus_over_wire": 33.2
       },
@@ -4271,8 +5591,48 @@
     },
     "TE": {
      "best_now": 161,
-     "expected_best_at_next_pick": 146.5,
-     "VONA": 14.5,
+     "expected_best_at_next_pick": 146.6,
+     "VONA": 14.4,
+     "VONA_by_source": {
+      "ds": 14.4,
+      "sleeper": 20.6,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 9.8,
+      "clay": null,
+      "ownmodel": 6.9
+     },
+     "best_now_by_source": {
+      "ds": 161,
+      "sleeper": 158.5,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 155.9,
+      "clay": null,
+      "ownmodel": 136.4
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 146.6,
+      "sleeper": 137.9,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 146.1,
+      "clay": null,
+      "ownmodel": 129.5
+     },
+     "covered_by_source": {
+      "ds": 21,
+      "sleeper": 21,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 21,
+      "clay": 0,
+      "ownmodel": 21
+     },
      "surplus_over_wire": 30.6,
      "cliff_after_rank": 5,
      "cliff_size": 15,
@@ -4291,8 +5651,8 @@
        "floor_blend": 126.5,
        "ceiling_blend": 193.8,
        "adp": 62.2,
-       "pct_available_now": 11,
-       "pct_still_there_next_pick": 6,
+       "pct_available_now": 14,
+       "pct_still_there_next_pick": 8,
        "surplus_over_wire": 30.6
       },
       {
@@ -4308,8 +5668,8 @@
        "floor_blend": 133.4,
        "ceiling_blend": 195.4,
        "adp": 66.8,
-       "pct_available_now": 12,
-       "pct_still_there_next_pick": 10,
+       "pct_available_now": 11,
+       "pct_still_there_next_pick": 7,
        "surplus_over_wire": 29.6
       },
       {
@@ -4359,7 +5719,7 @@
        "floor_blend": 122.4,
        "ceiling_blend": 171.3,
        "adp": 93.2,
-       "pct_available_now": 71,
+       "pct_available_now": 72,
        "pct_still_there_next_pick": 60,
        "surplus_over_wire": 15.6
       },
@@ -4376,16 +5736,56 @@
        "floor_blend": 121.1,
        "ceiling_blend": 174.8,
        "adp": 116.6,
-       "pct_available_now": 92,
-       "pct_still_there_next_pick": 90,
+       "pct_available_now": 91,
+       "pct_still_there_next_pick": 88,
        "surplus_over_wire": 0.6
       }
      ]
     },
     "K": {
      "best_now": 177,
-     "expected_best_at_next_pick": 176.3,
-     "VONA": 0.7,
+     "expected_best_at_next_pick": 176.2,
+     "VONA": 0.8,
+     "VONA_by_source": {
+      "ds": 0.8,
+      "sleeper": 0.3,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "best_now_by_source": {
+      "ds": 177,
+      "sleeper": 107,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 176.2,
+      "sleeper": 106.7,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "covered_by_source": {
+      "ds": 22,
+      "sleeper": 22,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 0,
+      "clay": 0,
+      "ownmodel": 0
+     },
      "surplus_over_wire": 48.4,
      "cliff_after_rank": 2,
      "cliff_size": 12,
@@ -4422,7 +5822,7 @@
        "ceiling_blend": 146.4,
        "adp": 139.8,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 100,
+       "pct_still_there_next_pick": 99,
        "surplus_over_wire": 41.4
       },
       {
@@ -4454,7 +5854,7 @@
        "proj_blend": 127.2,
        "floor_blend": 119.7,
        "ceiling_blend": 146.3,
-       "adp": 257.6,
+       "adp": 258.3,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 24.4
@@ -4465,6 +5865,46 @@
      "best_now": 125,
      "expected_best_at_next_pick": 125,
      "VONA": 0,
+     "VONA_by_source": {
+      "ds": 0,
+      "sleeper": 0,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "best_now_by_source": {
+      "ds": 125,
+      "sleeper": 132,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 125,
+      "sleeper": 132,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "covered_by_source": {
+      "ds": 21,
+      "sleeper": 21,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 0,
+      "clay": 0,
+      "ownmodel": 0
+     },
      "surplus_over_wire": 25,
      "cliff_after_rank": 3,
      "cliff_size": 6,
@@ -4549,8 +5989,48 @@
    "positions": {
     "QB": {
      "best_now": 329,
-     "expected_best_at_next_pick": 323.7,
-     "VONA": 5.3,
+     "expected_best_at_next_pick": 323.9,
+     "VONA": 5.1,
+     "VONA_by_source": {
+      "ds": 5.1,
+      "sleeper": 14.4,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 12.8,
+      "clay": null,
+      "ownmodel": 4.1
+     },
+     "best_now_by_source": {
+      "ds": 329,
+      "sleeper": 352.9,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 356.7,
+      "clay": null,
+      "ownmodel": 333.1
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 323.9,
+      "sleeper": 338.5,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 343.9,
+      "clay": null,
+      "ownmodel": 329
+     },
+     "covered_by_source": {
+      "ds": 24,
+      "sleeper": 24,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 24,
+      "clay": 0,
+      "ownmodel": 24
+     },
      "surplus_over_wire": 6.1,
      "cliff_after_rank": 1,
      "cliff_size": 2,
@@ -4587,7 +6067,7 @@
        "ceiling_blend": 450.1,
        "adp": 103.6,
        "pct_available_now": 87,
-       "pct_still_there_next_pick": 44,
+       "pct_still_there_next_pick": 45,
        "surplus_over_wire": 4.1
       },
       {
@@ -4603,8 +6083,8 @@
        "floor_blend": 297,
        "ceiling_blend": 441.8,
        "adp": 74.3,
-       "pct_available_now": 15,
-       "pct_still_there_next_pick": 3,
+       "pct_available_now": 14,
+       "pct_still_there_next_pick": 2,
        "surplus_over_wire": 3.1
       },
       {
@@ -4638,7 +6118,7 @@
        "ceiling_blend": 409,
        "adp": 124,
        "pct_available_now": 99,
-       "pct_still_there_next_pick": 89,
+       "pct_still_there_next_pick": 91,
        "surplus_over_wire": 2.1
       },
       {
@@ -4662,12 +6142,52 @@
     },
     "RB": {
      "best_now": 161,
-     "expected_best_at_next_pick": 144.6,
-     "VONA": 16.4,
+     "expected_best_at_next_pick": 144.3,
+     "VONA": 16.7,
+     "VONA_by_source": {
+      "ds": 16.7,
+      "sleeper": 12.8,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 23.2,
+      "clay": null,
+      "ownmodel": 5.1
+     },
+     "best_now_by_source": {
+      "ds": 161,
+      "sleeper": 147.2,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 166.4,
+      "clay": null,
+      "ownmodel": 138.4
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 144.3,
+      "sleeper": 134.4,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 143.1,
+      "clay": null,
+      "ownmodel": 133.3
+     },
+     "covered_by_source": {
+      "ds": 50,
+      "sleeper": 50,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 47,
+      "clay": 0,
+      "ownmodel": 48
+     },
      "surplus_over_wire": 82.6,
      "cliff_after_rank": 3,
      "cliff_size": 9,
-     "note": "STRIKE — waiting costs 16 and he is +83 over the wire",
+     "note": "STRIKE — waiting costs 17 and he is +83 over the wire",
      "players": [
       {
        "player_id": "6806",
@@ -4699,7 +6219,7 @@
        "floor_blend": 114.7,
        "ceiling_blend": 245.6,
        "adp": 85.6,
-       "pct_available_now": 41,
+       "pct_available_now": 42,
        "pct_still_there_next_pick": 13,
        "surplus_over_wire": 80.6
       },
@@ -4733,8 +6253,8 @@
        "floor_blend": 108.3,
        "ceiling_blend": 229.7,
        "adp": 97.5,
-       "pct_available_now": 75,
-       "pct_still_there_next_pick": 33,
+       "pct_available_now": 76,
+       "pct_still_there_next_pick": 32,
        "surplus_over_wire": 67.6
       },
       {
@@ -4750,7 +6270,7 @@
        "floor_blend": 113.1,
        "ceiling_blend": 224.3,
        "adp": 79.7,
-       "pct_available_now": 22,
+       "pct_available_now": 21,
        "pct_still_there_next_pick": 1,
        "surplus_over_wire": 63.6
       },
@@ -4767,8 +6287,8 @@
        "floor_blend": 126.2,
        "ceiling_blend": 250.4,
        "adp": 89.1,
-       "pct_available_now": 54,
-       "pct_still_there_next_pick": 19,
+       "pct_available_now": 53,
+       "pct_still_there_next_pick": 20,
        "surplus_over_wire": 60.6
       },
       {
@@ -4784,7 +6304,7 @@
        "floor_blend": 132.8,
        "ceiling_blend": 279.5,
        "adp": 77.8,
-       "pct_available_now": 9,
+       "pct_available_now": 10,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 59.6
       },
@@ -4843,8 +6363,48 @@
     },
     "WR": {
      "best_now": 173,
-     "expected_best_at_next_pick": 163.1,
-     "VONA": 9.9,
+     "expected_best_at_next_pick": 163.2,
+     "VONA": 9.8,
+     "VONA_by_source": {
+      "ds": 9.8,
+      "sleeper": 8.2,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 18.1,
+      "clay": null,
+      "ownmodel": 2.9
+     },
+     "best_now_by_source": {
+      "ds": 173,
+      "sleeper": 162.6,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 164.9,
+      "clay": null,
+      "ownmodel": 164.8
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 163.2,
+      "sleeper": 154.4,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 146.8,
+      "clay": null,
+      "ownmodel": 161.9
+     },
+     "covered_by_source": {
+      "ds": 38,
+      "sleeper": 38,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 38,
+      "clay": 0,
+      "ownmodel": 38
+     },
      "surplus_over_wire": 48.2,
      "cliff_after_rank": 1,
      "cliff_size": 8,
@@ -4863,7 +6423,7 @@
        "floor_blend": 134.6,
        "ceiling_blend": 203.4,
        "adp": 80.5,
-       "pct_available_now": 10,
+       "pct_available_now": 9,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 48.2
       },
@@ -4880,7 +6440,7 @@
        "floor_blend": 138.8,
        "ceiling_blend": 214,
        "adp": 86.4,
-       "pct_available_now": 32,
+       "pct_available_now": 31,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 40.2
       },
@@ -4915,7 +6475,7 @@
        "ceiling_blend": 192.1,
        "adp": 107.2,
        "pct_available_now": 97,
-       "pct_still_there_next_pick": 54,
+       "pct_still_there_next_pick": 55,
        "surplus_over_wire": 37.2
       },
       {
@@ -4932,7 +6492,7 @@
        "ceiling_blend": 189.7,
        "adp": 105.9,
        "pct_available_now": 99,
-       "pct_still_there_next_pick": 57,
+       "pct_still_there_next_pick": 56,
        "surplus_over_wire": 36.2
       },
       {
@@ -4966,7 +6526,7 @@
        "ceiling_blend": 204.1,
        "adp": 102.2,
        "pct_available_now": 95,
-       "pct_still_there_next_pick": 39,
+       "pct_still_there_next_pick": 41,
        "surplus_over_wire": 33.2
       },
       {
@@ -5016,7 +6576,7 @@
        "floor_blend": 111.7,
        "ceiling_blend": 205,
        "adp": 88.2,
-       "pct_available_now": 52,
+       "pct_available_now": 53,
        "pct_still_there_next_pick": 2,
        "surplus_over_wire": 26.2
       }
@@ -5026,6 +6586,46 @@
      "best_now": 161,
      "expected_best_at_next_pick": 137.6,
      "VONA": 23.4,
+     "VONA_by_source": {
+      "ds": 23.4,
+      "sleeper": 24.7,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 4.4,
+      "clay": null,
+      "ownmodel": 5.1
+     },
+     "best_now_by_source": {
+      "ds": 161,
+      "sleeper": 158.5,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 147.7,
+      "clay": null,
+      "ownmodel": 131.3
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 137.6,
+      "sleeper": 133.8,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 143.3,
+      "clay": null,
+      "ownmodel": 126.2
+     },
+     "covered_by_source": {
+      "ds": 20,
+      "sleeper": 20,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 20,
+      "clay": 0,
+      "ownmodel": 20
+     },
      "surplus_over_wire": 30.6,
      "cliff_after_rank": 4,
      "cliff_size": 15,
@@ -5044,8 +6644,8 @@
        "floor_blend": 126.5,
        "ceiling_blend": 193.8,
        "adp": 62.2,
-       "pct_available_now": 6,
-       "pct_still_there_next_pick": 0,
+       "pct_available_now": 8,
+       "pct_still_there_next_pick": 1,
        "surplus_over_wire": 30.6
       },
       {
@@ -5061,7 +6661,7 @@
        "floor_blend": 133.4,
        "ceiling_blend": 195.4,
        "adp": 66.8,
-       "pct_available_now": 10,
+       "pct_available_now": 7,
        "pct_still_there_next_pick": 1,
        "surplus_over_wire": 29.6
       },
@@ -5079,7 +6679,7 @@
        "ceiling_blend": 200.8,
        "adp": 91.9,
        "pct_available_now": 55,
-       "pct_still_there_next_pick": 27,
+       "pct_still_there_next_pick": 26,
        "surplus_over_wire": 20.6
       },
       {
@@ -5096,7 +6696,7 @@
        "ceiling_blend": 171.3,
        "adp": 93.2,
        "pct_available_now": 60,
-       "pct_still_there_next_pick": 25,
+       "pct_still_there_next_pick": 24,
        "surplus_over_wire": 15.6
       },
       {
@@ -5112,8 +6712,8 @@
        "floor_blend": 121.1,
        "ceiling_blend": 174.8,
        "adp": 116.6,
-       "pct_available_now": 90,
-       "pct_still_there_next_pick": 68,
+       "pct_available_now": 88,
+       "pct_still_there_next_pick": 67,
        "surplus_over_wire": 0.6
       },
       {
@@ -5129,8 +6729,8 @@
        "floor_blend": 122.1,
        "ceiling_blend": 181.6,
        "adp": 113.5,
-       "pct_available_now": 89,
-       "pct_still_there_next_pick": 62,
+       "pct_available_now": 88,
+       "pct_still_there_next_pick": 63,
        "surplus_over_wire": 0.6
       }
      ]
@@ -5139,6 +6739,46 @@
      "best_now": 177,
      "expected_best_at_next_pick": 174.6,
      "VONA": 2.4,
+     "VONA_by_source": {
+      "ds": 2.4,
+      "sleeper": 0.9,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "best_now_by_source": {
+      "ds": 177,
+      "sleeper": 107,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 174.6,
+      "sleeper": 106.1,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "covered_by_source": {
+      "ds": 22,
+      "sleeper": 22,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 0,
+      "clay": 0,
+      "ownmodel": 0
+     },
      "surplus_over_wire": 48.4,
      "cliff_after_rank": 2,
      "cliff_size": 12,
@@ -5174,8 +6814,8 @@
        "floor_blend": 121.4,
        "ceiling_blend": 146.4,
        "adp": 139.8,
-       "pct_available_now": 100,
-       "pct_still_there_next_pick": 96,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 93,
        "surplus_over_wire": 41.4
       },
       {
@@ -5192,7 +6832,7 @@
        "ceiling_blend": 153.2,
        "adp": 140.6,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 95,
+       "pct_still_there_next_pick": 94,
        "surplus_over_wire": 29.4
       },
       {
@@ -5207,7 +6847,7 @@
        "proj_blend": 127.2,
        "floor_blend": 119.7,
        "ceiling_blend": 146.3,
-       "adp": 257.6,
+       "adp": 258.3,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 24.4
@@ -5218,6 +6858,46 @@
      "best_now": 125,
      "expected_best_at_next_pick": 124.7,
      "VONA": 0.3,
+     "VONA_by_source": {
+      "ds": 0.3,
+      "sleeper": 0.7,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "best_now_by_source": {
+      "ds": 125,
+      "sleeper": 132,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 124.7,
+      "sleeper": 131.3,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "covered_by_source": {
+      "ds": 21,
+      "sleeper": 21,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 0,
+      "clay": 0,
+      "ownmodel": 0
+     },
      "surplus_over_wire": 25,
      "cliff_after_rank": 3,
      "cliff_size": 6,
@@ -5271,7 +6951,7 @@
        "ceiling_blend": 127,
        "adp": 127.8,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 99,
+       "pct_still_there_next_pick": 100,
        "surplus_over_wire": 20
       },
       {
@@ -5302,8 +6982,48 @@
    "positions": {
     "QB": {
      "best_now": 327,
-     "expected_best_at_next_pick": 321.6,
-     "VONA": 5.4,
+     "expected_best_at_next_pick": 321.8,
+     "VONA": 5.2,
+     "VONA_by_source": {
+      "ds": 5.2,
+      "sleeper": 15.9,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 15.1,
+      "clay": null,
+      "ownmodel": 7.2
+     },
+     "best_now_by_source": {
+      "ds": 327,
+      "sleeper": 350.2,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 353.4,
+      "clay": null,
+      "ownmodel": 333.1
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 321.8,
+      "sleeper": 334.3,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 338.3,
+      "clay": null,
+      "ownmodel": 325.9
+     },
+     "covered_by_source": {
+      "ds": 20,
+      "sleeper": 20,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 20,
+      "clay": 0,
+      "ownmodel": 20
+     },
      "surplus_over_wire": 4.1,
      "cliff_after_rank": 3,
      "cliff_size": 7,
@@ -5322,8 +7042,8 @@
        "floor_blend": 300.8,
        "ceiling_blend": 450.1,
        "adp": 103.6,
-       "pct_available_now": 44,
-       "pct_still_there_next_pick": 27,
+       "pct_available_now": 45,
+       "pct_still_there_next_pick": 28,
        "surplus_over_wire": 4.1
       },
       {
@@ -5339,8 +7059,8 @@
        "floor_blend": 266.5,
        "ceiling_blend": 409,
        "adp": 124,
-       "pct_available_now": 89,
-       "pct_still_there_next_pick": 81,
+       "pct_available_now": 91,
+       "pct_still_there_next_pick": 82,
        "surplus_over_wire": 2.1
       },
       {
@@ -5356,7 +7076,7 @@
        "floor_blend": 300.6,
        "ceiling_blend": 452.5,
        "adp": 87.3,
-       "pct_available_now": 13,
+       "pct_available_now": 10,
        "pct_still_there_next_pick": 6,
        "surplus_over_wire": 0
       },
@@ -5391,7 +7111,7 @@
        "ceiling_blend": 465.4,
        "adp": 96,
        "pct_available_now": 25,
-       "pct_still_there_next_pick": 15,
+       "pct_still_there_next_pick": 13,
        "surplus_over_wire": 0
       },
       {
@@ -5407,7 +7127,7 @@
        "floor_blend": 312.5,
        "ceiling_blend": 451.9,
        "adp": 112.2,
-       "pct_available_now": 70,
+       "pct_available_now": 69,
        "pct_still_there_next_pick": 53,
        "surplus_over_wire": 0
       }
@@ -5415,8 +7135,48 @@
     },
     "RB": {
      "best_now": 159,
-     "expected_best_at_next_pick": 138.7,
-     "VONA": 20.3,
+     "expected_best_at_next_pick": 138.6,
+     "VONA": 20.4,
+     "VONA_by_source": {
+      "ds": 20.4,
+      "sleeper": 13.3,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 10.5,
+      "clay": null,
+      "ownmodel": 1.3
+     },
+     "best_now_by_source": {
+      "ds": 159,
+      "sleeper": 143.7,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 149.2,
+      "clay": null,
+      "ownmodel": 134.2
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 138.6,
+      "sleeper": 130.4,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 138.6,
+      "clay": null,
+      "ownmodel": 132.9
+     },
+     "covered_by_source": {
+      "ds": 47,
+      "sleeper": 47,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 44,
+      "clay": 0,
+      "ownmodel": 45
+     },
      "surplus_over_wire": 80.6,
      "cliff_after_rank": 2,
      "cliff_size": 9,
@@ -5436,7 +7196,7 @@
        "ceiling_blend": 245.6,
        "adp": 85.6,
        "pct_available_now": 13,
-       "pct_still_there_next_pick": 8,
+       "pct_still_there_next_pick": 6,
        "surplus_over_wire": 80.6
       },
       {
@@ -5469,8 +7229,8 @@
        "floor_blend": 108.3,
        "ceiling_blend": 229.7,
        "adp": 97.5,
-       "pct_available_now": 33,
-       "pct_still_there_next_pick": 21,
+       "pct_available_now": 32,
+       "pct_still_there_next_pick": 22,
        "surplus_over_wire": 67.6
       },
       {
@@ -5486,8 +7246,8 @@
        "floor_blend": 126.2,
        "ceiling_blend": 250.4,
        "adp": 89.1,
-       "pct_available_now": 19,
-       "pct_still_there_next_pick": 11,
+       "pct_available_now": 20,
+       "pct_still_there_next_pick": 12,
        "surplus_over_wire": 60.6
       },
       {
@@ -5504,7 +7264,7 @@
        "ceiling_blend": 253.2,
        "adp": 90.3,
        "pct_available_now": 13,
-       "pct_still_there_next_pick": 6,
+       "pct_still_there_next_pick": 7,
        "surplus_over_wire": 56.6
       },
       {
@@ -5521,7 +7281,7 @@
        "ceiling_blend": 237.9,
        "adp": 104.3,
        "pct_available_now": 48,
-       "pct_still_there_next_pick": 30,
+       "pct_still_there_next_pick": 28,
        "surplus_over_wire": 52.6
       },
       {
@@ -5538,7 +7298,7 @@
        "ceiling_blend": 190.1,
        "adp": 159.9,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 99,
+       "pct_still_there_next_pick": 100,
        "surplus_over_wire": 52.6
       },
       {
@@ -5571,8 +7331,8 @@
        "floor_blend": 106.6,
        "ceiling_blend": 230.5,
        "adp": 114.3,
-       "pct_available_now": 75,
-       "pct_still_there_next_pick": 62,
+       "pct_available_now": 76,
+       "pct_still_there_next_pick": 63,
        "surplus_over_wire": 45.6
       },
       {
@@ -5588,16 +7348,56 @@
        "floor_blend": 78.1,
        "ceiling_blend": 213.4,
        "adp": 128.6,
-       "pct_available_now": 86,
-       "pct_still_there_next_pick": 79,
+       "pct_available_now": 90,
+       "pct_still_there_next_pick": 81,
        "surplus_over_wire": 41.6
       }
      ]
     },
     "WR": {
      "best_now": 165,
-     "expected_best_at_next_pick": 160.9,
-     "VONA": 4.1,
+     "expected_best_at_next_pick": 160.8,
+     "VONA": 4.2,
+     "VONA_by_source": {
+      "ds": 4.2,
+      "sleeper": 13.4,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 4.5,
+      "clay": null,
+      "ownmodel": 8.3
+     },
+     "best_now_by_source": {
+      "ds": 165,
+      "sleeper": 162.6,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 150.1,
+      "clay": null,
+      "ownmodel": 164.8
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 160.8,
+      "sleeper": 149.2,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 145.5,
+      "clay": null,
+      "ownmodel": 156.5
+     },
+     "covered_by_source": {
+      "ds": 33,
+      "sleeper": 33,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 33,
+      "clay": 0,
+      "ownmodel": 33
+     },
      "surplus_over_wire": 40.2,
      "cliff_after_rank": 6,
      "cliff_size": 4,
@@ -5617,7 +7417,7 @@
        "ceiling_blend": 194.8,
        "adp": 110.1,
        "pct_available_now": 73,
-       "pct_still_there_next_pick": 51,
+       "pct_still_there_next_pick": 50,
        "surplus_over_wire": 40.2
       },
       {
@@ -5633,7 +7433,7 @@
        "floor_blend": 118.7,
        "ceiling_blend": 192.1,
        "adp": 107.2,
-       "pct_available_now": 54,
+       "pct_available_now": 55,
        "pct_still_there_next_pick": 33,
        "surplus_over_wire": 37.2
       },
@@ -5650,8 +7450,8 @@
        "floor_blend": 127.1,
        "ceiling_blend": 189.7,
        "adp": 105.9,
-       "pct_available_now": 57,
-       "pct_still_there_next_pick": 29,
+       "pct_available_now": 56,
+       "pct_still_there_next_pick": 30,
        "surplus_over_wire": 36.2
       },
       {
@@ -5668,7 +7468,7 @@
        "ceiling_blend": 194.1,
        "adp": 105.1,
        "pct_available_now": 46,
-       "pct_still_there_next_pick": 24,
+       "pct_still_there_next_pick": 22,
        "surplus_over_wire": 36.2
       },
       {
@@ -5684,7 +7484,7 @@
        "floor_blend": 117.8,
        "ceiling_blend": 204.1,
        "adp": 102.2,
-       "pct_available_now": 39,
+       "pct_available_now": 41,
        "pct_still_there_next_pick": 19,
        "surplus_over_wire": 33.2
       },
@@ -5719,7 +7519,7 @@
        "ceiling_blend": 207.5,
        "adp": 132.3,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 100,
+       "pct_still_there_next_pick": 99,
        "surplus_over_wire": 27.2
       },
       {
@@ -5736,7 +7536,7 @@
        "ceiling_blend": 197.1,
        "adp": 108.6,
        "pct_available_now": 69,
-       "pct_still_there_next_pick": 45,
+       "pct_still_there_next_pick": 46,
        "surplus_over_wire": 24.2
       },
       {
@@ -5777,8 +7577,48 @@
     },
     "TE": {
      "best_now": 151,
-     "expected_best_at_next_pick": 135.8,
-     "VONA": 15.2,
+     "expected_best_at_next_pick": 135.7,
+     "VONA": 15.3,
+     "VONA_by_source": {
+      "ds": 15.3,
+      "sleeper": 5.3,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 4.7,
+      "clay": null,
+      "ownmodel": 6
+     },
+     "best_now_by_source": {
+      "ds": 151,
+      "sleeper": 138.3,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 146.6,
+      "clay": null,
+      "ownmodel": 131.3
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 135.7,
+      "sleeper": 133,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 141.9,
+      "clay": null,
+      "ownmodel": 125.3
+     },
+     "covered_by_source": {
+      "ds": 18,
+      "sleeper": 18,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 18,
+      "clay": 0,
+      "ownmodel": 18
+     },
      "surplus_over_wire": 20.6,
      "cliff_after_rank": 2,
      "cliff_size": 15,
@@ -5797,7 +7637,7 @@
        "floor_blend": 100.4,
        "ceiling_blend": 200.8,
        "adp": 91.9,
-       "pct_available_now": 27,
+       "pct_available_now": 26,
        "pct_still_there_next_pick": 19,
        "surplus_over_wire": 20.6
       },
@@ -5814,7 +7654,7 @@
        "floor_blend": 122.4,
        "ceiling_blend": 171.3,
        "adp": 93.2,
-       "pct_available_now": 25,
+       "pct_available_now": 24,
        "pct_still_there_next_pick": 17,
        "surplus_over_wire": 15.6
       },
@@ -5831,8 +7671,8 @@
        "floor_blend": 121.1,
        "ceiling_blend": 174.8,
        "adp": 116.6,
-       "pct_available_now": 68,
-       "pct_still_there_next_pick": 59,
+       "pct_available_now": 67,
+       "pct_still_there_next_pick": 58,
        "surplus_over_wire": 0.6
       },
       {
@@ -5848,8 +7688,8 @@
        "floor_blend": 122.1,
        "ceiling_blend": 181.6,
        "adp": 113.5,
-       "pct_available_now": 62,
-       "pct_still_there_next_pick": 55,
+       "pct_available_now": 63,
+       "pct_still_there_next_pick": 56,
        "surplus_over_wire": 0.6
       },
       {
@@ -5865,7 +7705,7 @@
        "floor_blend": 113.8,
        "ceiling_blend": 178.1,
        "adp": 99.8,
-       "pct_available_now": 39,
+       "pct_available_now": 41,
        "pct_still_there_next_pick": 29,
        "surplus_over_wire": 0
       },
@@ -5890,12 +7730,52 @@
     },
     "K": {
      "best_now": 177,
-     "expected_best_at_next_pick": 173.7,
-     "VONA": 3.3,
+     "expected_best_at_next_pick": 173.4,
+     "VONA": 3.6,
+     "VONA_by_source": {
+      "ds": 3.6,
+      "sleeper": 1.2,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "best_now_by_source": {
+      "ds": 177,
+      "sleeper": 107,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 173.4,
+      "sleeper": 105.8,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "covered_by_source": {
+      "ds": 22,
+      "sleeper": 22,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 0,
+      "clay": 0,
+      "ownmodel": 0
+     },
      "surplus_over_wire": 48.4,
      "cliff_after_rank": 2,
      "cliff_size": 12,
-     "note": "wait — only 3 lost by waiting, the tier holds",
+     "note": "wait — only 4 lost by waiting, the tier holds",
      "players": [
       {
        "player_id": "11533",
@@ -5927,8 +7807,8 @@
        "floor_blend": 121.4,
        "ceiling_blend": 146.4,
        "adp": 139.8,
-       "pct_available_now": 96,
-       "pct_still_there_next_pick": 93,
+       "pct_available_now": 93,
+       "pct_still_there_next_pick": 90,
        "surplus_over_wire": 41.4
       },
       {
@@ -5944,8 +7824,8 @@
        "floor_blend": 128,
        "ceiling_blend": 153.2,
        "adp": 140.6,
-       "pct_available_now": 95,
-       "pct_still_there_next_pick": 93,
+       "pct_available_now": 94,
+       "pct_still_there_next_pick": 91,
        "surplus_over_wire": 29.4
       },
       {
@@ -5960,7 +7840,7 @@
        "proj_blend": 127.2,
        "floor_blend": 119.7,
        "ceiling_blend": 146.3,
-       "adp": 257.6,
+       "adp": 258.3,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 24.4
@@ -5971,6 +7851,46 @@
      "best_now": 125,
      "expected_best_at_next_pick": 124.2,
      "VONA": 0.8,
+     "VONA_by_source": {
+      "ds": 0.8,
+      "sleeper": 2.1,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "best_now_by_source": {
+      "ds": 125,
+      "sleeper": 132,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 124.2,
+      "sleeper": 129.9,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "covered_by_source": {
+      "ds": 21,
+      "sleeper": 21,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 0,
+      "clay": 0,
+      "ownmodel": 0
+     },
      "surplus_over_wire": 25,
      "cliff_after_rank": 3,
      "cliff_size": 6,
@@ -5990,7 +7910,7 @@
        "ceiling_blend": 137.4,
        "adp": 120.3,
        "pct_available_now": 95,
-       "pct_still_there_next_pick": 86,
+       "pct_still_there_next_pick": 84,
        "surplus_over_wire": 25
       },
       {
@@ -6023,7 +7943,7 @@
        "floor_blend": 98.1,
        "ceiling_blend": 127,
        "adp": 127.8,
-       "pct_available_now": 99,
+       "pct_available_now": 100,
        "pct_still_there_next_pick": 98,
        "surplus_over_wire": 20
       },
@@ -6055,8 +7975,48 @@
    "positions": {
     "QB": {
      "best_now": 327,
-     "expected_best_at_next_pick": 307.7,
-     "VONA": 19.3,
+     "expected_best_at_next_pick": 307.4,
+     "VONA": 19.6,
+     "VONA_by_source": {
+      "ds": 19.6,
+      "sleeper": 28.6,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 30.7,
+      "clay": null,
+      "ownmodel": 22.7
+     },
+     "best_now_by_source": {
+      "ds": 327,
+      "sleeper": 350.2,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 353.4,
+      "clay": null,
+      "ownmodel": 333.1
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 307.4,
+      "sleeper": 321.6,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 322.7,
+      "clay": null,
+      "ownmodel": 310.4
+     },
+     "covered_by_source": {
+      "ds": 20,
+      "sleeper": 20,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 20,
+      "clay": 0,
+      "ownmodel": 20
+     },
      "surplus_over_wire": 4.1,
      "cliff_after_rank": 3,
      "cliff_size": 7,
@@ -6075,7 +8035,7 @@
        "floor_blend": 300.8,
        "ceiling_blend": 450.1,
        "adp": 103.6,
-       "pct_available_now": 27,
+       "pct_available_now": 28,
        "pct_still_there_next_pick": 5,
        "surplus_over_wire": 4.1
       },
@@ -6092,8 +8052,8 @@
        "floor_blend": 266.5,
        "ceiling_blend": 409,
        "adp": 124,
-       "pct_available_now": 81,
-       "pct_still_there_next_pick": 43,
+       "pct_available_now": 82,
+       "pct_still_there_next_pick": 42,
        "surplus_over_wire": 2.1
       },
       {
@@ -6127,7 +8087,7 @@
        "ceiling_blend": 455.1,
        "adp": 100.7,
        "pct_available_now": 24,
-       "pct_still_there_next_pick": 5,
+       "pct_still_there_next_pick": 7,
        "surplus_over_wire": 0
       },
       {
@@ -6143,7 +8103,7 @@
        "floor_blend": 310.3,
        "ceiling_blend": 465.4,
        "adp": 96,
-       "pct_available_now": 15,
+       "pct_available_now": 13,
        "pct_still_there_next_pick": 1,
        "surplus_over_wire": 0
       },
@@ -6168,12 +8128,52 @@
     },
     "RB": {
      "best_now": 159,
-     "expected_best_at_next_pick": 131.6,
-     "VONA": 27.4,
+     "expected_best_at_next_pick": 131.5,
+     "VONA": 27.5,
+     "VONA_by_source": {
+      "ds": 27.5,
+      "sleeper": 20.8,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 27.7,
+      "clay": null,
+      "ownmodel": 4.5
+     },
+     "best_now_by_source": {
+      "ds": 159,
+      "sleeper": 143.7,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 149.2,
+      "clay": null,
+      "ownmodel": 134.2
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 131.5,
+      "sleeper": 122.9,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 121.5,
+      "clay": null,
+      "ownmodel": 129.6
+     },
+     "covered_by_source": {
+      "ds": 47,
+      "sleeper": 47,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 44,
+      "clay": 0,
+      "ownmodel": 45
+     },
      "surplus_over_wire": 80.6,
      "cliff_after_rank": 2,
      "cliff_size": 9,
-     "note": "STRIKE — waiting costs 27 and he is +81 over the wire",
+     "note": "STRIKE — waiting costs 28 and he is +81 over the wire",
      "players": [
       {
        "player_id": "11583",
@@ -6188,7 +8188,7 @@
        "floor_blend": 114.7,
        "ceiling_blend": 245.6,
        "adp": 85.6,
-       "pct_available_now": 8,
+       "pct_available_now": 6,
        "pct_still_there_next_pick": 1,
        "surplus_over_wire": 80.6
       },
@@ -6222,8 +8222,8 @@
        "floor_blend": 108.3,
        "ceiling_blend": 229.7,
        "adp": 97.5,
-       "pct_available_now": 21,
-       "pct_still_there_next_pick": 3,
+       "pct_available_now": 22,
+       "pct_still_there_next_pick": 2,
        "surplus_over_wire": 67.6
       },
       {
@@ -6239,7 +8239,7 @@
        "floor_blend": 126.2,
        "ceiling_blend": 250.4,
        "adp": 89.1,
-       "pct_available_now": 11,
+       "pct_available_now": 12,
        "pct_still_there_next_pick": 2,
        "surplus_over_wire": 60.6
       },
@@ -6256,7 +8256,7 @@
        "floor_blend": 120.7,
        "ceiling_blend": 253.2,
        "adp": 90.3,
-       "pct_available_now": 6,
+       "pct_available_now": 7,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 56.6
       },
@@ -6273,7 +8273,7 @@
        "floor_blend": 122.1,
        "ceiling_blend": 237.9,
        "adp": 104.3,
-       "pct_available_now": 30,
+       "pct_available_now": 28,
        "pct_still_there_next_pick": 2,
        "surplus_over_wire": 52.6
       },
@@ -6290,7 +8290,7 @@
        "floor_blend": 95.9,
        "ceiling_blend": 190.1,
        "adp": 159.9,
-       "pct_available_now": 99,
+       "pct_available_now": 100,
        "pct_still_there_next_pick": 96,
        "surplus_over_wire": 52.6
       },
@@ -6308,7 +8308,7 @@
        "ceiling_blend": 233.4,
        "adp": 109.4,
        "pct_available_now": 44,
-       "pct_still_there_next_pick": 10,
+       "pct_still_there_next_pick": 12,
        "surplus_over_wire": 49.6
       },
       {
@@ -6324,8 +8324,8 @@
        "floor_blend": 106.6,
        "ceiling_blend": 230.5,
        "adp": 114.3,
-       "pct_available_now": 62,
-       "pct_still_there_next_pick": 19,
+       "pct_available_now": 63,
+       "pct_still_there_next_pick": 17,
        "surplus_over_wire": 45.6
       },
       {
@@ -6341,7 +8341,7 @@
        "floor_blend": 78.1,
        "ceiling_blend": 213.4,
        "adp": 128.6,
-       "pct_available_now": 79,
+       "pct_available_now": 81,
        "pct_still_there_next_pick": 55,
        "surplus_over_wire": 41.6
       }
@@ -6349,8 +8349,48 @@
     },
     "WR": {
      "best_now": 165,
-     "expected_best_at_next_pick": 152.4,
-     "VONA": 12.6,
+     "expected_best_at_next_pick": 152.2,
+     "VONA": 12.8,
+     "VONA_by_source": {
+      "ds": 12.8,
+      "sleeper": 22.5,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 9.7,
+      "clay": null,
+      "ownmodel": 31
+     },
+     "best_now_by_source": {
+      "ds": 165,
+      "sleeper": 162.6,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 150.1,
+      "clay": null,
+      "ownmodel": 164.8
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 152.2,
+      "sleeper": 140.1,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 140.4,
+      "clay": null,
+      "ownmodel": 133.9
+     },
+     "covered_by_source": {
+      "ds": 33,
+      "sleeper": 33,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 33,
+      "clay": 0,
+      "ownmodel": 33
+     },
      "surplus_over_wire": 40.2,
      "cliff_after_rank": 6,
      "cliff_size": 4,
@@ -6369,7 +8409,7 @@
        "floor_blend": 122.2,
        "ceiling_blend": 194.8,
        "adp": 110.1,
-       "pct_available_now": 51,
+       "pct_available_now": 50,
        "pct_still_there_next_pick": 4,
        "surplus_over_wire": 40.2
       },
@@ -6403,7 +8443,7 @@
        "floor_blend": 127.1,
        "ceiling_blend": 189.7,
        "adp": 105.9,
-       "pct_available_now": 29,
+       "pct_available_now": 30,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 36.2
       },
@@ -6420,7 +8460,7 @@
        "floor_blend": 114.6,
        "ceiling_blend": 194.1,
        "adp": 105.1,
-       "pct_available_now": 24,
+       "pct_available_now": 22,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 36.2
       },
@@ -6455,7 +8495,7 @@
        "ceiling_blend": 193.2,
        "adp": 123.3,
        "pct_available_now": 96,
-       "pct_still_there_next_pick": 39,
+       "pct_still_there_next_pick": 40,
        "surplus_over_wire": 31.2
       },
       {
@@ -6471,8 +8511,8 @@
        "floor_blend": 115.8,
        "ceiling_blend": 207.5,
        "adp": 132.3,
-       "pct_available_now": 100,
-       "pct_still_there_next_pick": 78,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 77,
        "surplus_over_wire": 27.2
       },
       {
@@ -6488,7 +8528,7 @@
        "floor_blend": 108.6,
        "ceiling_blend": 197.1,
        "adp": 108.6,
-       "pct_available_now": 45,
+       "pct_available_now": 46,
        "pct_still_there_next_pick": 3,
        "surplus_over_wire": 24.2
       },
@@ -6506,7 +8546,7 @@
        "ceiling_blend": 190,
        "adp": 142.2,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 97,
+       "pct_still_there_next_pick": 96,
        "surplus_over_wire": 23.2
       },
       {
@@ -6523,15 +8563,55 @@
        "ceiling_blend": 186.6,
        "adp": 137.1,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 87,
+       "pct_still_there_next_pick": 85,
        "surplus_over_wire": 23.2
       }
      ]
     },
     "TE": {
      "best_now": 151,
-     "expected_best_at_next_pick": 130.8,
-     "VONA": 20.2,
+     "expected_best_at_next_pick": 130.7,
+     "VONA": 20.3,
+     "VONA_by_source": {
+      "ds": 20.3,
+      "sleeper": 7.9,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 13.6,
+      "clay": null,
+      "ownmodel": 9.7
+     },
+     "best_now_by_source": {
+      "ds": 151,
+      "sleeper": 138.3,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 146.6,
+      "clay": null,
+      "ownmodel": 131.3
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 130.7,
+      "sleeper": 130.4,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 133.1,
+      "clay": null,
+      "ownmodel": 121.6
+     },
+     "covered_by_source": {
+      "ds": 18,
+      "sleeper": 18,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 18,
+      "clay": 0,
+      "ownmodel": 18
+     },
      "surplus_over_wire": 20.6,
      "cliff_after_rank": 2,
      "cliff_size": 15,
@@ -6584,8 +8664,8 @@
        "floor_blend": 121.1,
        "ceiling_blend": 174.8,
        "adp": 116.6,
-       "pct_available_now": 59,
-       "pct_still_there_next_pick": 30,
+       "pct_available_now": 58,
+       "pct_still_there_next_pick": 31,
        "surplus_over_wire": 0.6
       },
       {
@@ -6601,8 +8681,8 @@
        "floor_blend": 122.1,
        "ceiling_blend": 181.6,
        "adp": 113.5,
-       "pct_available_now": 55,
-       "pct_still_there_next_pick": 20,
+       "pct_available_now": 56,
+       "pct_still_there_next_pick": 22,
        "surplus_over_wire": 0.6
       },
       {
@@ -6619,7 +8699,7 @@
        "ceiling_blend": 178.1,
        "adp": 99.8,
        "pct_available_now": 29,
-       "pct_still_there_next_pick": 8,
+       "pct_still_there_next_pick": 9,
        "surplus_over_wire": 0
       },
       {
@@ -6636,19 +8716,59 @@
        "ceiling_blend": 156.3,
        "adp": 110.9,
        "pct_available_now": 51,
-       "pct_still_there_next_pick": 19,
+       "pct_still_there_next_pick": 18,
        "surplus_over_wire": 0
       }
      ]
     },
     "K": {
      "best_now": 177,
-     "expected_best_at_next_pick": 169.6,
-     "VONA": 7.4,
+     "expected_best_at_next_pick": 169.3,
+     "VONA": 7.7,
+     "VONA_by_source": {
+      "ds": 7.7,
+      "sleeper": 2.1,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "best_now_by_source": {
+      "ds": 177,
+      "sleeper": 107,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 169.3,
+      "sleeper": 104.9,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "covered_by_source": {
+      "ds": 22,
+      "sleeper": 22,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 0,
+      "clay": 0,
+      "ownmodel": 0
+     },
      "surplus_over_wire": 48.4,
      "cliff_after_rank": 2,
      "cliff_size": 12,
-     "note": "neutral — 7 to wait, +48 over the wire",
+     "note": "neutral — 8 to wait, +48 over the wire",
      "players": [
       {
        "player_id": "11533",
@@ -6664,7 +8784,7 @@
        "ceiling_blend": 157,
        "adp": 115.5,
        "pct_available_now": 66,
-       "pct_still_there_next_pick": 35,
+       "pct_still_there_next_pick": 34,
        "surplus_over_wire": 48.4
       },
       {
@@ -6680,8 +8800,8 @@
        "floor_blend": 121.4,
        "ceiling_blend": 146.4,
        "adp": 139.8,
-       "pct_available_now": 93,
-       "pct_still_there_next_pick": 73,
+       "pct_available_now": 90,
+       "pct_still_there_next_pick": 71,
        "surplus_over_wire": 41.4
       },
       {
@@ -6697,8 +8817,8 @@
        "floor_blend": 128,
        "ceiling_blend": 153.2,
        "adp": 140.6,
-       "pct_available_now": 93,
-       "pct_still_there_next_pick": 76,
+       "pct_available_now": 91,
+       "pct_still_there_next_pick": 75,
        "surplus_over_wire": 29.4
       },
       {
@@ -6713,7 +8833,7 @@
        "proj_blend": 127.2,
        "floor_blend": 119.7,
        "ceiling_blend": 146.3,
-       "adp": 257.6,
+       "adp": 258.3,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 24.4
@@ -6724,6 +8844,46 @@
      "best_now": 125,
      "expected_best_at_next_pick": 119.7,
      "VONA": 5.3,
+     "VONA_by_source": {
+      "ds": 5.3,
+      "sleeper": 13.2,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "best_now_by_source": {
+      "ds": 125,
+      "sleeper": 132,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 119.7,
+      "sleeper": 118.8,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "covered_by_source": {
+      "ds": 21,
+      "sleeper": 21,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 0,
+      "clay": 0,
+      "ownmodel": 0
+     },
      "surplus_over_wire": 25,
      "cliff_after_rank": 3,
      "cliff_size": 6,
@@ -6742,7 +8902,7 @@
        "floor_blend": 110,
        "ceiling_blend": 137.4,
        "adp": 120.3,
-       "pct_available_now": 86,
+       "pct_available_now": 84,
        "pct_still_there_next_pick": 21,
        "surplus_over_wire": 25
       },
@@ -6760,7 +8920,7 @@
        "ceiling_blend": 130,
        "adp": 126.4,
        "pct_available_now": 98,
-       "pct_still_there_next_pick": 56,
+       "pct_still_there_next_pick": 57,
        "surplus_over_wire": 22
       },
       {
@@ -6777,7 +8937,7 @@
        "ceiling_blend": 127,
        "adp": 127.8,
        "pct_available_now": 98,
-       "pct_still_there_next_pick": 59,
+       "pct_still_there_next_pick": 61,
        "surplus_over_wire": 20
       },
       {
@@ -6807,14 +8967,71 @@
    "next_pick": 133,
    "positions": {
     "QB": {
-     "best_now": 325,
-     "expected_best_at_next_pick": 302.9,
-     "VONA": 22.1,
-     "surplus_over_wire": 2.1,
-     "cliff_after_rank": 1,
+     "best_now": 327,
+     "expected_best_at_next_pick": 302.6,
+     "VONA": 24.4,
+     "VONA_by_source": {
+      "ds": 24.4,
+      "sleeper": 32.7,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 28.4,
+      "clay": null,
+      "ownmodel": 28.8
+     },
+     "best_now_by_source": {
+      "ds": 327,
+      "sleeper": 350.2,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 348.6,
+      "clay": null,
+      "ownmodel": 333.1
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 302.6,
+      "sleeper": 317.5,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 320.2,
+      "clay": null,
+      "ownmodel": 304.4
+     },
+     "covered_by_source": {
+      "ds": 17,
+      "sleeper": 17,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 17,
+      "clay": 0,
+      "ownmodel": 17
+     },
+     "surplus_over_wire": 4.1,
+     "cliff_after_rank": 2,
      "cliff_size": 13,
-     "note": "skip — the best QB left is worth 2 over a free one",
+     "note": "skip — the best QB left is worth 4 over a free one",
      "players": [
+      {
+       "player_id": "8183",
+       "name": "Brock Purdy",
+       "team": "SF",
+       "bye": 8,
+       "proj": 327,
+       "floor": 278,
+       "ceiling": 416,
+       "injury_risk_pct": 36,
+       "proj_blend": 353.8,
+       "floor_blend": 300.8,
+       "ceiling_blend": 450.1,
+       "adp": 103.6,
+       "pct_available_now": 5,
+       "pct_still_there_next_pick": 3,
+       "surplus_over_wire": 4.1
+      },
       {
        "player_id": "5849",
        "name": "Kyler Murray",
@@ -6828,7 +9045,7 @@
        "floor_blend": 266.5,
        "ceiling_blend": 409,
        "adp": 124,
-       "pct_available_now": 43,
+       "pct_available_now": 42,
        "pct_still_there_next_pick": 29,
        "surplus_over_wire": 2.1
       },
@@ -6845,7 +9062,7 @@
        "floor_blend": 310.4,
        "ceiling_blend": 455.1,
        "adp": 100.7,
-       "pct_available_now": 5,
+       "pct_available_now": 7,
        "pct_still_there_next_pick": 2,
        "surplus_over_wire": 0
       },
@@ -6879,8 +9096,8 @@
        "floor_blend": 294.7,
        "ceiling_blend": 441.6,
        "adp": 154.9,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 96,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 97,
        "surplus_over_wire": 0
       },
       {
@@ -6896,55 +9113,61 @@
        "floor_blend": 298.4,
        "ceiling_blend": 432.5,
        "adp": 136.3,
-       "pct_available_now": 78,
-       "pct_still_there_next_pick": 66,
-       "surplus_over_wire": 0
-      },
-      {
-       "player_id": "4892",
-       "name": "Baker Mayfield",
-       "team": "TB",
-       "bye": 10,
-       "proj": 291,
-       "floor": 277,
-       "ceiling": 405,
-       "injury_risk_pct": 37,
-       "proj_blend": 322,
-       "floor_blend": 306.5,
-       "ceiling_blend": 448.2,
-       "adp": 133.3,
-       "pct_available_now": 68,
-       "pct_still_there_next_pick": 55,
+       "pct_available_now": 77,
+       "pct_still_there_next_pick": 64,
        "surplus_over_wire": 0
       }
      ]
     },
     "RB": {
-     "best_now": 155,
-     "expected_best_at_next_pick": 130.8,
-     "VONA": 24.2,
-     "surplus_over_wire": 76.6,
-     "cliff_after_rank": 1,
-     "cliff_size": 24,
-     "note": "STRIKE — waiting costs 24 and he is +77 over the wire",
+     "best_now": 131,
+     "expected_best_at_next_pick": 130.6,
+     "VONA": 0.4,
+     "VONA_by_source": {
+      "ds": 0.4,
+      "sleeper": 3.9,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 24.6,
+      "clay": null,
+      "ownmodel": 6.5
+     },
+     "best_now_by_source": {
+      "ds": 131,
+      "sleeper": 125,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 143.4,
+      "clay": null,
+      "ownmodel": 134.2
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 130.6,
+      "sleeper": 121.1,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 118.8,
+      "clay": null,
+      "ownmodel": 127.7
+     },
+     "covered_by_source": {
+      "ds": 41,
+      "sleeper": 41,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 38,
+      "clay": 0,
+      "ownmodel": 40
+     },
+     "surplus_over_wire": 52.6,
+     "cliff_after_rank": 4,
+     "cliff_size": 7,
+     "note": "wait — only 0 lost by waiting, the tier holds",
      "players": [
-      {
-       "player_id": "8408",
-       "name": "Jordan Mason",
-       "team": "MIN",
-       "bye": 6,
-       "proj": 155,
-       "floor": 125,
-       "ceiling": 255,
-       "injury_risk_pct": 39,
-       "proj_blend": 137.6,
-       "floor_blend": 111,
-       "ceiling_blend": 226.4,
-       "adp": 99,
-       "pct_available_now": 5,
-       "pct_still_there_next_pick": 3,
-       "surplus_over_wire": 76.6
-      },
       {
        "player_id": "9508",
        "name": "Tyjae Spears",
@@ -6975,8 +9198,8 @@
        "floor_blend": 109.3,
        "ceiling_blend": 233.4,
        "adp": 109.4,
-       "pct_available_now": 10,
-       "pct_still_there_next_pick": 7,
+       "pct_available_now": 12,
+       "pct_still_there_next_pick": 8,
        "surplus_over_wire": 49.6
       },
       {
@@ -6992,8 +9215,8 @@
        "floor_blend": 106.6,
        "ceiling_blend": 230.5,
        "adp": 114.3,
-       "pct_available_now": 19,
-       "pct_still_there_next_pick": 9,
+       "pct_available_now": 17,
+       "pct_still_there_next_pick": 8,
        "surplus_over_wire": 45.6
       },
       {
@@ -7010,7 +9233,7 @@
        "ceiling_blend": 213.4,
        "adp": 128.6,
        "pct_available_now": 55,
-       "pct_still_there_next_pick": 43,
+       "pct_still_there_next_pick": 42,
        "surplus_over_wire": 41.6
       },
       {
@@ -7026,8 +9249,8 @@
        "floor_blend": 91.5,
        "ceiling_blend": 196.8,
        "adp": 148.2,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 92,
+       "pct_available_now": 86,
+       "pct_still_there_next_pick": 79,
        "surplus_over_wire": 34.6
       },
       {
@@ -7043,8 +9266,8 @@
        "floor_blend": 78.5,
        "ceiling_blend": 198.6,
        "adp": 146.5,
-       "pct_available_now": 82,
-       "pct_still_there_next_pick": 75,
+       "pct_available_now": 84,
+       "pct_still_there_next_pick": 78,
        "surplus_over_wire": 28.6
       },
       {
@@ -7060,8 +9283,8 @@
        "floor_blend": 73.1,
        "ceiling_blend": 155.6,
        "adp": 165.6,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 97,
+       "pct_available_now": 96,
+       "pct_still_there_next_pick": 94,
        "surplus_over_wire": 28.6
       },
       {
@@ -7078,7 +9301,7 @@
        "ceiling_blend": 204.8,
        "adp": 135.3,
        "pct_available_now": 70,
-       "pct_still_there_next_pick": 58,
+       "pct_still_there_next_pick": 60,
        "surplus_over_wire": 25.6
       },
       {
@@ -7097,13 +9320,70 @@
        "pct_available_now": 90,
        "pct_still_there_next_pick": 84,
        "surplus_over_wire": 25.6
+      },
+      {
+       "player_id": "8132",
+       "name": "Tyler Allgeier",
+       "team": "ARI",
+       "bye": 14,
+       "proj": 97,
+       "floor": 82,
+       "ceiling": 199,
+       "injury_risk_pct": 23,
+       "proj_blend": 78.3,
+       "floor_blend": 66.2,
+       "ceiling_blend": 160.6,
+       "adp": 138.2,
+       "pct_available_now": 75,
+       "pct_still_there_next_pick": 66,
+       "surplus_over_wire": 18.6
       }
      ]
     },
     "WR": {
      "best_now": 156,
-     "expected_best_at_next_pick": 149.9,
-     "VONA": 6.1,
+     "expected_best_at_next_pick": 150.1,
+     "VONA": 5.9,
+     "VONA_by_source": {
+      "ds": 5.9,
+      "sleeper": 2.7,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 6.7,
+      "clay": null,
+      "ownmodel": 32.9
+     },
+     "best_now_by_source": {
+      "ds": 156,
+      "sleeper": 141.1,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 144.6,
+      "clay": null,
+      "ownmodel": 164.8
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 150.1,
+      "sleeper": 138.4,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 137.9,
+      "clay": null,
+      "ownmodel": 132
+     },
+     "covered_by_source": {
+      "ds": 25,
+      "sleeper": 25,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 25,
+      "clay": 0,
+      "ownmodel": 25
+     },
      "surplus_over_wire": 31.2,
      "cliff_after_rank": 9,
      "cliff_size": 7,
@@ -7122,8 +9402,8 @@
        "floor_blend": 121.8,
        "ceiling_blend": 193.2,
        "adp": 123.3,
-       "pct_available_now": 39,
-       "pct_still_there_next_pick": 17,
+       "pct_available_now": 40,
+       "pct_still_there_next_pick": 18,
        "surplus_over_wire": 31.2
       },
       {
@@ -7139,8 +9419,8 @@
        "floor_blend": 115.8,
        "ceiling_blend": 207.5,
        "adp": 132.3,
-       "pct_available_now": 78,
-       "pct_still_there_next_pick": 54,
+       "pct_available_now": 77,
+       "pct_still_there_next_pick": 55,
        "surplus_over_wire": 27.2
       },
       {
@@ -7156,7 +9436,7 @@
        "floor_blend": 108.1,
        "ceiling_blend": 190,
        "adp": 142.2,
-       "pct_available_now": 97,
+       "pct_available_now": 96,
        "pct_still_there_next_pick": 89,
        "surplus_over_wire": 23.2
       },
@@ -7173,8 +9453,8 @@
        "floor_blend": 103.6,
        "ceiling_blend": 186.6,
        "adp": 137.1,
-       "pct_available_now": 87,
-       "pct_still_there_next_pick": 72,
+       "pct_available_now": 85,
+       "pct_still_there_next_pick": 70,
        "surplus_over_wire": 23.2
       },
       {
@@ -7191,7 +9471,7 @@
        "ceiling_blend": 204.5,
        "adp": 129.4,
        "pct_available_now": 61,
-       "pct_still_there_next_pick": 42,
+       "pct_still_there_next_pick": 43,
        "surplus_over_wire": 20.2
       },
       {
@@ -7206,9 +9486,9 @@
        "proj_blend": 137.2,
        "floor_blend": 118.6,
        "ceiling_blend": 200,
-       "adp": 118.8,
-       "pct_available_now": 17,
-       "pct_still_there_next_pick": 5,
+       "adp": 118.1,
+       "pct_available_now": 16,
+       "pct_still_there_next_pick": 6,
        "surplus_over_wire": 15.2
       },
       {
@@ -7241,8 +9521,8 @@
        "floor_blend": 121.3,
        "ceiling_blend": 228.6,
        "adp": 134.2,
-       "pct_available_now": 79,
-       "pct_still_there_next_pick": 58,
+       "pct_available_now": 81,
+       "pct_still_there_next_pick": 60,
        "surplus_over_wire": 11.2
       },
       {
@@ -7258,7 +9538,7 @@
        "floor_blend": 106.1,
        "ceiling_blend": 196.4,
        "adp": 138.9,
-       "pct_available_now": 91,
+       "pct_available_now": 92,
        "pct_still_there_next_pick": 76,
        "surplus_over_wire": 8.2
       },
@@ -7283,8 +9563,48 @@
     },
     "TE": {
      "best_now": 151,
-     "expected_best_at_next_pick": 129.8,
-     "VONA": 21.2,
+     "expected_best_at_next_pick": 129.7,
+     "VONA": 21.3,
+     "VONA_by_source": {
+      "ds": 21.3,
+      "sleeper": 8.5,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 16,
+      "clay": null,
+      "ownmodel": 9.9
+     },
+     "best_now_by_source": {
+      "ds": 151,
+      "sleeper": 138.3,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 146.6,
+      "clay": null,
+      "ownmodel": 130.5
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 129.7,
+      "sleeper": 129.8,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 130.6,
+      "clay": null,
+      "ownmodel": 120.6
+     },
+     "covered_by_source": {
+      "ds": 17,
+      "sleeper": 17,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 17,
+      "clay": 0,
+      "ownmodel": 17
+     },
      "surplus_over_wire": 20.6,
      "cliff_after_rank": 1,
      "cliff_size": 20,
@@ -7304,7 +9624,7 @@
        "ceiling_blend": 200.8,
        "adp": 91.9,
        "pct_available_now": 6,
-       "pct_still_there_next_pick": 4,
+       "pct_still_there_next_pick": 3,
        "surplus_over_wire": 20.6
       },
       {
@@ -7320,8 +9640,8 @@
        "floor_blend": 121.1,
        "ceiling_blend": 174.8,
        "adp": 116.6,
-       "pct_available_now": 30,
-       "pct_still_there_next_pick": 22,
+       "pct_available_now": 31,
+       "pct_still_there_next_pick": 23,
        "surplus_over_wire": 0.6
       },
       {
@@ -7337,8 +9657,8 @@
        "floor_blend": 122.1,
        "ceiling_blend": 181.6,
        "adp": 113.5,
-       "pct_available_now": 20,
-       "pct_still_there_next_pick": 15,
+       "pct_available_now": 22,
+       "pct_still_there_next_pick": 16,
        "surplus_over_wire": 0.6
       },
       {
@@ -7354,8 +9674,8 @@
        "floor_blend": 113.8,
        "ceiling_blend": 178.1,
        "adp": 99.8,
-       "pct_available_now": 8,
-       "pct_still_there_next_pick": 4,
+       "pct_available_now": 9,
+       "pct_still_there_next_pick": 6,
        "surplus_over_wire": 0
       },
       {
@@ -7371,7 +9691,7 @@
        "floor_blend": 117.2,
        "ceiling_blend": 156.3,
        "adp": 110.9,
-       "pct_available_now": 19,
+       "pct_available_now": 18,
        "pct_still_there_next_pick": 9,
        "surplus_over_wire": 0
       },
@@ -7388,16 +9708,56 @@
        "floor_blend": 105.3,
        "ceiling_blend": 155.6,
        "adp": 155.9,
-       "pct_available_now": 92,
-       "pct_still_there_next_pick": 89,
+       "pct_available_now": 91,
+       "pct_still_there_next_pick": 88,
        "surplus_over_wire": 0
       }
      ]
     },
     "K": {
      "best_now": 177,
-     "expected_best_at_next_pick": 167.3,
-     "VONA": 9.7,
+     "expected_best_at_next_pick": 166.9,
+     "VONA": 10.1,
+     "VONA_by_source": {
+      "ds": 10.1,
+      "sleeper": 2.4,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "best_now_by_source": {
+      "ds": 177,
+      "sleeper": 107,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 166.9,
+      "sleeper": 104.6,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "covered_by_source": {
+      "ds": 22,
+      "sleeper": 22,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 0,
+      "clay": 0,
+      "ownmodel": 0
+     },
      "surplus_over_wire": 48.4,
      "cliff_after_rank": 2,
      "cliff_size": 12,
@@ -7416,7 +9776,7 @@
        "floor_blend": 129.1,
        "ceiling_blend": 157,
        "adp": 115.5,
-       "pct_available_now": 35,
+       "pct_available_now": 34,
        "pct_still_there_next_pick": 27,
        "surplus_over_wire": 48.4
       },
@@ -7433,8 +9793,8 @@
        "floor_blend": 121.4,
        "ceiling_blend": 146.4,
        "adp": 139.8,
-       "pct_available_now": 73,
-       "pct_still_there_next_pick": 65,
+       "pct_available_now": 71,
+       "pct_still_there_next_pick": 63,
        "surplus_over_wire": 41.4
       },
       {
@@ -7450,8 +9810,8 @@
        "floor_blend": 128,
        "ceiling_blend": 153.2,
        "adp": 140.6,
-       "pct_available_now": 76,
-       "pct_still_there_next_pick": 68,
+       "pct_available_now": 75,
+       "pct_still_there_next_pick": 65,
        "surplus_over_wire": 29.4
       },
       {
@@ -7466,7 +9826,7 @@
        "proj_blend": 127.2,
        "floor_blend": 119.7,
        "ceiling_blend": 146.3,
-       "adp": 257.6,
+       "adp": 258.3,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 24.4
@@ -7477,6 +9837,46 @@
      "best_now": 125,
      "expected_best_at_next_pick": 117,
      "VONA": 8,
+     "VONA_by_source": {
+      "ds": 8,
+      "sleeper": 16.9,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "best_now_by_source": {
+      "ds": 125,
+      "sleeper": 132,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 117,
+      "sleeper": 115.1,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "covered_by_source": {
+      "ds": 21,
+      "sleeper": 21,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 0,
+      "clay": 0,
+      "ownmodel": 0
+     },
      "surplus_over_wire": 25,
      "cliff_after_rank": 3,
      "cliff_size": 6,
@@ -7496,7 +9896,7 @@
        "ceiling_blend": 137.4,
        "adp": 120.3,
        "pct_available_now": 21,
-       "pct_still_there_next_pick": 8,
+       "pct_still_there_next_pick": 10,
        "surplus_over_wire": 25
       },
       {
@@ -7512,8 +9912,8 @@
        "floor_blend": 101.8,
        "ceiling_blend": 130,
        "adp": 126.4,
-       "pct_available_now": 56,
-       "pct_still_there_next_pick": 32,
+       "pct_available_now": 57,
+       "pct_still_there_next_pick": 30,
        "surplus_over_wire": 22
       },
       {
@@ -7529,8 +9929,8 @@
        "floor_blend": 98.1,
        "ceiling_blend": 127,
        "adp": 127.8,
-       "pct_available_now": 59,
-       "pct_still_there_next_pick": 37,
+       "pct_available_now": 61,
+       "pct_still_there_next_pick": 36,
        "surplus_over_wire": 20
       },
       {
@@ -7561,8 +9961,48 @@
    "positions": {
     "QB": {
      "best_now": 325,
-     "expected_best_at_next_pick": 291.8,
-     "VONA": 33.2,
+     "expected_best_at_next_pick": 291.6,
+     "VONA": 33.4,
+     "VONA_by_source": {
+      "ds": 33.4,
+      "sleeper": 18.1,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 5,
+      "clay": null,
+      "ownmodel": 49.8
+     },
+     "best_now_by_source": {
+      "ds": 325,
+      "sleeper": 322.5,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 320.7,
+      "clay": null,
+      "ownmodel": 321.4
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 291.6,
+      "sleeper": 304.4,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 315.7,
+      "clay": null,
+      "ownmodel": 271.6
+     },
+     "covered_by_source": {
+      "ds": 14,
+      "sleeper": 14,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 14,
+      "clay": 0,
+      "ownmodel": 14
+     },
      "surplus_over_wire": 2.1,
      "cliff_after_rank": 1,
      "cliff_size": 29,
@@ -7582,7 +10022,7 @@
        "ceiling_blend": 409,
        "adp": 124,
        "pct_available_now": 29,
-       "pct_still_there_next_pick": 7,
+       "pct_still_there_next_pick": 6,
        "surplus_over_wire": 2.1
       },
       {
@@ -7598,8 +10038,8 @@
        "floor_blend": 294.7,
        "ceiling_blend": 441.6,
        "adp": 154.9,
-       "pct_available_now": 96,
-       "pct_still_there_next_pick": 69,
+       "pct_available_now": 97,
+       "pct_still_there_next_pick": 70,
        "surplus_over_wire": 0
       },
       {
@@ -7615,7 +10055,7 @@
        "floor_blend": 298.4,
        "ceiling_blend": 432.5,
        "adp": 136.3,
-       "pct_available_now": 66,
+       "pct_available_now": 64,
        "pct_still_there_next_pick": 22,
        "surplus_over_wire": 0
       },
@@ -7632,7 +10072,7 @@
        "floor_blend": 306.5,
        "ceiling_blend": 448.2,
        "adp": 133.3,
-       "pct_available_now": 55,
+       "pct_available_now": 57,
        "pct_still_there_next_pick": 16,
        "surplus_over_wire": 0
       },
@@ -7666,16 +10106,56 @@
        "floor_blend": 285.1,
        "ceiling_blend": 442.8,
        "adp": 153.7,
-       "pct_available_now": 86,
-       "pct_still_there_next_pick": 61,
+       "pct_available_now": 85,
+       "pct_still_there_next_pick": 62,
        "surplus_over_wire": 0
       }
      ]
     },
     "RB": {
      "best_now": 131,
-     "expected_best_at_next_pick": 125.5,
-     "VONA": 5.5,
+     "expected_best_at_next_pick": 125.8,
+     "VONA": 5.3,
+     "VONA_by_source": {
+      "ds": 5.3,
+      "sleeper": 14.7,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 30.2,
+      "clay": null,
+      "ownmodel": 23.1
+     },
+     "best_now_by_source": {
+      "ds": 131,
+      "sleeper": 125,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 143.4,
+      "clay": null,
+      "ownmodel": 134.2
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 125.8,
+      "sleeper": 110.3,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 113.1,
+      "clay": null,
+      "ownmodel": 111.1
+     },
+     "covered_by_source": {
+      "ds": 41,
+      "sleeper": 41,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 38,
+      "clay": 0,
+      "ownmodel": 40
+     },
      "surplus_over_wire": 52.6,
      "cliff_after_rank": 4,
      "cliff_size": 7,
@@ -7711,7 +10191,7 @@
        "floor_blend": 109.3,
        "ceiling_blend": 233.4,
        "adp": 109.4,
-       "pct_available_now": 7,
+       "pct_available_now": 8,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 49.6
       },
@@ -7728,7 +10208,7 @@
        "floor_blend": 106.6,
        "ceiling_blend": 230.5,
        "adp": 114.3,
-       "pct_available_now": 9,
+       "pct_available_now": 8,
        "pct_still_there_next_pick": 1,
        "surplus_over_wire": 45.6
       },
@@ -7745,8 +10225,8 @@
        "floor_blend": 78.1,
        "ceiling_blend": 213.4,
        "adp": 128.6,
-       "pct_available_now": 43,
-       "pct_still_there_next_pick": 15,
+       "pct_available_now": 42,
+       "pct_still_there_next_pick": 12,
        "surplus_over_wire": 41.6
       },
       {
@@ -7762,8 +10242,8 @@
        "floor_blend": 91.5,
        "ceiling_blend": 196.8,
        "adp": 148.2,
-       "pct_available_now": 92,
-       "pct_still_there_next_pick": 52,
+       "pct_available_now": 79,
+       "pct_still_there_next_pick": 51,
        "surplus_over_wire": 34.6
       },
       {
@@ -7779,7 +10259,7 @@
        "floor_blend": 78.5,
        "ceiling_blend": 198.6,
        "adp": 146.5,
-       "pct_available_now": 75,
+       "pct_available_now": 78,
        "pct_still_there_next_pick": 46,
        "surplus_over_wire": 28.6
       },
@@ -7796,8 +10276,8 @@
        "floor_blend": 73.1,
        "ceiling_blend": 155.6,
        "adp": 165.6,
-       "pct_available_now": 97,
-       "pct_still_there_next_pick": 86,
+       "pct_available_now": 94,
+       "pct_still_there_next_pick": 80,
        "surplus_over_wire": 28.6
       },
       {
@@ -7813,8 +10293,8 @@
        "floor_blend": 86.7,
        "ceiling_blend": 204.8,
        "adp": 135.3,
-       "pct_available_now": 58,
-       "pct_still_there_next_pick": 21,
+       "pct_available_now": 60,
+       "pct_still_there_next_pick": 22,
        "surplus_over_wire": 25.6
       },
       {
@@ -7831,7 +10311,7 @@
        "ceiling_blend": 213.6,
        "adp": 149.3,
        "pct_available_now": 84,
-       "pct_still_there_next_pick": 55,
+       "pct_still_there_next_pick": 56,
        "surplus_over_wire": 25.6
       },
       {
@@ -7847,20 +10327,60 @@
        "floor_blend": 66.2,
        "ceiling_blend": 160.6,
        "adp": 138.2,
-       "pct_available_now": 68,
-       "pct_still_there_next_pick": 32,
+       "pct_available_now": 66,
+       "pct_still_there_next_pick": 35,
        "surplus_over_wire": 18.6
       }
      ]
     },
     "WR": {
      "best_now": 156,
-     "expected_best_at_next_pick": 136.3,
-     "VONA": 19.7,
+     "expected_best_at_next_pick": 136.5,
+     "VONA": 19.5,
+     "VONA_by_source": {
+      "ds": 19.5,
+      "sleeper": 7.3,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 14.8,
+      "clay": null,
+      "ownmodel": 41.5
+     },
+     "best_now_by_source": {
+      "ds": 156,
+      "sleeper": 141.1,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 144.6,
+      "clay": null,
+      "ownmodel": 164.8
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 136.5,
+      "sleeper": 133.8,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 129.8,
+      "clay": null,
+      "ownmodel": 123.4
+     },
+     "covered_by_source": {
+      "ds": 25,
+      "sleeper": 25,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 25,
+      "clay": 0,
+      "ownmodel": 25
+     },
      "surplus_over_wire": 31.2,
      "cliff_after_rank": 9,
      "cliff_size": 7,
-     "note": "waiting costs 20, but he is only +31 over the wire — thin",
+     "note": "waiting costs 19, but he is only +31 over the wire — thin",
      "players": [
       {
        "player_id": "5947",
@@ -7875,7 +10395,7 @@
        "floor_blend": 121.8,
        "ceiling_blend": 193.2,
        "adp": 123.3,
-       "pct_available_now": 17,
+       "pct_available_now": 18,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 31.2
       },
@@ -7892,8 +10412,8 @@
        "floor_blend": 115.8,
        "ceiling_blend": 207.5,
        "adp": 132.3,
-       "pct_available_now": 54,
-       "pct_still_there_next_pick": 3,
+       "pct_available_now": 55,
+       "pct_still_there_next_pick": 4,
        "surplus_over_wire": 27.2
       },
       {
@@ -7910,7 +10430,7 @@
        "ceiling_blend": 190,
        "adp": 142.2,
        "pct_available_now": 89,
-       "pct_still_there_next_pick": 27,
+       "pct_still_there_next_pick": 28,
        "surplus_over_wire": 23.2
       },
       {
@@ -7926,8 +10446,8 @@
        "floor_blend": 103.6,
        "ceiling_blend": 186.6,
        "adp": 137.1,
-       "pct_available_now": 72,
-       "pct_still_there_next_pick": 16,
+       "pct_available_now": 70,
+       "pct_still_there_next_pick": 17,
        "surplus_over_wire": 23.2
       },
       {
@@ -7943,7 +10463,7 @@
        "floor_blend": 108.6,
        "ceiling_blend": 204.5,
        "adp": 129.4,
-       "pct_available_now": 42,
+       "pct_available_now": 43,
        "pct_still_there_next_pick": 2,
        "surplus_over_wire": 20.2
       },
@@ -7959,8 +10479,8 @@
        "proj_blend": 137.2,
        "floor_blend": 118.6,
        "ceiling_blend": 200,
-       "adp": 118.8,
-       "pct_available_now": 5,
+       "adp": 118.1,
+       "pct_available_now": 6,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 15.2
       },
@@ -7978,7 +10498,7 @@
        "ceiling_blend": 180.7,
        "adp": 150.8,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 73,
+       "pct_still_there_next_pick": 72,
        "surplus_over_wire": 12.2
       },
       {
@@ -7994,8 +10514,8 @@
        "floor_blend": 121.3,
        "ceiling_blend": 228.6,
        "adp": 134.2,
-       "pct_available_now": 58,
-       "pct_still_there_next_pick": 8,
+       "pct_available_now": 60,
+       "pct_still_there_next_pick": 7,
        "surplus_over_wire": 11.2
       },
       {
@@ -8012,7 +10532,7 @@
        "ceiling_blend": 196.4,
        "adp": 138.9,
        "pct_available_now": 76,
-       "pct_still_there_next_pick": 21,
+       "pct_still_there_next_pick": 22,
        "surplus_over_wire": 8.2
       },
       {
@@ -8038,8 +10558,48 @@
      "best_now": 131,
      "expected_best_at_next_pick": 126.9,
      "VONA": 4.1,
+     "VONA_by_source": {
+      "ds": 4.1,
+      "sleeper": 5.4,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 22.7,
+      "clay": null,
+      "ownmodel": 9.2
+     },
+     "best_now_by_source": {
+      "ds": 131,
+      "sleeper": 132.5,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 146.6,
+      "clay": null,
+      "ownmodel": 125.2
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 126.9,
+      "sleeper": 127.1,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 124,
+      "clay": null,
+      "ownmodel": 115.9
+     },
+     "covered_by_source": {
+      "ds": 15,
+      "sleeper": 15,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 15,
+      "clay": 0,
+      "ownmodel": 15
+     },
      "surplus_over_wire": 0.6,
-     "cliff_after_rank": 4,
+     "cliff_after_rank": 5,
      "cliff_size": 3,
      "note": "skip — the best TE left is worth 1 over a free one",
      "players": [
@@ -8056,8 +10616,8 @@
        "floor_blend": 121.1,
        "ceiling_blend": 174.8,
        "adp": 116.6,
-       "pct_available_now": 22,
-       "pct_still_there_next_pick": 6,
+       "pct_available_now": 23,
+       "pct_still_there_next_pick": 7,
        "surplus_over_wire": 0.6
       },
       {
@@ -8073,9 +10633,26 @@
        "floor_blend": 122.1,
        "ceiling_blend": 181.6,
        "adp": 113.5,
-       "pct_available_now": 15,
+       "pct_available_now": 16,
        "pct_still_there_next_pick": 6,
        "surplus_over_wire": 0.6
+      },
+      {
+       "player_id": "10236",
+       "name": "Dalton Kincaid",
+       "team": "BUF",
+       "bye": 7,
+       "proj": 130,
+       "floor": 115,
+       "ceiling": 180,
+       "injury_risk_pct": 62,
+       "proj_blend": 128.6,
+       "floor_blend": 113.8,
+       "ceiling_blend": 178.1,
+       "adp": 99.8,
+       "pct_available_now": 6,
+       "pct_still_there_next_pick": 1,
+       "surplus_over_wire": 0
       },
       {
        "player_id": "8110",
@@ -8107,8 +10684,8 @@
        "floor_blend": 105.3,
        "ceiling_blend": 155.6,
        "adp": 155.9,
-       "pct_available_now": 89,
-       "pct_still_there_next_pick": 69,
+       "pct_available_now": 88,
+       "pct_still_there_next_pick": 68,
        "surplus_over_wire": 0
       },
       {
@@ -8124,33 +10701,56 @@
        "floor_blend": 104.4,
        "ceiling_blend": 150.3,
        "adp": 157.1,
-       "pct_available_now": 92,
-       "pct_still_there_next_pick": 71,
-       "surplus_over_wire": 0
-      },
-      {
-       "player_id": "3214",
-       "name": "Hunter Henry",
-       "team": "NE",
-       "bye": 11,
-       "proj": 123,
-       "floor": 109,
-       "ceiling": 162,
-       "injury_risk_pct": 47,
-       "proj_blend": 121.3,
-       "floor_blend": 107.5,
-       "ceiling_blend": 159.8,
-       "adp": 145.3,
-       "pct_available_now": 82,
-       "pct_still_there_next_pick": 44,
+       "pct_available_now": 94,
+       "pct_still_there_next_pick": 72,
        "surplus_over_wire": 0
       }
      ]
     },
     "K": {
      "best_now": 177,
-     "expected_best_at_next_pick": 159.6,
-     "VONA": 17.4,
+     "expected_best_at_next_pick": 159.8,
+     "VONA": 17.2,
+     "VONA_by_source": {
+      "ds": 17.2,
+      "sleeper": 3.3,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "best_now_by_source": {
+      "ds": 177,
+      "sleeper": 107,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 159.8,
+      "sleeper": 103.7,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "covered_by_source": {
+      "ds": 22,
+      "sleeper": 22,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 0,
+      "clay": 0,
+      "ownmodel": 0
+     },
      "surplus_over_wire": 48.4,
      "cliff_after_rank": 2,
      "cliff_size": 12,
@@ -8186,8 +10786,8 @@
        "floor_blend": 121.4,
        "ceiling_blend": 146.4,
        "adp": 139.8,
-       "pct_available_now": 65,
-       "pct_still_there_next_pick": 28,
+       "pct_available_now": 63,
+       "pct_still_there_next_pick": 30,
        "surplus_over_wire": 41.4
       },
       {
@@ -8203,8 +10803,8 @@
        "floor_blend": 128,
        "ceiling_blend": 153.2,
        "adp": 140.6,
-       "pct_available_now": 68,
-       "pct_still_there_next_pick": 38,
+       "pct_available_now": 65,
+       "pct_still_there_next_pick": 39,
        "surplus_over_wire": 29.4
       },
       {
@@ -8219,7 +10819,7 @@
        "proj_blend": 127.2,
        "floor_blend": 119.7,
        "ceiling_blend": 146.3,
-       "adp": 257.6,
+       "adp": 258.3,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 24.4
@@ -8230,6 +10830,46 @@
      "best_now": 125,
      "expected_best_at_next_pick": 114.1,
      "VONA": 10.9,
+     "VONA_by_source": {
+      "ds": 10.9,
+      "sleeper": 20,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "best_now_by_source": {
+      "ds": 125,
+      "sleeper": 132,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": 114.1,
+      "sleeper": 112,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "covered_by_source": {
+      "ds": 21,
+      "sleeper": 21,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 0,
+      "clay": 0,
+      "ownmodel": 0
+     },
      "surplus_over_wire": 25,
      "cliff_after_rank": 3,
      "cliff_size": 6,
@@ -8248,7 +10888,7 @@
        "floor_blend": 110,
        "ceiling_blend": 137.4,
        "adp": 120.3,
-       "pct_available_now": 8,
+       "pct_available_now": 10,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 25
       },
@@ -8265,7 +10905,7 @@
        "floor_blend": 101.8,
        "ceiling_blend": 130,
        "adp": 126.4,
-       "pct_available_now": 32,
+       "pct_available_now": 30,
        "pct_still_there_next_pick": 1,
        "surplus_over_wire": 22
       },
@@ -8282,8 +10922,8 @@
        "floor_blend": 98.1,
        "ceiling_blend": 127,
        "adp": 127.8,
-       "pct_available_now": 37,
-       "pct_still_there_next_pick": 1,
+       "pct_available_now": 36,
+       "pct_still_there_next_pick": 0,
        "surplus_over_wire": 20
       },
       {
@@ -8300,7 +10940,7 @@
        "ceiling_blend": 113.7,
        "adp": 164.7,
        "pct_available_now": 99,
-       "pct_still_there_next_pick": 92,
+       "pct_still_there_next_pick": 91,
        "surplus_over_wire": 14
       }
      ]
@@ -8316,6 +10956,46 @@
      "best_now": 325,
      "expected_best_at_next_pick": null,
      "VONA": null,
+     "VONA_by_source": {
+      "ds": null,
+      "sleeper": null,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "best_now_by_source": {
+      "ds": 325,
+      "sleeper": 322.5,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 320.7,
+      "clay": null,
+      "ownmodel": 321.4
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": null,
+      "sleeper": null,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "covered_by_source": {
+      "ds": 14,
+      "sleeper": 14,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 14,
+      "clay": 0,
+      "ownmodel": 14
+     },
      "surplus_over_wire": 2.1,
      "cliff_after_rank": 1,
      "cliff_size": 29,
@@ -8334,7 +11014,7 @@
        "floor_blend": 266.5,
        "ceiling_blend": 409,
        "adp": 124,
-       "pct_available_now": 7,
+       "pct_available_now": 6,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 2.1
       },
@@ -8351,7 +11031,7 @@
        "floor_blend": 294.7,
        "ceiling_blend": 441.6,
        "adp": 154.9,
-       "pct_available_now": 69,
+       "pct_available_now": 70,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       },
@@ -8419,7 +11099,7 @@
        "floor_blend": 285.1,
        "ceiling_blend": 442.8,
        "adp": 153.7,
-       "pct_available_now": 61,
+       "pct_available_now": 62,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       }
@@ -8429,6 +11109,46 @@
      "best_now": 131,
      "expected_best_at_next_pick": null,
      "VONA": null,
+     "VONA_by_source": {
+      "ds": null,
+      "sleeper": null,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "best_now_by_source": {
+      "ds": 131,
+      "sleeper": 125,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 115.2,
+      "clay": null,
+      "ownmodel": 134.2
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": null,
+      "sleeper": null,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "covered_by_source": {
+      "ds": 39,
+      "sleeper": 39,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 36,
+      "clay": 0,
+      "ownmodel": 38
+     },
      "surplus_over_wire": 52.6,
      "cliff_after_rank": 1,
      "cliff_size": 11,
@@ -8464,7 +11184,7 @@
        "floor_blend": 78.1,
        "ceiling_blend": 213.4,
        "adp": 128.6,
-       "pct_available_now": 15,
+       "pct_available_now": 12,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 41.6
       },
@@ -8481,7 +11201,7 @@
        "floor_blend": 91.5,
        "ceiling_blend": 196.8,
        "adp": 148.2,
-       "pct_available_now": 52,
+       "pct_available_now": 51,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 34.6
       },
@@ -8515,7 +11235,7 @@
        "floor_blend": 73.1,
        "ceiling_blend": 155.6,
        "adp": 165.6,
-       "pct_available_now": 86,
+       "pct_available_now": 80,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 28.6
       },
@@ -8532,7 +11252,7 @@
        "floor_blend": 86.7,
        "ceiling_blend": 204.8,
        "adp": 135.3,
-       "pct_available_now": 21,
+       "pct_available_now": 22,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 25.6
       },
@@ -8549,7 +11269,7 @@
        "floor_blend": 83.2,
        "ceiling_blend": 213.6,
        "adp": 149.3,
-       "pct_available_now": 55,
+       "pct_available_now": 56,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 25.6
       },
@@ -8566,7 +11286,7 @@
        "floor_blend": 66.2,
        "ceiling_blend": 160.6,
        "adp": 138.2,
-       "pct_available_now": 32,
+       "pct_available_now": 35,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 18.6
       },
@@ -8583,7 +11303,7 @@
        "floor_blend": 65.3,
        "ceiling_blend": 178.4,
        "adp": 163.8,
-       "pct_available_now": 80,
+       "pct_available_now": 78,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 16.6
       },
@@ -8610,6 +11330,46 @@
      "best_now": 148,
      "expected_best_at_next_pick": null,
      "VONA": null,
+     "VONA_by_source": {
+      "ds": null,
+      "sleeper": null,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "best_now_by_source": {
+      "ds": 148,
+      "sleeper": 141.1,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 133.5,
+      "clay": null,
+      "ownmodel": 130.3
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": null,
+      "sleeper": null,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "covered_by_source": {
+      "ds": 21,
+      "sleeper": 21,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 21,
+      "clay": 0,
+      "ownmodel": 21
+     },
      "surplus_over_wire": 23.2,
      "cliff_after_rank": 2,
      "cliff_size": 11,
@@ -8628,7 +11388,7 @@
        "floor_blend": 108.1,
        "ceiling_blend": 190,
        "adp": 142.2,
-       "pct_available_now": 27,
+       "pct_available_now": 28,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 23.2
       },
@@ -8645,7 +11405,7 @@
        "floor_blend": 103.6,
        "ceiling_blend": 186.6,
        "adp": 137.1,
-       "pct_available_now": 16,
+       "pct_available_now": 17,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 23.2
       },
@@ -8662,7 +11422,7 @@
        "floor_blend": 114.7,
        "ceiling_blend": 180.7,
        "adp": 150.8,
-       "pct_available_now": 73,
+       "pct_available_now": 72,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 12.2
       },
@@ -8679,7 +11439,7 @@
        "floor_blend": 121.3,
        "ceiling_blend": 228.6,
        "adp": 134.2,
-       "pct_available_now": 8,
+       "pct_available_now": 7,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 11.2
       },
@@ -8696,7 +11456,7 @@
        "floor_blend": 106.1,
        "ceiling_blend": 196.4,
        "adp": 138.9,
-       "pct_available_now": 21,
+       "pct_available_now": 22,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 8.2
       },
@@ -8729,7 +11489,7 @@
        "proj_blend": 112.3,
        "floor_blend": 95.1,
        "ceiling_blend": 180.3,
-       "adp": 202.8,
+       "adp": 203.5,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
@@ -8747,7 +11507,7 @@
        "floor_blend": 110.1,
        "ceiling_blend": 208.4,
        "adp": 158.2,
-       "pct_available_now": 85,
+       "pct_available_now": 88,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       },
@@ -8780,7 +11540,7 @@
        "proj_blend": 107.7,
        "floor_blend": 94.1,
        "ceiling_blend": 186.4,
-       "adp": 251.7,
+       "adp": 252.4,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
@@ -8791,6 +11551,46 @@
      "best_now": 131,
      "expected_best_at_next_pick": null,
      "VONA": null,
+     "VONA_by_source": {
+      "ds": null,
+      "sleeper": null,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "best_now_by_source": {
+      "ds": 131,
+      "sleeper": 132.5,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": 146.6,
+      "clay": null,
+      "ownmodel": 125.2
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": null,
+      "sleeper": null,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "covered_by_source": {
+      "ds": 13,
+      "sleeper": 13,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 13,
+      "clay": 0,
+      "ownmodel": 13
+     },
      "surplus_over_wire": 0.6,
      "cliff_after_rank": 5,
      "cliff_size": 4,
@@ -8809,7 +11609,7 @@
        "floor_blend": 121.1,
        "ceiling_blend": 174.8,
        "adp": 116.6,
-       "pct_available_now": 6,
+       "pct_available_now": 7,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0.6
       },
@@ -8843,7 +11643,7 @@
        "floor_blend": 105.3,
        "ceiling_blend": 155.6,
        "adp": 155.9,
-       "pct_available_now": 69,
+       "pct_available_now": 68,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       },
@@ -8860,7 +11660,7 @@
        "floor_blend": 104.4,
        "ceiling_blend": 150.3,
        "adp": 157.1,
-       "pct_available_now": 71,
+       "pct_available_now": 72,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       },
@@ -8904,6 +11704,46 @@
      "best_now": 177,
      "expected_best_at_next_pick": null,
      "VONA": null,
+     "VONA_by_source": {
+      "ds": null,
+      "sleeper": null,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "best_now_by_source": {
+      "ds": 177,
+      "sleeper": 107,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": null,
+      "sleeper": null,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "covered_by_source": {
+      "ds": 22,
+      "sleeper": 22,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 0,
+      "clay": 0,
+      "ownmodel": 0
+     },
      "surplus_over_wire": 48.4,
      "cliff_after_rank": 2,
      "cliff_size": 12,
@@ -8939,7 +11779,7 @@
        "floor_blend": 121.4,
        "ceiling_blend": 146.4,
        "adp": 139.8,
-       "pct_available_now": 28,
+       "pct_available_now": 30,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 41.4
       },
@@ -8956,7 +11796,7 @@
        "floor_blend": 128,
        "ceiling_blend": 153.2,
        "adp": 140.6,
-       "pct_available_now": 38,
+       "pct_available_now": 39,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 29.4
       },
@@ -8972,7 +11812,7 @@
        "proj_blend": 127.2,
        "floor_blend": 119.7,
        "ceiling_blend": 146.3,
-       "adp": 257.6,
+       "adp": 258.3,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 24.4
@@ -8983,6 +11823,46 @@
      "best_now": 114,
      "expected_best_at_next_pick": null,
      "VONA": null,
+     "VONA_by_source": {
+      "ds": null,
+      "sleeper": null,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "best_now_by_source": {
+      "ds": 114,
+      "sleeper": 112,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "expected_best_at_next_pick_by_source": {
+      "ds": null,
+      "sleeper": null,
+      "cbs": null,
+      "espn": null,
+      "fftoday": null,
+      "fantasypros": null,
+      "clay": null,
+      "ownmodel": null
+     },
+     "covered_by_source": {
+      "ds": 17,
+      "sleeper": 17,
+      "cbs": 0,
+      "espn": 0,
+      "fftoday": 0,
+      "fantasypros": 0,
+      "clay": 0,
+      "ownmodel": 0
+     },
      "surplus_over_wire": 14,
      "cliff_after_rank": 3,
      "cliff_size": 2,
@@ -9001,7 +11881,7 @@
        "floor_blend": 87.3,
        "ceiling_blend": 113.7,
        "adp": 164.7,
-       "pct_available_now": 92,
+       "pct_available_now": 91,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 14
       },
@@ -9017,7 +11897,7 @@
        "proj_blend": 100.3,
        "floor_blend": 93.3,
        "ceiling_blend": 117.9,
-       "adp": 199.4,
+       "adp": 200.1,
        "pct_available_now": 99,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 14
@@ -9034,7 +11914,7 @@
        "proj_blend": 92.4,
        "floor_blend": 84.3,
        "ceiling_blend": 110.2,
-       "adp": 219.7,
+       "adp": 220.4,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 14
@@ -9082,7 +11962,7 @@
   },
   {
    "owner": "Jeremy",
-   "keeps": "",
+   "keeps": "RB WR",
    "needs": "QB RB WR TE K DEF",
    "early_lean": "RB 50%"
   },
@@ -9258,15 +12138,15 @@
    "from_round": 12,
    "to_round": 13,
    "pos": {
-    "QB": 2,
-    "RB": 4,
+    "QB": 0,
+    "RB": 28,
     "WR": 9,
     "TE": 0,
     "K": 0,
     "DEF": 0
    },
-   "steepest": "WR",
-   "flattest": "TE"
+   "steepest": "RB",
+   "flattest": "QB"
   },
   {
    "from_pick": 128,
@@ -9274,15 +12154,15 @@
    "from_round": 13,
    "to_round": 14,
    "pos": {
-    "QB": 0,
-    "RB": 24,
+    "QB": 2,
+    "RB": 0,
     "WR": 0,
     "TE": 20,
     "K": 0,
     "DEF": 0
    },
-   "steepest": "RB",
-   "flattest": "QB"
+   "steepest": "TE",
+   "flattest": "RB"
   },
   {
    "from_pick": 133,

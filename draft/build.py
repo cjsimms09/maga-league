@@ -47,6 +47,9 @@ ARTIFACT_VERSION = 2
 # it, and the War Room renders it.
 ADP_PROVENANCE: dict = {}
 OPPORTUNITY_PROVENANCE: dict = {}
+#: Which source answered the gsis->sleeper crosswalk on this build. Recorded
+#: so a degraded run is legible in the artifact, not only in the log (E, 233).
+ID_CROSSWALK_SOURCE: str = "unset"
 PROJECTION_PROVENANCE: dict = {}
 
 
@@ -1208,26 +1211,49 @@ def _id_crosswalk(sleeper_players: dict) -> dict:
 
     Two sources, in order of reliability:
 
-    1. `nfl_data_py.import_ids()` — a maintained crosswalk built for exactly
-       this problem, carrying gsis_id alongside sleeper_id. This is the right
-       answer and covers players Sleeper has no gsis_id for.
+    1. `backtest.id_crosswalk` — a maintained crosswalk built for exactly this
+       problem, carrying gsis_id alongside sleeper_id. This is the right answer
+       and covers players Sleeper has no gsis_id for.
     2. Sleeper's own `gsis_id` field, as a supplement. On the first real run
        this alone translated 221 of 761 keys, which is why (1) exists.
+
+    ⚠️ WHY (1) IS NO LONGER A FLAT `nfl.import_ids()` CALL (E, register 233).
+    It was, and it sat inside this `except Exception`. **The morning that
+    prompted this, a CI red really did read `AttributeError: module
+    'nfl_data_py' has no attribute 'import_ids'` — and the cause was a test
+    leaking a one-attribute fake into `sys.modules`, not an upstream rename
+    (A, register 219). The claim that this build's environment changed was
+    wrong and is corrected in `id_crosswalk`.**
+
+    What survives the correction is the part that was never about the cause:
+    **this function does not refuse on a crosswalk failure — it prints one `!`
+    line and builds the board on Sleeper's own `gsis_id` field, which covered
+    221 of 761 keys the last time it stood alone.** The only thing between that
+    and a published board is `_assert_opportunity_coverage`'s 60% floor,
+    measured on the top 200 by ADP — exactly the players Sleeper is least
+    likely to be missing, so the floor may well not fire. A leaked stub was
+    enough to produce the exact error a rename would; the swallow is worth
+    removing on its own terms.
+
+    `id_crosswalk` ends its chain at the dynastyprocess CSV that
+    `nfl_data_py.import_ids()` itself reads, so an upstream rename cannot reach
+    it. The source that answered is recorded in `ID_CROSSWALK_SOURCE` so a
+    degraded run is legible in the artifact instead of only in the log.
     """
+    global ID_CROSSWALK_SOURCE
     out = {}
     try:
-        import nfl_data_py as nfl
-        ids = nfl.import_ids()
-        cols = set(map(str, ids.columns))
-        if {"gsis_id", "sleeper_id"} <= cols:
-            for g, sid in zip(ids["gsis_id"], ids["sleeper_id"]):
-                if g and sid and str(g) != "nan" and str(sid) != "nan":
-                    out[str(g).strip()] = str(sid).strip().split(".")[0]
-            print(f"  id crosswalk: {len(out)} gsis->sleeper pairs from nfl_data_py")
-        else:
-            print(f"  ! import_ids() lacks gsis_id/sleeper_id; columns={sorted(cols)[:25]}")
+        from backtest import id_crosswalk as XW
+        mapping, source, tried = XW.crosswalk_with_source()
+        out.update(mapping)
+        ID_CROSSWALK_SOURCE = source
+        note = (" (after %s)" % "; ".join(tried)) if tried else ""
+        print(f"  id crosswalk: {len(out)} gsis->sleeper pairs from {source}{note}")
     except Exception as exc:  # noqa: BLE001 — supplement below still applies
+        ID_CROSSWALK_SOURCE = "UNAVAILABLE — %s: %s" % (type(exc).__name__, exc)
         print(f"  ! id crosswalk unavailable ({type(exc).__name__}: {exc})")
+        print("  ! the board will be built on Sleeper's own gsis_id field alone, "
+              "which covered 221 of 761 keys the last time it stood on its own")
 
     supplement = 0
     for pid, p in sleeper_players.items():

@@ -134,14 +134,38 @@ check('the metric is deterministic across runs (seeded, not drifting)',
 // be there, and manufactured urgency is exactly what pushes a pick away from
 // the market for no reason. Graded, not argued: +114.1 points per seat-season,
 // CI95 [+48.0, +180.1], positive in 3 replayed seasons of 3.
+// RE-PINNED 2026-08-21: 79.2% -> 74.2%, magnitude 10.8 -> 10.4. CORY'S TWO
+// WEIGHT RULINGS OF 2026-08-20, and the attribution is measured rather than
+// assumed. He set `need` 0 -> 1.0 and `ceiling` 0.45 -> 0 ("switch it off, its
+// so arbitrary"), both AFTER the 08-19 pin was taken.
+//
+// ATTRIBUTED BY BISECTION, on this same frozen pool, changing only the
+// constants:
+//
+//     need 0.0  (pre-ruling), ceiling shipped      76.7%   mag 10.8
+//     ceiling 0.45 (pre-ruling), need shipped      75.8%   mag 12.5
+//     BOTH at their pre-08-20 values               78.3%   mag 13.5   <- in band
+//     shipped (need 1.0, ceiling 0)                74.2%   mag 10.4
+//
+// Restoring the pre-ruling pair lands at 78.3% against a 79.2% pin — inside the
+// band — so the two rulings account for essentially the whole move and nothing
+// unexplained remains. The engine was NOT the mover in any other respect: the
+// rate reads 74.2% identically at every commit tested back through ca405e36,
+// including with the whole `public/js/draft/` tree swapped, so none of the
+// 08-21 survival/VONA work touches it (it never sets `preDraftPrep`, which is
+// the only thing those changes gate on).
+//
+// THE POOL IS NOT RE-FROZEN, same reasoning as every re-pin above: the board
+// did not move, the engine's weights did — on Cory's explicit instruction. The
+// band stays +/-0.05; widening it is what this check's own message forbids.
 check('intervention rate is pinned (frozen pool, shipped weights, seat 8)',
-  Math.abs(r.rate - 0.792) < 0.05,
+  Math.abs(r.rate - 0.742) < 0.05,
   'rate=' + (r.rate * 100).toFixed(1) + '% — this now measures the ENGINE on a FIXED '
     + 'board, so a move here is a real composite change. If intended, freeze a NEW '
     + 'pool version and re-pin; do not widen the band.');
 
 check('mean deviation magnitude is pinned (frozen pool)',
-  Math.abs(r.meanMagnitude - 10.8) < 3,
+  Math.abs(r.meanMagnitude - 10.4) < 3,
   'magnitude=' + r.meanMagnitude.toFixed(1));
 
 // A SCOPE NOTE ADDED 2026-08-12 (and OVERTAKEN TWICE since — kept as history):

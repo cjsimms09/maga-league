@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 199,
+ "next_numeric_id": 245,
  "history": [
   {
    "id": 47,
@@ -124,16 +124,8 @@
   },
   {
    "id": 135,
-   "claimed_at": "2026-08-19"
-  },
-  {
-   "id": 135,
    "claimed_at": "2026-08-20",
    "note": "renumbered from a colliding 133 (MLV-timing arm preregistered, never implemented) -- another session's row, first-allocation-wins per timestamp"
-  },
-  {
-   "id": 136,
-   "claimed_at": "2026-08-19"
   },
   {
    "id": 136,
@@ -290,6 +282,157 @@
    "claimed_at": "2026-08-21"
   },
   {
+   "id": 191,
+   "claimed_at": "2026-08-21",
+   "note": "D: BLEND-SEARCH-DESIGN step 3 has an unassigned dependency and the program's ownership is stated three ways (design doc says relay, ROUTES dispatch says D, P27/P29 say 'A builds - relay proposes'). Finding: the project's rho<=0.98 correlation gate sits exactly where DS10's averaging channel closes (+0.00 MAE at 0.98), verified against expected_averaging_gain rather than asserted; and decorrelation alone is insufficient -- P292's red-zone arm at rho=0.74 but MAE 9.07 makes a blend 1.84 points WORSE, with break-even at MAE ~5.2. Id claimed via next_register_id.js, not a table grep. Watermark now authoritative from 192."
+  },
+  {
+   "id": 192,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 193,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 194,
+   "claimed_at": "2026-08-21",
+   "note": "E: my 192 claim collided with main's PRINTED register 192 (the Draft Sharks ceiling-ordering row, 19c8b68c) -- under register 186's protocol main-printed ids are canonical, so my row renumbers 192->194. My 191 and 193 are unaffected: main prints neither. Three citations repointed individually (ROUTES dispatch to A, draft/audit/MAIN-IS-RED-AND-NOBODY-HAS-SEEN-IT-2026-08-21.md header and section 6, and register 191's own 'filed as' sentence)."
+  },
+  {
+   "id": 195,
+   "claimed_at": "2026-08-21",
+   "note": "E: my 193 claim collided with main's PRINTED register 193 (the dead `variance` board field, 91800237) -- register 186's protocol, main-printed ids canonical, so my control-band row renumbers 193->195. Second collision this session; my earlier 192->194 is the first. Both were SILENT: the duplicate rows sat on different lines and git auto-merged with no conflict marker, so only a post-merge grep for duplicate ids caught them."
+  },
+  {
+   "id": 196,
+   "claimed_at": "2026-08-21",
+   "note": "E: reserved for the register row on my own defect -- a throwaway control probe wrote its biased output into draft/backtest/waiver_vs_random.json (TERRITORY: A) and `git add -A` committed it."
+  },
+  {
+   "id": 197,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 198,
+   "claimed_at": "2026-08-21",
+   "note": "E: my 194 claim collided with main's PRINTED register 194 (A's row for the retired-comparison headline, 556d59c7). Register 186's protocol, main-printed ids canonical, so my blind-control row renumbers 194->198 -- its SECOND move (192->194->198). FOURTH silent collision of this session (192, 193, P313, 194): every one auto-merged with no conflict marker because the duplicate rows sat on different lines. The allocator cannot prevent this class -- branch and main allocate independently and only the merge can see both -- so the post-merge duplicate-id grep is the only detector, and it should be a CI step rather than a habit."
+  },
+  {
+   "id": 199,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 200,
+   "claimed_at": "2026-08-21",
+   "note": "E: my 195 claim collided with main's PRINTED register 195 (the pre-draft survival collapse, fc55104c/edf59a15). Register 186's protocol, main-printed ids canonical, so my control-band row renumbers 195->200. SIXTH silent collision of this session (192, 193, P313, 194, 195) -- not one produced a conflict marker, because duplicate rows sit on different lines and git auto-merges them cleanly. The allocator cannot see across branch and main; only the merge can. ASK ON RECORD: the post-merge duplicate-id grep should be a CI step, not a habit -- test_defect_register.py already has test_no_two_rows_share_an_id, so the gap is that it only runs AFTER someone thinks to run it locally on a merged tree."
+  },
+  {
+   "id": 201,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 202,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 203,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 204,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 205,
+   "claimed_at": "2026-08-21",
+   "note": "E: my 196 claim collided with main's PRINTED register 196 (the conservation-tilt constant, register 195's sweep). Protocol 186, main-printed ids canonical, so my probe-contamination row renumbers 196->205. SEVENTH silent collision of this session (192, 193, P313, 194, 195, 196) -- none produced a conflict marker."
+  },
+  {
+   "id": 206,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 210,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 211,
+   "claimed_at": "2026-08-21",
+   "note": "E: main printed 200 for the ceiling-weight/money-number finding, colliding with my control-band row which had ALREADY moved twice (193->195->200). Protocol 186, main-printed ids canonical, so mine takes 211 -- its FOURTH id. EIGHTH silent collision of this session; not one has produced a conflict marker. ALSO: main STILL carries a duplicate 197 (my blind-control row alongside the ESPN/Clay row), which I resolve the same way as last round -- main's ESPN/Clay keeps 197, my copy stays at 209, and main's stale duplicate of my row is dropped. test_no_two_rows_share_an_id is RED on main until A takes one of these."
+  },
+  {
+   "id": 212,
+   "claimed_at": "2026-08-21",
+   "note": "A, 08-21: BURNED, NOT USED. I wrote register references into code comments (robot-mock.js, doctrine.js) before claiming ids, then had to renumber to 206-211 once the allocator showed 205 was already D's. Advancing the watermark past my six real rows consumed these five. No table row carries them and none should be back-filled — claim 217+."
+  },
+  {
+   "id": 213,
+   "claimed_at": "2026-08-21",
+   "note": "A, 08-21: BURNED, NOT USED. I wrote register references into code comments (robot-mock.js, doctrine.js) before claiming ids, then had to renumber to 206-211 once the allocator showed 205 was already D's. Advancing the watermark past my six real rows consumed these five. No table row carries them and none should be back-filled — claim 217+."
+  },
+  {
+   "id": 214,
+   "claimed_at": "2026-08-21",
+   "note": "A, 08-21: BURNED, NOT USED. I wrote register references into code comments (robot-mock.js, doctrine.js) before claiming ids, then had to renumber to 206-211 once the allocator showed 205 was already D's. Advancing the watermark past my six real rows consumed these five. No table row carries them and none should be back-filled — claim 217+."
+  },
+  {
+   "id": 215,
+   "claimed_at": "2026-08-21",
+   "note": "A, 08-21: BURNED, NOT USED. I wrote register references into code comments (robot-mock.js, doctrine.js) before claiming ids, then had to renumber to 206-211 once the allocator showed 205 was already D's. Advancing the watermark past my six real rows consumed these five. No table row carries them and none should be back-filled — claim 217+."
+  },
+  {
+   "id": 216,
+   "claimed_at": "2026-08-21",
+   "note": "A, 08-21: BURNED, NOT USED. I wrote register references into code comments (robot-mock.js, doctrine.js) before claiming ids, then had to renumber to 206-211 once the allocator showed 205 was already D's. Advancing the watermark past my six real rows consumed these five. No table row carries them and none should be back-filled — claim 217+."
+  },
+  {
+   "id": 217,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 218,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 219,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 220,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 228,
+   "claimed_at": "2026-08-21",
+   "note": "E: THIRTEENTH collision round -- main printed 217 for the deploy-verify fix; my generator-verification row takes 228. Two rounds in a row now; the merge tax is becoming the dominant cost of this lane and is worth a ruling of its own."
+  },
+  {
+   "id": 229,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 230,
+   "claimed_at": "2026-08-21",
+   "note": "E: FOURTEENTH collision round -- main printed 218; my refused-rebuild row takes 230."
+  },
+  {
+   "id": 231,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 232,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 233,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 234,
+   "claimed_at": "2026-08-21"
+  },
+  {
    "id": "137-138",
    "claimed_at": "2026-08-20",
    "note": "A renumbered D two colliding rows (133,134) at merge; A retained 133/134, which are cited from shipped code (mlv.js), three tests and panel_spec.js."
@@ -310,30 +453,37 @@
    "note": "D, applying A's 08-21 protocol ruling at merge (ids PRINTED on main stay; colliding branch rows renumber): D's three rows that collided in 172-174 moved to fresh ids -- flat-floor/ceiling-bands 172->187, *_pre_ds band-snapshots 173->188, setProjSource name-collision 174->189. This REVERTS D's earlier 172->183 and 173->184 renumbers, which had moved main's rows instead; main's 172/173/174 are canonical again and D's 185 is retained per this file's own note that D used the watermark faithfully through 185. Five inbound citations were repointed individually rather than bulk-replaced, because 172/173 now name DIFFERENT findings depending on which lane filed them: three inside D's own rows (187/188/176) followed the moved rows, one in D's 185 went 184->173 to the now-canonical C row, and every citation meaning main's rows was left untouched. Watermark now authoritative from 190."
   },
   {
-   "id": "47-50 reconciled",
-   "claimed_at": "2026-08-18",
-   "note": "A filed 47/48 on main concurrently with the watermark's first claim of 47; A's B0 row took 49; the watermark's row renumbered to 50. Watermark now authoritative from 51."
-  },
-  {
-   "id": 191,
-   "claimed_at": "2026-08-21"
-  },
-  {
-   "id": 191,
-   "claimed_at": "2026-08-21",
-   "note": "D: BLEND-SEARCH-DESIGN step 3 has an unassigned dependency and the program's ownership is stated three ways (design doc says relay, ROUTES dispatch says D, P27/P29 say 'A builds - relay proposes'). Finding: the project's rho<=0.98 correlation gate sits exactly where DS10's averaging channel closes (+0.00 MAE at 0.98), verified against expected_averaging_gain rather than asserted; and decorrelation alone is insufficient -- P292's red-zone arm at rho=0.74 but MAE 9.07 makes a blend 1.84 points WORSE, with break-even at MAE ~5.2. Id claimed via next_register_id.js, not a table grep. Watermark now authoritative from 192."
-  },
-  {
-   "id": 192,
-   "claimed_at": "2026-08-21"
-  },
-  {
    "id": "192 -> 195",
    "claimed_at": "2026-08-21",
    "note": "D: a graded prediction (P143) silently reverted to an OPEN stub and its successor vanished from the live ledger; found while converting P143 to GRADING-POLICY, not by any guard. relay_publish.sh's insert step is insert-never-overwrite and skips silently without --grade; prediction_ledger_check only fails on rows past their grade-by date, so a reverted grade is invisible until then and then reads as never-graded. Routed to relay with a history-vs-head guard as the fix. Watermark now authoritative from 193. ⚠️ RENUMBERED 192->195 at merge: main printed its own 192 (Draft Sharks ceiling-ordering) and A's 08-21 protocol keeps main-printed ids. Both citations repointed. NOTE: the relay had ALREADY acted on this finding independently (2684ce87) -- P143's grade restored from 0b05742c and the ledger regression guard built -- so this row documents a defect that is already fixed."
   },
   {
-   "id": 193,
+   "id": "200(->208),206,207,209 + P316",
+   "claimed_at": "2026-08-21",
+   "note": "E: FOUR simultaneous silent collisions in one merge (191, 197, 199, P314), plus one row of mine that main had already renumbered for me. Protocol 186, main-printed ids canonical. My 191 (main-is-red) -> 208 (200 was already mine, from the 193->195->200 chain -- I caught that by grepping duplicates after the renumber, not before); my 197 (control-band k=) -> 206; my 199 (draft-pick-null review) -> 207; my P314 (slate countdown) -> P316. My blind-control row is DROPPED from my branch rather than renumbered: main already carries it at 197 with the full renumber history ('was 192, then 195, now 197'), so keeping my copy at 198 would be a third instance of one finding. ⚠️ AND MAIN ITSELF NOW CARRIES A DUPLICATE 197 -- my blind-control row and the ESPN/Clay row share it -- which means test_no_two_rows_share_an_id is RED on main. Flagged to A; not fixed here, because renumbering another lane's row is not mine to do. RESOLUTION OF MAIN'S OWN DUPLICATE: main printed 197 twice -- my blind-control row and the ESPN/Clay row -- so I moved MY row to 209 (its fourth id: 192->194/195->197->209) and left the ESPN/Clay row at 197, because renumbering another lane's row is not mine to do. test_no_two_rows_share_an_id is RED on main until A picks one."
+  },
+  {
+   "id": "213,214",
+   "claimed_at": "2026-08-21",
+   "note": "E: NINTH and TENTH silent collisions. Main printed 201 for D's row (192->195->197->201) and 202 for the strategy-panel-weights finding; mine at those ids were the survival verification and the war-room gone?-column row. Protocol 186, main-printed canonical, mine take 213 and 214. Citations repointed INDIVIDUALLY with an ownership assertion on every line -- and matched by CONTENT, never by id chain (register 212 is what that mistake cost)."
+  },
+  {
+   "id": "221-227 + P317",
+   "claimed_at": "2026-08-21",
+   "note": "E: TWELFTH collision round and by far the largest -- main printed EIGHT of my ids (204-211) plus P316 for different findings in one merge. Protocol 186, main-printed canonical, so mine take 221-227 and P317. ONE of the eight was NOT mine to renumber: 209 held the relay's 'graded prediction reverted to an open stub' row, which I had moved there in an earlier round by mistake. Main canonically carries that finding at 201, so my copy is DROPPED rather than renumbered -- matched by CONTENT ('A GRADED PREDICTION SILENTLY REVERTED TO AN OPEN STUB' present in both), never by id chain, which is the rule register 212 cost me."
+  },
+  {
+   "id": "47-50 reconciled",
+   "claimed_at": "2026-08-18",
+   "note": "A filed 47/48 on main concurrently with the watermark's first claim of 47; A's B0 row took 49; the watermark's row renumbered to 50. Watermark now authoritative from 51."
+  },
+  {
+   "id": 235,
+   "claimed_at": "2026-08-21",
+   "note": "E: claimed by an accidental `next_register_id.js` run during a merge resolve, then USED — my 219 claim collided with main's PRINTED register 219 (A's sys.modules stub-leak row, e12b3c2e). Register 186's protocol: main-printed ids are canonical, so my pre-deploy VONA row renumbers 219->235. Fifteenth collision this session and SILENT again: the two rows sat twelve lines apart, git auto-merged with no marker, and only a duplicate-id grep caught it. Five citations repointed individually with a per-line ownership assertion (ROUTES 13, 2830, 2831; DEFECT-REGISTER 427 twice); draft/audit/PRE-DEPLOY-VONA-VERIFICATION-2026-08-21.md carries no id and needed none."
+  },
+  {
+   "id": 236,
    "claimed_at": "2026-08-21"
   },
   {
@@ -349,11 +499,47 @@
    "claimed_at": "2026-08-21"
   },
   {
-   "id": 197,
+   "id": 198,
    "claimed_at": "2026-08-21"
   },
   {
-   "id": 198,
+   "id": 200,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 205,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 221,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 222,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 240,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 241,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 242,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 223,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 243,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 244,
    "claimed_at": "2026-08-21"
   }
  ]

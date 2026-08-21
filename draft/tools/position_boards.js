@@ -72,6 +72,53 @@ BOARD.players.forEach(p => {
     floor: p.proj_floor == null ? null : +p.proj_floor,
     ceiling: p.proj_ceiling == null ? null : +p.proj_ceiling });
 });
+
+/* ⚠️ PER-SOURCE PROJECTIONS — CORY, 2026-08-21, ruling this file's VONA
+ * directly: "Vona should change for each source in which we have a projected
+ * points total. If we don't have projected points then it shouldn't show Vona
+ * for that source."
+ *
+ * E's audit found the symptom ("all VONA is coming from draft shark and
+ * doesn't change with changing source") and it was true of THIS file: `VONA`
+ * was computed once, from Draft Sharks, and the war room printed that one
+ * number under whichever source was selected.
+ *
+ * THE PREMISE THAT MADE IT LOOK UNFIXABLE IS GONE. It used to be true that we
+ * only held Draft Sharks' points per player. The board now carries EIGHT
+ * projection columns (attach_multisource.py, 2026-08-21), so the "we only have
+ * DS points" objection no longer applies.
+ *
+ * AND IT NEEDS NO RE-SIMULATION, which is the reason this ships rather than
+ * waiting. The 300-room simulation drains the board by **ADP**, and ADP comes
+ * from our own board (Sleeper/FantasyPros), not from any source's projections
+ * — see `_sources`. Projections enter only when asking "who is the best of the
+ * men still available". So the same simulated availability can be re-priced
+ * under each source at essentially no cost: one extra pass over the pool per
+ * room-pick, no second simulation.
+ *
+ * COVERAGE IS GATED, PER HIS SECOND SENTENCE. A source that does not price a
+ * position's available men gets `null`, not a fallback — the view must print
+ * nothing rather than quietly showing Draft Sharks' number under another
+ * source's name, which is the exact defect being fixed. */
+const SRC = [
+  { key: 'ds', field: 'proj_ds' },
+  { key: 'sleeper', field: 'proj_sleeper' },
+  { key: 'cbs', field: 'proj_cbs' },
+  { key: 'espn', field: 'proj_espn' },
+  { key: 'fftoday', field: 'proj_fftoday' },
+  { key: 'fantasypros', field: 'proj_fantasypros' },
+  { key: 'clay', field: 'proj_clay' },
+  { key: 'ownmodel', field: 'proj_ownmodel' },
+];
+//: how many priced, available men a (position, source) cell needs before its
+//: VONA means anything. Two players cannot show what waiting costs.
+const SRC_MIN_COVERED = 3;
+const srcById = new Map();
+BOARD.players.forEach(p => {
+  const row = {};
+  SRC.forEach(sc => { const v = p[sc.field]; if (v != null && isFinite(+v)) row[sc.key] = +v; });
+  srcById.set(String(p.player_id), row);
+});
 const pool = [];
 BOARD.players.forEach(p => {
   const d = dsById.get(String(p.player_id));
@@ -79,6 +126,7 @@ BOARD.players.forEach(p => {
   pool.push({ id: String(p.player_id), name: p.name || p.player_name, position: p.position,
               team: p.team || null, adp: adpOf(p), sd: p.adp_sd == null ? 12 : +p.adp_sd, ds: d,
               blend: meanById.get(String(p.player_id)) || null,
+              src: srcById.get(String(p.player_id)) || {},
               // WAR-ROOM-SPEC.md P1's per-row field list names `bye` — was
               // missing from this artifact entirely (checked: draft_data.json
               // carries it as `bye`, this file just never joined it).
@@ -94,6 +142,12 @@ const gauss = () => { const u = Math.max(1e-12, rnd()), v = rnd();
 /* availableAt[i][id] = times he was still on the board at Cory's i-th pick */
 const availAt = SCHED.map(() => new Map());
 const bestNextByPos = SCHED.map(() => { const o = {}; POS.forEach(q => { o[q] = []; }); return o; });
+/* pick index -> position -> source key -> per-room best-available-at-next-pick */
+const bestNextBySrc = SCHED.map(() => {
+  const byPos = {};
+  POS.forEach(q => { byPos[q] = {}; SRC.forEach(sc => { byPos[q][sc.key] = []; }); });
+  return byPos;
+});
 for (let r = 0; r < ROOMS; r++) {
   const order = pool.map(p => ({ p, k: p.adp + gauss() * p.sd }))
     .sort((x, y) => x.k - y.k).map(x => x.p.id);
@@ -115,6 +169,28 @@ for (let r = 0; r < ROOMS; r++) {
       }
       if (b != null) bestNextByPos[i][q].push(b);
     });
+    /* PER-SOURCE, SAME ROOM, SAME SURVIVORS — one extra pass over the pool,
+     * not a second simulation. `goneNext` is ADP-drained and therefore
+     * source-independent; only the pricing of the survivors changes. */
+    {
+      const best = {};                       // pos -> src -> max
+      for (const x of pool) {
+        if (goneNext.has(x.id)) continue;
+        const bq = best[x.position] || (best[x.position] = {});
+        for (const sc of SRC) {
+          const v = x.src[sc.key];
+          if (v == null) continue;
+          if (bq[sc.key] === undefined || v > bq[sc.key]) bq[sc.key] = v;
+        }
+      }
+      POS.forEach(q => {
+        const bq = best[q] || {};
+        SRC.forEach(sc => {
+          if (bq[sc.key] === undefined) return;
+          bestNextBySrc[i][q][sc.key].push(bq[sc.key]);
+        });
+      });
+    }
   });
 }
 const mean = z => (z.length ? z.reduce((x, y) => x + y, 0) / z.length : null);
@@ -142,10 +218,39 @@ const picks = SCHED.map((pk, i) => {
       if (d > cliffSize) { cliffSize = d; cliffAfter = k + 1; }
     }
 
+    /* PER-SOURCE VONA — Cory's ruling, 2026-08-21. `bestNow` is the best
+     * AVAILABLE man at this pick under that source's own points (not the
+     * DS-selected top-N, which would re-price a Draft Sharks answer and call
+     * it CBS); `bestNext` is the same question at the next pick, averaged over
+     * the same 300 ADP-drained rooms.
+     *
+     * NULL, NOT A FALLBACK, when a source does not price enough of the
+     * available men — his second sentence, verbatim: "If we don't have
+     * projected points then it shouldn't show Vona for that source." */
+    const availNow = pool.filter(x => x.position === q
+      && ((availAt[i].get(x.id) || 0) / ROOMS) >= 0.05);
+    const vonaBySrc = {}, coveredBySrc = {}, bestNowBySrc = {}, bestNextBySrcOut = {};
+    SRC.forEach(sc => {
+      const priced = availNow.map(x => x.src[sc.key]).filter(v => v != null);
+      coveredBySrc[sc.key] = priced.length;
+      const bn = priced.length ? Math.max.apply(null, priced) : null;
+      const nx = mean(bestNextBySrc[i][q][sc.key]);
+      bestNowBySrc[sc.key] = bn == null ? null : +bn.toFixed(1);
+      bestNextBySrcOut[sc.key] = nx == null ? null : +nx.toFixed(1);
+      vonaBySrc[sc.key] = (priced.length >= SRC_MIN_COVERED && bn != null && nx != null)
+        ? +Math.max(0, bn - nx).toFixed(1) : null;
+    });
+
     row.positions[q] = {
       best_now: bestNow == null ? null : +bestNow.toFixed(1),
       expected_best_at_next_pick: bestNext == null ? null : +bestNext.toFixed(1),
       VONA: vona == null ? null : +vona.toFixed(1),
+      //: Cory 2026-08-21 — VONA per source, null where that source does not
+      //: price at least SRC_MIN_COVERED of the available men at this position.
+      VONA_by_source: vonaBySrc,
+      best_now_by_source: bestNowBySrc,
+      expected_best_at_next_pick_by_source: bestNextBySrcOut,
+      covered_by_source: coveredBySrc,
       surplus_over_wire: surplus == null ? null : +surplus.toFixed(1),
       cliff_after_rank: cliffAfter, cliff_size: +cliffSize.toFixed(1),
       note: noteFor(q, vona, surplus, here),

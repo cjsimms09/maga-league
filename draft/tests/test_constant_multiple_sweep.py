@@ -158,6 +158,46 @@ KNOWN_PARTICIPANTS = {
     "replacement", "replacement_fantasypros", "replacement_ownmodel",
     "replacement_sleeper", "replacement_ds",
     "proj_used_fantasypros", "proj_used_ownmodel", "proj_used_sleeper",
+    # ── THE FOUR SOURCES ADDED 2026-08-21 FOR CORY'S SOURCE-TOGGLE RULING, AND
+    #    ONE OF THEM IS A REAL FINDING THIS SWEEP FOUND ON ITS OWN.
+    #
+    # The `_cbs` / `_fftoday` columns join for the mundane reason written above:
+    # `alt_source_rankings.py` runs the board's own apply_vorp/assign_tiers on a
+    # shadow copy priced by that source, so the derived column is the SAME
+    # function on a near-identical input. They wear the source in the name and
+    # nothing weights them as independent signals.
+    #
+    # ⚠️ THE `_espn` / `_clay` PAIRS ARE NOT THAT, AND THEY ARE NOT NOISE EITHER.
+    # This detector rediscovered register 197 without being told: ESPN and Mike
+    # Clay are ONE SOURCE. Clay is ESPN's projections man and both stores score
+    # raw stat lines under THIS league's table, so they land on the same number
+    # (identical on 306 of the 331 players they share, 92.4%, where every other
+    # pair on the board is under 5%). The sweep sees `proj_clay ~ proj_espn`,
+    # `proj_ceiling_clay ~ proj_ceiling_espn`, `tier_clay ~ tier_espn` and the
+    # rest of the family, and it is RIGHT about every one of them.
+    #
+    # They are listed here because the sweep's stated danger — a study weighting
+    # two columns as independent signals — does not apply to a re-ranking column
+    # nothing weights. THE LIVE CONSEQUENCE IS ELSEWHERE AND IS FILED, NOT
+    # SILENCED: `blend_sources_used` carries BOTH espn (394 players) and clay
+    # (377), so the blend counts ESPN twice. Measured on the live board, dropping
+    # the duplicate moves 326 players by a median 1.22 points (p90 3.62, max
+    # 7.94); inside Cory's ADP window 147 players move, the largest by ~6 points
+    # (Tyrone Tracy -5.96, Breece Hall +4.75). Real, small, and NOT changed
+    # before Saturday — the blend is Cory's call and the pre-draft freeze holds.
+    # Register 197 carries the number and the decision.
+    "vorp_cbs", "vorp_espn", "vorp_clay", "vorp_fftoday",
+    "pos_rank_cbs", "pos_rank_espn", "pos_rank_clay", "pos_rank_fftoday",
+    "tier_cbs", "tier_espn", "tier_clay", "tier_fftoday",
+    "tier_rank_cbs", "tier_rank_espn", "tier_rank_clay", "tier_rank_fftoday",
+    "tier_size_cbs", "tier_size_espn", "tier_size_clay", "tier_size_fftoday",
+    "tier_drop_cbs", "tier_drop_espn", "tier_drop_clay", "tier_drop_fftoday",
+    "replacement_cbs", "replacement_espn", "replacement_clay", "replacement_fftoday",
+    "proj_used_cbs", "proj_used_espn", "proj_used_clay", "proj_used_fftoday",
+    "overall_rank_cbs", "overall_rank_espn", "overall_rank_clay", "overall_rank_fftoday",
+    "proj_cbs", "proj_espn", "proj_clay", "proj_fftoday",
+    "proj_ceiling_cbs", "proj_ceiling_espn", "proj_ceiling_clay", "proj_ceiling_fftoday",
+    "proj_floor_cbs", "proj_floor_espn", "proj_floor_clay", "proj_floor_fftoday",
     # the dispersion family — all still proj_mean x a per-cell constant
     "proj_mean", "proj_ceiling", "proj_floor", "proj_sd", "weekly_sd",
     "proj_baseline",
@@ -231,6 +271,19 @@ def test_no_new_field_has_joined_the_constant_multiple_family(players):
 KNOWN_BOARDWIDE_PAIRS = {
     ("replacement", "replacement_fantasypros"),
     ("replacement_fantasypros", "replacement"),
+    # ADDED 2026-08-21 after measuring, for the same reason the pair above is
+    # here, and it is a property of the FIELD rather than of any source.
+    # `replacement` is a per-POSITION constant: across 700 players it takes about
+    # seven distinct values, one per position, repeated. Two sources' replacement
+    # tables are therefore two seven-element vectors, and two seven-element
+    # vectors of similar magnitude are proportional to within the sweep's cv
+    # floor almost by construction (measured: multipliers 0.98087 and 1.003527,
+    # cv 0.0154 and 0.0100). This says nothing about whether the two SOURCES
+    # agree — it says a replacement level is a step function with seven steps.
+    # Nothing weights these as independent signals; they exist to re-rank the
+    # board when Cory flips the source toggle.
+    ("replacement", "replacement_clay"),
+    ("replacement_clay", "replacement_fantasypros"),
 }
 
 
