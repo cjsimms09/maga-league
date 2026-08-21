@@ -49,11 +49,35 @@ WF = ROOT / ".github" / "workflows" / "draft-night-sync.yml"
 sys.path.insert(0, str(ROOT / "draft"))
 
 
-# ── extract the run: | block — the ONE script this workflow executes ────────
+#: The step whose script this drill exercises. Named, not positional — see
+#: WHY below.
+POLL_STEP = "Poll Sleeper and log picks until the draft completes"
+
+
+# ── extract the poll step's run: | block — the script this drill drills ─────
 def workflow_script() -> str:
+    """The sync script, found by STEP NAME rather than by being the only one.
+
+    ⚠️ WHY THIS IS NOT `the ONE run: block` ANY MORE (E, register 234). It was,
+    and on draft eve `8977bf45` added a second step — "Verify the pick logger
+    before draft night depends on it" — which is a good step and broke this
+    extraction outright. `assert len(starts) == 1` fired in the `rig` FIXTURE,
+    so six of the seven drills did not fail, they ERRORED at setup: **the drill
+    that proves draft-night sync survives a failed sync call, a push reject and
+    a second writer stopped running entirely, the night before the draft, and
+    nothing said so louder than a red suite full of setup errors.**
+
+    Anchoring on the step name keeps the loud failure (an unknown step still
+    asserts) while surviving steps being added around it, which is the thing
+    that actually happens.
+    """
     lines = WF.read_text().splitlines()
-    starts = [i for i, l in enumerate(lines) if l.strip() == "run: |"]
-    assert len(starts) == 1, "the workflow gained a second run block — re-derive"
+    named = [k for k, l in enumerate(lines) if l.strip() == "- name: " + POLL_STEP]
+    assert len(named) == 1, (
+        "expected exactly one %r step, found %d — the workflow was renamed or "
+        "duplicated; re-derive rather than guessing" % (POLL_STEP, len(named)))
+    starts = [k for k, l in enumerate(lines) if l.strip() == "run: |" and k > named[0]]
+    assert starts, "the %r step has no run: | block" % POLL_STEP
     i = starts[0]
     indent = (len(lines[i]) - len(lines[i].lstrip())) + 2
     body = []
