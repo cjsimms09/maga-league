@@ -2,6 +2,34 @@
 
 <!-- TERRITORY: E (red team). Measured 2026-08-21. Routed to A. -->
 
+> ## ⚠️ SUPERSEDED IN PART, BY ME, WITHIN THE HOUR — 2026-08-21
+>
+> **The board rebuilt successfully at `2026-08-21T00:29:00Z` (post-processed
+> 00:34:49Z) while this document was being written.** So §2's *situation* is
+> gone: Cory does **not** draft off a 3-day-stale board. What survives, and
+> why this file is not deleted:
+>
+> * **§1 (zero flat bands) is now VERIFIED TWICE** — clean on the old 08-19
+>   board *and* on the fresh 08-21 one (flat 0, missing 0, inside ADP ≤ 200).
+>   Register 169's regression did **not** recur on the successful rebuild.
+> * **§2's measurement stands as a general result** (what N days of ADP drift
+>   costs) and is simply no longer the Saturday question.
+> * **§3's null (P291) is untouched** — it is a property of the market, not of
+>   any one board, and it was computed series-vs-series in consistent units.
+> * **Register 174's hole is real and now permanent:** the series spans
+>   08-09 → 08-21 with **12 entries over 13 calendar days — `2026-08-20` is
+>   missing**, exactly as 174 predicted. That cost is banked and unbackfillable.
+>
+> **⚠️ AND A NEAR-MISS ON MY OWN SIDE, RECORDED BECAUSE IT IS THE POINT:** my
+> first freshness check compared the board's `adjusted_adp` against the
+> series and read a mean gap of 3.61 with only 2 of 200 identical — which
+> looks exactly like "the rebuild pulled new data." It is not that. The series
+> stores **`raw_adp`**, and against `raw_adp` the board is **198 of 198
+> identical, max delta 0.00**. The 3.61 was the keeper adjustment, i.e. two
+> different quantities compared. The board *is* fresh — the 08-21 series entry
+> proves it — but I proved it with the wrong instrument first and would have
+> written down a true conclusion supported by a false measurement. Rule 3f.
+
 **Why this exists.** Register 174 says Cory's live board is two days stale
 (`built_at` 2026-08-19T08:52:22Z, post-processed 08-20T02:00:28Z, draft 08-22
 — a **3-day** gap by draft morning). Register 169's DEFAULT says: *"draft

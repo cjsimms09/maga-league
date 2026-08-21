@@ -110,6 +110,44 @@ def bovada_event():
         out['known_positive'] = [{'prop': p} for p in props[:3]] or ([{'prop': 'Anytime Touchdown'}] if anytd else [])
     return out
 
+def bovada_census():
+    """Rule 3i on our own capture: what market types does the payload carry
+    that our ML/Spread/Total filter DISCARDS? Full census of displayGroup and
+    market descriptions, plus a futures-path try (season win totals etc.)."""
+    st, body = get('https://www.bovada.lv/services/sports/event/v2/events/A/description/football/nfl')
+    out = {'status': st, 'bytes': len(body)}
+    if st == 200:
+        txt = body.decode('utf-8', 'ignore')
+        d = json.loads(txt)
+        groups, markets = {}, {}
+        def walk(x):
+            if isinstance(x, dict):
+                if 'markets' in x and x.get('description'):
+                    groups[x['description']] = groups.get(x['description'], 0) + 1
+                    for mk in x.get('markets', []):
+                        nm = mk.get('description')
+                        if nm:
+                            markets[nm] = markets.get(nm, 0) + 1
+                for v in x.values():
+                    walk(v)
+            elif isinstance(x, list):
+                for v in x:
+                    walk(v)
+        walk(d)
+        out['display_groups'] = groups
+        out['market_types'] = dict(sorted(markets.items(), key=lambda kv: -kv[1])[:25])
+        out['known_positive'] = [{'census': 'main-path'}] if markets else []
+    # futures path
+    st2, body2 = get('https://www.bovada.lv/services/sports/event/v2/events/A/description/football/nfl-futures-specials')
+    out['futures_specials_status'] = st2
+    out['futures_specials_bytes'] = len(body2)
+    if st2 == 200 and body2:
+        t2 = body2.decode('utf-8', 'ignore')
+        out['futures_win_totals'] = t2.count('Win Total')
+        out['futures_superbowl'] = t2.count('Super Bowl')
+        out['futures_sample'] = re.findall(r'"description":"([^"]{5,60})"', t2)[:10]
+    return out
+
 def polymkt():
     st, body = get('https://gamma-api.polymarket.com/events?tag_slug=nfl&closed=false&limit=20')
     out = {'status': st, 'bytes': len(body)}
@@ -145,7 +183,7 @@ def main():
         'captured_at': datetime.datetime.utcnow().isoformat() + 'Z',
         'sources': {},
     }
-    for name, fn in [('espn', espn), ('bovada', bovada), ('bovada_event_props', bovada_event), ('polymarket', polymkt),
+    for name, fn in [('espn', espn), ('bovada', bovada), ('bovada_event_props', bovada_event), ('bovada_census', bovada_census), ('polymarket', polymkt),
                      ('draftkings_public', dk_pub), ('yahoo', yahoo)]:
         try:
             res['sources'][name] = fn()

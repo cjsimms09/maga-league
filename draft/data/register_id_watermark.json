@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 175,
+ "next_numeric_id": 176,
  "history": [
   {
    "id": 47,
@@ -346,6 +346,11 @@
    "id": 174,
    "claimed_at": "2026-08-21",
    "note": "renumbered from origin/main's 170 (the refused rebuilds ate a day of an unbackfillable series, and the missing day then blocked the rebuild that would have written the next one -- Cory's live board is two days stale going into Saturday) -- collided with this branch's own 170 (*_pre_ds stale snapshots), whose content traces to origin's own 23:18:21 UTC commit, well before this row"
+  },
+  {
+   "id": 175,
+   "claimed_at": "2026-08-21",
+   "note": "renumbered from origin/main's 172 (the Sunday props cron shipped without its clobber guard, live and armed for week 1; since marked DISARMED) -- collided with this branch's own 172 (self-mounting panel anchors), whose content traces to origin's own earlier 2026-08-20T23:18:21Z commit 52bc34aa. First-allocation-wins by true content origin."
   }
  ]
 }

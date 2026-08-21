@@ -4,8 +4,8 @@
  "_cannot": "THIS IS A PLAN, NOT A PREDICTION. It assumes the market drains in ADP order and that nobody reacts to him. It is what MLV WOULD do against that assumption, not what will happen.",
  "_the_cap_is_a_ruling": "K <= 1 and DEF <= 1 are IMPOSED from Cory's words (\"I won't draft 2 kickers and 2 def\"), not discovered. Measured: the cap is +45.8/+29.3 against the humans; excluding them entirely is -83.7/-211.3 with 0 of 30 rosters legal (register 134).",
  "_rule_reused": "public/js/draft/mlv.js — the SAME module the live panel calls, so the plan and the panel cannot disagree about what MLV thinks.",
- "built_from_board": "2026-08-19T08:52:22Z",
- "board_post_processed": "2026-08-20T02:00:28Z",
+ "built_from_board": "2026-08-21T00:29:00Z",
+ "board_post_processed": "2026-08-21T00:34:49Z",
  "_the_cliff": "MLV HAS AN OPINION ABOUT 6 OF CORY'S 12 PICKS AND NONE ABOUT THE REST. Once his nine starting slots are full every remaining player is worth exactly 0 to it, so those picks are stamped `chosen_by: \"board rank — MLV is indifferent\"` rather than dressed up as recommendations. Register 146.",
  "my_picks": [
   33,
@@ -75,7 +75,7 @@
     "name": "Davante Adams",
     "position": "WR",
     "team": "LAR",
-    "adp": 54.7,
+    "adp": 54.6,
     "proj_mean": 184.9,
     "overall_rank": 47
    },
@@ -107,7 +107,7 @@
     "name": "Joe Burrow",
     "position": "QB",
     "team": "CIN",
-    "adp": 50.5,
+    "adp": 49.8,
     "proj_mean": 368.2,
     "overall_rank": 44
    },
@@ -139,7 +139,7 @@
     "name": "Houston Texans",
     "position": "DEF",
     "team": "HOU",
-    "adp": 119.6,
+    "adp": 120.3,
     "proj_mean": 122.7,
     "overall_rank": 624
    },
@@ -171,7 +171,7 @@
     "name": "Kyle Pitts",
     "position": "TE",
     "team": "ATL",
-    "adp": 71.4,
+    "adp": 72.1,
     "proj_mean": 149.3,
     "overall_rank": 56
    },
@@ -203,7 +203,7 @@
     "name": "Brandon Aubrey",
     "position": "K",
     "team": "DAL",
-    "adp": 115.7,
+    "adp": 115.5,
     "proj_mean": 145.5,
     "overall_rank": 625
    },
@@ -232,16 +232,16 @@
    "pick": 93,
    "round": 7,
    "player": {
-    "name": "Jonathon Brooks",
+    "name": "Kenny Gainwell",
     "position": "RB",
-    "team": "CAR",
-    "adp": 89.9,
-    "proj_mean": 142.5,
-    "overall_rank": 102
+    "team": "TB",
+    "adp": 104.3,
+    "proj_mean": 137.9,
+    "overall_rank": 111
    },
    "marginal": 0,
-   "why": "MLV IS INDIFFERENT — all 451 remaining players are worth exactly 0 to it, because your nine starting slots are already full. Picked by your bench rule instead: +64 over what the wire gives you at RB, at a position you are still 1.78 short of the top-3-finisher shape.",
-   "wire_surplus": 64.1,
+   "why": "MLV IS INDIFFERENT — all 451 remaining players are worth exactly 0 to it, because your nine starting slots are already full. Picked by your bench rule instead: +60 over what the wire gives you at RB, at a position you are still 1.78 short of the top-3-finisher shape.",
+   "wire_surplus": 59.5,
    "short_of_target": 1.78,
    "mlv_has_an_opinion": false,
    "chosen_by": "bench rule — need + surplus over the wire",
@@ -256,7 +256,7 @@
     "name": "Rachaad White",
     "position": "RB",
     "team": "WAS",
-    "adp": 109.3,
+    "adp": 109.4,
     "proj_mean": 134.6,
     "overall_rank": 122
    },
@@ -298,7 +298,7 @@
     "name": "Xavier Worthy",
     "position": "WR",
     "team": "KC",
-    "adp": 130.3,
+    "adp": 132.3,
     "proj_mean": 140.8,
     "overall_rank": 110
    },
@@ -319,18 +319,18 @@
     "name": "Matthew Golden",
     "position": "WR",
     "team": "GB",
-    "adp": 133,
+    "adp": 134.2,
     "proj_mean": 136.4,
     "overall_rank": 121
    },
    "marginal": 0,
-   "why": "MLV IS INDIFFERENT — all 416 remaining players are worth exactly 0 to it, because your nine starting slots are already full. Picked by your bench rule instead: +12 over what the wire gives you at WR, at a position you are still 1 short of the top-3-finisher shape.",
+   "why": "MLV IS INDIFFERENT — all 415 remaining players are worth exactly 0 to it, because your nine starting slots are already full. Picked by your bench rule instead: +12 over what the wire gives you at WR, at a position you are still 1 short of the top-3-finisher shape.",
    "wire_surplus": 11.6,
    "short_of_target": 1,
    "mlv_has_an_opinion": false,
    "chosen_by": "bench rule — need + surplus over the wire",
-   "tied_at_zero": 416,
-   "board_available": 488,
+   "tied_at_zero": 415,
+   "board_available": 487,
    "runners_up": []
   },
   {
@@ -340,7 +340,7 @@
     "name": "Brenton Strange",
     "position": "TE",
     "team": "JAX",
-    "adp": 155.5,
+    "adp": 155.9,
     "proj_mean": 121.5,
     "overall_rank": 95
    },
@@ -361,26 +361,26 @@
  "board_rank_tilt": {
   "DEF": {
    "n": 23,
-   "median_ranks_earlier_than_market": -73
+   "median_ranks_earlier_than_market": -74
   },
   "K": {
    "n": 24,
-   "median_ranks_earlier_than_market": -69.5
+   "median_ranks_earlier_than_market": -68
   },
   "QB": {
    "n": 39,
-   "median_ranks_earlier_than_market": 8
+   "median_ranks_earlier_than_market": 10
   },
   "RB": {
    "n": 79,
    "median_ranks_earlier_than_market": -1
   },
   "TE": {
-   "n": 39,
-   "median_ranks_earlier_than_market": 46
+   "n": 38,
+   "median_ranks_earlier_than_market": 45
   },
   "WR": {
-   "n": 99,
+   "n": 100,
    "median_ranks_earlier_than_market": 1
   }
  },
@@ -393,6 +393,16 @@
   "K": 1
  },
  "vs_top3_finishers": {
+  "DEF": {
+   "plan": 1,
+   "top3_finishers": 1,
+   "delta": 0
+  },
+  "K": {
+   "plan": 1,
+   "top3_finishers": 1,
+   "delta": 0
+  },
   "QB": {
    "plan": 1,
    "top3_finishers": 1.56,
@@ -403,24 +413,14 @@
    "top3_finishers": 4.78,
    "delta": 0.22
   },
-  "WR": {
-   "plan": 5,
-   "top3_finishers": 5,
-   "delta": 0
-  },
   "TE": {
    "plan": 2,
    "top3_finishers": 1.67,
    "delta": 0.33
   },
-  "K": {
-   "plan": 1,
-   "top3_finishers": 1,
-   "delta": 0
-  },
-  "DEF": {
-   "plan": 1,
-   "top3_finishers": 1,
+  "WR": {
+   "plan": 5,
+   "top3_finishers": 5,
    "delta": 0
   }
  }
