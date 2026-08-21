@@ -1941,7 +1941,7 @@
          *
          * ONLY THE SCORE IS REFUSED. Discarding an honest number alongside a
          * missing one is the same collapse this whole change exists to undo. */
-        survival_to_next: ctx.nextPick ? survival(player, ctx.nextPick, ctx) : 0,
+        survival_to_next: survivalForDisplay(player, ctx),
         rails: [], contested: null, gap_to_second: null,
         legality: null, legality_warning: null, doctrine_report: null,
         keeper_target: null,
@@ -2183,7 +2183,7 @@
       doctrineDelta = tilt;   // published, for the same reason the onesie delta is
     }
 
-    const survivalToNext = ctx.nextPick ? survival(player, ctx.nextPick, ctx) : 0;
+    const survivalToNext = survivalForDisplay(player, ctx);
     /* ── REASON vs CONTEXT — the split that fixes a 51% false-causality rate ───
      *
      * MEASURED 2026-08-13, top 20 at pick 33: **24 of 47 reason strings cited a
@@ -2839,6 +2839,43 @@
    * exists to catch — Cory's own instinct that a real value cliff must win
    * is already how vona() scores every live pick, unchanged here.
    */
+  /* ⚠️ THE PRE-DRAFT BOARD SHOWED EVERY PLAYER THE SAME SURVIVAL PERCENTAGE.
+   * Cory, 2026-08-21: "Survival percentages don't seem to make sense."
+   * Reproduced on the shipped board: Jahmyr Gibbs (adp 1) and Chase Brown
+   * (adp 14.67) BOTH read 67.4% survival to pick 48 — 14 of 14 top players
+   * identical. The consensus number-one pick cannot have the same chance of
+   * lasting to pick 48 as the thirtieth-ranked player.
+   *
+   * THE CAUSE, and it is a fix that was applied in ONE of the two places that
+   * needed it. Before any pick lands, `currentPick` is the pre-draft ANCHOR
+   * (his first selection, 33) while the board still holds EVERYONE, because
+   * nobody has picked. Asking the anchored question -- P(taken by 48 | still
+   * alive at 33) -- for a player whose ADP is 1 is a far-tail query: F(33) and
+   * F(48) are both ~1, the conditional collapses, raw survival is 0 for every
+   * elite, the conservation tilt then gets identical weights w_i = 1, and
+   * exp(-lambda) hands them all ONE number. That is the 41% wall (Cory, 08-17)
+   * in a different state.
+   *
+   * `preDraftPool` ALREADY KNOWS THIS and fixes it for the candidate FILTER,
+   * with a comment saying exactly why: "the anchored ctx would ask the wrong
+   * question ... the unconditional form is the one the filter's own definition
+   * wants, for every player." The filter got the fix. THE NUMBER ON HIS SCREEN
+   * DID NOT.
+   *
+   * So the display now asks the same unconditional question the filter does:
+   * measured FROM THE START of the draft, which is the only coherent reading
+   * when zero picks have landed. A live draft is untouched -- there
+   * `preDraftPrep` is false and `ctx.board` is ground truth. */
+  function survivalForDisplay(player, ctx) {
+    if (!ctx.nextPick) return 0;
+    if (!ctx.preDraftPrep || !ctx.currentPick || ctx.currentPick <= 1) {
+      return survival(player, ctx.nextPick, ctx);
+    }
+    const uncond = { currentPick: 0, runMultipliers: ctx.runMultipliers || {},
+      pickBoard: ctx.pickBoard || null, drift: ctx.drift || null };
+    return survival(player, ctx.nextPick, uncond);
+  }
+
   function preDraftPool(board, ctx) {
     if (!ctx.preDraftPrep || !ctx.currentPick || ctx.currentPick <= 1) return board;
     /* UNCONDITIONAL, EXPLICITLY — the anchored ctx would ask the wrong question.
