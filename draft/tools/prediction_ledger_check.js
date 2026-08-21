@@ -223,6 +223,24 @@ function check(text, todayStr, opts) {
         }
       }
     }
+    /* ── THE CROSS-PROPAGATION RULE (Cory, 08-21: "Make it a rule!") ──────
+     * A graded finding propagates as a HYPOTHESIS (a new prereg'd row), never
+     * as a direct edit; implementation waits for a SECOND grade on different
+     * data. Mechanically: from P298 (post the 08-21 renumber), a changed-cell
+     * that claims an implementation must name its second grade, declare it
+     * pending, or carry a labeled exemption. One explicit marker beats a
+     * silent direct-edit — which is the contamination Cory asked about. */
+    if (idNum >= 298 && /\bIMPLEMENT/i.test(String(changed || ''))) {
+      const c = String(changed);
+      if (!/second-grade:\s*P\d+/i.test(c) && !/pending-second-grade/i.test(c) &&
+          !/\bexempt:/i.test(c)) {
+        problems.push(
+          `${id}: IMPLEMENTATION CLAIMED WITHOUT ITS SECOND GRADE. The ` +
+          `cross-propagation rule (ADAPTATION-POLICY, Cory 08-21): a pattern ` +
+          `ships only after winning twice on different data. Mark ` +
+          `"second-grade:P<n>", "pending-second-grade", or "exempt: <reason>".`);
+      }
+    }
   }
   /* CORY, 2026-08-18: "we need to be adding things and trying things and adapting
    * until we find the right blend ... no stone unturned."
