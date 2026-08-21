@@ -43,8 +43,32 @@ const idx = CV.index(ART);
 ck('the committed artifact indexes', !!idx);
 ck('stack entries joined by player_id (Burrow 6770, Higgins 6801)',
   !!(idx.stacks['6770'] && idx.stacks['6801']));
-ck('handcuff entries joined by player_id (Hill, Randall, Johnson, Demercado)',
-  ['5995', '13302', '13337', '11199'].every(pid => !!idx.handcuffs[pid]));
+/* ⚠️ THIS PINNED FOUR NAMES AND ONE OF THEM CHANGED TEAM ROLE. It asserted
+ * Hill/Randall/Johnson/DEMERCADO by hardcoded pid, and the 2026-08-21 rebuild
+ * replaced Emari Demercado (11199) with Brashard Smith (12455) as Walker's
+ * second cuff — a correct board update that read as a broken join.
+ *
+ * What this check is FOR is the join: every handcuff the artifact carries must
+ * be reachable by player_id, because a chip that cannot find its row renders
+ * blank on Cory's screen. That property is independent of WHO the cuffs are,
+ * so it is now asserted over whatever the artifact actually holds — with a
+ * floor, so an artifact that lost its handcuffs entirely cannot pass this
+ * vacuously. */
+{
+  const cuffPids = [];
+  (function walk(o) {
+    if (Array.isArray(o)) return o.forEach(walk);
+    if (o && typeof o === 'object') {
+      if (o.pid && o.depth_chart_order != null) cuffPids.push(String(o.pid));
+      Object.values(o).forEach(walk);
+    }
+  })(ART);
+  ck('CONTROL — the artifact still carries handcuff rows at all (non-vacuity)',
+    cuffPids.length >= 4, cuffPids);
+  ck('every handcuff in the artifact joins by player_id',
+    cuffPids.every(pid => !!idx.handcuffs[pid]),
+    cuffPids.filter(pid => !idx.handcuffs[pid]));
+}
 
 // ── headline 1: Burrow, for Cory only ───────────────────────────────────────
 {
@@ -100,11 +124,52 @@ ck('handcuff entries joined by player_id (Hill, Randall, Johnson, Demercado)',
     hill.indexOf('⚑') < 0, hill);
   const johnson = CV.chipHtml('13337', idx, KEEPERS);
   ck('Emmett Johnson (Walker\'s cuff): same verdict line', johnson.indexOf(VERDICT) >= 0);
-  ck('  ⚑ the market-vs-depth-chart flag prints (Johnson ADP 199 vs Demercado on the chart)',
-    johnson.indexOf('⚑') >= 0 && /market prices Emmett Johnson/.test(johnson)
-      && /depth chart lists Emari Demercado/.test(johnson), johnson);
-  ck('  the premium follows the ROLE — the flag says so',
-    /follows the ROLE/.test(johnson));
+
+  /* ⚠️ THIS ASSERTION USED TO PIN THE FLAG TO ONE LIVE PLAYER, AND THE PLAYER
+   * MOVED. It read "⚑ prints (Johnson ADP 199 vs Demercado on the chart)" and
+   * went red on the 2026-08-21 rebuild — not because the flag broke, but
+   * because Emmett Johnson climbed from depth_chart_order 4 to 3. Market and
+   * chart now AGREE about him, so the correct render is no flag at all, and a
+   * test demanding one was demanding a false positive on Cory's screen.
+   *
+   * The trap is that "⚑ absent" and "the flag mechanism is dead" are the same
+   * observation from outside (rule 3e), and the first probe I wrote to tell
+   * them apart said "0 of 6 fire" on BOTH the old and the new artifact — it
+   * called CV.buildIndex, which does not exist, so every chip came back empty.
+   * The mechanism was fine; the instrument was broken.
+   *
+   * So the mechanism now gets a SYNTHETIC known-positive that cannot rot with
+   * the depth chart, and the live board gets a report instead of a demand. */
+  {
+    const synth = JSON.parse(JSON.stringify(ART));
+    let hit = null;
+    (function walk(o) {
+      if (Array.isArray(o)) return o.forEach(walk);
+      if (o && typeof o === 'object') {
+        if (String(o.pid) === '13337') hit = o;
+        Object.values(o).forEach(walk);
+      }
+    })(synth);
+    ck('  CONTROL — the fixture still contains the player the flag is tested on',
+      hit != null);
+    if (hit) {
+      /* Force the disagreement the flag exists to report: buried on the chart,
+       * priced by the market as the starter. It must be BELOW the other cuff,
+       * not level with him — the first version of this control set order 4,
+       * which is exactly where the fresh board put Brashard Smith, so it
+       * staged a TIE and no disagreement, and the control failed. */
+      hit.depth_chart_order = 9;
+      const forced = CV.chipHtml('13337', CV.index(synth), KEEPERS);
+      ck('  ⚑ THE MECHANISM — given a real market-vs-chart disagreement the flag prints',
+        forced.indexOf('⚑') >= 0 && /market prices Emmett Johnson/.test(forced), forced);
+      ck('  …and it says the premium follows the ROLE',
+        /follows the ROLE/.test(forced), forced);
+      // and the other direction, so the flag is not simply always-on
+      hit.depth_chart_order = 1;
+      ck('  …and it does NOT print when market and chart agree',
+        CV.chipHtml('13337', CV.index(synth), KEEPERS).indexOf('⚑') < 0);
+    }
+  }
   ck('  handcuff premium vanishes if Cory does not own the starter',
     CV.chipHtml('13337', idx, ['3198', '7564']) === '');
 }

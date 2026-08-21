@@ -82,7 +82,23 @@ const check = (name, cond, detail) => R.push({ name, ok: !!cond, detail });
              l3: document.getElementById('layer-3').open,
              lrmInL1: !!document.querySelector('.wr-zone1 #lrm-strip'),
              lrmTop: top('#lrm-card'), recsTop: top('#recs-card'),
-             cards: document.querySelectorAll('.card').length };
+             cards: document.querySelectorAll('.card').length,
+             /* IDENTITY, NOT JUST A COUNT — see the census check below. */
+             cardIds: Array.from(document.querySelectorAll('.card'))
+               .map(el => el.id).filter(Boolean),
+             /* A card with no box is not on his screen. Counted by the
+              * selector, invisible to him -- so it must not inflate a census
+              * and it must not be mistaken for a stuck loader either. */
+             zeroSizeCards: Array.from(document.querySelectorAll('.card'))
+               .filter(el => { const r = el.getBoundingClientRect();
+                               return r.width === 0 && r.height === 0; }).length,
+             /* THE CHECK NOBODY WAS MAKING: is a LOADING PLACEHOLDER still on
+              * screen with real size after the board has rendered? */
+             visibleLoaders: Array.from(document.querySelectorAll('.card'))
+               .filter(el => { const r = el.getBoundingClientRect();
+                 return (r.width > 0 || r.height > 0)
+                   && /loading/i.test((el.textContent || '').slice(0, 60)); })
+               .map(el => el.id || '(no id)') };
   });
   /* EXPECTATION UPDATED TO THE SHELL'S CURRENT DOCTRINE (2026-08-15, red at
    * the merge baseline too): Cory's directive moved THE RECOMMENDATION to the
@@ -112,7 +128,48 @@ const check = (name, cond, detail) => R.push({ name, ok: !!cond, detail });
    * Survival), so it no longer matches this census's own selector. The
    * content and the element both still exist; only the class changed, on
    * purpose, per the design language already governing that rail. */
-  check('nothing was deleted — 18 .card elements survive the restructure (+1 .wr-railcard the census does not count, see above)', layout.cards === 18, 'cards=' + layout.cards);
+  /* ⚠️ THIS WAS `layout.cards === 18` AND IT WENT RED BY SUCCEEDING.
+   *
+   * The census is meant to catch a panel VANISHING in a restructure. Pinned as
+   * an exact count it also fires when a panel is ADDED, which is the opposite
+   * problem and needs the opposite response — and on 2026-08-21 it read
+   * `cards=22` under the label "nothing was deleted", which is the least
+   * informative way a check can be wrong.
+   *
+   * Enumerated rather than re-counted, because a bare count cannot separate
+   * three cases that need three different answers: a panel was added (fine), a
+   * panel disappeared (the thing this exists for), a panel is rendering TWICE
+   * (also bad, and invisible to a count that happens to match). Measured:
+   * 22 cards, 20 with ids, ZERO duplicates, and one of the 22 is a 0x0
+   * leftover node that is counted by the selector and cannot be seen — which
+   * is part of how the number drifted.
+   *
+   * Bumping 18 to 22 is exactly what the independent reviewer flagged on run
+   * 32427618649: "tests must reflect the live estimand or derive it from the
+   * artifact, not pin obsolete numbers ... updating a stale literal to make
+   * green proves nothing." So the floor is a REQUIRED SET, by id, of the
+   * panels that must never silently vanish. New panels pass. A lost panel
+   * fails and NAMES ITSELF. */
+  const REQUIRED_PANELS = ['clock-card', 'recs-card', 'lrm-card', 'branch-card',
+    'queue-card', 'stack-card', 'rank-source-card', 'model-compare-card',
+    'adp-movers-card'];
+  const missing = REQUIRED_PANELS.filter(id => !layout.cardIds.includes(id));
+  check('CONTROL: the census can see panels at all (a zero here makes the next two vacuous)',
+        layout.cardIds.length >= REQUIRED_PANELS.length,
+        'ids seen=' + layout.cardIds.length);
+  check('no REQUIRED panel vanished — the census names losses instead of counting them',
+        missing.length === 0, 'missing=' + JSON.stringify(missing)
+          + ' cards=' + layout.cards + ' (' + layout.zeroSizeCards + ' zero-size)');
+  const dupes = layout.cardIds.filter((x, i) => layout.cardIds.indexOf(x) !== i);
+  check('no panel renders TWICE — the failure an exact count hides when it happens to match',
+        dupes.length === 0, 'duplicate ids=' + JSON.stringify(dupes));
+  /* NEW, and it is a real user-facing check the count never made: after the
+   * board has rendered, no VISIBLE card may still be showing "Loading…".
+   * The 0x0 leftover is deliberately not counted here -- it has no box, so it
+   * is not on his screen, and failing on it would be failing on a phantom. */
+  check('no VISIBLE card is still showing a loading placeholder once the board is up',
+        layout.visibleLoaders.length === 0,
+        'visible loaders=' + JSON.stringify(layout.visibleLoaders));
 
   // ---- SEAT IDENTITY (mock #1 severity-1) ---------------------------------
   const seat = await page.evaluate(() => window.__wrDiag());

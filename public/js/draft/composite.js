@@ -11,8 +11,29 @@
     KOV_DISCOUNT: 0.75,          // next year's value discounted to today (spec)
     KOV_ROUND_RAMP_START: 6,     // rounds 1-6 contribute ~nothing: those picks are
     KOV_ROUND_RAMP_FULL: 12,     // expensive to keep anyway. Full weight by round 12.
-    /* GATED, DEFAULT FALSE — Cory's ruling required before this ever flips
-     * (same pattern as VONA_WIRE_BENCH). EXP-KEEPER-OPTION (draft/backtest/
+    /* ⚠️ THIS HEADER READ "GATED, DEFAULT FALSE — Cory's ruling required before
+     * this ever flips" WHILE THE CONSTANT BELOW IT SHIPPED `true`, AND THE SAME
+     * COMMENT RECORDED THE RULING TEN LINES DOWN. Both halves were written in
+     * good faith — the header describes the state the gate was BUILT in, the
+     * body records Cory ruling it ON on 2026-08-16 — and a reader takes the
+     * header, because that is what a header is for.
+     *
+     * Caught by the independent reviewer, run 32434594609 [low/constitution]:
+     * "the code enables the measured ramp by default, contradicting the stated
+     * default ... readers may believe the feature is off unless ruled on."
+     *
+     * This is the THIRD instance of register 5h found on 2026-08-21 alone — the
+     * ceiling weight in CLAUDE.md (0.45 quoted, 0.0 shipped) and the restore
+     * pin (v27 quoted, v31 shipped) were the other two. The pattern is always
+     * the same: the ruling lands in the code, and the sentence introducing the
+     * code keeps describing the world before it.
+     *
+     * ── CURRENT STATE: ON. Ruled by Cory 2026-08-16 ("3. Yes"), with the
+     * small-sample caveat in front of him (two keep transitions, ~40 keep
+     * events). Flipping back to false restores the old reasoned ramp. The
+     * history that justified the ruling follows and is unchanged.
+     *
+     * EXP-KEEPER-OPTION (draft/backtest/
      * exp_keeper_option.py, 2026-08-15) measured the league's OWN 2023-25
      * keeper history under top_picks_flat and found the reasoned ramp above
      * has the WRONG SHAPE for this league: realized keeper-option value by
@@ -20,11 +41,9 @@
      * mean return over the forfeited round +59.9 when kept), ~1.4 pts for
      * rounds 7-9, and ~0 or negative for rounds 10-15 (0 of 31 round-13-15
      * picks were EVER kept). The OLD shipped ramp gave those late rounds
-     * MAXIMUM weight and rounds 4-6 zero — inverse to the measurement. ON by
-     * Cory's ruling, 2026-08-16 ("3. Yes"), with the small-sample caveat in
-     * front of him: two keep transitions, ~40 keep events. The measured shape
-     * now IS the shipped shape; flipping back to false restores the old
-     * reasoned ramp. */
+     * MAXIMUM weight and rounds 4-6 zero — inverse to the measurement. That
+     * inversion is what Cory ruled on; the measured shape now IS the shipped
+     * shape. */
     KOV_MEASURED_RAMP: true,
     KOV_MEASURED_RAMP_TABLE: { '4-6': 1.0, '7-9': 0.2, '10-12': 0.0, '13-15': 0.0 },
     KOV_BADGE_AT: 8,             // KOV points that earn a "KEEPER TARGET" badge
