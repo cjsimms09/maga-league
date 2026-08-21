@@ -108,7 +108,12 @@ const BASELINE_DIR = path.join(ROOT, 'draft', 'baseline');
  * hours ago, by me, on v30. The invariant added then (restore_reverts_two_rulings
  * asserts the pinned baseline's weights EQUAL the shipped ones) went red the
  * moment this weight changed, which is the guard working rather than a chore. */
-const ACTIVE_VERSION = 'v31';
+/* v31 -> v32, 2026-08-21. The board pinned for v32 is BYTE-IDENTICAL to v31's
+ * (artifact_v31.json copied), deliberately: the baseline isolates CODE, so
+ * holding the board fixed keeps v31->v32 a pure code comparison and makes the
+ * pre-freeze verification apply exactly. Pinning the fresh board instead would
+ * have conflated the VONA fix with a board change. */
+const ACTIVE_VERSION = 'v32';
 const BASELINE_PATH = path.join(BASELINE_DIR, ACTIVE_VERSION + '.json');
 
 /* CANONICAL STATES — FOUR AS OF 2026-08-20, and the fourth earns its place.
