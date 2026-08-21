@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 184,
+ "next_numeric_id": 185,
  "history": [
   {
    "id": 47,
@@ -424,6 +424,11 @@
    "id": 183,
    "claimed_at": "2026-08-21",
    "note": "relay/C: the Sunday props cron shipped without its clobber guard (would silently overwrite Thursday's snapshot -- same filename, no tag; since DISARMED, verified 0 cron hits on main) landed on main's id 172, already held by D's flat-floor/ceiling-bands row from 08-20, which carries live inbound references from rows 173 and 176. Renumbered to 183, first allocation wins -- moving the bands row instead would have broken two real cross-references. Auto-merged with NO conflict marker (no textual overlap), caught by test_defect_register.py's duplicate-id check. Note: main's commits d854045c and 0f58b9ff cite this finding as 'Register 172' in immutable history; the renumber annotation on the row records that. Watermark now authoritative from 184."
+  },
+  {
+   "id": 184,
+   "claimed_at": "2026-08-21",
+   "note": "relay/C: 'C's entire external-ingest program is stranded on a branch while its ROUTES rows on main say BUILT' (workflow_dispatch only sees main, so a dispatch-only receipt is a real 404) landed on main's id 173, already held by D's *_pre_ds band-snapshot row which carries an inbound citation from the register-140 row. Renumbered to 184, first allocation wins -- moving the band row would have broken that citation. The ROUTES citation of 'register 173' referring to THIS finding was repointed to 184; the DEFECT-REGISTER citation refers to D's 173 and was correctly left alone. Main's commits 595b6020/9580cd5e cite it as 'Register 173' in immutable history; the row annotation records the mapping. Watermark now authoritative from 185."
   }
  ]
 }
