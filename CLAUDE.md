@@ -63,6 +63,16 @@ recheck date, and **every open row now carries one — 79 of 79, verified 2026-0
 
 **`ROUTES.md`, `CORY-ASKS.md`, `DEFECT-REGISTER.md`, `OPEN-QUESTIONS.md` push
 STRAIGHT TO `main`** — they are mailboxes, not code (Rule 1b). Branch the code.
+**Rule 1b applies to EVERY lane including D and E — Cory ruled it 08-21 ("Yes
+give D and E access mailbox push"), ending the branch-only constraint that
+stranded D's receipts and scheduled register 186's wrong-control failure.**
+`PREDICTION-LEDGER.md` rides the same grant (relay-owned, all lanes file to it).
+⚠️ **The grant is FORWARD-ONLY until A's reconciliation merge lands: the
+mailbox copies on D's and E's branches carry the diverged 163-185 / P-number
+ids, so pushing that BACKLOG to main bulk would recreate the collision E is
+classifying. New rows go straight to main (claim register ids via
+`node draft/tools/next_register_id.js` — the watermark on main is the
+allocator); the backlog lands only through the classification-driven merge.**
 
 **The standard, one line:** a "no" is finished only with a measurement, an unblock
 condition, an owner and a recheck date. **Four stated limits collapsed on 08-17
