@@ -1,26 +1,45 @@
 """One gsis_id -> sleeper_id crosswalk, behind one function.
 
-WHY THIS EXISTS, STATED AS THE FAILURE IT ENDS. On 2026-08-21 the 00:22Z board
-build succeeded with `opportunity_coverage 1.0`; the 08:49Z build hit
-`AttributeError: module 'nfl_data_py' has no attribute 'import_ids'`. Upstream
-moved between those two runs, under a requirement that pins only
-`nfl_data_py>=0.3.2`. The repo had **33 flat `nfl.import_ids()` calls across 18
-product-path files** and exactly one of them — `practice_participation.py` —
-was hardened, because it is the only one that fails loudly. `build.py` catches
-the same exception and keeps building on Sleeper's own `gsis_id` field, which
-covers 221 of 761 keys.
+⚠️ WHY THIS EXISTS — AND THE STORY IT WAS FIRST WRITTEN WITH WAS WRONG. This
+docstring used to say upstream renamed `import_ids` between the 00:22Z board
+build (which succeeded) and the 08:49Z build (which refused). **It did not.**
+A found the real cause and corrected it in `e12b3c2e` (register 219):
+`test_opportunity_provenance.py` assigned a one-attribute fake into
+`sys.modules["nfl_data_py"]` with no cleanup, so every LATER test in the same
+pytest session saw a module with neither `import_ids` nor `import_players`.
+
+Confirmed here rather than accepted: at the pre-fix commit the two files run
+together FAIL and `test_practice_participation.py` alone PASSES — order
+dependence, not an environment. **And the two-CI-runs contrast that was quoted
+as corroboration has a different cause entirely: the leak line is byte-identical
+at both shas, and what actually landed between them is the VICTIM —
+`test_practice_participation.py` was added in `1113b792`.** A new test simply
+arrived downstream of an old leak. That grep took ten seconds and was not run
+before the claim was written down (E, rule 3i, registers 232/233).
+
+WHAT IS STILL TRUE, AND IS WHY THIS MODULE STAYS. The dependency really is
+unpinned, it really was a single flat call in **33 places across 18
+product-path files**, and only `practice_participation.py` fails loudly on it.
+`build.py` catches the same exception and keeps building on Sleeper's own
+`gsis_id` field, which covers **221 of 761 keys** — a degradation it prints as
+one `!` line. None of that needed a real rename to be worth removing; it needed
+one bad morning, and a leaked stub was enough to produce the exact error a
+rename would.
 
 Three sources, tried in order, and the third is the one that cannot be renamed:
 
 1. `nfl_data_py.import_ids()` — the maintained call, when it exists.
-2. `nfl_data_py.import_players()` — the rename candidate. **MEASURED
-   2026-08-21 on 0.3.3: 25,049 rows carrying `gsis_id` and NO `sleeper_id`.**
-   So it is tried, not trusted: the column check below rejects it and falls
-   through rather than returning a crosswalk with a missing half.
+2. `nfl_data_py.import_players()` — the rename candidate, and **not a
+   substitute: MEASURED on 0.3.3, 25,049 rows carrying `gsis_id` and NO
+   `sleeper_id`.** So it is tried, not trusted — the column check below rejects
+   it and falls through rather than returning a crosswalk with a missing half.
+   (The first fix for the CI red returned this frame and then raised on the
+   missing column. That was never the live failure — see above — but it would
+   not have cured a real rename either.)
 3. `DYNASTYPROCESS_IDS_URL` read directly. This is not a guess about what the
    package does — `import_ids` in 0.3.3 IS a `pandas.read_csv` of this exact
-   URL. Fetched directly 2026-08-21: **12,480 rows, both id columns present,
-   6,188 carrying both.** No package API in the path, so an upstream rename
+   URL. Fetched directly: **12,480 rows, both id columns present, 6,188
+   carrying both**, and every pair overlapping source (1) agrees with it. No package API in the path, so an upstream rename
    cannot reach it.
 
 `crosswalk()` returns {gsis_id: sleeper_id} and raises only when all three

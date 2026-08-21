@@ -49,35 +49,34 @@ WF = ROOT / ".github" / "workflows" / "draft-night-sync.yml"
 sys.path.insert(0, str(ROOT / "draft"))
 
 
-#: The step whose script this drill exercises. Named, not positional — see
-#: WHY below.
-POLL_STEP = "Poll Sleeper and log picks until the draft completes"
+# ── extract the SYNC step's run: | block ────────────────────────────────────
+#
+# ⚠️ THIS USED TO ASSERT THE WORKFLOW HAD EXACTLY ONE `run:` BLOCK, and that
+# stopped being true on 2026-08-21 when a verification step was added ahead of
+# the poll (it runs the pick-logger suites so a broken logger fails the job
+# while the draft is still ahead of us). Every test in this file then ERRORED at
+# setup — not failed, ERRORED — which is a worse signal than red: the drill that
+# proves draft-night bash retries, rebases and isolates dry runs simply stopped
+# running, on the day before the draft.
+#
+# The assertion was a proxy for "find the sync script", and it broke the moment
+# the workflow legitimately grew. So it now finds the block BY ITS STEP, which
+# is what it always meant, and keeps the content assertion below as the real
+# guard that extraction produced the right thing. Adding more steps is now safe;
+# renaming or removing the sync step still fails loudly, and names what to fix.
+SYNC_STEP = "Poll Sleeper and log picks until the draft completes"
 
 
-# ── extract the poll step's run: | block — the script this drill drills ─────
 def workflow_script() -> str:
-    """The sync script, found by STEP NAME rather than by being the only one.
-
-    ⚠️ WHY THIS IS NOT `the ONE run: block` ANY MORE (E, register 234). It was,
-    and on draft eve `8977bf45` added a second step — "Verify the pick logger
-    before draft night depends on it" — which is a good step and broke this
-    extraction outright. `assert len(starts) == 1` fired in the `rig` FIXTURE,
-    so six of the seven drills did not fail, they ERRORED at setup: **the drill
-    that proves draft-night sync survives a failed sync call, a push reject and
-    a second writer stopped running entirely, the night before the draft, and
-    nothing said so louder than a red suite full of setup errors.**
-
-    Anchoring on the step name keeps the loud failure (an unknown step still
-    asserts) while surviving steps being added around it, which is the thing
-    that actually happens.
-    """
     lines = WF.read_text().splitlines()
-    named = [k for k, l in enumerate(lines) if l.strip() == "- name: " + POLL_STEP]
-    assert len(named) == 1, (
-        "expected exactly one %r step, found %d — the workflow was renamed or "
-        "duplicated; re-derive rather than guessing" % (POLL_STEP, len(named)))
-    starts = [k for k, l in enumerate(lines) if l.strip() == "run: |" and k > named[0]]
-    assert starts, "the %r step has no run: | block" % POLL_STEP
+    step = [i for i, l in enumerate(lines) if SYNC_STEP in l]
+    assert len(step) == 1, (
+        "cannot find exactly one step named %r — if it was renamed, update "
+        "SYNC_STEP; this drill must never silently extract a different step"
+        % SYNC_STEP)
+    starts = [i for i, l in enumerate(lines)
+              if l.strip() == "run: |" and i > step[0]]
+    assert starts, "the sync step no longer carries a `run: |` block — re-derive"
     i = starts[0]
     indent = (len(lines[i]) - len(lines[i].lstrip())) + 2
     body = []

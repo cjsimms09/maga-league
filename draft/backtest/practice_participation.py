@@ -170,22 +170,19 @@ def _fetch_practice_rows(season: int) -> list:  # pragma: no cover  (egress)
 def _fetch_crosswalk() -> dict:  # pragma: no cover  (egress)
     """gsis_id -> sleeper_id, from nflverse's player crosswalk.
 
-    ⚠️ VERSION-TOLERANT ON PURPOSE (A, 2026-08-21). This called `nfl.import_ids()`
-    flat, and CI went red with `module 'nfl_data_py' has no attribute
-    'import_ids'` while the same call worked locally. `draft/requirements.txt`
-    pins only `nfl_data_py>=0.3.2`, so CI resolves whatever is newest and the
-    newest release dropped `import_ids`. An unpinned dependency plus a
-    single-API call means upstream can turn this red on any morning.
+    ⚠️ VERSION-TOLERANT, AND THE REASON FIRST GIVEN FOR IT WAS WRONG. This
+    called `nfl.import_ids()` flat and CI went red with `module 'nfl_data_py'
+    has no attribute 'import_ids'` while the same call worked locally. That was
+    read as an upstream rename under an unpinned requirement. **It was a test
+    leaking a one-attribute fake into `sys.modules` with no cleanup, so every
+    later test in the session saw a module with neither name** (A, `e12b3c2e`,
+    register 219; leak fixed there). Confirmed rather than accepted: pre-fix,
+    this file passes ALONE and fails when run after the leaking one.
 
-    ⚠️⚠️ AND THE FIRST FIX FOR THAT DID NOT HOLD (E, 2026-08-21, register 232).
-    It fell back to `import_players` on the stated premise that *"both return a
-    frame carrying `gsis_id` and `sleeper_id`"*. **Measured against the branch
-    CI actually takes — delete `import_ids` off the module, then call this —
-    `import_players()` returns 25,049 rows with `gsis_id` and NO `sleeper_id`,
-    and this function raised `RuntimeError: missing ['sleeper_id']`.** The
-    failure only changed shape; the board still refused. The premise was never
-    exercised locally because 0.3.3 HAS `import_ids`, so the fallback branch
-    never ran here.
+    The first fallback written for it — `import_players` — was measured
+    afterwards and **carries `gsis_id` and no `sleeper_id`**, so it would not
+    have cured a real rename either (E, register 232). The chain stays anyway:
+    the dependency really is unpinned and this really was a single flat call.
 
     The chain now ends somewhere no rename can reach — see
     `id_crosswalk.DYNASTYPROCESS_IDS_URL`, which is the file `import_ids`

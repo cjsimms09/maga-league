@@ -1218,15 +1218,22 @@ def _id_crosswalk(sleeper_players: dict) -> dict:
        this alone translated 221 of 761 keys, which is why (1) exists.
 
     ⚠️ WHY (1) IS NO LONGER A FLAT `nfl.import_ids()` CALL (E, register 233).
-    It was, and it sat inside this `except Exception`, and on draft eve that
-    combination became live rather than theoretical: run 32432432133 succeeded
-    with `opportunity_coverage 1.0`, run 32464974982 eight hours later hit
-    `AttributeError: module 'nfl_data_py' has no attribute 'import_ids'`, and
-    **this function does not refuse on that — it prints one `!` line and builds
-    the board on the 29% supplement.** The only thing between that and a
-    published board is `_assert_opportunity_coverage`'s 60% floor, measured on
-    the top 200 by ADP — exactly the players Sleeper is least likely to be
-    missing, so the floor may well not fire.
+    It was, and it sat inside this `except Exception`. **The morning that
+    prompted this, a CI red really did read `AttributeError: module
+    'nfl_data_py' has no attribute 'import_ids'` — and the cause was a test
+    leaking a one-attribute fake into `sys.modules`, not an upstream rename
+    (A, register 219). The claim that this build's environment changed was
+    wrong and is corrected in `id_crosswalk`.**
+
+    What survives the correction is the part that was never about the cause:
+    **this function does not refuse on a crosswalk failure — it prints one `!`
+    line and builds the board on Sleeper's own `gsis_id` field, which covered
+    221 of 761 keys the last time it stood alone.** The only thing between that
+    and a published board is `_assert_opportunity_coverage`'s 60% floor,
+    measured on the top 200 by ADP — exactly the players Sleeper is least
+    likely to be missing, so the floor may well not fire. A leaked stub was
+    enough to produce the exact error a rename would; the swallow is worth
+    removing on its own terms.
 
     `id_crosswalk` ends its chain at the dynastyprocess CSV that
     `nfl_data_py.import_ids()` itself reads, so an upstream rename cannot reach
