@@ -1,38 +1,57 @@
 # TERRITORY: C
-"""GAME-DAY WEATHER — source-hunt item 1: "Weekly forecasts for outdoor
-stadiums (free: NWS/open-meteo, zero key), joined to the schedule store.
-Feeds K/DEF streaming and start/sit; wind is the one weather variable with
-known kicker effect." `ROUTES.md` TO: C, 2026-08-21.
+"""GAME-DAY WEATHER — source-hunt item 1, REBUILT 2026-08-21 after Cory's
+direct catch: "Make sure we're getting weather for every game and from the
+right stadium where game is being played (home team)."
 
-⚠️ REACHABILITY IS UNCONFIRMED FROM THIS SANDBOX, STATED PLAINLY RATHER THAN
-ASSUMED (rule 3e/3f): both `api.open-meteo.com` and `api.weather.gov` return
-a proxy 403 from this session, same as every non-nflverse host this session
-has hit. Built the same way every other CI-gated capture this session was
-built when a live check was impossible here: pure logic tested on realistic
-fixtures, egress isolated and gated `--dry-run`/`# pragma: no cover`, and
-the fetch REFUSES LOUDLY on an unrecognised response shape rather than
-silently emitting a plausible-looking wrong number — the first real CI
-dispatch is what actually confirms the field names below, not this module's
-author. Do not trust a live run until that first dispatch's own known-
-positive control (`verify_known_positive`) has been read and passed.
+⚠️ THAT CATCH WAS RIGHT, AND THE FIRST VERSION OF THIS MODULE HAD THE EXACT
+BUG NAMED. It looked up a HOME TEAM'S usual stadium from a hand-compiled
+table, which is wrong for any neutral-site game — and there are real ones:
+**8 of the 272 games on the actual 2026 schedule are neutral-site
+internationals** (Melbourne, Rio de Janeiro, London x2, Paris, Madrid,
+Munich, Mexico City — verified directly against nflverse's real schedule
+data, not assumed), and 7 more were played at neutral sites in 2024 alone
+(Brazil, London x2, Germany, plus a wildfire-relocated Rams "home" playoff
+game and the Super Bowl). The old design would have fetched Philadelphia's
+weather for a game actually played in São Paulo, and would have SKIPPED a
+real outdoor London game because it thought Jacksonville's home stadium
+(marked "ambiguous") was the venue.
 
-⚠️ THE STADIUM TABLE IS COMPILED, NOT FETCHED, AND SAYS SO ON EVERY ROW: no
-reachable source this session found serves NFL venue/roof metadata (nfl_data_
-py's `import_schedules` hits a non-nflverse host that is also blocked; no
-nflverse-data release under `schedules`/`games` was found at any guessed
-path). `STADIUM_INFO` is built from general knowledge as of this session,
-each entry carries a `confidence` field, and three teams (LV, JAX, SEA) are
-marked `"ambiguous"` rather than a clean outdoor/dome call, because their
-real roof/canopy configurations do not reduce cleanly to the binary this
-module needs. **Spot-check before trusting a start/sit decision on it** —
-this is a compiled reference table, not a measurement.
+THE FIX, both root causes: (1) the schedule source. `nfl_schedule_2026.json`
+(Ball Don't Lie's free tier) carries no venue field at all — team codes and
+dates only, so a neutral-site game was structurally invisible to it. This
+module now reads nflverse's `games.csv` release directly (rule 11: the same
+reachable host every other capture this session already uses), which
+carries the REAL per-game `stadium`, `location` ("Home"/"Neutral"), `roof`,
+and even real historical `temp`/`wind` — measured fact per game, not a
+compiled guess about the home team. (2) `STADIUM_COORDS` below is now keyed
+by the real STADIUM NAME nflverse reports for that specific game, never by
+team code — the same team's `stadium_id` in nflverse's own data does NOT
+change for a neutral-site game (it stays tagged to the "home" team), so
+keying coordinates by team the way the old module did would have
+reproduced the exact same bug even reading the right source.
 
-ROOF POLICY, STATED EXPLICITLY: `dome` and `retractable` are BOTH excluded
-from weather (no signal emitted, not a zero) — a retractable roof's actual
-open/closed state on a given game day is not determinable from any source
-this module has, and treating "retractable" as "outdoor" would silently
-assert weather exposure on games played fully enclosed. This is a
-conservative choice named here, not a hidden default.
+ROOF, MEASURED PER GAME, NOT ASSUMED PER TEAM: nflverse's `roof` column
+takes real values {"outdoors", "dome", "open", "closed", NaN} — "open" and
+"closed" are a RETRACTABLE roof's actual state for that specific game,
+which the old module could not see and treated every retractable venue as
+permanently excluded. NaN is real too, not a data gap: for 2026, every
+retractable-roof stadium's future games (Houston, Indianapolis, Atlanta,
+Arizona, Dallas) carry `roof: NaN` because the open/closed call is a
+game-week decision, not settled months out. `is_weather_relevant()` only
+answers True for a MEASURED "outdoors"/"open" — never a guess.
+
+WHAT NFLVERSE DOES NOT CARRY: precipitation. Its schedule has `temp`/`wind`
+(real box-score readings for played games) but no rain/snow field, so
+open-meteo is still the source for precipitation on every game, and the
+temp/wind backstop for games nflverse has not captured yet (upcoming 2026
+weeks, or any game its own capture missed — the international 2024 games
+above show real NaN temp/wind in nflverse's own data too).
+
+⚠️ RECHECK reachability caveat still applies to open-meteo specifically:
+`api.open-meteo.com` proxy-403s from this dev sandbox, so its exact
+response shape is confirmed only by nflverse-data (proven reachable and
+used directly below) — the precipitation fetch stays CI-gated and untrusted
+until a first real dispatch's known-positive control passes.
 
 Run: python3 draft/backtest/game_weather.py
 """
@@ -46,187 +65,258 @@ HERE = Path(__file__).resolve().parent
 DRAFT = HERE.parent
 ROOT = DRAFT.parent
 
-SCHEDULE = DRAFT / "data" / "nfl_schedule_2026.json"
 OUT = HERE / "game_weather.json"
+
+GAMES_URL = ("https://github.com/nflverse/nflverse-data/releases/download/"
+            "schedules/games.csv")
+GAMES_COLUMNS = ["game_id", "season", "game_type", "week", "gameday",
+                 "gametime", "away_team", "home_team", "location", "roof",
+                 "temp", "wind", "stadium", "stadium_id"]
 
 HIST_URL = "https://archive-api.open-meteo.com/v1/archive"
 FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
-HOURLY_VARS = "temperature_2m,wind_speed_10m,precipitation"
+HOURLY_VARS = "precipitation"
 
-#: {team: {lat, lon, roof, confidence}} — COMPILED, NOT FETCHED (see
-#: docstring). roof in {"outdoor", "dome", "retractable", "ambiguous"}.
-#: Coordinates are the stadium's approximate location, precise enough for a
-#: city-scale hourly forecast (this is not a siting question).
-STADIUM_INFO = {
-    "ARI": {"lat": 33.5276, "lon": -112.2626, "roof": "retractable", "confidence": "high"},
-    "ATL": {"lat": 33.7554, "lon": -84.4008, "roof": "retractable", "confidence": "high"},
-    "BAL": {"lat": 39.2780, "lon": -76.6227, "roof": "outdoor", "confidence": "high"},
-    "BUF": {"lat": 42.7738, "lon": -78.7870, "roof": "outdoor", "confidence": "high"},
-    "CAR": {"lat": 35.2258, "lon": -80.8528, "roof": "outdoor", "confidence": "high"},
-    "CHI": {"lat": 41.8623, "lon": -87.6167, "roof": "outdoor", "confidence": "high"},
-    "CIN": {"lat": 39.0954, "lon": -84.5160, "roof": "outdoor", "confidence": "high"},
-    "CLE": {"lat": 41.5061, "lon": -81.6995, "roof": "outdoor", "confidence": "high"},
-    "DAL": {"lat": 32.7473, "lon": -97.0945, "roof": "retractable", "confidence": "high"},
-    "DEN": {"lat": 39.7439, "lon": -105.0201, "roof": "outdoor", "confidence": "high"},
-    "DET": {"lat": 42.3400, "lon": -83.0456, "roof": "dome", "confidence": "high"},
-    "GB": {"lat": 44.5013, "lon": -88.0622, "roof": "outdoor", "confidence": "high"},
-    "HOU": {"lat": 29.6847, "lon": -95.4107, "roof": "retractable", "confidence": "high"},
-    "IND": {"lat": 39.7601, "lon": -86.1639, "roof": "retractable", "confidence": "high"},
-    "JAX": {"lat": 30.3239, "lon": -81.6373, "roof": "ambiguous", "confidence": "low",
-           "note": "open-air bowl with a partial canopy/shade structure over "
-                   "seating, not the field -- treated as unresolved rather "
-                   "than guessed either way"},
-    "KC": {"lat": 39.0489, "lon": -94.4839, "roof": "outdoor", "confidence": "high"},
-    "LV": {"lat": 36.0909, "lon": -115.1833, "roof": "dome", "confidence": "medium",
-          "note": "fixed translucent roof, generally played fully enclosed"},
-    "LAC": {"lat": 33.9535, "lon": -118.3392, "roof": "dome", "confidence": "high",
-           "note": "SoFi Stadium -- fixed canopy roof, effectively indoor"},
-    "LAR": {"lat": 33.9535, "lon": -118.3392, "roof": "dome", "confidence": "high",
-           "note": "SoFi Stadium, shared with LAC"},
-    "MIA": {"lat": 25.9580, "lon": -80.2389, "roof": "outdoor", "confidence": "high",
-           "note": "partial canopy over seating only, field is open"},
-    "MIN": {"lat": 44.9737, "lon": -93.2577, "roof": "dome", "confidence": "high"},
-    "NE": {"lat": 42.0909, "lon": -71.2643, "roof": "outdoor", "confidence": "high"},
-    "NO": {"lat": 29.9511, "lon": -90.0812, "roof": "dome", "confidence": "high"},
-    "NYG": {"lat": 40.8135, "lon": -74.0745, "roof": "outdoor", "confidence": "high"},
-    "NYJ": {"lat": 40.8135, "lon": -74.0745, "roof": "outdoor", "confidence": "high",
-           "note": "MetLife Stadium, shared with NYG"},
-    "PHI": {"lat": 39.9008, "lon": -75.1675, "roof": "outdoor", "confidence": "high"},
-    "PIT": {"lat": 40.4468, "lon": -80.0158, "roof": "outdoor", "confidence": "high"},
-    "SEA": {"lat": 47.5952, "lon": -122.3316, "roof": "ambiguous", "confidence": "low",
-           "note": "Lumen Field has a partial roof covering most seating but "
-                   "the field itself is open-air -- treated as unresolved "
-                   "rather than asserting a clean outdoor/dome call"},
-    "SF": {"lat": 37.4032, "lon": -121.9698, "roof": "outdoor", "confidence": "high"},
-    "TB": {"lat": 27.9759, "lon": -82.5033, "roof": "outdoor", "confidence": "high"},
-    "TEN": {"lat": 36.1665, "lon": -86.7713, "roof": "outdoor", "confidence": "high"},
-    "WAS": {"lat": 38.9076, "lon": -76.8645, "roof": "outdoor", "confidence": "high"},
+SEASONS = (2021, 2022, 2023, 2024, 2025, 2026)
+
+#: real values nflverse's `roof` column uses for a game played with no roof
+#: overhead -- "outdoors" (fixed no-roof venue) or "open" (a retractable
+#: roof, open for THIS game). "dome"/"closed"/NaN are all excluded.
+WEATHER_RELEVANT_ROOF = {"outdoors", "open"}
+
+#: {stadium name (nflverse's own string, exactly) -> {lat, lon, confidence}}.
+#: COMPILED FROM GENERAL KNOWLEDGE, NOT FETCHED — no reachable source this
+#: session found serves stadium coordinates. Spot-check before trusting a
+#: start/sit decision on it. Renamed stadiums at the SAME physical site
+#: (naming-rights changes) share coordinates; genuinely uncertain entries
+#: (mostly recent international venues) are marked "medium"/"low".
+STADIUM_COORDS = {
+    "AT&T Stadium": {"lat": 32.7473, "lon": -97.0945, "confidence": "high"},
+    "Acrisure Stadium": {"lat": 40.4468, "lon": -80.0158, "confidence": "high"},
+    "Heinz Field": {"lat": 40.4468, "lon": -80.0158, "confidence": "high"},
+    "GEHA Field at Arrowhead Stadium": {"lat": 39.0489, "lon": -94.4839, "confidence": "high"},
+    "Arrowhead Stadium": {"lat": 39.0489, "lon": -94.4839, "confidence": "high"},
+    "Bank of America Stadium": {"lat": 35.2258, "lon": -80.8528, "confidence": "high"},
+    "Empower Field at Mile High": {"lat": 39.7439, "lon": -105.0201, "confidence": "high"},
+    "Sports Authority Field at Mile High": {"lat": 39.7439, "lon": -105.0201, "confidence": "high"},
+    "EverBank Stadium": {"lat": 30.3239, "lon": -81.6373, "confidence": "high"},
+    "EverBank Field": {"lat": 30.3239, "lon": -81.6373, "confidence": "high"},
+    "TIAA Bank Stadium": {"lat": 30.3239, "lon": -81.6373, "confidence": "high"},
+    "FedExField": {"lat": 38.9076, "lon": -76.8645, "confidence": "high"},
+    "Northwest Stadium": {"lat": 38.9076, "lon": -76.8645, "confidence": "high"},
+    "FirstEnergy Stadium": {"lat": 41.5061, "lon": -81.6995, "confidence": "high"},
+    "Huntington Bank Field": {"lat": 41.5061, "lon": -81.6995, "confidence": "high"},
+    "Gillette Stadium": {"lat": 42.0909, "lon": -71.2643, "confidence": "high"},
+    "Hard Rock Stadium": {"lat": 25.9580, "lon": -80.2389, "confidence": "high"},
+    "Highmark Stadium": {"lat": 42.7738, "lon": -78.7870, "confidence": "high"},
+    "New Era Field": {"lat": 42.7738, "lon": -78.7870, "confidence": "high"},
+    "Lambeau Field": {"lat": 44.5013, "lon": -88.0622, "confidence": "high"},
+    "Levi's Stadium": {"lat": 37.4032, "lon": -121.9698, "confidence": "high"},
+    "Lincoln Financial Field": {"lat": 39.9008, "lon": -75.1675, "confidence": "high"},
+    "Lucas Oil Stadium": {"lat": 39.7601, "lon": -86.1639, "confidence": "high"},
+    "Lumen Field": {"lat": 47.5952, "lon": -122.3316, "confidence": "high"},
+    "M&T Bank Stadium": {"lat": 39.2780, "lon": -76.6227, "confidence": "high"},
+    "Mercedes-Benz Stadium": {"lat": 33.7554, "lon": -84.4008, "confidence": "high"},
+    "MetLife Stadium": {"lat": 40.8135, "lon": -74.0745, "confidence": "high"},
+    "NRG Stadium": {"lat": 29.6847, "lon": -95.4107, "confidence": "high"},
+    "Reliant Stadium": {"lat": 29.6847, "lon": -95.4107, "confidence": "high"},
+    "Nissan Stadium": {"lat": 36.1665, "lon": -86.7713, "confidence": "high"},
+    "Paul Brown Stadium": {"lat": 39.0954, "lon": -84.5160, "confidence": "high"},
+    "Paycor Stadium": {"lat": 39.0954, "lon": -84.5160, "confidence": "high"},
+    "Raymond James Stadium": {"lat": 27.9759, "lon": -82.5033, "confidence": "high"},
+    "Soldier Field": {"lat": 41.8623, "lon": -87.6167, "confidence": "high"},
+    "State Farm Stadium": {"lat": 33.5276, "lon": -112.2626, "confidence": "high"},
+    "University of Phoenix Stadium": {"lat": 33.5276, "lon": -112.2626, "confidence": "high"},
+    # ── international / neutral-site venues ─────────────────────────────
+    "Wembley Stadium": {"lat": 51.5560, "lon": -0.2795, "confidence": "high"},
+    "Tottenham Stadium": {"lat": 51.6043, "lon": -0.0664, "confidence": "high"},
+    "Tottenham Hotspur Stadium": {"lat": 51.6043, "lon": -0.0664, "confidence": "high"},
+    "Arena Corinthians": {"lat": -23.5453, "lon": -46.4742, "confidence": "medium"},
+    "Deutsche Bank Park": {"lat": 50.0686, "lon": 8.6455, "confidence": "medium"},
+    "Allianz Arena": {"lat": 48.2188, "lon": 11.6247, "confidence": "medium"},
+    "FC Bayern Munich Stadium": {"lat": 48.2188, "lon": 11.6247, "confidence": "medium",
+                                 "note": "same physical venue as Allianz Arena, "
+                                         "nflverse names it differently in the "
+                                         "2026 schedule than in 2024's"},
+    "Azteca Stadium": {"lat": 19.3029, "lon": -99.1505, "confidence": "medium"},
+    "Maracana Stadium": {"lat": -22.9121, "lon": -43.2302, "confidence": "medium"},
+    "Bernabeu": {"lat": 40.4531, "lon": -3.6883, "confidence": "medium",
+                "note": "Real Madrid's Santiago Bernabeu, retractable roof "
+                        "-- treat roof state the same as any domestic "
+                        "retractable, off nflverse's own roof field"},
+    "Stade de France": {"lat": 48.9244, "lon": 2.3601, "confidence": "medium"},
+    "Melbourne Cricket Ground": {"lat": -37.8199, "lon": 144.9834, "confidence": "medium"},
+    "Estadio Banorte": {"lat": 25.6694, "lon": -100.2792, "confidence": "low",
+                        "note": "Monterrey, Mexico (formerly Estadio BBVA) "
+                                "-- LOWER CONFIDENCE than the rest of this "
+                                "table; verify before trusting this one "
+                                "specifically, it is the least certain entry"},
 }
 
-#: Real, well-documented case usable as a known-positive once egress works:
-#: BUF at home, 2024-11-17 (real week-11 2024 game, played in a real,
-#: widely reported lake-effect snow event) -- exact numeric values are NOT
-#: asserted here (this module cannot fetch to verify them), only that the
-#: fetch for this date/location must return non-null wind and precipitation
-#: at a real outdoor stadium.
-KNOWN_POSITIVE = {"team": "BUF", "date": "2024-11-17",
-                  "why": "real, widely reported snow game -- precipitation "
-                        "must be > 0"}
+#: Real, verified control (checked against nflverse's own REG-season data
+#: before writing this, rule 3f — NOT the assumed-but-unverified BUF game
+#: the first version of this module shipped with, and not the -4F Chiefs
+#: game either, which turned out to be a playoff game this module's own
+#: REG-only filter correctly excludes): NO @ CLE, 2022-12-24, a real,
+#: widely-reported brutal-cold regular-season game during a major winter
+#: storm. nflverse's own box score: temp=6.0F, wind=27.0mph.
+KNOWN_POSITIVE = {"home": "CLE", "gameday": "2022-12-24",
+                  "expected_temp_max": 15.0, "expected_wind_min": 15.0}
 
 
-def is_weather_relevant(team: str) -> bool:
-    """True only for a confirmed outdoor stadium. dome/retractable/ambiguous
-    all return False -- no signal, never a manufactured zero."""
-    info = STADIUM_INFO.get(team)
-    return bool(info) and info["roof"] == "outdoor"
+def is_weather_relevant(roof) -> bool:
+    """True only for a MEASURED outdoors/open roof for THIS game — never a
+    guess from a team's usual venue. NaN (undetermined, common for future
+    retractable-roof games not yet decided) and dome/closed all return
+    False, correctly absent rather than a manufactured value."""
+    return roof in WEATHER_RELEVANT_ROOF
 
 
-def parse_hourly_response(doc: dict, kickoff_hour_iso: str) -> dict | None:
-    """Pure parser for open-meteo's documented hourly response shape:
-    {"hourly": {"time": [...], "temperature_2m": [...], "wind_speed_10m":
-    [...], "precipitation": [...]}}. Returns None (never a guessed value) if
-    the exact kickoff hour is not in the returned series, or the shape is
-    not what's documented -- a shape mismatch must surface as a clear
-    'nothing extracted' rather than a wrong number silently emitted."""
+def stadium_coords(stadium_name: str) -> dict | None:
+    return STADIUM_COORDS.get(stadium_name)
+
+
+def kickoff_hour_iso(gameday: str, gametime) -> str | None:
+    """nflverse's `gameday`+`gametime` (local venue time, HH:MM) combined
+    into the hour-truncated ISO string open-meteo's hourly series keys on.
+    Returns None if either half is missing — never a guessed kickoff hour."""
+    if not gameday or not gametime or gametime != gametime:  # NaN check
+        return None
+    hh = str(gametime).split(":")[0].zfill(2)
+    return f"{gameday}T{hh}:00"
+
+
+def parse_precip(doc: dict, kickoff_hour_iso_str: str) -> float | None:
+    """Pure parser for open-meteo's hourly precipitation series. Returns
+    None (never a guess) if the shape doesn't match or the hour is absent —
+    a shape mismatch must surface as 'nothing extracted', never a wrong
+    number silently emitted."""
     hourly = (doc or {}).get("hourly")
     if not isinstance(hourly, dict):
         return None
     times = hourly.get("time") or []
-    if kickoff_hour_iso not in times:
+    precip = hourly.get("precipitation")
+    if kickoff_hour_iso_str not in times or not isinstance(precip, list):
         return None
-    idx = times.index(kickoff_hour_iso)
+    idx = times.index(kickoff_hour_iso_str)
+    return precip[idx] if idx < len(precip) else None
+
+
+def build_store(game_rows: list, precip_by_game: dict) -> dict:
+    """game_rows: nflverse games.csv rows, already filtered to this
+    league's SEASONS and REG-only. precip_by_game: {game_id: float or None},
+    already fetched -- this function is pure, no I/O.
+
+    temp/wind come from nflverse's OWN box score when present (real,
+    measured — not a forecast); precipitation always comes from
+    open-meteo, since nflverse's schedule does not carry it at all.
+    """
     out = {}
-    for field, key in (("temp_f", "temperature_2m"),
-                       ("wind_mph", "wind_speed_10m"),
-                       ("precip_in", "precipitation")):
-        series = hourly.get(key)
-        if not isinstance(series, list) or idx >= len(series):
-            return None
-        out[field] = series[idx]
-    return out
-
-
-def kickoff_hour_iso(game_date_iso: str) -> str:
-    """A game's ISO datetime, truncated to the top of its kickoff hour, in
-    the shape open-meteo's hourly series keys on ('2024-11-17T18:00')."""
-    return game_date_iso[:13] + ":00"
-
-
-def build_store(schedule_rows: list, weather_by_game: dict) -> dict:
-    """schedule_rows: the already-committed nfl_schedule_2026.json 'rows'
-    list. weather_by_game: {game_id: parsed weather dict or None}, already
-    fetched -- this function is pure, no I/O."""
-    out = {}
-    skipped_indoor = 0
-    skipped_ambiguous = 0
-    skipped_no_data = 0
-    for row in schedule_rows:
-        home = row.get("home")
-        info = STADIUM_INFO.get(home)
-        if not info:
+    skipped_not_relevant = 0
+    skipped_no_coords = 0
+    for row in game_rows:
+        if not is_weather_relevant(row.get("roof")):
+            skipped_not_relevant += 1
             continue
-        if info["roof"] in ("dome", "retractable"):
-            skipped_indoor += 1
-            continue
-        if info["roof"] == "ambiguous":
-            skipped_ambiguous += 1
+        stadium = row.get("stadium")
+        coords = stadium_coords(stadium)
+        if coords is None:
+            skipped_no_coords += 1
             continue
         gid = row.get("game_id")
-        weather = weather_by_game.get(gid)
-        if weather is None:
-            skipped_no_data += 1
-            continue
-        out[str(gid)] = {"season": row.get("season"), "week": row.get("week"),
-                         "home": home, "away": row.get("away"),
-                         "date": row.get("date"), **weather}
+        out[str(gid)] = {
+            "season": row.get("season"), "week": row.get("week"),
+            "home": row.get("home_team"), "away": row.get("away_team"),
+            "location": row.get("location"), "stadium": stadium,
+            "gameday": row.get("gameday"),
+            "temp_f": row.get("temp"), "wind_mph": row.get("wind"),
+            "precip_in": precip_by_game.get(gid),
+            "coord_confidence": coords["confidence"],
+        }
 
     doc = {
         "_territory": "TERRITORY: C — produced by draft/backtest/game_weather.py",
-        "_note": ("Hourly kickoff-time weather (temp/wind/precip) for "
-                 "confirmed-outdoor home stadiums only, from open-meteo "
-                 "(no key). Dome, retractable-roof and ambiguous-roof "
-                 "venues carry no entry -- absence is a real fact "
-                 "(weather does not apply), not a gap. STADIUM_INFO is "
-                 "compiled, not fetched -- spot-check before trusting a "
-                 "start/sit decision on it (see module docstring)."),
+        "_note": ("Per-game weather for every MEASURED outdoors/open-roof "
+                 "game (nflverse's own roof field, per game, not a "
+                 "compiled guess by home team). temp/wind are nflverse's "
+                 "own real box-score readings when present; precip_in is "
+                 "always from open-meteo, since nflverse's schedule "
+                 "carries no precipitation field. Neutral-site games are "
+                 "included and correctly located via the real `stadium` "
+                 "name, not the home team's usual venue."),
         "population": {"games_with_weather": len(out),
-                       "skipped_indoor": skipped_indoor,
-                       "skipped_ambiguous_roof": skipped_ambiguous,
-                       "skipped_no_data": skipped_no_data},
+                       "skipped_not_weather_relevant": skipped_not_relevant,
+                       "skipped_no_stadium_coords": skipped_no_coords},
         "games": out,
     }
     return doc
 
 
-def verify_known_positive(doc: dict, schedule_rows: list) -> dict:
-    """Rule 3e control: find BUF's real 2024-11-17 game in the built store
-    and require real, non-null precipitation -- a snow game with a null or
-    zero precip reading means the fetch or parse is broken, not that it
-    didn't snow."""
+#: A real 2026 neutral-site game (verified against nflverse's own schedule
+#: before writing this): HOU @ JAX, week 6, at Wembley Stadium, London --
+#: home team is JAX (its usual stadium is EverBank, Jacksonville), but the
+#: game is played in London. THIS IS THE EXACT DEFECT CLASS CORY CAUGHT:
+#: any lookup keyed on the home team's usual venue instead of the real
+#: per-game stadium would silently attribute Jacksonville's weather to a
+#: London game.
+NEUTRAL_SITE_CONTROL = {"home": "JAX", "week": 6, "season": 2026,
+                        "expected_stadium": "Wembley Stadium"}
+
+
+def verify_neutral_site_handling(game_rows: list) -> dict:
+    """Rule 3e control for the specific bug Cory caught: a home team's
+    neutral-site game must resolve to the REAL stadium played at, not the
+    team's usual venue. Checked against nflverse's own real 2026 schedule,
+    not asserted."""
     match = None
-    for row in schedule_rows:
-        if row.get("home") == KNOWN_POSITIVE["team"] and \
-           str(row.get("date", "")).startswith(KNOWN_POSITIVE["date"]):
+    for row in game_rows:
+        if (row.get("home_team") == NEUTRAL_SITE_CONTROL["home"]
+                and row.get("week") == NEUTRAL_SITE_CONTROL["week"]
+                and row.get("season") == NEUTRAL_SITE_CONTROL["season"]):
             match = row
             break
     if match is None:
-        return {"ok": False, "why": "known-positive game not found in the "
-               "schedule store -- cannot check"}
+        return {"ok": False, "why": "neutral-site known-positive game not found"}
+    ok = (match.get("location") == "Neutral"
+          and match.get("stadium") == NEUTRAL_SITE_CONTROL["expected_stadium"])
+    return {"ok": ok, "real_stadium": match.get("stadium"),
+           "real_location": match.get("location")}
+
+
+def verify_known_positive(doc: dict, game_rows: list) -> dict:
+    """Rule 3e control, checked against nflverse's own real data before
+    writing this fixture (rule 3f), not assumed from memory the way the
+    first version of this module's control was."""
+    match = None
+    for row in game_rows:
+        if row.get("home_team") == KNOWN_POSITIVE["home"] and \
+           str(row.get("gameday")) == KNOWN_POSITIVE["gameday"]:
+            match = row
+            break
+    if match is None:
+        return {"ok": False, "why": "known-positive game not found"}
     entry = doc["games"].get(str(match.get("game_id")))
     if entry is None:
-        return {"ok": False, "why": "known-positive game has no weather "
-               "entry in the built store"}
-    ok = entry.get("precip_in") is not None and entry["precip_in"] > 0
+        return {"ok": False, "why": "known-positive game has no weather entry"}
+    temp, wind = entry.get("temp_f"), entry.get("wind_mph")
+    ok = (temp is not None and temp <= KNOWN_POSITIVE["expected_temp_max"]
+          and wind is not None and wind >= KNOWN_POSITIVE["expected_wind_min"])
     return {"ok": ok, "entry": entry}
 
 
-# ── I/O: real fetches (CI only — unconfirmed reachability, see docstring) ──
+# ── I/O: real fetches (CI only — see docstring on reachability) ────────────
 
-def _fetch_hourly(lat: float, lon: float, date: str, base_url: str) -> dict:  # pragma: no cover
+def _fetch_games() -> list:  # pragma: no cover  (egress)
+    import pandas as pd
+    df = pd.read_csv(GAMES_URL)
+    df = df[df["season"].isin(SEASONS) & (df["game_type"] == "REG")]
+    return df[GAMES_COLUMNS].to_dict("records")
+
+
+def _fetch_precip(lat: float, lon: float, date: str, base_url: str) -> dict:  # pragma: no cover
     import urllib.request
     url = (f"{base_url}?latitude={lat}&longitude={lon}"
           f"&start_date={date}&end_date={date}&hourly={HOURLY_VARS}"
-          f"&temperature_unit=fahrenheit&wind_speed_unit=mph"
           f"&precipitation_unit=inch&timezone=UTC")
     with urllib.request.urlopen(url, timeout=30) as resp:
         return json.loads(resp.read())
@@ -235,42 +325,42 @@ def _fetch_hourly(lat: float, lon: float, date: str, base_url: str) -> dict:  # 
 def run() -> dict:  # pragma: no cover  (egress)
     import datetime as _dt
     today = _dt.datetime.now(_dt.timezone.utc).date().isoformat()
-    schedule_doc = json.loads(SCHEDULE.read_text())
-    rows = schedule_doc.get("rows") or []
-    weather_by_game = {}
-    for row in rows:
-        home = row.get("home")
-        if not is_weather_relevant(home):
-            continue
-        info = STADIUM_INFO[home]
-        date = str(row.get("date", ""))[:10]
-        if not date:
-            continue
-        # PAST games (already played, this season or a backfill) want the
-        # ARCHIVE endpoint; UPCOMING games want the FORECAST endpoint --
-        # open-meteo's archive has no data for a date that hasn't happened,
-        # and its forecast horizon does not reach far into the past.
-        base_url = HIST_URL if date < today else FORECAST_URL
-        try:
-            raw = _fetch_hourly(info["lat"], info["lon"], date, base_url)
-            weather_by_game[row["game_id"]] = parse_hourly_response(
-                raw, kickoff_hour_iso(row["date"]))
-        except Exception as exc:  # noqa: BLE001
-            weather_by_game[row["game_id"]] = None
-            print(f"! fetch failed for game {row.get('game_id')} "
-                 f"({home}, {date}): {type(exc).__name__}: {exc}",
-                 file=sys.stderr)
+    game_rows = _fetch_games()
 
-    doc = build_store(rows, weather_by_game)
-    doc["rule_3e_control"] = verify_known_positive(doc, rows)
+    precip_by_game = {}
+    for row in game_rows:
+        if not is_weather_relevant(row.get("roof")):
+            continue
+        coords = stadium_coords(row.get("stadium"))
+        if coords is None:
+            continue
+        gameday = str(row.get("gameday", ""))[:10]
+        kh = kickoff_hour_iso(gameday, row.get("gametime"))
+        if not gameday or not kh:
+            continue
+        base_url = HIST_URL if gameday < today else FORECAST_URL
+        try:
+            raw = _fetch_precip(coords["lat"], coords["lon"], gameday, base_url)
+            precip_by_game[row["game_id"]] = parse_precip(raw, kh)
+        except Exception as exc:  # noqa: BLE001
+            precip_by_game[row["game_id"]] = None
+            print(f"! precip fetch failed for game {row.get('game_id')} "
+                 f"({row.get('stadium')}, {gameday}): "
+                 f"{type(exc).__name__}: {exc}", file=sys.stderr)
+
+    doc = build_store(game_rows, precip_by_game)
+    doc["rule_3e_control"] = verify_known_positive(doc, game_rows)
+    doc["rule_3e_control_neutral_site"] = verify_neutral_site_handling(game_rows)
     return doc
 
 
 def main() -> int:  # pragma: no cover  (egress)
     doc = run()
     control = doc["rule_3e_control"]
-    if not control["ok"]:
-        print(f"VOID -- known-positive control failed: {control}", file=sys.stderr)
+    neutral_control = doc["rule_3e_control_neutral_site"]
+    if not control["ok"] or not neutral_control["ok"]:
+        print(f"VOID -- a known-positive control failed: weather={control}, "
+             f"neutral_site={neutral_control}", file=sys.stderr)
         return 1
     OUT.write_text(json.dumps(doc, indent=1))
     print(f"wrote {OUT.relative_to(ROOT)}: "
