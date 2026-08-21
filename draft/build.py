@@ -1217,10 +1217,10 @@ def _id_crosswalk(sleeper_players: dict) -> dict:
     2. Sleeper's own `gsis_id` field, as a supplement. On the first real run
        this alone translated 221 of 761 keys, which is why (1) exists.
 
-    ⚠️ WHY (1) IS NO LONGER A FLAT `nfl.import_ids()` CALL (E, 2026-08-21,
-    register 233). It was, and it sat inside this `except Exception`, and on
-    2026-08-21 that combination became live rather than theoretical: the 00:22Z
-    build succeeded with `opportunity_coverage 1.0`, the 08:49Z build hit
+    ⚠️ WHY (1) IS NO LONGER A FLAT `nfl.import_ids()` CALL (E, register 233).
+    It was, and it sat inside this `except Exception`, and on draft eve that
+    combination became live rather than theoretical: run 32432432133 succeeded
+    with `opportunity_coverage 1.0`, run 32464974982 eight hours later hit
     `AttributeError: module 'nfl_data_py' has no attribute 'import_ids'`, and
     **this function does not refuse on that — it prints one `!` line and builds
     the board on the 29% supplement.** The only thing between that and a
