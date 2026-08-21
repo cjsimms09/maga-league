@@ -49,11 +49,34 @@ WF = ROOT / ".github" / "workflows" / "draft-night-sync.yml"
 sys.path.insert(0, str(ROOT / "draft"))
 
 
-# ── extract the run: | block — the ONE script this workflow executes ────────
+# ── extract the SYNC step's run: | block ────────────────────────────────────
+#
+# ⚠️ THIS USED TO ASSERT THE WORKFLOW HAD EXACTLY ONE `run:` BLOCK, and that
+# stopped being true on 2026-08-21 when a verification step was added ahead of
+# the poll (it runs the pick-logger suites so a broken logger fails the job
+# while the draft is still ahead of us). Every test in this file then ERRORED at
+# setup — not failed, ERRORED — which is a worse signal than red: the drill that
+# proves draft-night bash retries, rebases and isolates dry runs simply stopped
+# running, on the day before the draft.
+#
+# The assertion was a proxy for "find the sync script", and it broke the moment
+# the workflow legitimately grew. So it now finds the block BY ITS STEP, which
+# is what it always meant, and keeps the content assertion below as the real
+# guard that extraction produced the right thing. Adding more steps is now safe;
+# renaming or removing the sync step still fails loudly, and names what to fix.
+SYNC_STEP = "Poll Sleeper and log picks until the draft completes"
+
+
 def workflow_script() -> str:
     lines = WF.read_text().splitlines()
-    starts = [i for i, l in enumerate(lines) if l.strip() == "run: |"]
-    assert len(starts) == 1, "the workflow gained a second run block — re-derive"
+    step = [i for i, l in enumerate(lines) if SYNC_STEP in l]
+    assert len(step) == 1, (
+        "cannot find exactly one step named %r — if it was renamed, update "
+        "SYNC_STEP; this drill must never silently extract a different step"
+        % SYNC_STEP)
+    starts = [i for i, l in enumerate(lines)
+              if l.strip() == "run: |" and i > step[0]]
+    assert starts, "the sync step no longer carries a `run: |` block — re-derive"
     i = starts[0]
     indent = (len(lines[i]) - len(lines[i].lstrip())) + 2
     body = []
