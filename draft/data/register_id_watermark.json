@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 250,
+ "next_numeric_id": 251,
  "history": [
   {
    "id": 47,
@@ -519,6 +519,11 @@
    "id": 249,
    "claimed_at": "2026-08-21",
    "note": "E: register 237 is live on main's bundle -- Big Board by-position columns are the blend under every source. B's fix is stranded on claude/warroom-shell-rebuild-0817. Filed straight to main under Rule 1b; the ROUTES item that would have chased it was ticked to clear a CI red."
+  },
+  {
+   "id": 250,
+   "claimed_at": "2026-08-21",
+   "note": "E: a team keeping ZERO makes keeper_slate 'confirmed' unreachable, and confirmed is the switch that applies opponent keepers to the board. Measured against 2025's real placements with a known-positive control. Filed straight to main under Rule 1b the night of the keeper lock."
   },
   {
    "id": "137-138",
