@@ -322,12 +322,25 @@ def _fetch_precip(lat: float, lon: float, date: str, base_url: str) -> dict:  # 
         return json.loads(resp.read())
 
 
+#: Circuit-breaker floor -- a real dispatch (2026-08-21, run 32507488659)
+#: ran past 30+ minutes with no sign of finishing and had to be cancelled
+#: by hand; nothing in this module could tell "the host is dead, stop"
+#: from "a handful of ordinary failures, keep going." At a 30s per-call
+#: timeout, ~1000 weather-relevant games (6 seasons) serially against a
+#: blocked/rate-limited host is hours, not minutes. This is independent
+#: of the workflow's own job-level `timeout-minutes` cap -- that limits
+#: the damage after the fact; this stops it as soon as the pattern is
+#: unambiguous, and reports a real reason instead of a silent hang.
+MAX_CONSECUTIVE_FAILURES = 10
+
+
 def run() -> dict:  # pragma: no cover  (egress)
     import datetime as _dt
     today = _dt.datetime.now(_dt.timezone.utc).date().isoformat()
     game_rows = _fetch_games()
 
     precip_by_game = {}
+    consecutive_failures = 0
     for row in game_rows:
         if not is_weather_relevant(row.get("roof")):
             continue
@@ -342,11 +355,21 @@ def run() -> dict:  # pragma: no cover  (egress)
         try:
             raw = _fetch_precip(coords["lat"], coords["lon"], gameday, base_url)
             precip_by_game[row["game_id"]] = parse_precip(raw, kh)
+            consecutive_failures = 0
         except Exception as exc:  # noqa: BLE001
             precip_by_game[row["game_id"]] = None
+            consecutive_failures += 1
             print(f"! precip fetch failed for game {row.get('game_id')} "
                  f"({row.get('stadium')}, {gameday}): "
                  f"{type(exc).__name__}: {exc}", file=sys.stderr)
+            if consecutive_failures >= MAX_CONSECUTIVE_FAILURES:
+                raise RuntimeError(
+                    f"{consecutive_failures} consecutive precip fetches failed "
+                    f"-- the weather host looks unreachable from here, not "
+                    f"just flaky. Aborting rather than grinding through the "
+                    f"remaining games one 30s timeout at a time (2026-08-21 "
+                    f"run 32507488659 did exactly that and had to be "
+                    f"cancelled by hand). Last error: {type(exc).__name__}: {exc}")
 
     doc = build_store(game_rows, precip_by_game)
     doc["rule_3e_control"] = verify_known_positive(doc, game_rows)

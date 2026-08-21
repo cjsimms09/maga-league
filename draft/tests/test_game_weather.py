@@ -158,6 +158,56 @@ def test_every_weather_relevant_stadium_in_recent_real_history_has_coords():
     assert missing == [], f"stadiums with no coords entry: {missing}"
 
 
+def test_run_aborts_after_max_consecutive_failures_instead_of_grinding_through_every_game(monkeypatch):
+    # THE REAL INCIDENT this pins: a 2026-08-21 dispatch (run 32507488659)
+    # ran past 30+ minutes with no sign of finishing and had to be
+    # cancelled by hand -- nothing told the run "the host looks dead,
+    # stop" before it ground through hundreds of 30s-timeout calls.
+    outdoor_row = {"game_id": "OUT", "season": 2024, "game_type": "REG",
+                   "week": 1, "gameday": "2024-09-08", "gametime": "13:00",
+                   "away_team": "X", "home_team": "Y", "location": "Home",
+                   "roof": "outdoors", "temp": None, "wind": None,
+                   "stadium": "Lambeau Field", "stadium_id": "1"}
+    fake_rows = [dict(outdoor_row, game_id=f"G{i}") for i in range(50)]
+
+    monkeypatch.setattr(GW, "_fetch_games", lambda: fake_rows)
+
+    calls = []
+    def always_fails(*a, **kw):
+        calls.append(1)
+        raise TimeoutError("simulated: host unreachable from this runner")
+    monkeypatch.setattr(GW, "_fetch_precip", always_fails)
+
+    import pytest
+    with pytest.raises(RuntimeError, match="consecutive precip fetches failed"):
+        GW.run()
+
+    # aborted at the floor, not after all 50 rows
+    assert len(calls) == GW.MAX_CONSECUTIVE_FAILURES
+
+
+def test_run_resets_the_failure_streak_on_any_success(monkeypatch):
+    outdoor_row = {"game_id": "OUT", "season": 2024, "game_type": "REG",
+                   "week": 1, "gameday": "2024-09-08", "gametime": "13:00",
+                   "away_team": "X", "home_team": "Y", "location": "Home",
+                   "roof": "outdoors", "temp": None, "wind": None,
+                   "stadium": "Lambeau Field", "stadium_id": "1"}
+    fake_rows = [dict(outdoor_row, game_id=f"G{i}") for i in range(30)]
+    monkeypatch.setattr(GW, "_fetch_games", lambda: fake_rows)
+
+    calls = []
+    def mostly_fails_but_not_consecutively(lat, lon, date, base_url):
+        calls.append(1)
+        # every 5th call succeeds -- streak never reaches the floor
+        if len(calls) % 5 == 0:
+            return {"hourly": {"time": [], "precipitation": []}}
+        raise TimeoutError("simulated intermittent failure")
+    monkeypatch.setattr(GW, "_fetch_precip", mostly_fails_but_not_consecutively)
+
+    doc = GW.run()  # must NOT raise -- the streak keeps resetting
+    assert len(calls) == 30
+
+
 def test_run_against_the_real_committed_schedule_finds_the_real_2026_neutral_games():
     rows = GW._fetch_games()
     neutral_2026 = [r for r in rows if r["season"] == 2026 and r["location"] == "Neutral"]

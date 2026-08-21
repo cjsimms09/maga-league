@@ -24,6 +24,16 @@ permissions:
 jobs:
   capture:
     runs-on: ubuntu-latest
+    # A real dispatch (2026-08-21, run 32507488659) ran past 30+ minutes with
+    # no sign of finishing and had to be cancelled by hand -- no per-call
+    # timeout in the module was the bug (each call is capped at 30s), but
+    # nothing capped the JOB, so a slow/blocked host (open-meteo from a
+    # GitHub-runner IP, unconfirmed either way -- the run's own logs were
+    # not recoverable after cancellation) could have ground through ~1000
+    # weather-relevant games serially for hours. This caps the blast radius
+    # regardless of root cause; the module's own fail-fast circuit breaker
+    # (below) is the other half.
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
