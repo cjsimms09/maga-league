@@ -122,8 +122,11 @@ it ourselves, we need to look at other models and duplicate."* Read out of
 floor/ceiling = **weighted 5th/95th percentile (Harrell–Davis)**, replacement =
 **QB13 · RB35 · WR36 · TE13 · K8 · DST3**, five sources weighted **zero**. **And
 it emits `rank`, `floor_rank` and `ceiling_rank` as THREE SEPARATE RANKINGS — it
-never adds ceiling into value.** Ours ships `VONA + 0.45 × ceiling` on every
-player at every pick; the textbook says upside is a **bench** instrument and
+never adds ceiling into value.** ~~Ours ships `VONA + 0.45 × ceiling` on every
+player at every pick~~ — **⚠️ 2026-08-21: OURS NO LONGER ADDS IT EITHER.
+`MEASURED_WEIGHTS.ceiling` is `0.0` (`engine.js:826`); Cory switched it off on
+08-20. So this paragraph now describes AGREEMENT with the reference model, not a
+gap** — the textbook says upside is a **bench** instrument and
 starters want the *low*-uncertainty side. **Cory's "why are we adding ceiling to
 everyone" is the reference implementation's position, not a preference.**
 Register 99. **The simple VONA model he asked for is also already ours:
@@ -142,13 +145,35 @@ that rested on them are re-run, and a real per-player upside signal now exists.
 preregistered runs across two independent seed sets said a non-zero `ceiling`
 weight beats zero — 3/3 seeds, separably, at every value from 0.15 to 0.65.
 
-**⚠️ CORRECTED 2026-08-18: this section said the weight "is held at zero through
+~~**⚠️ CORRECTED 2026-08-18: this section said the weight "is held at zero through
 the draft deliberately". THAT IS NO LONGER TRUE, AND HAS NOT BEEN SINCE
 `09f94f99` — "Ship Cory's ceiling ruling: MEASURED_WEIGHTS.ceiling 0 -> 0.45,
 with the full paperwork".** Verified in the live engine:
-`MEASURED_WEIGHTS.ceiling === 0.45`, and `app.js:52` seeds the board from it.
-Cory ruled, it shipped, and four documents went on describing the pre-ruling
-state — including this one, which is the file every session reads first.
+`MEASURED_WEIGHTS.ceiling === 0.45`, and `app.js:52` seeds the board from it.~~
+
+**⚠️⚠️ CORRECTED AGAIN 2026-08-21, AND THE CORRECTION ABOVE IS NOW THE STALE
+CLAIM: THE SHIPPED WEIGHT IS `ceiling: 0.0`.** Read off the constant, not
+inferred — `engine.js:826`, `MEASURED_WEIGHTS = { value 1.0, tier 0.0, need 1.0,
+risk 0.0, ceiling 0.0, keeper 1.0, bye 0.0, stack 1.0 }`. **Cory ruled it back
+to zero on 2026-08-20: *"switch it off, its so arbitrary."*** The record at the
+constant states why it is not a reversal of the 08-17 ruling: that ruling's
+evidence was taken against the ceilings live on 08-17, and **Draft Sharks became
+the ceiling source on 08-19 (189 of the draftable top 200), so the weight was
+multiplying an input its runs never saw.** Switching it off moves 8 of his 12
+picks; 33/48/53 are unchanged. The DS floor/ceiling stay on the board and travel
+to every source as a per-player ratio — what stopped is folding upside into one
+score, which is also what `ffanalytics` does NOT do (register 99).
+
+**THIS IS REGISTER 5h FOR THE THIRD TIME, AND THE SECOND TIME IN THIS FILE.**
+A weight ruling ships and the prose quoting the old number never follows. The
+08-18 correction was written to fix exactly this failure, in these words —
+*"four documents went on describing the pre-ruling state — including this one,
+which is the file every session reads first"* — and then became an instance of
+it within 48 hours. **Found 2026-08-21 only because a commit message from the
+night before justified a band fallback with "MEASURED_WEIGHTS.ceiling is 0.0"
+while this file said 0.45, and the two could not both be right.** Neither
+document was checked against the constant; one of them happened to be correct.
+**When a weight is quoted anywhere in this repo, read `engine.js:826`.**
 
 ~~**So ONE decision waits on Cory, not two:** the ADP-sd ratchet.~~ **⚠️ CORRECTED 2026-08-18: ZERO decisions wait on Cory. He ruled the ADP-sd ratchet on 08-17 — *"leave it"* — and `CORY-ASKS.md` ③ has carried it as ✅ CLOSED ever since.** The ceiling weight is decided too. **This sentence, in the file every session reads first, would have sent the next reader to ask Cory for a decision he had already made** — and it nearly sent me. Brief §7b.
 
@@ -159,13 +184,22 @@ tap on draft night reverts **both** Cory's ceiling ruling and the D10 stack
 ruling, disclosing only a date.~~
 
 **⚠️ CORRECTED 2026-08-19 — THAT IS FIXED AND THIS FILE WAS STILL CARRYING IT AS
-LIVE.** `app.js:779` pins `BASELINE_VERSION = 'v27'`, not v1, and the pin comment
-records the ruling (A, 2026-08-18, register 5g) and the reason: v1 predated both
-of Cory's rulings, so restore was a silent reversion of both. **Verified rather
-than read: v27 and v28 carry IDENTICAL `MEASURED_WEIGHTS`** — `{value 1, tier 0,
-need 0, risk 0, ceiling 0.45, keeper 1, bye 0, stack 1}` — so the button restores
-the ceiling and stack rulings rather than reverting them, and the localStorage key
-rotates with the pin so a cached v1 cannot shadow it.
+LIVE.** The restore button no longer pins v1, and the pin comment records the
+ruling (A, 2026-08-18, register 5g) and the reason: v1 predated both of Cory's
+rulings, so restore was a silent reversion of both. The localStorage key rotates
+with the pin, so a cached old baseline cannot shadow it.
+
+**⚠️ THE VERSION AND THE WEIGHTS IN THIS PARAGRAPH WERE BOTH STALE, RE-READ
+2026-08-21.** It said `app.js:779` pins `v27` carrying `ceiling 0.45, need 0`.
+Live: **`app.js:880` pins `BASELINE_VERSION = 'v31'`**, and v31 carries
+`{value 1, tier 0, need 1, risk 0, ceiling 0, keeper 1, bye 0, stack 1}` —
+**identical to the shipped `MEASURED_WEIGHTS`, so the button restores exactly
+what is live.** Both drifted values were the ones Cory has since ruled on
+(`need` 0→1.0 on 08-20, `ceiling` 0.45→0 on 08-20), which is the same register
+5h mechanism as the ceiling correction above: **the pin was updated four times
+and the prose describing it was updated zero times.** Register 5g is in better
+shape than this file claimed, not worse — but nobody could have known that from
+reading here.
 
 **Found because this claim was about to be dispatched to B as work.** The premise
 check killed the item before it cost B a trip — which is the point of Rule 3f, and
