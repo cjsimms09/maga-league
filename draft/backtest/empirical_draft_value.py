@@ -65,7 +65,24 @@ STARTER_RANK = {"RB": 24, "WR": 26, "QB": 10, "TE": 10}
 #   replacement IS the STARTER_RANK-th man's projection. Updating one
 #   without the other would leave this study comparing a level taken at
 #   rank 24 against a cliff measured at rank 21.
-BOARD_REPLACEMENT_2026 = {"RB": 170.47, "WR": 171.85, "QB": 350.26, "TE": 141.45}
+BOARD_REPLACEMENT_2026 = {"RB": 168.60, "WR": 170.10, "QB": 350.80, "TE": 141.70}
+# ^ RE-DERIVED 2026-08-20 from the published board, on the external
+#   reviewer's red-tests finding. Previous values
+#   {RB 170.47, WR 171.85, QB 350.26, TE 141.45} were the 08-19 board.
+#
+#   THE MOVE IS SMALL AND, UNLIKE THE 08-19 RE-DERIVATION, THE RANKS DID
+#   NOT MOVE WITH IT: RB -1.10%, WR -1.02%, QB +0.15%, TE +0.18%, while
+#   STARTER_RANK is still {RB 24, WR 26, QB 10, TE 10} on the board.
+#   The comment above warns that the pair must move together; here only
+#   one of them moved, which is the ordinary case of the market shifting
+#   a projection without shifting the flex allocation.
+#
+#   AND THE STUDY'S CONCLUSIONS DO NOT DEPEND ON THIS. Checked before
+#   updating rather than assumed: BOARD_REPLACEMENT_2026 is referenced
+#   in exactly ONE place besides its own definition — the reported field
+#   `board_replacement_2026_projection_space` — and never enters the
+#   cliff computation, which is built from realized outcomes. So this is
+#   a reported comparison figure catching up to the board, not a re-run.
 # ^ RE-DERIVED 2026-08-19 from the first board published with the MULTI-SOURCE
 #   MEAN (built_at 2026-08-19T05:11:30Z). The previous values were
 #   {RB 179.30, WR 162.60, QB 341.72, TE 136.40}, re-derived 2026-08-17.
@@ -579,17 +596,35 @@ def _piecewise_break(pts: list, lo: int = 4, hi_pad: int = 4) -> int | None:
         return None
     xs = list(range(1, n + 1))
     best, best_k = None, None
+    tried, failed, last_err = 0, 0, None
     for k in range(lo, n - hi_pad):
         # basis: 1, x, max(0, x-k) — the hinge keeps the two segments joined
         X = [[x, max(0.0, x - k)] for x in xs]
+        tried += 1
         try:
             c = ols(X, pts)
-        except Exception:
+        except Exception as exc:            # a singular fit at one k is normal
+            failed += 1
+            last_err = exc
             continue
         pred = [c[0] * x + c[1] * max(0.0, x - k) + c[2] for x in xs]
         sse = sum((p - q) ** 2 for p, q in zip(pts, pred))
         if best is None or sse < best:
             best, best_k = sse, k
+    # ⚠️ A NULL FROM A PROBE IS A BUG REPORT UNTIL THE PROBE HAS RETURNED A
+    # POSITIVE (Rule 3e). `except Exception: continue` is right for ONE k — a
+    # singular design matrix at a particular breakpoint is ordinary — and it is
+    # a lie when it happens at EVERY k, because then the function returns None
+    # and None already means "this curve has no break". Found 2026-08-20: with
+    # numpy absent, `ols` raises for every k, `_piecewise_break` returned None
+    # for a curve with a hinge PLANTED AT RANK 12, and the study would have
+    # published `piecewise_break_pooled: null` as a finding about football.
+    # "No cliff here" and "the fitter never ran" must not be the same answer.
+    if tried and failed == tried:
+        raise RuntimeError(
+            "_piecewise_break: the least-squares fit failed at ALL %d "
+            "breakpoints, so this is a broken fitter and not a curve without a "
+            "break. Last error: %r" % (tried, last_err))
     return best_k
 
 

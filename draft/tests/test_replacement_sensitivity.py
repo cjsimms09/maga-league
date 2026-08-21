@@ -517,3 +517,75 @@ def test_KNOWN_NEGATIVE_a_broken_model_still_fails_in_the_small_gap_branch():
         assert not (0 < broken <= 0.85), (
             f"a step of {broken} in the non-dominant regime would pass — the "
             "second branch is not asserting anything")
+
+
+def _tool_regime(gap, smooth, step_meas, pct=0.015):
+    """THE DIAGNOSIS TOOL'S partition, transcribed from
+    draft/tools/diagnose_refused_board.py. Kept here so the two can be compared
+    directly; the transcription itself is checked against the file below."""
+    g = gap * (1 + pct)
+    s = smooth
+    if g > 2 * s:
+        return "dominant", step_meas < 0 and -step_meas > s
+    if g > s:
+        return "exceeds", step_meas < 0 and -step_meas <= s + 1e-9
+    return "small", -1e-9 <= step_meas <= s + 1e-9
+
+
+def test_the_diagnosis_tool_agrees_with_the_test_it_diagnoses():
+    """⚠️ ADDED 2026-08-20 AFTER THE TOOL AND THE TEST DISAGREED IN CI.
+
+    `diagnose_refused_board.py` runs on every refused rebuild and its output is
+    the first thing a human reads. On run 32425450897 it printed "the
+    characterization test's properties DO NOT HOLD on this board" while this
+    file PASSED — because the tool still carried the ONE-regime rule (step DOWN
+    and discontinuous) that this test replaced with three regimes on 08-19.
+    A false alarm printed beside six real failures, on a refused rebuild two
+    days before the draft.
+
+    The tool's own header promises it "MEASURES, NEVER REIMPLEMENTS ... not a
+    second implementation that can drift from the first". This is what makes
+    that promise enforceable for the one verdict it does compute itself.
+
+    Driven across the identity's whole space, not just today's board — a check
+    that only exercises the current numbers would have passed all week while
+    the two implementations were already inconsistent."""
+    disagreements = []
+    for gap in (0.0, 0.4, 0.82, 0.9, 1.5, 1.7, 2.0, 5.0, 18.8):
+        for smooth in (0.5, 0.85, 0.9, 1.0):
+            _, step = _regime(gap, smooth)
+            _, tool_holds = _tool_regime(gap, smooth, step)
+            # this file's own partition, applied to the same identity
+            g, s = gap * 1.015, smooth
+            if g > 2 * s:
+                mine = step < 0 and -step > s
+            elif g > s:
+                mine = step < 0 and -step <= s + 1e-9
+            else:
+                mine = -1e-9 <= step <= s + 1e-9
+            if mine != tool_holds:
+                disagreements.append((gap, smooth, step, mine, tool_holds))
+    assert not disagreements, (
+        "the diagnosis tool and this test disagree about whether the "
+        f"characterization holds: {disagreements[:5]}")
+    #: non-vacuous — the identity must actually reach every regime in this grid,
+    #  or "they agree" is a statement about one branch wearing three names
+    regimes = {_tool_regime(g, s, _regime(g, s)[1])[0]
+               for g in (0.4, 1.5, 5.0) for s in (0.85,)}
+    assert regimes == {"small", "exceeds", "dominant"}, regimes
+
+
+def test_the_transcription_of_the_tool_is_honest():
+    """The test above compares this file against a TRANSCRIPTION of the tool,
+    which is worthless if the transcription has quietly been made to match.
+    So the real file is read and its branch conditions are required to be
+    present, verbatim enough to fail if someone changes a threshold."""
+    tool = (ROOT / "draft" / "tools" / "diagnose_refused_board.py").read_text()
+    i = tool.find("step_meas = flip_rep - rep_before")
+    assert i > 0, "the tool no longer computes the measured step where expected"
+    block = tool[i:i + 1200]
+    assert "if g > 2 * s:" in block, block[:400]
+    assert "elif g > s:" in block, block[:400]
+    assert "-step_meas > s" in block, block[:400]
+    assert "-step_meas <= s + 1e-9" in block, block[:400]
+    assert "-1e-9 <= step_meas <= s + 1e-9" in block, block[:400]

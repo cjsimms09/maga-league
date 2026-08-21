@@ -50,11 +50,30 @@ jobs:
           SITE_URL: ${{ vars.SITE_URL }}
           GRADE_CRON_KEY: ${{ secrets.GRADE_CRON_KEY }}
         run: node draft/tools/weekly_grade_runner.js
+      # ⭐ DECISION-NULL GRADING, WIRED. Cory, 2026-08-21: "See how we have
+      # implemented this grading scale into our model, did we make good change
+      # or was this dumb?" It was half-right and it was NOT WIRED -- the
+      # adaptation policy named `skill_luck_r.py` as the skill instrument and
+      # NOTHING CALLED IT: no grader, no CI, no workflow. A rule with no
+      # mechanism decays, which is this project's own standard.
+      #
+      # This is the mechanism. It grades a DECISION against a constructed null
+      # of random legal alternatives (Getty et al.'s Test 3) rather than an
+      # outcome against nine other owners (their Test 4, which at our skill
+      # spread has 12% power and will not resolve in the lifetime of the
+      # league). Its own controls run on every invocation -- a random-lineup
+      # owner must land at ~0.5 and an oracle at ~1.0 -- and it exits non-zero
+      # if they fail, so a broken instrument reds the run instead of printing a
+      # confident number.
+      - name: Grade DECISIONS against their nulls (start/sit vs random legal lineup)
+        run: python3 draft/backtest/start_sit_vs_random.py
+
       - name: Commit the refreshed loop artifacts
         run: |
           git config user.name lab-bot
           git config user.email lab-bot@users.noreply.github.com
           git add draft/data/component_grades.json
+          git add draft/backtest/start_sit_vs_random.json
           git add draft/data/model_update_recommendations.json
           # the mirror only exists once SITE_URL is configured and grade-cron
           # has produced a snapshot — absent is a named preseason state

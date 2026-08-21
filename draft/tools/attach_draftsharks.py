@@ -69,10 +69,86 @@ _ds_by_id = {str(r["sleeper_id"]): r for r in (_ds.get("players") or [])
              if r.get("sleeper_id") is not None}
 before = copy.deepcopy(board["players"])
 
+# ── POSITION-MEDIAN BAND RATIOS, computed from THIS run's Draft Sharks rows ──
+#
+# Added 2026-08-20 as the third fallback, because the second one has a hole a
+# fresh board falls straight into. `pre_ds_pct` rescales a player's OWN prior
+# band -- but a freshly BUILT board has no prior, and for a player our own
+# pipeline scores at zero there is nothing to rescale. The result was
+# floor == ceiling == mean, and a flat band does not read as "we don't know",
+# it prices a man as having NO UPSIDE.
+#
+# Measured on the committed board, over the players who DO carry a real Draft
+# Sharks band (ceiling/mean, floor/mean by position):
+#   QB 1.337/0.909 (n=30) · RB 1.810/0.855 (78) · WR 1.403/0.859 (70)
+#   TE 1.305/0.893 (26) · K 1.157/0.965 (22) · DEF 1.206/0.928 (21)
+# They differ by position by a lot, which is why this is per-position and not
+# one number.
+#
+# THIS IS AN ABSTENTION WITH A SHAPE, NOT AN INVENTED PLAYER-SPECIFIC CLAIM,
+# and it is stamped as such so no consumer can mistake it for a measured band.
+# It is applied ONLY where both better sources are absent.
+#
+# ⚠️ AND IT CANNOT MOVE A PICK. `MEASURED_WEIGHTS.ceiling` is 0.0 (Cory's
+# 2026-08-20 ruling), so proj_ceiling does not enter the score at all; this
+# changes what is DISPLAYED and what the rough dollar panel reads, nothing the
+# engine ranks on.
+def _position_band_medians(players, ds_by_id):
+    """⚠️ READS THE RAW DRAFT SHARKS ROWS, NOT THE BOARD'S OWN proj_ds FIELDS,
+    AND THAT DISTINCTION IS THE WHOLE BUG THIS FUNCTION SHIPPED WITH.
+
+    The first version read `q["proj_ds"] / q["proj_ds_ceiling"]` off the board.
+    Those fields are written by the loop BELOW this line -- so on a freshly
+    BUILT board they do not exist yet, every position fell under the
+    minimum-sample floor, `_BAND_MEDIAN` came out EMPTY, and the fallback never
+    fired. Run 32429844489 refused the publish with Jayden Higgins still flat.
+
+    My control missed it because I ran it against the COMMITTED board, which
+    already carried proj_ds from a previous attach. It passed for the wrong
+    reason. That is the second time tonight I have verified something against
+    the committed artifact when the question was about a fresh one (the first
+    was alt_source_rankings' byte-identity check), so it is written here rather
+    than only in a commit message: WHEN A TOOL RUNS INSIDE THE BUILD CHAIN, ITS
+    CONTROL MUST USE THE STATE IT SEES AT THAT POINT IN THE CHAIN, not the
+    state of the artifact sitting in the repo.
+
+    `ds_by_id` is the raw Draft Sharks capture, keyed by sleeper_id, and it is
+    loaded before the loop -- so it is true of both boards.
+    """
+    from statistics import median as _median
+    acc = {}
+    for q in players:
+        row = ds_by_id.get(str(q.get("player_id")))
+        if not row:
+            continue
+        ds = row.get("ds_proj") or row.get("proj")
+        dsc, dsf = row.get("ceil_proj"), row.get("floor_proj")
+        if not (ds and ds > 0 and dsc is not None and dsf is not None):
+            continue
+        acc.setdefault(q.get("position"), []).append((dsc / ds, dsf / ds))
+    out = {}
+    for pos, rows in acc.items():
+        if len(rows) < 8:            # too few to call a norm
+            continue
+        out[pos] = (_median(r[0] for r in rows), _median(r[1] for r in rows))
+    return out
+
+_BAND_MEDIAN = _position_band_medians(board["players"], _ds_by_id)
+#: LOUD IF EMPTY. A silent empty map is what shipped the bug above -- the
+#  fallback simply never fired and the board looked merely unlucky.
+if not _BAND_MEDIAN:
+    print("  ! position band medians came out EMPTY — the third band fallback "
+          "cannot fire. This is a broken join, not a board without bands.")
+else:
+    print("  position band medians (ceil/floor ratios): "
+          + ", ".join("%s %.3f/%.3f" % (k, v[0], v[1])
+                      for k, v in sorted(_BAND_MEDIAN.items())))
+
 matched = 0
 banded = 0
 kept_band = 0
 no_band = 0
+pos_median = 0
 for p in board["players"]:
     b = bl.get(str(p.get("player_id")))
     if not b or b.get("proj") is None:
@@ -157,14 +233,26 @@ for p in board["players"]:
             p["proj_ceiling_source"] = "pre-DS band %, rescaled to the blended mean"
             p["ds_band_from"] = "pre_ds_pct"
         else:
-            no_band += 1
-            # genuinely no band anywhere: collapse, and SAY so rather than
-            # letting a flat band read as a measured one.
-            p["proj_floor"] = b["proj"]
-            p["proj_ceiling"] = b["proj"]
-            p["proj_floor_source"] = "none — no band from Draft Sharks or the prior board"
-            p["proj_ceiling_source"] = "none — no band from Draft Sharks or the prior board"
-            p["ds_band_from"] = None
+            med = _BAND_MEDIAN.get(p.get("position"))
+            if med and b["proj"] and b["proj"] > 0:
+                # THE THIRD FALLBACK — see _position_band_medians above.
+                pos_median += 1
+                p["proj_floor"] = round(b["proj"] * med[1], 2)
+                p["proj_ceiling"] = round(b["proj"] * med[0], 2)
+                _st = ("position-median band %, no player-specific band "
+                       "available — ABSTENTION, not a measurement")
+                p["proj_floor_source"] = _st
+                p["proj_ceiling_source"] = _st
+                p["ds_band_from"] = "position_median_pct"
+            else:
+                no_band += 1
+                # nothing anywhere, not even a positional norm: collapse, and
+                # SAY so rather than letting a flat band read as a measured one.
+                p["proj_floor"] = b["proj"]
+                p["proj_ceiling"] = b["proj"]
+                p["proj_floor_source"] = "none — no band from Draft Sharks or the prior board"
+                p["proj_ceiling_source"] = "none — no band from Draft Sharks or the prior board"
+                p["ds_band_from"] = None
 
 # ── re-derive everything that is computed FROM proj_mean ────────────────────
 cfg = board.get("league") or {}

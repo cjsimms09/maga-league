@@ -72,13 +72,62 @@ valuation), written to be copied.
 
 ### Amendments to the standard from the SIAM skill-luck paper (Cory's upload, 08-20)
 
-* **The skill-design menu explicitly includes split-half persistence**:
-  `draft/tools/skill_luck_r.py` (R* + its Monte-Carlo null band; controls
-  green). Any arm, tool, or edge with ≥20 graded outcomes reports R* beside
-  its mean. **A naked R* — or any split-half statistic — without its null band
-  bounces at the Wednesday sweep**; at small m the null band is enormous and
-  the statistic alone misleads (measured: fair coins drew R*=−0.54 on one
-  seed; our own league's W/L R*=0.68 sits INSIDE its m=10 null band).
+* ~~**The skill-design menu explicitly includes split-half persistence**:
+  any arm, tool, or edge with ≥20 graded outcomes reports R* beside its mean.~~
+  **⚠️ SUPERSEDED 2026-08-21 — THE ≥20 THRESHOLD WAS FAR TOO LOW AND THE RULE
+  HAD NO MECHANISM.** Two defects, both measured:
+
+  **(a) n≥20 prescribes on the wrong quantity.** Power for R* is driven by the
+  size of the real EFFECT, not by the outcome count. Measured on synthetic
+  leagues with a known persistent spread (25 seeds/cell, MC null per draw), at
+  our league's own spread of ≈0.106 (observed all-play range .366–.578):
+
+  | true spread | n=50 (today) | n=100 (~6 seasons) | n=150 (~9 seasons) |
+  |---|---|---|---|
+  | **0.10 ← ours** | **12%** | **16%** | **20%** |
+  | 0.20 | 60% | 88% | 96% |
+
+  A threshold that admits n=20 manufactures non-significant numbers that then
+  get quoted as *"not skill"* — **a false negative dressed as a finding**,
+  which is exactly rule 3e's shape. Nine more seasons still leaves us at 20%.
+  Corrected: **R* is not required of any arm, and is not to be run on league
+  standings as a certification at all.** It stays available as a descriptive
+  instrument, and its null band remains mandatory whenever it IS quoted.
+
+  **(b) NOTHING CALLED `skill_luck_r.py`.** No grader, no CI check, no
+  workflow — a tool sitting beside a policy sentence with no mechanism behind
+  it. By this file's own enforcement principle that is a rule that decays, and
+  it had already begun to: the sentence was written on 08-20 and was still
+  unwired on 08-21.
+
+* **⭐ WHAT REPLACES IT — GRADE THE DECISION AGAINST A CONSTRUCTED NULL, NOT
+  THE OUTCOME AGAINST OTHER OWNERS.** Getty et al.'s paper carries FOUR tests
+  and we had implemented only the fourth (persistence). Its **third** — *"do
+  the ACTIONS a player takes have statistically significant impact on
+  payoffs?"* — is answered by comparing the real decision against a Monte-Carlo
+  null of random LEGAL alternatives. **The null is built PER DECISION, so power
+  scales with the number of decisions rather than the number of competitors**,
+  and a ten-owner league stops being the binding constraint.
+
+  Demonstrated, not asserted: `draft/backtest/start_sit_vs_random.py` grades
+  530 owner-weeks of start/sit against random legal lineups from the same
+  roster. **Mean percentile 0.8497 against a null band of [0.4754, 0.5246]** —
+  a decisive answer from the same league and seasons where R* could not
+  produce one. Controls run on every invocation: random-lineup owner 0.510,
+  oracle owner 0.999.
+
+  **THE STANDARD, AS THE SKILL-DESIGN MENU'S FIRST ENTRY:** a graded decision
+  states the null it was graded against and that null must be CONSTRUCTIBLE —
+  random legal lineup, random available player at the position, random legal
+  pick from the board at that moment. A grade with no constructible null is a
+  weather report.
+
+  **AND REPORT THE MARGIN IN THE UNIT THAT PAYS, NOT THE PERCENTILE.** "Beats
+  random" is a low bar — random benches your stars. The number that moves a
+  decision is the gap to the perfect-hindsight choice: **the league leaves 15.90
+  points on the bench per week; Cory 17.33 ± 1.68, the best owner 12.06 ± 1.43,
+  a gap of ≈2.4 SE worth ~74 points a season.** Ranks between adjacent owners
+  are inside one SE and are NOT findings; say so wherever the table is shown.
 * **Quick-kill creates a quitting-boundary bias in our own records** (the
   paper's boundary-layer finding, pointed at ourselves): benching an arm after
   3 bad weeks truncates its record at its worst and flatters every survivor.
@@ -108,3 +157,71 @@ grading harness) **go to the OpenAI auditor via A before they are relied on.
 Individual rows and routine grades do not.** The 08-20 loop-governance
 package (this standard, the CI gate, `skill_luck_r.py`) is the first
 submission under this ruling — routed in ROUTES the same day.
+
+**AMENDED BY CORY, 08-21, verbatim: "Every audit cost money!! Once you think
+we're too a point you can correct then stop sending."** Operationalized (the
+judgment call is A/relay's, per B's correct read): a structural change is
+submitted only when **(a)** it is a NEW CLASS of change the auditor has not
+yet confirmed, or **(b)** internal review has a named disagreement it cannot
+settle. Once a class is audit-confirmed AND our own gates demonstrably catch
+that class's mistakes, submissions of that class STOP. The evidence standard
+is the gate catch-record, not a feeling — 08-20/21 already shows it working
+twice (the relay's ledger pipe-split and A's defect re-instance, each caught
+by our own gates in one run). The queued 08-20 consolidated package
+(bench-option + loop governance + the friction three-run study) completes
+its round-trip as those classes' confirmation; after it, same-class changes
+go internal-first.
+
+## THE CROSS-PROPAGATION RULE (Cory, 08-21: "Make it a rule!")
+
+Cory's question, verbatim: *"if one prediction is graded and finds a
+correlation or pattern, should the others try to use it as well? Or does this
+contaminate everything?"* Ruled: **propagate, mandatorily — but through the
+ledger, never directly.** The contamination risks have names (selection noise
+— the P3/P4 killer; correlated failure — shared priors end the mutual-catch
+culture; data reuse — a pattern "confirmed" on the data it came from), and one
+hop of quarantine defeats all three:
+
+1. **A graded finding propagates as a HYPOTHESIS, never as an edit.** When a
+   grade surfaces a pattern, the relay (rule 3g owner) routes it to the other
+   lanes as NEW preregistered prediction rows — "this pattern, applied to tool
+   Y, will do Z, grade by DATE." Nothing is written into another tool's
+   weights, thresholds, or logic on the strength of the first grade.
+2. **A pattern must win TWICE ON DIFFERENT DATA before it ships.** Only the
+   second, out-of-sample grade in the destination tool's own context earns
+   implementation. The first grade nominates; the second grade decides.
+3. **A frozen no-learning baseline runs forever.** One arm that never absorbs
+   any propagated pattern (the BEST-OF-K-family null BLEND-SEARCH-DESIGN
+   already owes) is graded alongside the learning-enabled arms. If learning
+   cannot beat the arm that ignored every finding, the loop is circulating
+   noise, and the /admin/loop page should show that comparison the day the
+   first cross-propagated prediction grades.
+
+**Enforced, not promised** (effective from P298, post the 08-21 renumber):
+`prediction_ledger_check.js` fails the build on any row whose *what changed*
+cell claims an implementation (the IMPLEMENT token) without naming its
+second grade (`second-grade:P<n>`), declaring it pending
+(`pending-second-grade`), or carrying a labeled exemption (`exempt:
+<reason>` — e.g. a pure capture with nothing to cross-validate). A false
+positive costs one explicit marker; a silent direct-edit is exactly the
+contamination Cory asked about.
+
+**Audit note:** this is a new structural class under the 08-20 audit ruling;
+it rides with A's queued consolidated package rather than a fresh
+submission (Cory 08-21: "Every audit cost money!!").
+
+
+## GRADING-POLICY.md SUPERSEDES THE SKILL-DESIGN MECHANICS (A, ruled by Cory, 08-21)
+
+The three-part filing standard stands unchanged — but the SKILL DESIGN part of
+any DECISION-type row now means the four requirements of `GRADING-POLICY.md`:
+the decision and its moment · a CONSTRUCTIBLE null of the legal alternatives ·
+two controls that run every time and gate the exit code (a control that cannot
+fail is worse than none) · the margin in the unit that pays. The 08-20
+split-half/R* rule is WITHDRAWN as a skill instrument (12% power at our
+measured spread); R* is descriptive only. Captures stay exempt but must say so
+in the SKILL DESIGN cell. Cory's escalation, verbatim: "make sure everyone
+implements including for things we've already started!!" — rows and
+instruments with an ACTIVE grading design convert now; dormant back-catalog
+rows convert on the existing 2026-09-10 clock. The relay's Wednesday sweep
+enforces the four requirements in place of the withdrawn n>=20 rule.

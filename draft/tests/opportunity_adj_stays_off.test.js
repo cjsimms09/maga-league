@@ -70,13 +70,43 @@ const P = B.players;
   ck('E3 DORMANT: no player sits at the old 0.15 cap (the row measured 30, '
     + '22 of them top-50)', adj.filter(v => v === 0.15).length === 0);
 
-  const both = P.filter(p => p.proj_sleeper != null && p.proj_mean != null);
-  const scaled = both.filter(p => Math.abs(p.proj_mean - p.proj_sleeper) > 1e-9);
-  ck('E3 DORMANT: `proj_mean` is no longer Sleeper SCALED — it equals '
-    + '`proj_sleeper` exactly for every player, so the x1.1500 the row found on '
-    + '21 of the top 24 is gone',
-  both.length > 400 && scaled.length === 0,
-  { compared: both.length, still_scaled: scaled.length });
+  /* ⚠️ REWRITTEN 2026-08-20. THIS ASSERTED A WORLD THAT NO LONGER EXISTS, and
+   * it was one of eleven draft-critical suites found red by the classifier the
+   * external reviewer asked for (draft/tools/draft_critical.js).
+   *
+   * It required `proj_mean === proj_sleeper` EXACTLY for every player. That was
+   * the right test when proj_mean WAS Sleeper's number and the E3 defect was a
+   * uniform x1.15 rescale of it. proj_mean is now the mean of SEVEN sources,
+   * centred per position, so it differs from Sleeper on 525 of 610 players by
+   * construction — and the test read that as the defect returning.
+   *
+   * THE DEFECT E3 NAMED IS A CONSTANT MULTIPLE, so that is what is asserted
+   * now, and it is a stronger check than equality ever was: a board where
+   * proj_mean is Sleeper x k for a fixed k would pass the old test's INTENT
+   * only by failing its letter, and would pass nothing here.
+   *
+   * Measured on the committed board before this was written: the
+   * proj_mean/proj_sleeper ratio has median 1.0249, p10 0.7739, p90 1.5980 —
+   * a wide player-specific spread, which is exactly what a genuine blend looks
+   * like and exactly what a rescale does not. */
+  const both = P.filter(p => p.proj_sleeper != null && p.proj_mean != null
+    && p.proj_sleeper > 0);
+  const ratios = both.map(p => p.proj_mean / p.proj_sleeper).sort((a, b) => a - b);
+  const q = f => ratios[Math.floor(ratios.length * f)];
+  const spread = q(0.9) - q(0.1);
+  ck('E3 DORMANT: `proj_mean` is not a CONSTANT MULTIPLE of `proj_sleeper` — '
+    + 'the x1.1500 the row found on 21 of the top 24 is gone, and the blend '
+    + 'disagrees with Sleeper player by player rather than by a factor',
+  both.length > 400 && spread > 0.25,
+  { compared: both.length, p10: q(0.1), median: q(0.5), p90: q(0.9), spread });
+
+  //: CONTROL — a genuine rescale must FAIL the check above, or "the spread is
+  //  wide" is a sentence about nothing. Built here rather than trusted.
+  const fake = both.map(p => 1.15);
+  const fq = f => fake[Math.floor(fake.length * f)];
+  ck('CONTROL: a uniform x1.15 rescale — the actual E3 defect — would be caught',
+    !(fake.length > 400 && (fq(0.9) - fq(0.1)) > 0.25),
+    { spread_of_a_constant: fq(0.9) - fq(0.1) });
 }
 
 // ── 3. E4 — SYMMETRIC, BECAUSE EVERY POSITION GETS ZERO ────────────────────

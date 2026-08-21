@@ -1427,6 +1427,66 @@ def _keeper_map_for_board(full_map: dict, slate: dict, cfg: dict):
     if (slate or {}).get("status") == "confirmed":
         return full_map, {"withheld": False, "teams": 0, "keepers": 0,
                           "reason": "slate confirmed — every designation applied"}
+
+    # ── CORY'S RULING, VERBATIM: "Locks once deadline passes." ─────────────
+    #
+    # ⚠️ THE DATE IS DELIBERATELY NOT WRITTEN HERE. `test_keeper_lock_flag`
+    # forbids ANY keeper-lock date literal in this file — E25's defect was the
+    # repo holding two keeper-lock dates that nobody reconciled, and the guard
+    # cannot tell a ruling date from a deadline. It refused a rebuild over my
+    # comment, which is the guard working. The date lives in
+    # league_config.json, which is the one place it should.
+    #
+    # THE SECOND SWITCH, AND THE ONE THAT WILL ACTUALLY FIRE THIS YEAR. Six of
+    # ten teams have designated. `status` only reaches 'confirmed' at ten of
+    # ten, and the lock passing did not move it — driven with a synthetic clock
+    # on 08-20, `status` was 'partial' at 17:59 AND at 18:01. So without this
+    # branch the board would have gone into Saturday still withholding 13 real
+    # keepers from 5 opponents, and Cory would have read 13 gone players as
+    # available. Register 169.
+    #
+    # WHY THIS IS NOT A HOLE IN THE GATE ABOVE. The withholding argument is
+    # good and it is deliberately preserved: a board on a partial slate is
+    # "authoritative-looking, wrong, and — the fatal part — IT ALREADY MOVED
+    # ONCE", so the move that matters carries no signal. That reasoning is
+    # correct BEFORE the deadline and inverts after it. Once the lock passes
+    # there is no later move: by league rule a team that has not designated has
+    # designated nobody. The gate's own principle — "Empty designations are
+    # UNKNOWN, never zero" — is exactly right until 18:00 and exactly wrong at
+    # 18:01, because the deadline is what resolves UNKNOWN into zero.
+    #
+    # The move at the deadline IS the move that matters, which is this gate's
+    # own standard applied to the one moment it did not cover.
+    if (slate or {}).get("keeper_lock_passed"):
+        held = sum(len(v) for k, v in full_map.items() if str(k) != str(my_slot))
+        st = (slate or {}).get("status")
+        # ⚠️ RELEASING FROM A STATE WE COULD NOT VERIFY IS STILL THE RIGHT CALL
+        # AND MUST NOT BE SILENT. `unverified` means Sleeper was unreachable;
+        # `mismatch` means designations and placements DISAGREE. In both, the
+        # map applied here may be stale or internally inconsistent — but the
+        # alternative is withholding, which leaves Cory reading gone players as
+        # available at 8 seconds a pick, and that is the worse error. So it
+        # releases and STAMPS the state it released from, where the war room
+        # and the freeze can both see it.
+        caveat = (st in ("unverified", "mismatch"))
+        if caveat:
+            print(f"  ! keepers RELEASED at the lock from a '{st}' slate — "
+                  "applied because the deadline has passed, but the slate "
+                  "itself could not be verified. Stamped on the artifact.")
+        return full_map, {
+            "withheld": False,
+            "teams": 0,
+            "keepers": 0,
+            "released_at_lock": held,
+            "released_from_status": st,
+            "released_unverified": caveat,
+            "reason": "the keeper lock has PASSED, so every designation on the "
+                      "board is final by league rule and all of them are "
+                      "applied — Cory's ruling, 'Locks once deadline passes'. "
+                      "A team with no designation is keeping nobody; "
+                      "before the deadline that was UNKNOWN and withheld, which "
+                      "is what the branch above still does.",
+        }
     mine = {}
     for k in (my_slot, str(my_slot)):
         if k in full_map:

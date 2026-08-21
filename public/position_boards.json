@@ -4,7 +4,7 @@
  "_sources": "projections/floor/ceiling = Draft Sharks; ADP/adp_sd = our board (Sleeper/FantasyPros)",
  "_blend_toggle_caveat": "proj/floor/ceiling are Draft Sharks, which SELECTS and RANKS every list here — that is unchanged. proj_blend/floor_blend/ceiling_blend carry the SAME already-selected player's blend numbers (public/draft_data.json's proj_mean/proj_floor/proj_ceiling) for the war room's toggle to display instead. They never change who is in the list or its order — every player here has a Draft Sharks line by construction, so the blend fields are always present too.",
  "_survival_caveat": "pct_still_there_next_pick is ADP-DRAIN ONLY over 300 simulated rooms. The war room MUST override it with survival.js, which composes ADP with opponent-need Layer 2 and needs live draft context.",
- "built_at": "2026-08-19T08:52:22Z",
+ "built_at": "2026-08-21T00:29:00Z",
  "rooms": 300,
  "adjuster_a": 0,
  "top_n": {
@@ -31,8 +31,8 @@
    "positions": {
     "QB": {
      "best_now": 340,
-     "expected_best_at_next_pick": 338.6,
-     "VONA": 1.4,
+     "expected_best_at_next_pick": 338.8,
+     "VONA": 1.3,
      "surplus_over_wire": 17.1,
      "cliff_after_rank": 2,
      "cliff_size": 3,
@@ -50,9 +50,9 @@
        "proj_blend": 376.3,
        "floor_blend": 331,
        "ceiling_blend": 484.8,
-       "adp": 33.5,
-       "pct_available_now": 66,
-       "pct_still_there_next_pick": 12,
+       "adp": 34.4,
+       "pct_available_now": 71,
+       "pct_still_there_next_pick": 13,
        "surplus_over_wire": 17.1
       },
       {
@@ -67,9 +67,9 @@
        "proj_blend": 374,
        "floor_blend": 325.6,
        "ceiling_blend": 470.8,
-       "adp": 48,
+       "adp": 48.8,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 78,
+       "pct_still_there_next_pick": 79,
        "surplus_over_wire": 17.1
       },
       {
@@ -84,9 +84,9 @@
        "proj_blend": 368.2,
        "floor_blend": 316.9,
        "ceiling_blend": 460,
-       "adp": 50.5,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 74,
+       "adp": 49.8,
+       "pct_available_now": 97,
+       "pct_still_there_next_pick": 73,
        "surplus_over_wire": 14.1
       },
       {
@@ -101,7 +101,7 @@
        "proj_blend": 359.9,
        "floor_blend": 309.2,
        "ceiling_blend": 467.6,
-       "adp": 56.9,
+       "adp": 56.1,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 94,
        "surplus_over_wire": 11.1
@@ -118,9 +118,9 @@
        "proj_blend": 364,
        "floor_blend": 316.8,
        "ceiling_blend": 472.9,
-       "adp": 58.9,
+       "adp": 58.8,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 89,
+       "pct_still_there_next_pick": 90,
        "surplus_over_wire": 8.1
       },
       {
@@ -137,15 +137,15 @@
        "ceiling_blend": 442.5,
        "adp": 81.4,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 99,
+       "pct_still_there_next_pick": 100,
        "surplus_over_wire": 6.1
       }
      ]
     },
     "RB": {
      "best_now": 234,
-     "expected_best_at_next_pick": 199,
-     "VONA": 35,
+     "expected_best_at_next_pick": 198.9,
+     "VONA": 35.1,
      "surplus_over_wire": 155.6,
      "cliff_after_rank": 1,
      "cliff_size": 10,
@@ -164,7 +164,7 @@
        "floor_blend": 165.5,
        "ceiling_blend": 277.5,
        "adp": 26.1,
-       "pct_available_now": 21,
+       "pct_available_now": 22,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 155.6
       },
@@ -181,7 +181,7 @@
        "floor_blend": 186.7,
        "ceiling_blend": 279,
        "adp": 29.8,
-       "pct_available_now": 56,
+       "pct_available_now": 50,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 145.6
       },
@@ -198,7 +198,7 @@
        "floor_blend": 187.4,
        "ceiling_blend": 273.3,
        "adp": 28.8,
-       "pct_available_now": 48,
+       "pct_available_now": 49,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 144.6
       },
@@ -215,7 +215,7 @@
        "floor_blend": 190.4,
        "ceiling_blend": 278.2,
        "adp": 24.5,
-       "pct_available_now": 8,
+       "pct_available_now": 10,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 138.6
       },
@@ -232,7 +232,7 @@
        "floor_blend": 193.8,
        "ceiling_blend": 320,
        "adp": 23.1,
-       "pct_available_now": 8,
+       "pct_available_now": 9,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 136.6
       },
@@ -248,9 +248,9 @@
        "proj_blend": 205.2,
        "floor_blend": 186.5,
        "ceiling_blend": 285.1,
-       "adp": 38,
+       "adp": 38.1,
        "pct_available_now": 98,
-       "pct_still_there_next_pick": 8,
+       "pct_still_there_next_pick": 9,
        "surplus_over_wire": 129.6
       },
       {
@@ -265,9 +265,9 @@
        "proj_blend": 198.5,
        "floor_blend": 168.8,
        "ceiling_blend": 262.8,
-       "adp": 47.3,
+       "adp": 47.1,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 72,
+       "pct_still_there_next_pick": 73,
        "surplus_over_wire": 128.6
       },
       {
@@ -282,9 +282,9 @@
        "proj_blend": 204.6,
        "floor_blend": 167.3,
        "ceiling_blend": 276.1,
-       "adp": 32.6,
-       "pct_available_now": 86,
-       "pct_still_there_next_pick": 0,
+       "adp": 33.5,
+       "pct_available_now": 90,
+       "pct_still_there_next_pick": 1,
        "surplus_over_wire": 124.6
       },
       {
@@ -301,7 +301,7 @@
        "ceiling_blend": 255.8,
        "adp": 45.5,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 62,
+       "pct_still_there_next_pick": 61,
        "surplus_over_wire": 118.6
       },
       {
@@ -317,16 +317,16 @@
        "floor_blend": 167.4,
        "ceiling_blend": 272.9,
        "adp": 43.3,
-       "pct_available_now": 99,
-       "pct_still_there_next_pick": 51,
+       "pct_available_now": 100,
+       "pct_still_there_next_pick": 52,
        "surplus_over_wire": 111.6
       }
      ]
     },
     "WR": {
      "best_now": 224,
-     "expected_best_at_next_pick": 194.3,
-     "VONA": 29.7,
+     "expected_best_at_next_pick": 194.2,
+     "VONA": 29.8,
      "surplus_over_wire": 99.2,
      "cliff_after_rank": 1,
      "cliff_size": 16,
@@ -344,8 +344,8 @@
        "proj_blend": 217.4,
        "floor_blend": 165,
        "ceiling_blend": 263,
-       "adp": 27.3,
-       "pct_available_now": 26,
+       "adp": 28.1,
+       "pct_available_now": 38,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 99.2
       },
@@ -361,8 +361,8 @@
        "proj_blend": 198.4,
        "floor_blend": 176.5,
        "ceiling_blend": 231.8,
-       "adp": 34.2,
-       "pct_available_now": 97,
+       "adp": 32.7,
+       "pct_available_now": 91,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 83.2
       },
@@ -395,8 +395,8 @@
        "proj_blend": 195.5,
        "floor_blend": 153.3,
        "ceiling_blend": 280,
-       "adp": 28,
-       "pct_available_now": 34,
+       "adp": 27.2,
+       "pct_available_now": 26,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 74.2
       },
@@ -412,8 +412,8 @@
        "proj_blend": 191.4,
        "floor_blend": 176,
        "ceiling_blend": 240.5,
-       "adp": 30.8,
-       "pct_available_now": 72,
+       "adp": 30.7,
+       "pct_available_now": 71,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 74.2
       },
@@ -446,7 +446,7 @@
        "proj_blend": 168.2,
        "floor_blend": 139.6,
        "ceiling_blend": 215,
-       "adp": 63.4,
+       "adp": 63.6,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 69.2
@@ -463,7 +463,7 @@
        "proj_blend": 184.9,
        "floor_blend": 151.4,
        "ceiling_blend": 232.8,
-       "adp": 54.7,
+       "adp": 54.6,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 68.2
@@ -480,9 +480,9 @@
        "proj_blend": 175.5,
        "floor_blend": 149.1,
        "ceiling_blend": 224.6,
-       "adp": 44.3,
+       "adp": 44,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 56,
+       "pct_still_there_next_pick": 53,
        "surplus_over_wire": 68.2
       },
       {
@@ -497,17 +497,17 @@
        "proj_blend": 189.5,
        "floor_blend": 169,
        "ceiling_blend": 245.8,
-       "adp": 37,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 4,
+       "adp": 36.2,
+       "pct_available_now": 97,
+       "pct_still_there_next_pick": 2,
        "surplus_over_wire": 60.2
       }
      ]
     },
     "TE": {
      "best_now": 209,
-     "expected_best_at_next_pick": 177.3,
-     "VONA": 31.7,
+     "expected_best_at_next_pick": 177.4,
+     "VONA": 31.6,
      "surplus_over_wire": 78.6,
      "cliff_after_rank": 4,
      "cliff_size": 21,
@@ -542,8 +542,8 @@
        "proj_blend": 194.9,
        "floor_blend": 181.3,
        "ceiling_blend": 233.7,
-       "adp": 19.8,
-       "pct_available_now": 8,
+       "adp": 19.9,
+       "pct_available_now": 7,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 70.6
       },
@@ -559,9 +559,9 @@
        "proj_blend": 173.7,
        "floor_blend": 142.8,
        "ceiling_blend": 209,
-       "adp": 39.3,
+       "adp": 39.2,
        "pct_available_now": 86,
-       "pct_still_there_next_pick": 31,
+       "pct_still_there_next_pick": 32,
        "surplus_over_wire": 66.6
       },
       {
@@ -576,9 +576,9 @@
        "proj_blend": 163.9,
        "floor_blend": 137.8,
        "ceiling_blend": 194.5,
-       "adp": 46.4,
+       "adp": 46.3,
        "pct_available_now": 98,
-       "pct_still_there_next_pick": 67,
+       "pct_still_there_next_pick": 66,
        "surplus_over_wire": 51.6
       },
       {
@@ -593,7 +593,7 @@
        "proj_blend": 146.5,
        "floor_blend": 126.5,
        "ceiling_blend": 193.8,
-       "adp": 62.3,
+       "adp": 62.2,
        "pct_available_now": 99,
        "pct_still_there_next_pick": 86,
        "surplus_over_wire": 30.6
@@ -610,7 +610,7 @@
        "proj_blend": 150.3,
        "floor_blend": 133.4,
        "ceiling_blend": 195.4,
-       "adp": 67,
+       "adp": 66.8,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 93,
        "surplus_over_wire": 29.6
@@ -638,7 +638,7 @@
        "proj_blend": 145.5,
        "floor_blend": 129.1,
        "ceiling_blend": 157,
-       "adp": 115.7,
+       "adp": 115.5,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 48.4
@@ -655,7 +655,7 @@
        "proj_blend": 136.7,
        "floor_blend": 121.4,
        "ceiling_blend": 146.4,
-       "adp": 140.6,
+       "adp": 139.8,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 41.4
@@ -672,7 +672,7 @@
        "proj_blend": 137.5,
        "floor_blend": 128,
        "ceiling_blend": 153.2,
-       "adp": 139.1,
+       "adp": 140.6,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 29.4
@@ -689,7 +689,7 @@
        "proj_blend": 127.2,
        "floor_blend": 119.7,
        "ceiling_blend": 146.3,
-       "adp": 257.8,
+       "adp": 257.6,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 24.4
@@ -717,7 +717,7 @@
        "proj_blend": 122.7,
        "floor_blend": 110,
        "ceiling_blend": 137.4,
-       "adp": 119.6,
+       "adp": 120.3,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 25
@@ -734,7 +734,7 @@
        "proj_blend": 118.3,
        "floor_blend": 101.8,
        "ceiling_blend": 130,
-       "adp": 126,
+       "adp": 126.4,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 22
@@ -751,7 +751,7 @@
        "proj_blend": 115.5,
        "floor_blend": 98.1,
        "ceiling_blend": 127,
-       "adp": 128.1,
+       "adp": 127.8,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 20
@@ -768,7 +768,7 @@
        "proj_blend": 100.5,
        "floor_blend": 87.3,
        "ceiling_blend": 113.7,
-       "adp": 161.6,
+       "adp": 164.7,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 14
@@ -784,8 +784,8 @@
    "positions": {
     "QB": {
      "best_now": 340,
-     "expected_best_at_next_pick": 336.6,
-     "VONA": 3.4,
+     "expected_best_at_next_pick": 336.7,
+     "VONA": 3.3,
      "surplus_over_wire": 17.1,
      "cliff_after_rank": 2,
      "cliff_size": 3,
@@ -803,9 +803,9 @@
        "proj_blend": 376.3,
        "floor_blend": 331,
        "ceiling_blend": 484.8,
-       "adp": 33.5,
-       "pct_available_now": 12,
-       "pct_still_there_next_pick": 4,
+       "adp": 34.4,
+       "pct_available_now": 13,
+       "pct_still_there_next_pick": 5,
        "surplus_over_wire": 17.1
       },
       {
@@ -820,9 +820,9 @@
        "proj_blend": 374,
        "floor_blend": 325.6,
        "ceiling_blend": 470.8,
-       "adp": 48,
-       "pct_available_now": 78,
-       "pct_still_there_next_pick": 48,
+       "adp": 48.8,
+       "pct_available_now": 79,
+       "pct_still_there_next_pick": 54,
        "surplus_over_wire": 17.1
       },
       {
@@ -837,9 +837,9 @@
        "proj_blend": 368.2,
        "floor_blend": 316.9,
        "ceiling_blend": 460,
-       "adp": 50.5,
-       "pct_available_now": 74,
-       "pct_still_there_next_pick": 56,
+       "adp": 49.8,
+       "pct_available_now": 73,
+       "pct_still_there_next_pick": 55,
        "surplus_over_wire": 14.1
       },
       {
@@ -854,9 +854,9 @@
        "proj_blend": 359.9,
        "floor_blend": 309.2,
        "ceiling_blend": 467.6,
-       "adp": 56.9,
+       "adp": 56.1,
        "pct_available_now": 94,
-       "pct_still_there_next_pick": 84,
+       "pct_still_there_next_pick": 81,
        "surplus_over_wire": 11.1
       },
       {
@@ -871,9 +871,9 @@
        "proj_blend": 364,
        "floor_blend": 316.8,
        "ceiling_blend": 472.9,
-       "adp": 58.9,
-       "pct_available_now": 89,
-       "pct_still_there_next_pick": 80,
+       "adp": 58.8,
+       "pct_available_now": 90,
+       "pct_still_there_next_pick": 81,
        "surplus_over_wire": 8.1
       },
       {
@@ -889,20 +889,20 @@
        "floor_blend": 298.6,
        "ceiling_blend": 442.5,
        "adp": 81.4,
-       "pct_available_now": 99,
-       "pct_still_there_next_pick": 99,
+       "pct_available_now": 100,
+       "pct_still_there_next_pick": 100,
        "surplus_over_wire": 6.1
       }
      ]
     },
     "RB": {
      "best_now": 208,
-     "expected_best_at_next_pick": 189,
-     "VONA": 19,
+     "expected_best_at_next_pick": 188.2,
+     "VONA": 19.8,
      "surplus_over_wire": 129.6,
      "cliff_after_rank": 2,
      "cliff_size": 10,
-     "note": "STRIKE — waiting costs 19 and he is +130 over the wire",
+     "note": "STRIKE — waiting costs 20 and he is +130 over the wire",
      "players": [
       {
        "player_id": "7543",
@@ -916,8 +916,8 @@
        "proj_blend": 205.2,
        "floor_blend": 186.5,
        "ceiling_blend": 285.1,
-       "adp": 38,
-       "pct_available_now": 8,
+       "adp": 38.1,
+       "pct_available_now": 9,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 129.6
       },
@@ -933,9 +933,9 @@
        "proj_blend": 198.5,
        "floor_blend": 168.8,
        "ceiling_blend": 262.8,
-       "adp": 47.3,
-       "pct_available_now": 72,
-       "pct_still_there_next_pick": 38,
+       "adp": 47.1,
+       "pct_available_now": 73,
+       "pct_still_there_next_pick": 35,
        "surplus_over_wire": 128.6
       },
       {
@@ -951,8 +951,8 @@
        "floor_blend": 155.5,
        "ceiling_blend": 255.8,
        "adp": 45.5,
-       "pct_available_now": 62,
-       "pct_still_there_next_pick": 28,
+       "pct_available_now": 61,
+       "pct_still_there_next_pick": 29,
        "surplus_over_wire": 118.6
       },
       {
@@ -968,8 +968,8 @@
        "floor_blend": 167.4,
        "ceiling_blend": 272.9,
        "adp": 43.3,
-       "pct_available_now": 51,
-       "pct_still_there_next_pick": 21,
+       "pct_available_now": 52,
+       "pct_still_there_next_pick": 20,
        "surplus_over_wire": 111.6
       },
       {
@@ -984,9 +984,9 @@
        "proj_blend": 192.5,
        "floor_blend": 174.1,
        "ceiling_blend": 279.6,
-       "adp": 41.2,
-       "pct_available_now": 32,
-       "pct_still_there_next_pick": 8,
+       "adp": 41.1,
+       "pct_available_now": 33,
+       "pct_still_there_next_pick": 7,
        "surplus_over_wire": 109.6
       },
       {
@@ -1001,7 +1001,7 @@
        "proj_blend": 167.7,
        "floor_blend": 141.6,
        "ceiling_blend": 238.4,
-       "adp": 72.2,
+       "adp": 71.3,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 101.6
@@ -1020,7 +1020,7 @@
        "ceiling_blend": 226.6,
        "adp": 65.4,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 100,
+       "pct_still_there_next_pick": 99,
        "surplus_over_wire": 96.6
       },
       {
@@ -1035,9 +1035,9 @@
        "proj_blend": 168.6,
        "floor_blend": 143.3,
        "ceiling_blend": 270,
-       "adp": 49.8,
-       "pct_available_now": 85,
-       "pct_still_there_next_pick": 58,
+       "adp": 50.6,
+       "pct_available_now": 87,
+       "pct_still_there_next_pick": 66,
        "surplus_over_wire": 94.6
       },
       {
@@ -1053,7 +1053,7 @@
        "floor_blend": 155.5,
        "ceiling_blend": 301.5,
        "adp": 53.8,
-       "pct_available_now": 96,
+       "pct_available_now": 97,
        "pct_still_there_next_pick": 85,
        "surplus_over_wire": 91.6
       },
@@ -1069,7 +1069,7 @@
        "proj_blend": 162.8,
        "floor_blend": 141.1,
        "ceiling_blend": 246.7,
-       "adp": 77.9,
+       "adp": 76.3,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 86.6
@@ -1114,9 +1114,9 @@
        "proj_blend": 168.2,
        "floor_blend": 139.6,
        "ceiling_blend": 215,
-       "adp": 63.4,
+       "adp": 63.6,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 99,
+       "pct_still_there_next_pick": 100,
        "surplus_over_wire": 69.2
       },
       {
@@ -1131,9 +1131,9 @@
        "proj_blend": 184.9,
        "floor_blend": 151.4,
        "ceiling_blend": 232.8,
-       "adp": 54.7,
+       "adp": 54.6,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 92,
+       "pct_still_there_next_pick": 91,
        "surplus_over_wire": 68.2
       },
       {
@@ -1148,9 +1148,9 @@
        "proj_blend": 175.5,
        "floor_blend": 149.1,
        "ceiling_blend": 224.6,
-       "adp": 44.3,
-       "pct_available_now": 56,
-       "pct_still_there_next_pick": 22,
+       "adp": 44,
+       "pct_available_now": 53,
+       "pct_still_there_next_pick": 21,
        "surplus_over_wire": 68.2
       },
       {
@@ -1165,8 +1165,8 @@
        "proj_blend": 187.1,
        "floor_blend": 158.6,
        "ceiling_blend": 250.1,
-       "adp": 36,
-       "pct_available_now": 7,
+       "adp": 37,
+       "pct_available_now": 10,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 59.2
       },
@@ -1182,9 +1182,9 @@
        "proj_blend": 170.3,
        "floor_blend": 141.4,
        "ceiling_blend": 230.8,
-       "adp": 51.3,
-       "pct_available_now": 85,
-       "pct_still_there_next_pick": 65,
+       "adp": 51.4,
+       "pct_available_now": 86,
+       "pct_still_there_next_pick": 63,
        "surplus_over_wire": 58.2
       },
       {
@@ -1199,9 +1199,9 @@
        "proj_blend": 170.1,
        "floor_blend": 143.2,
        "ceiling_blend": 231.5,
-       "adp": 59.7,
+       "adp": 59.8,
        "pct_available_now": 99,
-       "pct_still_there_next_pick": 95,
+       "pct_still_there_next_pick": 94,
        "surplus_over_wire": 58.2
       },
       {
@@ -1216,8 +1216,8 @@
        "proj_blend": 179.4,
        "floor_blend": 157.7,
        "ceiling_blend": 240.5,
-       "adp": 40.1,
-       "pct_available_now": 20,
+       "adp": 40,
+       "pct_available_now": 19,
        "pct_still_there_next_pick": 2,
        "surplus_over_wire": 57.2
       },
@@ -1233,9 +1233,9 @@
        "proj_blend": 175,
        "floor_blend": 155.8,
        "ceiling_blend": 232.7,
-       "adp": 52.6,
+       "adp": 52.8,
        "pct_available_now": 98,
-       "pct_still_there_next_pick": 82,
+       "pct_still_there_next_pick": 83,
        "surplus_over_wire": 57.2
       },
       {
@@ -1250,17 +1250,17 @@
        "proj_blend": 180.8,
        "floor_blend": 158.6,
        "ceiling_blend": 240.4,
-       "adp": 56.2,
+       "adp": 56.9,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 96,
+       "pct_still_there_next_pick": 97,
        "surplus_over_wire": 54.2
       }
      ]
     },
     "TE": {
      "best_now": 197,
-     "expected_best_at_next_pick": 169.9,
-     "VONA": 27.1,
+     "expected_best_at_next_pick": 170,
+     "VONA": 27,
      "surplus_over_wire": 66.6,
      "cliff_after_rank": 2,
      "cliff_size": 21,
@@ -1278,9 +1278,9 @@
        "proj_blend": 173.7,
        "floor_blend": 142.8,
        "ceiling_blend": 209,
-       "adp": 39.3,
-       "pct_available_now": 31,
-       "pct_still_there_next_pick": 16,
+       "adp": 39.2,
+       "pct_available_now": 32,
+       "pct_still_there_next_pick": 17,
        "surplus_over_wire": 66.6
       },
       {
@@ -1295,9 +1295,9 @@
        "proj_blend": 163.9,
        "floor_blend": 137.8,
        "ceiling_blend": 194.5,
-       "adp": 46.4,
-       "pct_available_now": 67,
-       "pct_still_there_next_pick": 43,
+       "adp": 46.3,
+       "pct_available_now": 66,
+       "pct_still_there_next_pick": 45,
        "surplus_over_wire": 51.6
       },
       {
@@ -1312,9 +1312,9 @@
        "proj_blend": 146.5,
        "floor_blend": 126.5,
        "ceiling_blend": 193.8,
-       "adp": 62.3,
+       "adp": 62.2,
        "pct_available_now": 86,
-       "pct_still_there_next_pick": 77,
+       "pct_still_there_next_pick": 76,
        "surplus_over_wire": 30.6
       },
       {
@@ -1329,9 +1329,9 @@
        "proj_blend": 150.3,
        "floor_blend": 133.4,
        "ceiling_blend": 195.4,
-       "adp": 67,
+       "adp": 66.8,
        "pct_available_now": 93,
-       "pct_still_there_next_pick": 87,
+       "pct_still_there_next_pick": 86,
        "surplus_over_wire": 29.6
       },
       {
@@ -1347,8 +1347,8 @@
        "floor_blend": 133.5,
        "ceiling_blend": 190.3,
        "adp": 64.5,
-       "pct_available_now": 100,
-       "pct_still_there_next_pick": 99,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 98,
        "surplus_over_wire": 27.6
       },
       {
@@ -1363,9 +1363,9 @@
        "proj_blend": 141.7,
        "floor_blend": 100.4,
        "ceiling_blend": 200.8,
-       "adp": 92.2,
-       "pct_available_now": 100,
-       "pct_still_there_next_pick": 99,
+       "adp": 91.9,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 97,
        "surplus_over_wire": 20.6
       }
      ]
@@ -1391,7 +1391,7 @@
        "proj_blend": 145.5,
        "floor_blend": 129.1,
        "ceiling_blend": 157,
-       "adp": 115.7,
+       "adp": 115.5,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 48.4
@@ -1408,7 +1408,7 @@
        "proj_blend": 136.7,
        "floor_blend": 121.4,
        "ceiling_blend": 146.4,
-       "adp": 140.6,
+       "adp": 139.8,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 41.4
@@ -1425,7 +1425,7 @@
        "proj_blend": 137.5,
        "floor_blend": 128,
        "ceiling_blend": 153.2,
-       "adp": 139.1,
+       "adp": 140.6,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 29.4
@@ -1442,7 +1442,7 @@
        "proj_blend": 127.2,
        "floor_blend": 119.7,
        "ceiling_blend": 146.3,
-       "adp": 257.8,
+       "adp": 257.6,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 24.4
@@ -1470,7 +1470,7 @@
        "proj_blend": 122.7,
        "floor_blend": 110,
        "ceiling_blend": 137.4,
-       "adp": 119.6,
+       "adp": 120.3,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 25
@@ -1487,7 +1487,7 @@
        "proj_blend": 118.3,
        "floor_blend": 101.8,
        "ceiling_blend": 130,
-       "adp": 126,
+       "adp": 126.4,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 22
@@ -1504,7 +1504,7 @@
        "proj_blend": 115.5,
        "floor_blend": 98.1,
        "ceiling_blend": 127,
-       "adp": 128.1,
+       "adp": 127.8,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 20
@@ -1521,7 +1521,7 @@
        "proj_blend": 100.5,
        "floor_blend": 87.3,
        "ceiling_blend": 113.7,
-       "adp": 161.6,
+       "adp": 164.7,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 14
@@ -1537,13 +1537,30 @@
    "positions": {
     "QB": {
      "best_now": 340,
-     "expected_best_at_next_pick": 330.4,
-     "VONA": 9.6,
+     "expected_best_at_next_pick": 330.2,
+     "VONA": 9.8,
      "surplus_over_wire": 17.1,
-     "cliff_after_rank": 1,
+     "cliff_after_rank": 2,
      "cliff_size": 3,
      "note": "neutral — 10 to wait, +17 over the wire",
      "players": [
+      {
+       "player_id": "4881",
+       "name": "Lamar Jackson",
+       "team": "BAL",
+       "bye": 13,
+       "proj": 340,
+       "floor": 299,
+       "ceiling": 438,
+       "injury_risk_pct": 42,
+       "proj_blend": 376.3,
+       "floor_blend": 331,
+       "ceiling_blend": 484.8,
+       "adp": 34.4,
+       "pct_available_now": 5,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 17.1
+      },
       {
        "player_id": "11564",
        "name": "Drake Maye",
@@ -1556,8 +1573,8 @@
        "proj_blend": 374,
        "floor_blend": 325.6,
        "ceiling_blend": 470.8,
-       "adp": 48,
-       "pct_available_now": 48,
+       "adp": 48.8,
+       "pct_available_now": 54,
        "pct_still_there_next_pick": 1,
        "surplus_over_wire": 17.1
       },
@@ -1573,9 +1590,9 @@
        "proj_blend": 368.2,
        "floor_blend": 316.9,
        "ceiling_blend": 460,
-       "adp": 50.5,
-       "pct_available_now": 56,
-       "pct_still_there_next_pick": 9,
+       "adp": 49.8,
+       "pct_available_now": 55,
+       "pct_still_there_next_pick": 7,
        "surplus_over_wire": 14.1
       },
       {
@@ -1590,9 +1607,9 @@
        "proj_blend": 359.9,
        "floor_blend": 309.2,
        "ceiling_blend": 467.6,
-       "adp": 56.9,
-       "pct_available_now": 84,
-       "pct_still_there_next_pick": 25,
+       "adp": 56.1,
+       "pct_available_now": 81,
+       "pct_still_there_next_pick": 20,
        "surplus_over_wire": 11.1
       },
       {
@@ -1607,8 +1624,8 @@
        "proj_blend": 364,
        "floor_blend": 316.8,
        "ceiling_blend": 472.9,
-       "adp": 58.9,
-       "pct_available_now": 80,
+       "adp": 58.8,
+       "pct_available_now": 81,
        "pct_still_there_next_pick": 27,
        "surplus_over_wire": 8.1
       },
@@ -1625,33 +1642,16 @@
        "floor_blend": 298.6,
        "ceiling_blend": 442.5,
        "adp": 81.4,
-       "pct_available_now": 99,
+       "pct_available_now": 100,
        "pct_still_there_next_pick": 91,
        "surplus_over_wire": 6.1
-      },
-      {
-       "player_id": "8183",
-       "name": "Brock Purdy",
-       "team": "SF",
-       "bye": 8,
-       "proj": 327,
-       "floor": 278,
-       "ceiling": 416,
-       "injury_risk_pct": 36,
-       "proj_blend": 353.8,
-       "floor_blend": 300.8,
-       "ceiling_blend": 450.1,
-       "adp": 103.3,
-       "pct_available_now": 100,
-       "pct_still_there_next_pick": 100,
-       "surplus_over_wire": 4.1
       }
      ]
     },
     "RB": {
      "best_now": 207,
-     "expected_best_at_next_pick": 177.7,
-     "VONA": 29.3,
+     "expected_best_at_next_pick": 177.6,
+     "VONA": 29.4,
      "surplus_over_wire": 128.6,
      "cliff_after_rank": 1,
      "cliff_size": 10,
@@ -1669,8 +1669,8 @@
        "proj_blend": 198.5,
        "floor_blend": 168.8,
        "ceiling_blend": 262.8,
-       "adp": 47.3,
-       "pct_available_now": 38,
+       "adp": 47.1,
+       "pct_available_now": 35,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 128.6
       },
@@ -1687,7 +1687,7 @@
        "floor_blend": 155.5,
        "ceiling_blend": 255.8,
        "adp": 45.5,
-       "pct_available_now": 28,
+       "pct_available_now": 29,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 118.6
       },
@@ -1704,7 +1704,7 @@
        "floor_blend": 167.4,
        "ceiling_blend": 272.9,
        "adp": 43.3,
-       "pct_available_now": 21,
+       "pct_available_now": 20,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 111.6
       },
@@ -1720,8 +1720,8 @@
        "proj_blend": 192.5,
        "floor_blend": 174.1,
        "ceiling_blend": 279.6,
-       "adp": 41.2,
-       "pct_available_now": 8,
+       "adp": 41.1,
+       "pct_available_now": 7,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 109.6
       },
@@ -1737,9 +1737,9 @@
        "proj_blend": 167.7,
        "floor_blend": 141.6,
        "ceiling_blend": 238.4,
-       "adp": 72.2,
+       "adp": 71.3,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 88,
+       "pct_still_there_next_pick": 86,
        "surplus_over_wire": 101.6
       },
       {
@@ -1755,8 +1755,8 @@
        "floor_blend": 135.2,
        "ceiling_blend": 226.6,
        "adp": 65.4,
-       "pct_available_now": 100,
-       "pct_still_there_next_pick": 65,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 66,
        "surplus_over_wire": 96.6
       },
       {
@@ -1771,8 +1771,8 @@
        "proj_blend": 168.6,
        "floor_blend": 143.3,
        "ceiling_blend": 270,
-       "adp": 49.8,
-       "pct_available_now": 58,
+       "adp": 50.6,
+       "pct_available_now": 66,
        "pct_still_there_next_pick": 1,
        "surplus_over_wire": 94.6
       },
@@ -1805,7 +1805,7 @@
        "proj_blend": 162.8,
        "floor_blend": 141.1,
        "ceiling_blend": 246.7,
-       "adp": 77.9,
+       "adp": 76.3,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 99,
        "surplus_over_wire": 86.6
@@ -1822,17 +1822,17 @@
        "proj_blend": 159.7,
        "floor_blend": 137.5,
        "ceiling_blend": 243.9,
-       "adp": 76.1,
+       "adp": 75.1,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 96,
+       "pct_still_there_next_pick": 94,
        "surplus_over_wire": 86.6
       }
      ]
     },
     "WR": {
      "best_now": 194,
-     "expected_best_at_next_pick": 180.6,
-     "VONA": 13.4,
+     "expected_best_at_next_pick": 181,
+     "VONA": 13,
      "surplus_over_wire": 69.2,
      "cliff_after_rank": 3,
      "cliff_size": 10,
@@ -1850,9 +1850,9 @@
        "proj_blend": 168.2,
        "floor_blend": 139.6,
        "ceiling_blend": 215,
-       "adp": 63.4,
-       "pct_available_now": 99,
-       "pct_still_there_next_pick": 49,
+       "adp": 63.6,
+       "pct_available_now": 100,
+       "pct_still_there_next_pick": 50,
        "surplus_over_wire": 69.2
       },
       {
@@ -1867,9 +1867,9 @@
        "proj_blend": 184.9,
        "floor_blend": 151.4,
        "ceiling_blend": 232.8,
-       "adp": 54.7,
-       "pct_available_now": 92,
-       "pct_still_there_next_pick": 1,
+       "adp": 54.6,
+       "pct_available_now": 91,
+       "pct_still_there_next_pick": 2,
        "surplus_over_wire": 68.2
       },
       {
@@ -1884,8 +1884,8 @@
        "proj_blend": 175.5,
        "floor_blend": 149.1,
        "ceiling_blend": 224.6,
-       "adp": 44.3,
-       "pct_available_now": 22,
+       "adp": 44,
+       "pct_available_now": 21,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 68.2
       },
@@ -1901,8 +1901,8 @@
        "proj_blend": 170.3,
        "floor_blend": 141.4,
        "ceiling_blend": 230.8,
-       "adp": 51.3,
-       "pct_available_now": 65,
+       "adp": 51.4,
+       "pct_available_now": 63,
        "pct_still_there_next_pick": 3,
        "surplus_over_wire": 58.2
       },
@@ -1918,8 +1918,8 @@
        "proj_blend": 170.1,
        "floor_blend": 143.2,
        "ceiling_blend": 231.5,
-       "adp": 59.7,
-       "pct_available_now": 95,
+       "adp": 59.8,
+       "pct_available_now": 94,
        "pct_still_there_next_pick": 30,
        "surplus_over_wire": 58.2
       },
@@ -1935,8 +1935,8 @@
        "proj_blend": 175,
        "floor_blend": 155.8,
        "ceiling_blend": 232.7,
-       "adp": 52.6,
-       "pct_available_now": 82,
+       "adp": 52.8,
+       "pct_available_now": 83,
        "pct_still_there_next_pick": 1,
        "surplus_over_wire": 57.2
       },
@@ -1952,9 +1952,9 @@
        "proj_blend": 180.8,
        "floor_blend": 158.6,
        "ceiling_blend": 240.4,
-       "adp": 56.2,
-       "pct_available_now": 96,
-       "pct_still_there_next_pick": 4,
+       "adp": 56.9,
+       "pct_available_now": 97,
+       "pct_still_there_next_pick": 6,
        "surplus_over_wire": 54.2
       },
       {
@@ -1969,9 +1969,9 @@
        "proj_blend": 156.9,
        "floor_blend": 130,
        "ceiling_blend": 200.8,
-       "adp": 70.5,
+       "adp": 69.7,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 84,
+       "pct_still_there_next_pick": 83,
        "surplus_over_wire": 50.2
       },
       {
@@ -1986,8 +1986,8 @@
        "proj_blend": 167.7,
        "floor_blend": 140.7,
        "ceiling_blend": 225.6,
-       "adp": 48.9,
-       "pct_available_now": 54,
+       "adp": 48.1,
+       "pct_available_now": 49,
        "pct_still_there_next_pick": 1,
        "surplus_over_wire": 49.2
       },
@@ -2005,15 +2005,15 @@
        "ceiling_blend": 247.9,
        "adp": 60.8,
        "pct_available_now": 99,
-       "pct_still_there_next_pick": 33,
+       "pct_still_there_next_pick": 35,
        "surplus_over_wire": 48.2
       }
      ]
     },
     "TE": {
      "best_now": 197,
-     "expected_best_at_next_pick": 159.1,
-     "VONA": 37.9,
+     "expected_best_at_next_pick": 159.2,
+     "VONA": 37.8,
      "surplus_over_wire": 66.6,
      "cliff_after_rank": 2,
      "cliff_size": 21,
@@ -2031,8 +2031,8 @@
        "proj_blend": 173.7,
        "floor_blend": 142.8,
        "ceiling_blend": 209,
-       "adp": 39.3,
-       "pct_available_now": 16,
+       "adp": 39.2,
+       "pct_available_now": 17,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 66.6
       },
@@ -2048,9 +2048,9 @@
        "proj_blend": 163.9,
        "floor_blend": 137.8,
        "ceiling_blend": 194.5,
-       "adp": 46.4,
-       "pct_available_now": 43,
-       "pct_still_there_next_pick": 4,
+       "adp": 46.3,
+       "pct_available_now": 45,
+       "pct_still_there_next_pick": 3,
        "surplus_over_wire": 51.6
       },
       {
@@ -2065,9 +2065,9 @@
        "proj_blend": 146.5,
        "floor_blend": 126.5,
        "ceiling_blend": 193.8,
-       "adp": 62.3,
-       "pct_available_now": 77,
-       "pct_still_there_next_pick": 48,
+       "adp": 62.2,
+       "pct_available_now": 76,
+       "pct_still_there_next_pick": 46,
        "surplus_over_wire": 30.6
       },
       {
@@ -2082,9 +2082,9 @@
        "proj_blend": 150.3,
        "floor_blend": 133.4,
        "ceiling_blend": 195.4,
-       "adp": 67,
-       "pct_available_now": 87,
-       "pct_still_there_next_pick": 57,
+       "adp": 66.8,
+       "pct_available_now": 86,
+       "pct_still_there_next_pick": 56,
        "surplus_over_wire": 29.6
       },
       {
@@ -2100,8 +2100,8 @@
        "floor_blend": 133.5,
        "ceiling_blend": 190.3,
        "adp": 64.5,
-       "pct_available_now": 99,
-       "pct_still_there_next_pick": 53,
+       "pct_available_now": 98,
+       "pct_still_there_next_pick": 52,
        "surplus_over_wire": 27.6
       },
       {
@@ -2116,9 +2116,9 @@
        "proj_blend": 141.7,
        "floor_blend": 100.4,
        "ceiling_blend": 200.8,
-       "adp": 92.2,
-       "pct_available_now": 99,
-       "pct_still_there_next_pick": 91,
+       "adp": 91.9,
+       "pct_available_now": 97,
+       "pct_still_there_next_pick": 89,
        "surplus_over_wire": 20.6
       }
      ]
@@ -2144,7 +2144,7 @@
        "proj_blend": 145.5,
        "floor_blend": 129.1,
        "ceiling_blend": 157,
-       "adp": 115.7,
+       "adp": 115.5,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 48.4
@@ -2161,7 +2161,7 @@
        "proj_blend": 136.7,
        "floor_blend": 121.4,
        "ceiling_blend": 146.4,
-       "adp": 140.6,
+       "adp": 139.8,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 41.4
@@ -2178,7 +2178,7 @@
        "proj_blend": 137.5,
        "floor_blend": 128,
        "ceiling_blend": 153.2,
-       "adp": 139.1,
+       "adp": 140.6,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 29.4
@@ -2195,7 +2195,7 @@
        "proj_blend": 127.2,
        "floor_blend": 119.7,
        "ceiling_blend": 146.3,
-       "adp": 257.8,
+       "adp": 257.6,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 24.4
@@ -2223,7 +2223,7 @@
        "proj_blend": 122.7,
        "floor_blend": 110,
        "ceiling_blend": 137.4,
-       "adp": 119.6,
+       "adp": 120.3,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 25
@@ -2240,7 +2240,7 @@
        "proj_blend": 118.3,
        "floor_blend": 101.8,
        "ceiling_blend": 130,
-       "adp": 126,
+       "adp": 126.4,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 22
@@ -2257,7 +2257,7 @@
        "proj_blend": 115.5,
        "floor_blend": 98.1,
        "ceiling_blend": 127,
-       "adp": 128.1,
+       "adp": 127.8,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 20
@@ -2274,7 +2274,7 @@
        "proj_blend": 100.5,
        "floor_blend": 87.3,
        "ceiling_blend": 113.7,
-       "adp": 161.6,
+       "adp": 164.7,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 14
@@ -2290,8 +2290,8 @@
    "positions": {
     "QB": {
      "best_now": 337,
-     "expected_best_at_next_pick": 329.3,
-     "VONA": 7.7,
+     "expected_best_at_next_pick": 329.2,
+     "VONA": 7.8,
      "surplus_over_wire": 14.1,
      "cliff_after_rank": 1,
      "cliff_size": 3,
@@ -2309,9 +2309,9 @@
        "proj_blend": 368.2,
        "floor_blend": 316.9,
        "ceiling_blend": 460,
-       "adp": 50.5,
-       "pct_available_now": 9,
-       "pct_still_there_next_pick": 4,
+       "adp": 49.8,
+       "pct_available_now": 7,
+       "pct_still_there_next_pick": 3,
        "surplus_over_wire": 14.1
       },
       {
@@ -2326,9 +2326,9 @@
        "proj_blend": 359.9,
        "floor_blend": 309.2,
        "ceiling_blend": 467.6,
-       "adp": 56.9,
-       "pct_available_now": 25,
-       "pct_still_there_next_pick": 11,
+       "adp": 56.1,
+       "pct_available_now": 20,
+       "pct_still_there_next_pick": 9,
        "surplus_over_wire": 11.1
       },
       {
@@ -2343,7 +2343,7 @@
        "proj_blend": 364,
        "floor_blend": 316.8,
        "ceiling_blend": 472.9,
-       "adp": 58.9,
+       "adp": 58.8,
        "pct_available_now": 27,
        "pct_still_there_next_pick": 14,
        "surplus_over_wire": 8.1
@@ -2362,7 +2362,7 @@
        "ceiling_blend": 442.5,
        "adp": 81.4,
        "pct_available_now": 91,
-       "pct_still_there_next_pick": 85,
+       "pct_still_there_next_pick": 86,
        "surplus_over_wire": 6.1
       },
       {
@@ -2377,7 +2377,7 @@
        "proj_blend": 353.8,
        "floor_blend": 300.8,
        "ceiling_blend": 450.1,
-       "adp": 103.3,
+       "adp": 103.6,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 4.1
@@ -2394,17 +2394,17 @@
        "proj_blend": 344.6,
        "floor_blend": 297,
        "ceiling_blend": 441.8,
-       "adp": 74.1,
-       "pct_available_now": 78,
-       "pct_still_there_next_pick": 66,
+       "adp": 74.3,
+       "pct_available_now": 79,
+       "pct_still_there_next_pick": 68,
        "surplus_over_wire": 3.1
       }
      ]
     },
     "RB": {
      "best_now": 180,
-     "expected_best_at_next_pick": 173.1,
-     "VONA": 6.9,
+     "expected_best_at_next_pick": 172.9,
+     "VONA": 7.1,
      "surplus_over_wire": 101.6,
      "cliff_after_rank": 9,
      "cliff_size": 9,
@@ -2422,9 +2422,9 @@
        "proj_blend": 167.7,
        "floor_blend": 141.6,
        "ceiling_blend": 238.4,
-       "adp": 72.2,
-       "pct_available_now": 88,
-       "pct_still_there_next_pick": 69,
+       "adp": 71.3,
+       "pct_available_now": 86,
+       "pct_still_there_next_pick": 64,
        "surplus_over_wire": 101.6
       },
       {
@@ -2440,8 +2440,8 @@
        "floor_blend": 135.2,
        "ceiling_blend": 226.6,
        "adp": 65.4,
-       "pct_available_now": 65,
-       "pct_still_there_next_pick": 30,
+       "pct_available_now": 66,
+       "pct_still_there_next_pick": 32,
        "surplus_over_wire": 96.6
       },
       {
@@ -2473,9 +2473,9 @@
        "proj_blend": 162.8,
        "floor_blend": 141.1,
        "ceiling_blend": 246.7,
-       "adp": 77.9,
+       "adp": 76.3,
        "pct_available_now": 99,
-       "pct_still_there_next_pick": 96,
+       "pct_still_there_next_pick": 89,
        "surplus_over_wire": 86.6
       },
       {
@@ -2490,9 +2490,9 @@
        "proj_blend": 159.7,
        "floor_blend": 137.5,
        "ceiling_blend": 243.9,
-       "adp": 76.1,
-       "pct_available_now": 96,
-       "pct_still_there_next_pick": 85,
+       "adp": 75.1,
+       "pct_available_now": 94,
+       "pct_still_there_next_pick": 83,
        "surplus_over_wire": 86.6
       },
       {
@@ -2508,7 +2508,7 @@
        "floor_blend": 142.7,
        "ceiling_blend": 294.7,
        "adp": 57.7,
-       "pct_available_now": 26,
+       "pct_available_now": 31,
        "pct_still_there_next_pick": 15,
        "surplus_over_wire": 84.6
       },
@@ -2524,8 +2524,8 @@
        "proj_blend": 159.8,
        "floor_blend": 136,
        "ceiling_blend": 253.2,
-       "adp": 84.7,
-       "pct_available_now": 99,
+       "adp": 83.8,
+       "pct_available_now": 98,
        "pct_still_there_next_pick": 92,
        "surplus_over_wire": 82.6
       },
@@ -2541,9 +2541,9 @@
        "proj_blend": 142.5,
        "floor_blend": 114.7,
        "ceiling_blend": 245.6,
-       "adp": 89.9,
-       "pct_available_now": 93,
-       "pct_still_there_next_pick": 88,
+       "adp": 85.6,
+       "pct_available_now": 89,
+       "pct_still_there_next_pick": 82,
        "surplus_over_wire": 80.6
       },
       {
@@ -2558,7 +2558,7 @@
        "proj_blend": 137.6,
        "floor_blend": 111,
        "ceiling_blend": 226.4,
-       "adp": 99.2,
+       "adp": 99,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 98,
        "surplus_over_wire": 76.6
@@ -2575,17 +2575,17 @@
        "proj_blend": 136.4,
        "floor_blend": 108.3,
        "ceiling_blend": 229.7,
-       "adp": 100,
+       "adp": 97.5,
        "pct_available_now": 99,
-       "pct_still_there_next_pick": 99,
+       "pct_still_there_next_pick": 98,
        "surplus_over_wire": 67.6
       }
      ]
     },
     "WR": {
      "best_now": 194,
-     "expected_best_at_next_pick": 174.6,
-     "VONA": 19.4,
+     "expected_best_at_next_pick": 174.9,
+     "VONA": 19.1,
      "surplus_over_wire": 69.2,
      "cliff_after_rank": 1,
      "cliff_size": 11,
@@ -2603,8 +2603,8 @@
        "proj_blend": 168.2,
        "floor_blend": 139.6,
        "ceiling_blend": 215,
-       "adp": 63.4,
-       "pct_available_now": 49,
+       "adp": 63.6,
+       "pct_available_now": 50,
        "pct_still_there_next_pick": 14,
        "surplus_over_wire": 69.2
       },
@@ -2620,10 +2620,27 @@
        "proj_blend": 170.1,
        "floor_blend": 143.2,
        "ceiling_blend": 231.5,
-       "adp": 59.7,
+       "adp": 59.8,
        "pct_available_now": 30,
        "pct_still_there_next_pick": 8,
        "surplus_over_wire": 58.2
+      },
+      {
+       "player_id": "8148",
+       "name": "Jameson Williams",
+       "team": "DET",
+       "bye": 6,
+       "proj": 179,
+       "floor": 157,
+       "ceiling": 238,
+       "injury_risk_pct": 36,
+       "proj_blend": 180.8,
+       "floor_blend": 158.6,
+       "ceiling_blend": 240.4,
+       "adp": 56.9,
+       "pct_available_now": 6,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 54.2
       },
       {
        "player_id": "9487",
@@ -2637,9 +2654,9 @@
        "proj_blend": 156.9,
        "floor_blend": 130,
        "ceiling_blend": 200.8,
-       "adp": 70.5,
-       "pct_available_now": 84,
-       "pct_still_there_next_pick": 58,
+       "adp": 69.7,
+       "pct_available_now": 83,
+       "pct_still_there_next_pick": 52,
        "surplus_over_wire": 50.2
       },
       {
@@ -2655,7 +2672,7 @@
        "floor_blend": 150.3,
        "ceiling_blend": 247.9,
        "adp": 60.8,
-       "pct_available_now": 33,
+       "pct_available_now": 35,
        "pct_still_there_next_pick": 7,
        "surplus_over_wire": 48.2
       },
@@ -2671,9 +2688,9 @@
        "proj_blend": 160.6,
        "floor_blend": 134.6,
        "ceiling_blend": 203.4,
-       "adp": 80.4,
+       "adp": 80.5,
        "pct_available_now": 99,
-       "pct_still_there_next_pick": 95,
+       "pct_still_there_next_pick": 96,
        "surplus_over_wire": 48.2
       },
       {
@@ -2688,9 +2705,9 @@
        "proj_blend": 149.1,
        "floor_blend": 124.8,
        "ceiling_blend": 208.3,
-       "adp": 67.8,
-       "pct_available_now": 70,
-       "pct_still_there_next_pick": 46,
+       "adp": 68.9,
+       "pct_available_now": 78,
+       "pct_still_there_next_pick": 49,
        "surplus_over_wire": 41.2
       },
       {
@@ -2739,38 +2756,21 @@
        "proj_blend": 159.8,
        "floor_blend": 140.3,
        "ceiling_blend": 225.1,
-       "adp": 73.2,
-       "pct_available_now": 88,
-       "pct_still_there_next_pick": 73,
+       "adp": 73.1,
+       "pct_available_now": 89,
+       "pct_still_there_next_pick": 75,
        "surplus_over_wire": 39.2
-      },
-      {
-       "player_id": "9756",
-       "name": "Jordan Addison",
-       "team": "MIN",
-       "bye": 6,
-       "proj": 162,
-       "floor": 136,
-       "ceiling": 220,
-       "injury_risk_pct": 37,
-       "proj_blend": 141.4,
-       "floor_blend": 118.7,
-       "ceiling_blend": 192.1,
-       "adp": 107.1,
-       "pct_available_now": 100,
-       "pct_still_there_next_pick": 100,
-       "surplus_over_wire": 37.2
       }
      ]
     },
     "TE": {
      "best_now": 161,
-     "expected_best_at_next_pick": 156.9,
-     "VONA": 4.1,
+     "expected_best_at_next_pick": 157,
+     "VONA": 4,
      "surplus_over_wire": 30.6,
      "cliff_after_rank": 3,
      "cliff_size": 7,
-     "note": "neutral — 4 to wait, +31 over the wire",
+     "note": "wait — only 4 lost by waiting, the tier holds",
      "players": [
       {
        "player_id": "9484",
@@ -2784,8 +2784,8 @@
        "proj_blend": 146.5,
        "floor_blend": 126.5,
        "ceiling_blend": 193.8,
-       "adp": 62.3,
-       "pct_available_now": 48,
+       "adp": 62.2,
+       "pct_available_now": 46,
        "pct_still_there_next_pick": 33,
        "surplus_over_wire": 30.6
       },
@@ -2801,9 +2801,9 @@
        "proj_blend": 150.3,
        "floor_blend": 133.4,
        "ceiling_blend": 195.4,
-       "adp": 67,
-       "pct_available_now": 57,
-       "pct_still_there_next_pick": 42,
+       "adp": 66.8,
+       "pct_available_now": 56,
+       "pct_still_there_next_pick": 44,
        "surplus_over_wire": 29.6
       },
       {
@@ -2819,8 +2819,8 @@
        "floor_blend": 133.5,
        "ceiling_blend": 190.3,
        "adp": 64.5,
-       "pct_available_now": 53,
-       "pct_still_there_next_pick": 26,
+       "pct_available_now": 52,
+       "pct_still_there_next_pick": 28,
        "surplus_over_wire": 27.6
       },
       {
@@ -2835,9 +2835,9 @@
        "proj_blend": 141.7,
        "floor_blend": 100.4,
        "ceiling_blend": 200.8,
-       "adp": 92.2,
-       "pct_available_now": 91,
-       "pct_still_there_next_pick": 88,
+       "adp": 91.9,
+       "pct_available_now": 89,
+       "pct_still_there_next_pick": 85,
        "surplus_over_wire": 20.6
       },
       {
@@ -2852,9 +2852,9 @@
        "proj_blend": 149.3,
        "floor_blend": 137.2,
        "ceiling_blend": 195.7,
-       "adp": 71.4,
-       "pct_available_now": 80,
-       "pct_still_there_next_pick": 60,
+       "adp": 72.1,
+       "pct_available_now": 84,
+       "pct_still_there_next_pick": 64,
        "surplus_over_wire": 17.6
       },
       {
@@ -2871,15 +2871,15 @@
        "ceiling_blend": 171.3,
        "adp": 93.2,
        "pct_available_now": 95,
-       "pct_still_there_next_pick": 91,
+       "pct_still_there_next_pick": 92,
        "surplus_over_wire": 15.6
       }
      ]
     },
     "K": {
      "best_now": 177,
-     "expected_best_at_next_pick": 176.9,
-     "VONA": 0.1,
+     "expected_best_at_next_pick": 177,
+     "VONA": 0,
      "surplus_over_wire": 48.4,
      "cliff_after_rank": 2,
      "cliff_size": 12,
@@ -2897,7 +2897,7 @@
        "proj_blend": 145.5,
        "floor_blend": 129.1,
        "ceiling_blend": 157,
-       "adp": 115.7,
+       "adp": 115.5,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 99,
        "surplus_over_wire": 48.4
@@ -2914,7 +2914,7 @@
        "proj_blend": 136.7,
        "floor_blend": 121.4,
        "ceiling_blend": 146.4,
-       "adp": 140.6,
+       "adp": 139.8,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 41.4
@@ -2931,7 +2931,7 @@
        "proj_blend": 137.5,
        "floor_blend": 128,
        "ceiling_blend": 153.2,
-       "adp": 139.1,
+       "adp": 140.6,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 29.4
@@ -2948,7 +2948,7 @@
        "proj_blend": 127.2,
        "floor_blend": 119.7,
        "ceiling_blend": 146.3,
-       "adp": 257.8,
+       "adp": 257.6,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 24.4
@@ -2976,7 +2976,7 @@
        "proj_blend": 122.7,
        "floor_blend": 110,
        "ceiling_blend": 137.4,
-       "adp": 119.6,
+       "adp": 120.3,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 25
@@ -2993,7 +2993,7 @@
        "proj_blend": 118.3,
        "floor_blend": 101.8,
        "ceiling_blend": 130,
-       "adp": 126,
+       "adp": 126.4,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 22
@@ -3010,7 +3010,7 @@
        "proj_blend": 115.5,
        "floor_blend": 98.1,
        "ceiling_blend": 127,
-       "adp": 128.1,
+       "adp": 127.8,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 20
@@ -3027,7 +3027,7 @@
        "proj_blend": 100.5,
        "floor_blend": 87.3,
        "ceiling_blend": 113.7,
-       "adp": 161.6,
+       "adp": 164.7,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 14
@@ -3043,8 +3043,8 @@
    "positions": {
     "QB": {
      "best_now": 334,
-     "expected_best_at_next_pick": 327.7,
-     "VONA": 6.3,
+     "expected_best_at_next_pick": 327.6,
+     "VONA": 6.4,
      "surplus_over_wire": 11.1,
      "cliff_after_rank": 1,
      "cliff_size": 3,
@@ -3062,8 +3062,8 @@
        "proj_blend": 359.9,
        "floor_blend": 309.2,
        "ceiling_blend": 467.6,
-       "adp": 56.9,
-       "pct_available_now": 11,
+       "adp": 56.1,
+       "pct_available_now": 9,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 11.1
       },
@@ -3079,7 +3079,7 @@
        "proj_blend": 364,
        "floor_blend": 316.8,
        "ceiling_blend": 472.9,
-       "adp": 58.9,
+       "adp": 58.8,
        "pct_available_now": 14,
        "pct_still_there_next_pick": 2,
        "surplus_over_wire": 8.1
@@ -3097,8 +3097,8 @@
        "floor_blend": 298.6,
        "ceiling_blend": 442.5,
        "adp": 81.4,
-       "pct_available_now": 85,
-       "pct_still_there_next_pick": 46,
+       "pct_available_now": 86,
+       "pct_still_there_next_pick": 43,
        "surplus_over_wire": 6.1
       },
       {
@@ -3113,9 +3113,9 @@
        "proj_blend": 353.8,
        "floor_blend": 300.8,
        "ceiling_blend": 450.1,
-       "adp": 103.3,
+       "adp": 103.6,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 95,
+       "pct_still_there_next_pick": 93,
        "surplus_over_wire": 4.1
       },
       {
@@ -3130,9 +3130,9 @@
        "proj_blend": 344.6,
        "floor_blend": 297,
        "ceiling_blend": 441.8,
-       "adp": 74.1,
-       "pct_available_now": 66,
-       "pct_still_there_next_pick": 23,
+       "adp": 74.3,
+       "pct_available_now": 68,
+       "pct_still_there_next_pick": 24,
        "surplus_over_wire": 3.1
       },
       {
@@ -3147,21 +3147,21 @@
        "proj_blend": 357.5,
        "floor_blend": 311.3,
        "ceiling_blend": 454.3,
-       "adp": 77,
-       "pct_available_now": 81,
-       "pct_still_there_next_pick": 27,
+       "adp": 77.1,
+       "pct_available_now": 84,
+       "pct_still_there_next_pick": 25,
        "surplus_over_wire": 2.1
       }
      ]
     },
     "RB": {
      "best_now": 180,
-     "expected_best_at_next_pick": 160.1,
-     "VONA": 19.9,
+     "expected_best_at_next_pick": 159.2,
+     "VONA": 20.8,
      "surplus_over_wire": 101.6,
      "cliff_after_rank": 2,
      "cliff_size": 10,
-     "note": "STRIKE — waiting costs 20 and he is +102 over the wire",
+     "note": "STRIKE — waiting costs 21 and he is +102 over the wire",
      "players": [
       {
        "player_id": "7611",
@@ -3175,9 +3175,9 @@
        "proj_blend": 167.7,
        "floor_blend": 141.6,
        "ceiling_blend": 238.4,
-       "adp": 72.2,
-       "pct_available_now": 69,
-       "pct_still_there_next_pick": 6,
+       "adp": 71.3,
+       "pct_available_now": 64,
+       "pct_still_there_next_pick": 5,
        "surplus_over_wire": 101.6
       },
       {
@@ -3193,8 +3193,8 @@
        "floor_blend": 135.2,
        "ceiling_blend": 226.6,
        "adp": 65.4,
-       "pct_available_now": 30,
-       "pct_still_there_next_pick": 1,
+       "pct_available_now": 32,
+       "pct_still_there_next_pick": 0,
        "surplus_over_wire": 96.6
       },
       {
@@ -3209,9 +3209,9 @@
        "proj_blend": 162.8,
        "floor_blend": 141.1,
        "ceiling_blend": 246.7,
-       "adp": 77.9,
-       "pct_available_now": 96,
-       "pct_still_there_next_pick": 20,
+       "adp": 76.3,
+       "pct_available_now": 89,
+       "pct_still_there_next_pick": 14,
        "surplus_over_wire": 86.6
       },
       {
@@ -3226,9 +3226,9 @@
        "proj_blend": 159.7,
        "floor_blend": 137.5,
        "ceiling_blend": 243.9,
-       "adp": 76.1,
-       "pct_available_now": 85,
-       "pct_still_there_next_pick": 16,
+       "adp": 75.1,
+       "pct_available_now": 83,
+       "pct_still_there_next_pick": 10,
        "surplus_over_wire": 86.6
       },
       {
@@ -3260,9 +3260,9 @@
        "proj_blend": 159.8,
        "floor_blend": 136,
        "ceiling_blend": 253.2,
-       "adp": 84.7,
+       "adp": 83.8,
        "pct_available_now": 92,
-       "pct_still_there_next_pick": 55,
+       "pct_still_there_next_pick": 53,
        "surplus_over_wire": 82.6
       },
       {
@@ -3277,9 +3277,9 @@
        "proj_blend": 142.5,
        "floor_blend": 114.7,
        "ceiling_blend": 245.6,
-       "adp": 89.9,
-       "pct_available_now": 88,
-       "pct_still_there_next_pick": 63,
+       "adp": 85.6,
+       "pct_available_now": 82,
+       "pct_still_there_next_pick": 54,
        "surplus_over_wire": 80.6
       },
       {
@@ -3294,7 +3294,7 @@
        "proj_blend": 137.6,
        "floor_blend": 111,
        "ceiling_blend": 226.4,
-       "adp": 99.2,
+       "adp": 99,
        "pct_available_now": 98,
        "pct_still_there_next_pick": 85,
        "surplus_over_wire": 76.6
@@ -3311,9 +3311,9 @@
        "proj_blend": 136.4,
        "floor_blend": 108.3,
        "ceiling_blend": 229.7,
-       "adp": 100,
-       "pct_available_now": 99,
-       "pct_still_there_next_pick": 88,
+       "adp": 97.5,
+       "pct_available_now": 98,
+       "pct_still_there_next_pick": 85,
        "surplus_over_wire": 67.6
       },
       {
@@ -3328,21 +3328,21 @@
        "proj_blend": 136.1,
        "floor_blend": 113.1,
        "ceiling_blend": 224.3,
-       "adp": 79.4,
-       "pct_available_now": 85,
-       "pct_still_there_next_pick": 37,
+       "adp": 79.7,
+       "pct_available_now": 88,
+       "pct_still_there_next_pick": 35,
        "surplus_over_wire": 63.6
       }
      ]
     },
     "WR": {
      "best_now": 194,
-     "expected_best_at_next_pick": 166.5,
-     "VONA": 27.5,
+     "expected_best_at_next_pick": 166.3,
+     "VONA": 27.7,
      "surplus_over_wire": 69.2,
      "cliff_after_rank": 1,
      "cliff_size": 11,
-     "note": "STRIKE — waiting costs 27 and he is +69 over the wire",
+     "note": "STRIKE — waiting costs 28 and he is +69 over the wire",
      "players": [
       {
        "player_id": "8167",
@@ -3356,7 +3356,7 @@
        "proj_blend": 168.2,
        "floor_blend": 139.6,
        "ceiling_blend": 215,
-       "adp": 63.4,
+       "adp": 63.6,
        "pct_available_now": 14,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 69.2
@@ -3373,7 +3373,7 @@
        "proj_blend": 170.1,
        "floor_blend": 143.2,
        "ceiling_blend": 231.5,
-       "adp": 59.7,
+       "adp": 59.8,
        "pct_available_now": 8,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 58.2
@@ -3390,9 +3390,9 @@
        "proj_blend": 156.9,
        "floor_blend": 130,
        "ceiling_blend": 200.8,
-       "adp": 70.5,
-       "pct_available_now": 58,
-       "pct_still_there_next_pick": 3,
+       "adp": 69.7,
+       "pct_available_now": 52,
+       "pct_still_there_next_pick": 2,
        "surplus_over_wire": 50.2
       },
       {
@@ -3424,9 +3424,9 @@
        "proj_blend": 160.6,
        "floor_blend": 134.6,
        "ceiling_blend": 203.4,
-       "adp": 80.4,
-       "pct_available_now": 95,
-       "pct_still_there_next_pick": 34,
+       "adp": 80.5,
+       "pct_available_now": 96,
+       "pct_still_there_next_pick": 33,
        "surplus_over_wire": 48.2
       },
       {
@@ -3441,8 +3441,8 @@
        "proj_blend": 149.1,
        "floor_blend": 124.8,
        "ceiling_blend": 208.3,
-       "adp": 67.8,
-       "pct_available_now": 46,
+       "adp": 68.9,
+       "pct_available_now": 49,
        "pct_still_there_next_pick": 2,
        "surplus_over_wire": 41.2
       },
@@ -3460,7 +3460,7 @@
        "ceiling_blend": 214,
        "adp": 86.4,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 67,
+       "pct_still_there_next_pick": 66,
        "surplus_over_wire": 40.2
       },
       {
@@ -3492,9 +3492,9 @@
        "proj_blend": 159.8,
        "floor_blend": 140.3,
        "ceiling_blend": 225.1,
-       "adp": 73.2,
-       "pct_available_now": 73,
-       "pct_still_there_next_pick": 10,
+       "adp": 73.1,
+       "pct_available_now": 75,
+       "pct_still_there_next_pick": 9,
        "surplus_over_wire": 39.2
       },
       {
@@ -3509,7 +3509,7 @@
        "proj_blend": 141.4,
        "floor_blend": 118.7,
        "ceiling_blend": 192.1,
-       "adp": 107.1,
+       "adp": 107.2,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 99,
        "surplus_over_wire": 37.2
@@ -3518,8 +3518,8 @@
     },
     "TE": {
      "best_now": 161,
-     "expected_best_at_next_pick": 150,
-     "VONA": 11,
+     "expected_best_at_next_pick": 149.6,
+     "VONA": 11.4,
      "surplus_over_wire": 30.6,
      "cliff_after_rank": 3,
      "cliff_size": 7,
@@ -3537,9 +3537,9 @@
        "proj_blend": 146.5,
        "floor_blend": 126.5,
        "ceiling_blend": 193.8,
-       "adp": 62.3,
+       "adp": 62.2,
        "pct_available_now": 33,
-       "pct_still_there_next_pick": 10,
+       "pct_still_there_next_pick": 11,
        "surplus_over_wire": 30.6
       },
       {
@@ -3554,9 +3554,9 @@
        "proj_blend": 150.3,
        "floor_blend": 133.4,
        "ceiling_blend": 195.4,
-       "adp": 67,
-       "pct_available_now": 42,
-       "pct_still_there_next_pick": 11,
+       "adp": 66.8,
+       "pct_available_now": 44,
+       "pct_still_there_next_pick": 12,
        "surplus_over_wire": 29.6
       },
       {
@@ -3572,7 +3572,7 @@
        "floor_blend": 133.5,
        "ceiling_blend": 190.3,
        "adp": 64.5,
-       "pct_available_now": 26,
+       "pct_available_now": 28,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 27.6
       },
@@ -3588,9 +3588,9 @@
        "proj_blend": 141.7,
        "floor_blend": 100.4,
        "ceiling_blend": 200.8,
-       "adp": 92.2,
-       "pct_available_now": 88,
-       "pct_still_there_next_pick": 69,
+       "adp": 91.9,
+       "pct_available_now": 85,
+       "pct_still_there_next_pick": 64,
        "surplus_over_wire": 20.6
       },
       {
@@ -3605,9 +3605,9 @@
        "proj_blend": 149.3,
        "floor_blend": 137.2,
        "ceiling_blend": 195.7,
-       "adp": 71.4,
-       "pct_available_now": 60,
-       "pct_still_there_next_pick": 10,
+       "adp": 72.1,
+       "pct_available_now": 64,
+       "pct_still_there_next_pick": 9,
        "surplus_over_wire": 17.6
       },
       {
@@ -3623,8 +3623,8 @@
        "floor_blend": 122.4,
        "ceiling_blend": 171.3,
        "adp": 93.2,
-       "pct_available_now": 91,
-       "pct_still_there_next_pick": 69,
+       "pct_available_now": 92,
+       "pct_still_there_next_pick": 71,
        "surplus_over_wire": 15.6
       }
      ]
@@ -3650,9 +3650,9 @@
        "proj_blend": 145.5,
        "floor_blend": 129.1,
        "ceiling_blend": 157,
-       "adp": 115.7,
+       "adp": 115.5,
        "pct_available_now": 99,
-       "pct_still_there_next_pick": 95,
+       "pct_still_there_next_pick": 96,
        "surplus_over_wire": 48.4
       },
       {
@@ -3667,7 +3667,7 @@
        "proj_blend": 136.7,
        "floor_blend": 121.4,
        "ceiling_blend": 146.4,
-       "adp": 140.6,
+       "adp": 139.8,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 41.4
@@ -3684,7 +3684,7 @@
        "proj_blend": 137.5,
        "floor_blend": 128,
        "ceiling_blend": 153.2,
-       "adp": 139.1,
+       "adp": 140.6,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 29.4
@@ -3701,7 +3701,7 @@
        "proj_blend": 127.2,
        "floor_blend": 119.7,
        "ceiling_blend": 146.3,
-       "adp": 257.8,
+       "adp": 257.6,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 24.4
@@ -3729,7 +3729,7 @@
        "proj_blend": 122.7,
        "floor_blend": 110,
        "ceiling_blend": 137.4,
-       "adp": 119.6,
+       "adp": 120.3,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 25
@@ -3746,7 +3746,7 @@
        "proj_blend": 118.3,
        "floor_blend": 101.8,
        "ceiling_blend": 130,
-       "adp": 126,
+       "adp": 126.4,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 22
@@ -3763,7 +3763,7 @@
        "proj_blend": 115.5,
        "floor_blend": 98.1,
        "ceiling_blend": 127,
-       "adp": 128.1,
+       "adp": 127.8,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 20
@@ -3780,7 +3780,7 @@
        "proj_blend": 100.5,
        "floor_blend": 87.3,
        "ceiling_blend": 113.7,
-       "adp": 161.6,
+       "adp": 164.7,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 14
@@ -3816,8 +3816,8 @@
        "floor_blend": 298.6,
        "ceiling_blend": 442.5,
        "adp": 81.4,
-       "pct_available_now": 46,
-       "pct_still_there_next_pick": 34,
+       "pct_available_now": 43,
+       "pct_still_there_next_pick": 28,
        "surplus_over_wire": 6.1
       },
       {
@@ -3832,8 +3832,8 @@
        "proj_blend": 353.8,
        "floor_blend": 300.8,
        "ceiling_blend": 450.1,
-       "adp": 103.3,
-       "pct_available_now": 95,
+       "adp": 103.6,
+       "pct_available_now": 93,
        "pct_still_there_next_pick": 87,
        "surplus_over_wire": 4.1
       },
@@ -3849,8 +3849,8 @@
        "proj_blend": 344.6,
        "floor_blend": 297,
        "ceiling_blend": 441.8,
-       "adp": 74.1,
-       "pct_available_now": 23,
+       "adp": 74.3,
+       "pct_available_now": 24,
        "pct_still_there_next_pick": 15,
        "surplus_over_wire": 3.1
       },
@@ -3866,9 +3866,9 @@
        "proj_blend": 357.5,
        "floor_blend": 311.3,
        "ceiling_blend": 454.3,
-       "adp": 77,
-       "pct_available_now": 27,
-       "pct_still_there_next_pick": 12,
+       "adp": 77.1,
+       "pct_available_now": 25,
+       "pct_still_there_next_pick": 10,
        "surplus_over_wire": 2.1
       },
       {
@@ -3883,9 +3883,9 @@
        "proj_blend": 317.2,
        "floor_blend": 266.5,
        "ceiling_blend": 409,
-       "adp": 123.4,
+       "adp": 124,
        "pct_available_now": 99,
-       "pct_still_there_next_pick": 98,
+       "pct_still_there_next_pick": 99,
        "surplus_over_wire": 2.1
       },
       {
@@ -3900,39 +3900,22 @@
        "proj_blend": 347.8,
        "floor_blend": 299.5,
        "ceiling_blend": 451.9,
-       "adp": 68.8,
+       "adp": 67.9,
        "pct_available_now": 15,
-       "pct_still_there_next_pick": 7,
+       "pct_still_there_next_pick": 6,
        "surplus_over_wire": 1.1
       }
      ]
     },
     "RB": {
-     "best_now": 180,
-     "expected_best_at_next_pick": 157.1,
-     "VONA": 22.9,
-     "surplus_over_wire": 101.6,
-     "cliff_after_rank": 1,
-     "cliff_size": 15,
-     "note": "STRIKE — waiting costs 23 and he is +102 over the wire",
+     "best_now": 165,
+     "expected_best_at_next_pick": 156.3,
+     "VONA": 8.7,
+     "surplus_over_wire": 86.6,
+     "cliff_after_rank": 5,
+     "cliff_size": 9,
+     "note": "neutral — 9 to wait, +87 over the wire",
      "players": [
-      {
-       "player_id": "7611",
-       "name": "Rhamondre Stevenson",
-       "team": "NE",
-       "bye": 11,
-       "proj": 180,
-       "floor": 152,
-       "ceiling": 256,
-       "injury_risk_pct": 64,
-       "proj_blend": 167.7,
-       "floor_blend": 141.6,
-       "ceiling_blend": 238.4,
-       "adp": 72.2,
-       "pct_available_now": 6,
-       "pct_still_there_next_pick": 1,
-       "surplus_over_wire": 101.6
-      },
       {
        "player_id": "5967",
        "name": "Tony Pollard",
@@ -3945,9 +3928,9 @@
        "proj_blend": 162.8,
        "floor_blend": 141.1,
        "ceiling_blend": 246.7,
-       "adp": 77.9,
-       "pct_available_now": 20,
-       "pct_still_there_next_pick": 6,
+       "adp": 76.3,
+       "pct_available_now": 14,
+       "pct_still_there_next_pick": 3,
        "surplus_over_wire": 86.6
       },
       {
@@ -3962,9 +3945,9 @@
        "proj_blend": 159.7,
        "floor_blend": 137.5,
        "ceiling_blend": 243.9,
-       "adp": 76.1,
-       "pct_available_now": 16,
-       "pct_still_there_next_pick": 5,
+       "adp": 75.1,
+       "pct_available_now": 10,
+       "pct_still_there_next_pick": 1,
        "surplus_over_wire": 86.6
       },
       {
@@ -3979,9 +3962,9 @@
        "proj_blend": 159.8,
        "floor_blend": 136,
        "ceiling_blend": 253.2,
-       "adp": 84.7,
-       "pct_available_now": 55,
-       "pct_still_there_next_pick": 36,
+       "adp": 83.8,
+       "pct_available_now": 53,
+       "pct_still_there_next_pick": 32,
        "surplus_over_wire": 82.6
       },
       {
@@ -3996,9 +3979,9 @@
        "proj_blend": 142.5,
        "floor_blend": 114.7,
        "ceiling_blend": 245.6,
-       "adp": 89.9,
-       "pct_available_now": 63,
-       "pct_still_there_next_pick": 51,
+       "adp": 85.6,
+       "pct_available_now": 54,
+       "pct_still_there_next_pick": 41,
        "surplus_over_wire": 80.6
       },
       {
@@ -4013,9 +3996,9 @@
        "proj_blend": 137.6,
        "floor_blend": 111,
        "ceiling_blend": 226.4,
-       "adp": 99.2,
+       "adp": 99,
        "pct_available_now": 85,
-       "pct_still_there_next_pick": 80,
+       "pct_still_there_next_pick": 78,
        "surplus_over_wire": 76.6
       },
       {
@@ -4030,9 +4013,9 @@
        "proj_blend": 136.4,
        "floor_blend": 108.3,
        "ceiling_blend": 229.7,
-       "adp": 100,
-       "pct_available_now": 88,
-       "pct_still_there_next_pick": 82,
+       "adp": 97.5,
+       "pct_available_now": 85,
+       "pct_still_there_next_pick": 75,
        "surplus_over_wire": 67.6
       },
       {
@@ -4047,9 +4030,9 @@
        "proj_blend": 136.1,
        "floor_blend": 113.1,
        "ceiling_blend": 224.3,
-       "adp": 79.4,
-       "pct_available_now": 37,
-       "pct_still_there_next_pick": 24,
+       "adp": 79.7,
+       "pct_available_now": 35,
+       "pct_still_there_next_pick": 22,
        "surplus_over_wire": 63.6
       },
       {
@@ -4064,9 +4047,9 @@
        "proj_blend": 141.5,
        "floor_blend": 126.2,
        "ceiling_blend": 250.4,
-       "adp": 87.2,
-       "pct_available_now": 64,
-       "pct_still_there_next_pick": 49,
+       "adp": 89.1,
+       "pct_available_now": 68,
+       "pct_still_there_next_pick": 54,
        "surplus_over_wire": 60.6
       },
       {
@@ -4081,17 +4064,34 @@
        "proj_blend": 147.8,
        "floor_blend": 132.8,
        "ceiling_blend": 279.5,
-       "adp": 75.3,
-       "pct_available_now": 16,
-       "pct_still_there_next_pick": 5,
+       "adp": 77.8,
+       "pct_available_now": 27,
+       "pct_still_there_next_pick": 9,
        "surplus_over_wire": 59.6
+      },
+      {
+       "player_id": "11586",
+       "name": "Blake Corum",
+       "team": "LAR",
+       "bye": 11,
+       "proj": 135,
+       "floor": 124,
+       "ceiling": 260,
+       "injury_risk_pct": 33,
+       "proj_blend": 131.4,
+       "floor_blend": 120.7,
+       "ceiling_blend": 253.2,
+       "adp": 90.3,
+       "pct_available_now": 63,
+       "pct_still_there_next_pick": 50,
+       "surplus_over_wire": 56.6
       }
      ]
     },
     "WR": {
      "best_now": 173,
-     "expected_best_at_next_pick": 165.2,
-     "VONA": 7.8,
+     "expected_best_at_next_pick": 165.1,
+     "VONA": 7.9,
      "surplus_over_wire": 48.2,
      "cliff_after_rank": 1,
      "cliff_size": 8,
@@ -4109,8 +4109,8 @@
        "proj_blend": 160.6,
        "floor_blend": 134.6,
        "ceiling_blend": 203.4,
-       "adp": 80.4,
-       "pct_available_now": 34,
+       "adp": 80.5,
+       "pct_available_now": 33,
        "pct_still_there_next_pick": 10,
        "surplus_over_wire": 48.2
       },
@@ -4127,8 +4127,8 @@
        "floor_blend": 138.8,
        "ceiling_blend": 214,
        "adp": 86.4,
-       "pct_available_now": 67,
-       "pct_still_there_next_pick": 34,
+       "pct_available_now": 66,
+       "pct_still_there_next_pick": 32,
        "surplus_over_wire": 40.2
       },
       {
@@ -4145,7 +4145,7 @@
        "ceiling_blend": 194.8,
        "adp": 110.1,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 100,
+       "pct_still_there_next_pick": 99,
        "surplus_over_wire": 40.2
       },
       {
@@ -4160,9 +4160,9 @@
        "proj_blend": 159.8,
        "floor_blend": 140.3,
        "ceiling_blend": 225.1,
-       "adp": 73.2,
-       "pct_available_now": 10,
-       "pct_still_there_next_pick": 2,
+       "adp": 73.1,
+       "pct_available_now": 9,
+       "pct_still_there_next_pick": 1,
        "surplus_over_wire": 39.2
       },
       {
@@ -4177,7 +4177,7 @@
        "proj_blend": 141.4,
        "floor_blend": 118.7,
        "ceiling_blend": 192.1,
-       "adp": 107.1,
+       "adp": 107.2,
        "pct_available_now": 99,
        "pct_still_there_next_pick": 97,
        "surplus_over_wire": 37.2
@@ -4194,9 +4194,9 @@
        "proj_blend": 148.2,
        "floor_blend": 127.1,
        "ceiling_blend": 189.7,
-       "adp": 106.2,
+       "adp": 105.9,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 100,
+       "pct_still_there_next_pick": 99,
        "surplus_over_wire": 36.2
       },
       {
@@ -4211,7 +4211,7 @@
        "proj_blend": 134.7,
        "floor_blend": 114.6,
        "ceiling_blend": 194.1,
-       "adp": 105.3,
+       "adp": 105.1,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 98,
        "surplus_over_wire": 36.2
@@ -4230,7 +4230,7 @@
        "ceiling_blend": 204.1,
        "adp": 102.2,
        "pct_available_now": 98,
-       "pct_still_there_next_pick": 93,
+       "pct_still_there_next_pick": 95,
        "surplus_over_wire": 33.2
       },
       {
@@ -4245,7 +4245,7 @@
        "proj_blend": 142.9,
        "floor_blend": 121.8,
        "ceiling_blend": 193.2,
-       "adp": 122.4,
+       "adp": 123.3,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 31.2
@@ -4262,7 +4262,7 @@
        "proj_blend": 140.8,
        "floor_blend": 115.8,
        "ceiling_blend": 207.5,
-       "adp": 130.3,
+       "adp": 132.3,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 27.2
@@ -4271,8 +4271,8 @@
     },
     "TE": {
      "best_now": 161,
-     "expected_best_at_next_pick": 147,
-     "VONA": 14,
+     "expected_best_at_next_pick": 146.5,
+     "VONA": 14.5,
      "surplus_over_wire": 30.6,
      "cliff_after_rank": 5,
      "cliff_size": 15,
@@ -4290,9 +4290,9 @@
        "proj_blend": 146.5,
        "floor_blend": 126.5,
        "ceiling_blend": 193.8,
-       "adp": 62.3,
-       "pct_available_now": 10,
-       "pct_still_there_next_pick": 7,
+       "adp": 62.2,
+       "pct_available_now": 11,
+       "pct_still_there_next_pick": 6,
        "surplus_over_wire": 30.6
       },
       {
@@ -4307,9 +4307,9 @@
        "proj_blend": 150.3,
        "floor_blend": 133.4,
        "ceiling_blend": 195.4,
-       "adp": 67,
-       "pct_available_now": 11,
-       "pct_still_there_next_pick": 8,
+       "adp": 66.8,
+       "pct_available_now": 12,
+       "pct_still_there_next_pick": 10,
        "surplus_over_wire": 29.6
       },
       {
@@ -4324,9 +4324,9 @@
        "proj_blend": 141.7,
        "floor_blend": 100.4,
        "ceiling_blend": 200.8,
-       "adp": 92.2,
-       "pct_available_now": 69,
-       "pct_still_there_next_pick": 59,
+       "adp": 91.9,
+       "pct_available_now": 64,
+       "pct_still_there_next_pick": 55,
        "surplus_over_wire": 20.6
       },
       {
@@ -4341,9 +4341,9 @@
        "proj_blend": 149.3,
        "floor_blend": 137.2,
        "ceiling_blend": 195.7,
-       "adp": 71.4,
-       "pct_available_now": 10,
-       "pct_still_there_next_pick": 3,
+       "adp": 72.1,
+       "pct_available_now": 9,
+       "pct_still_there_next_pick": 2,
        "surplus_over_wire": 17.6
       },
       {
@@ -4359,8 +4359,8 @@
        "floor_blend": 122.4,
        "ceiling_blend": 171.3,
        "adp": 93.2,
-       "pct_available_now": 69,
-       "pct_still_there_next_pick": 62,
+       "pct_available_now": 71,
+       "pct_still_there_next_pick": 60,
        "surplus_over_wire": 15.6
       },
       {
@@ -4375,8 +4375,8 @@
        "proj_blend": 138,
        "floor_blend": 121.1,
        "ceiling_blend": 174.8,
-       "adp": 116.8,
-       "pct_available_now": 93,
+       "adp": 116.6,
+       "pct_available_now": 92,
        "pct_still_there_next_pick": 90,
        "surplus_over_wire": 0.6
       }
@@ -4403,8 +4403,8 @@
        "proj_blend": 145.5,
        "floor_blend": 129.1,
        "ceiling_blend": 157,
-       "adp": 115.7,
-       "pct_available_now": 95,
+       "adp": 115.5,
+       "pct_available_now": 96,
        "pct_still_there_next_pick": 92,
        "surplus_over_wire": 48.4
       },
@@ -4420,7 +4420,7 @@
        "proj_blend": 136.7,
        "floor_blend": 121.4,
        "ceiling_blend": 146.4,
-       "adp": 140.6,
+       "adp": 139.8,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 41.4
@@ -4437,7 +4437,7 @@
        "proj_blend": 137.5,
        "floor_blend": 128,
        "ceiling_blend": 153.2,
-       "adp": 139.1,
+       "adp": 140.6,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 29.4
@@ -4454,7 +4454,7 @@
        "proj_blend": 127.2,
        "floor_blend": 119.7,
        "ceiling_blend": 146.3,
-       "adp": 257.8,
+       "adp": 257.6,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 24.4
@@ -4482,7 +4482,7 @@
        "proj_blend": 122.7,
        "floor_blend": 110,
        "ceiling_blend": 137.4,
-       "adp": 119.6,
+       "adp": 120.3,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 25
@@ -4499,7 +4499,7 @@
        "proj_blend": 118.3,
        "floor_blend": 101.8,
        "ceiling_blend": 130,
-       "adp": 126,
+       "adp": 126.4,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 22
@@ -4516,7 +4516,7 @@
        "proj_blend": 115.5,
        "floor_blend": 98.1,
        "ceiling_blend": 127,
-       "adp": 128.1,
+       "adp": 127.8,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 20
@@ -4533,7 +4533,7 @@
        "proj_blend": 100.5,
        "floor_blend": 87.3,
        "ceiling_blend": 113.7,
-       "adp": 161.6,
+       "adp": 164.7,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 14
@@ -4549,12 +4549,12 @@
    "positions": {
     "QB": {
      "best_now": 329,
-     "expected_best_at_next_pick": 323.4,
-     "VONA": 5.6,
+     "expected_best_at_next_pick": 323.7,
+     "VONA": 5.3,
      "surplus_over_wire": 6.1,
      "cliff_after_rank": 1,
      "cliff_size": 2,
-     "note": "neutral — 6 to wait, +6 over the wire",
+     "note": "neutral — 5 to wait, +6 over the wire",
      "players": [
       {
        "player_id": "7523",
@@ -4569,7 +4569,7 @@
        "floor_blend": 298.6,
        "ceiling_blend": 442.5,
        "adp": 81.4,
-       "pct_available_now": 34,
+       "pct_available_now": 28,
        "pct_still_there_next_pick": 4,
        "surplus_over_wire": 6.1
       },
@@ -4585,7 +4585,7 @@
        "proj_blend": 353.8,
        "floor_blend": 300.8,
        "ceiling_blend": 450.1,
-       "adp": 103.3,
+       "adp": 103.6,
        "pct_available_now": 87,
        "pct_still_there_next_pick": 44,
        "surplus_over_wire": 4.1
@@ -4602,7 +4602,7 @@
        "proj_blend": 344.6,
        "floor_blend": 297,
        "ceiling_blend": 441.8,
-       "adp": 74.1,
+       "adp": 74.3,
        "pct_available_now": 15,
        "pct_still_there_next_pick": 3,
        "surplus_over_wire": 3.1
@@ -4619,8 +4619,8 @@
        "proj_blend": 357.5,
        "floor_blend": 311.3,
        "ceiling_blend": 454.3,
-       "adp": 77,
-       "pct_available_now": 12,
+       "adp": 77.1,
+       "pct_available_now": 10,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 2.1
       },
@@ -4636,9 +4636,9 @@
        "proj_blend": 317.2,
        "floor_blend": 266.5,
        "ceiling_blend": 409,
-       "adp": 123.4,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 88,
+       "adp": 124,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 89,
        "surplus_over_wire": 2.1
       },
       {
@@ -4653,56 +4653,22 @@
        "proj_blend": 347.8,
        "floor_blend": 299.5,
        "ceiling_blend": 451.9,
-       "adp": 68.8,
-       "pct_available_now": 7,
+       "adp": 67.9,
+       "pct_available_now": 6,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 1.1
       }
      ]
     },
     "RB": {
-     "best_now": 165,
-     "expected_best_at_next_pick": 145.3,
-     "VONA": 19.7,
-     "surplus_over_wire": 86.6,
-     "cliff_after_rank": 5,
+     "best_now": 161,
+     "expected_best_at_next_pick": 144.6,
+     "VONA": 16.4,
+     "surplus_over_wire": 82.6,
+     "cliff_after_rank": 3,
      "cliff_size": 9,
-     "note": "STRIKE — waiting costs 20 and he is +87 over the wire",
+     "note": "STRIKE — waiting costs 16 and he is +83 over the wire",
      "players": [
-      {
-       "player_id": "5967",
-       "name": "Tony Pollard",
-       "team": "TEN",
-       "bye": 9,
-       "proj": 165,
-       "floor": 143,
-       "ceiling": 250,
-       "injury_risk_pct": 35,
-       "proj_blend": 162.8,
-       "floor_blend": 141.1,
-       "ceiling_blend": 246.7,
-       "adp": 77.9,
-       "pct_available_now": 6,
-       "pct_still_there_next_pick": 0,
-       "surplus_over_wire": 86.6
-      },
-      {
-       "player_id": "7021",
-       "name": "Rico Dowdle",
-       "team": "PIT",
-       "bye": 9,
-       "proj": 165,
-       "floor": 142,
-       "ceiling": 252,
-       "injury_risk_pct": 27,
-       "proj_blend": 159.7,
-       "floor_blend": 137.5,
-       "ceiling_blend": 243.9,
-       "adp": 76.1,
-       "pct_available_now": 5,
-       "pct_still_there_next_pick": 0,
-       "surplus_over_wire": 86.6
-      },
       {
        "player_id": "6806",
        "name": "J.K. Dobbins",
@@ -4715,9 +4681,9 @@
        "proj_blend": 159.8,
        "floor_blend": 136,
        "ceiling_blend": 253.2,
-       "adp": 84.7,
-       "pct_available_now": 36,
-       "pct_still_there_next_pick": 4,
+       "adp": 83.8,
+       "pct_available_now": 32,
+       "pct_still_there_next_pick": 3,
        "surplus_over_wire": 82.6
       },
       {
@@ -4732,9 +4698,9 @@
        "proj_blend": 142.5,
        "floor_blend": 114.7,
        "ceiling_blend": 245.6,
-       "adp": 89.9,
-       "pct_available_now": 51,
-       "pct_still_there_next_pick": 18,
+       "adp": 85.6,
+       "pct_available_now": 41,
+       "pct_still_there_next_pick": 13,
        "surplus_over_wire": 80.6
       },
       {
@@ -4749,9 +4715,9 @@
        "proj_blend": 137.6,
        "floor_blend": 111,
        "ceiling_blend": 226.4,
-       "adp": 99.2,
-       "pct_available_now": 80,
-       "pct_still_there_next_pick": 41,
+       "adp": 99,
+       "pct_available_now": 78,
+       "pct_still_there_next_pick": 40,
        "surplus_over_wire": 76.6
       },
       {
@@ -4766,9 +4732,9 @@
        "proj_blend": 136.4,
        "floor_blend": 108.3,
        "ceiling_blend": 229.7,
-       "adp": 100,
-       "pct_available_now": 82,
-       "pct_still_there_next_pick": 39,
+       "adp": 97.5,
+       "pct_available_now": 75,
+       "pct_still_there_next_pick": 33,
        "surplus_over_wire": 67.6
       },
       {
@@ -4783,9 +4749,9 @@
        "proj_blend": 136.1,
        "floor_blend": 113.1,
        "ceiling_blend": 224.3,
-       "adp": 79.4,
-       "pct_available_now": 24,
-       "pct_still_there_next_pick": 2,
+       "adp": 79.7,
+       "pct_available_now": 22,
+       "pct_still_there_next_pick": 1,
        "surplus_over_wire": 63.6
       },
       {
@@ -4800,10 +4766,27 @@
        "proj_blend": 141.5,
        "floor_blend": 126.2,
        "ceiling_blend": 250.4,
-       "adp": 87.2,
-       "pct_available_now": 49,
-       "pct_still_there_next_pick": 13,
+       "adp": 89.1,
+       "pct_available_now": 54,
+       "pct_still_there_next_pick": 19,
        "surplus_over_wire": 60.6
+      },
+      {
+       "player_id": "7594",
+       "name": "Chuba Hubbard",
+       "team": "CAR",
+       "bye": 5,
+       "proj": 138,
+       "floor": 124,
+       "ceiling": 261,
+       "injury_risk_pct": 36,
+       "proj_blend": 147.8,
+       "floor_blend": 132.8,
+       "ceiling_blend": 279.5,
+       "adp": 77.8,
+       "pct_available_now": 9,
+       "pct_still_there_next_pick": 0,
+       "surplus_over_wire": 59.6
       },
       {
        "player_id": "11586",
@@ -4817,8 +4800,8 @@
        "proj_blend": 131.4,
        "floor_blend": 120.7,
        "ceiling_blend": 253.2,
-       "adp": 91.1,
-       "pct_available_now": 53,
+       "adp": 90.3,
+       "pct_available_now": 50,
        "pct_still_there_next_pick": 13,
        "surplus_over_wire": 56.6
       },
@@ -4834,9 +4817,26 @@
        "proj_blend": 137.9,
        "floor_blend": 122.1,
        "ceiling_blend": 237.9,
-       "adp": 104.5,
+       "adp": 104.3,
        "pct_available_now": 93,
-       "pct_still_there_next_pick": 56,
+       "pct_still_there_next_pick": 48,
+       "surplus_over_wire": 52.6
+      },
+      {
+       "player_id": "9508",
+       "name": "Tyjae Spears",
+       "team": "TEN",
+       "bye": 9,
+       "proj": 131,
+       "floor": 110,
+       "ceiling": 218,
+       "injury_risk_pct": 37,
+       "proj_blend": 114.2,
+       "floor_blend": 95.9,
+       "ceiling_blend": 190.1,
+       "adp": 159.9,
+       "pct_available_now": 100,
+       "pct_still_there_next_pick": 100,
        "surplus_over_wire": 52.6
       }
      ]
@@ -4862,7 +4862,7 @@
        "proj_blend": 160.6,
        "floor_blend": 134.6,
        "ceiling_blend": 203.4,
-       "adp": 80.4,
+       "adp": 80.5,
        "pct_available_now": 10,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 48.2
@@ -4880,7 +4880,7 @@
        "floor_blend": 138.8,
        "ceiling_blend": 214,
        "adp": 86.4,
-       "pct_available_now": 34,
+       "pct_available_now": 32,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 40.2
       },
@@ -4897,8 +4897,8 @@
        "floor_blend": 122.2,
        "ceiling_blend": 194.8,
        "adp": 110.1,
-       "pct_available_now": 100,
-       "pct_still_there_next_pick": 74,
+       "pct_available_now": 99,
+       "pct_still_there_next_pick": 73,
        "surplus_over_wire": 40.2
       },
       {
@@ -4913,7 +4913,7 @@
        "proj_blend": 141.4,
        "floor_blend": 118.7,
        "ceiling_blend": 192.1,
-       "adp": 107.1,
+       "adp": 107.2,
        "pct_available_now": 97,
        "pct_still_there_next_pick": 54,
        "surplus_over_wire": 37.2
@@ -4930,8 +4930,8 @@
        "proj_blend": 148.2,
        "floor_blend": 127.1,
        "ceiling_blend": 189.7,
-       "adp": 106.2,
-       "pct_available_now": 100,
+       "adp": 105.9,
+       "pct_available_now": 99,
        "pct_still_there_next_pick": 57,
        "surplus_over_wire": 36.2
       },
@@ -4947,9 +4947,9 @@
        "proj_blend": 134.7,
        "floor_blend": 114.6,
        "ceiling_blend": 194.1,
-       "adp": 105.3,
+       "adp": 105.1,
        "pct_available_now": 98,
-       "pct_still_there_next_pick": 47,
+       "pct_still_there_next_pick": 46,
        "surplus_over_wire": 36.2
       },
       {
@@ -4965,8 +4965,8 @@
        "floor_blend": 117.8,
        "ceiling_blend": 204.1,
        "adp": 102.2,
-       "pct_available_now": 93,
-       "pct_still_there_next_pick": 41,
+       "pct_available_now": 95,
+       "pct_still_there_next_pick": 39,
        "surplus_over_wire": 33.2
       },
       {
@@ -4981,7 +4981,7 @@
        "proj_blend": 142.9,
        "floor_blend": 121.8,
        "ceiling_blend": 193.2,
-       "adp": 122.4,
+       "adp": 123.3,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 99,
        "surplus_over_wire": 31.2
@@ -4998,7 +4998,7 @@
        "proj_blend": 140.8,
        "floor_blend": 115.8,
        "ceiling_blend": 207.5,
-       "adp": 130.3,
+       "adp": 132.3,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 27.2
@@ -5015,8 +5015,8 @@
        "proj_blend": 139.4,
        "floor_blend": 111.7,
        "ceiling_blend": 205,
-       "adp": 88.3,
-       "pct_available_now": 47,
+       "adp": 88.2,
+       "pct_available_now": 52,
        "pct_still_there_next_pick": 2,
        "surplus_over_wire": 26.2
       }
@@ -5024,8 +5024,8 @@
     },
     "TE": {
      "best_now": 161,
-     "expected_best_at_next_pick": 137.9,
-     "VONA": 23.1,
+     "expected_best_at_next_pick": 137.6,
+     "VONA": 23.4,
      "surplus_over_wire": 30.6,
      "cliff_after_rank": 4,
      "cliff_size": 15,
@@ -5043,8 +5043,8 @@
        "proj_blend": 146.5,
        "floor_blend": 126.5,
        "ceiling_blend": 193.8,
-       "adp": 62.3,
-       "pct_available_now": 7,
+       "adp": 62.2,
+       "pct_available_now": 6,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 30.6
       },
@@ -5060,8 +5060,8 @@
        "proj_blend": 150.3,
        "floor_blend": 133.4,
        "ceiling_blend": 195.4,
-       "adp": 67,
-       "pct_available_now": 8,
+       "adp": 66.8,
+       "pct_available_now": 10,
        "pct_still_there_next_pick": 1,
        "surplus_over_wire": 29.6
       },
@@ -5077,8 +5077,8 @@
        "proj_blend": 141.7,
        "floor_blend": 100.4,
        "ceiling_blend": 200.8,
-       "adp": 92.2,
-       "pct_available_now": 59,
+       "adp": 91.9,
+       "pct_available_now": 55,
        "pct_still_there_next_pick": 27,
        "surplus_over_wire": 20.6
       },
@@ -5095,8 +5095,8 @@
        "floor_blend": 122.4,
        "ceiling_blend": 171.3,
        "adp": 93.2,
-       "pct_available_now": 62,
-       "pct_still_there_next_pick": 26,
+       "pct_available_now": 60,
+       "pct_still_there_next_pick": 25,
        "surplus_over_wire": 15.6
       },
       {
@@ -5111,9 +5111,9 @@
        "proj_blend": 138,
        "floor_blend": 121.1,
        "ceiling_blend": 174.8,
-       "adp": 116.8,
+       "adp": 116.6,
        "pct_available_now": 90,
-       "pct_still_there_next_pick": 69,
+       "pct_still_there_next_pick": 68,
        "surplus_over_wire": 0.6
       },
       {
@@ -5128,8 +5128,8 @@
        "proj_blend": 136.7,
        "floor_blend": 122.1,
        "ceiling_blend": 181.6,
-       "adp": 113.4,
-       "pct_available_now": 88,
+       "adp": 113.5,
+       "pct_available_now": 89,
        "pct_still_there_next_pick": 62,
        "surplus_over_wire": 0.6
       }
@@ -5137,8 +5137,8 @@
     },
     "K": {
      "best_now": 177,
-     "expected_best_at_next_pick": 174.7,
-     "VONA": 2.3,
+     "expected_best_at_next_pick": 174.6,
+     "VONA": 2.4,
      "surplus_over_wire": 48.4,
      "cliff_after_rank": 2,
      "cliff_size": 12,
@@ -5156,9 +5156,9 @@
        "proj_blend": 145.5,
        "floor_blend": 129.1,
        "ceiling_blend": 157,
-       "adp": 115.7,
+       "adp": 115.5,
        "pct_available_now": 92,
-       "pct_still_there_next_pick": 75,
+       "pct_still_there_next_pick": 76,
        "surplus_over_wire": 48.4
       },
       {
@@ -5173,9 +5173,9 @@
        "proj_blend": 136.7,
        "floor_blend": 121.4,
        "ceiling_blend": 146.4,
-       "adp": 140.6,
+       "adp": 139.8,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 98,
+       "pct_still_there_next_pick": 96,
        "surplus_over_wire": 41.4
       },
       {
@@ -5190,7 +5190,7 @@
        "proj_blend": 137.5,
        "floor_blend": 128,
        "ceiling_blend": 153.2,
-       "adp": 139.1,
+       "adp": 140.6,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 95,
        "surplus_over_wire": 29.4
@@ -5207,7 +5207,7 @@
        "proj_blend": 127.2,
        "floor_blend": 119.7,
        "ceiling_blend": 146.3,
-       "adp": 257.8,
+       "adp": 257.6,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 24.4
@@ -5235,7 +5235,7 @@
        "proj_blend": 122.7,
        "floor_blend": 110,
        "ceiling_blend": 137.4,
-       "adp": 119.6,
+       "adp": 120.3,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 95,
        "surplus_over_wire": 25
@@ -5252,9 +5252,9 @@
        "proj_blend": 118.3,
        "floor_blend": 101.8,
        "ceiling_blend": 130,
-       "adp": 126,
+       "adp": 126.4,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 99,
+       "pct_still_there_next_pick": 100,
        "surplus_over_wire": 22
       },
       {
@@ -5269,7 +5269,7 @@
        "proj_blend": 115.5,
        "floor_blend": 98.1,
        "ceiling_blend": 127,
-       "adp": 128.1,
+       "adp": 127.8,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 99,
        "surplus_over_wire": 20
@@ -5286,7 +5286,7 @@
        "proj_blend": 100.5,
        "floor_blend": 87.3,
        "ceiling_blend": 113.7,
-       "adp": 161.6,
+       "adp": 164.7,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 14
@@ -5302,8 +5302,8 @@
    "positions": {
     "QB": {
      "best_now": 327,
-     "expected_best_at_next_pick": 320.9,
-     "VONA": 6.1,
+     "expected_best_at_next_pick": 321.6,
+     "VONA": 5.4,
      "surplus_over_wire": 4.1,
      "cliff_after_rank": 3,
      "cliff_size": 7,
@@ -5321,9 +5321,9 @@
        "proj_blend": 353.8,
        "floor_blend": 300.8,
        "ceiling_blend": 450.1,
-       "adp": 103.3,
+       "adp": 103.6,
        "pct_available_now": 44,
-       "pct_still_there_next_pick": 26,
+       "pct_still_there_next_pick": 27,
        "surplus_over_wire": 4.1
       },
       {
@@ -5338,9 +5338,9 @@
        "proj_blend": 317.2,
        "floor_blend": 266.5,
        "ceiling_blend": 409,
-       "adp": 123.4,
-       "pct_available_now": 88,
-       "pct_still_there_next_pick": 79,
+       "adp": 124,
+       "pct_available_now": 89,
+       "pct_still_there_next_pick": 81,
        "surplus_over_wire": 2.1
       },
       {
@@ -5355,9 +5355,9 @@
        "proj_blend": 346.1,
        "floor_blend": 300.6,
        "ceiling_blend": 452.5,
-       "adp": 85.6,
-       "pct_available_now": 9,
-       "pct_still_there_next_pick": 5,
+       "adp": 87.3,
+       "pct_available_now": 13,
+       "pct_still_there_next_pick": 6,
        "surplus_over_wire": 0
       },
       {
@@ -5372,9 +5372,9 @@
        "proj_blend": 344.7,
        "floor_blend": 310.4,
        "ceiling_blend": 455.1,
-       "adp": 101.5,
-       "pct_available_now": 39,
-       "pct_still_there_next_pick": 26,
+       "adp": 100.7,
+       "pct_available_now": 38,
+       "pct_still_there_next_pick": 24,
        "surplus_over_wire": 0
       },
       {
@@ -5389,9 +5389,9 @@
        "proj_blend": 344.9,
        "floor_blend": 310.3,
        "ceiling_blend": 465.4,
-       "adp": 95.7,
-       "pct_available_now": 27,
-       "pct_still_there_next_pick": 16,
+       "adp": 96,
+       "pct_available_now": 25,
+       "pct_still_there_next_pick": 15,
        "surplus_over_wire": 0
       },
       {
@@ -5406,21 +5406,21 @@
        "proj_blend": 340.6,
        "floor_blend": 312.5,
        "ceiling_blend": 451.9,
-       "adp": 112.5,
-       "pct_available_now": 71,
-       "pct_still_there_next_pick": 50,
+       "adp": 112.2,
+       "pct_available_now": 70,
+       "pct_still_there_next_pick": 53,
        "surplus_over_wire": 0
       }
      ]
     },
     "RB": {
      "best_now": 159,
-     "expected_best_at_next_pick": 140.1,
-     "VONA": 18.9,
+     "expected_best_at_next_pick": 138.7,
+     "VONA": 20.3,
      "surplus_over_wire": 80.6,
      "cliff_after_rank": 2,
      "cliff_size": 9,
-     "note": "STRIKE — waiting costs 19 and he is +81 over the wire",
+     "note": "STRIKE — waiting costs 20 and he is +81 over the wire",
      "players": [
       {
        "player_id": "11583",
@@ -5434,9 +5434,9 @@
        "proj_blend": 142.5,
        "floor_blend": 114.7,
        "ceiling_blend": 245.6,
-       "adp": 89.9,
-       "pct_available_now": 18,
-       "pct_still_there_next_pick": 12,
+       "adp": 85.6,
+       "pct_available_now": 13,
+       "pct_still_there_next_pick": 8,
        "surplus_over_wire": 80.6
       },
       {
@@ -5451,8 +5451,8 @@
        "proj_blend": 137.6,
        "floor_blend": 111,
        "ceiling_blend": 226.4,
-       "adp": 99.2,
-       "pct_available_now": 41,
+       "adp": 99,
+       "pct_available_now": 40,
        "pct_still_there_next_pick": 23,
        "surplus_over_wire": 76.6
       },
@@ -5468,9 +5468,9 @@
        "proj_blend": 136.4,
        "floor_blend": 108.3,
        "ceiling_blend": 229.7,
-       "adp": 100,
-       "pct_available_now": 39,
-       "pct_still_there_next_pick": 27,
+       "adp": 97.5,
+       "pct_available_now": 33,
+       "pct_still_there_next_pick": 21,
        "surplus_over_wire": 67.6
       },
       {
@@ -5485,9 +5485,9 @@
        "proj_blend": 141.5,
        "floor_blend": 126.2,
        "ceiling_blend": 250.4,
-       "adp": 87.2,
-       "pct_available_now": 13,
-       "pct_still_there_next_pick": 8,
+       "adp": 89.1,
+       "pct_available_now": 19,
+       "pct_still_there_next_pick": 11,
        "surplus_over_wire": 60.6
       },
       {
@@ -5502,9 +5502,9 @@
        "proj_blend": 131.4,
        "floor_blend": 120.7,
        "ceiling_blend": 253.2,
-       "adp": 91.1,
+       "adp": 90.3,
        "pct_available_now": 13,
-       "pct_still_there_next_pick": 7,
+       "pct_still_there_next_pick": 6,
        "surplus_over_wire": 56.6
       },
       {
@@ -5519,9 +5519,9 @@
        "proj_blend": 137.9,
        "floor_blend": 122.1,
        "ceiling_blend": 237.9,
-       "adp": 104.5,
-       "pct_available_now": 56,
-       "pct_still_there_next_pick": 35,
+       "adp": 104.3,
+       "pct_available_now": 48,
+       "pct_still_there_next_pick": 30,
        "surplus_over_wire": 52.6
       },
       {
@@ -5536,7 +5536,7 @@
        "proj_blend": 114.2,
        "floor_blend": 95.9,
        "ceiling_blend": 190.1,
-       "adp": 160,
+       "adp": 159.9,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 99,
        "surplus_over_wire": 52.6
@@ -5553,8 +5553,8 @@
        "proj_blend": 134.6,
        "floor_blend": 109.3,
        "ceiling_blend": 233.4,
-       "adp": 109.3,
-       "pct_available_now": 58,
+       "adp": 109.4,
+       "pct_available_now": 57,
        "pct_still_there_next_pick": 44,
        "surplus_over_wire": 49.6
       },
@@ -5571,8 +5571,8 @@
        "floor_blend": 106.6,
        "ceiling_blend": 230.5,
        "adp": 114.3,
-       "pct_available_now": 73,
-       "pct_still_there_next_pick": 61,
+       "pct_available_now": 75,
+       "pct_still_there_next_pick": 62,
        "surplus_over_wire": 45.6
       },
       {
@@ -5587,17 +5587,17 @@
        "proj_blend": 104.1,
        "floor_blend": 78.1,
        "ceiling_blend": 213.4,
-       "adp": 127.3,
-       "pct_available_now": 84,
-       "pct_still_there_next_pick": 78,
+       "adp": 128.6,
+       "pct_available_now": 86,
+       "pct_still_there_next_pick": 79,
        "surplus_over_wire": 41.6
       }
      ]
     },
     "WR": {
      "best_now": 165,
-     "expected_best_at_next_pick": 160.8,
-     "VONA": 4.2,
+     "expected_best_at_next_pick": 160.9,
+     "VONA": 4.1,
      "surplus_over_wire": 40.2,
      "cliff_after_rank": 6,
      "cliff_size": 4,
@@ -5616,8 +5616,8 @@
        "floor_blend": 122.2,
        "ceiling_blend": 194.8,
        "adp": 110.1,
-       "pct_available_now": 74,
-       "pct_still_there_next_pick": 50,
+       "pct_available_now": 73,
+       "pct_still_there_next_pick": 51,
        "surplus_over_wire": 40.2
       },
       {
@@ -5632,9 +5632,9 @@
        "proj_blend": 141.4,
        "floor_blend": 118.7,
        "ceiling_blend": 192.1,
-       "adp": 107.1,
+       "adp": 107.2,
        "pct_available_now": 54,
-       "pct_still_there_next_pick": 31,
+       "pct_still_there_next_pick": 33,
        "surplus_over_wire": 37.2
       },
       {
@@ -5649,9 +5649,9 @@
        "proj_blend": 148.2,
        "floor_blend": 127.1,
        "ceiling_blend": 189.7,
-       "adp": 106.2,
+       "adp": 105.9,
        "pct_available_now": 57,
-       "pct_still_there_next_pick": 31,
+       "pct_still_there_next_pick": 29,
        "surplus_over_wire": 36.2
       },
       {
@@ -5666,9 +5666,9 @@
        "proj_blend": 134.7,
        "floor_blend": 114.6,
        "ceiling_blend": 194.1,
-       "adp": 105.3,
-       "pct_available_now": 47,
-       "pct_still_there_next_pick": 23,
+       "adp": 105.1,
+       "pct_available_now": 46,
+       "pct_still_there_next_pick": 24,
        "surplus_over_wire": 36.2
       },
       {
@@ -5684,8 +5684,8 @@
        "floor_blend": 117.8,
        "ceiling_blend": 204.1,
        "adp": 102.2,
-       "pct_available_now": 41,
-       "pct_still_there_next_pick": 20,
+       "pct_available_now": 39,
+       "pct_still_there_next_pick": 19,
        "surplus_over_wire": 33.2
       },
       {
@@ -5700,9 +5700,9 @@
        "proj_blend": 142.9,
        "floor_blend": 121.8,
        "ceiling_blend": 193.2,
-       "adp": 122.4,
+       "adp": 123.3,
        "pct_available_now": 99,
-       "pct_still_there_next_pick": 95,
+       "pct_still_there_next_pick": 96,
        "surplus_over_wire": 31.2
       },
       {
@@ -5717,9 +5717,9 @@
        "proj_blend": 140.8,
        "floor_blend": 115.8,
        "ceiling_blend": 207.5,
-       "adp": 130.3,
+       "adp": 132.3,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 99,
+       "pct_still_there_next_pick": 100,
        "surplus_over_wire": 27.2
       },
       {
@@ -5734,9 +5734,9 @@
        "proj_blend": 130.5,
        "floor_blend": 108.6,
        "ceiling_blend": 197.1,
-       "adp": 111.2,
-       "pct_available_now": 77,
-       "pct_still_there_next_pick": 57,
+       "adp": 108.6,
+       "pct_available_now": 69,
+       "pct_still_there_next_pick": 45,
        "surplus_over_wire": 24.2
       },
       {
@@ -5751,7 +5751,7 @@
        "proj_blend": 129,
        "floor_blend": 108.1,
        "ceiling_blend": 190,
-       "adp": 141.5,
+       "adp": 142.2,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 23.2
@@ -5768,7 +5768,7 @@
        "proj_blend": 127.8,
        "floor_blend": 103.6,
        "ceiling_blend": 186.6,
-       "adp": 138.2,
+       "adp": 137.1,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 23.2
@@ -5777,8 +5777,8 @@
     },
     "TE": {
      "best_now": 151,
-     "expected_best_at_next_pick": 135.7,
-     "VONA": 15.3,
+     "expected_best_at_next_pick": 135.8,
+     "VONA": 15.2,
      "surplus_over_wire": 20.6,
      "cliff_after_rank": 2,
      "cliff_size": 15,
@@ -5796,9 +5796,9 @@
        "proj_blend": 141.7,
        "floor_blend": 100.4,
        "ceiling_blend": 200.8,
-       "adp": 92.2,
+       "adp": 91.9,
        "pct_available_now": 27,
-       "pct_still_there_next_pick": 21,
+       "pct_still_there_next_pick": 19,
        "surplus_over_wire": 20.6
       },
       {
@@ -5814,8 +5814,8 @@
        "floor_blend": 122.4,
        "ceiling_blend": 171.3,
        "adp": 93.2,
-       "pct_available_now": 26,
-       "pct_still_there_next_pick": 18,
+       "pct_available_now": 25,
+       "pct_still_there_next_pick": 17,
        "surplus_over_wire": 15.6
       },
       {
@@ -5830,9 +5830,9 @@
        "proj_blend": 138,
        "floor_blend": 121.1,
        "ceiling_blend": 174.8,
-       "adp": 116.8,
-       "pct_available_now": 69,
-       "pct_still_there_next_pick": 60,
+       "adp": 116.6,
+       "pct_available_now": 68,
+       "pct_still_there_next_pick": 59,
        "surplus_over_wire": 0.6
       },
       {
@@ -5847,7 +5847,7 @@
        "proj_blend": 136.7,
        "floor_blend": 122.1,
        "ceiling_blend": 181.6,
-       "adp": 113.4,
+       "adp": 113.5,
        "pct_available_now": 62,
        "pct_still_there_next_pick": 55,
        "surplus_over_wire": 0.6
@@ -5864,9 +5864,9 @@
        "proj_blend": 128.6,
        "floor_blend": 113.8,
        "ceiling_blend": 178.1,
-       "adp": 98.4,
-       "pct_available_now": 36,
-       "pct_still_there_next_pick": 24,
+       "adp": 99.8,
+       "pct_available_now": 39,
+       "pct_still_there_next_pick": 29,
        "surplus_over_wire": 0
       },
       {
@@ -5881,17 +5881,17 @@
        "proj_blend": 129.3,
        "floor_blend": 117.2,
        "ceiling_blend": 156.3,
-       "adp": 108.5,
-       "pct_available_now": 57,
-       "pct_still_there_next_pick": 43,
+       "adp": 110.9,
+       "pct_available_now": 61,
+       "pct_still_there_next_pick": 51,
        "surplus_over_wire": 0
       }
      ]
     },
     "K": {
      "best_now": 177,
-     "expected_best_at_next_pick": 173.9,
-     "VONA": 3.1,
+     "expected_best_at_next_pick": 173.7,
+     "VONA": 3.3,
      "surplus_over_wire": 48.4,
      "cliff_after_rank": 2,
      "cliff_size": 12,
@@ -5909,9 +5909,9 @@
        "proj_blend": 145.5,
        "floor_blend": 129.1,
        "ceiling_blend": 157,
-       "adp": 115.7,
-       "pct_available_now": 75,
-       "pct_still_there_next_pick": 65,
+       "adp": 115.5,
+       "pct_available_now": 76,
+       "pct_still_there_next_pick": 66,
        "surplus_over_wire": 48.4
       },
       {
@@ -5926,9 +5926,9 @@
        "proj_blend": 136.7,
        "floor_blend": 121.4,
        "ceiling_blend": 146.4,
-       "adp": 140.6,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 95,
+       "adp": 139.8,
+       "pct_available_now": 96,
+       "pct_still_there_next_pick": 93,
        "surplus_over_wire": 41.4
       },
       {
@@ -5943,9 +5943,9 @@
        "proj_blend": 137.5,
        "floor_blend": 128,
        "ceiling_blend": 153.2,
-       "adp": 139.1,
+       "adp": 140.6,
        "pct_available_now": 95,
-       "pct_still_there_next_pick": 92,
+       "pct_still_there_next_pick": 93,
        "surplus_over_wire": 29.4
       },
       {
@@ -5960,7 +5960,7 @@
        "proj_blend": 127.2,
        "floor_blend": 119.7,
        "ceiling_blend": 146.3,
-       "adp": 257.8,
+       "adp": 257.6,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 24.4
@@ -5969,8 +5969,8 @@
     },
     "DEF": {
      "best_now": 125,
-     "expected_best_at_next_pick": 124.1,
-     "VONA": 0.9,
+     "expected_best_at_next_pick": 124.2,
+     "VONA": 0.8,
      "surplus_over_wire": 25,
      "cliff_after_rank": 3,
      "cliff_size": 6,
@@ -5988,7 +5988,7 @@
        "proj_blend": 122.7,
        "floor_blend": 110,
        "ceiling_blend": 137.4,
-       "adp": 119.6,
+       "adp": 120.3,
        "pct_available_now": 95,
        "pct_still_there_next_pick": 86,
        "surplus_over_wire": 25
@@ -6005,9 +6005,9 @@
        "proj_blend": 118.3,
        "floor_blend": 101.8,
        "ceiling_blend": 130,
-       "adp": 126,
-       "pct_available_now": 99,
-       "pct_still_there_next_pick": 97,
+       "adp": 126.4,
+       "pct_available_now": 100,
+       "pct_still_there_next_pick": 98,
        "surplus_over_wire": 22
       },
       {
@@ -6022,7 +6022,7 @@
        "proj_blend": 115.5,
        "floor_blend": 98.1,
        "ceiling_blend": 127,
-       "adp": 128.1,
+       "adp": 127.8,
        "pct_available_now": 99,
        "pct_still_there_next_pick": 98,
        "surplus_over_wire": 20
@@ -6039,7 +6039,7 @@
        "proj_blend": 100.5,
        "floor_blend": 87.3,
        "ceiling_blend": 113.7,
-       "adp": 161.6,
+       "adp": 164.7,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 14
@@ -6055,11 +6055,11 @@
    "positions": {
     "QB": {
      "best_now": 327,
-     "expected_best_at_next_pick": 307.6,
-     "VONA": 19.4,
+     "expected_best_at_next_pick": 307.7,
+     "VONA": 19.3,
      "surplus_over_wire": 4.1,
-     "cliff_after_rank": 2,
-     "cliff_size": 13,
+     "cliff_after_rank": 3,
+     "cliff_size": 7,
      "note": "skip — the best QB left is worth 4 over a free one",
      "players": [
       {
@@ -6074,9 +6074,9 @@
        "proj_blend": 353.8,
        "floor_blend": 300.8,
        "ceiling_blend": 450.1,
-       "adp": 103.3,
-       "pct_available_now": 26,
-       "pct_still_there_next_pick": 4,
+       "adp": 103.6,
+       "pct_available_now": 27,
+       "pct_still_there_next_pick": 5,
        "surplus_over_wire": 4.1
       },
       {
@@ -6091,10 +6091,27 @@
        "proj_blend": 317.2,
        "floor_blend": 266.5,
        "ceiling_blend": 409,
-       "adp": 123.4,
-       "pct_available_now": 79,
-       "pct_still_there_next_pick": 42,
+       "adp": 124,
+       "pct_available_now": 81,
+       "pct_still_there_next_pick": 43,
        "surplus_over_wire": 2.1
+      },
+      {
+       "player_id": "12508",
+       "name": "Jaxson Dart",
+       "team": "NYG",
+       "bye": 8,
+       "proj": 319,
+       "floor": 277,
+       "ceiling": 417,
+       "injury_risk_pct": 36,
+       "proj_blend": 346.1,
+       "floor_blend": 300.6,
+       "ceiling_blend": 452.5,
+       "adp": 87.3,
+       "pct_available_now": 6,
+       "pct_still_there_next_pick": 1,
+       "surplus_over_wire": 0
       },
       {
        "player_id": "11563",
@@ -6108,9 +6125,9 @@
        "proj_blend": 344.7,
        "floor_blend": 310.4,
        "ceiling_blend": 455.1,
-       "adp": 101.5,
-       "pct_available_now": 26,
-       "pct_still_there_next_pick": 6,
+       "adp": 100.7,
+       "pct_available_now": 24,
+       "pct_still_there_next_pick": 5,
        "surplus_over_wire": 0
       },
       {
@@ -6125,9 +6142,9 @@
        "proj_blend": 344.9,
        "floor_blend": 310.3,
        "ceiling_blend": 465.4,
-       "adp": 95.7,
-       "pct_available_now": 16,
-       "pct_still_there_next_pick": 2,
+       "adp": 96,
+       "pct_available_now": 15,
+       "pct_still_there_next_pick": 1,
        "surplus_over_wire": 0
       },
       {
@@ -6142,34 +6159,17 @@
        "proj_blend": 340.6,
        "floor_blend": 312.5,
        "ceiling_blend": 451.9,
-       "adp": 112.5,
-       "pct_available_now": 50,
-       "pct_still_there_next_pick": 12,
-       "surplus_over_wire": 0
-      },
-      {
-       "player_id": "421",
-       "name": "Matthew Stafford",
-       "team": "LAR",
-       "bye": 11,
-       "proj": 299,
-       "floor": 278,
-       "ceiling": 403,
-       "injury_risk_pct": 39,
-       "proj_blend": 352.2,
-       "floor_blend": 327.4,
-       "ceiling_blend": 474.7,
-       "adp": 97.6,
-       "pct_available_now": 16,
-       "pct_still_there_next_pick": 2,
+       "adp": 112.2,
+       "pct_available_now": 53,
+       "pct_still_there_next_pick": 10,
        "surplus_over_wire": 0
       }
      ]
     },
     "RB": {
      "best_now": 159,
-     "expected_best_at_next_pick": 131.9,
-     "VONA": 27.1,
+     "expected_best_at_next_pick": 131.6,
+     "VONA": 27.4,
      "surplus_over_wire": 80.6,
      "cliff_after_rank": 2,
      "cliff_size": 9,
@@ -6187,9 +6187,9 @@
        "proj_blend": 142.5,
        "floor_blend": 114.7,
        "ceiling_blend": 245.6,
-       "adp": 89.9,
-       "pct_available_now": 12,
-       "pct_still_there_next_pick": 2,
+       "adp": 85.6,
+       "pct_available_now": 8,
+       "pct_still_there_next_pick": 1,
        "surplus_over_wire": 80.6
       },
       {
@@ -6204,7 +6204,7 @@
        "proj_blend": 137.6,
        "floor_blend": 111,
        "ceiling_blend": 226.4,
-       "adp": 99.2,
+       "adp": 99,
        "pct_available_now": 23,
        "pct_still_there_next_pick": 5,
        "surplus_over_wire": 76.6
@@ -6221,9 +6221,9 @@
        "proj_blend": 136.4,
        "floor_blend": 108.3,
        "ceiling_blend": 229.7,
-       "adp": 100,
-       "pct_available_now": 27,
-       "pct_still_there_next_pick": 4,
+       "adp": 97.5,
+       "pct_available_now": 21,
+       "pct_still_there_next_pick": 3,
        "surplus_over_wire": 67.6
       },
       {
@@ -6238,9 +6238,9 @@
        "proj_blend": 141.5,
        "floor_blend": 126.2,
        "ceiling_blend": 250.4,
-       "adp": 87.2,
-       "pct_available_now": 8,
-       "pct_still_there_next_pick": 1,
+       "adp": 89.1,
+       "pct_available_now": 11,
+       "pct_still_there_next_pick": 2,
        "surplus_over_wire": 60.6
       },
       {
@@ -6255,8 +6255,8 @@
        "proj_blend": 131.4,
        "floor_blend": 120.7,
        "ceiling_blend": 253.2,
-       "adp": 91.1,
-       "pct_available_now": 7,
+       "adp": 90.3,
+       "pct_available_now": 6,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 56.6
       },
@@ -6272,9 +6272,9 @@
        "proj_blend": 137.9,
        "floor_blend": 122.1,
        "ceiling_blend": 237.9,
-       "adp": 104.5,
-       "pct_available_now": 35,
-       "pct_still_there_next_pick": 4,
+       "adp": 104.3,
+       "pct_available_now": 30,
+       "pct_still_there_next_pick": 2,
        "surplus_over_wire": 52.6
       },
       {
@@ -6289,9 +6289,9 @@
        "proj_blend": 114.2,
        "floor_blend": 95.9,
        "ceiling_blend": 190.1,
-       "adp": 160,
+       "adp": 159.9,
        "pct_available_now": 99,
-       "pct_still_there_next_pick": 95,
+       "pct_still_there_next_pick": 96,
        "surplus_over_wire": 52.6
       },
       {
@@ -6306,9 +6306,9 @@
        "proj_blend": 134.6,
        "floor_blend": 109.3,
        "ceiling_blend": 233.4,
-       "adp": 109.3,
+       "adp": 109.4,
        "pct_available_now": 44,
-       "pct_still_there_next_pick": 9,
+       "pct_still_there_next_pick": 10,
        "surplus_over_wire": 49.6
       },
       {
@@ -6324,8 +6324,8 @@
        "floor_blend": 106.6,
        "ceiling_blend": 230.5,
        "adp": 114.3,
-       "pct_available_now": 61,
-       "pct_still_there_next_pick": 20,
+       "pct_available_now": 62,
+       "pct_still_there_next_pick": 19,
        "surplus_over_wire": 45.6
       },
       {
@@ -6340,17 +6340,17 @@
        "proj_blend": 104.1,
        "floor_blend": 78.1,
        "ceiling_blend": 213.4,
-       "adp": 127.3,
-       "pct_available_now": 78,
-       "pct_still_there_next_pick": 52,
+       "adp": 128.6,
+       "pct_available_now": 79,
+       "pct_still_there_next_pick": 55,
        "surplus_over_wire": 41.6
       }
      ]
     },
     "WR": {
      "best_now": 165,
-     "expected_best_at_next_pick": 151.8,
-     "VONA": 13.2,
+     "expected_best_at_next_pick": 152.4,
+     "VONA": 12.6,
      "surplus_over_wire": 40.2,
      "cliff_after_rank": 6,
      "cliff_size": 4,
@@ -6369,7 +6369,7 @@
        "floor_blend": 122.2,
        "ceiling_blend": 194.8,
        "adp": 110.1,
-       "pct_available_now": 50,
+       "pct_available_now": 51,
        "pct_still_there_next_pick": 4,
        "surplus_over_wire": 40.2
       },
@@ -6385,9 +6385,9 @@
        "proj_blend": 141.4,
        "floor_blend": 118.7,
        "ceiling_blend": 192.1,
-       "adp": 107.1,
-       "pct_available_now": 31,
-       "pct_still_there_next_pick": 1,
+       "adp": 107.2,
+       "pct_available_now": 33,
+       "pct_still_there_next_pick": 2,
        "surplus_over_wire": 37.2
       },
       {
@@ -6402,8 +6402,8 @@
        "proj_blend": 148.2,
        "floor_blend": 127.1,
        "ceiling_blend": 189.7,
-       "adp": 106.2,
-       "pct_available_now": 31,
+       "adp": 105.9,
+       "pct_available_now": 29,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 36.2
       },
@@ -6419,8 +6419,8 @@
        "proj_blend": 134.7,
        "floor_blend": 114.6,
        "ceiling_blend": 194.1,
-       "adp": 105.3,
-       "pct_available_now": 23,
+       "adp": 105.1,
+       "pct_available_now": 24,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 36.2
       },
@@ -6437,7 +6437,7 @@
        "floor_blend": 117.8,
        "ceiling_blend": 204.1,
        "adp": 102.2,
-       "pct_available_now": 20,
+       "pct_available_now": 19,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 33.2
       },
@@ -6453,9 +6453,9 @@
        "proj_blend": 142.9,
        "floor_blend": 121.8,
        "ceiling_blend": 193.2,
-       "adp": 122.4,
-       "pct_available_now": 95,
-       "pct_still_there_next_pick": 34,
+       "adp": 123.3,
+       "pct_available_now": 96,
+       "pct_still_there_next_pick": 39,
        "surplus_over_wire": 31.2
       },
       {
@@ -6470,9 +6470,9 @@
        "proj_blend": 140.8,
        "floor_blend": 115.8,
        "ceiling_blend": 207.5,
-       "adp": 130.3,
-       "pct_available_now": 99,
-       "pct_still_there_next_pick": 72,
+       "adp": 132.3,
+       "pct_available_now": 100,
+       "pct_still_there_next_pick": 78,
        "surplus_over_wire": 27.2
       },
       {
@@ -6487,9 +6487,9 @@
        "proj_blend": 130.5,
        "floor_blend": 108.6,
        "ceiling_blend": 197.1,
-       "adp": 111.2,
-       "pct_available_now": 57,
-       "pct_still_there_next_pick": 8,
+       "adp": 108.6,
+       "pct_available_now": 45,
+       "pct_still_there_next_pick": 3,
        "surplus_over_wire": 24.2
       },
       {
@@ -6504,9 +6504,9 @@
        "proj_blend": 129,
        "floor_blend": 108.1,
        "ceiling_blend": 190,
-       "adp": 141.5,
+       "adp": 142.2,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 96,
+       "pct_still_there_next_pick": 97,
        "surplus_over_wire": 23.2
       },
       {
@@ -6521,17 +6521,17 @@
        "proj_blend": 127.8,
        "floor_blend": 103.6,
        "ceiling_blend": 186.6,
-       "adp": 138.2,
+       "adp": 137.1,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 94,
+       "pct_still_there_next_pick": 87,
        "surplus_over_wire": 23.2
       }
      ]
     },
     "TE": {
      "best_now": 151,
-     "expected_best_at_next_pick": 130.7,
-     "VONA": 20.3,
+     "expected_best_at_next_pick": 130.8,
+     "VONA": 20.2,
      "surplus_over_wire": 20.6,
      "cliff_after_rank": 2,
      "cliff_size": 15,
@@ -6549,9 +6549,9 @@
        "proj_blend": 141.7,
        "floor_blend": 100.4,
        "ceiling_blend": 200.8,
-       "adp": 92.2,
-       "pct_available_now": 21,
-       "pct_still_there_next_pick": 5,
+       "adp": 91.9,
+       "pct_available_now": 19,
+       "pct_still_there_next_pick": 6,
        "surplus_over_wire": 20.6
       },
       {
@@ -6567,8 +6567,8 @@
        "floor_blend": 122.4,
        "ceiling_blend": 171.3,
        "adp": 93.2,
-       "pct_available_now": 18,
-       "pct_still_there_next_pick": 5,
+       "pct_available_now": 17,
+       "pct_still_there_next_pick": 4,
        "surplus_over_wire": 15.6
       },
       {
@@ -6583,8 +6583,8 @@
        "proj_blend": 138,
        "floor_blend": 121.1,
        "ceiling_blend": 174.8,
-       "adp": 116.8,
-       "pct_available_now": 60,
+       "adp": 116.6,
+       "pct_available_now": 59,
        "pct_still_there_next_pick": 30,
        "surplus_over_wire": 0.6
       },
@@ -6600,9 +6600,9 @@
        "proj_blend": 136.7,
        "floor_blend": 122.1,
        "ceiling_blend": 181.6,
-       "adp": 113.4,
+       "adp": 113.5,
        "pct_available_now": 55,
-       "pct_still_there_next_pick": 21,
+       "pct_still_there_next_pick": 20,
        "surplus_over_wire": 0.6
       },
       {
@@ -6617,9 +6617,9 @@
        "proj_blend": 128.6,
        "floor_blend": 113.8,
        "ceiling_blend": 178.1,
-       "adp": 98.4,
-       "pct_available_now": 24,
-       "pct_still_there_next_pick": 6,
+       "adp": 99.8,
+       "pct_available_now": 29,
+       "pct_still_there_next_pick": 8,
        "surplus_over_wire": 0
       },
       {
@@ -6634,17 +6634,17 @@
        "proj_blend": 129.3,
        "floor_blend": 117.2,
        "ceiling_blend": 156.3,
-       "adp": 108.5,
-       "pct_available_now": 43,
-       "pct_still_there_next_pick": 14,
+       "adp": 110.9,
+       "pct_available_now": 51,
+       "pct_still_there_next_pick": 19,
        "surplus_over_wire": 0
       }
      ]
     },
     "K": {
      "best_now": 177,
-     "expected_best_at_next_pick": 169.8,
-     "VONA": 7.2,
+     "expected_best_at_next_pick": 169.6,
+     "VONA": 7.4,
      "surplus_over_wire": 48.4,
      "cliff_after_rank": 2,
      "cliff_size": 12,
@@ -6662,9 +6662,9 @@
        "proj_blend": 145.5,
        "floor_blend": 129.1,
        "ceiling_blend": 157,
-       "adp": 115.7,
-       "pct_available_now": 65,
-       "pct_still_there_next_pick": 36,
+       "adp": 115.5,
+       "pct_available_now": 66,
+       "pct_still_there_next_pick": 35,
        "surplus_over_wire": 48.4
       },
       {
@@ -6679,9 +6679,9 @@
        "proj_blend": 136.7,
        "floor_blend": 121.4,
        "ceiling_blend": 146.4,
-       "adp": 140.6,
-       "pct_available_now": 95,
-       "pct_still_there_next_pick": 77,
+       "adp": 139.8,
+       "pct_available_now": 93,
+       "pct_still_there_next_pick": 73,
        "surplus_over_wire": 41.4
       },
       {
@@ -6696,9 +6696,9 @@
        "proj_blend": 137.5,
        "floor_blend": 128,
        "ceiling_blend": 153.2,
-       "adp": 139.1,
-       "pct_available_now": 92,
-       "pct_still_there_next_pick": 75,
+       "adp": 140.6,
+       "pct_available_now": 93,
+       "pct_still_there_next_pick": 76,
        "surplus_over_wire": 29.4
       },
       {
@@ -6713,7 +6713,7 @@
        "proj_blend": 127.2,
        "floor_blend": 119.7,
        "ceiling_blend": 146.3,
-       "adp": 257.8,
+       "adp": 257.6,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 24.4
@@ -6741,9 +6741,9 @@
        "proj_blend": 122.7,
        "floor_blend": 110,
        "ceiling_blend": 137.4,
-       "adp": 119.6,
+       "adp": 120.3,
        "pct_available_now": 86,
-       "pct_still_there_next_pick": 18,
+       "pct_still_there_next_pick": 21,
        "surplus_over_wire": 25
       },
       {
@@ -6758,9 +6758,9 @@
        "proj_blend": 118.3,
        "floor_blend": 101.8,
        "ceiling_blend": 130,
-       "adp": 126,
-       "pct_available_now": 97,
-       "pct_still_there_next_pick": 55,
+       "adp": 126.4,
+       "pct_available_now": 98,
+       "pct_still_there_next_pick": 56,
        "surplus_over_wire": 22
       },
       {
@@ -6775,9 +6775,9 @@
        "proj_blend": 115.5,
        "floor_blend": 98.1,
        "ceiling_blend": 127,
-       "adp": 128.1,
+       "adp": 127.8,
        "pct_available_now": 98,
-       "pct_still_there_next_pick": 62,
+       "pct_still_there_next_pick": 59,
        "surplus_over_wire": 20
       },
       {
@@ -6792,7 +6792,7 @@
        "proj_blend": 100.5,
        "floor_blend": 87.3,
        "ceiling_blend": 113.7,
-       "adp": 161.6,
+       "adp": 164.7,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 14
@@ -6808,8 +6808,8 @@
    "positions": {
     "QB": {
      "best_now": 325,
-     "expected_best_at_next_pick": 303.1,
-     "VONA": 21.9,
+     "expected_best_at_next_pick": 302.9,
+     "VONA": 22.1,
      "surplus_over_wire": 2.1,
      "cliff_after_rank": 1,
      "cliff_size": 13,
@@ -6827,9 +6827,9 @@
        "proj_blend": 317.2,
        "floor_blend": 266.5,
        "ceiling_blend": 409,
-       "adp": 123.4,
-       "pct_available_now": 42,
-       "pct_still_there_next_pick": 31,
+       "adp": 124,
+       "pct_available_now": 43,
+       "pct_still_there_next_pick": 29,
        "surplus_over_wire": 2.1
       },
       {
@@ -6844,9 +6844,9 @@
        "proj_blend": 344.7,
        "floor_blend": 310.4,
        "ceiling_blend": 455.1,
-       "adp": 101.5,
-       "pct_available_now": 6,
-       "pct_still_there_next_pick": 3,
+       "adp": 100.7,
+       "pct_available_now": 5,
+       "pct_still_there_next_pick": 2,
        "surplus_over_wire": 0
       },
       {
@@ -6861,9 +6861,9 @@
        "proj_blend": 340.6,
        "floor_blend": 312.5,
        "ceiling_blend": 451.9,
-       "adp": 112.5,
-       "pct_available_now": 12,
-       "pct_still_there_next_pick": 6,
+       "adp": 112.2,
+       "pct_available_now": 10,
+       "pct_still_there_next_pick": 3,
        "surplus_over_wire": 0
       },
       {
@@ -6878,7 +6878,7 @@
        "proj_blend": 319.6,
        "floor_blend": 294.7,
        "ceiling_blend": 441.6,
-       "adp": 152.7,
+       "adp": 154.9,
        "pct_available_now": 98,
        "pct_still_there_next_pick": 96,
        "surplus_over_wire": 0
@@ -6895,9 +6895,9 @@
        "proj_blend": 317.7,
        "floor_blend": 298.4,
        "ceiling_blend": 432.5,
-       "adp": 133.9,
-       "pct_available_now": 74,
-       "pct_still_there_next_pick": 59,
+       "adp": 136.3,
+       "pct_available_now": 78,
+       "pct_still_there_next_pick": 66,
        "surplus_over_wire": 0
       },
       {
@@ -6912,21 +6912,21 @@
        "proj_blend": 322,
        "floor_blend": 306.5,
        "ceiling_blend": 448.2,
-       "adp": 131.7,
-       "pct_available_now": 63,
-       "pct_still_there_next_pick": 52,
+       "adp": 133.3,
+       "pct_available_now": 68,
+       "pct_still_there_next_pick": 55,
        "surplus_over_wire": 0
       }
      ]
     },
     "RB": {
      "best_now": 155,
-     "expected_best_at_next_pick": 130.3,
-     "VONA": 24.7,
+     "expected_best_at_next_pick": 130.8,
+     "VONA": 24.2,
      "surplus_over_wire": 76.6,
      "cliff_after_rank": 1,
      "cliff_size": 24,
-     "note": "STRIKE — waiting costs 25 and he is +77 over the wire",
+     "note": "STRIKE — waiting costs 24 and he is +77 over the wire",
      "players": [
       {
        "player_id": "8408",
@@ -6940,7 +6940,7 @@
        "proj_blend": 137.6,
        "floor_blend": 111,
        "ceiling_blend": 226.4,
-       "adp": 99.2,
+       "adp": 99,
        "pct_available_now": 5,
        "pct_still_there_next_pick": 3,
        "surplus_over_wire": 76.6
@@ -6957,9 +6957,9 @@
        "proj_blend": 114.2,
        "floor_blend": 95.9,
        "ceiling_blend": 190.1,
-       "adp": 160,
-       "pct_available_now": 95,
-       "pct_still_there_next_pick": 92,
+       "adp": 159.9,
+       "pct_available_now": 96,
+       "pct_still_there_next_pick": 93,
        "surplus_over_wire": 52.6
       },
       {
@@ -6974,9 +6974,9 @@
        "proj_blend": 134.6,
        "floor_blend": 109.3,
        "ceiling_blend": 233.4,
-       "adp": 109.3,
-       "pct_available_now": 9,
-       "pct_still_there_next_pick": 6,
+       "adp": 109.4,
+       "pct_available_now": 10,
+       "pct_still_there_next_pick": 7,
        "surplus_over_wire": 49.6
       },
       {
@@ -6992,8 +6992,8 @@
        "floor_blend": 106.6,
        "ceiling_blend": 230.5,
        "adp": 114.3,
-       "pct_available_now": 20,
-       "pct_still_there_next_pick": 10,
+       "pct_available_now": 19,
+       "pct_still_there_next_pick": 9,
        "surplus_over_wire": 45.6
       },
       {
@@ -7008,9 +7008,9 @@
        "proj_blend": 104.1,
        "floor_blend": 78.1,
        "ceiling_blend": 213.4,
-       "adp": 127.3,
-       "pct_available_now": 52,
-       "pct_still_there_next_pick": 42,
+       "adp": 128.6,
+       "pct_available_now": 55,
+       "pct_still_there_next_pick": 43,
        "surplus_over_wire": 41.6
       },
       {
@@ -7025,9 +7025,9 @@
        "proj_blend": 103.4,
        "floor_blend": 91.5,
        "ceiling_blend": 196.8,
-       "adp": 147.7,
-       "pct_available_now": 97,
-       "pct_still_there_next_pick": 90,
+       "adp": 148.2,
+       "pct_available_now": 98,
+       "pct_still_there_next_pick": 92,
        "surplus_over_wire": 34.6
       },
       {
@@ -7042,7 +7042,7 @@
        "proj_blend": 96.6,
        "floor_blend": 78.5,
        "ceiling_blend": 198.6,
-       "adp": 145.7,
+       "adp": 146.5,
        "pct_available_now": 82,
        "pct_still_there_next_pick": 75,
        "surplus_over_wire": 28.6
@@ -7059,9 +7059,9 @@
        "proj_blend": 84.1,
        "floor_blend": 73.1,
        "ceiling_blend": 155.6,
-       "adp": 171.3,
-       "pct_available_now": 99,
-       "pct_still_there_next_pick": 98,
+       "adp": 165.6,
+       "pct_available_now": 98,
+       "pct_still_there_next_pick": 97,
        "surplus_over_wire": 28.6
       },
       {
@@ -7076,9 +7076,9 @@
        "proj_blend": 96,
        "floor_blend": 86.7,
        "ceiling_blend": 204.8,
-       "adp": 135.6,
-       "pct_available_now": 72,
-       "pct_still_there_next_pick": 61,
+       "adp": 135.3,
+       "pct_available_now": 70,
+       "pct_still_there_next_pick": 58,
        "surplus_over_wire": 25.6
       },
       {
@@ -7093,7 +7093,7 @@
        "proj_blend": 91.1,
        "floor_blend": 83.2,
        "ceiling_blend": 213.6,
-       "adp": 150.3,
+       "adp": 149.3,
        "pct_available_now": 90,
        "pct_still_there_next_pick": 84,
        "surplus_over_wire": 25.6
@@ -7102,11 +7102,11 @@
     },
     "WR": {
      "best_now": 156,
-     "expected_best_at_next_pick": 149.7,
-     "VONA": 6.3,
+     "expected_best_at_next_pick": 149.9,
+     "VONA": 6.1,
      "surplus_over_wire": 31.2,
-     "cliff_after_rank": 6,
-     "cliff_size": 5,
+     "cliff_after_rank": 9,
+     "cliff_size": 7,
      "note": "neutral — 6 to wait, +31 over the wire",
      "players": [
       {
@@ -7121,9 +7121,9 @@
        "proj_blend": 142.9,
        "floor_blend": 121.8,
        "ceiling_blend": 193.2,
-       "adp": 122.4,
-       "pct_available_now": 34,
-       "pct_still_there_next_pick": 14,
+       "adp": 123.3,
+       "pct_available_now": 39,
+       "pct_still_there_next_pick": 17,
        "surplus_over_wire": 31.2
       },
       {
@@ -7138,27 +7138,10 @@
        "proj_blend": 140.8,
        "floor_blend": 115.8,
        "ceiling_blend": 207.5,
-       "adp": 130.3,
-       "pct_available_now": 72,
-       "pct_still_there_next_pick": 48,
+       "adp": 132.3,
+       "pct_available_now": 78,
+       "pct_still_there_next_pick": 54,
        "surplus_over_wire": 27.2
-      },
-      {
-       "player_id": "2449",
-       "name": "Stefon Diggs",
-       "team": "WAS",
-       "bye": 7,
-       "proj": 149,
-       "floor": 124,
-       "ceiling": 225,
-       "injury_risk_pct": 31,
-       "proj_blend": 130.5,
-       "floor_blend": 108.6,
-       "ceiling_blend": 197.1,
-       "adp": 111.2,
-       "pct_available_now": 8,
-       "pct_still_there_next_pick": 3,
-       "surplus_over_wire": 24.2
       },
       {
        "player_id": "8121",
@@ -7172,9 +7155,9 @@
        "proj_blend": 129,
        "floor_blend": 108.1,
        "ceiling_blend": 190,
-       "adp": 141.5,
-       "pct_available_now": 96,
-       "pct_still_there_next_pick": 88,
+       "adp": 142.2,
+       "pct_available_now": 97,
+       "pct_still_there_next_pick": 89,
        "surplus_over_wire": 23.2
       },
       {
@@ -7189,9 +7172,9 @@
        "proj_blend": 127.8,
        "floor_blend": 103.6,
        "ceiling_blend": 186.6,
-       "adp": 138.2,
-       "pct_available_now": 94,
-       "pct_still_there_next_pick": 78,
+       "adp": 137.1,
+       "pct_available_now": 87,
+       "pct_still_there_next_pick": 72,
        "surplus_over_wire": 23.2
       },
       {
@@ -7206,9 +7189,9 @@
        "proj_blend": 131.2,
        "floor_blend": 108.6,
        "ceiling_blend": 204.5,
-       "adp": 128.8,
+       "adp": 129.4,
        "pct_available_now": 61,
-       "pct_still_there_next_pick": 41,
+       "pct_still_there_next_pick": 42,
        "surplus_over_wire": 20.2
       },
       {
@@ -7223,9 +7206,9 @@
        "proj_blend": 137.2,
        "floor_blend": 118.6,
        "ceiling_blend": 200,
-       "adp": 117.8,
-       "pct_available_now": 15,
-       "pct_still_there_next_pick": 6,
+       "adp": 118.8,
+       "pct_available_now": 17,
+       "pct_still_there_next_pick": 5,
        "surplus_over_wire": 15.2
       },
       {
@@ -7240,9 +7223,9 @@
        "proj_blend": 131,
        "floor_blend": 114.7,
        "ceiling_blend": 180.7,
-       "adp": 149.6,
+       "adp": 150.8,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 99,
+       "pct_still_there_next_pick": 100,
        "surplus_over_wire": 12.2
       },
       {
@@ -7257,9 +7240,9 @@
        "proj_blend": 136.4,
        "floor_blend": 121.3,
        "ceiling_blend": 228.6,
-       "adp": 133,
-       "pct_available_now": 73,
-       "pct_still_there_next_pick": 55,
+       "adp": 134.2,
+       "pct_available_now": 79,
+       "pct_still_there_next_pick": 58,
        "surplus_over_wire": 11.2
       },
       {
@@ -7274,20 +7257,37 @@
        "proj_blend": 123.8,
        "floor_blend": 106.1,
        "ceiling_blend": 196.4,
-       "adp": 137.5,
-       "pct_available_now": 90,
-       "pct_still_there_next_pick": 73,
+       "adp": 138.9,
+       "pct_available_now": 91,
+       "pct_still_there_next_pick": 76,
        "surplus_over_wire": 8.2
+      },
+      {
+       "player_id": "11618",
+       "name": "Jalen McMillan",
+       "team": "TB",
+       "bye": 10,
+       "proj": 126,
+       "floor": 107,
+       "ceiling": 216,
+       "injury_risk_pct": 39,
+       "proj_blend": 107.8,
+       "floor_blend": 91.6,
+       "ceiling_blend": 184.9,
+       "adp": 183.3,
+       "pct_available_now": 100,
+       "pct_still_there_next_pick": 100,
+       "surplus_over_wire": 1.2
       }
      ]
     },
     "TE": {
      "best_now": 151,
-     "expected_best_at_next_pick": 129.9,
-     "VONA": 21.1,
+     "expected_best_at_next_pick": 129.8,
+     "VONA": 21.2,
      "surplus_over_wire": 20.6,
-     "cliff_after_rank": 2,
-     "cliff_size": 15,
+     "cliff_after_rank": 1,
+     "cliff_size": 20,
      "note": "waiting costs 21, but he is only +21 over the wire — thin",
      "players": [
       {
@@ -7302,27 +7302,10 @@
        "proj_blend": 141.7,
        "floor_blend": 100.4,
        "ceiling_blend": 200.8,
-       "adp": 92.2,
-       "pct_available_now": 5,
+       "adp": 91.9,
+       "pct_available_now": 6,
        "pct_still_there_next_pick": 4,
        "surplus_over_wire": 20.6
-      },
-      {
-       "player_id": "1466",
-       "name": "Travis Kelce",
-       "team": "KC",
-       "bye": 5,
-       "proj": 146,
-       "floor": 125,
-       "ceiling": 175,
-       "injury_risk_pct": 42,
-       "proj_blend": 142.9,
-       "floor_blend": 122.4,
-       "ceiling_blend": 171.3,
-       "adp": 93.2,
-       "pct_available_now": 5,
-       "pct_still_there_next_pick": 3,
-       "surplus_over_wire": 15.6
       },
       {
        "player_id": "5022",
@@ -7336,7 +7319,7 @@
        "proj_blend": 138,
        "floor_blend": 121.1,
        "ceiling_blend": 174.8,
-       "adp": 116.8,
+       "adp": 116.6,
        "pct_available_now": 30,
        "pct_still_there_next_pick": 22,
        "surplus_over_wire": 0.6
@@ -7353,9 +7336,9 @@
        "proj_blend": 136.7,
        "floor_blend": 122.1,
        "ceiling_blend": 181.6,
-       "adp": 113.4,
-       "pct_available_now": 21,
-       "pct_still_there_next_pick": 16,
+       "adp": 113.5,
+       "pct_available_now": 20,
+       "pct_still_there_next_pick": 15,
        "surplus_over_wire": 0.6
       },
       {
@@ -7370,9 +7353,9 @@
        "proj_blend": 128.6,
        "floor_blend": 113.8,
        "ceiling_blend": 178.1,
-       "adp": 98.4,
-       "pct_available_now": 6,
-       "pct_still_there_next_pick": 3,
+       "adp": 99.8,
+       "pct_available_now": 8,
+       "pct_still_there_next_pick": 4,
        "surplus_over_wire": 0
       },
       {
@@ -7387,21 +7370,38 @@
        "proj_blend": 129.3,
        "floor_blend": 117.2,
        "ceiling_blend": 156.3,
-       "adp": 108.5,
-       "pct_available_now": 14,
-       "pct_still_there_next_pick": 7,
+       "adp": 110.9,
+       "pct_available_now": 19,
+       "pct_still_there_next_pick": 9,
+       "surplus_over_wire": 0
+      },
+      {
+       "player_id": "9480",
+       "name": "Brenton Strange",
+       "team": "JAX",
+       "bye": 7,
+       "proj": 128,
+       "floor": 111,
+       "ceiling": 164,
+       "injury_risk_pct": 48,
+       "proj_blend": 121.5,
+       "floor_blend": 105.3,
+       "ceiling_blend": 155.6,
+       "adp": 155.9,
+       "pct_available_now": 92,
+       "pct_still_there_next_pick": 89,
        "surplus_over_wire": 0
       }
      ]
     },
     "K": {
      "best_now": 177,
-     "expected_best_at_next_pick": 167.9,
-     "VONA": 9.1,
+     "expected_best_at_next_pick": 167.3,
+     "VONA": 9.7,
      "surplus_over_wire": 48.4,
      "cliff_after_rank": 2,
      "cliff_size": 12,
-     "note": "neutral — 9 to wait, +48 over the wire",
+     "note": "neutral — 10 to wait, +48 over the wire",
      "players": [
       {
        "player_id": "11533",
@@ -7415,9 +7415,9 @@
        "proj_blend": 145.5,
        "floor_blend": 129.1,
        "ceiling_blend": 157,
-       "adp": 115.7,
-       "pct_available_now": 36,
-       "pct_still_there_next_pick": 28,
+       "adp": 115.5,
+       "pct_available_now": 35,
+       "pct_still_there_next_pick": 27,
        "surplus_over_wire": 48.4
       },
       {
@@ -7432,9 +7432,9 @@
        "proj_blend": 136.7,
        "floor_blend": 121.4,
        "ceiling_blend": 146.4,
-       "adp": 140.6,
-       "pct_available_now": 77,
-       "pct_still_there_next_pick": 67,
+       "adp": 139.8,
+       "pct_available_now": 73,
+       "pct_still_there_next_pick": 65,
        "surplus_over_wire": 41.4
       },
       {
@@ -7449,9 +7449,9 @@
        "proj_blend": 137.5,
        "floor_blend": 128,
        "ceiling_blend": 153.2,
-       "adp": 139.1,
-       "pct_available_now": 75,
-       "pct_still_there_next_pick": 66,
+       "adp": 140.6,
+       "pct_available_now": 76,
+       "pct_still_there_next_pick": 68,
        "surplus_over_wire": 29.4
       },
       {
@@ -7466,7 +7466,7 @@
        "proj_blend": 127.2,
        "floor_blend": 119.7,
        "ceiling_blend": 146.3,
-       "adp": 257.8,
+       "adp": 257.6,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 24.4
@@ -7475,8 +7475,8 @@
     },
     "DEF": {
      "best_now": 125,
-     "expected_best_at_next_pick": 117.4,
-     "VONA": 7.6,
+     "expected_best_at_next_pick": 117,
+     "VONA": 8,
      "surplus_over_wire": 25,
      "cliff_after_rank": 3,
      "cliff_size": 6,
@@ -7494,9 +7494,9 @@
        "proj_blend": 122.7,
        "floor_blend": 110,
        "ceiling_blend": 137.4,
-       "adp": 119.6,
-       "pct_available_now": 18,
-       "pct_still_there_next_pick": 6,
+       "adp": 120.3,
+       "pct_available_now": 21,
+       "pct_still_there_next_pick": 8,
        "surplus_over_wire": 25
       },
       {
@@ -7511,8 +7511,8 @@
        "proj_blend": 118.3,
        "floor_blend": 101.8,
        "ceiling_blend": 130,
-       "adp": 126,
-       "pct_available_now": 55,
+       "adp": 126.4,
+       "pct_available_now": 56,
        "pct_still_there_next_pick": 32,
        "surplus_over_wire": 22
       },
@@ -7528,9 +7528,9 @@
        "proj_blend": 115.5,
        "floor_blend": 98.1,
        "ceiling_blend": 127,
-       "adp": 128.1,
-       "pct_available_now": 62,
-       "pct_still_there_next_pick": 43,
+       "adp": 127.8,
+       "pct_available_now": 59,
+       "pct_still_there_next_pick": 37,
        "surplus_over_wire": 20
       },
       {
@@ -7545,7 +7545,7 @@
        "proj_blend": 100.5,
        "floor_blend": 87.3,
        "ceiling_blend": 113.7,
-       "adp": 161.6,
+       "adp": 164.7,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 99,
        "surplus_over_wire": 14
@@ -7565,7 +7565,7 @@
      "VONA": 33.2,
      "surplus_over_wire": 2.1,
      "cliff_after_rank": 1,
-     "cliff_size": 22,
+     "cliff_size": 29,
      "note": "skip — the best QB left is worth 2 over a free one",
      "players": [
       {
@@ -7580,27 +7580,10 @@
        "proj_blend": 317.2,
        "floor_blend": 266.5,
        "ceiling_blend": 409,
-       "adp": 123.4,
-       "pct_available_now": 31,
-       "pct_still_there_next_pick": 8,
+       "adp": 124,
+       "pct_available_now": 29,
+       "pct_still_there_next_pick": 7,
        "surplus_over_wire": 2.1
-      },
-      {
-       "player_id": "3163",
-       "name": "Jared Goff",
-       "team": "DET",
-       "bye": 6,
-       "proj": 303,
-       "floor": 278,
-       "ceiling": 402,
-       "injury_risk_pct": 23,
-       "proj_blend": 340.6,
-       "floor_blend": 312.5,
-       "ceiling_blend": 451.9,
-       "adp": 112.5,
-       "pct_available_now": 6,
-       "pct_still_there_next_pick": 0,
-       "surplus_over_wire": 0
       },
       {
        "player_id": "12545",
@@ -7614,9 +7597,9 @@
        "proj_blend": 319.6,
        "floor_blend": 294.7,
        "ceiling_blend": 441.6,
-       "adp": 152.7,
+       "adp": 154.9,
        "pct_available_now": 96,
-       "pct_still_there_next_pick": 66,
+       "pct_still_there_next_pick": 69,
        "surplus_over_wire": 0
       },
       {
@@ -7631,9 +7614,9 @@
        "proj_blend": 317.7,
        "floor_blend": 298.4,
        "ceiling_blend": 432.5,
-       "adp": 133.9,
-       "pct_available_now": 59,
-       "pct_still_there_next_pick": 16,
+       "adp": 136.3,
+       "pct_available_now": 66,
+       "pct_still_there_next_pick": 22,
        "surplus_over_wire": 0
       },
       {
@@ -7648,9 +7631,9 @@
        "proj_blend": 322,
        "floor_blend": 306.5,
        "ceiling_blend": 448.2,
-       "adp": 131.7,
-       "pct_available_now": 52,
-       "pct_still_there_next_pick": 15,
+       "adp": 133.3,
+       "pct_available_now": 55,
+       "pct_still_there_next_pick": 16,
        "surplus_over_wire": 0
       },
       {
@@ -7665,9 +7648,26 @@
        "proj_blend": 305.2,
        "floor_blend": 287.6,
        "ceiling_blend": 446.3,
-       "adp": 178,
+       "adp": 177.8,
        "pct_available_now": 100,
-       "pct_still_there_next_pick": 100,
+       "pct_still_there_next_pick": 99,
+       "surplus_over_wire": 0
+      },
+      {
+       "player_id": "8161",
+       "name": "Malik Willis",
+       "team": "MIA",
+       "bye": 6,
+       "proj": 275,
+       "floor": 264,
+       "ceiling": 410,
+       "injury_risk_pct": 15,
+       "proj_blend": 297,
+       "floor_blend": 285.1,
+       "ceiling_blend": 442.8,
+       "adp": 153.7,
+       "pct_available_now": 86,
+       "pct_still_there_next_pick": 61,
        "surplus_over_wire": 0
       }
      ]
@@ -7679,7 +7679,7 @@
      "surplus_over_wire": 52.6,
      "cliff_after_rank": 4,
      "cliff_size": 7,
-     "note": "wait — Tyjae Spears is there next pick 77% of the time",
+     "note": "wait — Tyjae Spears is there next pick 78% of the time",
      "players": [
       {
        "player_id": "9508",
@@ -7693,9 +7693,9 @@
        "proj_blend": 114.2,
        "floor_blend": 95.9,
        "ceiling_blend": 190.1,
-       "adp": 160,
-       "pct_available_now": 92,
-       "pct_still_there_next_pick": 77,
+       "adp": 159.9,
+       "pct_available_now": 93,
+       "pct_still_there_next_pick": 78,
        "surplus_over_wire": 52.6
       },
       {
@@ -7710,8 +7710,8 @@
        "proj_blend": 134.6,
        "floor_blend": 109.3,
        "ceiling_blend": 233.4,
-       "adp": 109.3,
-       "pct_available_now": 6,
+       "adp": 109.4,
+       "pct_available_now": 7,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 49.6
       },
@@ -7728,7 +7728,7 @@
        "floor_blend": 106.6,
        "ceiling_blend": 230.5,
        "adp": 114.3,
-       "pct_available_now": 10,
+       "pct_available_now": 9,
        "pct_still_there_next_pick": 1,
        "surplus_over_wire": 45.6
       },
@@ -7744,9 +7744,9 @@
        "proj_blend": 104.1,
        "floor_blend": 78.1,
        "ceiling_blend": 213.4,
-       "adp": 127.3,
-       "pct_available_now": 42,
-       "pct_still_there_next_pick": 11,
+       "adp": 128.6,
+       "pct_available_now": 43,
+       "pct_still_there_next_pick": 15,
        "surplus_over_wire": 41.6
       },
       {
@@ -7761,8 +7761,8 @@
        "proj_blend": 103.4,
        "floor_blend": 91.5,
        "ceiling_blend": 196.8,
-       "adp": 147.7,
-       "pct_available_now": 90,
+       "adp": 148.2,
+       "pct_available_now": 92,
        "pct_still_there_next_pick": 52,
        "surplus_over_wire": 34.6
       },
@@ -7778,7 +7778,7 @@
        "proj_blend": 96.6,
        "floor_blend": 78.5,
        "ceiling_blend": 198.6,
-       "adp": 145.7,
+       "adp": 146.5,
        "pct_available_now": 75,
        "pct_still_there_next_pick": 46,
        "surplus_over_wire": 28.6
@@ -7795,9 +7795,9 @@
        "proj_blend": 84.1,
        "floor_blend": 73.1,
        "ceiling_blend": 155.6,
-       "adp": 171.3,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 91,
+       "adp": 165.6,
+       "pct_available_now": 97,
+       "pct_still_there_next_pick": 86,
        "surplus_over_wire": 28.6
       },
       {
@@ -7812,9 +7812,9 @@
        "proj_blend": 96,
        "floor_blend": 86.7,
        "ceiling_blend": 204.8,
-       "adp": 135.6,
-       "pct_available_now": 61,
-       "pct_still_there_next_pick": 22,
+       "adp": 135.3,
+       "pct_available_now": 58,
+       "pct_still_there_next_pick": 21,
        "surplus_over_wire": 25.6
       },
       {
@@ -7829,9 +7829,9 @@
        "proj_blend": 91.1,
        "floor_blend": 83.2,
        "ceiling_blend": 213.6,
-       "adp": 150.3,
+       "adp": 149.3,
        "pct_available_now": 84,
-       "pct_still_there_next_pick": 58,
+       "pct_still_there_next_pick": 55,
        "surplus_over_wire": 25.6
       },
       {
@@ -7846,17 +7846,17 @@
        "proj_blend": 78.3,
        "floor_blend": 66.2,
        "ceiling_blend": 160.6,
-       "adp": 136.8,
-       "pct_available_now": 65,
-       "pct_still_there_next_pick": 31,
+       "adp": 138.2,
+       "pct_available_now": 68,
+       "pct_still_there_next_pick": 32,
        "surplus_over_wire": 18.6
       }
      ]
     },
     "WR": {
      "best_now": 156,
-     "expected_best_at_next_pick": 136,
-     "VONA": 20,
+     "expected_best_at_next_pick": 136.3,
+     "VONA": 19.7,
      "surplus_over_wire": 31.2,
      "cliff_after_rank": 9,
      "cliff_size": 7,
@@ -7874,8 +7874,8 @@
        "proj_blend": 142.9,
        "floor_blend": 121.8,
        "ceiling_blend": 193.2,
-       "adp": 122.4,
-       "pct_available_now": 14,
+       "adp": 123.3,
+       "pct_available_now": 17,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 31.2
       },
@@ -7891,9 +7891,9 @@
        "proj_blend": 140.8,
        "floor_blend": 115.8,
        "ceiling_blend": 207.5,
-       "adp": 130.3,
-       "pct_available_now": 48,
-       "pct_still_there_next_pick": 2,
+       "adp": 132.3,
+       "pct_available_now": 54,
+       "pct_still_there_next_pick": 3,
        "surplus_over_wire": 27.2
       },
       {
@@ -7908,9 +7908,9 @@
        "proj_blend": 129,
        "floor_blend": 108.1,
        "ceiling_blend": 190,
-       "adp": 141.5,
-       "pct_available_now": 88,
-       "pct_still_there_next_pick": 26,
+       "adp": 142.2,
+       "pct_available_now": 89,
+       "pct_still_there_next_pick": 27,
        "surplus_over_wire": 23.2
       },
       {
@@ -7925,9 +7925,9 @@
        "proj_blend": 127.8,
        "floor_blend": 103.6,
        "ceiling_blend": 186.6,
-       "adp": 138.2,
-       "pct_available_now": 78,
-       "pct_still_there_next_pick": 17,
+       "adp": 137.1,
+       "pct_available_now": 72,
+       "pct_still_there_next_pick": 16,
        "surplus_over_wire": 23.2
       },
       {
@@ -7942,8 +7942,8 @@
        "proj_blend": 131.2,
        "floor_blend": 108.6,
        "ceiling_blend": 204.5,
-       "adp": 128.8,
-       "pct_available_now": 41,
+       "adp": 129.4,
+       "pct_available_now": 42,
        "pct_still_there_next_pick": 2,
        "surplus_over_wire": 20.2
       },
@@ -7959,8 +7959,8 @@
        "proj_blend": 137.2,
        "floor_blend": 118.6,
        "ceiling_blend": 200,
-       "adp": 117.8,
-       "pct_available_now": 6,
+       "adp": 118.8,
+       "pct_available_now": 5,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 15.2
       },
@@ -7976,9 +7976,9 @@
        "proj_blend": 131,
        "floor_blend": 114.7,
        "ceiling_blend": 180.7,
-       "adp": 149.6,
-       "pct_available_now": 99,
-       "pct_still_there_next_pick": 68,
+       "adp": 150.8,
+       "pct_available_now": 100,
+       "pct_still_there_next_pick": 73,
        "surplus_over_wire": 12.2
       },
       {
@@ -7993,8 +7993,8 @@
        "proj_blend": 136.4,
        "floor_blend": 121.3,
        "ceiling_blend": 228.6,
-       "adp": 133,
-       "pct_available_now": 55,
+       "adp": 134.2,
+       "pct_available_now": 58,
        "pct_still_there_next_pick": 8,
        "surplus_over_wire": 11.2
       },
@@ -8010,9 +8010,9 @@
        "proj_blend": 123.8,
        "floor_blend": 106.1,
        "ceiling_blend": 196.4,
-       "adp": 137.5,
-       "pct_available_now": 73,
-       "pct_still_there_next_pick": 18,
+       "adp": 138.9,
+       "pct_available_now": 76,
+       "pct_still_there_next_pick": 21,
        "surplus_over_wire": 8.2
       },
       {
@@ -8027,7 +8027,7 @@
        "proj_blend": 107.8,
        "floor_blend": 91.6,
        "ceiling_blend": 184.9,
-       "adp": 184,
+       "adp": 183.3,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 1.2
@@ -8036,8 +8036,8 @@
     },
     "TE": {
      "best_now": 131,
-     "expected_best_at_next_pick": 127,
-     "VONA": 4,
+     "expected_best_at_next_pick": 126.9,
+     "VONA": 4.1,
      "surplus_over_wire": 0.6,
      "cliff_after_rank": 4,
      "cliff_size": 3,
@@ -8055,7 +8055,7 @@
        "proj_blend": 138,
        "floor_blend": 121.1,
        "ceiling_blend": 174.8,
-       "adp": 116.8,
+       "adp": 116.6,
        "pct_available_now": 22,
        "pct_still_there_next_pick": 6,
        "surplus_over_wire": 0.6
@@ -8072,8 +8072,8 @@
        "proj_blend": 136.7,
        "floor_blend": 122.1,
        "ceiling_blend": 181.6,
-       "adp": 113.4,
-       "pct_available_now": 16,
+       "adp": 113.5,
+       "pct_available_now": 15,
        "pct_still_there_next_pick": 6,
        "surplus_over_wire": 0.6
       },
@@ -8089,8 +8089,8 @@
        "proj_blend": 129.3,
        "floor_blend": 117.2,
        "ceiling_blend": 156.3,
-       "adp": 108.5,
-       "pct_available_now": 7,
+       "adp": 110.9,
+       "pct_available_now": 9,
        "pct_still_there_next_pick": 1,
        "surplus_over_wire": 0
       },
@@ -8106,9 +8106,9 @@
        "proj_blend": 121.5,
        "floor_blend": 105.3,
        "ceiling_blend": 155.6,
-       "adp": 155.5,
-       "pct_available_now": 90,
-       "pct_still_there_next_pick": 71,
+       "adp": 155.9,
+       "pct_available_now": 89,
+       "pct_still_there_next_pick": 69,
        "surplus_over_wire": 0
       },
       {
@@ -8123,9 +8123,9 @@
        "proj_blend": 119.7,
        "floor_blend": 104.4,
        "ceiling_blend": 150.3,
-       "adp": 157.2,
-       "pct_available_now": 98,
-       "pct_still_there_next_pick": 82,
+       "adp": 157.1,
+       "pct_available_now": 92,
+       "pct_still_there_next_pick": 71,
        "surplus_over_wire": 0
       },
       {
@@ -8140,8 +8140,8 @@
        "proj_blend": 121.3,
        "floor_blend": 107.5,
        "ceiling_blend": 159.8,
-       "adp": 144,
-       "pct_available_now": 79,
+       "adp": 145.3,
+       "pct_available_now": 82,
        "pct_still_there_next_pick": 44,
        "surplus_over_wire": 0
       }
@@ -8149,8 +8149,8 @@
     },
     "K": {
      "best_now": 177,
-     "expected_best_at_next_pick": 159.8,
-     "VONA": 17.2,
+     "expected_best_at_next_pick": 159.6,
+     "VONA": 17.4,
      "surplus_over_wire": 48.4,
      "cliff_after_rank": 2,
      "cliff_size": 12,
@@ -8168,8 +8168,8 @@
        "proj_blend": 145.5,
        "floor_blend": 129.1,
        "ceiling_blend": 157,
-       "adp": 115.7,
-       "pct_available_now": 28,
+       "adp": 115.5,
+       "pct_available_now": 27,
        "pct_still_there_next_pick": 10,
        "surplus_over_wire": 48.4
       },
@@ -8185,8 +8185,8 @@
        "proj_blend": 136.7,
        "floor_blend": 121.4,
        "ceiling_blend": 146.4,
-       "adp": 140.6,
-       "pct_available_now": 67,
+       "adp": 139.8,
+       "pct_available_now": 65,
        "pct_still_there_next_pick": 28,
        "surplus_over_wire": 41.4
       },
@@ -8202,9 +8202,9 @@
        "proj_blend": 137.5,
        "floor_blend": 128,
        "ceiling_blend": 153.2,
-       "adp": 139.1,
-       "pct_available_now": 66,
-       "pct_still_there_next_pick": 36,
+       "adp": 140.6,
+       "pct_available_now": 68,
+       "pct_still_there_next_pick": 38,
        "surplus_over_wire": 29.4
       },
       {
@@ -8219,7 +8219,7 @@
        "proj_blend": 127.2,
        "floor_blend": 119.7,
        "ceiling_blend": 146.3,
-       "adp": 257.8,
+       "adp": 257.6,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 100,
        "surplus_over_wire": 24.4
@@ -8247,8 +8247,8 @@
        "proj_blend": 122.7,
        "floor_blend": 110,
        "ceiling_blend": 137.4,
-       "adp": 119.6,
-       "pct_available_now": 6,
+       "adp": 120.3,
+       "pct_available_now": 8,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 25
       },
@@ -8264,9 +8264,9 @@
        "proj_blend": 118.3,
        "floor_blend": 101.8,
        "ceiling_blend": 130,
-       "adp": 126,
+       "adp": 126.4,
        "pct_available_now": 32,
-       "pct_still_there_next_pick": 2,
+       "pct_still_there_next_pick": 1,
        "surplus_over_wire": 22
       },
       {
@@ -8281,8 +8281,8 @@
        "proj_blend": 115.5,
        "floor_blend": 98.1,
        "ceiling_blend": 127,
-       "adp": 128.1,
-       "pct_available_now": 43,
+       "adp": 127.8,
+       "pct_available_now": 37,
        "pct_still_there_next_pick": 1,
        "surplus_over_wire": 20
       },
@@ -8298,9 +8298,9 @@
        "proj_blend": 100.5,
        "floor_blend": 87.3,
        "ceiling_blend": 113.7,
-       "adp": 161.6,
+       "adp": 164.7,
        "pct_available_now": 99,
-       "pct_still_there_next_pick": 90,
+       "pct_still_there_next_pick": 92,
        "surplus_over_wire": 14
       }
      ]
@@ -8333,8 +8333,8 @@
        "proj_blend": 317.2,
        "floor_blend": 266.5,
        "ceiling_blend": 409,
-       "adp": 123.4,
-       "pct_available_now": 8,
+       "adp": 124,
+       "pct_available_now": 7,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 2.1
       },
@@ -8350,8 +8350,8 @@
        "proj_blend": 319.6,
        "floor_blend": 294.7,
        "ceiling_blend": 441.6,
-       "adp": 152.7,
-       "pct_available_now": 66,
+       "adp": 154.9,
+       "pct_available_now": 69,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       },
@@ -8367,8 +8367,8 @@
        "proj_blend": 317.7,
        "floor_blend": 298.4,
        "ceiling_blend": 432.5,
-       "adp": 133.9,
-       "pct_available_now": 16,
+       "adp": 136.3,
+       "pct_available_now": 22,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       },
@@ -8384,8 +8384,8 @@
        "proj_blend": 322,
        "floor_blend": 306.5,
        "ceiling_blend": 448.2,
-       "adp": 131.7,
-       "pct_available_now": 15,
+       "adp": 133.3,
+       "pct_available_now": 16,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       },
@@ -8401,8 +8401,8 @@
        "proj_blend": 305.2,
        "floor_blend": 287.6,
        "ceiling_blend": 446.3,
-       "adp": 178,
-       "pct_available_now": 100,
+       "adp": 177.8,
+       "pct_available_now": 99,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       },
@@ -8418,8 +8418,8 @@
        "proj_blend": 297,
        "floor_blend": 285.1,
        "ceiling_blend": 442.8,
-       "adp": 151.2,
-       "pct_available_now": 56,
+       "adp": 153.7,
+       "pct_available_now": 61,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       }
@@ -8446,8 +8446,8 @@
        "proj_blend": 114.2,
        "floor_blend": 95.9,
        "ceiling_blend": 190.1,
-       "adp": 160,
-       "pct_available_now": 77,
+       "adp": 159.9,
+       "pct_available_now": 78,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 52.6
       },
@@ -8463,8 +8463,8 @@
        "proj_blend": 104.1,
        "floor_blend": 78.1,
        "ceiling_blend": 213.4,
-       "adp": 127.3,
-       "pct_available_now": 11,
+       "adp": 128.6,
+       "pct_available_now": 15,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 41.6
       },
@@ -8480,7 +8480,7 @@
        "proj_blend": 103.4,
        "floor_blend": 91.5,
        "ceiling_blend": 196.8,
-       "adp": 147.7,
+       "adp": 148.2,
        "pct_available_now": 52,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 34.6
@@ -8497,7 +8497,7 @@
        "proj_blend": 96.6,
        "floor_blend": 78.5,
        "ceiling_blend": 198.6,
-       "adp": 145.7,
+       "adp": 146.5,
        "pct_available_now": 46,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 28.6
@@ -8514,8 +8514,8 @@
        "proj_blend": 84.1,
        "floor_blend": 73.1,
        "ceiling_blend": 155.6,
-       "adp": 171.3,
-       "pct_available_now": 91,
+       "adp": 165.6,
+       "pct_available_now": 86,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 28.6
       },
@@ -8531,8 +8531,8 @@
        "proj_blend": 96,
        "floor_blend": 86.7,
        "ceiling_blend": 204.8,
-       "adp": 135.6,
-       "pct_available_now": 22,
+       "adp": 135.3,
+       "pct_available_now": 21,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 25.6
       },
@@ -8548,8 +8548,8 @@
        "proj_blend": 91.1,
        "floor_blend": 83.2,
        "ceiling_blend": 213.6,
-       "adp": 150.3,
-       "pct_available_now": 58,
+       "adp": 149.3,
+       "pct_available_now": 55,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 25.6
       },
@@ -8565,8 +8565,8 @@
        "proj_blend": 78.3,
        "floor_blend": 66.2,
        "ceiling_blend": 160.6,
-       "adp": 136.8,
-       "pct_available_now": 31,
+       "adp": 138.2,
+       "pct_available_now": 32,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 18.6
       },
@@ -8582,8 +8582,8 @@
        "proj_blend": 75.6,
        "floor_blend": 65.3,
        "ceiling_blend": 178.4,
-       "adp": 163.2,
-       "pct_available_now": 79,
+       "adp": 163.8,
+       "pct_available_now": 80,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 16.6
       },
@@ -8599,8 +8599,8 @@
        "proj_blend": 81.5,
        "floor_blend": 69.4,
        "ceiling_blend": 172.6,
-       "adp": 139.9,
-       "pct_available_now": 35,
+       "adp": 141.4,
+       "pct_available_now": 38,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 15.6
       }
@@ -8627,8 +8627,8 @@
        "proj_blend": 129,
        "floor_blend": 108.1,
        "ceiling_blend": 190,
-       "adp": 141.5,
-       "pct_available_now": 26,
+       "adp": 142.2,
+       "pct_available_now": 27,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 23.2
       },
@@ -8644,8 +8644,8 @@
        "proj_blend": 127.8,
        "floor_blend": 103.6,
        "ceiling_blend": 186.6,
-       "adp": 138.2,
-       "pct_available_now": 17,
+       "adp": 137.1,
+       "pct_available_now": 16,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 23.2
       },
@@ -8661,8 +8661,8 @@
        "proj_blend": 131,
        "floor_blend": 114.7,
        "ceiling_blend": 180.7,
-       "adp": 149.6,
-       "pct_available_now": 68,
+       "adp": 150.8,
+       "pct_available_now": 73,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 12.2
       },
@@ -8678,7 +8678,7 @@
        "proj_blend": 136.4,
        "floor_blend": 121.3,
        "ceiling_blend": 228.6,
-       "adp": 133,
+       "adp": 134.2,
        "pct_available_now": 8,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 11.2
@@ -8695,8 +8695,8 @@
        "proj_blend": 123.8,
        "floor_blend": 106.1,
        "ceiling_blend": 196.4,
-       "adp": 137.5,
-       "pct_available_now": 18,
+       "adp": 138.9,
+       "pct_available_now": 21,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 8.2
       },
@@ -8712,7 +8712,7 @@
        "proj_blend": 107.8,
        "floor_blend": 91.6,
        "ceiling_blend": 184.9,
-       "adp": 184,
+       "adp": 183.3,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 1.2
@@ -8729,7 +8729,7 @@
        "proj_blend": 112.3,
        "floor_blend": 95.1,
        "ceiling_blend": 180.3,
-       "adp": 202.3,
+       "adp": 202.8,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
@@ -8746,8 +8746,8 @@
        "proj_blend": 121.1,
        "floor_blend": 110.1,
        "ceiling_blend": 208.4,
-       "adp": 159,
-       "pct_available_now": 84,
+       "adp": 158.2,
+       "pct_available_now": 85,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       },
@@ -8763,7 +8763,7 @@
        "proj_blend": 111.1,
        "floor_blend": 98.3,
        "ceiling_blend": 197.4,
-       "adp": 165.1,
+       "adp": 166.6,
        "pct_available_now": 98,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
@@ -8780,7 +8780,7 @@
        "proj_blend": 107.7,
        "floor_blend": 94.1,
        "ceiling_blend": 186.4,
-       "adp": 277.8,
+       "adp": 251.7,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
@@ -8808,7 +8808,7 @@
        "proj_blend": 138,
        "floor_blend": 121.1,
        "ceiling_blend": 174.8,
-       "adp": 116.8,
+       "adp": 116.6,
        "pct_available_now": 6,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0.6
@@ -8825,7 +8825,7 @@
        "proj_blend": 136.7,
        "floor_blend": 122.1,
        "ceiling_blend": 181.6,
-       "adp": 113.4,
+       "adp": 113.5,
        "pct_available_now": 6,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0.6
@@ -8842,8 +8842,8 @@
        "proj_blend": 121.5,
        "floor_blend": 105.3,
        "ceiling_blend": 155.6,
-       "adp": 155.5,
-       "pct_available_now": 71,
+       "adp": 155.9,
+       "pct_available_now": 69,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       },
@@ -8859,8 +8859,8 @@
        "proj_blend": 119.7,
        "floor_blend": 104.4,
        "ceiling_blend": 150.3,
-       "adp": 157.2,
-       "pct_available_now": 82,
+       "adp": 157.1,
+       "pct_available_now": 71,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
       },
@@ -8876,7 +8876,7 @@
        "proj_blend": 121.3,
        "floor_blend": 107.5,
        "ceiling_blend": 159.8,
-       "adp": 144,
+       "adp": 145.3,
        "pct_available_now": 44,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
@@ -8893,7 +8893,7 @@
        "proj_blend": 112.4,
        "floor_blend": 102.9,
        "ceiling_blend": 139.7,
-       "adp": 186.8,
+       "adp": 189.6,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 0
@@ -8921,7 +8921,7 @@
        "proj_blend": 145.5,
        "floor_blend": 129.1,
        "ceiling_blend": 157,
-       "adp": 115.7,
+       "adp": 115.5,
        "pct_available_now": 10,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 48.4
@@ -8938,7 +8938,7 @@
        "proj_blend": 136.7,
        "floor_blend": 121.4,
        "ceiling_blend": 146.4,
-       "adp": 140.6,
+       "adp": 139.8,
        "pct_available_now": 28,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 41.4
@@ -8955,8 +8955,8 @@
        "proj_blend": 137.5,
        "floor_blend": 128,
        "ceiling_blend": 153.2,
-       "adp": 139.1,
-       "pct_available_now": 36,
+       "adp": 140.6,
+       "pct_available_now": 38,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 29.4
       },
@@ -8972,7 +8972,7 @@
        "proj_blend": 127.2,
        "floor_blend": 119.7,
        "ceiling_blend": 146.3,
-       "adp": 257.8,
+       "adp": 257.6,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 24.4
@@ -9000,8 +9000,8 @@
        "proj_blend": 100.5,
        "floor_blend": 87.3,
        "ceiling_blend": 113.7,
-       "adp": 161.6,
-       "pct_available_now": 90,
+       "adp": 164.7,
+       "pct_available_now": 92,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 14
       },
@@ -9017,8 +9017,8 @@
        "proj_blend": 100.3,
        "floor_blend": 93.3,
        "ceiling_blend": 117.9,
-       "adp": 200.1,
-       "pct_available_now": 100,
+       "adp": 199.4,
+       "pct_available_now": 99,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 14
       },
@@ -9034,7 +9034,7 @@
        "proj_blend": 92.4,
        "floor_blend": 84.3,
        "ceiling_blend": 110.2,
-       "adp": 221.4,
+       "adp": 219.7,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 14
@@ -9051,7 +9051,7 @@
        "proj_blend": 104.4,
        "floor_blend": 96.9,
        "ceiling_blend": 123,
-       "adp": 194.3,
+       "adp": 193,
        "pct_available_now": 100,
        "pct_still_there_next_pick": 0,
        "surplus_over_wire": 12
@@ -9195,14 +9195,14 @@
    "to_round": 9,
    "pos": {
     "QB": 5,
-    "RB": 0,
+    "RB": 15,
     "WR": 21,
     "TE": 0,
     "K": 0,
     "DEF": 0
    },
    "steepest": "WR",
-   "flattest": "RB"
+   "flattest": "TE"
   },
   {
    "from_pick": 88,
@@ -9211,7 +9211,7 @@
    "to_round": 10,
    "pos": {
     "QB": 0,
-    "RB": 15,
+    "RB": 4,
     "WR": 0,
     "TE": 0,
     "K": 0,
@@ -9227,7 +9227,7 @@
    "to_round": 11,
    "pos": {
     "QB": 2,
-    "RB": 6,
+    "RB": 2,
     "WR": 8,
     "TE": 10,
     "K": 0,
@@ -9306,20 +9306,20 @@
    "player_id": "12501",
    "name": "Matthew Golden",
    "position": "WR",
-   "adp": 133,
+   "adp": 134.2,
    "proj": 136,
    "ceiling": 228,
    "upside": 92,
    "ceiling_rank": 35,
-   "adp_rank": 50,
-   "steal_gap": 15,
+   "adp_rank": 51,
+   "steal_gap": 16,
    "injury_risk_pct": 37
   },
   {
    "player_id": "11581",
    "name": "MarShawn Lloyd",
    "position": "RB",
-   "adp": 177.1,
+   "adp": 176.9,
    "proj": 85,
    "ceiling": 230,
    "upside": 145,
@@ -9327,19 +9327,6 @@
    "adp_rank": 54,
    "steal_gap": 15,
    "injury_risk_pct": 72
-  },
-  {
-   "player_id": "13417",
-   "name": "De'Zhaun Stribling",
-   "position": "WR",
-   "adp": 134.7,
-   "proj": 117,
-   "ceiling": 226,
-   "upside": 109,
-   "ceiling_rank": 38,
-   "adp_rank": 51,
-   "steal_gap": 13,
-   "injury_risk_pct": 0
   },
   {
    "player_id": "11620",
@@ -9358,7 +9345,7 @@
    "player_id": "12487",
    "name": "Terrance Ferguson",
    "position": "TE",
-   "adp": 196.3,
+   "adp": 195.3,
    "proj": 98,
    "ceiling": 171,
    "upside": 73,
@@ -9368,23 +9355,10 @@
    "injury_risk_pct": 0
   },
   {
-   "player_id": "11618",
-   "name": "Jalen McMillan",
-   "position": "WR",
-   "adp": 184,
-   "proj": 126,
-   "ceiling": 216,
-   "upside": 90,
-   "ceiling_rank": 50,
-   "adp_rank": 62,
-   "steal_gap": 12,
-   "injury_risk_pct": 39
-  },
-  {
    "player_id": "5872",
    "name": "Deebo Samuel",
    "position": "WR",
-   "adp": 128.8,
+   "adp": 129.4,
    "proj": 145,
    "ceiling": 226,
    "upside": 81,
@@ -9394,10 +9368,36 @@
    "injury_risk_pct": 51
   },
   {
+   "player_id": "13417",
+   "name": "De'Zhaun Stribling",
+   "position": "WR",
+   "adp": 131.2,
+   "proj": 117,
+   "ceiling": 226,
+   "upside": 109,
+   "ceiling_rank": 38,
+   "adp_rank": 49,
+   "steal_gap": 11,
+   "injury_risk_pct": 0
+  },
+  {
+   "player_id": "11618",
+   "name": "Jalen McMillan",
+   "position": "WR",
+   "adp": 183.3,
+   "proj": 126,
+   "ceiling": 216,
+   "upside": 90,
+   "ceiling_rank": 50,
+   "adp_rank": 61,
+   "steal_gap": 11,
+   "injury_risk_pct": 39
+  },
+  {
    "player_id": "10219",
    "name": "Chris Rodriguez",
    "position": "RB",
-   "adp": 150.3,
+   "adp": 149.3,
    "proj": 104,
    "ceiling": 244,
    "upside": 140,
@@ -9410,7 +9410,7 @@
    "player_id": "2216",
    "name": "Mike Evans",
    "position": "WR",
-   "adp": 59.7,
+   "adp": 59.8,
    "proj": 183,
    "ceiling": 249,
    "upside": 66,
@@ -9423,7 +9423,7 @@
    "player_id": "8167",
    "name": "Christian Watson",
    "position": "WR",
-   "adp": 63.4,
+   "adp": 63.6,
    "proj": 194,
    "ceiling": 248,
    "upside": 54,
@@ -9433,23 +9433,10 @@
    "injury_risk_pct": 25
   },
   {
-   "player_id": "11583",
-   "name": "Jonathon Brooks",
-   "position": "RB",
-   "adp": 89.9,
-   "proj": 159,
-   "ceiling": 274,
-   "upside": 115,
-   "ceiling_rank": 23,
-   "adp_rank": 33,
-   "steal_gap": 10,
-   "injury_risk_pct": 35
-  },
-  {
    "player_id": "9500",
    "name": "Josh Downs",
    "position": "WR",
-   "adp": 105.3,
+   "adp": 105.1,
    "proj": 161,
    "ceiling": 232,
    "upside": 71,
@@ -9462,7 +9449,7 @@
    "player_id": "9511",
    "name": "Keaton Mitchell",
    "position": "RB",
-   "adp": 163.2,
+   "adp": 163.8,
    "proj": 95,
    "ceiling": 224,
    "upside": 129,
@@ -9472,10 +9459,36 @@
    "injury_risk_pct": 33
   },
   {
+   "player_id": "11583",
+   "name": "Jonathon Brooks",
+   "position": "RB",
+   "adp": 85.6,
+   "proj": 159,
+   "ceiling": 274,
+   "upside": 115,
+   "ceiling_rank": 23,
+   "adp_rank": 32,
+   "steal_gap": 9,
+   "injury_risk_pct": 35
+  },
+  {
+   "player_id": "11624",
+   "name": "Xavier Worthy",
+   "position": "WR",
+   "adp": 132.3,
+   "proj": 152,
+   "ceiling": 224,
+   "upside": 72,
+   "ceiling_rank": 41,
+   "adp_rank": 50,
+   "steal_gap": 9,
+   "injury_risk_pct": 35
+  },
+  {
    "player_id": "5849",
    "name": "Kyler Murray",
    "position": "QB",
-   "adp": 123.4,
+   "adp": 124,
    "proj": 325,
    "ceiling": 419,
    "upside": 94,
@@ -9485,23 +9498,10 @@
    "injury_risk_pct": 33
   },
   {
-   "player_id": "11624",
-   "name": "Xavier Worthy",
-   "position": "WR",
-   "adp": 130.3,
-   "proj": 152,
-   "ceiling": 224,
-   "upside": 72,
-   "ceiling_rank": 41,
-   "adp_rank": 49,
-   "steal_gap": 8,
-   "injury_risk_pct": 35
-  },
-  {
    "player_id": "5870",
    "name": "Daniel Jones",
    "position": "QB",
-   "adp": 178,
+   "adp": 177.8,
    "proj": 277,
    "ceiling": 405,
    "upside": 128,
@@ -9514,7 +9514,7 @@
    "player_id": "13276",
    "name": "Omar Cooper",
    "position": "WR",
-   "adp": 181.3,
+   "adp": 180.5,
    "proj": 107,
    "ceiling": 215,
    "upside": 108,
@@ -9553,7 +9553,7 @@
    "player_id": "11586",
    "name": "Blake Corum",
    "position": "RB",
-   "adp": 91.1,
+   "adp": 90.3,
    "proj": 135,
    "ceiling": 260,
    "upside": 125,
@@ -9566,7 +9566,7 @@
    "player_id": "13346",
    "name": "Denzel Boston",
    "position": "WR",
-   "adp": 165.1,
+   "adp": 166.6,
    "proj": 121,
    "ceiling": 215,
    "upside": 94,
@@ -9576,23 +9576,36 @@
    "injury_risk_pct": 42
   },
   {
-   "player_id": "2449",
-   "name": "Stefon Diggs",
-   "position": "WR",
-   "adp": 111.2,
-   "proj": 149,
-   "ceiling": 225,
-   "upside": 76,
-   "ceiling_rank": 39,
-   "adp_rank": 45,
+   "player_id": "12457",
+   "name": "Jaydon Blue",
+   "position": "RB",
+   "adp": 186.6,
+   "proj": 77,
+   "ceiling": 214,
+   "upside": 137,
+   "ceiling_rank": 49,
+   "adp_rank": 56,
+   "steal_gap": 7,
+   "injury_risk_pct": 22
+  },
+  {
+   "player_id": "8408",
+   "name": "Jordan Mason",
+   "position": "RB",
+   "adp": 99,
+   "proj": 155,
+   "ceiling": 255,
+   "upside": 100,
+   "ceiling_rank": 30,
+   "adp_rank": 36,
    "steal_gap": 6,
-   "injury_risk_pct": 31
+   "injury_risk_pct": 39
   },
   {
    "player_id": "8121",
    "name": "Romeo Doubs",
    "position": "WR",
-   "adp": 141.5,
+   "adp": 142.2,
    "proj": 148,
    "ceiling": 218,
    "upside": 70,
@@ -9605,7 +9618,7 @@
    "player_id": "13294",
    "name": "Makai Lemon",
    "position": "WR",
-   "adp": 96.4,
+   "adp": 96.7,
    "proj": 139,
    "ceiling": 231,
    "upside": 92,
@@ -9613,19 +9626,6 @@
    "adp_rank": 39,
    "steal_gap": 6,
    "injury_risk_pct": 33
-  },
-  {
-   "player_id": "12457",
-   "name": "Jaydon Blue",
-   "position": "RB",
-   "adp": 185.7,
-   "proj": 77,
-   "ceiling": 214,
-   "upside": 137,
-   "ceiling_rank": 49,
-   "adp_rank": 55,
-   "steal_gap": 6,
-   "injury_risk_pct": 22
   }
  ],
  "_steals_caveat": "ceiling_steals is an IF, not a forecast: it ranks players by how much earlier their CEILING would have ranked them AT THEIR OWN POSITION than their ADP did. It says nothing about whether they reach it.",

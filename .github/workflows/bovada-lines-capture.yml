@@ -1,0 +1,33 @@
+# TERRITORY: C
+# BOVADA FREE GAME LINES — graduated from free-odds-probe run e7b81242
+# (POSITIVE: real spread on a real game, keyless). Thursday + Sunday snapshots
+# give a movement pair and a closing-ish line per game, at zero cost.
+# Built by the relay on Cory's "Make sure we get these!!" (08-21); C amends.
+name: bovada-lines-capture
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '0 12 * * 4'   # Thursday 12:00 UTC — opening-ish
+    - cron: '0 16 * * 0'   # Sunday 16:00 UTC — closing-ish, pre-early-kickoff
+permissions:
+  contents: write
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Snapshot the lines (refuses on a dead/reshaped feed)
+        run: |
+          set -euo pipefail
+          python3 draft/tools/bovada_lines_capture.py
+      - name: Commit the snapshot
+        run: |
+          set -euo pipefail
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/data/bovada_lines_2026.jsonl
+          git diff --cached --quiet && { echo "no change"; exit 0; }
+          git commit -m "Bovada lines snapshot [skip deploy]"
+          git pull --rebase origin main
+          git push origin HEAD:main

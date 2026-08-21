@@ -2,9 +2,9 @@
   "provenance": "predicted (flat-cost surplus) + Cory intel",
   "note": "PREDICTED slates for MOCK/REHEARSAL ONLY \u2014 never applied to the live board (Cory, 2026-08-11: a prediction rendered indistinguishably from a fact IS a fact as far as behaviour is concerned). Real designations are read from live Sleeper by the nightly draft-data rebuild; there is no keeper-watch process. Assumes keeper-eligibility (max_years=3 not verifiable for opponents).",
   "round_cost_vorp": [
-    111.0,
-    57.1,
-    45.5
+    111.18,
+    57.15,
+    42.01
   ],
   "predictions": {
     "coryjsimms": {
@@ -16,7 +16,7 @@
           "position": "WR",
           "vorp": 121.8,
           "cost_round": 1,
-          "surplus": 10.8,
+          "surplus": 10.6,
           "confidence": "medium"
         },
         {
@@ -25,7 +25,7 @@
           "position": "RB",
           "vorp": 109.1,
           "cost_round": 2,
-          "surplus": 52.0,
+          "surplus": 51.9,
           "confidence": "high"
         },
         {
@@ -34,7 +34,7 @@
           "position": "RB",
           "vorp": 83.8,
           "cost_round": 3,
-          "surplus": 38.3,
+          "surplus": 41.8,
           "confidence": "high"
         }
       ],
@@ -44,7 +44,7 @@
     "ds7mmet": {
       "roster_id": "2",
       "predicted_keepers": [],
-      "next_best": "Lamar Jackson",
+      "next_best": "Bucky Irving",
       "source": "model"
     },
     "cashworth": {
@@ -66,31 +66,31 @@
           "player_id": "9221",
           "name": "Jahmyr Gibbs",
           "position": "RB",
-          "vorp": 155.9,
+          "vorp": 157.4,
           "cost_round": 1,
-          "surplus": 44.9,
+          "surplus": 46.2,
           "confidence": "high"
         },
         {
           "player_id": "6813",
           "name": "Jonathan Taylor",
           "position": "RB",
-          "vorp": 111.0,
+          "vorp": 111.2,
           "cost_round": 2,
-          "surplus": 53.9,
+          "surplus": 54.1,
           "confidence": "high"
         },
         {
           "player_id": "8112",
           "name": "Drake London",
           "position": "WR",
-          "vorp": 55.9,
+          "vorp": 57.1,
           "cost_round": 3,
-          "surplus": 10.4,
+          "surplus": 15.1,
           "confidence": "medium"
         }
       ],
-      "next_best": "Houston Texans",
+      "next_best": "Garrett Wilson",
       "source": "model"
     },
     "MarianSaar": {
@@ -100,27 +100,27 @@
           "player_id": "9488",
           "name": "Jaxon Smith-Njigba",
           "position": "WR",
-          "vorp": 91.9,
+          "vorp": 90.0,
           "cost_round": 1,
-          "surplus": -19.1,
+          "surplus": -21.2,
           "confidence": "low"
         },
         {
           "player_id": "9226",
           "name": "De'Von Achane",
           "position": "RB",
-          "vorp": 81.1,
+          "vorp": 82.8,
           "cost_round": 2,
-          "surplus": 24.0,
-          "confidence": "medium"
+          "surplus": 25.6,
+          "confidence": "high"
         },
         {
           "player_id": "11604",
           "name": "Brock Bowers",
           "position": "TE",
-          "vorp": 56.0,
+          "vorp": 57.3,
           "cost_round": 3,
-          "surplus": 10.5,
+          "surplus": 15.3,
           "confidence": "high",
           "override": "Cory intel (confirms model)"
         }
@@ -135,27 +135,27 @@
           "player_id": "4034",
           "name": "Christian McCaffrey",
           "position": "RB",
-          "vorp": 119.1,
+          "vorp": 116.5,
           "cost_round": 1,
-          "surplus": 8.1,
-          "confidence": "medium"
+          "surplus": 5.3,
+          "confidence": "low"
         },
         {
           "player_id": "7547",
           "name": "Amon-Ra St. Brown",
           "position": "WR",
-          "vorp": 83.8,
+          "vorp": 80.7,
           "cost_round": 2,
-          "surplus": 26.7,
-          "confidence": "high"
+          "surplus": 23.6,
+          "confidence": "medium"
         },
         {
           "player_id": "4984",
           "name": "Josh Allen",
           "position": "QB",
-          "vorp": 65.5,
+          "vorp": 66.0,
           "cost_round": 3,
-          "surplus": 20.0,
+          "surplus": 24.0,
           "confidence": "medium"
         }
       ],
@@ -169,7 +169,7 @@
           "player_id": "7569",
           "name": "Nico Collins",
           "position": "WR",
-          "vorp": 38.4,
+          "vorp": 39.4,
           "cost_round": 3,
           "surplus": null,
           "confidence": "certain",
@@ -179,7 +179,7 @@
           "player_id": "8130",
           "name": "Trey McBride",
           "position": "TE",
-          "vorp": 53.2,
+          "vorp": 55.0,
           "cost_round": 2,
           "surplus": null,
           "confidence": "certain",
@@ -189,9 +189,9 @@
           "player_id": "9509",
           "name": "Bijan Robinson",
           "position": "RB",
-          "vorp": 147.1,
+          "vorp": 150.7,
           "cost_round": 1,
-          "surplus": 36.1,
+          "surplus": 39.5,
           "confidence": "certain",
           "override": "Cory intel (confirms model)"
         }
@@ -206,27 +206,27 @@
           "player_id": "9493",
           "name": "Puka Nacua",
           "position": "WR",
-          "vorp": 115.9,
+          "vorp": 114.8,
           "cost_round": 1,
-          "surplus": 4.9,
+          "surplus": 3.6,
           "confidence": "low"
         },
         {
           "player_id": "4866",
           "name": "Saquon Barkley",
           "position": "RB",
-          "vorp": 71.5,
+          "vorp": 70.4,
           "cost_round": 2,
-          "surplus": 14.4,
+          "surplus": 13.3,
           "confidence": "medium"
         },
         {
           "player_id": "12507",
           "name": "Omarion Hampton",
           "position": "RB",
-          "vorp": 57.1,
+          "vorp": 57.0,
           "cost_round": 3,
-          "surplus": 11.6,
+          "surplus": 15.0,
           "confidence": "medium"
         }
       ],

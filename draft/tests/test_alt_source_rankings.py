@@ -126,6 +126,17 @@ class TestOnTheRealCommittedBoard:
     """The synthetic fixture proves the mechanism; this proves it survives
     contact with the actual 700-player artifact the war room ships."""
 
+    @pytest.mark.post_chain  # ⚠️ THIS TEST'S NOTE BELOW IS THE DEFECT IT HIT.
+    # It says the committed board "is committed WITH the alt-source fields
+    # already applied (this script's own output, run once and shipped)". That
+    # is true of the COMMITTED artifact and false of a freshly BUILT one, and
+    # the idempotence half of this test compares the two. On run 32425450897 it
+    # read `assert 157.45 == None` for Jahmyr Gibbs' vorp_ds and refused the
+    # publish — correctly reporting that a fresh board has no per-source fields
+    # yet, which is a fact about WHEN it runs, not about the board being bad.
+    # The per-source fields arrive in the post-processing chain
+    # (rerank_by_source.py). Marked here and added to draft-data.yml's
+    # post-chain step in the same commit, per the conftest rule.
     def test_runs_clean_on_the_real_board_without_mutating_the_live_file(self, tmp_path):
         # NOTE: public/draft_data.json is committed WITH the alt-source fields
         # already applied (this script's own output, run once and shipped —

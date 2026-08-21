@@ -3,16 +3,9 @@
  "_what": "Every board field and published artifact, and whether ANY served file references it. Cory: \"All the things we figure out here have to be implemented on the war room or it was all for nothing.\"",
  "_cannot": "Proves a REFERENCE exists in a served file. Does NOT prove it renders, that the panel mounts, or that Cory can find it. Necessary, not sufficient.",
  "_comments_stripped": true,
- "surfaces_scanned": 133,
- "board_fields": 78,
+ "surfaces_scanned": 139,
+ "board_fields": 129,
  "unshown_fields": [
-  {
-   "name": "adot",
-   "on_players": 700,
-   "coverage_pct": 100,
-   "shown": false,
-   "declared": null
-  },
   {
    "name": "adp_season",
    "on_players": 700,
@@ -21,9 +14,23 @@
    "declared": null
   },
   {
-   "name": "air_yards_share",
-   "on_players": 700,
-   "coverage_pct": 100,
+   "name": "band_ceiling_ratio",
+   "on_players": 247,
+   "coverage_pct": 35.3,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "band_floor_ratio",
+   "on_players": 247,
+   "coverage_pct": 35.3,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "band_ratio_source",
+   "on_players": 247,
+   "coverage_pct": 35.3,
    "shown": false,
    "declared": null
   },
@@ -43,8 +50,8 @@
   },
   {
    "name": "bye_source",
-   "on_players": 644,
-   "coverage_pct": 92,
+   "on_players": 640,
+   "coverage_pct": 91.4,
    "shown": false,
    "declared": null
   },
@@ -63,6 +70,34 @@
    "declared": null
   },
   {
+   "name": "covered_ds",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "covered_fantasypros",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "covered_ownmodel",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "covered_sleeper",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
    "name": "ds_band_from",
    "on_players": 700,
    "coverage_pct": 100,
@@ -70,28 +105,35 @@
    "declared": null
   },
   {
-   "name": "gl_carries",
-   "on_players": 700,
-   "coverage_pct": 100,
-   "shown": false,
-   "declared": null
-  },
-  {
-   "name": "injury_risk_pct",
-   "on_players": 700,
-   "coverage_pct": 100,
-   "shown": false,
-   "declared": null
-  },
-  {
-   "name": "is_nfl_rookie",
-   "on_players": 326,
-   "coverage_pct": 46.6,
-   "shown": false,
-   "declared": null
-  },
-  {
    "name": "opportunity_adj",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "overall_rank_ds",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "overall_rank_fantasypros",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "overall_rank_ownmodel",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "overall_rank_sleeper",
    "on_players": 700,
    "coverage_pct": 100,
    "shown": false,
@@ -105,9 +147,65 @@
    "declared": null
   },
   {
+   "name": "pos_rank_ds",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "pos_rank_fantasypros",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "pos_rank_ownmodel",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "pos_rank_sleeper",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
    "name": "proj_baseline",
    "on_players": 700,
    "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "proj_ceiling_ds",
+   "on_players": 247,
+   "coverage_pct": 35.3,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "proj_ceiling_fantasypros",
+   "on_players": 201,
+   "coverage_pct": 28.7,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "proj_ceiling_ownmodel",
+   "on_players": 202,
+   "coverage_pct": 28.9,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "proj_ceiling_sleeper",
+   "on_players": 247,
+   "coverage_pct": 35.3,
    "shown": false,
    "declared": null
   },
@@ -119,16 +217,30 @@
    "declared": null
   },
   {
-   "name": "proj_mean_sleeper_only",
-   "on_players": 277,
-   "coverage_pct": 39.6,
+   "name": "proj_floor_ds",
+   "on_players": 247,
+   "coverage_pct": 35.3,
    "shown": false,
    "declared": null
   },
   {
-   "name": "proj_mean_source",
-   "on_players": 700,
-   "coverage_pct": 100,
+   "name": "proj_floor_fantasypros",
+   "on_players": 201,
+   "coverage_pct": 28.7,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "proj_floor_ownmodel",
+   "on_players": 202,
+   "coverage_pct": 28.9,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "proj_floor_sleeper",
+   "on_players": 247,
+   "coverage_pct": 35.3,
    "shown": false,
    "declared": null
   },
@@ -140,7 +252,28 @@
    "declared": null
   },
   {
-   "name": "proj_sd",
+   "name": "proj_used_ds",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "proj_used_fantasypros",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "proj_used_ownmodel",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "proj_used_sleeper",
    "on_players": 700,
    "coverage_pct": 100,
    "shown": false,
@@ -154,14 +287,140 @@
    "declared": null
   },
   {
-   "name": "rz_share",
+   "name": "replacement_ds",
    "on_players": 700,
    "coverage_pct": 100,
    "shown": false,
    "declared": null
   },
   {
-   "name": "rz_targets",
+   "name": "replacement_fantasypros",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "replacement_ownmodel",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "replacement_sleeper",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "tier_drop_ds",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "tier_drop_fantasypros",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "tier_drop_ownmodel",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "tier_drop_sleeper",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "tier_ds",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "tier_fantasypros",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "tier_ownmodel",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "tier_rank_ds",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "tier_rank_fantasypros",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "tier_rank_ownmodel",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "tier_rank_sleeper",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "tier_size_ds",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "tier_size_fantasypros",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "tier_size_ownmodel",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "tier_size_sleeper",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "tier_sleeper",
    "on_players": 700,
    "coverage_pct": 100,
    "shown": false,
@@ -175,7 +434,28 @@
    "declared": null
   },
   {
-   "name": "weekly_sd",
+   "name": "vorp_ds",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "vorp_fantasypros",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "vorp_ownmodel",
+   "on_players": 700,
+   "coverage_pct": 100,
+   "shown": false,
+   "declared": null
+  },
+  {
+   "name": "vorp_sleeper",
    "on_players": 700,
    "coverage_pct": 100,
    "shown": false,
@@ -186,13 +466,6 @@
   {
    "name": "mlv_recommend.json",
    "kb": 3,
-   "shown": false,
-   "read_dynamically": false,
-   "declared": null
-  },
-  {
-   "name": "position_boards.json",
-   "kb": 166,
    "shown": false,
    "read_dynamically": false,
    "declared": null

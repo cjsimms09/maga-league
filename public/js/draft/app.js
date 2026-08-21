@@ -5334,7 +5334,30 @@
     renderAll();
   }
 
-  function setProjSource(key) {
+  /* ⚠️ RENAMED 2026-08-20 FROM `setProjSource`, AND THE RENAME IS THE FIX.
+   *
+   * This function and the one at the top of the file both declared the name
+   * `setProjSource` in this same IIFE scope. The later declaration — this one —
+   * won, and B's had been dead since the day it was written. The comment above
+   * `safeRender('sourceBoards', ...)` says this block "stays in the file,
+   * UNREFERENCED"; it was the opposite of unreferenced, it was the only one
+   * reachable, and the position-boards toggle Cory clicks during the draft has
+   * been landing here instead of on the panel's own handler.
+   *
+   * Three wrong behaviours came out of the one collision:
+   *   · `renderPositionBoardsPanel()` is never called, so the panel he is
+   *     looking at did not update when he clicked its own toggle;
+   *   · any key other than 'blend' fetched `/board_<key>.json` and called
+   *     `applySourceBoard`, which SWAPS THE BOARD AND RE-SCORES VONA — a
+   *     display toggle silently re-scoring the draft;
+   *   · the two wrote different localStorage keys (`wr_proj_source` here,
+   *     `mfga.draft.projsource` there, which is the one `loadProjSource()`
+   *     reads on boot), so the choice never restored.
+   *
+   * Guarded by `draft/tests/one_name_one_function.test.js`, which carries its
+   * own planted-collision control and the JS-semantics assertion this rests on.
+   */
+  function setProjSourcePanel(key) {
     const prev = state.projSource;
     state.projSource = key;
     try { localStorage.setItem('wr_proj_source', key); } catch (e) { /* private mode */ }
@@ -5377,7 +5400,10 @@
         console.warn('[proj-source]', e && e.message);
       });
   }
-  window.__setProjSource = setProjSource;
+  //: bound to the RENAMED panel handler — see its header. The only caller is
+  //  renderProjSource()'s own buttons, and renderProjSource is not in the
+  //  render loop, so this binding exists for the unmounted panel alone.
+  window.__setProjSource = setProjSourcePanel;
 
   function renderProjSource() {
     const host = projSourceHost();
@@ -5504,8 +5530,16 @@
     el.id = 'source-boards';
     el.className = 'card source-boards';
     el.setAttribute('data-mounted-by', 'app.js — no #source-boards in the view');
-    const anchor = document.getElementById('roster-builder')
-      || document.getElementById('pos-recs-out');
+    /* `#roster-builder` was the first clause here and it has NEVER existed in
+     * this codebase — `warroom.ejs` has `#roster-builder-mlv`, one word longer.
+     * Removed 2026-08-20: `getElementById` on an absent id returns null, so the
+     * `||` was already falling through to `#pos-recs-out` on every render and
+     * deleting the clause changes nothing observable. It is gone because a dead
+     * anchor that happens to have a live fallback reads as a working two-option
+     * lookup, and `#mlv-plan` copied the same wrong id WITHOUT the fallback and
+     * has been appending itself outside `.wr-zone1` ever since.
+     * Guarded by draft/tests/every_mount_anchor_resolves.test.js. */
+    const anchor = document.getElementById('pos-recs-out');
     if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(el, anchor.nextSibling);
     else room.appendChild(el);
     return el;
@@ -8084,6 +8118,25 @@
     var src = player && player.proj_ceiling_source;
     if (typeof src !== 'string' || !src) return false;
     if (/-x-player-cv$/.test(src)) return false;          //: measured per player
+    /* EXTENDED 2026-08-20, AND IT WAS FOUND BY THE TEST THAT GUARDS THIS RULE
+     * CATCHING A CHANGE A MADE THE SAME NIGHT.
+     *
+     * Register 4v's rule is "a ceiling that is not about THIS player says so on
+     * screen". The predicate only knew the `measured-*` family, which Cory's
+     * Draft Sharks ruling retired entirely -- zero on the board now. Two
+     * CURRENT constructions are exactly what the rule is about:
+     *   - `position-median band ...` -- A's third band fallback, added hours
+     *     earlier for players our own pipeline scores at nothing. It is the
+     *     POSITION's typical band, deliberately, and its own stamp says
+     *     ABSTENTION. It is a cohort number by construction, and unmarked it
+     *     would read as a measurement of him.
+     *   - `none -- no band...` -- a collapsed flat band, which is not a claim
+     *     about upside at all and is the most misleading of the three.
+     * Both carry the mark now. `draftsharks_pct` and `pre-DS band` do not: the
+     * first is his own Draft Sharks band, the second his own band SHAPE
+     * rescaled to a new level. */
+    if (/^position-median band/.test(src)) return true;
+    if (/^none/.test(src)) return true;
     return /^measured-/.test(src);                        //: measured per BAND
   }
 
