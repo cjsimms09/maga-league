@@ -43,7 +43,7 @@
   {
    "name": "Christian McCaffrey",
    "position": "RB",
-   "adp": 5,
+   "adp": 5.33,
    "proj": 287.7,
    "marginal": 209.3,
    "why": "takes your open FLEX seat"
@@ -51,7 +51,7 @@
   {
    "name": "Jonathan Taylor",
    "position": "RB",
-   "adp": 6.67,
+   "adp": 6.33,
    "proj": 279.6,
    "marginal": 201.2,
    "why": "takes your open FLEX seat"
@@ -67,7 +67,7 @@
   {
    "name": "De'Von Achane",
    "position": "RB",
-   "adp": 13.33,
+   "adp": 13,
    "proj": 249.7,
    "marginal": 171.3,
    "why": "takes your open FLEX seat"
@@ -83,7 +83,7 @@
   {
    "name": "Saquon Barkley",
    "position": "RB",
-   "adp": 13.67,
+   "adp": 13,
    "proj": 240.1,
    "marginal": 161.7,
    "why": "takes your open FLEX seat"
@@ -99,7 +99,7 @@
   {
    "name": "Chase Brown",
    "position": "RB",
-   "adp": 14.33,
+   "adp": 14.67,
    "proj": 237.8,
    "marginal": 159.4,
    "why": "takes your open FLEX seat"

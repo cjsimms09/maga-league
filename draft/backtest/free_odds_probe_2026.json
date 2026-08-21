@@ -1,7 +1,7 @@
 {
  "_territory": "relay probe; C consumes; results are the free-odds census",
  "_ask": "Cory 2026-08-21: Explore free Vegas odds we can get",
- "captured_at": "2026-08-21T00:25:10.974854Z",
+ "captured_at": "2026-08-21T00:33:19.483802Z",
  "sources": {
   "espn": {
    "status": 403,
@@ -10,7 +10,7 @@
   },
   "bovada": {
    "status": 200,
-   "bytes": 626086,
+   "bytes": 626088,
    "known_positive": [
     {
      "game": "New England Patriots @ Seattle Seahawks",
@@ -20,7 +20,7 @@
     {
      "game": "New England Patriots @ Seattle Seahawks",
      "market": "Point Spread",
-     "handicap": "4.0"
+     "handicap": "2.0"
     },
     {
      "game": "New England Patriots @ Seattle Seahawks",
@@ -32,9 +32,62 @@
    "prop_mentions": 0,
    "verdict": "POSITIVE \u2014 real lines on real games"
   },
+  "bovada_event_props": {
+   "status": 200,
+   "bytes": 626088,
+   "event_link": "/football/nfl/new-england-patriots-seattle-seahawks-202609092015",
+   "event_status": 200,
+   "event_bytes": 39616,
+   "prop_markets": 0,
+   "anytime_td_mentions": 0,
+   "known_positive": [],
+   "verdict": "REACHABLE-NO-POSITIVE (status 200) \u2014 treat as untested, not as no"
+  },
+  "bovada_census": {
+   "status": 200,
+   "bytes": 626088,
+   "display_groups": {
+    "Game Lines": 16,
+    "Alternate Lines": 16,
+    "Score Props": 16,
+    "Game Props": 17,
+    "Correct Score": 16
+   },
+   "market_types": {
+    "Total Points Range": 17,
+    "Moneyline": 16,
+    "Point Spread": 16,
+    "Total": 16,
+    "Spread": 16,
+    "Total Points": 16,
+    "Both teams to score 10 or more points?": 16,
+    "Both teams to score 13 or more points?": 16,
+    "Both teams to score 14 or more points?": 16,
+    "Both teams to score 17 or more points?": 16,
+    "Both teams to score 21 or more points?": 16,
+    "Both teams to score 24 or more points?": 16,
+    "Both teams to score 27 or more points?": 16,
+    "Both teams to score 30 or more points?": 16,
+    "Both teams to score 34 or more points?": 16,
+    "Odd/Even Total Points": 16,
+    "Winning Margin": 16,
+    "Dynamic Winning Margin": 16,
+    "To Win and Allow 0 Points": 16,
+    "Correct Score Range": 16,
+    "Will the game go to Overtime?": 14
+   },
+   "known_positive": [
+    {
+     "census": "main-path"
+    }
+   ],
+   "futures_specials_status": 404,
+   "futures_specials_bytes": 0,
+   "verdict": "POSITIVE \u2014 real lines on real games"
+  },
   "polymarket": {
    "status": 200,
-   "bytes": 831492,
+   "bytes": 831816,
    "events": 20,
    "known_positive": [
     {

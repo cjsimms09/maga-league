@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 183,
+ "next_numeric_id": 184,
  "history": [
   {
    "id": 47,
@@ -143,7 +143,7 @@
   {
    "id": "136-139 (D, second branch) superseded",
    "claimed_at": "2026-08-20",
-   "note": "D independently claimed 136-139 for keeper-tooling test isolation, the attach_draftsharks.py falsy-zero vorp bug, unclassified blend fields, and the \u00b141.8 detection floor \u2014 on a branch that had not yet seen this same evening's A/D work on main, which already covers the vorp bug (row 139, fixed) and detection floor (row 127, answered). Only the keeper-tooling finding was genuinely new; renumbered to 140 on merge. The unclassified-fields finding is still genuinely open and refiled below."
+   "note": "D independently claimed 136-139 for keeper-tooling test isolation, the attach_draftsharks.py falsy-zero vorp bug, unclassified blend fields, and the ±41.8 detection floor — on a branch that had not yet seen this same evening's A/D work on main, which already covers the vorp bug (row 139, fixed) and detection floor (row 127, answered). Only the keeper-tooling finding was genuinely new; renumbered to 140 on merge. The unclassified-fields finding is still genuinely open and refiled below."
   },
   {
    "id": 140,
@@ -183,12 +183,12 @@
   {
    "id": "D's 143-146 (never merged to main) reconciled against a further main sync",
    "claimed_at": "2026-08-20",
-   "note": "D's branch has not yet been merged to main by A, so every D-only id (D's own renumbered 146, and 143/144/145) only ever existed on D's branch. A's further work on main independently reused 143 (same row D had moved to 146 \u2014 dropped D's copy, kept main's 143 as canonical), and claimed real, different new rows at 144 and 145. D's three still-unmerged, genuinely unique rows (keeper-tooling, unclassified blend fields, standalone-script test pattern) renumbered 143/144/145 -> 147/148/149. Watermark now authoritative from 150."
+   "note": "D's branch has not yet been merged to main by A, so every D-only id (D's own renumbered 146, and 143/144/145) only ever existed on D's branch. A's further work on main independently reused 143 (same row D had moved to 146 — dropped D's copy, kept main's 143 as canonical), and claimed real, different new rows at 144 and 145. D's three still-unmerged, genuinely unique rows (keeper-tooling, unclassified blend fields, standalone-script test pattern) renumbered 143/144/145 -> 147/148/149. Watermark now authoritative from 150."
   },
   {
    "id": 150,
    "claimed_at": "2026-08-20",
-   "note": "D: the MLV units question was measured (--mlv-points on roster_builder_replay.js) and the result is hindsight contamination, not a units-robustness answer \u2014 no era-correct projection source is reachable from this sandbox"
+   "note": "D: the MLV units question was measured (--mlv-points on roster_builder_replay.js) and the result is hindsight contamination, not a units-robustness answer — no era-correct projection source is reachable from this sandbox"
   },
   {
    "id": 146,
@@ -419,6 +419,11 @@
    "id": 182,
    "claimed_at": "2026-08-21",
    "note": "A: the refused-rebuilds-ate-a-day-of-an-unbackfillable-series finding (draft-data.yml 14 failed runs on 08-20, proj_series/adp_series stuck at 08-19, a deadlock where the completeness gate refuses the exact publish that would fix it) landed on main's own id 170 -- a genuine independent collision with D's already-canonical 170 (the ADAPTATION-POLICY.md wording-vs-code mismatch, filed earlier the same day). No textual overlap so git's clean auto-merge missed it; caught by test_defect_register.py::test_no_two_rows_share_an_id. Renumbered here, first allocation wins. Watermark now authoritative from 183."
+  },
+  {
+   "id": 183,
+   "claimed_at": "2026-08-21",
+   "note": "relay/C: the Sunday props cron shipped without its clobber guard (would silently overwrite Thursday's snapshot -- same filename, no tag; since DISARMED, verified 0 cron hits on main) landed on main's id 172, already held by D's flat-floor/ceiling-bands row from 08-20, which carries live inbound references from rows 173 and 176. Renumbered to 183, first allocation wins -- moving the bands row instead would have broken two real cross-references. Auto-merged with NO conflict marker (no textual overlap), caught by test_defect_register.py's duplicate-id check. Note: main's commits d854045c and 0f58b9ff cite this finding as 'Register 172' in immutable history; the renumber annotation on the row records that. Watermark now authoritative from 184."
   }
  ]
 }

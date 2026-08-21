@@ -64,6 +64,11 @@ on:
   # a job that goes red every preseason Thursday is a job we learn to ignore.
   schedule:
     - cron: '0 12 * * 4'
+    # SUNDAY CLOSING SNAPSHOT: DISARMED 08-21 hours after the relay added it —
+    # C verified the write path and a second weekly run would SILENTLY CLOBBER
+    # Thursday's snapshot (same season+week filename, no time-of-week tag).
+    # The cron returns WITH C's tag patch (fetch_weekly_props.py, A merges).
+    # Bovada-lines-capture carries the Sunday closing GAME lines meanwhile.
   workflow_dispatch:
     inputs:
       dry_run:
