@@ -1,0 +1,41 @@
+# TERRITORY: D (register 204 — the sibling gap in the mailbox guard's blast
+# radius). THE EMPTIED-FILE GUARD, wired: every push to main is checked for a
+# tracked file that had content before and has none after.
+#
+# `mailbox-guard.yml` next door watches ROWS inside five files. That is the
+# right rule and the wrong scope: on 2026-08-20 commit fd33cd15 — whose
+# message says it published ONE prereg — emptied 15 unrelated files to zero
+# bytes (8 preregs, 5 audits, 2 of A's claim files, 88,281 bytes) and nothing
+# noticed for a day, because none of them were mailboxes.
+#
+# An empty file with the right name reads as "the work was done" to every
+# grep and every reader. Deleting it outright would have been LOUDER.
+#
+# No paths: filter on purpose — the whole point is that the damage lands
+# outside any list we would have thought to write.
+#
+# Known-positive: fd33cd15 itself. draft/tests/emptied_file_guard.test.js pins
+# that the guard fires on it with all 15 files and the full byte count, and
+# the tool REFUSES to report a clean run if that control ever stops firing.
+name: emptied-file-guard
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: No tracked file is silently emptied
+        run: |
+          set -euo pipefail
+          FROM="${{ github.event.before }}"
+          if [ -z "$FROM" ] || ! git cat-file -e "$FROM" 2>/dev/null; then FROM="HEAD~1"; fi
+          node draft/tools/emptied_file_guard.js "$FROM" HEAD
+      - name: The guard's own controls
+        run: node draft/tests/emptied_file_guard.test.js
