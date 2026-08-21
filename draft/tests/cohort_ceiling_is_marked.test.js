@@ -209,7 +209,22 @@ const plain = C.rangeBar(100, 200, 300, Object.assign({ cohortCeiling: false }, 
   hit.length < range.length / 2, { marked: hit.length, of: range.length });
   //: the shared-ratio evidence below only means anything when something is
   //  marked; today nothing is, so it is skipped rather than asserted on []
-  const HAVE_MARKED = hit.length > 0;
+  /* ⚠️ `> 0` WAS THE WRONG THRESHOLD AND IT FAILED ON A POPULATION OF ONE.
+   *
+   * The evidence below is "the marked players SHARE ceiling ratios". Sharing
+   * needs at least TWO players to be a possible outcome, so with exactly one
+   * marked the assertion demanded something arithmetically unreachable and
+   * reported it as a defect.
+   *
+   * Measured 2026-08-21: inside Cory's range (adp 25-220) exactly ONE player
+   * is marked -- Jayden Higgins, ratio 1.4031, carrying the position-median
+   * band stamped "no player-specific band available — ABSTENTION, not a
+   * measurement". That is the honest fallback working, not a cohort constant:
+   * the 34-player band-constant population this file was written for is gone.
+   *
+   * So the gate is >= 2, and the one-marked case is REPORTED with the player
+   * named rather than asserted on. */
+  const HAVE_MARKED = hit.length >= 2;
 
   /* The defect's signature, asserted directly: shared ratios. If these ever
    * become distinct the underlying problem is fixed and this mark should go. */
@@ -232,6 +247,10 @@ const plain = C.rangeBar(100, 200, 300, Object.assign({ cohortCeiling: false }, 
       + 'number is a cohort constant and not a measurement',
     shared.length >= 2, Object.entries(ratios).filter(([, v]) => v.length > 1)
       .map(([r, v]) => r + ' x' + v.length));
+  } else if (hit.length === 1) {
+    ck('exactly ONE player inside Cory\'s range carries a cohort/abstention '
+      + 'ceiling — reported by name, not asserted on: sharing needs two',
+    true, hit.map(p => p.name + ' @ ' + (p.proj_ceiling / p.proj_mean).toFixed(4)));
   } else {
     ck('nothing inside Cory\'s range carries a cohort ceiling any more, so the '
       + 'shared-ratio evidence has no population — reported, not asserted',
