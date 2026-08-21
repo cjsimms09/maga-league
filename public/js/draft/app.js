@@ -12006,6 +12006,21 @@
   window.WarRoomData = {
     scored: function () { return (state.lastClock && state.lastClock.scored) || []; },
     board: function () { return state.board || []; },
+    /* ⚠️ REGISTER 220/237 (E, 2026-08-21, re-measured and reproduced by B
+     * against live code): the Big Board tab's per-position COLUMNS
+     * (renderColumns() in warroom_charts.js) read `board()` above — always
+     * the raw blend, never the selected source — while the flat "Overall
+     * ranking" table on the SAME tab, right below the columns, already
+     * follows state.rankSource via renderBoard()'s own sourceAdjustedBoard()
+     * call. The ordering-basis caption (#board-ordering-note) repaints
+     * correctly on every source click, so the click lands and the sentence
+     * changes — the columns just never moved, making the sentence false for
+     * that half of the tab. REUSE, NOT REIMPLEMENTATION (Rule 11): this is
+     * the SAME sourceAdjustedBoard() renderBoard() already calls — the fix
+     * is which board warroom_charts.js reads, not new sort/swap logic. */
+    sourceAdjustedBoard: function () {
+      try { return sourceAdjustedBoard(); } catch (e) { return state.board || []; }
+    },
     players: function () { return (state.data && state.data.players) || []; },
     roster: function () { return state.myRoster || []; },
     starters: function () { return (((state.data || {}).league) || {}).starters || {}; },
