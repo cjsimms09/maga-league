@@ -432,28 +432,69 @@
               + 'the Ranking Source toggle.">VONA <b>' + esc(fmtNum(v)) + '</b> '
               + '<span class="pb-vona-src">' + esc(srcLabel) + '</span></span>';
           }())
-        /* ⚠️ THIS ONE DOES **NOT** FOLLOW THE TOGGLE, AND NOW SAYS SO — Cory
-         * asked whether everything that should change with the source does, and
-         * the VONA chip immediately to its left advertises "Follows the Ranking
-         * Source toggle" while this chip sits beside it doing the opposite.
-         * `surplus_over_wire` is `max(0, projUsed - WAIVER[pos])` where
-         * `projUsed` reads `x.ds.proj` — Draft Sharks only
-         * (position_boards.js:135) — against a HARDCODED waiver baseline
-         * (position_boards.js:41, QB 322.9 / RB 78.4 / WR 124.8 / TE 130.4).
-         * position_boards.js says it outright: "Ranking, VONA, cliff and surplus
-         * above are unaffected: they stay computed from `ds`."
+        /* ── IT FOLLOWS THE TOGGLE NOW — register 221 CLOSED, 2026-08-21 ─────
          *
-         * Making it per-source needs per-source waiver baselines — a modelling
-         * change, not a wiring one, and not something to invent the night before
-         * a draft. So it is LABELLED rather than silently left looking live.
-         * Register 221, owner A, post-draft. */
-        + '<span class="pb-surplus" title="Best available, points over a free '
-          + 'waiver pickup. FIXED TO DRAFT SHARKS against a static waiver '
-          + 'baseline — unlike VONA, this does NOT follow the Ranking Source '
-          + 'toggle (register 221).">'
-          + '+' + esc(fmtNum(block.surplus_over_wire)) + ' wire <span class="pb-vona-src">DS</span></span>'
+         * This chip used to carry a label saying it did NOT follow the toggle,
+         * because `surplus_over_wire` was `max(0, projUsed - WAIVER[pos])` with
+         * a Draft-Sharks numerator and a HARDCODED denominator. That label was
+         * the honest short-term answer; it was not the fix.
+         *
+         * Cory, the same day: *"we need to fix wire logic! should we use last
+         * few years of draft to determine how many at each position are
+         * rostered/drafted then use that to compare waiver wire"* and *"it
+         * should also change with each source probably?"*
+         *
+         * Both now hold. `draft/tools/waiver_baseline.js` derives the COUNT
+         * from three seasons of this league's own `final_rosters` (a league
+         * fact, source-independent) and the VALUE from each source's own
+         * projection of the (count+1)-th best at that position (a source
+         * opinion). `position_boards.js` emits `surplus_over_wire_by_source`
+         * from it, on the SAME null rule VONA uses.
+         *
+         * SAME THREE-WAY BRANCH AS VONA ABOVE, deliberately: no artifact → say
+         * so; source has no opinion → dash with the reason; otherwise the
+         * number, named. A legacy artifact must never print its Draft Sharks
+         * figure under another source's label — that is the defect this
+         * family keeps producing. */
+        + (function () {
+            var key = rankKey || 'ds';
+            var bySrc = block.surplus_over_wire_by_source || null;
+            var srcLabel = SRC_LABEL[key] || key;
+            if (!bySrc) {
+              return '<span class="pb-surplus" title="Best available, points over a free '
+                + 'waiver pickup. This board artifact predates the per-source waiver '
+                + 'baseline, so this is Draft Sharks’ figure against the frozen '
+                + 'baseline.">+' + esc(fmtNum(block.surplus_over_wire))
+                + ' wire <span class="pb-vona-src">DS</span></span>';
+            }
+            var s = bySrc[key];
+            if (s == null) {
+              return '<span class="pb-surplus pb-vona-none" title="' + esc(srcLabel)
+                + ' does not price enough available ' + esc(pos) + 's to say what a free '
+                + 'waiver pickup at this position is worth, so there is no surplus to '
+                + 'show for it. Switch source, or use the Big Board.">'
+                + '— wire <span class="pb-vona-src">' + esc(srcLabel) + '</span></span>';
+            }
+            var wire = (block.waiver_by_source || {})[key];
+            return '<span class="pb-surplus" title="Best available, points over a free '
+              + 'waiver pickup at this position'
+              + (wire != null ? ' (' + esc(fmtNum(wire)) + ' pts on ' + esc(srcLabel) + ')' : '')
+              + '. The COUNT of players this league really rosters comes from its own last '
+              + 'three drafts; the PRICE is ' + esc(srcLabel) + '’ own. Follows the '
+              + 'Ranking Source toggle.">+' + esc(fmtNum(s)) + ' wire '
+              + '<span class="pb-vona-src">' + esc(srcLabel) + '</span></span>';
+          }())
       + '</div>'
-      + (block.note ? '<div class="pb-note">' + esc(block.note) + '</div>' : '')
+      /* THE NOTE QUOTES THE TWO CHIPS ABOVE IT BY NAME — "waiting costs 35 and
+       * he is +130 over the wire" — so it must be the SAME source's 35 and 130.
+       * Leaving it on Draft Sharks while the chips followed the toggle would
+       * have replaced one silent disagreement with a louder one. `note` (the
+       * legacy DS string) is the fallback for a pre-08-21 artifact only. */
+      + (function () {
+          var byS = block.note_by_source || null;
+          var n = byS ? byS[rankKey || 'ds'] : block.note;
+          return n ? '<div class="pb-note">' + esc(n) + '</div>' : '';
+        }())
       + (players.length ? '<div class="pb-table">'
         + '<div class="pb-table-row pb-table-head">'
           + '<div title="Player">Player</div><div title="Projection">Proj</div>'

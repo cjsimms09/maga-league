@@ -1,0 +1,390 @@
+{
+ "_what": "Per-source waiver baseline: the projection of the best player at each position that this league does NOT roster, derived from real drafts.",
+ "_method": "COUNT from league_history final_rosters (source-independent league behaviour); VALUE from each source's own projection of the (count+1)th best at that position (source-dependent). Replaces a hardcoded constant.",
+ "_cory": "2026-08-21 — \"use last few years of draft to determine how many at each position are rostered/drafted then use that to compare waiver wire\" and \"it should also change with each source probably?\"",
+ "generated_at": "2026-08-21T17:21:03Z",
+ "seasons_used": [
+  "2025",
+  "2024",
+  "2023"
+ ],
+ "rostered_count": {
+  "QB": 18,
+  "RB": 44,
+  "WR": 50,
+  "TE": 17,
+  "K": 11,
+  "DEF": 15
+ },
+ "drafted_count": {
+  "QB": 16,
+  "RB": 47,
+  "WR": 52,
+  "TE": 14,
+  "K": 10,
+  "DEF": 10
+ },
+ "per_season": [
+  {
+   "season": "2025",
+   "drafted": {
+    "QB": 15,
+    "RB": 47,
+    "WR": 51,
+    "TE": 15,
+    "K": 11,
+    "DEF": 10
+   },
+   "rostered": {
+    "QB": 20,
+    "RB": 42,
+    "WR": 52,
+    "TE": 17,
+    "K": 10,
+    "DEF": 14
+   }
+  },
+  {
+   "season": "2024",
+   "drafted": {
+    "QB": 16,
+    "RB": 47,
+    "WR": 54,
+    "TE": 14,
+    "K": 10,
+    "DEF": 9
+   },
+   "rostered": {
+    "QB": 19,
+    "RB": 40,
+    "WR": 52,
+    "TE": 16,
+    "K": 12,
+    "DEF": 16
+   }
+  },
+  {
+   "season": "2023",
+   "drafted": {
+    "QB": 17,
+    "RB": 48,
+    "WR": 52,
+    "TE": 13,
+    "K": 10,
+    "DEF": 10
+   },
+   "rostered": {
+    "QB": 15,
+    "RB": 49,
+    "WR": 45,
+    "TE": 18,
+    "K": 11,
+    "DEF": 15
+   }
+  }
+ ],
+ "spread": {
+  "QB": {
+   "rostered": [
+    20,
+    19,
+    15
+   ],
+   "drafted": [
+    15,
+    16,
+    17
+   ],
+   "rostered_range": 5
+  },
+  "RB": {
+   "rostered": [
+    42,
+    40,
+    49
+   ],
+   "drafted": [
+    47,
+    47,
+    48
+   ],
+   "rostered_range": 9
+  },
+  "WR": {
+   "rostered": [
+    52,
+    52,
+    45
+   ],
+   "drafted": [
+    51,
+    54,
+    52
+   ],
+   "rostered_range": 7
+  },
+  "TE": {
+   "rostered": [
+    17,
+    16,
+    18
+   ],
+   "drafted": [
+    15,
+    14,
+    13
+   ],
+   "rostered_range": 2
+  },
+  "K": {
+   "rostered": [
+    10,
+    12,
+    11
+   ],
+   "drafted": [
+    11,
+    10,
+    10
+   ],
+   "rostered_range": 2
+  },
+  "DEF": {
+   "rostered": [
+    14,
+    16,
+    15
+   ],
+   "drafted": [
+    10,
+    9,
+    10
+   ],
+   "rostered_range": 2
+  }
+ },
+ "priced_per_source": {
+  "blend": {
+   "QB": 91,
+   "RB": 160,
+   "WR": 242,
+   "TE": 133,
+   "K": 45,
+   "DEF": 32
+  },
+  "ds": {
+   "QB": 30,
+   "RB": 78,
+   "WR": 70,
+   "TE": 26,
+   "K": 22,
+   "DEF": 21
+  },
+  "sleeper": {
+   "QB": 91,
+   "RB": 160,
+   "WR": 242,
+   "TE": 133,
+   "K": 45,
+   "DEF": 32
+  },
+  "cbs": {
+   "QB": 68,
+   "RB": 89,
+   "WR": 99,
+   "TE": 81,
+   "K": 33,
+   "DEF": 31
+  },
+  "espn": {
+   "QB": 42,
+   "RB": 95,
+   "WR": 146,
+   "TE": 58,
+   "K": 32,
+   "DEF": 30
+  },
+  "fftoday": {
+   "QB": 49,
+   "RB": 95,
+   "WR": 127,
+   "TE": 50,
+   "K": 0,
+   "DEF": 32
+  },
+  "fantasypros": {
+   "QB": 71,
+   "RB": 101,
+   "WR": 160,
+   "TE": 97,
+   "K": 0,
+   "DEF": 0
+  },
+  "clay": {
+   "QB": 40,
+   "RB": 96,
+   "WR": 168,
+   "TE": 76,
+   "K": 0,
+   "DEF": 0
+  },
+  "ownmodel": {
+   "QB": 75,
+   "RB": 125,
+   "WR": 198,
+   "TE": 112,
+   "K": 0,
+   "DEF": 0
+  }
+ },
+ "baseline": {
+  "blend": {
+   "QB": 317.7,
+   "RB": 96.9,
+   "WR": 129,
+   "TE": 119.7,
+   "K": 125.7,
+   "DEF": 93.3
+  },
+  "ds": {
+   "QB": 296,
+   "RB": 104,
+   "WR": 139,
+   "TE": 123,
+   "K": 148,
+   "DEF": 106
+  },
+  "sleeper": {
+   "QB": 307.7,
+   "RB": 87.9,
+   "WR": 132.7,
+   "TE": 113.8,
+   "K": 97,
+   "DEF": 94
+  },
+  "cbs": {
+   "QB": 333.7,
+   "RB": 118.7,
+   "WR": 135.5,
+   "TE": 128.3,
+   "K": 145,
+   "DEF": 116.2
+  },
+  "espn": {
+   "QB": 314.7,
+   "RB": 114.2,
+   "WR": 123.8,
+   "TE": 120.8,
+   "K": 140,
+   "DEF": 103
+  },
+  "fftoday": {
+   "QB": 314.7,
+   "RB": 100.7,
+   "WR": 127.2,
+   "TE": 115.6,
+   "K": null,
+   "DEF": 93
+  },
+  "fantasypros": {
+   "QB": 313.2,
+   "RB": 104.5,
+   "WR": 129.7,
+   "TE": 121.7,
+   "K": null,
+   "DEF": null
+  },
+  "clay": {
+   "QB": 314.7,
+   "RB": 114.1,
+   "WR": 124.9,
+   "TE": 120.8,
+   "K": null,
+   "DEF": null
+  },
+  "ownmodel": {
+   "QB": 248.1,
+   "RB": 83.6,
+   "WR": 91.5,
+   "TE": 95.6,
+   "K": null,
+   "DEF": null
+  }
+ },
+ "replacement_player": {
+  "blend": {
+   "QB": "Jordan Love",
+   "RB": "Alvin Kamara",
+   "WR": "Romeo Doubs",
+   "TE": "Juwan Johnson",
+   "K": "Blake Grupe",
+   "DEF": "Tampa Bay Buccaneers"
+  },
+  "ds": {
+   "QB": "Jordan Love",
+   "RB": "Tyrone Tracy",
+   "WR": "Makai Lemon",
+   "TE": "Hunter Henry",
+   "K": "Wil Lutz",
+   "DEF": "Kansas City Chiefs"
+  },
+  "sleeper": {
+   "QB": "Kyler Murray",
+   "RB": "Keaton Mitchell",
+   "WR": "Romeo Doubs",
+   "TE": "Oronde Gadsden",
+   "K": "Evan McPherson",
+   "DEF": "Green Bay Packers"
+  },
+  "cbs": {
+   "QB": "Sam Darnold",
+   "RB": "Chris Rodriguez",
+   "WR": "Xavier Worthy",
+   "TE": "Cade Otton",
+   "K": "Evan McPherson",
+   "DEF": "Baltimore Ravens"
+  },
+  "espn": {
+   "QB": "Daniel Jones",
+   "RB": "Woody Marks",
+   "WR": "Josh Downs",
+   "TE": "Hunter Henry",
+   "K": "Jake Bates",
+   "DEF": "Minnesota Vikings"
+  },
+  "fftoday": {
+   "QB": "Jordan Love",
+   "RB": "Zach Charbonnet",
+   "WR": "Matthew Golden",
+   "TE": "Juwan Johnson",
+   "K": null,
+   "DEF": "Tampa Bay Buccaneers"
+  },
+  "fantasypros": {
+   "QB": "Kyler Murray",
+   "RB": "Alvin Kamara",
+   "WR": "KC Concepcion",
+   "TE": "Brenton Strange",
+   "K": null,
+   "DEF": null
+  },
+  "clay": {
+   "QB": "Daniel Jones",
+   "RB": "Woody Marks",
+   "WR": "Tank Dell",
+   "TE": "Hunter Henry",
+   "K": null,
+   "DEF": null
+  },
+  "ownmodel": {
+   "QB": "Jaxson Dart",
+   "RB": "Blake Corum",
+   "WR": "Christian Watson",
+   "TE": "Sam LaPorta",
+   "K": null,
+   "DEF": null
+  }
+ },
+ "controls_all_passed": true,
+ "control_failures": []
+}

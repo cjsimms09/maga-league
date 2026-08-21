@@ -2190,6 +2190,24 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
             "config_confirmed": dict(confirmed_status),
             # Stamped whether or not it applied — see the note at the call site.
             "multisource_mean": dict(ms_diag),
+            # ⚠️ THIS FIELD DID NOT EXIST UNTIL 2026-08-21, AND `_id_crosswalk`'s
+            # OWN DOCSTRING SAID IT DID. Verbatim, before this line: "The source
+            # that answered is recorded in `ID_CROSSWALK_SOURCE` so a degraded
+            # run is legible in the artifact instead of only in the log."
+            #
+            # It was recorded in a MODULE GLOBAL and a print. Nothing wrote it to
+            # the artifact, so a degraded crosswalk was legible only in the log
+            # of a scheduled job nobody reads — which is the same as not legible.
+            # E's register 233 flagged the swallow; this is the half that made
+            # the swallow undetectable after the fact.
+            #
+            # NOT A REFUSAL, DELIBERATELY, THE NIGHT BEFORE A DRAFT. Making the
+            # build fail on a crosswalk error trades a degraded board for NO
+            # board, and tonight's post-lock rebuild is the last one Cory drafts
+            # from. So: record it, and let `id_crosswalk_is_healthy.test.js` go
+            # red on the published artifact instead. A guard cannot block the
+            # rebuild; a raise can.
+            "id_crosswalk": ID_CROSSWALK_SOURCE,
         },
     }
     _assert_provenance_matches_data(available, artifact)
