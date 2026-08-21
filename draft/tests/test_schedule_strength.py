@@ -102,3 +102,23 @@ def test_build_store_matches_the_real_committed_stores():
     # the real bye week: SEA has no week-2 entry (verified against the raw
     # schedule earlier: SEA plays weeks 1,3-10,12-18, bye is week 11)
     assert "11" not in doc["by_team"]["SEA"]
+
+
+# ── rule 3e refusal gate (relay's 08-21 loop-audit, ASK 2) ────────────────
+
+def test_refusal_reason_none_on_the_real_committed_stores():
+    import json
+    defense_doc = json.loads((Path(__file__).resolve().parent.parent
+                              / "backtest" / "defense_vs_position.json").read_text())
+    schedule_doc = json.loads((Path(__file__).resolve().parent.parent
+                               / "data" / "nfl_schedule_2026.json").read_text())
+    doc = SS.build_store(defense_doc, schedule_doc)  # known-positive
+    assert SS.refusal_reason(doc) is None
+
+
+def test_refusal_reason_fires_on_an_empty_schedule():
+    defense_doc = {"seasons": [2025], "by_defense": {"NE": {"QB": {"mean_allowed": 18.0}}}}
+    doc = SS.build_store(defense_doc, {"season": 2026, "rows": []})
+    reason = SS.refusal_reason(doc)
+    assert reason is not None
+    assert "0 teams" in reason

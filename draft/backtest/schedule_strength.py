@@ -55,6 +55,15 @@ POSITIONS = ("QB", "RB", "WR", "TE")
 #: vs {'LAR','WSH'}, nothing else differs across the 32 teams.
 TEAM_FIX = {"LA": "LAR", "WAS": "WSH"}
 
+#: RULE 3e refusal floor (relay's 08-21 loop-audit, ASK 2 -- this module
+#: only checked its two input FILES exist, not that either parsed into
+#: real rows). A real run 08-21 produced 32 teams / 544 team-weeks; either
+#: floor sits well below that real number, not guessed, to catch an empty
+#: or reshaped upstream (either defense_vs_position.json or the schedule)
+#: loudly instead of a silent thin "OK".
+MIN_TEAMS = 30
+MIN_TEAM_WEEKS = 450
+
 
 def rank_defenses_by_position(by_defense: dict) -> dict:
     """{position: {team: rank}} -- rank 1 = fewest points allowed (hardest
@@ -96,6 +105,19 @@ def build_team_schedule(schedule_rows: list) -> dict:
                 continue
             out.setdefault(team, {})[int(row["week"])] = opp
     return out
+
+
+def refusal_reason(doc: dict) -> str | None:
+    """None if `doc` clears the rule-3e floors, else the reason it doesn't.
+    Pure, so the fail arm is testable without a real upstream failure."""
+    n_teams = len(doc["by_team"])
+    n_weeks = sum(len(w) for w in doc["by_team"].values())
+    if n_teams < MIN_TEAMS or n_weeks < MIN_TEAM_WEEKS:
+        return (f"only {n_teams} teams / {n_weeks} team-weeks (floor "
+               f"{MIN_TEAMS}/{MIN_TEAM_WEEKS}, real runs see 32/544) -- "
+               "defense_vs_position.json or nfl_schedule_2026.json empty "
+               "or reshaped")
+    return None
 
 
 def build_store(defense_doc: dict, schedule_doc: dict) -> dict:
@@ -143,9 +165,13 @@ def main() -> int:
     doc = build_store(defense_doc, schedule_doc)
     doc["captured_at"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    OUT.write_text(json.dumps(doc, indent=1))
+    reason = refusal_reason(doc)
+    if reason:
+        print(f"REFUSING TO WRITE: {reason}. Nothing written.", file=sys.stderr)
+        return 1
     n_teams = len(doc["by_team"])
     n_weeks = sum(len(w) for w in doc["by_team"].values())
+    OUT.write_text(json.dumps(doc, indent=1))
     print(f"wrote {OUT.relative_to(ROOT)}: {n_teams} teams, {n_weeks} team-weeks")
     return 0
 

@@ -103,3 +103,20 @@ def test_build_store_matches_the_real_committed_schedule():
     assert buf["2"]["short_week"] is True
     assert buf["3"]["rest_days"] == 9
     assert buf["3"]["short_week"] is False
+
+
+# ── rule 3e refusal gate (relay's 08-21 loop-audit, ASK 2) ────────────────
+
+def test_refusal_reason_none_on_the_real_committed_store():
+    import json
+    schedule_doc = json.loads((Path(__file__).resolve().parent.parent
+                               / "data" / "nfl_schedule_2026.json").read_text())
+    doc = SC.build_store(schedule_doc)  # known-positive: real store clears the floor
+    assert SC.refusal_reason(doc) is None
+
+
+def test_refusal_reason_fires_on_an_empty_schedule():
+    doc = SC.build_store({"season": 2026, "rows": []})
+    reason = SC.refusal_reason(doc)
+    assert reason is not None
+    assert "0 teams" in reason

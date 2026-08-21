@@ -57,6 +57,16 @@ DEFAULT_SEASONS = (2021, 2022, 2023, 2024, 2025)
 POSITIONS = ("QB", "RB", "WR", "TE")
 LAST_WEEK = 17  # this league's own last_scored_leg, not the NFL's week 18
 
+#: RULE 3e refusal floor (relay's 08-21 loop-audit, ASK 2 — this module
+#: silently skipped an empty upstream instead of refusing). A real run
+#: 08-21 populated 32/32 defenses with 2039-2047 cells per season; either
+#: floor is set far below that real measurement, not guessed, so a
+#: near-total upstream failure (empty component_stats_<season>.json or
+#: vegas_lines_2021_2026.json) is caught loudly instead of printing a
+#: quiet, thin "OK".
+MIN_DEFENSES = 28
+MIN_CELLS_PER_SEASON = 500
+
 
 def opponent_map(season: int) -> dict:
     """{(team, week): opponent_team} for one season, from the committed
@@ -150,10 +160,29 @@ def build_store(seasons=DEFAULT_SEASONS) -> dict:
     return doc
 
 
+def refusal_reason(doc: dict) -> str | None:
+    """None if `doc` clears the rule-3e floors, else the reason it doesn't.
+    Pure, so the fail arm is testable without a real upstream failure."""
+    n_defenses = len(doc["by_defense"])
+    if n_defenses < MIN_DEFENSES:
+        return (f"only {n_defenses} defenses populated (floor {MIN_DEFENSES}, "
+               "real runs see 32) -- upstream store empty or reshaped")
+    thin = {s: n for s, n in doc["weeks_per_season_measured"].items()
+            if n < MIN_CELLS_PER_SEASON}
+    if thin:
+        return (f"season(s) below the {MIN_CELLS_PER_SEASON}-cell floor -- {thin} "
+               "-- upstream store empty or reshaped for that season")
+    return None
+
+
 def main(seasons=DEFAULT_SEASONS) -> int:
     doc = build_store(seasons)
-    OUT.write_text(json.dumps(doc, indent=1))
+    reason = refusal_reason(doc)
+    if reason:
+        print(f"REFUSING TO WRITE: {reason}. Nothing written.", file=sys.stderr)
+        return 1
     n_defenses = len(doc["by_defense"])
+    OUT.write_text(json.dumps(doc, indent=1))
     print(f"wrote {OUT.relative_to(DRAFT.parent)}: {n_defenses} defenses, "
          f"seasons {doc['seasons']}, league_avg {doc['league_avg']}")
     return 0

@@ -95,3 +95,28 @@ def test_build_store_reuses_fetch_component_stats_not_a_reimplementation():
     assert D.FCS.component_weeks is FCS.component_weeks
     assert D.FCS.scored_weekly_points is FCS.scored_weekly_points
     assert D.FCS.frozen_scoring_table is FCS.frozen_scoring_table
+
+
+# ── rule 3e refusal gate (relay's 08-21 loop-audit, ASK 2) ────────────────
+
+def test_refusal_reason_none_on_the_real_committed_store():
+    # known-positive: today's real build clears both floors
+    doc = D.build_store((2024,))
+    doc["weeks_per_season_measured"] = {"2024": 2045}
+    assert D.refusal_reason(doc) is None
+
+
+def test_refusal_reason_fires_on_a_starved_defense_count():
+    doc = {"by_defense": {t: {} for t in ("KC", "NO")},  # far below MIN_DEFENSES
+           "weeks_per_season_measured": {"2024": 2045}}
+    reason = D.refusal_reason(doc)
+    assert reason is not None
+    assert "2 defenses" in reason
+
+
+def test_refusal_reason_fires_on_a_thin_season():
+    doc = {"by_defense": {f"T{i}": {} for i in range(32)},
+           "weeks_per_season_measured": {"2024": 5}}  # far below MIN_CELLS_PER_SEASON
+    reason = D.refusal_reason(doc)
+    assert reason is not None
+    assert "2024" in reason

@@ -43,6 +43,14 @@ OUT = HERE / "schedule_context_2026.json"
 #: catches a real 5-day case, does not flag a real 9-day recovery week.
 SHORT_WEEK_THRESHOLD = 6
 
+#: RULE 3e refusal floor (relay's 08-21 loop-audit, ASK 2 -- this module
+#: only checked the input FILE exists, not that it actually parsed into
+#: real rows). A real run 08-21 produced 32 teams / 544 team-weeks (32
+#: NFL teams x 17 games); either floor sits well below that real number,
+#: not guessed, to catch a truncated/empty/reshaped schedule file loudly.
+MIN_TEAMS = 30
+MIN_TEAM_WEEKS = 450
+
 
 def parse_date(date_str: str) -> datetime:
     return datetime.fromisoformat(date_str.replace("Z", "+00:00"))
@@ -120,6 +128,18 @@ def build_store(schedule_doc: dict) -> dict:
     return doc
 
 
+def refusal_reason(doc: dict) -> str | None:
+    """None if `doc` clears the rule-3e floors, else the reason it doesn't.
+    Pure, so the fail arm is testable without a real upstream failure."""
+    n_teams = len(doc["by_team"])
+    n_weeks = sum(len(w) for w in doc["by_team"].values())
+    if n_teams < MIN_TEAMS or n_weeks < MIN_TEAM_WEEKS:
+        return (f"only {n_teams} teams / {n_weeks} team-weeks (floor "
+               f"{MIN_TEAMS}/{MIN_TEAM_WEEKS}, real runs see 32/544) -- "
+               "nfl_schedule_2026.json empty or reshaped")
+    return None
+
+
 def main() -> int:
     if not SCHEDULE.exists():
         print("VOID -- nfl_schedule_2026.json not found", file=sys.stderr)
@@ -128,9 +148,13 @@ def main() -> int:
     doc = build_store(schedule_doc)
     doc["captured_at"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    OUT.write_text(json.dumps(doc, indent=1))
+    reason = refusal_reason(doc)
+    if reason:
+        print(f"REFUSING TO WRITE: {reason}. Nothing written.", file=sys.stderr)
+        return 1
     n_teams = len(doc["by_team"])
     n_weeks = sum(len(w) for w in doc["by_team"].values())
+    OUT.write_text(json.dumps(doc, indent=1))
     n_short = sum(1 for w in doc["by_team"].values()
                  for e in w.values() if e.get("short_week"))
     print(f"wrote {OUT.relative_to(ROOT)}: {n_teams} teams, {n_weeks} team-weeks, "
