@@ -2,8 +2,8 @@
  "_territory": "TERRITORY: A — draft/tools/draft_ready.js",
  "mode": "PRE-LOCK (lock checks report only)",
  "_absent_is_not_pass": "Every check treats missing data as failure.",
- "go": true,
- "fatal_failures": 0,
+ "go": false,
+ "fatal_failures": 1,
  "soft_failures": 4,
  "checks": [
   {
@@ -165,9 +165,9 @@
    "ok": false,
    "fatal": false,
    "detail": {
-    "designated": 6,
+    "designated": 7,
     "expected": 10,
-    "undesignated": 4
+    "undesignated": 3
    },
    "fix": null
   },
@@ -201,8 +201,8 @@
    "ok": true,
    "fatal": true,
    "detail": {
-    "built_at": "2026-08-21T00:29:00Z",
-    "age_hours": 13.8
+    "built_at": "2026-08-21T17:09:12Z",
+    "age_hours": 1.8
    },
    "fix": "ADP, injuries and suspensions all move daily — rebuild before drafting"
   },
@@ -228,7 +228,7 @@
      "time": "6:00 PM",
      "tz": "CDT"
     },
-    "currently_withheld": 13
+    "currently_withheld": 14
    },
    "fix": null
   },
@@ -237,7 +237,7 @@
    "ok": true,
    "fatal": true,
    "detail": {
-    "post_processed_at": "2026-08-21T00:34:49Z"
+    "post_processed_at": "2026-08-21T17:14:21Z"
    },
    "fix": null
   },
@@ -320,7 +320,7 @@
    "fatal": true,
    "detail": {
     "stale": [],
-    "board_built_at": "2026-08-21T00:29:00Z"
+    "board_built_at": "2026-08-21T17:09:12Z"
    },
    "fix": "run python3 draft/tools/rerank_by_source.py after any board rebuild"
   },
@@ -333,7 +333,7 @@
   },
   {
    "name": "board_input_staleness: nothing derived predates the board it came from",
-   "ok": true,
+   "ok": false,
    "fatal": true,
    "detail": null,
    "fix": "node draft/tools/board_input_staleness.js"
