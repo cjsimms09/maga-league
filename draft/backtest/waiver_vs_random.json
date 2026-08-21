@@ -1,0 +1,70 @@
+{
+ "_territory": "TERRITORY: A \u2014 draft/backtest/waiver_vs_random.py",
+ "_what": "Decision-null grading of waiver/FA claims: rest-of-season value vs a random AVAILABLE player at the same position that week.",
+ "n_claims": 755,
+ "mean_percentile": 0.7117,
+ "null_95": [
+  0.4794,
+  0.5206
+ ],
+ "controls": {
+  "random_available": 0.4898,
+  "best_available": 0.9543
+ },
+ "median_pool_size": 17,
+ "n_draws": 300,
+ "seed": 20260821,
+ "skipped": 9,
+ "by_owner": {
+  "MarianSaar": {
+   "n": 75,
+   "mean_pct": 0.7225,
+   "ros_pts_left": 56.35
+  },
+  "Schmelley": {
+   "n": 88,
+   "mean_pct": 0.7437,
+   "ros_pts_left": 44.35
+  },
+  "cashworth": {
+   "n": 67,
+   "mean_pct": 0.7294,
+   "ros_pts_left": 42.48
+  },
+  "coryjsimms": {
+   "n": 93,
+   "mean_pct": 0.6953,
+   "ros_pts_left": 49.86
+  },
+  "Richard2121": {
+   "n": 106,
+   "mean_pct": 0.6572,
+   "ros_pts_left": 55.55
+  },
+  "ds7mmet": {
+   "n": 114,
+   "mean_pct": 0.6674,
+   "ros_pts_left": 64.96
+  },
+  "B8T3S": {
+   "n": 58,
+   "mean_pct": 0.7533,
+   "ros_pts_left": 47.33
+  },
+  "Jreis": {
+   "n": 48,
+   "mean_pct": 0.7079,
+   "ros_pts_left": 52.03
+  },
+  "mhagen": {
+   "n": 71,
+   "mean_pct": 0.7757,
+   "ros_pts_left": 34.55
+  },
+  "Sadbru": {
+   "n": 35,
+   "mean_pct": 0.7326,
+   "ros_pts_left": 42.73
+  }
+ }
+}
