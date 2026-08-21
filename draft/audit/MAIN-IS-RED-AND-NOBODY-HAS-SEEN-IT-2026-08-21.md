@@ -202,7 +202,7 @@ pre-existing. FOUR new in this window:**
 - `baseline_regression` — VONA re-pin, needs `v32`. **Still open.**
 - `intervention-rate` — VONA re-pin, 74.2%. **Still open.**
 - `ruled_target_is_one_definition` — board rebuild moved a **ruled** target. **Still open, and it is the one I would look at first.**
-- `slate_exposure_commitment` — partial slate, clears at 6PM. **Working as designed; P313 grades that claim rather than assuming it.**
+- `slate_exposure_commitment` — partial slate, clears at 6PM. **Working as designed; P314 grades that claim rather than assuming it.**
 
 `robot-mock` remains 154/157 (pre-existing). `register_recheck_check` remains 9
 rows overdue. `weight_claim_sweep --control` remains blind.
