@@ -52,6 +52,8 @@ const injuryRow = eval('(' + lift('injuryRow') + ')');
 // eslint-disable-next-line no-eval
 const pedigreeRow = eval('(' + lift('pedigreeRow') + ')');
 // eslint-disable-next-line no-eval
+const ageRow = eval('(' + lift('ageRow') + ')');
+// eslint-disable-next-line no-eval
 const depthChartTeammates = eval('(' + liftAnyArgs('depthChartTeammates') + ')');
 
 // ── depthChartRow ────────────────────────────────────────────────────────
@@ -205,6 +207,17 @@ ck('a rookie with no round on file -> null, not a guess',
   pedigreeRow({ is_nfl_rookie: true, nfl_draft_round: null }) === null);
 ck('missing player / no rookie flag -> null', pedigreeRow(null) === null && pedigreeRow({}) === null);
 
+// ── ageRow — Cory's 08-20 design brief: "player ages" as a plain fact for
+// every player, not just a silent ingredient in the RB-30+ risk flag. ──────
+ck('a player with a real age shows it, plain', ageRow({ age: 24 })[0] === 'Age' && ageRow({ age: 24 })[1] === '24');
+ck('age 0 is falsy but a real (if bizarre) value — must not be treated as missing', ageRow({ age: 0 }) === null || ageRow({ age: 0 })[1] === '0');
+ck('missing age -> null, not a fabricated value', ageRow({ age: null }) === null && ageRow({}) === null);
+ck('missing player object -> null, no throw', ageRow(null) === null);
+ck('ageRow is actually wired into the drill panel, next to injuryRow and pedigreeRow', (() => {
+  const wcSrc = fs.readFileSync(path.join(__dirname, '..', '..', 'public', 'js', 'draft', 'warroom_charts.js'), 'utf8');
+  return /injuryRow\(p\),\s*\n\s*ageRow\(p\),\s*\n\s*pedigreeRow\(p\),/.test(wcSrc);
+})());
+
 // ── depthChartTeammates — the ask ("who else is on the depth chart"), from
 // data already on the board, zero new fetch ────────────────────────────────
 {
@@ -350,6 +363,50 @@ ck('the mark carries the identical explanatory title text as the shortlist\'s ow
     && /neutral_sec_per_play: t\.neutral_sec_per_play/.test(ADMIN));
   const VIEW = fs.readFileSync(path.join(__dirname, '..', '..', 'views', 'admin', 'warroom.ejs'), 'utf8');
   ck('the view bootstraps it onto window.WR_TEAM_PACE', /window\.WR_TEAM_PACE = /.test(VIEW));
+}
+
+// ── ceilingBySourceRow — Cory's band ruling, made visible: "I want to use
+// draft sharks ceilings.. for every source that doesn't offer ceilings, make
+// the ceiling AND floor the same % away from their proj as draft sharks."
+// Built and tested (band_ceiling_ratio, band_floor_ratio, 7 tests including
+// his own worked example) but read by no served file (A's audit,
+// nothing_computed_goes_unshown.js, 2026-08-20/21) — this is the first place
+// any proj_ceiling_<key>/proj_floor_<key> renders.
+{
+  const num = (v) => v == null ? '—' : Math.round(v);
+  const ceilingBySourceRow = eval('(' + liftAnyArgs('ceilingBySourceRow') + ')');
+
+  ck('all four sources present -> all four render, labelled, floor-dash-ceiling',
+    (() => {
+      const r = ceilingBySourceRow({ proj_ceiling_ds: 180, proj_floor_ds: 90,
+        proj_ceiling_sleeper: 165, proj_floor_sleeper: 85,
+        proj_ceiling_ownmodel: 140, proj_floor_ownmodel: 70,
+        proj_ceiling_fantasypros: 190, proj_floor_fantasypros: 95 }, num);
+      return r[0] === 'Floor–ceiling, by source'
+        && r[1].indexOf('Draft Sharks 90–180') >= 0
+        && r[1].indexOf('Sleeper 85–165') >= 0
+        && r[1].indexOf('Our model 70–140') >= 0
+        && r[1].indexOf('FantasyPros 95–190') >= 0;
+    })());
+  ck('Cory\'s own worked example: draft sharks proj 100 ceiling 120 -> fantasypros proj 150 -> ceiling 180 '
+    + '(the SAME ratio, 1.2x, carried to a source that never published its own ceiling)',
+    (() => {
+      const r = ceilingBySourceRow({ proj_ceiling_ds: 120, proj_floor_ds: 80,
+        proj_ceiling_fantasypros: 180, proj_floor_fantasypros: 120 }, num);
+      return r[1].indexOf('FantasyPros 120–180') >= 0;
+    })());
+  ck('a source missing BOTH fields is skipped entirely, not printed as a dash pair',
+    (() => {
+      const r = ceilingBySourceRow({ proj_ceiling_ds: 180, proj_floor_ds: 90 }, num);
+      return r[1].indexOf('Sleeper') === -1 && r[1].indexOf('Our model') === -1
+        && r[1].indexOf('FantasyPros') === -1;
+    })());
+  ck('no source carries either field -> null, not an empty label',
+    ceilingBySourceRow({}, num) === null);
+  ck('missing player -> null, no throw', ceilingBySourceRow(null, num) === null);
+  ck('ceilingBySourceRow is actually wired into the drill panel, right after the blend\'s own '
+    + 'floor/mean/ceiling row',
+    /projMeanBadge\(p\) \+ ' \/ ' \+ num\(p\.proj_ceiling\)[\s\S]{0,200}ceilingBySourceRow\(p, num\),/.test(SRC));
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

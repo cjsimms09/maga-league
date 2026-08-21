@@ -155,6 +155,28 @@ function mkData() {
   ck('...and flips when "ds" is active',
     /class="pb-src-btn pb-src-active" data-pb-source="ds"/.test(htmlDs)
     && !/class="pb-src-btn pb-src-active" data-pb-source="blend"/.test(htmlDs));
+
+  /* Cory, 2026-08-21, looking at exactly this panel's toggle: "I only have
+   * selection between draft shark or blended .. not sure what toggles above
+   * that do .. doesn't look to change much." The explanation used to live
+   * only in a hover title="..." — invisible during a live draft. Pinned as a
+   * real, always-visible line that names the OTHER control by name, so the
+   * two are never read as the same toggle. */
+  ck('the panel says out loud, in real text (not just a hover title), that '
+     + 'selection/order always follow Draft Sharks',
+    /pb-src-note[^>]*>[\s\S]{0,20}This list.s player selection and order always follow[\s\S]{0,20}<b>Draft Sharks<\/b>/.test(htmlBlend));
+  ck('...and names the Ranking Source panel by name as the control that '
+     + 'actually re-ranks, so it is never mistaken for this one',
+    /<b>Ranking\s+Source<\/b>/.test(htmlBlend));
+  ck('...and the note sits AFTER pb-toolbar closes, not squeezed inside its '
+     + 'flex row with the toggle and the scroll hint',
+    (function () {
+      const toolbarEnd = htmlBlend.indexOf('pb-grid-hint');
+      const toolbarClose = htmlBlend.indexOf('</div>', toolbarEnd);
+      const noteIdx = htmlBlend.indexOf('pb-src-note');
+      const gridWrapIdx = htmlBlend.indexOf('pb-grid-wrap');
+      return noteIdx > toolbarClose && noteIdx < gridWrapIdx;
+    })());
 }
 
 // ── the horizontal-scroll affordance (six columns are wider than the panel

@@ -907,6 +907,29 @@
    * session auditing the number, not a fact Cory needs at 8s/pick; showing
    * it raw would be over-explaining in the opposite direction from an
    * unexplained glyph. */
+  /* CORY'S BAND RULING, MADE VISIBLE — his words, verbatim: "I want to use
+   * draft sharks ceilings.. for every source that doesn't offer ceilings,
+   * make the ceiling AND floor the same % away from their proj as draft
+   * sharks." A's audit (2026-08-20/21, nothing_computed_goes_unshown.js):
+   * built, shipped, tested against his own worked example — and on no
+   * screen. `proj_ceiling_<key>`/`proj_floor_<key>` exist for ds, sleeper,
+   * ownmodel, fantasypros; this is the first place any of them render. Skips
+   * a source entirely rather than printing a blank/zero when its ceiling
+   * wasn't computed (same honest-degrade convention as every row here). */
+  function ceilingBySourceRow(p, num) {
+    if (!p) return null;
+    var SOURCES = [{ key: 'ds', label: 'Draft Sharks' }, { key: 'sleeper', label: 'Sleeper' },
+      { key: 'ownmodel', label: 'Our model' }, { key: 'fantasypros', label: 'FantasyPros' }];
+    var parts = SOURCES.filter(function (s) {
+      return p['proj_ceiling_' + s.key] != null || p['proj_floor_' + s.key] != null;
+    }).map(function (s) {
+      return '<span title="' + s.label + '\'s own floor / ceiling for this player">'
+        + s.label + ' ' + num(p['proj_floor_' + s.key]) + '–' + num(p['proj_ceiling_' + s.key])
+        + '</span>';
+    });
+    return parts.length ? ['Floor–ceiling, by source', parts.join(' <span class="muted">·</span> ')] : null;
+  }
+
   function volatilityRow(p) {
     if (!p || p.proj_sd == null && p.weekly_sd == null) return null;
     var parts = [];
@@ -931,6 +954,18 @@
     var val = status ? esc(status) : '<span class="muted">no designation</span>';
     if (riskPct != null) val += ' <span class="muted">(' + riskPct + '% missed-game risk this season)</span>';
     return ['Injury', val];
+  }
+
+  /* AGE — Cory, live 2026-08-20 design brief: "player ages" as one of the
+   * facts he wants visible while evaluating a pick, alongside floor/ceiling,
+   * stacks, depth chart, rookies. Before this it only existed as a silent
+   * ingredient in one risk flag (RB, age >= 30) — never shown as a plain fact
+   * for every player. Real coverage checked first (Rule 3i): 581/617 scored
+   * players carry it, 191/200 inside the top-200-by-ADP range that actually
+   * matters at the table, so this is not a sparse field worth hiding. */
+  function ageRow(p) {
+    if (!p || p.age == null) return null;
+    return ['Age', String(p.age)];
   }
 
   /* DRAFT PEDIGREE — shown only for a rookie: `nfl_draft_round` on a
@@ -1011,12 +1046,14 @@
         + projMeanBadge(p) + ' / ' + num(p.proj_ceiling)
         + (isCohortCeiling(p) ? '<sup class="wr-ceil-cohort" title="This ceiling is the band '
           + 'average, not a measurement of this player">~</sup>' : '')],
+      ceilingBySourceRow(p, num),
       depthChartRow(p),
       teamPassRateRow(p),
       teamPaceRow(p),
       usageRow(p),
       volatilityRow(p),
       injuryRow(p),
+      ageRow(p),
       pedigreeRow(p),
       /* B's rehearsal find (2026-08-17): these two were a bare em-dash for
        * most of the board — the engine scores only the shortlist-depth slice

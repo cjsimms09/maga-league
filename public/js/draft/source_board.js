@@ -58,21 +58,41 @@
    * returns a NEW array of shallow-copied player objects with the scoring
    * fields swapped to that source's precomputed ranking. An unrecognised
    * source key is treated as 'blend' (degrade to the trusted default rather
-   * than score against undefined). */
+   * than score against undefined).
+   *
+   * DROP, NOT FALLBACK — Cory's own ruling, stated twice: "I like the player
+   * disappearing when source is selected." A player the source does not
+   * cover is EXCLUDED from the returned board entirely, not kept at his
+   * blend price. (An earlier version of this file did the opposite —
+   * flagged, corrected same day: ROUTES.md.)
+   *
+   * THE ONE GUARD: if the artifact predates alt_source_rankings.py (no
+   * player anywhere carries a `covered_<source>` field at all), there is no
+   * coverage data to drop BY — filtering would blank the entire board for
+   * every non-blend source, the exact "degrades to nothing" failure this
+   * codebase treats as worse than a wrong number. In that one case only,
+   * every player is kept (the pre-DROP-ruling behavior), same as this
+   * function already did for a player missing individual scoring fields. */
   function forSource(players, source) {
     if (!players || !players.length || !source || source === 'blend' || !isValidSource(source)) {
       return players;
     }
-    return players.map(function (p) {
-      var out = Object.assign({}, p);
+    var covField = 'covered_' + source;
+    var anyCoverageData = players.some(function (p) { return covField in p; });
+    var out = [];
+    players.forEach(function (p) {
+      var covered = !!p[covField];
+      if (anyCoverageData && !covered) return;   // DROP — the whole point of the ruling
+      var q = Object.assign({}, p);
       SWAP_FIELDS.forEach(function (field) {
         var sf = suffixedField(field, source);
-        if (p[sf] != null) out[field] = p[sf];
+        if (p[sf] != null) q[field] = p[sf];
       });
-      out._sourceRanked = source;
-      out._sourceCovered = !!p['covered_' + source];
-      return out;
+      q._sourceRanked = source;
+      q._sourceCovered = covered;
+      out.push(q);
     });
+    return out;
   }
 
   /** How many of `players` actually carry real coverage for `source` (not a
@@ -109,8 +129,42 @@
     return { covered: covered, total: total, depth: total < players.length ? total : null };
   }
 
+  /** Cory, 2026-08-21: "toggle between sources... the old list you used to
+   * have that list top 5-10 at each position for that source." The single-
+   * pick "Best available, by source" table (source_boards.json) already
+   * answers "who is #1 per source" — this answers "who are the top N per
+   * position, for the ONE source the toggle currently has selected."
+   *
+   * REUSES forSource(), never a second ranking pass: the DROP semantics
+   * (uncovered players excluded), the swapped `pos_rank`, everything a
+   * caller already trusts from the re-ranking toggle carries straight
+   * through. This function's only new work is grouping by position and
+   * slicing to `n` — no scoring, no filtering logic of its own.
+   *
+   * `pos_rank` is present on every player even for 'blend' (the board's own
+   * position rank), so the same sort works whether or not `source` swapped
+   * anything — a caller never needs a separate blend code path. */
+  function topByPosition(players, source, n) {
+    n = n > 0 ? n : 8;
+    var pool = forSource(players, source);
+    var byPos = {};
+    (pool || []).forEach(function (p) {
+      var pos = p && p.position;
+      if (!pos) return;
+      (byPos[pos] = byPos[pos] || []).push(p);
+    });
+    Object.keys(byPos).forEach(function (pos) {
+      byPos[pos] = byPos[pos].slice().sort(function (a, b) {
+        var ra = a.pos_rank != null ? a.pos_rank : adpOf(a);
+        var rb = b.pos_rank != null ? b.pos_rank : adpOf(b);
+        return ra - rb;
+      }).slice(0, n);
+    });
+    return byPos;
+  }
+
   var API = { SOURCES: SOURCES, SWAP_FIELDS: SWAP_FIELDS, forSource: forSource,
-    coverage: coverage, adpOf: adpOf };
+    coverage: coverage, adpOf: adpOf, topByPosition: topByPosition };
   global.SourceBoard = API;
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
 })(typeof window !== 'undefined' ? window : globalThis);
