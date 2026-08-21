@@ -597,9 +597,21 @@
              ['risk', 'Risk penalty', 0.0,
               'Age, injury history, a crowded depth chart.',
               'OFF by default — measured as a DRAG, like tier. Raise it only if your keepers already carry the team and you want the draft merely not to blow up, knowing it costs expected points.'],
+             <%# ⚠️ REWRITTEN 2026-08-21 AFTER CORY ASKED "is ceiling adjust wired?
+                 can I adjust (0-100) and if at 100 players should be ranked fully
+                 by their ceiling?" — and the honest answer is NO to both halves.
+                 The old copy was wrong twice over: it told him the ceiling weight
+                 was "Cory's call after the 22nd" when he had ALREADY RULED IT
+                 TWICE (0 -> 0.45 on 08-17, back to 0 on 08-20: "switch it off,
+                 its so arbitrary"), and it never mentioned that the term is
+                 arithmetically ZERO for the first seven of his twelve picks. A
+                 slider that does nothing, under a label telling him to wait for a
+                 decision he already made. Register 5h, again, in the one place he
+                 actually touches. Numbers below are MEASURED on the 08-21 board at
+                 his real twelve picks, 0 vs 3, not asserted. %>
              ['ceiling', 'Upside bonus', 0.0,
-              'Rewards the wide range of outcomes over the safe median.',
-              'OFF by default, and held there through the draft ON PURPOSE — not because it is unmeasured. The old −4.8 [−26, +17] reading came from a board where ceiling was arithmetically a second copy of value; re-measured on real per-player ceilings, three preregistered runs beat zero, 3/3 separable, at every weight from 0.15 to 0.65. It ships at 0 anyway because the no-change-before-08-22 rule was fixed before any of those numbers existed. Don’t raise it tonight — this is Cory’s call after the 22nd.'],
+              'Rewards the wide range of outcomes over the safe median. Range is 0–3, and it does nothing before pick ~90.',
+              'THE RANGE IS 0–3, NOT 0–100, AND IT IS LATE-ROUNDS-ONLY BY DESIGN — your own model, 2026-08-10: mean + VONA + tiers decide the early and middle picks, the throwaway rounds get the lottery ticket. In code that is CEILING_LATE_FROM = 0.6, so the term is EXACTLY ZERO until 60% of the board is gone (pick 90 of 150). Measured on your twelve picks, moving this from 0 to 3 changes NOTHING in the top 20 at picks 33/48/53/68/73/88/93 — seven of your twelve. From 108 on it reorders 8–16 of the top 20 and swaps one or two men in and out, but it did not change the #1 recommendation at ANY of your twelve picks. AND AT MAX IT STILL DOES NOT RANK BY CEILING: that would need every other weight at 0, and the raw ceiling order is 24 QUARTERBACKS out of the top 24, because proj_ceiling is raw season points and is never replacement-adjusted (a QB ceiling of 480 against a TE ceiling of 190 measures scale, not upside). If what you want is "show me the board by upside", use the Upside-Only row in Model Comparison or the Fl–Ce column on the position boards — those answer that question; this slider does not. THE WEIGHT ITSELF IS YOUR RULING AND IS ALREADY MADE: 0.45 on 08-17, back to 0 on 08-20 ("switch it off, its so arbitrary") — the 08-17 evidence was taken against the ceilings live that day, and Draft Sharks became the ceiling source on 08-19, so the weight was multiplying an input its runs never saw. ffanalytics, the reference model, agrees: it publishes rank, floor_rank and ceiling_rank as three separate rankings and never folds ceiling into value.'],
              ['keeper', 'Keeper option value', 1.0,
               'A late pick who becomes next year\'s cheap keeper is worth more than his projection.',
               'Raise it once you are out of the running for this year, or in the last four rounds when the marginal starter is worthless anyway.'],
