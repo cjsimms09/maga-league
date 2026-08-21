@@ -50,8 +50,8 @@
   },
   {
    "name": "bye_source",
-   "on_players": 644,
-   "coverage_pct": 92,
+   "on_players": 640,
+   "coverage_pct": 91.4,
    "shown": false,
    "declared": null
   },
@@ -190,8 +190,8 @@
   },
   {
    "name": "proj_ceiling_fantasypros",
-   "on_players": 202,
-   "coverage_pct": 28.9,
+   "on_players": 201,
+   "coverage_pct": 28.7,
    "shown": false,
    "declared": null
   },
@@ -225,8 +225,8 @@
   },
   {
    "name": "proj_floor_fantasypros",
-   "on_players": 202,
-   "coverage_pct": 28.9,
+   "on_players": 201,
+   "coverage_pct": 28.7,
    "shown": false,
    "declared": null
   },

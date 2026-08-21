@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 187,
+ "next_numeric_id": 190,
  "history": [
   {
    "id": 47,
@@ -141,304 +141,69 @@
    "note": "A renumbered D two colliding rows (133,134) at merge; A retained 133/134, which are cited from shipped code (mlv.js), three tests and panel_spec.js."
   },
   {
-   "id": "136-139 (D, second branch) superseded",
-   "claimed_at": "2026-08-20",
-   "note": "D independently claimed 136-139 for keeper-tooling test isolation, the attach_draftsharks.py falsy-zero vorp bug, unclassified blend fields, and the ±41.8 detection floor — on a branch that had not yet seen this same evening's A/D work on main, which already covers the vorp bug (row 139, fixed) and detection floor (row 127, answered). Only the keeper-tooling finding was genuinely new; renumbered to 140 on merge. The unclassified-fields finding is still genuinely open and refiled below."
-  },
-  {
-   "id": 140,
-   "claimed_at": "2026-08-20",
-   "note": "D: keeper-tooling tests write to committed data paths (genuinely new, not duplicated on main)"
-  },
-  {
-   "id": 141,
-   "claimed_at": "2026-08-20",
-   "note": "D: 12 Draft Sharks blend fields never classified in season_stamp.py's PURPOSE axis (genuinely new; verified not duplicated on main via direct grep)"
-  },
-  {
-   "id": "140-142 (D, third branch) renumbered to 143-145",
-   "claimed_at": "2026-08-20",
-   "note": "D claimed 140/141/142 for keeper-tooling, unclassified blend fields, and the zero-collection test file before syncing with a further origin/main update that claimed a real, different 140 (floor=ceiling collapse row). D's 140/141/142 renumbered to 143/144/145; main's 140 kept as-is. Watermark now authoritative from 146."
-  },
-  {
-   "id": 143,
-   "claimed_at": "2026-08-20",
-   "note": "D: keeper-tooling tests write to committed data paths (was 140 pre-renumber)"
-  },
-  {
-   "id": 144,
-   "claimed_at": "2026-08-20",
-   "note": "D: 12 Draft Sharks blend fields never classified in season_stamp.py's PURPOSE axis (was 141 pre-renumber)"
-  },
-  {
-   "id": 145,
-   "claimed_at": "2026-08-20",
-   "note": "D: test_attach_draftsharks_ranking.py collects zero pytest items (was 142 pre-renumber)"
-  },
-  {
-   "id": "143 (A, further origin/main) renumbered to 146",
-   "claimed_at": "2026-08-20",
-   "note": "A independently claimed 143 for a real, different row (register 142's follow-up sweep) on origin/main while D's own 143 (keeper-tooling) already existed locally. A's row kept, renumbered to 146 on merge since 143 was taken. Watermark now authoritative from 147."
-  },
-  {
-   "id": "D's 143-146 (never merged to main) reconciled against a further main sync",
-   "claimed_at": "2026-08-20",
-   "note": "D's branch has not yet been merged to main by A, so every D-only id (D's own renumbered 146, and 143/144/145) only ever existed on D's branch. A's further work on main independently reused 143 (same row D had moved to 146 — dropped D's copy, kept main's 143 as canonical), and claimed real, different new rows at 144 and 145. D's three still-unmerged, genuinely unique rows (keeper-tooling, unclassified blend fields, standalone-script test pattern) renumbered 143/144/145 -> 147/148/149. Watermark now authoritative from 150."
-  },
-  {
-   "id": 150,
-   "claimed_at": "2026-08-20",
-   "note": "D: the MLV units question was measured (--mlv-points on roster_builder_replay.js) and the result is hindsight contamination, not a units-robustness answer — no era-correct projection source is reachable from this sandbox"
-  },
-  {
    "id": 146,
-   "claimed_at": "2026-08-20",
-   "note": "A: the roster-builder model has no opinion about half of Cory's draft, and its first plan presented that silence as six confident picks"
-  },
-  {
-   "id": 147,
-   "claimed_at": "2026-08-20",
-   "note": "A: the board ranks tight ends a median 46 places earlier than the market does (this id was not claimed through this tool on main's side; recorded here for continuity since the row exists in DEFECT-REGISTER.md)"
+   "claimed_at": "2026-08-20"
   },
   {
    "id": 148,
-   "claimed_at": "2026-08-20",
-   "note": "A: two replacement-level tables disagree by 2x at RB/WR, and the big board uses the wrong one"
-  },
-  {
-   "id": "D's 147-148 (never merged to main) reconciled against A's further main work",
-   "claimed_at": "2026-08-20",
-   "note": "A independently claimed 147 and 148 on origin/main for two real, different rows (roster-builder no-opinion gap, two replacement-level tables) while D's still-unmerged branch already had 147 (keeper-tooling test isolation) and 148 (unclassified Draft Sharks blend fields) from an earlier reconciliation round. A's rows kept as 146/147/148 (canonical, first on main); D's two renumbered to 151/152. Watermark now authoritative from 153."
+   "claimed_at": "2026-08-20"
   },
   {
    "id": 151,
-   "claimed_at": "2026-08-20",
-   "note": "D: keeper-tooling tests write to committed data paths (was 147 pre-renumber)"
+   "claimed_at": "2026-08-20"
   },
   {
    "id": 152,
-   "claimed_at": "2026-08-20",
-   "note": "D: 12 Draft Sharks blend fields never classified in season_stamp.py's PURPOSE axis (was 148 pre-renumber); PARTIALLY FIXED by A's 660b880a same day -- classification half closed, proj_mean_pre_ds KNOWN_PARTICIPANTS half still open"
-  },
-  {
-   "id": "149 (D, unmerged) reconciled against a real 149 landing on main",
-   "claimed_at": "2026-08-20",
-   "note": "main independently claimed 149 for a real, different row (the nothing_computed_goes_unshown finding, 25 board fields/2 artifacts no screen shows) while D's still-unmerged branch already had 149 (the standalone-script test-file pattern). Main's row kept as canonical 149 (physically first in the table); D's renumbered to 153. Watermark now authoritative from 154."
+   "claimed_at": "2026-08-20"
   },
   {
    "id": 153,
-   "claimed_at": "2026-08-20",
-   "note": "D: the standalone-script test-file pattern, now confirmed four times (was 149 pre-renumber)"
+   "claimed_at": "2026-08-20"
   },
   {
    "id": 154,
-   "claimed_at": "2026-08-20",
-   "note": "D: relay's job (2) blend-grading ask rests on a false premise -- proj_mean_sleeper_only is absent for exactly the one-source population the test needed"
-  },
-  {
-   "id": 155,
-   "claimed_at": "2026-08-20",
-   "note": "D: relay_publish.sh (RULE 1c's own new mechanism) trips test_core_needs_no_reviewer.py's paid-reviewer guard on its git commit trailer -- confirmed false positive"
-  },
-  {
-   "id": "150 (D, unmerged) reconciled against a real 150 landing on main",
-   "claimed_at": "2026-08-20",
-   "note": "main independently claimed 150 for a real, different row (weekly_realized.json has three consumers and no writer) while D's still-unmerged branch already had 150 (the MLV units-question finding, claimed hours earlier in D's own branch history). Main's row kept as canonical 150 (physically first in the table); D's renumbered to 156. Watermark now authoritative from 157."
+   "claimed_at": "2026-08-20"
   },
   {
    "id": 156,
-   "claimed_at": "2026-08-20",
-   "note": "D: the MLV units question was measured and the result is hindsight contamination (was 150 pre-renumber)"
-  },
-  {
-   "id": 157,
-   "claimed_at": "2026-08-20",
-   "note": "D: test_gate_selection.py hardcodes the old gate marker expression, left behind by A's own post_chain fix in the same commit that closed register 155"
-  },
-  {
-   "id": "151 (A, unmerged main claim) reconciled against D's own 151",
-   "claimed_at": "2026-08-20",
-   "note": "A claimed 151 on origin/main for the freeze-alarm-wiring row (self-corrected from an initial 150 typo, per the row's own text) while D's branch already held 151 for keeper-tooling test isolation. D's row kept as canonical 151 (established earlier, still unmerged to main); A's row renumbered to 158. Watermark now authoritative from 159."
-  },
-  {
-   "id": 158,
-   "claimed_at": "2026-08-20",
-   "note": "A: a world-state freeze alarm is wired into the board publish gate, blocking every rebuild once keeper lock passes (was 151 pre-renumber on main's side)"
+   "claimed_at": "2026-08-20"
   },
   {
    "id": 159,
    "claimed_at": "2026-08-20",
-   "note": "D: job (3)'s error-hunt -- exp_tiebreak_signals.py pools proj_sd's three constructions into a borderline pair-inversion number that hides a clean, stratified result"
+   "note": "E: Cory live mid-mock, board still showing gone players -- NOT a Sleeper sync error, the position-boards panel renders a static offline ADP-drain simulation with no live drafted-filter; reproduced live marking a real player drafted and confirming the panel still lists him"
   },
   {
    "id": 160,
    "claimed_at": "2026-08-20",
-   "note": "D: the ranking-source toggle (alt_source_rankings.py) added 39 unclassified board fields and one undeclared TERRITORY file -- register 148/152's exact defect class recurring at a larger scale"
-  },
-  {
-   "id": "153 (A, unmerged main claim) reconciled against D's own 153",
-   "claimed_at": "2026-08-20",
-   "note": "A claimed 153 on origin/main for the source-buttons-scope-mismatch row while D's branch already held 153 for the standalone-script test-file pattern (already FIXED). D's row kept as canonical 153; A's row renumbered to 161. Watermark now authoritative from 162."
+   "note": "E: Cory's reference article (Snake Value Based Drafting) exposed that MEASURED_WEIGHTS.need=0 zeroes VORP out of the live score entirely for 2-starter positions (RB/WR) -- the board ranks on VONA+ceiling alone, not VBD+opportunity-cost as the article's own reference method does; measured live on Cory's actual keeper roster, Travis Etienne (highest VORP in the top 20) ranks #4 by score"
   },
   {
    "id": 161,
-   "claimed_at": "2026-08-20",
-   "note": "A: the war room's source buttons priced every source over all 700 board players instead of the drafted-scope range, drawing a 6-point coverage gap as a 3x one -- was 153 pre-renumber on main's side, FIXED same day"
-  },
-  {
-   "id": "154 (A, unmerged main claim) reconciled against D's own 154",
-   "claimed_at": "2026-08-20",
-   "note": "A claimed 154 on origin/main for the keeper-replacement-table row (register 148's shape again, kept players priced on a different replacement table than their board) while D's branch already held 154 for the blend-grading job-2 finding. D's row kept as canonical 154; A's row renumbered to 162. Watermark now authoritative from 163."
+   "claimed_at": "2026-08-20"
   },
   {
    "id": 162,
-   "claimed_at": "2026-08-20",
-   "note": "A: Cory's three keepers were priced on a different replacement table than every other player on his board -- was 154 pre-renumber on main's side, FIXED same day"
-  },
-  {
-   "id": "155 (A, unmerged main claim) reconciled against D's own 155",
-   "claimed_at": "2026-08-20",
-   "note": "A claimed 155 on origin/main for a real, different row (roster_state.py's nightly capture silently losing all output since 08-17) while D's branch already held 155 for the relay_publish.sh false-positive fix (already FIXED). A's row kept as canonical 155 (physically first in the table); D's renumbered to 163. Watermark now authoritative from 164."
-  },
-  {
-   "id": 163,
-   "claimed_at": "2026-08-20",
-   "note": "D: relay_publish.sh's paid-reviewer guard false positive, already FIXED (was 155 pre-renumber)"
-  },
-  {
-   "id": "155/156/157 (main, unmerged) reconciled against D's own canonical 155/156/157",
-   "claimed_at": "2026-08-20",
-   "note": "A fresh origin/main pull (16 commits) landed three more new rows at ids 155/156/157 in main's own numbering: relay_publish.sh's insert-never-overwrite silently refusing a grade update, a rookie draft-capital UDFA mislabel in C's own ceiling-program store (FIXED same day), and this same roster_state.py-never-reaches-main finding restated (already canonical here at 155). The two non-duplicate rows renumbered to 164/165; the roster_state.py restatement dropped as an exact duplicate of the already-present 155. Watermark now authoritative from 166."
-  },
-  {
-   "id": 164,
-   "claimed_at": "2026-08-20",
-   "note": "relay: relay_publish.sh cannot carry a grade update to an existing ledger row -- insert-never-overwrite refused P153-P156's grades silently, grafted to main by hand as a stopgap (was 155 pre-renumber on main's side)"
-  },
-  {
-   "id": 165,
-   "claimed_at": "2026-08-20",
-   "note": "C: the ceiling-program store (player_bio_capital.json) mislabeled the entire 2026 rookie class as UDFA -- Rule 3e's own coverage-only control passed at 100% while it shipped, FIXED same day (was 157 pre-renumber on main's side)"
-  },
-  {
-   "id": "159/160 (main, unmerged) silently duplicated against D's own canonical 159/160",
-   "claimed_at": "2026-08-20",
-   "note": "The same fresh origin/main pull auto-merged two more main-side rows onto D's already-claimed ids 159 and 160 with no conflict markers at all -- git's line-based merge placed them elsewhere in the table, so this collision was found only by re-reading the file, not by the merge tool. E's position-boards-panel-shows-drafted-players finding landed at 159, and E's MEASURED_WEIGHTS.need=0 VBD finding landed at 160. Both renumbered to 166/167 to keep D's canonical 159 (proj_sd stratification) and 160 (alt_source_rankings) intact. Watermark now authoritative from 168."
-  },
-  {
-   "id": 166,
-   "claimed_at": "2026-08-20",
-   "note": "E: Cory live mid-mock, board still showing gone players -- NOT a Sleeper sync error, the position-boards panel renders a static offline ADP-drain simulation with no live drafted-filter; FIXED same day, 3421368e (was 159 pre-renumber on main's side)"
-  },
-  {
-   "id": 167,
-   "claimed_at": "2026-08-20",
-   "note": "E: Cory's reference article (Snake Value Based Drafting) exposed that MEASURED_WEIGHTS.need=0 zeroes VORP out of the live score entirely for 2-starter positions (RB/WR) -- the board ranks on VONA+ceiling alone, not VBD+opportunity-cost as the article's own reference method does; measured live on Cory's actual keeper roster, Travis Etienne (highest VORP in the top 20) ranks #4 by score. OPEN -- Cory wants this before Saturday (was 160 pre-renumber on main's side)"
-  },
-  {
-   "id": 168,
-   "claimed_at": "2026-08-20",
-   "note": "D: no fantasy draft-pick or ADP data exists in the repo before 2023 (league_history.json, external_adp_historical.json both start 2023) -- found grading P151, blocks 2021->22 LOSO pair and will block every future pick-based LOSO study the same way. OPEN, owner C (historical capture territory), recheck 09-15."
-  },
-  {
-   "id": "161 (A, unmerged main claim) reconciled against D's own canonical 161",
-   "claimed_at": "2026-08-20",
-   "note": "A claimed 161 on origin/main for the dollar-panel E[$] QB-inversion finding (Malik Willis pricing above Josh Allen) while D's branch already held 161 for the source-buttons scope-mismatch row (already FIXED). D's row kept as canonical 161; A's row renumbered to 169. Watermark now authoritative from 170."
-  },
-  {
-   "id": 169,
-   "claimed_at": "2026-08-20",
-   "note": "A: the dollar panel's E[$] is nearly flat and partly inverted across the entire QB position, Malik Willis pricing above Josh Allen -- found converting the even-money band to dollars (was 161 pre-renumber on main's side)"
-  },
-  {
-   "id": 170,
-   "claimed_at": "2026-08-20",
-   "note": "D: ADAPTATION-POLICY.md wording does not match the already-shipped, Cory-ruled decide_promotion() in weekly_own_grade.py -- 3-consecutive-weeks vs 3-of-4, and best-of-K as a hard gate vs attached-not-gating. Found scoping the verdict-line wiring ask before writing code. OPEN, owners relay+A (reconcile doc vs code, or take to Cory), recheck 08-26."
-  },
-  {
-   "id": 171,
-   "claimed_at": "2026-08-20",
-   "note": "D: a P282-build subagent's Rule 3f branch search for the --opt bench-option code was not exhaustive (git log --all plus locally-fetched branches only, never git ls-remote origin) and wrongly concluded the whole nine-commit bench-option chain was fabricated. Caught and corrected before it reached any shared file -- the code is real, on unmerged branch claude/fantasy-football-research-926y6z@01668acc, fetched and RUN directly (not just read), controls pass. Real residual: P282's own harness still reimplements the value function from prose rather than the real optV/optU, a Rule 11 debt to close once that branch is reachable. OPEN, owner D, recheck 08-27."
-  },
-  {
-   "id": "162-167 (main, unmerged) silently duplicated against D's own canonical 162-167",
-   "claimed_at": "2026-08-20",
-   "note": "origin/main's DEFECT-REGISTER.md merged with no textual conflict but landed six new rows at ids 162-167 in main's own numbering, colliding with D's already-canonical 162-167 (keeper-replacement mismatch, relay_publish false positive, grade-update-can't-overwrite, rookie UDFA mislabel, position-boards stale, VBD/need-weight now CLOSED). Also: main's own watermark.json entry for this range was sparse (bare id+claimed_at, no notes) while D's carried full history -- D's fuller history kept as authoritative per this file's own established convention. Main's six new rows (board rebuild flat-band regression, pre_ds band snapshot staleness, setProjSource duplicate-function bug, three-of-four mount-anchor ids wrong, the board-every-gate-reads-isn't-the-board-that-publishes design gap, and the computed-but-unshown Cory-asked-for-this-week fields) renumbered to 172-177, with internal cross-references between them fixed to match. Watermark now authoritative from 178."
-  },
-  {
-   "id": 172,
-   "claimed_at": "2026-08-20",
-   "note": "A: rebuilding the board creates ten flat floor/ceiling bands inside Cory's draft range, register 140's exact wound reopened by the act of rebuilding -- a REBUILD REGRESSION, live board unaffected (was 162 pre-renumber on main's side)"
-  },
-  {
-   "id": 173,
-   "claimed_at": "2026-08-20",
-   "note": "A: the *_pre_ds band snapshots are frozen from an old board and the fallback every rebuild depends on is reading days-old numbers -- durability problem, a fix that only works while nobody rebuilds is not a fix (was 163 pre-renumber on main's side)"
-  },
-  {
-   "id": 174,
-   "claimed_at": "2026-08-20",
-   "note": "A: two functions claimed the name setProjSource and Cory's position-boards toggle has been running the wrong one -- FIXED same day, was 164 pre-renumber on main's side"
+   "claimed_at": "2026-08-20"
   },
   {
    "id": 175,
-   "claimed_at": "2026-08-20",
-   "note": "B: three of the four self-mounting war-room panels were anchored to ids that never existed -- one fixed, one owned by B (was 165 pre-renumber on main's side)"
+   "claimed_at": "2026-08-21"
   },
   {
-   "id": 176,
-   "claimed_at": "2026-08-20",
-   "note": "A: the board every gate reads is not the board that publishes -- projections/floors/ceilings/VORP/tiers/ranks rewritten AFTER the acceptance gate that exists to protect publication, post-draft design fix (was 166 pre-renumber on main's side)"
-  },
-  {
-   "id": 177,
-   "claimed_at": "2026-08-20",
-   "note": "B/A: every field Cory asked for this week is computed, committed, and on no screen -- the coverage flags are the one that can mislead him mid-draft (FantasyPros carries no K/DEF), source_boards.json already publishes the block so it is a render not a build (was 167 pre-renumber on main's side)"
-  },
-  {
-   "id": "no new id consumed -- large dedup pass",
-   "claimed_at": "2026-08-20",
-   "note": "A large main sync reintroduced content already resolved in the prior merge round under stale pre-renumber ids: main's own copy of DEFECT-REGISTER.md never saw D's earlier renumbering (159/160/162-167 -> 166/167/172-177), since that renumbering only ever existed on D's branch. This merge's diff surfaced two conflict blocks and ~18 duplicate id pairs total (148-167 each appearing twice). Verified row by row: every duplicate was either (a) byte-identical to an already-canonical row elsewhere in the file, or (b) a stale-numbered copy of content D had already renumbered in the prior merge (172-177), or (c) new content that collided with an existing id but turned out, on check, to ALREADY be present under a different canonical id (the 'dollar panel E[$] QB inversion' finding, briefly reinserted as a new 178, was actually a duplicate of the already-canonical 169 -- caught by register_recheck_check's own near-duplicate detector and removed before commit). Net: zero new ids consumed this round, next_numeric_id unchanged at 178, every duplicate resolved to its single canonical id with no content lost."
-  },
-  {
-   "id": 179,
-   "claimed_at": "2026-08-20",
-   "note": "A: eleven of the 150 draft-critical JS suites are red and A's own earlier report to Cory said there were none -- the external reviewer challenged the unverified 'draft-critical' claim and was right; draft_critical.js now derives the set from what the war room actually loads. A genuine independent collision with D's own 168 (both new rows landing the same day, no textual overlap so git's clean auto-merge missed it, caught by test_defect_register.py's own duplicate-id check). Was 168 pre-renumber on main's side. Watermark now authoritative from 180."
-  },
-  {
-   "id": 180,
-   "claimed_at": "2026-08-20",
-   "note": "D: test_a_draft_day_decisions.py's open-row counter used a positive OPEN/WAITING/IN HAND/AWAITING match instead of the house TERMINAL-word-exclusion convention register_recheck_check.js enforces everywhere else, undercounting by 62 FIXED/BUILT/DIAGNOSED/MITIGATED/CORRECTED/ANSWERED rows -- caught when fixing A-DRAFT-DAY-DECISIONS.md's stated open-row count at merge time (189 live vs 136 from the test's own logic, outside its 34-row tolerance). Fixed by reusing the shared TERMINAL regex in the Python test rather than a second hand-maintained list. Watermark now authoritative from 181."
-  },
-  {
-   "id": 181,
+   "id": "163-185 reconciled",
    "claimed_at": "2026-08-21",
-   "note": "A/relay: the keeper-lock-passing-doesn't-release-withheld-opponent-keepers finding (13 keepers, board shows them as available Saturday) landed on main's own P169 -- a genuine independent collision with D's already-canonical 169 (the dollar-panel E[$] QB-inversion row, filed the same day earlier). No textual overlap so git's clean auto-merge missed it. Renumbered here, first allocation wins. Time-sensitive (recheck 08-21 12:00, before the 6pm keeper lock) -- flagged, not resolved; the underlying ASK to Cory is untouched. Watermark now authoritative from 182. UPDATE same merge round: Cory ruled it the same hour (\"Locks once deadline passes\") and A shipped the fix -- main's updated CLOSED content adopted over my earlier renumbered-but-OPEN copy, still at id 181."
-  },
-  {
-   "id": 182,
-   "claimed_at": "2026-08-21",
-   "note": "A: the refused-rebuilds-ate-a-day-of-an-unbackfillable-series finding (draft-data.yml 14 failed runs on 08-20, proj_series/adp_series stuck at 08-19, a deadlock where the completeness gate refuses the exact publish that would fix it) landed on main's own id 170 -- a genuine independent collision with D's already-canonical 170 (the ADAPTATION-POLICY.md wording-vs-code mismatch, filed earlier the same day). No textual overlap so git's clean auto-merge missed it; caught by test_defect_register.py::test_no_two_rows_share_an_id. Renumbered here, first allocation wins. Watermark now authoritative from 183."
-  },
-  {
-   "id": 183,
-   "claimed_at": "2026-08-21",
-   "note": "relay/C: the Sunday props cron shipped without its clobber guard (would silently overwrite Thursday's snapshot -- same filename, no tag; since DISARMED, verified 0 cron hits on main) landed on main's id 172, already held by D's flat-floor/ceiling-bands row from 08-20, which carries live inbound references from rows 173 and 176. Renumbered to 183, first allocation wins -- moving the bands row instead would have broken two real cross-references. Auto-merged with NO conflict marker (no textual overlap), caught by test_defect_register.py's duplicate-id check. Note: main's commits d854045c and 0f58b9ff cite this finding as 'Register 172' in immutable history; the renumber annotation on the row records that. Watermark now authoritative from 184."
-  },
-  {
-   "id": 184,
-   "claimed_at": "2026-08-21",
-   "note": "relay/C: 'C's entire external-ingest program is stranded on a branch while its ROUTES rows on main say BUILT' (workflow_dispatch only sees main, so a dispatch-only receipt is a real 404) landed on main's id 173, already held by D's *_pre_ds band-snapshot row which carries an inbound citation from the register-140 row. Renumbered to 184, first allocation wins -- moving the band row would have broken that citation. The ROUTES citation of 'register 173' referring to THIS finding was repointed to 184; the DEFECT-REGISTER citation refers to D's 173 and was correctly left alone. Main's commits 595b6020/9580cd5e cite it as 'Register 173' in immutable history; the row annotation records the mapping. Watermark now authoritative from 185."
-  },
-  {
-   "id": 185,
-   "claimed_at": "2026-08-21",
-   "note": "D: the 08-27 dispatch default will make the WRONG frozen control canonical, because D's claim on P298 is invisible from main (receipt returns 0 matches there while the default stands verbatim). Same root cause as register 184 reaching a second lane. Root cause is a real rule conflict: CLAUDE.md Rule 1b says the mailbox files push straight to main, but D's session constraints forbid pushing anywhere but its own branch. Routed to A with a two-minute partial fix (copy the three self-contained freeze files) as the alternative to a full merge. Watermark now authoritative from 186."
+   "note": "relay: main-side authors (relay 173, A 174, and rows 163-172) allocated by grepping the table max, bypassing this file — C flagged it stale 08-20, unactioned. D's branch meanwhile used this watermark faithfully through 185. Ruling proposed to A: ids PRINTED on main stay (documents cite them); branch rows colliding in 163-174 renumber to fresh ids at merge (E's per-citation classification is the input); D's branch-side renumber of main's 173 to 184 reverts. Watermark now authoritative from 186, and a CI test now fails any table id filed at or past the watermark."
   },
   {
    "id": 186,
    "claimed_at": "2026-08-21",
-   "note": "A: 'Cory's need:1.0 ruling woke two mechanisms that were dormant, and two red tests were the only thing that noticed' landed on main's id 174, already held by D's setProjSource name-collision row. Neither carries an inbound citation, so ordering was decided by first allocation: D's stays at 174, main's renumbered to 186. Main's commit 94a43cb3 cites it as 'Register 174' in immutable history; the row annotation records the mapping. Watermark now authoritative from 187."
+   "note": "relay: the systemic id-divergence/invisible-receipts row"
+  },
+  {
+   "id": "187-189",
+   "claimed_at": "2026-08-21",
+   "note": "D, applying A's 08-21 protocol ruling at merge (ids PRINTED on main stay; colliding branch rows renumber): D's three rows that collided in 172-174 moved to fresh ids -- flat-floor/ceiling-bands 172->187, *_pre_ds band-snapshots 173->188, setProjSource name-collision 174->189. This REVERTS D's earlier 172->183 and 173->184 renumbers, which had moved main's rows instead; main's 172/173/174 are canonical again and D's 185 is retained per this file's own note that D used the watermark faithfully through 185. Five inbound citations were repointed individually rather than bulk-replaced, because 172/173 now name DIFFERENT findings depending on which lane filed them: three inside D's own rows (187/188/176) followed the moved rows, one in D's 185 went 184->173 to the now-canonical C row, and every citation meaning main's rows was left untouched. Watermark now authoritative from 190."
   }
  ]
 }
