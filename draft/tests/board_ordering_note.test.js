@@ -22,7 +22,9 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..', '..');
 
 let fails = [];
+let ran = 0;
 function ck(name, cond, detail) {
+  ran += 1;
   if (cond) console.log('PASS  ' + name);
   else {
     fails.push(name);
@@ -69,9 +71,28 @@ const renderBoardSrc = APP.slice(rbStart, rbEnd > rbStart ? rbEnd : rbStart + 80
 ck('CONTROL — renderBoard() is findable in app.js at all',
   rbStart !== -1, null);
 
-ck('renderBoard() writes into #board-ordering-note (not a note that only '
-   + 'exists in the ejs but is never actually filled in)',
-  /getElementById\('board-ordering-note'\)/.test(renderBoardSrc), null);
+/* ⚠️ THIS ARM PINNED THE ACCESSOR SPELLING, NOT THE PROPERTY (fixed 08-21).
+ * It required the literal `getElementById('board-ordering-note')` and went red
+ * when the lookup moved to `$('#board-ordering-note')` — a change that was NOT
+ * cosmetic and must not be reverted: `ui_fidelity_numbers.test.js` eval-lifts
+ * renderBoard with an injected `$` stub and NO `document`, so the raw
+ * `document.` call threw ReferenceError and took that whole suite down
+ * (app.js:6980 records it). `$` is `document.querySelector` (app.js:11), so the
+ * two spellings are the same operation on an id.
+ *
+ * The property this file is FOR is "the note is looked up AND actually written",
+ * so it is now asserted as both halves rather than as one string match. That is
+ * strictly stronger than what it replaced: the old regex passed on a lookup
+ * whose result was never assigned to. */
+{
+  const lookedUp = /getElementById\('board-ordering-note'\)/.test(renderBoardSrc)
+    || /\$\('#board-ordering-note'\)/.test(renderBoardSrc);
+  ck('renderBoard() looks up #board-ordering-note (either accessor — `$` and '
+     + 'getElementById are the same call on an id)', lookedUp, null);
+  ck('...and actually WRITES to it, which is the half the old accessor-string '
+     + 'regex could not tell apart from a lookup whose result is dropped',
+    /\bnote\.(textContent|innerHTML)\s*=/.test(renderBoardSrc), null);
+}
 
 ck('...covers the BLEND branch by name — the default state, previously the '
    + 'one Cory had zero way to identify since no source is "selected" then',
@@ -93,5 +114,8 @@ ck('.wr-board-ordering has a CSS rule (warroom.css) rather than relying on '
    + '.muted alone for spacing',
   /\.wr-board-ordering\s*\{/.test(CSS), null);
 
-console.log('\n%d checks, %d failed', 10, fails.length);
+/* `ran`, NOT a literal. This line printed a hardcoded 10 while the file held 12
+ * checks — a total that cannot drift is a total that stops being a fact, and it
+ * had already stopped being one. Counted now. */
+console.log('\n%d checks, %d failed', ran, fails.length);
 if (fails.length) { console.log('FAILED'); process.exit(1); }

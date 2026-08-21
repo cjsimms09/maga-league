@@ -52,8 +52,30 @@ const FAST = '--rooms 2 --seed 9001 --arms shipped,zero_rb --sims 200';
     out.seed_start === 9001 && out.rooms === 2
     && out.arms.join(',') === 'shipped,zero_rb'
     && out.opponents === 'measured' && out.keepers === 'designated');
-  ck('the three designated opponent keeper teams are applied',
-    out.opp_keeper_teams === 3, out.opp_keeper_teams);
+  /* ⚠️ THIS ARM HARDCODED "three" AGAINST A FACT THAT IS STILL MOVING (fixed
+   * 2026-08-21). `draft/config/keepers.json` is the LIVE slate: opponents
+   * declare keepers right up to the 18:00 lock, and the count had already gone
+   * 3 -> 5. A literal here does not guard the tool, it just records what the
+   * league looked like on the day someone typed it — and it will be wrong again
+   * a few hours from now when the lock lands.
+   *
+   * What is actually worth guarding is that the tool APPLIES EVERY OPPONENT
+   * TEAM THE FILE DECLARES and drops none: same fact, two sources, compared.
+   * That claim is true before the lock, after the lock, and next season. */
+  const SLATE = JSON.parse(fs.readFileSync(
+    path.join(ROOT, 'draft', 'config', 'keepers.json'), 'utf8'));
+  /* my slot from the board, the same field the tool reads (`LEAGUE.my_draft_slot`,
+   * archetype_rooms.js:108) — not a literal, so a slot change moves both together. */
+  const mySlot = JSON.parse(fs.readFileSync(
+    path.join(ROOT, 'public', 'draft_data.json'), 'utf8')).league.my_draft_slot;
+  const oppTeams = (SLATE.teams || []).filter(t => t.draft_slot !== mySlot);
+  ck('CONTROL: the live keeper slate declares opponent teams at all, so the '
+    + 'comparison below is not two zeros agreeing (' + oppTeams.length
+    + ' opponent teams, my slot ' + mySlot + ')', oppTeams.length > 0);
+  ck('every opponent keeper team the live slate declares is applied — none '
+    + 'silently dropped', out.opp_keeper_teams === oppTeams.length,
+  { applied: out.opp_keeper_teams, declared: oppTeams.length,
+    slots: oppTeams.map(t => t.draft_slot) });
   ck('the seat plan schedule is loaded (12 seats) for the seat_plan arm',
     out.plan_seats_loaded === 12, out.plan_seats_loaded);
   const rooms = out.detail.shipped;

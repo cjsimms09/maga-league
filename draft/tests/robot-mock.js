@@ -1090,25 +1090,50 @@ if (!IS_FIXTURE) {
   // tail still there — moves the dollars, and that is what a run actually is.
   {
     const st = new DD.DoctrineState('early_qb', { noiseBand: E.CFG.DG_NOISE_BAND, minPicks: 2 });
-    const full = ALL.slice(0, 120).map(p => ({ player: p }));
+    /* ── THE PREMISE CHECK WAS A FALSE-NEGATIVE MACHINE (register 206, 08-21) ──
+     *
+     * The check below used to be a single arm — "a non-QB leads after the run" —
+     * and a TOTAL WIPEOUT satisfies it, because a board with no QBs left also has
+     * a non-QB on top. The wipeout is precisely the case this scenario exists to
+     * exclude: `scoreBoardDetail` falls back to unconstrained when the plan's pool
+     * is empty, so `binds` goes FALSE and the three checks below go red while the
+     * premise check reports the scenario healthy. That is rule 3e in one line — a
+     * probe that cannot return its positive.
+     *
+     * WHY IT FIRED NOW, MEASURED RATHER THAN GUESSED. `dollarsOf` is
+     * `playerDollars`, which never subtracts replacement, so it prices raw points
+     * and QBs win on raw points in a 1-QB league. On the live board, inside the
+     * old `ALL.slice(0, 120)` population:
+     *
+     *     20 QBs      $61.4 – $72.8
+     *     100 non-QBs $20.6 – $52.9   (best: Bijan Robinson)
+     *
+     * ZERO overlap, an $8.5 gap. So no partial drain can ever put a non-QB on
+     * top inside that slice — the loop drains all 20 and the wipeout is the only
+     * reachable state. The old comment's boards (Gibbs leading at 03:49) are gone.
+     *
+     * THE FIX IS NOT TO WEAKEN THE SCENARIO, it is to give the board the QB TAIL
+     * the scenario has always described — "the top of the tier gone, the tail
+     * still there". The tail exists, it just sits below overall rank 120: QB
+     * dollars are flat at $61–$74 through QB30 and then fall off a cliff, Tua at
+     * $36.3. Draining the priced tier leaves real, cheap, REAL-PLAYER quarterbacks
+     * behind and a non-QB on top — which is what a run is.
+     *
+     * The population is therefore top-120 PLUS every remaining QB, all real rows
+     * at real prices. Nothing synthetic, nothing exempted.
+     *
+     * (The flatness itself — Bryce Young the most expensive man on the board at
+     * $74.4, above Lamar — is register 207, not this file's business.) */
+    const qbTail = ALL.slice(120).filter(p => p.position === 'QB');
+    const full = ALL.slice(0, 120).concat(qbTail).map(p => ({ player: p }));
 
-    // THE SCENARIO MUST GUARANTEE ITS OWN PREMISE, AND MY FIRST VERSION DID NOT.
-    //
-    // I replaced two board-sensitive checks here and then wrote three more with the
-    // same flaw. `early_qb` binds only when the plan CANNOT take the man topping the
-    // board — so the run has to leave a NON-QB on top. A fixed "drop the top 6 QBs"
-    // held on the 03:49 board, where Jahmyr Gibbs (RB) led, and stopped holding on the
-    // 05:38 rebuild, where Lamar Jackson leads at $93.2. Draining six more QBs cannot
-    // help: it just promotes the next QB, and `early_qb` takes him quite happily.
-    //
-    // So the run now drains QBs UNTIL the premise is true, and if the board cannot
-    // express the scenario at all it says so instead of asserting something false.
     const qbsByValue = full.filter(e => e.player.position === 'QB')
       .sort((a, b) => dollarsOf(b.player) - dollarsOf(a.player));
     const leaderIsQB = list => {
       const top = list.slice().sort((a, b) => dollarsOf(b.player) - dollarsOf(a.player))[0];
       return !top || top.player.position === 'QB';
     };
+    const qbsLeft = list => list.filter(e => e.player.position === 'QB').length;
     let drained = 0;
     let afterRun = full;
     while (drained < qbsByValue.length && leaderIsQB(afterRun)) {
@@ -1127,6 +1152,37 @@ if (!IS_FIXTURE) {
       !leaderIsQB(afterRun),
       'every QB drained and a QB still leads; early_qb cannot bind and the three '
       + 'checks below would be asserting a falsehood rather than testing one');
+    check('R-doctrine: and it is a RUN, not a WIPEOUT — QBs are still on the board, '
+      + 'so early_qb\'s pool is non-empty and the constraint can actually bind '
+      + '(' + qbsLeft(afterRun) + ' QBs left)',
+      qbsLeft(afterRun) > 0,
+      'every QB is gone: scoreBoardDetail falls back to unconstrained, binds goes '
+      + 'FALSE by design, and the three checks below are asserting a falsehood — '
+      + 'this is the arm the old single-arm premise check could not see');
+    /* KNOWN POSITIVE for the arm above (rule 3e): the case it exists to catch is
+     * not hypothetical — it is the state this scenario was ACTUALLY in until this
+     * commit. Re-run the identical drain against the old top-120-only population
+     * and confirm it wipes the position out and that `binds` really does go false
+     * there, so the new arm is separating two reachable states rather than
+     * guarding one that cannot occur. */
+    {
+      const narrow = ALL.slice(0, 120).map(p => ({ player: p }));
+      const nq = narrow.filter(e => e.player.position === 'QB')
+        .sort((a, b) => dollarsOf(b.player) - dollarsOf(a.player));
+      let d2 = 0, after2 = narrow;
+      while (d2 < nq.length && leaderIsQB(after2)) {
+        d2 += 1;
+        const gone = new Set(nq.slice(0, d2).map(e => String(e.player.player_id)));
+        after2 = narrow.filter(e => !gone.has(String(e.player.player_id)));
+      }
+      const det2 = DD.scoreBoardDetail(after2, { liveIndex: 3, roster: [], dollarsOf });
+      check('R-doctrine KNOWN POSITIVE: on the old top-120-only population the same '
+        + 'drain empties the position and early_qb does NOT bind — so the wipeout '
+        + 'arm above is measuring a state this scenario can really reach',
+        qbsLeft(after2) === 0 && det2.early_qb.binds === false && !leaderIsQB(after2),
+        JSON.stringify({ drained: d2, of: nq.length, qbsLeft: qbsLeft(after2),
+          leaderIsQB: leaderIsQB(after2), early_qb: det2.early_qb }));
+    }
     const scoresFull = DD.scoreBoard(full, { liveIndex: 3, roster: [], dollarsOf });
     const scoresRun = DD.scoreBoard(afterRun, { liveIndex: 3, roster: [], dollarsOf });
     check('R-doctrine: a partial QB run prices Early-QB Strike down',
@@ -1229,6 +1285,55 @@ if (!IS_FIXTURE) {
         first.switched === false, JSON.stringify(first));
       check('R-doctrine: the same landslide lead switches on the minPicks-th consecutive read',
         second.switched === true, JSON.stringify(second));
+
+      /* KNOWN POSITIVE FOR THE BINDING GATE (register 208, rule 3e). The gate
+       * added to `update()` makes a switch NOT happen, and a suppressor is
+       * indistinguishable from a switcher that broke unless you show it still
+       * fires when it should. Same landslide, `detail` SUPPLIED, nothing binding:
+       * the switch must still land on the minPicks-th read. If this ever goes
+       * red the gate has become a blanket off-switch and the banner can no
+       * longer re-rank at all. */
+      const nobodyBinds = { early_qb: { score: 50, binds: false, forgone: 0, declined: null },
+                            balanced: { score: 90, binds: false, forgone: 0, declined: null } };
+      const gated = new DD.DoctrineState('early_qb', { noiseBand: E.CFG.DG_NOISE_BAND, minPicks: 2 });
+      const g1 = gated.update(synthetic, 1, { detail: nobodyBinds });
+      const g2 = gated.update(synthetic, 2, { detail: nobodyBinds });
+      check('R-doctrine KNOWN POSITIVE: with detail supplied and NOTHING binding, the '
+        + 'landslide still switches on schedule — the binding gate suppresses the '
+        + 'deferral case only, it is not a blanket off-switch',
+        g1.switched === false && g2.switched === true,
+        JSON.stringify({ first: g1.switched, second: g2.switched }));
+
+      /* And the negative it is actually for: identical scores, identical
+       * hysteresis, the ONLY difference being that the enrolled plan binds. */
+      const planBinds = { early_qb: { score: 50, binds: true, forgone: 40,
+                                      declined: { position: 'RB', name: 'the board leader' } },
+                          balanced: { score: 90, binds: false, forgone: 0, declined: null } };
+      const held = new DD.DoctrineState('early_qb', { noiseBand: E.CFG.DG_NOISE_BAND, minPicks: 2 });
+      const h1 = held.update(synthetic, 1, { detail: planBinds });
+      const h2 = held.update(synthetic, 2, { detail: planBinds });
+      const h3 = held.update(synthetic, 3, { detail: planBinds });
+      check('R-doctrine: flip ONLY the binds flag on the same landslide and the switch '
+        + 'never comes — the gap is a deferral price, not a plan ranking, and the '
+        + 'war room must not announce it as a switch',
+        [h1, h2, h3].every(x => x.switched === false) && held.current === 'early_qb',
+        JSON.stringify({ switched: [h1, h2, h3].map(x => x.switched), current: held.current }));
+      /* ⚠️ WHAT THIS FIX DOES **NOT** COVER, STATED HERE SO IT IS NOT READ AS
+       * COVERED. `deferrals` reports the OTHER doctrines — the enrolled plan is
+       * excluded by construction — so when the ENROLLED plan is the one binding,
+       * the banner still renders it as an ordinary alternative that trails:
+       *
+       *     alternative "Balanced Value", gap -40, deferrals []
+       *
+       * That is the same one-sided price the retraction removed, on the `gap`
+       * field instead of the `sentence` field. Register 209, owner A, recheck
+       * 08-25 — NOT changed here: it is a display-semantics change to the banner
+       * on draft eve, and the switch was the half that instructs Cory to abandon
+       * his plan. I did not write a vacuous arm asserting it is fine.
+       *
+       * (`confidence` on that same read says "Contested — alternative within the
+       * band" for a $40 shortfall, because `_confidence` band-tests a SIGNED gap.
+       * Register 210, same owner, same recheck.) */
     }
 
     // Decline: the owner's call wins, the prior doctrine survives, it is logged.
