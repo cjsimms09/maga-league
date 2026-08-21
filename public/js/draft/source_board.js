@@ -27,11 +27,41 @@
   /* Every alternate source this board can be re-ranked on, keyed the same
    * way alt_source_rankings.py's SOURCES dict is, so the suffix on a field
    * name ("vorp_ds") always matches a key here ("ds") without translation. */
+  /* ⚠️ EIGHT, NOT FOUR — Cory, 2026-08-21: "Where are all the other sources we
+   * got?? We got more than that?" He was right. The blend is built from SEVEN
+   * sources and `source_boards.json` has shown all of them in the best-available
+   * panel for days, but this list knew four, so the Big Board toggle could not
+   * offer CBS, ESPN, FFToday or Mike Clay. They were ingested, committed and
+   * blended into the number he drafts on, and invisible on the tab he asked to
+   * see them on.
+   *
+   * AND THE TWO THAT WERE HERE ARE THE WORST-COVERED. Inside his top 200:
+   * ESPN 99%, CBS 97%, FFToday 94%, Clay 89% — against Draft Sharks 95% and
+   * FantasyPros 90%. The missing four were not a thin tail.
+   *
+   * Order is coverage-descending within the "not ours" group, so the toggle
+   * reads best-covered first rather than in the order they happened to be
+   * ingested. `ownmodel` stays last: Cory ruled our own projections out of the
+   * peer comparison (2026-08-19, "lets exclude our own projections") and
+   * source_boards.json already honours that by omitting it entirely — it is
+   * kept here only because this toggle re-ranks rather than compares. */
   var SOURCES = [
-    { key: 'ds', label: 'Draft Sharks' },
     { key: 'sleeper', label: 'Sleeper' },
-    { key: 'ownmodel', label: 'Our model' },
+    { key: 'espn', label: 'ESPN' },
+    { key: 'cbs', label: 'CBS' },
+    { key: 'ds', label: 'Draft Sharks' },
+    { key: 'fftoday', label: 'FFToday' },
     { key: 'fantasypros', label: 'FantasyPros' },
+    /* ⚠️ NOT AN INDEPENDENT EIGHTH OPINION, AND THE LABEL SAYS SO. Mike Clay
+     * IS ESPN's projections man, and both stores score RAW STAT LINES under
+     * this league's table, so `proj_clay` and `proj_espn` come out identical on
+     * 306 of the 331 players they share — 92.4%, where every other pair on the
+     * board is under 5%. Toggling between them and seeing the same board is
+     * correct behaviour, not a bug; reading it as two sources agreeing is the
+     * mistake, which is why the parenthesis is in the label rather than in a
+     * note some surface might not render. Register 197. */
+    { key: 'clay', label: 'Mike Clay (= ESPN)' },
+    { key: 'ownmodel', label: 'Our model' },
   ];
 
   /* Fields engine.js actually reads for scoring/VONA/tiers. Swapped from the

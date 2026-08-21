@@ -65,11 +65,31 @@ function view(srcKey, pre) {
 const VIEWS = [{ key: null, label: 'Blend' }].concat(SB.SOURCES);
 const onesie = r => r.pos === 'K' || r.pos === 'DEF';
 
-ck('CONTROL: every source Cory can select is actually present in the toggle — '
-  + 'the complaint that started this was that only two were',
-SB.SOURCES.length >= 4 && ['ds', 'sleeper', 'ownmodel', 'fantasypros']
-  .every(k => SB.SOURCES.some(s => s.key === k)),
-SB.SOURCES.map(s => s.key));
+/* ⚠️ EVERY SOURCE IN THE BLEND MUST BE SELECTABLE, AND THIS IS DERIVED FROM
+ * THE BOARD RATHER THAN HAND-LISTED. Cory found this gap twice in one night —
+ * first "only draft shark and blended", then "where are all the other sources
+ * we got?? we got more than that?" — and both times the list of sources the
+ * toggle offered had drifted below the list the blend actually uses. A
+ * hand-written expectation here would have passed on both.
+ *
+ * `ownmodel` is excluded from the requirement on his own 2026-08-19 ruling
+ * ("lets exclude our own projections") — it is not a blend input and
+ * source_boards.json omits it as a peer too. It may still be ON the toggle,
+ * which is why this checks a subset relation and not equality. */
+const blendSources = new Set();
+data.players.forEach(p => (p.blend_sources_used || []).forEach(s => blendSources.add(s)));
+const ALIAS = { draftsharks: 'ds' };
+const wanted = [...blendSources].map(s => ALIAS[s] || s);
+const missing = wanted.filter(k => !SB.SOURCES.some(s => s.key === k));
+
+ck('CONTROL: the board actually records which sources built the blend, so the '
+  + 'requirement below is derived rather than a list I typed from memory',
+blendSources.size >= 5, { blendSources: [...blendSources] });
+
+ck('EVERY source the blend is built from is selectable on the toggle — the gap '
+  + 'Cory caught twice, now derived from the board instead of hand-listed',
+missing.length === 0,
+{ missingFromToggle: missing, blendUses: wanted, toggleOffers: SB.SOURCES.map(s => s.key) });
 
 /* CONTROL: the views must be genuinely different boards. If forSource ever
  * silently returned the blend for every key, every check below would pass

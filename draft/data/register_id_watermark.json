@@ -124,16 +124,8 @@
   },
   {
    "id": 135,
-   "claimed_at": "2026-08-19"
-  },
-  {
-   "id": 135,
    "claimed_at": "2026-08-20",
    "note": "renumbered from a colliding 133 (MLV-timing arm preregistered, never implemented) -- another session's row, first-allocation-wins per timestamp"
-  },
-  {
-   "id": 136,
-   "claimed_at": "2026-08-19"
   },
   {
    "id": 136,
@@ -290,35 +282,6 @@
    "claimed_at": "2026-08-21"
   },
   {
-   "id": "137-138",
-   "claimed_at": "2026-08-20",
-   "note": "A renumbered D two colliding rows (133,134) at merge; A retained 133/134, which are cited from shipped code (mlv.js), three tests and panel_spec.js."
-  },
-  {
-   "id": "137-138 reconciled",
-   "claimed_at": "2026-08-20",
-   "note": "A had previously renumbered D's colliding 133/134 to 137/138 and retained 133/134 as authoritative (cited from shipped mlv.js, three tests, panel_spec.js). That composite entry is superseded here: E's own chain independently claimed 137/138 for two DIFFERENT new rows (D's TE-boost finding; E's attach_draftsharks.py double bug) after re-verifying no stray references existed to those numbers anywhere in the repo at merge time."
-  },
-  {
-   "id": "163-185 reconciled",
-   "claimed_at": "2026-08-21",
-   "note": "relay: main-side authors (relay 173, A 174, and rows 163-172) allocated by grepping the table max, bypassing this file — C flagged it stale 08-20, unactioned. D's branch meanwhile used this watermark faithfully through 185. Ruling proposed to A: ids PRINTED on main stay (documents cite them); branch rows colliding in 163-174 renumber to fresh ids at merge (E's per-citation classification is the input); D's branch-side renumber of main's 173 to 184 reverts. Watermark now authoritative from 186, and a CI test now fails any table id filed at or past the watermark."
-  },
-  {
-   "id": "187-189",
-   "claimed_at": "2026-08-21",
-   "note": "D, applying A's 08-21 protocol ruling at merge (ids PRINTED on main stay; colliding branch rows renumber): D's three rows that collided in 172-174 moved to fresh ids -- flat-floor/ceiling-bands 172->187, *_pre_ds band-snapshots 173->188, setProjSource name-collision 174->189. This REVERTS D's earlier 172->183 and 173->184 renumbers, which had moved main's rows instead; main's 172/173/174 are canonical again and D's 185 is retained per this file's own note that D used the watermark faithfully through 185. Five inbound citations were repointed individually rather than bulk-replaced, because 172/173 now name DIFFERENT findings depending on which lane filed them: three inside D's own rows (187/188/176) followed the moved rows, one in D's 185 went 184->173 to the now-canonical C row, and every citation meaning main's rows was left untouched. Watermark now authoritative from 190."
-  },
-  {
-   "id": "47-50 reconciled",
-   "claimed_at": "2026-08-18",
-   "note": "A filed 47/48 on main concurrently with the watermark's first claim of 47; A's B0 row took 49; the watermark's row renumbered to 50. Watermark now authoritative from 51."
-  },
-  {
-   "id": 191,
-   "claimed_at": "2026-08-21"
-  },
-  {
    "id": 191,
    "claimed_at": "2026-08-21",
    "note": "D: BLEND-SEARCH-DESIGN step 3 has an unassigned dependency and the program's ownership is stated three ways (design doc says relay, ROUTES dispatch says D, P27/P29 say 'A builds - relay proposes'). Finding: the project's rho<=0.98 correlation gate sits exactly where DS10's averaging channel closes (+0.00 MAE at 0.98), verified against expected_averaging_gain rather than asserted; and decorrelation alone is insufficient -- P292's red-zone arm at rho=0.74 but MAE 9.07 makes a blend 1.84 points WORSE, with break-even at MAE ~5.2. Id claimed via next_register_id.js, not a table grep. Watermark now authoritative from 192."
@@ -326,11 +289,6 @@
   {
    "id": 192,
    "claimed_at": "2026-08-21"
-  },
-  {
-   "id": "192 -> 195",
-   "claimed_at": "2026-08-21",
-   "note": "D: a graded prediction (P143) silently reverted to an OPEN stub and its successor vanished from the live ledger; found while converting P143 to GRADING-POLICY, not by any guard. relay_publish.sh's insert step is insert-never-overwrite and skips silently without --grade; prediction_ledger_check only fails on rows past their grade-by date, so a reverted grade is invisible until then and then reads as never-graded. Routed to relay with a history-vs-head guard as the fix. Watermark now authoritative from 193. ⚠️ RENUMBERED 192->195 at merge: main printed its own 192 (Draft Sharks ceiling-ordering) and A's 08-21 protocol keeps main-printed ids. Both citations repointed. NOTE: the relay had ALREADY acted on this finding independently (2684ce87) -- P143's grade restored from 0b05742c and the ledger regression guard built -- so this row documents a defect that is already fixed."
   },
   {
    "id": 193,
@@ -359,6 +317,36 @@
   {
    "id": 199,
    "claimed_at": "2026-08-21"
+  },
+  {
+   "id": "137-138",
+   "claimed_at": "2026-08-20",
+   "note": "A renumbered D two colliding rows (133,134) at merge; A retained 133/134, which are cited from shipped code (mlv.js), three tests and panel_spec.js."
+  },
+  {
+   "id": "137-138 reconciled",
+   "claimed_at": "2026-08-20",
+   "note": "A had previously renumbered D's colliding 133/134 to 137/138 and retained 133/134 as authoritative (cited from shipped mlv.js, three tests, panel_spec.js). That composite entry is superseded here: E's own chain independently claimed 137/138 for two DIFFERENT new rows (D's TE-boost finding; E's attach_draftsharks.py double bug) after re-verifying no stray references existed to those numbers anywhere in the repo at merge time."
+  },
+  {
+   "id": "163-185 reconciled",
+   "claimed_at": "2026-08-21",
+   "note": "relay: main-side authors (relay 173, A 174, and rows 163-172) allocated by grepping the table max, bypassing this file \u2014 C flagged it stale 08-20, unactioned. D's branch meanwhile used this watermark faithfully through 185. Ruling proposed to A: ids PRINTED on main stay (documents cite them); branch rows colliding in 163-174 renumber to fresh ids at merge (E's per-citation classification is the input); D's branch-side renumber of main's 173 to 184 reverts. Watermark now authoritative from 186, and a CI test now fails any table id filed at or past the watermark."
+  },
+  {
+   "id": "187-189",
+   "claimed_at": "2026-08-21",
+   "note": "D, applying A's 08-21 protocol ruling at merge (ids PRINTED on main stay; colliding branch rows renumber): D's three rows that collided in 172-174 moved to fresh ids -- flat-floor/ceiling-bands 172->187, *_pre_ds band-snapshots 173->188, setProjSource name-collision 174->189. This REVERTS D's earlier 172->183 and 173->184 renumbers, which had moved main's rows instead; main's 172/173/174 are canonical again and D's 185 is retained per this file's own note that D used the watermark faithfully through 185. Five inbound citations were repointed individually rather than bulk-replaced, because 172/173 now name DIFFERENT findings depending on which lane filed them: three inside D's own rows (187/188/176) followed the moved rows, one in D's 185 went 184->173 to the now-canonical C row, and every citation meaning main's rows was left untouched. Watermark now authoritative from 190."
+  },
+  {
+   "id": "192 -> 195",
+   "claimed_at": "2026-08-21",
+   "note": "D: a graded prediction (P143) silently reverted to an OPEN stub and its successor vanished from the live ledger; found while converting P143 to GRADING-POLICY, not by any guard. relay_publish.sh's insert step is insert-never-overwrite and skips silently without --grade; prediction_ledger_check only fails on rows past their grade-by date, so a reverted grade is invisible until then and then reads as never-graded. Routed to relay with a history-vs-head guard as the fix. Watermark now authoritative from 193. \u26a0\ufe0f RENUMBERED 192->195 at merge: main printed its own 192 (Draft Sharks ceiling-ordering) and A's 08-21 protocol keeps main-printed ids. Both citations repointed. NOTE: the relay had ALREADY acted on this finding independently (2684ce87) -- P143's grade restored from 0b05742c and the ledger regression guard built -- so this row documents a defect that is already fixed."
+  },
+  {
+   "id": "47-50 reconciled",
+   "claimed_at": "2026-08-18",
+   "note": "A filed 47/48 on main concurrently with the watermark's first claim of 47; A's B0 row took 49; the watermark's row renumbered to 50. Watermark now authoritative from 51."
   }
  ]
 }
