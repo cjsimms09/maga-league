@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 192,
+ "next_numeric_id": 193,
  "history": [
   {
    "id": 47,
@@ -322,6 +322,15 @@
    "id": 191,
    "claimed_at": "2026-08-21",
    "note": "D: BLEND-SEARCH-DESIGN step 3 has an unassigned dependency and the program's ownership is stated three ways (design doc says relay, ROUTES dispatch says D, P27/P29 say 'A builds - relay proposes'). Finding: the project's rho<=0.98 correlation gate sits exactly where DS10's averaging channel closes (+0.00 MAE at 0.98), verified against expected_averaging_gain rather than asserted; and decorrelation alone is insufficient -- P292's red-zone arm at rho=0.74 but MAE 9.07 makes a blend 1.84 points WORSE, with break-even at MAE ~5.2. Id claimed via next_register_id.js, not a table grep. Watermark now authoritative from 192."
+  },
+  {
+   "id": 192,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 192,
+   "claimed_at": "2026-08-21",
+   "note": "D: a graded prediction (P143) silently reverted to an OPEN stub and its successor vanished from the live ledger; found while converting P143 to GRADING-POLICY, not by any guard. relay_publish.sh's insert step is insert-never-overwrite and skips silently without --grade; prediction_ledger_check only fails on rows past their grade-by date, so a reverted grade is invisible until then and then reads as never-graded. Routed to relay with a history-vs-head guard as the fix. Watermark now authoritative from 193."
   }
  ]
 }
