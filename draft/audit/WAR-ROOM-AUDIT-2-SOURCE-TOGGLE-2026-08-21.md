@@ -7,7 +7,7 @@ next 48 / seat 8. All nine ranking sources clicked and captured.**
 a different source is selected. Also make sure all the wording and tools are as
 clear as possible in terms of how to use and apply them to draft."***
 
-**Register 210. For B.**
+**Register 226. For B.**
 
 ---
 

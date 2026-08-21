@@ -196,7 +196,7 @@ SURVIVAL, which are the two panels he actually asked about.
 * **The keeper-slate banner is right and prominent.** *"Keeper slate not
   confirmed"* in red across the top, with a confirm button. 6 of 10 teams
   designated, 13 keepers withheld. Correct, and it clears at tonight's lock
-  (graded as P316).
+  (graded as P317).
 * **The ranking-source explanation is honest and unusually good.** *"The % on
   each button is how much of your top 200 by ADP that source actually
   projects... Nobody drafts the 681th player"* — that is the right denominator,

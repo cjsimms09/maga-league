@@ -93,7 +93,7 @@ why a VONA does not match the names under it.**
   chip says 56.6 and the strip beside it says 35; on Sleeper the chip says 8.1
   and the strip still says 35. **Same question, same units, up to 27 points
   apart.**
-* **Register 210 — the banner still promises `tiers`.** The cliff drops are
+* **Register 226 — the banner still promises `tiers`.** The cliff drops are
   `10 / 16 / 3 / 21` under all nine sources, and the banner still reads *"VONA,
   **tiers** and the recommended player on THIS ENTIRE PAGE now reflect only this
   source."* **The VONA clause is now TRUE. The tiers clause is still false.**
