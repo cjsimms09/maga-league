@@ -44,6 +44,10 @@ try { execFileSync('git', ['cat-file', '-e', '57a4a95ea~1'], { cwd: ROOT, stdio:
 catch (e) { hasHist = false; console.log('SKIP real-history checks (shallow clone)'); }
 if (hasHist) {
   ck('KNOWN-POSITIVE: the register-190 clobber fires', guardExit('57a4a95ea~1', '57a4a95ea') === 1);
+  // MODE 2: fd33cd15 emptied 15 preregs/audits to zero bytes while claiming
+  // to publish one prereg — the artifact-file class row-guarding cannot see.
+  ck('KNOWN-POSITIVE: the fd33cd15 artifact-emptying fires', guardExit('fd33cd15~1', 'fd33cd15') === 1);
+  ck('known-negative: the 88KB restore passes', guardExit('029478a5~1', '029478a5') === 0);
   ck('known-negative: E reconciliation merge passes', guardExit('712f1e6ca~1', '712f1e6ca') === 0);
   ck('known-negative: B closing rewrite passes', guardExit('24d18dbe4~1', '24d18dbe4') === 0);
 }
