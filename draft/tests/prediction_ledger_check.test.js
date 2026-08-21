@@ -106,7 +106,14 @@ ok('CONTROL — the real committed ledger is green today and goes red once its d
   const later = check(text, '2026-12-31');
   assert.ok(later.problems.length >= 1,
     'the ledger must go red when its own dates pass: ' + JSON.stringify(later.problems));
-  assert.ok(later.problems.every((p) => /OVERDUE|NOTHING CHANGED|NO OWNER|NO GRADE-BY/.test(p)),
+  // The whitelist is every shape a date-passage can legitimately surface. It
+  // was missing "three-part standard" from the day the P283 gate shipped —
+  // at 12-31 the pre-283 grace window has expired, so the back-catalog's
+  // MISSING messages become problems, and this test went red on main without
+  // anyone re-running it at the far date. Found (pre-existing, stash-verified)
+  // while adding the cross-propagation shape, 08-21.
+  assert.ok(later.problems.every((p) =>
+    /OVERDUE|NOTHING CHANGED|NO OWNER|NO GRADE-BY|three-part standard|cross-propagation rule/.test(p)),
     'unexpected problem shape: ' + JSON.stringify(later.problems));
 });
 
