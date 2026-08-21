@@ -178,6 +178,55 @@ ck(true, 'the board was built within the last 24 hours',
 ck(true, 'the board has a real player population', (BOARD.players || []).length > 400,
   { players: (BOARD.players || []).length });
 
+/* ── THE KEEPER LOCK ACTUALLY RELEASED THE SLATE ───────────────────────────
+ *
+ * CORY'S RULING, 2026-08-21: "Locks once deadline passes." Shipped the same
+ * morning as a second switch in `_keeper_map_for_board`.
+ *
+ * ⚠️ AND IT IS INERT UNTIL 18:00 CDT TODAY, which is the risk this check
+ * exists for. Every rebuild before the deadline takes the old path, so the
+ * ruling's FIRST REAL EXECUTION is the post-lock rebuild — the one board Cory
+ * actually drafts from. Unit tests cover the function (13 of them, including
+ * an end-to-end clock drive); nothing covered the published artifact, because
+ * the published artifact could not carry the state yet.
+ *
+ * So this asserts the OUTCOME on the board rather than the code path: once the
+ * lock has passed, the board must not be withholding anybody. If the ruling
+ * silently fails to take, the readiness run says so instead of Cory finding
+ * 13 gone players on his screen at pick 33.
+ *
+ * Before the deadline this is SILENT — withholding is correct then, and a
+ * check that fires every morning is a check that gets switched off. */
+{
+  const slate = BOARD.keeper_slate || {};
+  const wh = slate.withheld_from_board || {};
+  if (slate.keeper_lock_passed) {
+    ck(true, 'the keeper lock has passed and the board is NOT withholding '
+      + 'anybody — Cory\'s ruling "Locks once deadline passes" took effect',
+      wh.withheld !== true,
+      { withheld: wh.withheld, teams: wh.teams, keepers: wh.keepers,
+        released_at_lock: wh.released_at_lock,
+        released_from_status: wh.released_from_status },
+      'the lock passed but the board still holds keepers back — rebuild; if it '
+      + 'persists the second switch in _keeper_map_for_board did not fire and '
+      + 'Cory will read gone players as available');
+    //: a WARNING, not a blocker — releasing was the right call by the ruling,
+    //  and refusing to draft over it would be the worse error. But it must be
+    //  said out loud.
+    ck(false, 'the slate was NOT released from an unverified state',
+      !wh.released_unverified,
+      { released_from_status: wh.released_from_status },
+      'the lock released the slate from a state we could not verify — correct '
+      + 'by the ruling, but the keepers applied may be stale or internally '
+      + 'inconsistent. Eyeball the names on Sleeper against the board.');
+  } else {
+    ck(false, 'the keeper lock has NOT passed yet, so withholding is correct — '
+      + 'this becomes a hard check the moment the deadline goes by',
+      true, { keeper_lock_passed: false, deadline: slate.keeper_lock_deadline,
+              currently_withheld: wh.keepers || 0 });
+  }
+}
+
 ck(true, 'the post-processing chain ran on the published board (blend + Draft '
   + 'Sharks bands) — without it the war room shows pre-blend numbers',
   !!BOARD.post_processed_at, { post_processed_at: BOARD.post_processed_at || 'ABSENT' });
