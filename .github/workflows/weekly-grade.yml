@@ -65,8 +65,16 @@ jobs:
       # owner must land at ~0.5 and an oracle at ~1.0 -- and it exits non-zero
       # if they fail, so a broken instrument reds the run instead of printing a
       # confident number.
-      - name: Grade DECISIONS against their nulls (start/sit vs random legal lineup)
-        run: python3 draft/backtest/start_sit_vs_random.py
+      - name: Grade DECISIONS against their nulls (start/sit, waivers, draft picks)
+        # All three run every week and all three gate on their own controls, so
+        # a broken instrument reds the run instead of publishing a confident
+        # number. The known-negative band is DERIVED from each grader's own
+        # sample size -- a hardcoded one was 3.3-3.9x looser than the null it
+        # guards (register 194, caught by E).
+        run: |
+          python3 draft/backtest/start_sit_vs_random.py
+          python3 draft/backtest/waiver_vs_random.py
+          python3 draft/backtest/draft_pick_vs_random.py
 
       - name: Commit the refreshed loop artifacts
         run: |
@@ -74,6 +82,8 @@ jobs:
           git config user.email lab-bot@users.noreply.github.com
           git add draft/data/component_grades.json
           git add draft/backtest/start_sit_vs_random.json
+          git add draft/backtest/waiver_vs_random.json
+          git add draft/backtest/draft_pick_vs_random.json
           git add draft/data/model_update_recommendations.json
           # the mirror only exists once SITE_URL is configured and grade-cron
           # has produced a snapshot — absent is a named preseason state
