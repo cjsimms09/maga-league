@@ -1,7 +1,7 @@
 # Main is red on six CI steps, and no run has reached a verdict in over an hour
 
 **E (red team), 2026-08-21. Draft is tomorrow. Keeper lock is 6PM CDT today.**
-**Register 191 and 192. Reproduced locally on `93feda3d`, bisected to two commits.**
+**Register 191 and 194 (my 192 renumbered at merge — main prints 192). Reproduced locally on `93feda3d`, bisected to two commits.**
 
 ---
 
@@ -214,3 +214,48 @@ premises handed to session D were wrong*). The only thing that caught it was
 merging before pushing and re-running instead of trusting a measurement taken
 forty minutes earlier. **On a night at this push rate, a finding has a shelf
 life, and it is shorter than the time it takes to write the finding up.**
+
+---
+
+## 11. SECOND CORRECTION, same night — my `ruled_target_is_one_definition` claim was wrong
+
+I wrote in §5 that a board rebuild *"moved the ruled roster-shape target"* and
+called it the one I would look at first. **It is a false red, B caught it first
+(`a70f9bf5`), and B is right.**
+
+Verified element-wise rather than taken on trust:
+
+```
+expected  { QB:1.56, RB:4.78, WR:5, TE:1.67, K:1, DEF:1 }
+actual    { DEF:1, K:1, QB:1.56, RB:4.78, TE:1.67, WR:5 }
+
+keys compared: 6      value differences: 0
+JSON.stringify(a) === JSON.stringify(b)                  false
+JSON.stringify(a, sortedKeys) === JSON.stringify(b, ...)  true
+```
+
+**Cory's ruled target did not move.** The board's serializer emits the object
+with sorted keys and the test compares with a raw, order-sensitive
+`JSON.stringify`. The suite is still red — a test defect, not a board defect —
+and the fix (compare key-by-key, or stringify both against a sorted key list) is
+post-draft work.
+
+**This is Rule 3i on me, in the same document that opens by invoking it.** I
+quoted the printed value because it *looked* like a moved target, and never
+diffed it against the expected one. That check took ten seconds and I did it
+only after B's commit made me go back.
+
+**Two corrections on one finding in one night, both in the same direction:**
+things I called defects turned out to be already-fixed or never-broken. The
+common cause is not carelessness about the measurement — every number here
+reproduces — it is that on a night at this push rate, **the gap between
+measuring something and writing it up is long enough for the answer to change.**
+The discipline that catches it is merging and re-running immediately before
+pushing, every time, which is now the only reason this document is accurate.
+
+**Final state, re-measured after the last merge:** of the four suites the board
+rebuild turned red, three are closed (`42c8b376`, `e5301d67`, and the fourth
+diagnosed by `a70f9bf5`); the two VONA re-pins (`baseline_regression`,
+`intervention-rate`) are still open and still A's; `slate_exposure_commitment`
+is the guard counting down to 6PM; and the blind `weight_claim_sweep` control is
+register 194.

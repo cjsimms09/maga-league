@@ -53,10 +53,52 @@ const byName = n => board.players.find(p => p.name === n);
    * so the control flips to pin the HEALED state; if it inverts again, a
    * cross-band ratio artifact is back on the board and the guard below is
    * load-bearing again. */
-  ck('CONTROL: the band-edge pathology is healed on the live pair — the better '
-    + 'projection carries the bigger ceiling again',
-    nix.proj_mean < purdy.proj_mean && nix.proj_ceiling < purdy.proj_ceiling,
-    `Nix proj ${nix.proj_mean} ceil ${nix.proj_ceiling} vs Purdy proj ${purdy.proj_mean} ceil ${purdy.proj_ceiling}`);
+  /* ⚠️ THIS CONTROL ASSERTED THE WRONG INVARIANT, and re-measuring it produced
+   * a finding worth more than the check.
+   *
+   * It required "the better projection carries the bigger ceiling" — ceiling
+   * monotone in mean. That WAS a property of the old construction, when
+   * ceilings were band CONSTANTS and therefore a fixed multiple of the mean.
+   * It is not a property of the current one and should not be: since the Draft
+   * Sharks ruling each player carries HIS OWN measured ratio, and a player is
+   * perfectly entitled to a lower mean and a fatter tail.
+   *
+   * MEASURED on the live pair — and note both are `draftsharks_pct`, so this is
+   * NOT the cross-band artifact the check was written for:
+   *
+   *     Bo Nix       our mean 344.7  ratio 1.3203  -> ceiling 455.1
+   *     Brock Purdy  our mean 353.8  ratio 1.2722  -> ceiling 450.1
+   *
+   * AND THE SOURCE DISAGREES WITH US, which is the actual news. Draft Sharks'
+   * own numbers are correctly ordered: Nix 312 -> 412, Purdy 327 -> **416**.
+   * Purdy has the bigger ceiling AT SOURCE. The inversion exists only on our
+   * board, because carrying a RATIO preserves each player's shape but not the
+   * ordering, once it is applied to a blended mean that disagrees with the mean
+   * the ratio was derived from (DS gap 15 pts, our gap 9.1).
+   *
+   * Swept rather than left as an anecdote: across Cory's top 200, **1,314 of
+   * 17,681 comparable pairs (7.4%) order ceilings differently from Draft
+   * Sharks**, largest disagreement 126.8 pts (Tank Bigsby vs Nicholas
+   * Singleton). Filed for Cory as a register row — it cannot move a pick with
+   * MEASURED_WEIGHTS.ceiling at 0, but proj_ceiling IS displayed.
+   *
+   * So the control now asserts the invariant the design actually promises:
+   * our ratio is the SOURCE's ratio, carried faithfully. That is the thing that
+   * would be a defect if it broke. */
+  const ratio = q => q.proj_ceiling / q.proj_mean;
+  const dsRatio = q => q.proj_ds_ceiling / q.proj_ds;
+  ck('CONTROL: both live players carry a PER-PLAYER source ratio, not a band '
+    + 'constant — the pathology this file was written for is gone',
+    nix.proj_ceiling_source === 'draftsharks_pct'
+      && purdy.proj_ceiling_source === 'draftsharks_pct',
+    { nix: nix.proj_ceiling_source, purdy: purdy.proj_ceiling_source });
+  ck('and each ratio is the SOURCE\'s own, carried faithfully onto our mean — '
+    + 'the invariant the ratio-carry design actually promises (ceiling is NOT '
+    + 'required to be monotone in mean; a lower mean may carry a fatter tail)',
+    Math.abs(ratio(nix) - dsRatio(nix)) < 0.001
+      && Math.abs(ratio(purdy) - dsRatio(purdy)) < 0.001,
+    { nix: { ours: +ratio(nix).toFixed(4), ds: +dsRatio(nix).toFixed(4) },
+      purdy: { ours: +ratio(purdy).toFixed(4), ds: +dsRatio(purdy).toFixed(4) } });
 
   const rosterIds = new Set(board.kept_players.map(p => String(p.player_id)));
   const mine = ['Joe Burrow', 'Chris Olave', 'Tetairoa McMillan', 'Tucker Kraft', 'Rome Odunze']
@@ -90,17 +132,44 @@ const byName = n => board.players.find(p => p.name === n);
    * higher raw score. That is the feature working — PROVIDED the promotion
    * mark is on the row, which is what makes the deviation explainable at
    * 8s/pick. Unmarked inversions remain the defect and must be zero. */
-  let unmarked = 0, marked = 0;
+  /* ⚠️ THERE ARE TWO LEGITIMATE REASONS AN ORDER DEVIATES FROM SCORE, AND THIS
+   * KNEW ABOUT ONLY ONE — so it counted a deliberate, documented rule as a
+   * defect.
+   *
+   * The one it knew: the same-cell ceiling tiebreak, which marks its rows.
+   * The one it did not: the K/DEF CROSS-POSITION DEMOTION. `draft/vorp.py`
+   * sorts onesies below the skill positions on purpose — "streamable all
+   * season, so their cross-position rank is not a draft signal" — after the
+   * engine was caught recommending a 4th-round defence (overall 35 against an
+   * ADP of 127). They keep a real vorp and pos_rank and sort among themselves;
+   * only the cross-position slot moves.
+   *
+   * Found by instrumenting rather than by reading: the single "unmarked"
+   * inversion was rows 458/459 — Skyy Moore (WR, score -1.600) above New York
+   * Jets (DEF, score 71.000), a 72.6-point gap. That is the demotion working,
+   * not an unexplainable order, and no ceiling mark belongs on it.
+   *
+   * Both reasons are now recognised and counted SEPARATELY, so the numbers stay
+   * readable and a genuine third cause would still surface as unmarked. */
+  const isOnesie = e => ['K', 'DEF'].includes(((e || {}).player || {}).position);
+  let unmarked = 0, marked = 0, demoted = 0;
   for (let i = 0; i < list.length - 1; i++) {
     const a = list[i], b = list[i + 1];
     if (E.scoreable(a) && E.scoreable(b) && typeof a.score === 'number'
         && typeof b.score === 'number' && b.score > a.score + 1e-9) {
-      if (a.ceiling_tiebreak) marked++; else unmarked++;
+      if (a.ceiling_tiebreak) marked++;
+      // the deliberate onesie demotion: a K/DEF sitting BELOW a skill player it
+      // outscores is the documented rule, not a defect
+      else if (isOnesie(b) && !isOnesie(a)) demoted++;
+      else unmarked++;
     }
   }
-  ck('every rendered ORDER deviation from SCORE carries its reason on the row '
-    + '(marked ' + marked + ', unmarked ' + unmarked + ')', unmarked === 0,
-    unmarked + ' UNMARKED score inversions — order the reader cannot explain');
+  ck('every rendered ORDER deviation from SCORE has a KNOWN reason — ceiling '
+    + 'tiebreak or the deliberate K/DEF demotion (tiebreak ' + marked
+    + ', demotion ' + demoted + ', unexplained ' + unmarked + ')', unmarked === 0,
+    unmarked + ' UNEXPLAINED score inversions — order the reader cannot account for');
+  ck('CONTROL — the K/DEF demotion is genuinely present, so the clause added '
+    + 'for it is not silently excusing nothing', demoted > 0, { demoted });
   ck('CONTROL — the tiebreak is genuinely live on the real board (marked '
     + 'promotions exist), so the zero-unmarked check is not vacuous', marked > 0);
 }

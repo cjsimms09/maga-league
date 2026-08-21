@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 194,
+ "next_numeric_id": 195,
  "history": [
   {
    "id": 47,
@@ -302,7 +302,7 @@
   {
    "id": "163-185 reconciled",
    "claimed_at": "2026-08-21",
-   "note": "relay: main-side authors (relay 173, A 174, and rows 163-172) allocated by grepping the table max, bypassing this file — C flagged it stale 08-20, unactioned. D's branch meanwhile used this watermark faithfully through 185. Ruling proposed to A: ids PRINTED on main stay (documents cite them); branch rows colliding in 163-174 renumber to fresh ids at merge (E's per-citation classification is the input); D's branch-side renumber of main's 173 to 184 reverts. Watermark now authoritative from 186, and a CI test now fails any table id filed at or past the watermark."
+   "note": "relay: main-side authors (relay 173, A 174, and rows 163-172) allocated by grepping the table max, bypassing this file \u2014 C flagged it stale 08-20, unactioned. D's branch meanwhile used this watermark faithfully through 185. Ruling proposed to A: ids PRINTED on main stay (documents cite them); branch rows colliding in 163-174 renumber to fresh ids at merge (E's per-citation classification is the input); D's branch-side renumber of main's 173 to 184 reverts. Watermark now authoritative from 186, and a CI test now fails any table id filed at or past the watermark."
   },
   {
    "id": "187-189",
@@ -315,16 +315,21 @@
    "note": "A filed 47/48 on main concurrently with the watermark's first claim of 47; A's B0 row took 49; the watermark's row renumbered to 50. Watermark now authoritative from 51."
   },
   {
-   "id": 191,
+   "id": 192,
    "claimed_at": "2026-08-21"
   },
   {
-   "id": 192,
+   "id": 191,
    "claimed_at": "2026-08-21"
   },
   {
    "id": 193,
    "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 194,
+   "claimed_at": "2026-08-21",
+   "note": "E: my 192 claim collided with main's PRINTED register 192 (the Draft Sharks ceiling-ordering row, 19c8b68c) -- under register 186's protocol main-printed ids are canonical, so my row renumbers 192->194. My 191 and 193 are unaffected: main prints neither. Three citations repointed individually (ROUTES dispatch to A, draft/audit/MAIN-IS-RED-AND-NOBODY-HAS-SEEN-IT-2026-08-21.md header and section 6, and register 191's own 'filed as' sentence)."
   }
  ]
 }
