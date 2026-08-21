@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 228,
+ "next_numeric_id": 229,
  "history": [
   {
    "id": 47,
@@ -402,6 +402,10 @@
    "note": "A, 08-21: BURNED, NOT USED. I wrote register references into code comments (robot-mock.js, doctrine.js) before claiming ids, then had to renumber to 206-211 once the allocator showed 205 was already D's. Advancing the watermark past my six real rows consumed these five. No table row carries them and none should be back-filled \u2014 claim 217+."
   },
   {
+   "id": 217,
+   "claimed_at": "2026-08-21"
+  },
+  {
    "id": 135,
    "claimed_at": "2026-08-19"
   },
@@ -477,10 +481,6 @@
    "claimed_at": "2026-08-21"
   },
   {
-   "id": 217,
-   "claimed_at": "2026-08-21"
-  },
-  {
    "id": 218,
    "claimed_at": "2026-08-21"
   },
@@ -496,6 +496,11 @@
    "id": "221-227 + P317",
    "claimed_at": "2026-08-21",
    "note": "E: TWELFTH collision round and by far the largest -- main printed EIGHT of my ids (204-211) plus P316 for different findings in one merge. Protocol 186, main-printed canonical, so mine take 221-227 and P317. ONE of the eight was NOT mine to renumber: 209 held the relay's 'graded prediction reverted to an open stub' row, which I had moved there in an earlier round by mistake. Main canonically carries that finding at 201, so my copy is DROPPED rather than renumbered -- matched by CONTENT ('A GRADED PREDICTION SILENTLY REVERTED TO AN OPEN STUB' present in both), never by id chain, which is the rule register 212 cost me."
+  },
+  {
+   "id": 228,
+   "claimed_at": "2026-08-21",
+   "note": "E: THIRTEENTH collision round -- main printed 217 for the deploy-verify fix; my generator-verification row takes 228. Two rounds in a row now; the merge tax is becoming the dominant cost of this lane and is worth a ruling of its own."
   }
  ]
 }
