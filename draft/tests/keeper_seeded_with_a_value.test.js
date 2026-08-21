@@ -183,16 +183,46 @@ function barAt(pick, ks) {
   /* The famous false sentence ("Zay Flowers beats Ja'Marr Chase by 17") can no
    * longer be manufactured even by stripping the vorp — the floor holds the
    * bar at 0 and Flowers' marginal value stays under the badge line. */
+  /* ⚠️ THIS PINNED A NAMED PLAYER AND HE CROSSED THE AVAILABILITY BOUNDARY BY
+   * ONE POSITION, WHICH BROKE IT TWO WAYS AT ONCE.
+   *
+   * The condition was `!!flowers && value < BADGE`. Zay Flowers is now rank 32
+   * by adjusted_adp (32.7) and `takenAt(33)` removes the first 32 — so he is
+   * no longer on the board at pick 33, `!!flowers` is false, and the check
+   * reported a FALSE CLAIM AS REPRODUCIBLE when what actually happened is that
+   * the player got drafted earlier. Then the follow-up check called
+   * keeperOptionValue(undefined) and CRASHED the suite at composite.js:84,
+   * taking every check after it down with it.
+   *
+   * ABSENCE AND REGRESSION ARE DIFFERENT EVENTS AND MUST NOT SHARE AN OUTCOME
+   * (rule 3e). Measured directly: on the unfiltered board Flowers' KOV is 0.0
+   * against a badge of 8 — the defect is thoroughly dead, and the red was
+   * entirely an ADP shift.
+   *
+   * The general property is already proven above by the count() checks ("the
+   * unseeded state fires ZERO badges now", both states). This named case is one
+   * INSTANCE of that, kept because a count is not the sentence that was wrong —
+   * so it now asserts on the named player WHEN HE IS THERE, and falls back to
+   * the boundary player when he is not, rather than vanishing or crashing. */
+  const namedAt = (ctx, label) => {
+    const who = ctx.board.find(p => p.name === 'Zay Flowers')
+      // he is gone from this pick's pool — assert on whoever is now the most
+      // expensive candidate instead, which is the harder case, not an easier one
+      || ctx.board.slice().sort((a, b) => (b.vorp || 0) - (a.vorp || 0))[0];
+    if (!who) return null;
+    return { who: who.name,
+      substituted: who.name !== 'Zay Flowers',
+      value: Math.round(C.keeperOptionValue(who, ctx).value * 10) / 10 };
+  };
+  const r33 = namedAt(c33, 'stripped');
+  ck('CONTROL: there is a candidate to judge at pick 33 at all', !!r33, r33);
   ck('the specific false claim is UNREPRODUCIBLE: at pick 33 the vorp-stripped '
-    + 'state can no longer say a candidate beats a named keeper',
-  !!flowers && C.keeperOptionValue(flowers, c33).value < C.CFG.KOV_BADGE_AT,
-  flowers && { who: flowers.name,
-    value: Math.round(C.keeperOptionValue(flowers, c33).value * 10) / 10 });
+    + 'state cannot say a candidate beats a named keeper (named player if he is '
+    + 'still available, else the top-vorp candidate — absence is not a defect)',
+  !!r33 && r33.value < C.CFG.KOV_BADGE_AT, r33);
   const c33f = mkCtx(33, seeded);
-  const flowersF = c33f.board.find(p => p.name === 'Zay Flowers');
-  ck('and it does not survive the fix',
-    C.keeperOptionValue(flowersF, c33f).value < C.CFG.KOV_BADGE_AT,
-    { value: C.keeperOptionValue(flowersF, c33f).value });
+  const r33f = namedAt(c33f, 'seeded');
+  ck('and it does not survive the fix', !!r33f && r33f.value < C.CFG.KOV_BADGE_AT, r33f);
 }
 
 // ─────────────────────── 7. AND THE RANKING DOES NOT MOVE
