@@ -70,7 +70,21 @@ def _load(path: Path) -> dict:
 def attach(board: dict) -> dict:
     ms = (_load(MS_PATH).get("players") or {})
     clay = (_load(CLAY_PATH).get("players") or {})
-    players = board.get("players") or []
+    # ⚠️ `kept_players` TOO, AND LEAVING THEM OUT IS A KNOWN TRAP IN THIS REPO
+    # (A, 2026-08-21). `build.py` moves kept players OUT of `players` into
+    # `kept_players`, so a join over `players` alone silently skips Cory's own
+    # roster — the exact shape register 80 was filed for, and the reason
+    # `multisource_projections.py:171` already unions the two lists.
+    #
+    # The keepers' `proj_mean` is fine: `build.py:1857` blends BEFORE the split,
+    # on purpose, and it is verified blended (Chase 271.8 against Sleeper 256.6).
+    # What was missing is these per-source DISPLAY columns, so the war room's
+    # source toggle had nothing to show for the three players Cory already owns
+    # while showing all seven sources for everyone else.
+    #
+    # Additive only: this writes `proj_<source>` columns and never touches
+    # `proj_mean`, so it cannot move a price the night before the keeper lock.
+    players = (board.get("players") or []) + (board.get("kept_players") or [])
 
     written = {f: 0 for f in ALL_FIELDS}
     for p in players:
@@ -94,7 +108,7 @@ def controls(board: dict, written: dict) -> list[str]:
     """Every one of these has a way to FAIL, and each was run against a case
     with a known answer before this file was trusted (rule 3f)."""
     failures: list[str] = []
-    players = board.get("players") or []
+    players = (board.get("players") or []) + (board.get("kept_players") or [])
     by_id = {str(p.get("player_id")): p for p in players}
 
     # C1 KNOWN POSITIVE, RE-DERIVED BY A DIFFERENT PATH. Read the stores again,

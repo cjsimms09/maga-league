@@ -432,6 +432,42 @@ def sync(picks: list, *, slot_to_roster: dict | None = None) -> dict:
     }
 
 
+def _league_id() -> str:
+    """This season's Sleeper league id, from the committed config."""
+    cfg = json.loads((ROOT / "draft" / "config" / "league_config.json").read_text())
+    lid = cfg.get("league_id")
+    if not lid:
+        raise RuntimeError("league_config.json carries no league_id")
+    return str(lid)
+
+
+def discover_draft_id() -> str:
+    """Resolve THIS season's draft_id from the league, so no human types it.
+
+    Rule 3e applies with force here: this returns a single string, and a WRONG
+    string looks exactly like a right one until the draft is over and the log is
+    empty. So it refuses rather than guesses — if the league reports no drafts,
+    or more than one plausible candidate for this season, it raises with what it
+    saw instead of picking.
+    """
+    import sleeper_import as si
+    lid = _league_id()
+    drafts = si.fetch_drafts(lid) or []
+    if not drafts:
+        raise RuntimeError("Sleeper reports NO drafts for league %s" % lid)
+    season = str(json.loads(
+        (ROOT / "draft" / "config" / "league_config.json").read_text()
+    ).get("season") or "")
+    same = [d for d in drafts if str(d.get("season") or "") == season] or drafts
+    ids = sorted({str(d.get("draft_id")) for d in same if d.get("draft_id")})
+    if len(ids) != 1:
+        raise RuntimeError(
+            "cannot resolve a single draft_id for league %s season %s — saw %s. "
+            "Pass it explicitly rather than letting this guess."
+            % (lid, season, ids))
+    return ids[0]
+
+
 def sync_live(draft_id: str) -> dict:
     """Poll Sleeper and append. The draft-night entry point.
 
@@ -492,11 +528,30 @@ def main() -> int:
         row["shadow"] = shadow_sync()
         print(json.dumps(row, indent=1, sort_keys=True))
         return 0
+    if "--discover" in sys.argv:
+        try:
+            print(discover_draft_id())
+            return 0
+        except Exception as exc:                            # noqa: BLE001
+            print("DISCOVERY FAILED: %s" % exc, file=sys.stderr)
+            return 1
     if "--sync" in sys.argv:
-        did = sys.argv[sys.argv.index("--sync") + 1]
+        i = sys.argv.index("--sync")
+        did = sys.argv[i + 1] if len(sys.argv) > i + 1 else ""
+        # ⚙️ NO ARGUMENT = DISCOVER IT. The draft-night capture used to require a
+        # hand-typed Sleeper draft_id, which meant the one irreversible event of
+        # the year was captured only if somebody remembered to look the id up and
+        # paste it correctly under time pressure. The league id is in
+        # league_config.json and Sleeper will name the draft; there is no reason
+        # for a human to be in that loop.
+        if not did or did.startswith("--"):
+            did = discover_draft_id()
+            print("discovered draft_id %s from league %s" % (did, _league_id()),
+                  file=sys.stderr)
         print(json.dumps(sync_live(did), indent=1))
         return 0
-    print("usage: log_draft_picks.py --sync <draft_id> | --record <json> | --status")
+    print("usage: log_draft_picks.py --sync [draft_id] | --discover "
+          "| --record <json> | --status")
     return 2
 
 
