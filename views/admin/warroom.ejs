@@ -213,7 +213,16 @@
           <div id="paths-coinflip" class="paths-coinflip" style="display:none"></div>
           <div id="paths-panel" class="paths-panel"></div>
           <div id="movement-line" class="movement-line" style="display:none"></div>
-          <details id="recs-details" class="recs-details" open>
+          <%# ⚠️ WAS HARDCODED `open` — CONTRADICTING THIS CARD'S OWN DESIGN
+              INTENT. initDisclosures() (app.js, 2026-08-17) says outright: "The
+              ranked list... ship COLLAPSED — the fold belongs to the one
+              answer... Default stays the shell's (collapsed); only a recorded
+              choice differs." The markup disagreed with its own JS. Measured
+              live: this element alone was 1659 of #recs-card's 2995px (E's
+              draft-value audit, finding 1 — "THE PICK" burying six panels
+              below it). Collapsed by default now; a tap still opens it and
+              that choice still persists via DISCLOSE_KEY, unchanged. %>
+          <details id="recs-details" class="recs-details">
             <summary>Ranked shortlist — top 10</summary>
             <div id="recs"></div>
           </details>
