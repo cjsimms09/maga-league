@@ -1707,24 +1707,14 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
 @media (max-width: 640px) {
   .pb-strike-bar { grid-template-columns: repeat(3, 1fr); row-gap: .5rem; }
 }
-/* Projection-source toggle (ROUTES-B-TOGGLE.md, A→B 2026-08-19): "I want to
-   be able to toggle between them." Ranking/selection stay Draft-Sharks-fixed
-   — this only swaps which number each row prints, so it reads as a quiet
-   display switch, not a second ranking control. */
-.pb-src-toggle {
-  display: flex; gap: .2rem; padding: .18rem; width: fit-content;
-  background: rgba(0,0,0,.18); border-radius: 999px;
-}
-.pb-src-btn {
-  font-size: .64rem; font-weight: 700; letter-spacing: .02em; text-transform: uppercase;
-  color: var(--wr-muted); background: transparent; border: 1px solid transparent;
-  border-radius: 999px; padding: .16rem .6rem; cursor: pointer;
-  transition: color var(--wr-fast), background var(--wr-fast), transform var(--wr-fast), box-shadow var(--wr-fast);
-}
-.pb-src-btn:hover:not(.pb-src-active) { color: var(--wr-ink); background: rgba(255,255,255,.08); transform: var(--wr-lift); }
-.pb-src-btn.pb-src-active {
-  color: #fff; background: linear-gradient(155deg, #7aa2f7, var(--wr-structure));
-  box-shadow: 0 2px 8px -2px rgba(122,162,247,.5);
+/* ONE TOGGLE, NOT TWO — Cory, 2026-08-21 ruling. This panel's own DS/Blend
+   buttons are retired; it now just states which number is showing,
+   following the Ranking Source toggle above with no click target of its
+   own. Ranking/selection stay Draft-Sharks-fixed regardless (see
+   projSourceStatus/projSourceNote in position_boards_view.js). */
+.pb-src-status {
+  font-size: .64rem; font-weight: 700; letter-spacing: .02em;
+  color: var(--wr-muted); padding: .16rem 0;
 }
 .pb-grid {
   /* 11.5rem: bumped from 10.5rem after removing letter-spacing/uppercase
@@ -1756,10 +1746,11 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
    a live screenshot caught it painted over the TE column's "+66.6 wire"
    text, clipping a real number the same way the ellipsis headers used to. */
 .pb-toolbar { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin: 0 0 .5rem; }
-/* Cory, 2026-08-21: mistook this panel's DS/Blend-only toggle for the
- * Ranking Source panel above it. The explanation used to live only in a
- * hover title -- printed as a real line instead, full width, not squeezed
- * into .pb-toolbar's flex row with the toggle and the scroll hint. */
+/* Cory, 2026-08-21: mistook this panel's now-retired DS/Blend toggle for
+ * the Ranking Source panel above it. Explains that selection/order stay
+ * Draft-Sharks-fixed regardless of the one real toggle's position. Full
+ * width, not squeezed into .pb-toolbar's flex row with the status label
+ * and the scroll hint. */
 .pb-src-note { margin: 0 0 .6rem; font-size: .78rem; }
 .pb-grid-hint {
   font-size: .58rem; color: var(--wr-muted); font-style: italic;
@@ -1995,55 +1986,11 @@ body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; 
    this used to set at <640px. A phone this narrow still relies on
    .pb-grid's overflow-x scroll, same as before. */
 
-/* ROSTER BUILDER MODEL PANEL — ROSTER-BUILDER-PANEL-DESIGN.md, §1: "It is a
-   SECOND VOICE. It never replaces, reorders, or annotates his board." The
-   left accent stripe in --wr-accent (not --wr-structure, which the board's
-   own panels use) is the one visual cue that separates this box from
-   everything around it — if a reader could mistake it for the board's own
-   recommendation, the design failed. rbm-marginal is money-adjacent but
-   deliberately NOT --wr-money/gold: gold is reserved for dollar figures
-   project-wide, and this is a points figure. */
-.rbm-wrap {
-  border: 1px solid var(--wr-line); border-left: 3px solid var(--wr-accent);
-  border-radius: 6px; background: var(--wr-panel); padding: .55rem .7rem;
-  margin: .5rem 0;
-}
-.rbm-head { display: flex; align-items: baseline; gap: .4rem; flex-wrap: wrap; margin-bottom: .4rem; }
-.rbm-title { font-size: var(--wr-fs-title); font-weight: 800; color: var(--wr-accent); letter-spacing: .02em; }
-.rbm-sub { font-size: var(--wr-fs-micro); color: var(--wr-muted); font-style: italic; }
-/* agreement with the board's own #1 — the reason this panel earns its
-   screen space, so it is stated rather than left to the eye (ported from
-   A's independent build of the same panel, 2026-08-20 merge). */
-.rbm-agree {
-  font-size: .64rem; margin: .3rem 0 .1rem; padding: .2rem .4rem;
-  border-radius: 4px; background: var(--wr-panel-soft);
-}
-.rbm-agree-yes { color: var(--wr-good); }
-.rbm-agree-no { color: var(--wr-warn); }
-.rbm-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .4rem; }
-.rbm-row {
-  display: grid; grid-template-columns: 1.3rem 1fr auto auto auto;
-  align-items: baseline; column-gap: .4rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--wr-line) 55%, transparent);
-  padding-bottom: .35rem;
-}
-.rbm-row:last-child { border-bottom: none; padding-bottom: 0; }
-.rbm-row[data-drill] { cursor: pointer; }
-.rbm-row[data-drill]:hover .rbm-name { text-decoration: underline; }
 .src-name[data-drill] { cursor: pointer; }
 .src-name[data-drill]:hover { text-decoration: underline; }
-.rbm-rank { font-weight: 800; color: var(--wr-muted); font-variant-numeric: tabular-nums; font-size: var(--wr-fs-micro); }
-.rbm-name { font-weight: 700; color: var(--wr-ink); }
-.rbm-pos { font-size: .58rem; color: var(--wr-muted); text-transform: uppercase; }
-.rbm-adp { font-size: .6rem; color: var(--wr-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.rbm-marginal { font-weight: 700; color: var(--wr-good); font-variant-numeric: tabular-nums; white-space: nowrap; }
-/* spans the full row on the line below name/pos/adp/marginal — the reason
-   Cory asked for this panel at all ("and why"), so it never gets squeezed. */
-.rbm-why { grid-column: 2 / -1; font-size: .64rem; color: var(--wr-warn); font-style: italic; }
-.rbm-foot {
-  margin-top: .5rem; padding-top: .4rem; border-top: 1px solid var(--wr-line);
-  font-size: .58rem; color: var(--wr-muted); display: flex; flex-direction: column; gap: .15rem;
-}
-.rbm-evidence { margin-top: .35rem; font-size: var(--wr-fs-micro); }
-.rbm-evidence summary { cursor: pointer; font-weight: 600; color: var(--wr-structure); list-style: revert; }
-.rbm-evidence p { margin: .3rem 0 0; color: var(--wr-muted); line-height: 1.4; }
+
+/* E's audit 2026-08-21, register 203: the by-position VONA is Draft Sharks and
+   does NOT follow the Ranking Source toggle sitting above it. Marked at the
+   point of reading rather than only in a note underneath. */
+.pb-vona-src{font-size:.62rem;letter-spacing:.03em;opacity:.7;border:1px solid currentColor;
+  border-radius:.25rem;padding:0 .18rem;margin-left:.15rem;vertical-align:.06em}

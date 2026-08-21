@@ -148,13 +148,16 @@ function mkData() {
     })());
   ck('a player with no blend number (Gamma) falls back to the Draft Sharks figure under "blend", not a blank',
     /\b100\b/.test(htmlBlend));
-  ck('the toggle buttons render, and the active one is marked',
-    /data-pb-source="ds"/.test(htmlBlend) && /data-pb-source="blend"/.test(htmlBlend)
-    && /class="pb-src-btn pb-src-active" data-pb-source="blend"/.test(htmlBlend)
-    && !/class="pb-src-btn pb-src-active" data-pb-source="ds"/.test(htmlBlend));
-  ck('...and flips when "ds" is active',
-    /class="pb-src-btn pb-src-active" data-pb-source="ds"/.test(htmlDs)
-    && !/class="pb-src-btn pb-src-active" data-pb-source="blend"/.test(htmlDs));
+  /* ⚠️ RULED AWAY, 2026-08-21 — Cory: "should only be one toggle for each
+   * source and blend and it should change everything." This panel's OWN
+   * clickable toggle is retired; it now just states which number is
+   * showing, with no button and no data-pb-source anywhere. */
+  ck('there is no second clickable toggle here — no button, no data-pb-source',
+    !/data-pb-source/.test(htmlBlend) && !/<button[^>]*pb-src/.test(htmlBlend));
+  ck('...instead a plain status line names which number is showing, and it '
+     + 'flips with the caller-supplied source',
+    /pb-src-status[^>]*>Showing <b>the board.s Blend<\/b>/.test(htmlBlend)
+    && /pb-src-status[^>]*>Showing <b>Draft Sharks.<\/b>/.test(htmlDs));
 
   /* Cory, 2026-08-21, looking at exactly this panel's toggle: "I only have
    * selection between draft shark or blended .. not sure what toggles above
@@ -190,8 +193,8 @@ function mkData() {
 {
   const d = mkData();
   const html = V.renderPositionBoards(d, 33, null, esc);
-  ck('the toggle and the scroll hint share one toolbar row, not the grid itself',
-    /<div class="pb-toolbar">[\s\S]*?pb-src-toggle[\s\S]*?pb-grid-hint[\s\S]*?<\/div>/.test(html));
+  ck('the status line and the scroll hint share one toolbar row, not the grid itself',
+    /<div class="pb-toolbar">[\s\S]*?pb-src-status[\s\S]*?pb-grid-hint[\s\S]*?<\/div>/.test(html));
   ck('the hint text names the action, not just a bare arrow',
     /class="pb-grid-hint" aria-hidden="true">scroll for more/.test(html));
   ck('the hint is OUTSIDE pb-grid-wrap — it must never sit on top of a column\'s own text',
@@ -472,29 +475,23 @@ function mkData() {
   ck('app.js calls PositionBoardsView.renderPositionBoards', /PositionBoardsView\.renderPositionBoards/.test(SRC));
   ck('app.js computes a live survival map via DraftSurvival before rendering (the override, not just the fetch)',
     /conservedSurvival/.test(SRC));
-  ck('app.js wires the projection-source toggle (data-pb-source -> setProjSource, ROUTES-B-TOGGLE.md)',
-    /data-pb-source/.test(SRC) && /function setProjSource\s*\(/.test(SRC) && /state\.projSource/.test(SRC));
-  /* ⚠️ ADDED 2026-08-20 AFTER THE CHECK ABOVE PASSED THROUGH A REAL DEFECT.
-   * `/function setProjSource/` was true while a SECOND function of that exact
-   * name, declared later in the same scope, had shadowed this one — so the
-   * toggle's clicks were reaching a handler that fetches board_<key>.json and
-   * re-scores VONA instead of relabelling this panel. The name existing is not
-   * the same as the name resolving. What matters is the BEHAVIOUR the click
-   * lands on, so that is what is asserted now. */
-  ck('  ...and the handler it reaches is the DISPLAY-ONLY one: it refuses any key '
-     + 'but blend/ds and re-renders this panel, rather than swapping the board',
-    (function () {
-      const i = SRC.indexOf('function setProjSource(');
-      if (i < 0) return false;
-      const body = SRC.slice(i, SRC.indexOf('\n  }\n', i));
-      return /!==\s*'blend'\s*&&[^)]*!==\s*'ds'/.test(body)
-        && /renderPositionBoardsPanel\(\)/.test(body)
-        && !/applySourceBoard|fetch\(/.test(body);
-    }()),
-    'if this fails, read one_name_one_function.test.js — the likely cause is a '
-    + 'second declaration of this name winning by line order');
-  ck('the toggle preference is persisted and reloaded on init, same pattern as the other UI prefs',
-    /function loadProjSource/.test(SRC) && /loadProjSource\(\)/.test(SRC));
+  /* ⚠️ RULED AWAY, 2026-08-21 — Cory: "should only be one toggle for each
+   * source and blend and it should change everything." data-pb-source,
+   * setProjSource, loadProjSource and PROJ_SOURCE_KEY are all retired —
+   * this panel now derives its display source from state.rankSource
+   * directly, the SAME state the Ranking Source toggle writes, so there is
+   * exactly one click target and one state variable for source selection
+   * anywhere on the page. */
+  ck('the retired toggle plumbing is actually gone, not just unused — a live '
+     + 'data-pb-source or setProjSource left behind would be a second toggle '
+     + 'again in everything but name (comments naming the retired mechanism '
+     + 'for history are fine; a working declaration or attribute is not)',
+    !/data-pb-source="/.test(SRC) && !/function setProjSource\(/.test(SRC)
+    && !/function loadProjSource\(/.test(SRC) && !/const PROJ_SOURCE_KEY/.test(SRC));
+  ck('...and renderPositionBoardsPanel derives its source straight from '
+     + 'state.rankSource — the one real toggle — with its own state',
+    /const pbProjSource = state\.rankSource === 'ds' \? 'ds' : 'blend'/.test(SRC)
+    && /renderPositionBoards\([\s\S]{0,120}pbProjSource/.test(SRC));
 
   const VIEW = fs.readFileSync(path.join(ROOT, 'views', 'admin', 'warroom.ejs'), 'utf8');
   ck('warroom.ejs has a mount point for the position boards panel', /position-boards/.test(VIEW));

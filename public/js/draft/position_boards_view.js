@@ -360,7 +360,12 @@
     });
   }
 
-  function positionColumn(pos, block, esc, liveSurvivalById, projSource, roundDropoffs, callsById, badgeInfo, takenIds) {
+  /* Short source labels for the VONA chip — kept next to the only thing that
+   * renders them, and deliberately short: this sits inside a column header. */
+  var SRC_LABEL = { ds: 'DS', sleeper: 'SLP', cbs: 'CBS', espn: 'ESPN',
+    fftoday: 'FFT', fantasypros: 'FP', clay: 'CLAY', ownmodel: 'OURS', blend: 'DS' };
+
+  function positionColumn(pos, block, esc, liveSurvivalById, projSource, roundDropoffs, callsById, badgeInfo, takenIds, rankKey) {
     if (!block) return '';
     var players = livePlayers(block, takenIds);
     var scale = rangeScaleFor(players, projSource);
@@ -375,8 +380,58 @@
     return '<div class="pb-col">'
       + '<div class="pb-col-head">'
         + '<span class="pb-pos">' + esc(pos) + '</span>'
-        + '<span class="pb-vona" title="VONA — what waiting until your next pick costs">'
-          + 'VONA <b>' + esc(fmtNum(block.VONA)) + '</b></span>'
+        /* ⚠️ (DS) IS NOT DECORATION — E's audit, 2026-08-21: "all VONA is coming
+         * from draft shark and doesn't change with changing source". Correct
+         * for THIS panel and only this one. `draft/tools/position_boards.js`
+         * computes VONA from Draft Sharks' bestNow/bestNext and says so in its
+         * own comment ("Ranking, VONA, cliff and surplus above are unaffected:
+         * they stay computed from `ds`"), so this figure is frozen while the
+         * Ranking Source toggle sits right above it. The panel's note already
+         * said selection and order are DS-fixed, but it said "only the
+         * projection NUMBER changes" — and VONA is not the projection number,
+         * so a reader was told the opposite of the truth about this chip.
+         * The Big Board / THE PICK VONA is a DIFFERENT number from engine.js
+         * and DOES follow the toggle (source_toggle_moves_vona.test.js). */
+        + (function () {
+            /* ⚠️ CORY'S RULING, 2026-08-21, verbatim: "Vona should change for
+             * each source in which we have a projected points total. If we
+             * don't have projected points then it shouldn't show Vona for
+             * that source."
+             *
+             * `position_boards.js` now emits VONA_by_source, computed from the
+             * SAME 300 ADP-drained rooms re-priced under each source (the
+             * drain is ADP-driven and therefore source-independent, so no
+             * second simulation was needed). A source that prices fewer than
+             * three of the available men at this position emits null, and
+             * null prints as a dash with the reason — never a Draft Sharks
+             * number wearing another source's name, which is the defect E
+             * found and this replaces. */
+            var key = rankKey || 'ds';
+            var bySrc = block.VONA_by_source || null;
+            var cov = (block.covered_by_source || {})[key];
+            var v = bySrc ? bySrc[key] : undefined;
+            var srcLabel = SRC_LABEL[key] || key;
+            if (!bySrc) {
+              /* older artifact, before the per-source build — say so rather
+               * than silently printing the legacy Draft Sharks figure. */
+              return '<span class="pb-vona" title="VONA — what waiting until your next pick '
+                + 'costs. This board artifact predates per-source VONA, so this is Draft '
+                + 'Sharks\u2019 figure.">VONA <b>' + esc(fmtNum(block.VONA))
+                + '</b> <span class="pb-vona-src">DS</span></span>';
+            }
+            if (v == null) {
+              return '<span class="pb-vona pb-vona-none" title="' + esc(srcLabel)
+                + ' does not publish projected points for enough available '
+                + esc(pos) + 's here, so there is no VONA to show for it'
+                + (cov != null ? ' (' + cov + ' priced)' : '')
+                + '. Switch source, or use the Big Board.">VONA <b>—</b> '
+                + '<span class="pb-vona-src">' + esc(srcLabel) + '</span></span>';
+            }
+            return '<span class="pb-vona" title="VONA — what waiting until your next pick '
+              + 'costs, priced on ' + esc(srcLabel) + '\u2019 own projected points. Follows '
+              + 'the Ranking Source toggle.">VONA <b>' + esc(fmtNum(v)) + '</b> '
+              + '<span class="pb-vona-src">' + esc(srcLabel) + '</span></span>';
+          }())
         + '<span class="pb-surplus" title="best available, points over a free waiver pickup">'
           + '+' + esc(fmtNum(block.surplus_over_wire)) + ' wire</span>'
       + '</div>'
@@ -391,42 +446,45 @@
       + '</div>';
   }
 
-  /* Cory: "can we actually program 2 models... I want to be able to toggle
-   * between them." Selection/order are Draft-Sharks-fixed (unchanged by this
-   * control — see the file header); this only swaps which already-present
-   * number each row prints.
+  /* ⚠️ RULED AWAY, 2026-08-21 — CORY: "should only be one toggle for each
+   * source and blend and it should change everything, including big board
+   * and recommended players by position." This panel used to run its OWN
+   * second toggle (two buttons, Draft Sharks/Blend) beside the real one
+   * (Ranking Source, five buttons, above). He read the two as one control
+   * and reported "I only have selection between draft shark or blended ..
+   * not sure what toggles above that do .. doesn't look to change much" —
+   * true on both halves, and confusing on both halves for the same reason:
+   * a second clickable toggle existed at all.
    *
-   * ⚠️ THE EXPLANATION USED TO LIVE ONLY IN A HOVER title="..." — INVISIBLE
-   * UNLESS SOMEONE HOVERS A BUTTON DURING A LIVE DRAFT. Cory, 2026-08-21,
-   * looking at exactly this panel: "I only have selection between draft
-   * shark or blended [true, by design] .. not sure what toggles above that
-   * do [the Ranking Source panel, a DIFFERENT control] .. doesn't look to
-   * change much [because this panel does not read it at all]." Said out loud
-   * now, not just on hover, and names the other control by name so the two
-   * are not read as one toggle. */
-  function projSourceToggle(esc, projSource) {
+   * THE FIX IS TO STOP HAVING A SECOND TOGGLE, NOT TO EXPLAIN IT BETTER.
+   * This panel's player SELECTION and ORDER are a real technical limit —
+   * position_boards.py simulates the draft once, against Draft Sharks, and
+   * cannot be re-run live for four more sources without a backend rebuild
+   * this codebase does not have time for before Saturday. But the NUMBER a
+   * row prints never needed its own control — it can follow the one real
+   * toggle automatically: `state.rankSource === 'ds'` prints Draft Sharks'
+   * own number, anything else (including blend) prints the board's blend
+   * number, exactly the two values this panel has ever had. No button, no
+   * click handler, no second state variable — `src` arrives from the
+   * caller (app.js), already derived from state.rankSource. */
+  function projSourceStatus(esc, projSource) {
     var ds = projSource !== 'blend';
-    return '<div class="pb-src-toggle" title="Ranking and selection always use Draft Sharks — this only swaps which projection number is displayed">'
-      + '<button type="button" class="pb-src-btn' + (ds ? ' pb-src-active' : '') + '" data-pb-source="ds">Draft Sharks</button>'
-      + '<button type="button" class="pb-src-btn' + (!ds ? ' pb-src-active' : '') + '" data-pb-source="blend">Blend</button>'
-      + '</div>';
+    return '<div class="pb-src-status">Showing <b>' + (ds ? 'Draft Sharks’' : 'the board’s Blend')
+      + '</b> own number on every row — follows the <b>Ranking Source</b> toggle above, '
+      + 'no separate control here.</div>';
   }
 
-  /* THE EXPLANATION USED TO LIVE ONLY IN projSourceToggle's hover title="..."
-   * — invisible unless someone hovers a button mid-draft. Cory, 2026-08-21,
-   * looking at exactly this panel: "I only have selection between draft
-   * shark or blended [true, by design] .. not sure what toggles above that
-   * do [the Ranking Source panel, a DIFFERENT control] .. doesn't look to
-   * change much [because this panel does not read it at all]." Said out loud
-   * now as its own full-width line (NOT inside .pb-toolbar's flex row with
-   * the toggle and the scroll hint — a paragraph does not belong squeezed
-   * between two icon-sized flex children), and names the other control by
-   * name so the two are not read as one toggle. */
+  /* Selection and order stay Draft-Sharks-simulated regardless of which
+   * number is showing (see projSourceStatus above for why) — said
+   * plainly so a reader does not conclude the WHOLE panel followed the
+   * toggle when only the printed number did. */
   function projSourceNote() {
     return '<p class="muted pb-src-note">This list\'s player selection and order always follow '
-      + '<b>Draft Sharks</b> — the two buttons above only swap which projection NUMBER each row '
-      + 'prints (Draft Sharks\' own number, or the board\'s blend). To actually re-rank this '
-      + 'list by a different source, use the <b>Ranking Source</b> toggle further up the page.</p>';
+      + '<b>Draft Sharks</b>’ pre-draft simulation, whichever source is active — and so do the '
+      + '<b>VONA</b>, wire-surplus and cliff figures in the column headers (marked '
+      + '<span class="pb-vona-src">DS</span>). Only the per-player projection NUMBER follows the '
+      + 'toggle. For a live top-N list — and a VONA that does change with the source — see '
+      + 'the <b>Top Available</b> panel above instead.</p>';
   }
 
   /* Cory: "very easy for me to view other team needs in a very small window." */
@@ -529,7 +587,7 @@
   /* THE PUBLIC ENTRY POINT. Returns '' if there is no data or no matching pick,
    * so a missing/stale artifact degrades to nothing rather than a broken panel.
    * `projSource` ('ds' default | 'blend') — see projSourceToggle above. */
-  function renderPositionBoards(data, pickNum, liveSurvivalById, esc, projSource, callsById, badgeInfo, takenIds) {
+  function renderPositionBoards(data, pickNum, liveSurvivalById, esc, projSource, callsById, badgeInfo, takenIds, rankKey) {
     if (!data || !Array.isArray(data.picks) || !data.picks.length) return '';
     var pick = findPick(data, pickNum);
     if (!pick) return '';
@@ -543,7 +601,7 @@
       if (b && b.players) removed += b.players.length - livePlayers(b, takenIds).length;
     });
     var cols = POS_ORDER.map(function (pos) {
-      return positionColumn(pos, (pick.positions || {})[pos], esc, liveSurvivalById, src, data.round_dropoffs, callsById, badgeInfo, takenIds);
+      return positionColumn(pos, (pick.positions || {})[pos], esc, liveSurvivalById, src, data.round_dropoffs, callsById, badgeInfo, takenIds, rankKey);
     }).join('');
     return '<div class="pb-wrap">'
       + '<div class="pb-head">Position boards — pick ' + esc(String(pick.pick))
@@ -579,7 +637,7 @@
        * measurement after every render. */
       + strikeBar(data, esc)
       + '<div class="pb-toolbar">'
-        + projSourceToggle(esc, src)
+        + projSourceStatus(esc, src)
         + '<div class="pb-grid-hint" aria-hidden="true">scroll for more →</div>'
       + '</div>'
       + projSourceNote()
