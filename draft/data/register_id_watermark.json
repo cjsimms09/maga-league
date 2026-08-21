@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 186,
+ "next_numeric_id": 187,
  "history": [
   {
    "id": 47,
@@ -434,6 +434,11 @@
    "id": 185,
    "claimed_at": "2026-08-21",
    "note": "D: the 08-27 dispatch default will make the WRONG frozen control canonical, because D's claim on P298 is invisible from main (receipt returns 0 matches there while the default stands verbatim). Same root cause as register 184 reaching a second lane. Root cause is a real rule conflict: CLAUDE.md Rule 1b says the mailbox files push straight to main, but D's session constraints forbid pushing anywhere but its own branch. Routed to A with a two-minute partial fix (copy the three self-contained freeze files) as the alternative to a full merge. Watermark now authoritative from 186."
+  },
+  {
+   "id": 186,
+   "claimed_at": "2026-08-21",
+   "note": "A: 'Cory's need:1.0 ruling woke two mechanisms that were dormant, and two red tests were the only thing that noticed' landed on main's id 174, already held by D's setProjSource name-collision row. Neither carries an inbound citation, so ordering was decided by first allocation: D's stays at 174, main's renumbered to 186. Main's commit 94a43cb3 cites it as 'Register 174' in immutable history; the row annotation records the mapping. Watermark now authoritative from 187."
   }
  ]
 }
