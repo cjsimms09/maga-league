@@ -101,18 +101,45 @@ def _run(frame, seasons_cfg_year=2026):
     The function is imported fresh each time so OPPORTUNITY_PROVENANCE — a
     module-level dict — cannot carry state between cases and make a later
     assertion pass on an earlier case's writes.
+    ⚠️ THE STUB IS NOW RESTORED, AND LEAKING IT COST A DAY (A, 2026-08-21).
+    This installed `sys.modules["nfl_data_py"] = fake` and never put the real
+    module back. The fake carries ONE attribute, `import_pbp_data`, so from this
+    point on in the pytest session every later test saw an nfl_data_py with no
+    `import_ids` and no `import_players`.
+
+    `test_practice_participation.py::test_run_against_the_real_nflverse_source`
+    is the one that consumed it: green on its own, red in the full suite, and in
+    CI it failed as `module 'nfl_data_py' has no attribute 'import_ids'`.
+
+    I misdiagnosed that as an unpinned dependency renaming its API and said so
+    in a commit message. It is not: 0.3.3 is the newest published version, it is
+    what `nfl_data_py>=0.3.2` resolves to, and it HAS `import_ids` — checked
+    against the index rather than assumed the second time. The cause was always
+    this line.
+
+    Restored in a `finally` so it holds even when the case under test raises,
+    which is exactly when a leak would otherwise be planted and blamed on
+    whatever ran next.
     """
     for mod in ("build", "projections"):
         sys.modules.pop(mod, None)
     fake = types.ModuleType("nfl_data_py")
     fake.import_pbp_data = lambda seasons, **kw: frame  # noqa: ARG005
+    _sentinel = object()
+    _prior = sys.modules.get("nfl_data_py", _sentinel)
     sys.modules["nfl_data_py"] = fake
-    import build  # noqa: PLC0415
+    try:
+        import build  # noqa: PLC0415
 
-    build.proj_mod.opportunity_metrics = lambda *a, **k: {"1": {}, "2": {}}
-    build.OPPORTUNITY_PROVENANCE.clear()
-    build.load_opportunity({"season": seasons_cfg_year}, offline=False)
-    return dict(build.OPPORTUNITY_PROVENANCE)
+        build.proj_mod.opportunity_metrics = lambda *a, **k: {"1": {}, "2": {}}
+        build.OPPORTUNITY_PROVENANCE.clear()
+        build.load_opportunity({"season": seasons_cfg_year}, offline=False)
+        return dict(build.OPPORTUNITY_PROVENANCE)
+    finally:
+        if _prior is _sentinel:
+            sys.modules.pop("nfl_data_py", None)
+        else:
+            sys.modules["nfl_data_py"] = _prior
 
 
 def _seasons_frame(pairs):
