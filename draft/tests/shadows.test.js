@@ -146,7 +146,7 @@ function ctxAt(pick, board) {
   /* Reported, not asserted: value_anchor's pick is a direct readout of register
    * 201. When shadows are re-based on MEASURED_WEIGHTS it should become 'A',
    * matching what E.recommend already says. */
-  console.log('      register 201 readout — value_anchor takes '
+  console.log('      register 202 readout — value_anchor takes '
     + byKey.value_anchor + ' (E.recommend under MEASURED_WEIGHTS takes A); '
     + 'shadows score on DEFAULT_WEIGHTS, ceiling 0.65');
   // ...while the ceiling-forward strategy takes the boom. (Default now leans ceiling too,
