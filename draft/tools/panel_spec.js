@@ -588,6 +588,20 @@ const PANELS = [
     note: 'Mounted ABOVE #recs-card on purpose — it changes what that card says, so it '
       + 'has to be seen first. Blend (the default) is byte-identical to every render '
       + 'before this feature shipped; only a non-blend source changes anything.' },
+  { fn: 'renderSourceTopBoard', weight: 'CONTEXT', lines: null,
+    question: 'Cory, direct, 2026-08-21: "I need multiple options for each position... '
+      + 'the old list you used to have that list top 5-10 at each position for that '
+      + 'source... need more options on Home Screen and I\'ll toggle source."',
+    means: 'The currently-selected source\'s (from #rank-source above) OWN top-8 '
+      + 'available per position — QB/RB/WR/TE/K/DEF, six columns. #source-boards below '
+      + 'answers "what does EVERY source think, one pick each" (the across-sources '
+      + 'comparison); this answers "what does THIS ONE source think, in depth" (the '
+      + 'within-source list), and it is the one panel on the page whose CONTENT reshapes '
+      + 'when the toggle above it is clicked, not just the numbers on an existing row.',
+    changes_it: 'clicking a source button on #rank-source; a player the selected source '
+      + 'does not cover is left off the list entirely (DROP, same rule as everywhere '
+      + 'else the toggle touches)',
+    reads: ['SourceBoard', 'state.board', 'state.rankSource'] },
   { fn: 'renderModelCompare', weight: 'CONTEXT', lines: null,
     question: 'Cory, live 2026-08-20: "what would each model take? Max value, MLV '
       + 'displacement, upside only model, floor model (safe pick)!"',

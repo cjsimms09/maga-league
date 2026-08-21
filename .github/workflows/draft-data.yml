@@ -684,6 +684,18 @@ jobs:
           # stamping steps had already run. Both causes are fixed (the fields are
           # declared in season_stamp.py as of bb55ca5f) and it now runs HERE,
           # after the gate, where it cannot affect it either way.
+          # MUST RUN BEFORE alt_source_rankings.py, which can only rank a
+          # source whose projection is a FIELD ON THE BOARD. Cory, 2026-08-21:
+          # "Where are all the other sources we got?? We got more than that?"
+          # The blend uses seven sources; four of them (CBS, ESPN, FFToday,
+          # Mike Clay) were ingested, committed and blended into the number he
+          # drafts on, yet unrankable and so absent from the Big Board toggle,
+          # purely because nothing stamped their per-player numbers onto the
+          # board. This stamps them from two stores already committed and
+          # already read elsewhere in this pipeline. Additive only — new field
+          # names nothing else reads — and it EXITS 1 without writing if its
+          # own controls fail, so a broken join cannot reach the board.
+          python3 draft/tools/attach_multisource.py
           python3 draft/tools/alt_source_rankings.py
           # ⚠️ AND THIS LINE IS WHY conditional_value.py RUNS TWICE.
           #

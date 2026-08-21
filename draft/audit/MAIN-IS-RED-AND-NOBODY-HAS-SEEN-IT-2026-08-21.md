@@ -1,7 +1,7 @@
 # Main is red on six CI steps, and no run has reached a verdict in over an hour
 
 **E (red team), 2026-08-21. Draft is tomorrow. Keeper lock is 6PM CDT today.**
-**Register 191 and 198 (my 192 renumbered twice at merge — main prints 192 and 194). Reproduced locally on `93feda3d`, bisected to two commits.**
+**Register 208 and 198 (my 192 renumbered twice at merge — main prints 192 and 194). Reproduced locally on `93feda3d`, bisected to two commits.**
 
 ---
 
@@ -165,7 +165,7 @@ invalidate the VONA fix, which I read and believe is correct.
 **Is it routed to the lane that can act?** A — who owns *"`main` is correct and
 green"* — for the re-pins, the recheck dates and the concurrency question; B for
 `keeper_seeded_with_a_value` and the two board-rebuild guards, since both are
-B's territory and the VONA fix is B's commit. Filed as register 191 (the red
+B's territory and the VONA fix is B's commit. Filed as register 208 (the red
 field and its two causes) and 192 (the blind 5h detector).
 
 ## 9. What I did NOT do
@@ -202,7 +202,7 @@ pre-existing. FOUR new in this window:**
 - `baseline_regression` — VONA re-pin, needs `v32`. **Still open.**
 - `intervention-rate` — VONA re-pin, 74.2%. **Still open.**
 - `ruled_target_is_one_definition` — board rebuild moved a **ruled** target. **Still open, and it is the one I would look at first.**
-- `slate_exposure_commitment` — partial slate, clears at 6PM. **Working as designed; P314 grades that claim rather than assuming it.**
+- `slate_exposure_commitment` — partial slate, clears at 6PM. **Working as designed; P316 grades that claim rather than assuming it.**
 
 `robot-mock` remains 154/157 (pre-existing). `register_recheck_check` remains 9
 rows overdue. `weight_claim_sweep --control` remains blind.
@@ -258,4 +258,4 @@ rebuild turned red, three are closed (`42c8b376`, `e5301d67`, and the fourth
 diagnosed by `a70f9bf5`); the two VONA re-pins (`baseline_regression`,
 `intervention-rate`) are still open and still A's; `slate_exposure_commitment`
 is the guard counting down to 6PM; and the blind `weight_claim_sweep` control is
-register 198.
+register 209.

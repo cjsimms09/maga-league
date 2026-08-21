@@ -5148,6 +5148,18 @@
    * "ranking" below that line is the BOARD's order wearing MLV's name. The
    * panel draws that line hard and labels everything under it. Register 146.
    */
+  /* ⚠️ 2026-08-20/21 (A's catch, ROUTES.md): anchor was `#roster-builder`,
+   * which has never existed in this codebase — a truncated version of
+   * `#roster-builder-mlv`, the REAL host, one word longer. Unlike
+   * sourceBoardsHost()'s old fallback (which happened to land on a real id
+   * and merely nested wrong), this had no fallback at all: every render
+   * skipped straight to `room.appendChild`, landing #mlv-plan outside
+   * `.wr-zone1` entirely with zero CSS order — its position was whatever
+   * the DOM happened to do, not a decision. `#roster-builder-mlv` is a real
+   * host inside the zone with its own order rule (style.css), and it's the
+   * Roster Builder MLV panel's own recommendation — #mlv-plan is that same
+   * model's FULL plan, so anchoring the plan right after the panel it plans
+   * from is also the right neighbor, not just a real one. */
   function mlvPlanHost() {
     const found = $('#mlv-plan');
     if (found) return found;                       // B's placement wins, always
@@ -5157,7 +5169,7 @@
     el.id = 'mlv-plan';
     el.className = 'card mlv-plan';
     el.setAttribute('data-mounted-by', 'app.js — no #mlv-plan in the view');
-    const anchor = document.getElementById('roster-builder');
+    const anchor = document.getElementById('roster-builder-mlv');
     if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(el, anchor.nextSibling);
     else room.appendChild(el);
     return el;
@@ -5540,27 +5552,37 @@
    *
    * ⚠️ SIX COLUMNS DISAGREEING IS THE PRODUCT, not a defect to reconcile. The
    * blend is its own labelled column and is the one the board actually uses. */
+  /* ⚠️ 2026-08-20/21 (E's war-room draft-value audit, finding 1): warroom.ejs
+   * now DOES carry a real #source-boards card, so `found` below returns on
+   * every real page load and the fallback that follows is unreachable in
+   * practice. Kept as a defensive fallback rather than deleted — but its old
+   * #roster-builder anchor was ALWAYS dead (that id has never existed
+   * anywhere in this codebase), which is exactly how it silently fell
+   * through to #pos-recs-out and nested a 400+px card inside #recs-card's
+   * own .body for as long as this function existed. If this fallback ever
+   * fires again, appending to #warroom directly (dropping the #roster-
+   * builder branch) is safer than resurrecting that same trap. */
   function sourceBoardsHost() {
     const found = $('#source-boards');
-    if (found) return found;                       // B's placement wins, always
+    if (found) return found;                       // the real mount point, always used now
     const room = document.getElementById('warroom');
     if (!room) return null;
     const el = document.createElement('div');
     el.id = 'source-boards';
     el.className = 'card source-boards';
-    el.setAttribute('data-mounted-by', 'app.js — no #source-boards in the view');
-    /* `#roster-builder` was the first clause here and it has NEVER existed in
-     * this codebase — `warroom.ejs` has `#roster-builder-mlv`, one word longer.
-     * Removed 2026-08-20: `getElementById` on an absent id returns null, so the
-     * `||` was already falling through to `#pos-recs-out` on every render and
-     * deleting the clause changes nothing observable. It is gone because a dead
-     * anchor that happens to have a live fallback reads as a working two-option
-     * lookup, and `#mlv-plan` copied the same wrong id WITHOUT the fallback and
-     * has been appending itself outside `.wr-zone1` ever since.
-     * Guarded by draft/tests/every_mount_anchor_resolves.test.js. */
-    const anchor = document.getElementById('pos-recs-out');
-    if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(el, anchor.nextSibling);
-    else room.appendChild(el);
+    el.setAttribute('data-mounted-by', 'app.js — no #source-boards in the view (should not happen)');
+    /* No anchor fallback on purpose. `#roster-builder` never existed in this
+     * codebase (warroom.ejs has `#roster-builder-mlv`, one word longer — the
+     * same truncated id `#mlv-plan` copied without a `#pos-recs-out` net,
+     * which is why it broke outright while this one only degraded); an
+     * earlier version of this file fell back to `#pos-recs-out`, which is
+     * exactly the anchor that nested a 400+px card inside #recs-card's own
+     * .body for as long as this function existed. Appending straight to
+     * #warroom is safer than resurrecting that trap if this branch ever
+     * fires again — and with the real #source-boards mount point in the
+     * view now, it shouldn't. Guarded by
+     * draft/tests/every_mount_anchor_resolves.test.js. */
+    room.appendChild(el);
     return el;
   }
 
@@ -5568,13 +5590,14 @@
     const host = sourceBoardsHost();
     if (!host) return;
     const d = state.sourceBoards;
-    if (!d) return;                                 // still loading; say nothing
+    if (!d) return;                                 // still loading; say nothing (stays display:none)
     /* Rule 3e in the UI again: a artifact that failed its own controls must not
      * be rendered as if it had passed. */
     if (d.controls_all_passed === false) {
       host.innerHTML = '<div class="body"><p class="muted" style="margin:0">'
         + 'Source cheat sheet withheld — source_boards.json failed its own controls.'
         + '</p></div>';
+      host.style.display = '';
       return;
     }
     const gone = state.drafted || new Set();
@@ -5630,6 +5653,11 @@
       + 'Order only — no points are shown, because the sources are not on one scale '
       + 'and their offsets differ by position. Our own projections are excluded on '
       + 'your ruling.</p></div>';
+    /* Given a real mount point (E's finding 1 fix, 2026-08-20/21) the shell
+     * starts display:none so it never flashes empty before state.sourceBoards
+     * loads — same convention as #model-compare-card. Un-hide only once
+     * there's real content to show. */
+    host.style.display = '';
   }
 
   function renderPositionRecs() {
@@ -6575,6 +6603,7 @@
     try { renderShadowProjection(); } catch (e) { console.error('[shadow-proj]', e && e.message); }
     try { renderModelCompare(); } catch (e) { console.error('[model-compare]', e && e.message); }
     try { renderRankSourcePanel(); } catch (e) { console.error('[rank-source]', e && e.message); }
+    try { renderSourceTopBoard(); } catch (e) { console.error('[source-top-board]', e && e.message); }
     renderBestAvailStrip(out.scored, (context() || {}).nextPick);
     renderQueueSlip(out.scored);   // fill #queue-slip from the same survival math
     renderCompareTray();   // keep the dollar-gap overlay fresh as the board changes
@@ -7222,6 +7251,24 @@
      * reader inferring it from a source name. */
     state.bigBoardOrdering = !state.rankSource ? 'blend'
       : (state.rankSource === 'sleeper' ? 'pure' : 'derived');
+    /* Computed above, printed nowhere until now — Cory asked directly whether
+     * this tab's ordering changes with the source toggle, which it does, but
+     * he had no way to see it change short of counting rows himself. One
+     * sentence covers both surfaces below (the by-position columns and the
+     * full table), since both read this same srcBoard. */
+    (function () {
+      const note = document.getElementById('board-ordering-note');
+      if (!note) return;
+      if (state.bigBoardOrdering === 'blend') {
+        note.textContent = 'Ordered by the Blend — our own VONA-adjacent ranking, the board\'s default.';
+      } else if (state.bigBoardOrdering === 'pure') {
+        note.textContent = 'Ordered by Sleeper’s OWN published overall rank — their real board, not ours.';
+      } else {
+        const label = (SourceBoard.SOURCES.find(s => s.key === state.rankSource) || {}).label || state.rankSource;
+        note.textContent = 'Ordered by our replacement math applied to ' + label + '’s projections — '
+          + label + ' does not publish their own overall board, so this is OUR opinion of THEIR numbers, not a ranking ' + label + ' made.';
+      }
+    })();
     const rows = (state.search
       ? srcBoard.filter(match)
         .map((p, i) => ({ p: p, s: nameScore(p.name, state.search), i: i }))
@@ -9265,10 +9312,19 @@
         + '">' + esc(s.label)
         + ' <span class="muted">' + pct + '%</span></button>';
     }).join('');
+    /* DROP, NOT FALLBACK — Cory's ruling, stated twice: "I like the player
+     * disappearing when source is selected." A player the selected source
+     * does not cover is not on the board at all while it's active — the
+     * button's own count already says how many remain (source_board.js). */
+    var activeSrc = BUTTONS.find(function (s) { return s.key === active; });
+    var activeCov = active !== 'blend' ? SourceBoard.coverage(state.board, active) : null;
+    var missingCount = activeCov ? (state.board.length - activeCov.covered) : 0;
     const warn = active !== 'blend'
-      ? '<div class="rs-warn">⚠️ Ranking on <b>' + esc(BUTTONS.find(function (s) { return s.key === active; }).label)
+      ? '<div class="rs-warn">⚠️ Ranking on <b>' + esc(activeSrc.label)
         + '</b> — VONA, tiers and the recommended player on THIS ENTIRE PAGE now reflect only this '
-        + 'source, not the blend. Switch back to Blend for the board\'s normal number.</div>'
+        + 'source, not the blend. <b>' + missingCount + ' players ' + esc(activeSrc.label)
+        + ' does not cover are OFF the board right now</b> — they are not gone, just hidden until you '
+        + 'switch back to Blend.</div>'
       : '';
     host.innerHTML = '<div class="rs-buttons">' + btnHtml + '</div>' + warn
       /* BOTH NUMBERS, COMPUTED, NEVER QUOTED. An earlier draft of this line
@@ -9295,8 +9351,7 @@
           : '';
       }())
       + '</p>'
-      + '<p class="muted rs-note">Changes who is recommended and VONA — this is a real re-rank, not just a different number. '
-      + 'A player a source does not cover keeps his blend price for that source rather than being zeroed out.</p>'
+      + 'A player a source does not cover disappears from the board while that source is selected.</p>'
       /* ⚠️ WHAT THE BIG BOARD IS ORDERED BY, SAID OUT LOUD. Cory asked whether
        * the Big Board shows "pure ranking from that source". For Sleeper it now
        * does — they publish an overall rank and we carry it for all 700. For the
@@ -9309,11 +9364,66 @@
             + 'ranking</b> — their board, not ours.</p>'
           : (state.rankSource
               ? '<p class="muted rs-note">Big Board order: <b>our replacement math on '
-                + esc(active) + '\'s projections</b>. They publish a ranking we do not '
+                + esc(activeSrc.label) + '\'s projections</b>. They publish a ranking we do not '
                 + 'hold — we ingested their numbers, not their board — and sorting by '
                 + 'their raw points instead puts twelve quarterbacks in the top twelve, '
                 + 'because cross-position points are not comparable.</p>'
               : ''));
+  }
+
+  /* THE MAIN LIST FOR WHICHEVER SOURCE IS SELECTED — Cory, 2026-08-21, direct
+   * and pointed: "No! I want to be able to toggle between sources, I need
+   * multiple options for each position... the old list you used to have
+   * that list top 5-10 at each position for that source... need more
+   * options on Home Screen and I'll toggle source." The toggle above
+   * (#rank-source) already changes VONA/tiers/the recommended player when
+   * a source is picked; this is the thing that toggle was missing — the
+   * SOURCE'S OWN top-N per position, not just its effect on one pick.
+   * #source-boards (the smaller "Best available, by source" table) is the
+   * across-all-sources-at-once comparison; this panel is the deep, one-
+   * source-at-a-time list Cory asked for by name, and it is the ONE list
+   * on the page that changes shape with the toggle above it.
+   *
+   * REUSES SourceBoard.topByPosition() — zero ranking logic here, only
+   * markup. Same DROP semantics as everywhere else the toggle touches: a
+   * player the selected source does not cover is not in its list. */
+  function renderSourceTopBoard() {
+    const card = document.getElementById('source-top-board-card');
+    const host = document.getElementById('source-top-board');
+    if (!card || !host) return;
+    if (typeof SourceBoard === 'undefined' || !state.board || !state.board.length) {
+      card.style.display = 'none'; return;
+    }
+    card.style.display = '';
+    const esc = escapeHtml;
+    const N = 8;
+    const POS = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
+    const activeKey = state.rankSource || 'blend';
+    const activeSrc = [{ key: 'blend', label: 'Blend' }].concat(SourceBoard.SOURCES)
+      .find(function (s) { return s.key === activeKey; });
+    const activeLabel = activeSrc ? activeSrc.label : activeKey;
+    const byPos = SourceBoard.topByPosition(state.board, state.rankSource, N);
+    host.innerHTML = '<p class="muted stb-note">Showing <b>' + esc(activeLabel)
+      + '</b>\'s own top ' + N + ' available at each position — switch the <b>Ranking Source</b> '
+      + 'toggle above to see a different source\'s list.'
+      + (state.rankSource ? ' A player <b>' + esc(activeLabel) + '</b> does not cover is left off, '
+        + 'not shown at its blend price.' : '') + '</p>'
+      + '<div class="stb-grid">' + POS.map(function (pos) {
+        const list = byPos[pos] || [];
+        return '<div class="stb-col">'
+          + '<div class="stb-col-head">' + esc(pos) + '</div>'
+          + (list.length
+            ? '<ol class="stb-list">' + list.map(function (p, i) {
+                return '<li class="stb-row" data-drill="' + esc(String(p.player_id)) + '">'
+                  + '<span class="stb-rank">' + (i + 1) + '</span>'
+                  + '<span class="stb-name">' + esc(shortName(p.name)) + '</span>'
+                  + (p.team ? '<span class="muted stb-team">' + esc(p.team) + '</span>' : '')
+                  + '</li>';
+              }).join('') + '</ol>'
+            : '<p class="muted stb-empty">Nobody left'
+              + (state.rankSource ? ' that ' + esc(activeLabel) + ' covers' : '') + '.</p>')
+          + '</div>';
+      }).join('') + '</div>';
   }
 
   /* THE MODEL-COMPARISON PANEL — Cory, live 2026-08-20: "Give me peace to

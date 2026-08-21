@@ -169,6 +169,32 @@
         <div class="body"><div id="rank-source"></div></div>
       </div>
 
+      <%# Cory, 2026-08-21, direct: "No! I want to be able to toggle between
+          sources, I need multiple options for each position... the old list
+          you used to have that list top 5-10 at each position for that
+          source... need more options on Home Screen and I'll toggle
+          source." The toggle above already changes VONA/the recommended
+          player; this is the list that changes SHAPE with it — top-N per
+          position, for whichever source is selected. Populated by
+          renderSourceTopBoard() via SourceBoard.topByPosition(). %>
+      <div class="card" id="source-top-board-card" style="display:none">
+        <h2>📋 Top Available <span class="sub">by position, for the selected source</span></h2>
+        <div class="body"><div id="source-top-board"></div></div>
+      </div>
+
+      <%# THE REAL MOUNT POINT — this did NOT exist before (E's war-room
+          draft-value audit, 2026-08-20/21, finding 1). sourceBoardsHost() in
+          app.js had a fallback that, finding no #source-boards here, created
+          one and inserted it as a SIBLING of #pos-recs-out — which lives
+          INSIDE #recs-card's own .body, since #roster-builder (the fallback's
+          FIRST-CHOICE anchor) has never existed anywhere in this codebase.
+          The result: every real session nested a 400+px card inside "THE
+          PICK", which is most of why that card measured 3476px tall and
+          buried six panels beneath it. renderSourceBoards() fully replaces
+          this element's innerHTML (its own <h3>, no <h2> here) — leave it
+          bare, matching exactly what the JS fallback used to create. %>
+      <div class="card source-boards" id="source-boards" style="display:none"></div>
+
       <%# ── THE ANSWER CARD — ONE VOICE, THEN STRUCTURED DISSENT.
           #verdict-block (DraftVerdict.derive — the seat-plan-owns-headline
           adjudication) is the ONE primary "TAKE <name>". The paths beneath it
@@ -390,12 +416,25 @@
       </div>
       <div class="wr-chips" id="wr-pos-chips"></div>
     </div>
+    <%# Cory, 2026-08-21: "where do that info come from does it change based on
+        source selected?" — it does (state.bigBoardOrdering, app.js:7233), but
+        the answer was computed and never once printed anywhere, the exact
+        "unshown field" defect class this project keeps finding. One honest
+        sentence covers both the by-position columns below and the full table
+        further down — they share the same ordering, computed once. %>
+    <p class="muted wr-board-ordering" id="board-ordering-note"></p>
     <%# The columnar board — per-position side-scrolling columns, tier cliffs
         drawn as red lines, count in each header. warroom_charts.js renders. %>
     <div id="wr-board-columns" class="wr-board-columns"><p class="wr-railwait">Board loading…</p></div>
 
+    <%# Cory, 2026-08-21: "can we get a view or tab of big board that says
+        overall ranking (all players) of that source, not just by position?"
+        This already was that view — #pos-filter defaults to "All" — but the
+        old summary line never said so, which is very plausibly why he never
+        found it. Same data as the columns above, one flat list instead of
+        six side-by-side. %>
     <details class="wr-fulltable" id="wr-fulltable">
-      <summary class="layer-sum">Full table — flags, news overrides, queue &amp; take controls</summary>
+      <summary class="layer-sum">Overall ranking — every player, all positions, one list (plus flags, news overrides, queue &amp; take controls)</summary>
       <div class="card" style="margin-top:.6rem">
         <h2>
           Draft Board <span class="sub" id="board-count"></span>

@@ -52,6 +52,19 @@ SOURCES = {
     "sleeper": "proj_sleeper",
     "ownmodel": "proj_ownmodel",
     "fantasypros": "proj_fantasypros",
+    # ⚠️ THE FOUR CORY HAD TO ASK FOR (2026-08-21: "Where are all the other
+    # sources we got?? We got more than that?"). The blend is built from SEVEN
+    # sources and this dict knew four, so CBS, ESPN, FFToday and Mike Clay were
+    # ingested, committed, blended into the number he drafts on, and then
+    # unrankable — because this step can only rank a source whose projection is
+    # a field ON THE BOARD, and theirs were not stamped there. They are now, by
+    # attach_multisource.py, which MUST run before this. Two of them cover his
+    # top 200 better than either source that was already here (ESPN 99%, CBS
+    # 97% against Draft Sharks 95%, FantasyPros 90%).
+    "cbs": "proj_cbs",
+    "espn": "proj_espn",
+    "fftoday": "proj_fftoday",
+    "clay": "proj_clay",
 }
 
 #: fields apply_vorp/assign_tiers write onto each player; carried over under
