@@ -1,6 +1,6 @@
 name: Bovada per-event props probe
 
-# TERRITORY: capture (C's family) — dispatches draft/tools/bovada_event_props_probe.py.
+# TERRITORY: C — dispatches draft/tools/bovada_event_props_probe.py.
 #
 # free_odds_probe (run e7b81242) found Bovada's general coupon endpoint
 # positive for game lines but zero player props, and named the per-event

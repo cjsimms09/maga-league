@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
-# TERRITORY: capture (C's family; built by the relay on Cory's "Make sure we
-# get these!!" 08-21 — C amends freely). Graduated from free_odds_probe run
-# e7b81242: Bovada POSITIVE, keyless, real spread on a real game.
+# TERRITORY: C
+# Built by the relay on Cory's "Make sure we get these!!" 08-21 — the
+# ROUTES dispatch that created this file says "C amends freely." Graduated
+# from free_odds_probe run e7b81242: Bovada POSITIVE, keyless, real spread
+# on a real game.
 """BOVADA FREE GAME LINES — snapshot capture, appended as JSONL.
 
 Each run appends one snapshot of every NFL game's Moneyline / Point Spread /

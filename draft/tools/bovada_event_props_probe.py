@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-# TERRITORY: capture (C's family; same file group as bovada_lines_capture.py).
+# TERRITORY: C
+# Same file family as bovada_lines_capture.py.
 """BOVADA PER-EVENT PROPS PROBE — the follow-up `free_odds_probe.json` (run
 `e7b81242`) named: the general coupon endpoint returned zero player props,
 but "props usually live" one level deeper, at a per-EVENT detail path. This

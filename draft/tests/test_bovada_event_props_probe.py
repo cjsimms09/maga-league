@@ -1,4 +1,4 @@
-# TERRITORY: capture (C's family)
+# TERRITORY: C
 """Bovada per-event props probe — the follow-up free_odds_probe named:
 does the per-event detail path carry player props where the general
 coupon endpoint showed zero? Pure logic only; the event-detail URL

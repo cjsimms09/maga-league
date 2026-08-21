@@ -1,4 +1,4 @@
-# TERRITORY: capture (C's family)
+# TERRITORY: C
 """Bovada lines capture — pins `walk()` after hoisting it from a nested
 closure inside main() to module level (rule 11, so
 bovada_event_props_probe.py can reuse it verbatim against a per-event
