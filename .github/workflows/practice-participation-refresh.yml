@@ -1,0 +1,69 @@
+name: Practice participation weekly refresh (Cory's in-season queue, item 3)
+
+# TERRITORY: C — dispatches draft/backtest/practice_participation.py.
+#
+# Cory (via relay), 08-21: "VERIFY YOUR MERGED CRONS ARE ALIVE... weather,
+# practice-participation, injury-designations, FP-expert-ranks landed via
+# A's merge." Checked directly rather than assumed: this store had NO
+# workflow at all — it was a one-shot 2021-2025 historical backfill,
+# never wired into a recurring cadence. This is that cadence.
+#
+# Same source, same season-degrades-gracefully design as
+# injury-designations-refresh.yml (rule 11: identical reasoning, disjoint
+# output file per that module's own docstring caution). Wednesday, same
+# slot as injury-designations-refresh.yml since both read the SAME
+# nflverse release for the SAME week — no reason to stagger them.
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '10 11 * * 3'  # Wednesdays 11:10 UTC — right after
+                            # injury-designations-refresh.yml's 11:00 slot
+
+permissions:
+  contents: write
+
+concurrency:
+  group: practice-participation-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Install
+        run: pip install -r draft/requirements.txt pytest
+
+      - name: The pure assembly logic is tested before any real fetch runs
+        run: python3 -m pytest draft/tests/test_practice_participation.py -q -k "not test_run_against_the_real_nflverse_source"
+
+      - name: Refresh the store (2021-2025 history + the current season)
+        run: python3 draft/backtest/practice_participation.py 2021 2022 2023 2024 2025 2026
+
+      - name: Commit the store
+        run: |
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "::warning::Dispatched from '$GITHUB_REF_NAME', not main. The"
+            echo "::warning::result is in this run's log and is deliberately"
+            echo "::warning::NOT committed. Re-dispatch from main."
+            echo "_Dispatched from \`$GITHUB_REF_NAME\` — result NOT committed._" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/backtest/practice_participation.json
+          if ! git diff --cached --quiet; then
+            git commit -m "practice_participation: weekly refresh (in-season queue item 3) [skip deploy]"
+            for i in 1 2 3; do
+              git fetch origin main || true
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              if git push origin HEAD:main; then exit 0; fi
+              sleep $((i * 5))
+            done
+            echo "::error::RESULT NOT PUSHED — the fetch is spent and the answer is lost."
+            exit 1
+          fi
+          echo "no change — nothing to commit"

@@ -42,6 +42,14 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(HERE.parent))  # weekly_proj_snapshot.py lives in
+                                       # draft/, one level up from
+                                       # draft/backtest/ -- a real CI
+                                       # failure (ModuleNotFoundError) the
+                                       # first time this workflow ran with
+                                       # a `working-directory: draft/backtest`
+                                       # override, since HERE alone never
+                                       # covered draft/'s own modules
 
 from fp_expert_ranks import parse  # noqa: E402  -- rule 11, not re-derived
 

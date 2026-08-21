@@ -93,6 +93,18 @@ MANIFEST = {
         "extract_timestamp": _no_timestamp_control_only,
         "cadence_days": 7,
     },
+    "injury_designations": {
+        "workflow": "injury-designations-refresh.yml",
+        "glob": "draft/backtest/injury_designations.json",
+        "extract_timestamp": _no_timestamp_control_only,
+        "cadence_days": 7,
+    },
+    "practice_participation": {
+        "workflow": "practice-participation-refresh.yml",
+        "glob": "draft/backtest/practice_participation.json",
+        "extract_timestamp": _no_timestamp_control_only,
+        "cadence_days": 7,
+    },
     "weekly_projection_archive": {
         "workflow": "weekly-projection-archive.yml",
         "glob": "draft/data/weekly_projection_archive/weekly_projection_archive_*.json",

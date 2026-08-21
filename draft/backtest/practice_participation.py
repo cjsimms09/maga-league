@@ -221,4 +221,5 @@ def main(seasons=SEASONS) -> int:  # pragma: no cover  (egress)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    yrs = tuple(int(a) for a in sys.argv[1:]) or SEASONS
+    sys.exit(main(yrs))

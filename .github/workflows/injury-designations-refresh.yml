@@ -1,0 +1,75 @@
+name: Injury designations weekly refresh (Cory's in-season queue, item 3)
+
+# TERRITORY: C — dispatches draft/backtest/injury_designations.py.
+#
+# Cory (via relay), 08-21: "VERIFY YOUR MERGED CRONS ARE ALIVE... weather,
+# practice-participation, injury-designations, FP-expert-ranks landed via
+# A's merge." Checked directly rather than assumed: this store had NO
+# workflow at all — it was a one-shot 2021-2025 historical backfill,
+# never wired into a recurring cadence. This is that cadence.
+#
+# nflverse's injuries_<season>.parquet keeps accruing new rows for the
+# CURRENT season as the year plays out (unlike a closed historical
+# season), so re-running with 2026 added is a real refresh, not a no-op —
+# `run()`'s own per-season try/except means a season with no rows yet
+# (early in the year) degrades to an empty season entry rather than
+# failing the whole store, and the known-positive control is pinned to a
+# fixed 2024 case so a thin/absent 2026 cannot break it.
+#
+# Wednesday, after the practice-report week is final (same reasoning as
+# weekly-snap-counts.yml/weekly-routes.yml's own Wednesday slot) and
+# before the Thursday odds/props family.
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '0 11 * * 3'   # Wednesdays 11:00 UTC — same slot as
+                            # weekly-snap-counts.yml, after the week is final
+
+permissions:
+  contents: write
+
+concurrency:
+  group: injury-designations-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Install
+        run: pip install -r draft/requirements.txt pytest
+
+      - name: The pure assembly logic is tested before any real fetch runs
+        run: python3 -m pytest draft/tests/test_injury_designations.py -q
+
+      - name: Refresh the store (2021-2025 history + the current season)
+        run: python3 draft/backtest/injury_designations.py 2021 2022 2023 2024 2025 2026
+
+      - name: Commit the store
+        run: |
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "::warning::Dispatched from '$GITHUB_REF_NAME', not main. The"
+            echo "::warning::result is in this run's log and is deliberately"
+            echo "::warning::NOT committed. Re-dispatch from main."
+            echo "_Dispatched from \`$GITHUB_REF_NAME\` — result NOT committed._" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/backtest/injury_designations.json
+          if ! git diff --cached --quiet; then
+            git commit -m "injury_designations: weekly refresh (in-season queue item 3) [skip deploy]"
+            for i in 1 2 3; do
+              git fetch origin main || true
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              if git push origin HEAD:main; then exit 0; fi
+              sleep $((i * 5))
+            done
+            echo "::error::RESULT NOT PUSHED — the fetch is spent and the answer is lost."
+            exit 1
+          fi
+          echo "no change — nothing to commit"
