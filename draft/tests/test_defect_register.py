@@ -369,3 +369,33 @@ def test_CONTROL_the_owner_check_can_still_fail():
     assert _owner_cell(["E6", "a thing", long_owner, "OPEN", "do it"]) == long_owner
     #: a degenerate row yields None rather than a confidently wrong owner
     assert _owner_cell(["7", "a thing"]) is None
+
+
+def test_register_ids_never_pass_the_watermark():
+    """Register 186: three lines of history allocated ids independently because
+    authors read the table's max instead of claiming from the watermark
+    (draft/tools/next_register_id.js). This makes the bypass loud: any table id
+    at or past the watermark's next_numeric_id fails the build, so claiming via
+    the tool (which advances the watermark in the same commit) is the only way
+    a new row goes green. Known-positive: asserted against a synthetic overrun
+    below, not just the (currently clean) live table."""
+    import json
+    import re
+    with open(os.path.join(ROOT, 'draft', 'data', 'register_id_watermark.json')) as f:
+        next_id = json.load(f)['next_numeric_id']
+
+    def max_table_id(text):
+        ids = [int(m) for m in re.findall(r'^\| (\d+)[a-z]? \|', text, re.M)]
+        return max(ids) if ids else 0
+
+    # known-positive control: a synthetic table past the watermark MUST fail
+    synthetic = '| %d | fake | x | OPEN | y |\n' % (next_id + 5)
+    assert max_table_id(synthetic) >= next_id, 'control failed: synthetic overrun not detected'
+
+    with open(os.path.join(ROOT, 'DEFECT-REGISTER.md')) as f:
+        live = f.read()
+    m = max_table_id(live)
+    assert m < next_id, (
+        'register id %d is at/past the watermark next_numeric_id %d — claim ids with '
+        'node draft/tools/next_register_id.js (advances the watermark in the same '
+        'commit), never by reading the table max. Register 186.' % (m, next_id))

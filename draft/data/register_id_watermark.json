@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 179,
+ "next_numeric_id": 190,
  "history": [
   {
    "id": 47,
@@ -284,88 +284,36 @@
   },
   {
    "id": 162,
-   "claimed_at": "2026-08-20",
-   "note": "renumbered from origin/main's 157 (C: ceiling-program store mislabeled the entire 2026 rookie class as UDFA, own Rule 3e control passed at 100% because it checked presence not correctness; fixed, joins draft_picks to roster by name when the gsis format check fails)"
-  },
-  {
-   "id": 163,
-   "claimed_at": "2026-08-20",
-   "note": "E: mechanism check per Cory's direct ask, why need:1.0 causes RB bloat -- read the real P110 artifact (engine_seat_choices_need1.json), need term dominates RB/WR chosen-score by ~6.5x over VONA while QB is VONA-dominant; both real positional signal AND a mechanical flex-discount gap (register 60's disconnection 2), currently on suppressed RB numbers per register 151's still-open bug"
-  },
-  {
-   "id": 164,
-   "claimed_at": "2026-08-20",
-   "note": "E: need shipped to 1.0 on main with no recorded Cory ruling, directly contradicting CORY-ASKS A20's own silence-default (need stays 0); a new single-board measurement (need_weight_rerun.js) disagrees in direction with the historical 30-seat study (register 70) that A20's HOLD recommendation was built on, and neither A20 nor register 160 has been updated to match what's actually live"
-  },
-  {
-   "id": 165,
-   "claimed_at": "2026-08-20",
-   "note": "renumbered from origin/main's 161 (A: dollar panel's E[$] is nearly flat and partly inverted across the entire QB position -- Malik Willis prices above Josh Allen)"
-  },
-  {
-   "id": 166,
-   "claimed_at": "2026-08-20",
-   "note": "the board every gate reads is not the board that publishes -- draft-data.yml runs the acceptance gate at step 16 and rewrites projections/bands/VORP/tiers/ranks at step 21, after the gate that exists to protect publication"
-  },
-  {
-   "id": 167,
-   "claimed_at": "2026-08-20",
-   "note": "every field Cory asked for this week is computed, committed and on no screen -- measured by nothing_computed_goes_unshown.js: the Draft Sharks band ruling, the per-source rankings behind the toggle, and coverage flags all ship but nothing renders them"
-  },
-  {
-   "id": 168,
-   "claimed_at": "2026-08-20",
-   "note": "eleven of the 150 draft-critical JS suites are red, and a prior report said there were none -- an external reviewer's challenge (no definition of 'draft-critical' or a targeted green run) was correct"
-  },
-  {
-   "id": 169,
-   "claimed_at": "2026-08-20",
-   "note": "renumbered from origin/main's 162 (E: rebuilding the board creates ten flat floor/ceiling bands inside Cory's draft range -- register 140's exact wound, reopened by the act of rebuilding) -- collided with this branch's own 162-165 (relay_publish.sh through the dollar-panel row above); origin's four rows moved to 169-172, past this branch's prior max of 168"
-  },
-  {
-   "id": 170,
-   "claimed_at": "2026-08-20",
-   "note": "renumbered from origin/main's 163 (the *_pre_ds band snapshots are frozen from an old board and the fallback every rebuild depends on is reading days-old numbers) -- same collision and deviation as register 169"
-  },
-  {
-   "id": 171,
-   "claimed_at": "2026-08-20",
-   "note": "renumbered from origin/main's 164 (two functions claimed the name setProjSource and the position-boards toggle has been running the wrong one; fixed) -- same collision and deviation as register 169"
-  },
-  {
-   "id": 172,
-   "claimed_at": "2026-08-20",
-   "note": "renumbered from origin/main's 165 (three of the four self-mounting war-room panels were anchored to ids that never existed) -- same collision and deviation as register 169"
-  },
-  {
-   "id": 173,
-   "claimed_at": "2026-08-20",
-   "note": "renumbered from origin/main's own SECOND independent claim on register 169 (keeper lock passing does not release 13 withheld opponent keepers, committed 23:54:12 UTC) -- collided with this branch's 169 above, whose content traces back to origin's own earlier 23:18:21 UTC commit. First-allocation-wins by true content origin, not merge-commit time."
-  },
-  {
-   "id": 174,
-   "claimed_at": "2026-08-21",
-   "note": "renumbered from origin/main's 170 (the refused rebuilds ate a day of an unbackfillable series, and the missing day then blocked the rebuild that would have written the next one -- Cory's live board is two days stale going into Saturday) -- collided with this branch's own 170 (*_pre_ds stale snapshots), whose content traces to origin's own 23:18:21 UTC commit, well before this row"
+   "claimed_at": "2026-08-20"
   },
   {
    "id": 175,
-   "claimed_at": "2026-08-21",
-   "note": "renumbered from origin/main's 172 (the Sunday props cron shipped without its clobber guard, live and armed for week 1; since marked DISARMED) -- collided with this branch's own 172 (self-mounting panel anchors), whose content traces to origin's own earlier 2026-08-20T23:18:21Z commit 52bc34aa. First-allocation-wins by true content origin."
+   "claimed_at": "2026-08-21"
   },
   {
-   "id": 176,
+   "id": "163-185 reconciled",
    "claimed_at": "2026-08-21",
-   "note": "E: the cross-propagation gate shipped 08-21 detects neither laundering shape its own broadcast named -- keys only on the literal token IMPLEMENT (12 ordinary phrasings pass, including verbatim the real need->1.0 change), and accepts second-grade:/pending-second-grade/exempt: tokens entirely unverified (nonexistent row, self-citation, and no-expiry all pass). Known-positive control included."
+   "note": "relay: main-side authors (relay 173, A 174, and rows 163-172) allocated by grepping the table max, bypassing this file — C flagged it stale 08-20, unactioned. D's branch meanwhile used this watermark faithfully through 185. Ruling proposed to A: ids PRINTED on main stay (documents cite them); branch rows colliding in 163-174 renumber to fresh ids at merge (E's per-citation classification is the input); D's branch-side renumber of main's 173 to 184 reverts. Watermark now authoritative from 186, and a CI test now fails any table id filed at or past the watermark."
   },
   {
-   "id": 177,
+   "id": 186,
    "claimed_at": "2026-08-21",
-   "note": "renumbered from origin/main's 173 (C's external-ingest program stranded on a branch while its ROUTES rows on main say 'built, dispatch-only') -- collided with this branch's 173 (keeper-lock withheld keepers), whose content traces to origin's own earlier 2026-08-20T23:54:12Z commit 10691411"
+   "note": "relay: the systemic id-divergence/invisible-receipts row"
   },
   {
-   "id": 178,
+   "id": 187,
    "claimed_at": "2026-08-21",
-   "note": "renumbered from origin/main's 174 (Cory's need:1.0 ruling woke two dormant mechanisms; two red tests were the only thing that noticed) -- collided with this branch's 174 (refused rebuilds ate a day of an unbackfillable series), whose content traces to origin's own earlier commit dff0d169 at 2026-08-21T00:08:25Z"
+   "note": "E: claimed from the watermark at merge under register 186's protocol (ids printed on main are canonical). This row is self-mounting war-room panel anchors; main prints the id it previously held here as a different finding. Full mine<->main mapping in draft/audit/REGISTER-ID-CLASSIFICATION-2026-08-21.md."
+  },
+  {
+   "id": 188,
+   "claimed_at": "2026-08-21",
+   "note": "E: claimed from the watermark at merge under register 186's protocol (ids printed on main are canonical). This row is keeper lock does not release the 13 withheld opponent keepers; main prints the id it previously held here as a different finding. Full mine<->main mapping in draft/audit/REGISTER-ID-CLASSIFICATION-2026-08-21.md."
+  },
+  {
+   "id": 189,
+   "claimed_at": "2026-08-21",
+   "note": "E: claimed from the watermark at merge under register 186's protocol (ids printed on main are canonical). This row is refused rebuilds ate a day of an unbackfillable series; main prints the id it previously held here as a different finding. Full mine<->main mapping in draft/audit/REGISTER-ID-CLASSIFICATION-2026-08-21.md."
   }
  ]
 }
