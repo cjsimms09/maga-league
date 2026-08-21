@@ -1,0 +1,61 @@
+name: Weekly K/DEF source probe (source-hunt item 3)
+
+# TERRITORY: C — dispatches draft/backtest/weekly_kdef_source_probe.py.
+#
+# Relay's 08-21 source-hunt dispatch, item 3: "source_boards shows
+# FantasyPros K=0 DEF=0 -- if Sleeper is our ONLY weekly K/DEF number, the
+# streaming advisor runs on one uncorroborated source."
+#
+# DISPATCH-ONLY, DELIBERATELY — both candidate hosts (NFL.com's fantasy
+# API, ESPN's league-scoped fantasy API) are unverified from the dev
+# sandbox (proxy-403, same as every non-nflverse host this session), and
+# ESPN's own candidate depends on a public league id that may or may not
+# still resolve. This workflow is the first real read of either. A schedule
+# is the natural next step once a dispatch confirms a real source and its
+# real field-name shape (see the module's own sample_hits in its output).
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Install
+        run: pip install pytest
+
+      - name: The pure census/detection logic is tested before any real fetch
+        run: python3 -m pytest draft/tests/test_weekly_kdef_source_probe.py -q
+
+      - name: Probe the candidate sources (a recent past week, real not still-preseason)
+        run: python3 draft/backtest/weekly_kdef_source_probe.py
+
+      - name: Commit the probe result
+        run: |
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "::warning::Dispatched from '$GITHUB_REF_NAME', not main. The"
+            echo "::warning::result is in this run's log and is deliberately"
+            echo "::warning::NOT committed. Re-dispatch from main."
+            exit 0
+          fi
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/backtest/weekly_kdef_source_probe.json
+          if ! git diff --cached --quiet; then
+            git commit -m "weekly_kdef_source_probe: dispatch result [skip deploy]"
+            for i in 1 2 3; do
+              git fetch origin main || true
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              if git push origin HEAD:main; then exit 0; fi
+              sleep $((i * 5))
+            done
+            echo "::error::RESULT NOT PUSHED — the probe ran and the answer is lost."
+            exit 1
+          fi
+          echo "no change — nothing to commit"
