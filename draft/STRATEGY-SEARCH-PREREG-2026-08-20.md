@@ -14,7 +14,7 @@ building, ceiling late, etc) with our new vona model."*
 
 Arm **a1** in `draft/backtest/replay_seats.js`: `VONA_INCLUDE_SELF: true` — the
 register-56 fix (VONA no longer excludes the player from his own next-pick
-pool), shipped 08-19, graded S18/P250: worth **~15–21 pts/seat, no shipped
+pool), shipped 08-19, graded S18/P283 (renumbered off P250, see PREDICTION-LEDGER.md): worth **~15–21 pts/seat, no shipped
 verdict moved**. Every arm in this batch runs ON a1, same bundle, one CI batch,
 so deltas attribute to strategy and not to bundle drift (the harness's own
 a0/a1 rule).

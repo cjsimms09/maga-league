@@ -83,6 +83,40 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
 sys.path.insert(0, str(HERE))
 
+# The six real inputs draft_behavior.build_rows()/opponent_table_2026() read
+# (see draft_behavior.py:679-691). A fingerprint, not a wall-clock stamp, for
+# the same reason conditional_value.py's _input_fingerprint uses one: this
+# repo pins several artifacts as committed == regenerated, so "when was this
+# built" only ever proxies for "was it built from the inputs that are here
+# now" -- a sha256 prefix per input answers that directly and changes only
+# when an input actually changes. Register 79.
+_FINGERPRINT_INPUTS = (
+    ("board", ROOT / "public" / "draft_data.json"),
+    ("league_history", ROOT / "draft" / "data" / "league_history.json"),
+    ("player_positions", ROOT / "draft" / "data" / "player_positions.json"),
+    ("keepers_cfg", ROOT / "draft" / "config" / "keepers.json"),
+    ("history_data_js", ROOT / "src" / "routes" / "history-data.js"),
+    ("adp_series", ROOT / "draft" / "data" / "adp_series.json"),
+    ("predicted_keepers", ROOT / "draft" / "data" / "predicted_keepers.json"),
+)
+
+
+def _input_fingerprint():
+    """SHA-256 (first 12) of each input this artifact is derived from.
+
+    A missing input is recorded as "ABSENT" rather than skipped: an artifact
+    built without one of its sources must not fingerprint identically to one
+    built with it.
+    """
+    import hashlib
+    out = {}
+    for name, path in _FINGERPRINT_INPUTS:
+        try:
+            out[name] = hashlib.sha256(path.read_bytes()).hexdigest()[:12]
+        except OSError:
+            out[name] = "ABSENT"
+    return out
+
 import draft_behavior as DB  # noqa: E402  (build_rows, rosters_at, room_proxy — reused, unit-tested)
 
 POSITIONS = DB.POSITIONS                  # ("QB","RB","WR","TE","K","DEF")
@@ -538,6 +572,7 @@ def build_artifact():
         rows, confirmed, predicted, roster_owner)
     artifact = {
         "_territory": "TERRITORY: E — produced by draft/backtest/opponent_need_model.py",
+        "input_fingerprint": _input_fingerprint(),
         "provenance": {
             "drafts": "draft/data/league_history.json seasons 2023-2025 (main drafts, "
                       "2023 keeper join via the parallel keeper draft — draft_behavior.build_rows reused)",

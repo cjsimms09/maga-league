@@ -45,6 +45,16 @@ const STREAM = ST.streamability;
 const KDEF_TAX = process.argv.includes('--kdef-tax');
 const TE_BOOST = process.argv.includes('--te-boost');
 const KDEF_MODE = process.argv.includes('--kdef-supply');
+/* ── E's ARM, PREREGISTERED IN `ROSTER-CONSTRUCTION-CALL.md`'s REPLY: does
+ * relaxing TE's cap to an ALREADY-MEASURED number (not fitted to this study)
+ * recover the conversion the shape term buys without paying more acquisition?
+ * §1 of the open call found TE the widest separator between winners (1.67)
+ * and losers (1.11) and flagged the cap as "the single most promising thing
+ * to challenge." `MEASURED-NEED-RESULT-2026-08-19.md` (P150/P151, filed
+ * hours earlier, independent of this problem) measured a 2nd TE actually
+ * starts 0.414 of the weeks he is rostered -- that is the number this arm
+ * substitutes for Cory's hand-transcribed 0.05, nothing else changes. */
+const TE_RELAX = process.argv.includes('--te-relax');
 /* ── TE ARM: the MEASURED row instead of the transcribed one ──────────────────
  * Prereg: draft/TE-CAP-PREREG-2026-08-19.md. Top-3 finishers draft TE 1.67,
  * bottom-3 draft 1.11 -- the widest winner/loser separation on the board -- and
@@ -85,8 +95,9 @@ const W = {
    * finishers draft 1.67 of them against bottom-3's 1.11 -- the widest
    * positional separation measured (ROSTER-CONSTRUCTION-CALL.md §1). Behind
    * a flag, off by default; the shipped curve is untouched unless --te-boost
-   * is passed. */
-  TE: TE_BOOST ? [1.00, 0.50, 0] : [1.00, 0.05, 0],
+   * is passed. TE_RELAX (register 132/137's own arm) takes precedence if
+   * both are somehow passed together -- they were never meant to combine. */
+  TE: TE_RELAX ? [1.00, 0.414, 0] : TE_BOOST ? [1.00, 0.50, 0] : [1.00, 0.05, 0],
   RB: [1.00, 1.00, 0.90, 0.25, 0.05, 0.02],
   WR: [1.00, 1.00, 1.00, 0.90, 0.15, 0.05],
 };

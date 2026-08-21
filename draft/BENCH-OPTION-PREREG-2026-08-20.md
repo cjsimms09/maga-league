@@ -48,7 +48,18 @@ dispersion family's calibration history says do not import it untested):
 * **NO CAPS. NO BENCH RULE. NO NEED TERM.** Every roster rule currently
   bolted on must EMERGE or the objective has failed its own thesis.
 
-## 3 · BLIND BARS (P254–P256, filed with this commit)
+## 3 · BLIND BARS (P254, P255–P256, filed with this commit)
+
+*(E, 2026-08-20 — this section spent three merges renumbered to P263, then
+P269, then P310, chasing a collision with this branch's own REAL_VONA row
+under the same original number. Origin/main resolved the identical collision
+the other direction — kept this row at P254 and renumbered REAL_VONA to
+P250 instead — and that resolution is adopted here: it is the numbering
+every other row and file in the ledger already references, and P254 sits
+under the CI three-part-standard gate's pre-P283 grace period, so it does
+not need the LEARNING TARGET/SKILL DESIGN/CONSEQUENCE ROUTE fields the P310
+detour required as a workaround. Full history in PREDICTION-LEDGER.md's
+P254 row.)*
 
 * **P254 — THE THEOREM (known-positive control):** uncapped, `--opt` drafts
   **≤1 K and ≤1 DEF in ≥28/30 seats, and ≤1 QB and ≤2 TE in ≥25/30.**
@@ -255,7 +266,13 @@ preregistered v11 — not a silent retreat to the old partition.
 
 ---
 
-## 15 · V11 AMENDMENT, 2026-08-20 — BOTH FRICTIONS (after P283 FALSE / P284 TRUE-suspicious)
+## 15 · V11 AMENDMENT, 2026-08-20 — BOTH FRICTIONS (after P286 FALSE / P287 TRUE-suspicious)
+
+*(v10's two rows were filed as P283/P284; renumbered to P286/P287 by E,
+2026-08-20 — this branch had already claimed P283/P284 for REAL_VONA and
+the opponent-starter model 14 minutes before this section's commit.
+First-allocation-wins the other direction from most of this evening's
+collisions. See PREDICTION-LEDGER.md's P286 row for the full note.)*
 
 v10 (per-slot contest probability, no budget) collapsed the theorem — the
 model bought insurance at EVERY position (K 2.00 / DEF 2.53 / QB 2.03),
@@ -274,7 +291,7 @@ P285 blind before the run; three-way paired read v9/v10/v11 declared.
 | arm | friction model | theorem | waiver skill |
 |---|---|---|---|
 | **v9** | empty slots refill free at wire | **3 of 4 clauses, 0 vacancies** | **+3.45 (16/30) ✓** |
-| v10 | per-slot contest probability (C-measured) | collapsed — insurance everywhere | +18.56 (suspicious, P284) |
+| v10 | per-slot contest probability (C-measured) | collapsed — insurance everywhere | +18.56 (suspicious, P287) |
 | v11 | one claim/week × contest probability | collapsed, points fell | −10.59 |
 
 **The mechanism the family surfaced:** any objective in which an uninsured

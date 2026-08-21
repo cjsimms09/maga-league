@@ -1339,6 +1339,36 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
   check('zeroing bye changes the top 5 when the roster actually collides — '
     + 'the term participates', withBye !== noBye,
     'with: ' + withBye + '  without: ' + noBye);
+
+  /* register 59 follow-up (session E, 2026-08-19): the old formula scaled the
+   * penalty by `collisions / slots` alone, which is exactly zero whenever no
+   * OTHER roster player shares the candidate's specific bye — even when the
+   * position is already exactly `slots` deep with zero margin (Cory's real
+   * WR2 gap: Chase bye 6, Reed bye 11, never collide, together un-fieldable
+   * on either one's bye). Verified empirically before the fix: shortAfter=1,
+   * value=0, for that exact pair. Fixed to scale on the measured shortage too. */
+  const wr1 = { position: 'WR', bye: 6, proj_mean: 250, games_expected: 15, replacement: 100 };
+  const wr2 = { position: 'WR', bye: 11, proj_mean: 200, games_expected: 15, replacement: 100 };
+  const depthGapCtx = { roster: [wr1], league: L };
+  const depthGapTerm = E.compositeTerms.byeCollisionPenalty(wr2, depthGapCtx);
+  check('a depth gap with NO bye collision still produces a non-zero bye penalty '
+    + '(register 59: two WRs at exactly `slots` depth, different byes, either one leaves WR2 empty)',
+    depthGapTerm.value > 0 && depthGapTerm.shortAfter > 0, JSON.stringify(depthGapTerm));
+
+  // Regression guard: the very FIRST player at a position must never be
+  // bye-penalised — zero existing depth is need's question, not bye's.
+  const firstEverCtx = { roster: [], league: L };
+  const firstEverTerm = E.compositeTerms.byeCollisionPenalty(wr2, firstEverCtx);
+  check('the first-ever player drafted at a position is NOT bye-penalised',
+    firstEverTerm.value === 0, JSON.stringify(firstEverTerm));
+
+  // Control: a roster with real bye-diverse depth at the position is unaffected.
+  const coveredCtx = { roster: [
+    { position: 'WR', bye: 2 }, { position: 'WR', bye: 4 }, { position: 'WR', bye: 8 },
+  ], league: L };
+  const coveredTerm = E.compositeTerms.byeCollisionPenalty(wr2, coveredCtx);
+  check('a position with real bye-diverse depth stays uncharged',
+    coveredTerm.value === 0, JSON.stringify(coveredTerm));
 })();
 
 

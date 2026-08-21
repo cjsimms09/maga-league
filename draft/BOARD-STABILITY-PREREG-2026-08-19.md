@@ -46,7 +46,7 @@ pair is what produced the claim under test.
 
 ## 4. PREDICTION
 
-**P133: slot-aware has the HIGHEST mean `roster_churn` of the four arms.**
+**P144: slot-aware has the HIGHEST mean `roster_churn` of the four arms.**
 
 **FALSE if any other arm's mean churn equals or exceeds it** — in which case my
 register-74 sentence overclaimed from n = 1 and must be corrected, not softened.

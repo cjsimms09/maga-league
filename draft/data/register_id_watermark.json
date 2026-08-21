@@ -6,11 +6,6 @@
    "claimed_at": "2026-08-18"
   },
   {
-   "id": "47-50 reconciled",
-   "claimed_at": "2026-08-18",
-   "note": "A filed 47/48 on main concurrently with the watermark's first claim of 47; A's B0 row took 49; the watermark's row renumbered to 50. Watermark now authoritative from 51."
-  },
-  {
    "id": 51,
    "claimed_at": "2026-08-18"
   },
@@ -153,11 +148,6 @@
    "note": "renumbered from a colliding 134 (self-correction: sent Cory a number from a crashing arm) -- another session's row, first-allocation-wins per timestamp"
   },
   {
-   "id": "137-138 reconciled",
-   "claimed_at": "2026-08-20",
-   "note": "A had previously renumbered D's colliding 133/134 to 137/138 and retained 133/134 as authoritative (cited from shipped mlv.js, three tests, panel_spec.js). That composite entry is superseded here: E's own chain independently claimed 137/138 for two DIFFERENT new rows (D's TE-boost finding; E's attach_draftsharks.py double bug) after re-verifying no stray references existed to those numbers anywhere in the repo at merge time."
-  },
-  {
    "id": 137,
    "claimed_at": "2026-08-20",
    "note": "D: TE-boost arm (W.TE 0.05 -> 0.50), same season-concentration caveat pattern as the TE-relax arm (register 132)"
@@ -291,11 +281,6 @@
    "claimed_at": "2026-08-21"
   },
   {
-   "id": "163-185 reconciled",
-   "claimed_at": "2026-08-21",
-   "note": "relay: main-side authors (relay 173, A 174, and rows 163-172) allocated by grepping the table max, bypassing this file — C flagged it stale 08-20, unactioned. D's branch meanwhile used this watermark faithfully through 185. Ruling proposed to A: ids PRINTED on main stay (documents cite them); branch rows colliding in 163-174 renumber to fresh ids at merge (E's per-citation classification is the input); D's branch-side renumber of main's 173 to 184 reverts. Watermark now authoritative from 186, and a CI test now fails any table id filed at or past the watermark."
-  },
-  {
    "id": 186,
    "claimed_at": "2026-08-21",
    "note": "relay: the systemic id-divergence/invisible-receipts row"
@@ -318,6 +303,21 @@
   {
    "id": 190,
    "claimed_at": "2026-08-21"
+  },
+  {
+   "id": "137-138 reconciled",
+   "claimed_at": "2026-08-20",
+   "note": "A had previously renumbered D's colliding 133/134 to 137/138 and retained 133/134 as authoritative (cited from shipped mlv.js, three tests, panel_spec.js). That composite entry is superseded here: E's own chain independently claimed 137/138 for two DIFFERENT new rows (D's TE-boost finding; E's attach_draftsharks.py double bug) after re-verifying no stray references existed to those numbers anywhere in the repo at merge time."
+  },
+  {
+   "id": "163-185 reconciled",
+   "claimed_at": "2026-08-21",
+   "note": "relay: main-side authors (relay 173, A 174, and rows 163-172) allocated by grepping the table max, bypassing this file \u2014 C flagged it stale 08-20, unactioned. D's branch meanwhile used this watermark faithfully through 185. Ruling proposed to A: ids PRINTED on main stay (documents cite them); branch rows colliding in 163-174 renumber to fresh ids at merge (E's per-citation classification is the input); D's branch-side renumber of main's 173 to 184 reverts. Watermark now authoritative from 186, and a CI test now fails any table id filed at or past the watermark."
+  },
+  {
+   "id": "47-50 reconciled",
+   "claimed_at": "2026-08-18",
+   "note": "A filed 47/48 on main concurrently with the watermark's first claim of 47; A's B0 row took 49; the watermark's row renumbered to 50. Watermark now authoritative from 51."
   }
  ]
 }

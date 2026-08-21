@@ -1,5 +1,14 @@
 {
  "_territory": "TERRITORY: E \u2014 produced by draft/backtest/opponent_need_model.py",
+ "input_fingerprint": {
+  "board": "d15dbec70f75",
+  "league_history": "869e526efe72",
+  "player_positions": "e78c0b1de261",
+  "keepers_cfg": "10b76c4ff681",
+  "history_data_js": "e2b35391ce07",
+  "adp_series": "1b90641f6103",
+  "predicted_keepers": "8fee37d9e10e"
+ },
  "provenance": {
   "drafts": "draft/data/league_history.json seasons 2023-2025 (main drafts, 2023 keeper join via the parallel keeper draft \u2014 draft_behavior.build_rows reused)",
   "anchor": "ROOM PROXY (prior-season mean decision index) \u2014 NO era market ADP on file; both arms share it, the delta is about the layer",
@@ -3276,8 +3285,19 @@
   "Jeremy": {
    "handle": "Jreis",
    "owner_id": "440723317066821632",
-   "keeper_slate": [],
-   "keeper_provenance": "PREDICTED (draft/data/predicted_keepers.json) \u2014 not a fact",
+   "keeper_slate": [
+    {
+     "player_id": "5859",
+     "name": "A.J. Brown",
+     "position": "WR"
+    },
+    {
+     "player_id": "8138",
+     "name": "James Cook",
+     "position": "RB"
+    }
+   ],
+   "keeper_provenance": "confirmed (draft/config/keepers.json)",
    "need_state_at_draft_open": {
     "QB": "open",
     "RB": "open",
@@ -3978,9 +3998,9 @@
    "owner_id": "471160336402083840",
    "keeper_slate": [
     {
-     "player_id": "9509",
-     "name": "Bijan Robinson",
-     "position": "RB"
+     "player_id": "7569",
+     "name": "Nico Collins",
+     "position": "WR"
     },
     {
      "player_id": "8130",
@@ -3988,12 +4008,12 @@
      "position": "TE"
     },
     {
-     "player_id": "7569",
-     "name": "Nico Collins",
-     "position": "WR"
+     "player_id": "9509",
+     "name": "Bijan Robinson",
+     "position": "RB"
     }
    ],
-   "keeper_provenance": "PREDICTED (draft/data/predicted_keepers.json) \u2014 not a fact",
+   "keeper_provenance": "confirmed (draft/config/keepers.json)",
    "need_state_at_draft_open": {
     "QB": "open",
     "RB": "open",
