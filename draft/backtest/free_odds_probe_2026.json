@@ -1,7 +1,7 @@
 {
  "_territory": "relay probe; C consumes; results are the free-odds census",
  "_ask": "Cory 2026-08-21: Explore free Vegas odds we can get",
- "captured_at": "2026-08-21T00:25:10.974854Z",
+ "captured_at": "2026-08-21T00:28:55.477762Z",
  "sources": {
   "espn": {
    "status": 403,
@@ -31,6 +31,17 @@
    "markets_seen": 48,
    "prop_mentions": 0,
    "verdict": "POSITIVE \u2014 real lines on real games"
+  },
+  "bovada_event_props": {
+   "status": 200,
+   "bytes": 626086,
+   "event_link": "/football/nfl/new-england-patriots-seattle-seahawks-202609092015",
+   "event_status": 200,
+   "event_bytes": 39614,
+   "prop_markets": 0,
+   "anytime_td_mentions": 0,
+   "known_positive": [],
+   "verdict": "REACHABLE-NO-POSITIVE (status 200) \u2014 treat as untested, not as no"
   },
   "polymarket": {
    "status": 200,

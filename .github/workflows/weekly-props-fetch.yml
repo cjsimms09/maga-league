@@ -64,6 +64,10 @@ on:
   # a job that goes red every preseason Thursday is a job we learn to ignore.
   schedule:
     - cron: '0 12 * * 4'
+    # Sunday pre-kickoff CLOSING snapshot (relay, Cory's 08-21 'Make sure we
+    # get these!!'): one snapshot/week loses closing lines forever; the
+    # Thursday+Sunday pair also gives movement for free.
+    - cron: '0 16 * * 0'
   workflow_dispatch:
     inputs:
       dry_run:
