@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 240,
+ "next_numeric_id": 245,
  "history": [
   {
    "id": 47,
@@ -411,6 +411,10 @@
    "claimed_at": "2026-08-21"
   },
   {
+   "id": 223,
+   "claimed_at": "2026-08-21"
+  },
+  {
    "id": 228,
    "claimed_at": "2026-08-21",
    "note": "E: THIRTEENTH collision round -- main printed 217 for the deploy-verify fix; my generator-verification row takes 228. Two rounds in a row now; the merge tax is becoming the dominant cost of this lane and is worth a ruling of its own."
@@ -463,6 +467,26 @@
    "id": 239,
    "claimed_at": "2026-08-21",
    "note": "E: my 222 claim collided with main's PRINTED register 222 (the engine's wire-bench row) -- renumbered 222->239. No citations. This row has now been renumbered three times: 196->205->222->239."
+  },
+  {
+   "id": 240,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 241,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 242,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 243,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 244,
+   "claimed_at": "2026-08-21"
   },
   {
    "id": "137-138",

@@ -67,7 +67,7 @@ capture**, and the draft cannot be re-run.
 | need | store | fires on its own? |
 |---|---|---|
 | our weekly projections, pre-kickoff | `draft/data/weekly_own/` | ✅ `own-weekly-proj` Thu 14:00 UTC |
-| provider projections (Sleeper, FantasyPros) | `draft/data/proj_series.json` (1.4 MB) | ✅ `weekly-proj-snapshot` Sun 13:00 |
+| provider projections (Sleeper, FantasyPros) | `draft/data/proj_series.json` (1.4 MB) | ⚠️ **PRESEASON ONLY — see the correction below** |
 | actual weekly points | `nflverse_weekly_points_*.json` | ✅ via `weekly-grade` Tue 13:30 |
 | **lineups actually started** | `draft/data/league_history.json` | ✅ 2023/24/25 all carry **18 weeks × 9 starter slots**; 2026 empty only because week 1 has not happened |
 | transactions / waivers / trades | `waiver_transaction_history.json` + 3 | ✅ |
@@ -93,6 +93,26 @@ covered by the scheduled job. They are a coverage nicety, not a one-shot loss.
   they are in `draft/data/proj_series.json`, 1.4 MB, carrying `fantasypros` and
   `sleeper`. My glob simply looked in the wrong place, and a null from a probe
   that has never returned a positive is a bug report, not a finding.
+
+- ⚠️ **AND THEN I OVERCORRECTED, WHICH IS THE WORSE OF THE TWO ERRORS.** Having
+  found those rows I marked provider capture ✅ and moved on — while my own probe
+  had printed `weeks: [None]` on the same line. Every row in that file is a
+  **PRESEASON** snapshot. Counted afterwards: `fantasypros` 11 rows and `sleeper`
+  12 rows, **all with `week=None`**, and **zero rows whose source ends in
+  `_weekly`** — which is exactly what the grader selects on
+  (`provider_weeklies()` filters `source == "fantasypros_weekly"` AND
+  `week == week`).
+
+  So Cory's headline 2027 goal — *our projection beats BOTH Sleeper and
+  FantasyPros* — currently cannot be graded on the FantasyPros half at all.
+  Another lane traced it end to end the same day and filed it 🔴🔴 (register 223,
+  owner C, first read 09-15, week 1 ~09-10): the archive writes the FP column
+  somewhere the grader never looks, and the function's own docstring says *"the
+  FP half starts the day C's weekly archive carries it"* — it does carry it, in a
+  different file.
+
+  The evidence was on my screen and I read past it. `week=None` on every row is
+  the finding; I treated it as a formatting detail.
 - It also read **`2026 weeks: 0`** for lineups and nearly reported that starts
   are not captured. Checking prior seasons showed 18 weeks each with 9 starter
   slots — the store shape is right and 2026 is empty because the season has not
