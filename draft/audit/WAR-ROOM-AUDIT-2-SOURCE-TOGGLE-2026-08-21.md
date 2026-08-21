@@ -204,7 +204,7 @@ artifact plus a banner that promises more than the page can deliver.
 1. **The new guard has a permanent false green.** Being engine-level, it would
    stay 20/20 through every version of this bug. *"Does the source toggle work"*
    cannot be answered without reading the rendered page. **That is the exact
-   mirror of the mistake that bit me this morning in register 201 — where my
+   mirror of the mistake that bit me this morning in register 213 — where my
    hand-built context understated and reordered the survival column — and it is
    worth one line in the guard's own header.**
 2. **`position_boards.json` is stamped 00:29Z and the war-room header reads

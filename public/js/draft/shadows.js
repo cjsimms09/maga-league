@@ -278,7 +278,21 @@
       n, agree, lead: lead.player, lead_position: lead.position,
       contested: agree < Math.ceil(n * 0.75),
       lead_driver: leadDriver,                 // which term drove the agreement
-      driver_is_artifact: leadDriver === 'need',   // the fingerprint of the old bug
+      /* ⚠️ NOW GUARDED BY need'S ACTUAL WEIGHT, 2026-08-21. This read
+       * `leadDriver === 'need'` flat, which was correct while need was
+       * zero-weighted: it is the fingerprint of the OLD need bug. Cory moved
+       * MEASURED_WEIGHTS.need from 0 to 1.0 on 08-20, and the flag kept firing
+       * — so a consensus driven by a term the board now FULLY weights was
+       * being reported to him as an artifact.
+       *
+       * Live effect before this fix: pick 24's 9/9 Rashee Rice consensus is
+       * `need`-driven, and app.js raises the warning strip on
+       * `driver_is_artifact || driver_zero_weighted` (app.js:3535, 9244) — so
+       * the war room told him a legitimately-weighted agreement was hollow.
+       * The general flag below is unaffected and still covers every genuinely
+       * zero-weighted term. */
+      driver_is_artifact: leadDriver === 'need'
+        && !!(E && E.MEASURED_WEIGHTS && E.MEASURED_WEIGHTS.need === 0),
       /* THE GENERAL FORM OF THE SAME TEST, added 2026-08-14.
        *
        * `driver_is_artifact` names ONE term. But `need` is not special — it is
@@ -286,6 +300,11 @@
        * of the eight are zero in MEASURED_WEIGHTS (tier, need, risk, ceiling,
        * bye), and a unanimous shadow consensus resting on ANY of them is the same
        * thing: agreement on a quantity the live board does not score.
+       *
+       * ⚠️ THE COUNT IN THE LINE ABOVE WAS TRUE ON 08-14 AND IS NOT NOW: need
+       * went to 1.0 on 08-20, so FOUR are zero (tier, risk, ceiling, bye), not
+       * five. The example below is from the five-zero era and is kept as the
+       * reason this general form exists, not as a current reading.
        *
        * Measured at pick 33, Cory's FIRST pick: 7 of 7 shadows pick Zay Flowers,
        * all seven driven by `need`, and the driver values are 42.7 / 21.3 / 42.7 /

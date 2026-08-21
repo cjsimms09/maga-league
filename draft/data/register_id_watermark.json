@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 213,
+ "next_numeric_id": 215,
  "history": [
   {
    "id": 47,
@@ -353,6 +353,14 @@
    "claimed_at": "2026-08-21"
   },
   {
+   "id": 201,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 202,
+   "claimed_at": "2026-08-21"
+  },
+  {
    "id": 135,
    "claimed_at": "2026-08-19"
   },
@@ -390,14 +398,6 @@
    "note": "E: my 195 claim collided with main's PRINTED register 195 (the pre-draft survival collapse, fc55104c/edf59a15). Register 186's protocol, main-printed ids canonical, so my control-band row renumbers 195->200. SIXTH silent collision of this session (192, 193, P313, 194, 195) -- not one produced a conflict marker, because duplicate rows sit on different lines and git auto-merges them cleanly. The allocator cannot see across branch and main; only the merge can. ASK ON RECORD: the post-merge duplicate-id grep should be a CI step, not a habit -- test_defect_register.py already has test_no_two_rows_share_an_id, so the gap is that it only runs AFTER someone thinks to run it locally on a merged tree."
   },
   {
-   "id": 201,
-   "claimed_at": "2026-08-21"
-  },
-  {
-   "id": 202,
-   "claimed_at": "2026-08-21"
-  },
-  {
    "id": 203,
    "claimed_at": "2026-08-21"
   },
@@ -428,6 +428,11 @@
    "id": 212,
    "claimed_at": "2026-08-21",
    "note": "E: RESTORING A ROW I DELETED MYSELF. My blind-control finding (weight_claim_sweep --control fails its known positive) had the id chain 192->194->198. At the 08-21 merges I confused it with D's 'graded prediction reverted to an open stub' row, which independently ran 192->195->197, and dropped my copy believing main carried it at 197. Main never did -- the string 'REGISTER-5h DETECTOR CANNOT FIND' returns ZERO on origin/main. Recovered verbatim from d06d70d8 and re-filed at 212. The mailbox-deletion guard said 'no rows lost' the whole time because it compares HEAD~1..HEAD and the delete and the merge were separate commits. TWO ROWS SHARING A RENUMBER HISTORY IS A REAL TRAP: match on CONTENT, never on the id chain."
+  },
+  {
+   "id": "213,214",
+   "claimed_at": "2026-08-21",
+   "note": "E: NINTH and TENTH silent collisions. Main printed 201 for D's row (192->195->197->201) and 202 for the strategy-panel-weights finding; mine at those ids were the survival verification and the war-room gone?-column row. Protocol 186, main-printed canonical, mine take 213 and 214. Citations repointed INDIVIDUALLY with an ownership assertion on every line -- and matched by CONTENT, never by id chain (register 212 is what that mistake cost)."
   }
  ]
 }

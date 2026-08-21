@@ -166,24 +166,6 @@ const PANELS = [
       + 'button sit behind the disclosure, so the headline stays the only name '
       + 'above the fold.' },
 
-  { fn: 'renderRosterBuilderPanel', weight: 'CONTEXT', lines: 28,
-    question: 'What does a SECOND model think, and does it disagree with the board?',
-    means: 'marginal lineup value — what this man adds to my STARTING lineup, valued '
-      + 'as surplus over the waiver wire. Unlike VONA it IS comparable across '
-      + 'positions, so it is the only thing on the page that can answer "RB or WR '
-      + 'for my flex".',
-    changes_it: 'any pick; anything entering or leaving my roster (it is scored on '
-      + 'the live roster, not on a snapshot)',
-    reads: ['mlv.js recommend()', 'state.board', 'state.myRoster', 'state.data.league.starters'],
-    note: 'A SECOND VOICE AND NEVER THE RANKING — Cory: "I still want to retain my '
-      + 'current view. So maybe a spot that\'s says roster builder model says and '
-      + 'then the player". B must not merge it into the shortlist or sort the board '
-      + 'by it. Two things it does that look like bugs and are not: it says "bench '
-      + 'only — he does not crack your lineup" about good players (that line is the '
-      + 'POINT of the panel), and once nine starting slots are full it wants a DEF '
-      + 'and a K at the top on a thinned board (register 134, measured). It cannot '
-      + 'value a bench at all, so it has nothing to say about the last few picks.',
-  },
   { fn: 'renderProjSource', weight: 'CONTEXT', lines: 118,
     question: 'What does ONE source say, instead of the blend — and does Draft '
       + 'Sharks agree with the board?',
@@ -203,31 +185,6 @@ const PANELS = [
       + 'own-model 507, FantasyPros 429, Draft Sharks 247), and a man a source does '
       + 'not carry is MISSING, not worthless. Display only: nothing here feeds '
       + 'engine.js and the war room ranking is unchanged.',
-  },
-  { fn: 'renderMlvPlan', weight: 'CONTEXT', lines: 96,
-    question: 'What TEAM does the roster-builder model end up drafting me, across '
-      + 'all twelve picks — not just this one?',
-    means: 'the same marginal-lineup-value rule run forward over Cory\'s real pick '
-      + 'schedule, from his real keepers, with K and DEF capped at one each. The '
-      + 'board is assumed to drain in ADP order.',
-    changes_it: 'a new board build; a change to his keepers or pick schedule; it is '
-      + 'a nightly artifact and does NOT re-run as the draft happens',
-    reads: ['mlv_plan.json', 'mlv.js recommend()', 'mlv.js WAIVER', 'seat_plan.json my_picks',
-      'draft_data.json pick_order'],
-    note: 'THE SPLIT IN THIS PANEL IS ITS PRODUCT AND MUST SURVIVE ANY RESTYLING. '
-      + 'MLV has a real opinion about six of the twelve picks and NONE about the '
-      + 'other six: once nine starting slots are full, every remaining player scores '
-      + 'marginal exactly 0 (451 of 451 at pick 93), so the sort is decided by array '
-      + 'order — reversing the input returns third-string quarterbacks, equally '
-      + '"correct". Those rows therefore show the BOARD\'s order, dimmed and under a '
-      + 'labelled divider. B: do not delete the divider, do not un-dim those rows, '
-      + 'and do not sort the table — the reading order IS the meaning. Rows below '
-      + 'the divider use CORY\'S BENCH RULE, ruled 08-20 after he caught the first '
-      + 'version stacking six tight ends: the position still short of the '
-      + 'top-3-finisher shape, taking the man worth most over the waiver wire. His '
-      + 'words: "after 12 TE taken, they have no value I can\'t get on waiver wire." '
-      + 'Registers 146, 147, 148. It is a PLAN, not a prediction, and nobody in the '
-      + 'room reacts to Cory in it.',
   },
   { fn: 'renderSourceBoards', weight: 'CONTEXT', lines: 58,
     question: 'Who does each projection source have as their best available, right now?',

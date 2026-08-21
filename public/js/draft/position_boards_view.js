@@ -391,42 +391,43 @@
       + '</div>';
   }
 
-  /* Cory: "can we actually program 2 models... I want to be able to toggle
-   * between them." Selection/order are Draft-Sharks-fixed (unchanged by this
-   * control — see the file header); this only swaps which already-present
-   * number each row prints.
+  /* ⚠️ RULED AWAY, 2026-08-21 — CORY: "should only be one toggle for each
+   * source and blend and it should change everything, including big board
+   * and recommended players by position." This panel used to run its OWN
+   * second toggle (two buttons, Draft Sharks/Blend) beside the real one
+   * (Ranking Source, five buttons, above). He read the two as one control
+   * and reported "I only have selection between draft shark or blended ..
+   * not sure what toggles above that do .. doesn't look to change much" —
+   * true on both halves, and confusing on both halves for the same reason:
+   * a second clickable toggle existed at all.
    *
-   * ⚠️ THE EXPLANATION USED TO LIVE ONLY IN A HOVER title="..." — INVISIBLE
-   * UNLESS SOMEONE HOVERS A BUTTON DURING A LIVE DRAFT. Cory, 2026-08-21,
-   * looking at exactly this panel: "I only have selection between draft
-   * shark or blended [true, by design] .. not sure what toggles above that
-   * do [the Ranking Source panel, a DIFFERENT control] .. doesn't look to
-   * change much [because this panel does not read it at all]." Said out loud
-   * now, not just on hover, and names the other control by name so the two
-   * are not read as one toggle. */
-  function projSourceToggle(esc, projSource) {
+   * THE FIX IS TO STOP HAVING A SECOND TOGGLE, NOT TO EXPLAIN IT BETTER.
+   * This panel's player SELECTION and ORDER are a real technical limit —
+   * position_boards.py simulates the draft once, against Draft Sharks, and
+   * cannot be re-run live for four more sources without a backend rebuild
+   * this codebase does not have time for before Saturday. But the NUMBER a
+   * row prints never needed its own control — it can follow the one real
+   * toggle automatically: `state.rankSource === 'ds'` prints Draft Sharks'
+   * own number, anything else (including blend) prints the board's blend
+   * number, exactly the two values this panel has ever had. No button, no
+   * click handler, no second state variable — `src` arrives from the
+   * caller (app.js), already derived from state.rankSource. */
+  function projSourceStatus(esc, projSource) {
     var ds = projSource !== 'blend';
-    return '<div class="pb-src-toggle" title="Ranking and selection always use Draft Sharks — this only swaps which projection number is displayed">'
-      + '<button type="button" class="pb-src-btn' + (ds ? ' pb-src-active' : '') + '" data-pb-source="ds">Draft Sharks</button>'
-      + '<button type="button" class="pb-src-btn' + (!ds ? ' pb-src-active' : '') + '" data-pb-source="blend">Blend</button>'
-      + '</div>';
+    return '<div class="pb-src-status">Showing <b>' + (ds ? 'Draft Sharks’' : 'the board’s Blend')
+      + '</b> own number on every row — follows the <b>Ranking Source</b> toggle above, '
+      + 'no separate control here.</div>';
   }
 
-  /* THE EXPLANATION USED TO LIVE ONLY IN projSourceToggle's hover title="..."
-   * — invisible unless someone hovers a button mid-draft. Cory, 2026-08-21,
-   * looking at exactly this panel: "I only have selection between draft
-   * shark or blended [true, by design] .. not sure what toggles above that
-   * do [the Ranking Source panel, a DIFFERENT control] .. doesn't look to
-   * change much [because this panel does not read it at all]." Said out loud
-   * now as its own full-width line (NOT inside .pb-toolbar's flex row with
-   * the toggle and the scroll hint — a paragraph does not belong squeezed
-   * between two icon-sized flex children), and names the other control by
-   * name so the two are not read as one toggle. */
+  /* Selection and order stay Draft-Sharks-simulated regardless of which
+   * number is showing (see projSourceStatus above for why) — said
+   * plainly so a reader does not conclude the WHOLE panel followed the
+   * toggle when only the printed number did. */
   function projSourceNote() {
     return '<p class="muted pb-src-note">This list\'s player selection and order always follow '
-      + '<b>Draft Sharks</b> — the two buttons above only swap which projection NUMBER each row '
-      + 'prints (Draft Sharks\' own number, or the board\'s blend). To actually re-rank this '
-      + 'list by a different source, use the <b>Ranking Source</b> toggle further up the page.</p>';
+      + '<b>Draft Sharks</b>’ pre-draft simulation, whichever source is active — only the '
+      + 'projection NUMBER above changes. For a live top-N list on any of the five sources, see '
+      + 'the <b>Top Available</b> panel above instead.</p>';
   }
 
   /* Cory: "very easy for me to view other team needs in a very small window." */
@@ -579,7 +580,7 @@
        * measurement after every render. */
       + strikeBar(data, esc)
       + '<div class="pb-toolbar">'
-        + projSourceToggle(esc, src)
+        + projSourceStatus(esc, src)
         + '<div class="pb-grid-hint" aria-hidden="true">scroll for more →</div>'
       + '</div>'
       + projSourceNote()

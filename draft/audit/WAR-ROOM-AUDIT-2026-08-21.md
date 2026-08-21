@@ -211,7 +211,7 @@ SURVIVAL, which are the two panels he actually asked about.
   man is only worth what he adds ABOVE that. This league drafts ~14 TEs and ~47
   RBs, which is why a late tight end is worth nothing and a late back is not."*
 * **The survival column is fixed and player-specific** — verified separately
-  today, register 201. The pre-draft collapse Cory reported (sixteen players all
+  today, register 213. The pre-draft collapse Cory reported (sixteen players all
   at 69.25%) is gone.
 * **Sourcing footer is present and specific** (FantasyPros half-PPR, FFC
   gap-fill, nflfastR, Sleeper).
@@ -242,7 +242,7 @@ when he plans.
 
 ## Addendum, same night — one of my own instruments was wrong, and the audit survives it
 
-Hours after this audit I had to correct **register 201** (yesterday's survival
+Hours after this audit I had to correct **register 213** (yesterday's survival
 verification): every survival percentage I published there was **understated**,
 because my probe hand-built the engine context and omitted `pickBoard`, `drift`
 and `runMultipliers`, which the conservation tilt reads. Live page vs my harness:
@@ -265,6 +265,6 @@ than the harness, and all three hold:**
 
 **The rule I am taking into Saturday: any number that reaches Cory gets read off
 the rendered page, never off a probe.** This audit was built that way by
-accident of method; register 201 was not, and that is the difference between the
+accident of method; register 213 was not, and that is the difference between the
 two.
 
