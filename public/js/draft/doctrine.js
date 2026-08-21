@@ -434,6 +434,36 @@
       ? scoresByKey[this.current] : (leader ? leader.score : 0);
     let switched = false;
 
+    /* ── THE RETRACTION ONLY EVER REACHED THE DISPLAY (register 207, 08-21) ───
+     *
+     * The block below this one already refuses to present a BINDING doctrine as
+     * "an alternative that trails by $X", because that difference is one half of
+     * a two-sided trade — the pick the decline buys is in neither number. The
+     * AUTO-SWITCHER was never given the same information: it ranks on the raw
+     * `scoresByKey`, so when the enrolled plan's own constraint binds, its
+     * shortfall against an unconstrained doctrine IS its forgone cost, and after
+     * `minPicks` consecutive reads the banner fires "⚡ SWITCHING TO BALANCED" —
+     * the retracted sentence arriving by a different door, on the war room, at a
+     * pick Cory owns.
+     *
+     * It went unseen because the only guard for it (robot-mock's "a binding
+     * deferral is NEVER announced as a plan switch") was asserting over a
+     * scenario in which NOTHING BOUND — a QB wipeout, where every doctrine falls
+     * back to unconstrained and no switch is reachable. It passed for the wrong
+     * reason. Repair the scenario and it goes red immediately, which is how this
+     * was found.
+     *
+     * The rule, stated once: an auto-switch compares "best man this plan lets me
+     * take right now", and that number is only comparable between doctrines that
+     * are NOT binding at this pick. So while the enrolled plan binds there is no
+     * comparison to make — hold the plan, report the deferral and its price, and
+     * let the owner decide. Manual switching is untouched.
+     *
+     * `detail` absent = the old behaviour, unchanged, for callers written against
+     * it (`update()`'s back-compat path). The war room always passes it. */
+    const _detail = (ctx && ctx.detail) || null;
+    const _binds = function (k) { return !!(_detail && _detail[k] && _detail[k].binds); };
+
     if (this.manual) {
       // A human override is in force — the auto-hysteresis does NOT move the plan
       // out from under Cory. It still reports the live alternative + gap (so the
@@ -441,6 +471,11 @@
       this._challenge = { key: null, picks: 0 };
     } else if (!leader || leader.key === this.current) {
       // The plan still leads. Reset any pending challenge.
+      this._challenge = { key: null, picks: 0 };
+    } else if (_binds(this.current) || _binds(leader.key)) {
+      // One side of this comparison is a binding constraint, so the gap is a
+      // deferral price and not a plan ranking. Suppress the challenge exactly as
+      // the noise band does — nothing accumulates toward a switch on it.
       this._challenge = { key: null, picks: 0 };
     } else {
       const gap = leader.score - curScore;
