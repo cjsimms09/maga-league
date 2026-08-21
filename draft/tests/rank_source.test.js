@@ -121,6 +121,53 @@ const SRC = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
     rsOrder != null && recsOrder != null && Number(rsOrder) < Number(recsOrder), { rsOrder, recsOrder });
 }
 
+// ── 6b. MOUNTED A SECOND TIME ON THE BIG BOARD TAB ──────────────────────────
+// Cory, 2026-08-21, on the Big Board tab specifically: "Didn't have way to
+// see all source actual overall rankings and could only switch between
+// draft shark and blended, other sites aren't on there." True -- this
+// toggle only ever lived on the Draft tab. Same panel, same click delegate
+// (data-rank-source, matched anywhere in the DOM), mounted a second time so
+// switching source never requires leaving the tab you are looking at.
+{
+  const i = SRC.indexOf('function renderRankSourcePanel()');
+  const j = SRC.indexOf('\n  function renderSourceTopBoard', i);
+  const body = SRC.slice(i, j);
+  ck('RANK_SOURCE_MOUNTS lists both the Draft-tab and Big-Board-tab hosts',
+    /\{ card: 'rank-source-card', host: 'rank-source' \}/.test(SRC)
+      && /\{ card: 'rank-source-card-board', host: 'rank-source-board' \}/.test(SRC));
+  ck('the panel builds ONE html string and writes it to every mounted host -- '
+     + 'two copies of the button markup, never two derivations of it',
+    /const panelHtml = /.test(body)
+      && /mounts\.forEach\(function \(m\) \{ m\.host\.innerHTML = panelHtml; \}\)/.test(body));
+  ck('a missing mount degrades gracefully (filter, not a crash) -- the Big '
+     + 'Board copy existing must not be required for the Draft tab copy to work',
+    /\.filter\(function \(m\) \{ return m\.card && m\.host; \}\)/.test(body));
+
+  const ejs = fs.readFileSync(path.join(ROOT, 'views', 'admin', 'warroom.ejs'), 'utf8');
+  ck('warroom.ejs mounts the second copy inside the Big Board tab',
+    /id="rank-source-card-board"/.test(ejs) && /id="rank-source-board"/.test(ejs));
+  const boardTabStart = ejs.indexOf('id="wr-tab-board"');
+  const boardTabEnd = ejs.indexOf('</section>', boardTabStart);
+  const boardTabSrc = ejs.slice(boardTabStart, boardTabEnd);
+  ck('...and it is actually INSIDE the Big Board tab panel, not just '
+     + 'somewhere else in the file',
+    /id="rank-source-card-board"/.test(boardTabSrc));
+  ck('...positioned above the ordering note and the columns, so it reads '
+     + 'before the ranked list it controls',
+    boardTabSrc.indexOf('id="rank-source-card-board"') > -1
+      && boardTabSrc.indexOf('id="rank-source-card-board"') < boardTabSrc.indexOf('id="board-ordering-note"')
+      && boardTabSrc.indexOf('id="board-ordering-note"') < boardTabSrc.indexOf('id="wr-board-columns"'));
+
+  const css = fs.readFileSync(path.join(ROOT, 'public', 'css', 'style.css'), 'utf8');
+  ck('the button/warning/note styling covers the second mount too -- an '
+     + 'id-scoped selector on #rank-source alone would leave the Big Board '
+     + "tab's copy unstyled",
+    /#rank-source-board \.rs-buttons/.test(css)
+      && /#rank-source-board \.rs-btn/.test(css)
+      && /#rank-source-board \.rs-warn/.test(css)
+      && /#rank-source-board \.rs-note/.test(css));
+}
+
 // ── 7. the script is actually loaded, before app.js ─────────────────────────
 {
   const scripts = fs.readFileSync(path.join(ROOT, 'views', 'admin', '_warroom_scripts.ejs'), 'utf8');

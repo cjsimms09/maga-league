@@ -422,6 +422,19 @@
         "unshown field" defect class this project keeps finding. One honest
         sentence covers both the by-position columns below and the full table
         further down — they share the same ordering, computed once. %>
+    <%# Cory, 2026-08-21, on THIS tab specifically: "Didn't have way to see
+        all source actual overall rankings and could only switch between
+        draft shark and blended, other sites aren't on there." Right — the
+        Ranking Source toggle (all five sources) only ever lived on the
+        Draft tab; switching source meant leaving this tab entirely. Same
+        card, same #rank-source markup, mounted a second time here —
+        renderRankSourcePanel() in app.js fills both from one HTML string,
+        so they can never disagree with each other or with the toggle's
+        own state. %>
+    <div class="card" id="rank-source-card-board" style="display:none">
+      <h2>🔀 Ranking Source</h2>
+      <div class="body"><div id="rank-source-board"></div></div>
+    </div>
     <p class="muted wr-board-ordering" id="board-ordering-note"></p>
     <%# The columnar board — per-position side-scrolling columns, tier cliffs
         drawn as red lines, count in each header. warroom_charts.js renders. %>

@@ -9262,14 +9262,39 @@
    * completely unmodified via context()). LOUD when off blend, on purpose:
    * every recommendation on the page is now answering a DIFFERENT question
    * than usual, and that has to be impossible to miss mid-draft. */
+  /* MOUNTED TWICE — Cory, 2026-08-21, on the Big Board tab specifically:
+   * "Didn't have way to see all source actual overall rankings and could
+   * only switch between draft shark and blended, other sites aren't on
+   * there." True: this toggle only ever lived on the Draft tab
+   * (#rank-source-card), so switching source meant leaving the Big Board
+   * tab, picking a source, then tabbing back to see the effect. The Big
+   * Board tab's own DS/Blend-only control he found is position-boards'
+   * separate, intentionally-limited display toggle (a different panel
+   * entirely, on the Draft tab too) — not a substitute for this one.
+   *
+   * THE SAME PANEL, NOT A SECOND IMPLEMENTATION. `document.body`'s single
+   * delegated click listener already matches on `[data-rank-source]`
+   * anywhere in the DOM (app.js, the click-router), so a second copy of
+   * this exact markup on the Big Board tab works with zero new wiring —
+   * one HTML string, one set of buttons, rendered into both mount points
+   * so they can never drift out of sync with each other or with
+   * state.rankSource. */
+  var RANK_SOURCE_MOUNTS = [
+    { card: 'rank-source-card', host: 'rank-source' },
+    { card: 'rank-source-card-board', host: 'rank-source-board' },
+  ];
   function renderRankSourcePanel() {
-    const card = document.getElementById('rank-source-card');
-    const host = document.getElementById('rank-source');
-    if (!card || !host) return;
+    const mounts = RANK_SOURCE_MOUNTS
+      .map(function (m) {
+        return { card: document.getElementById(m.card), host: document.getElementById(m.host) };
+      })
+      .filter(function (m) { return m.card && m.host; });
+    if (!mounts.length) return;
     if (typeof SourceBoard === 'undefined' || !state.board || !state.board.length) {
-      card.style.display = 'none'; return;
+      mounts.forEach(function (m) { m.card.style.display = 'none'; });
+      return;
     }
-    card.style.display = '';
+    mounts.forEach(function (m) { m.card.style.display = ''; });
     const esc = escapeHtml;
     const active = state.rankSource || 'blend';
     const BUTTONS = [{ key: 'blend', label: 'Blend' }].concat(SourceBoard.SOURCES);
@@ -9307,7 +9332,7 @@
         + ' does not cover are OFF the board right now</b> — they are not gone, just hidden until you '
         + 'switch back to Blend.</div>'
       : '';
-    host.innerHTML = '<div class="rs-buttons">' + btnHtml + '</div>' + warn
+    const panelHtml = '<div class="rs-buttons">' + btnHtml + '</div>' + warn
       /* BOTH NUMBERS, COMPUTED, NEVER QUOTED. An earlier draft of this line
        * had "Draft Sharks reads 35%" typed into it — a real measurement from
        * the 2026-08-19 board that would have silently gone stale on the next
@@ -9350,6 +9375,7 @@
                 + 'their raw points instead puts twelve quarterbacks in the top twelve, '
                 + 'because cross-position points are not comparable.</p>'
               : ''));
+    mounts.forEach(function (m) { m.host.innerHTML = panelHtml; });
   }
 
   /* THE MAIN LIST FOR WHICHEVER SOURCE IS SELECTED — Cory, 2026-08-21, direct
