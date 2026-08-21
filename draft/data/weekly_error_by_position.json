@@ -1,0 +1,71 @@
+{
+ "_territory": "TERRITORY: D -- research artifact, reuses LO.harvest/seasonOf/inferPositions/regularSeasonWeeks unmodified (rule 11); the leak-free reconstruction loop is reproduced from lineup_edge_backtest.js at per-player granularity",
+ "_ask": "relay, 2026-08-20, TO: D ASK 1 -- the epsilon table for the adaptation plan's favorite-floor/underdog-ceiling lineup tie-break",
+ "seasons": [
+  "2023",
+  "2024",
+  "2025"
+ ],
+ "total_player_weeks": 5720,
+ "bye_exclusions": {
+  "2023": 121,
+  "2024": 116
+ },
+ "by_position": {
+  "WR": {
+   "n": 1907,
+   "mean_signed_error": -0.14,
+   "mae": 6.47,
+   "sd": 8.35
+  },
+  "RB": {
+   "n": 1763,
+   "mean_signed_error": -0.41,
+   "mae": 6.27,
+   "sd": 8.14
+  },
+  "TE": {
+   "n": 632,
+   "mean_signed_error": 0.32,
+   "mae": 5.6,
+   "sd": 7.22
+  },
+  "QB": {
+   "n": 622,
+   "mean_signed_error": -0.34,
+   "mae": 9.58,
+   "sd": 12.06
+  },
+  "K": {
+   "n": 374,
+   "mean_signed_error": -1.03,
+   "mae": 4.22,
+   "sd": 5.28
+  },
+  "DEF": {
+   "n": 422,
+   "mean_signed_error": -0.72,
+   "mae": 5.8,
+   "sd": 7.38
+  }
+ },
+ "reconstruction_control": {
+  "what": "this loop's bye-exclusion counts must exactly match lineup_edge_backtest.js's own, proving the reproduced leak-free reconstruction is faithful to the original",
+  "mine": {
+   "2023": 121,
+   "2024": 116
+  },
+  "original": {
+   "2023": 121,
+   "2024": 116
+  },
+  "passed": true
+ },
+ "rule_3e_control": {
+  "what": "QB weekly MAE must exceed K weekly MAE (QB has a stable weekly role; K is the most streamable/replaceable position)",
+  "qb_mae": 9.58,
+  "k_mae": 4.22,
+  "passed": true
+ },
+ "controls_all_passed": true
+}

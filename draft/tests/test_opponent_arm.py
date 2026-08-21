@@ -111,3 +111,29 @@ def test_the_arm_contradicts_the_feasibility_ranking_and_that_is_the_finding():
 
 def test_the_multiplicity_is_disclosed():
     assert "4 positions" in _doc()["multiplicity"], _doc()["multiplicity"]
+
+
+def test_correlation_gate_added_2026_08_21_matches_ROUTES_ASK_2s_own_discipline():
+    """ROUTES 2026-08-20's matchup-arm ask required a correlation gate
+    (<0.98 vs the baseline) same as every other arm this program grades —
+    this study predates that ask (08-18) and did not originally carry one.
+    Added retroactively rather than rebuilding a near-duplicate study."""
+    for p, d in _doc()["positions"].items():
+        v = d["verdict"]
+        assert "correlation_vs_baseline" in v, p
+        assert v["correlation_gate"] == 0.98, p
+        assert v["gate_clears"] == (v["correlation_vs_baseline"] < 0.98), p
+
+
+def test_KNOWN_the_gate_fails_at_every_position_and_the_mechanism_is_understood():
+    """None of the four positions clear the correlation gate — expected, not a
+    bug: a null MAE result drives the LOO grid search toward a small (or
+    zero) lambda, which makes the arm's prediction converge on the baseline
+    by construction. TE's fitted lambda is 0.0 in all three folds, so its
+    correlation is EXACTLY 1.0 — the clearest instance of the mechanism."""
+    pos = _doc()["positions"]
+    for p in POSITIONS:
+        assert pos[p]["verdict"]["gate_clears"] is False, (p, pos[p]["verdict"])
+    te_lambdas = {s: v["lambda"] for s, v in pos["TE"]["leave_one_out"].items()}
+    assert all(lam == 0.0 for lam in te_lambdas.values()), te_lambdas
+    assert pos["TE"]["verdict"]["correlation_vs_baseline"] == 1.0

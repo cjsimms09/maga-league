@@ -315,6 +315,39 @@ const MLV_NO_ONESIE = process.argv.includes('--mlv-no-onesie');
  * mine. P240's bars stand exactly as filed and do not move now that I know what
  * to expect. */
 const MLV_LOOK = process.argv.includes('--mlv-look');
+/* ── MLV-POINTS (`--mlv-points`) — the relay's units question, 2026-08-20 ─────
+ * ASK: "encode lineupValue in projected POINTS instead of market rank, re-run
+ * the 30 seat-years, report whether the cap arm's +45.8/+29.3 survives."
+ *
+ * ⚠️ THIS FILE'S OWN HEADER ALREADY ANSWERS PART OF THE QUESTION, AND IT IS
+ * WORTH READING BEFORE TRUSTING WHAT THIS FLAG PRODUCES. The market-rank
+ * encoding was not an arbitrary choice — it is the ONE thing this design does
+ * to stay era-correct with no era-appropriate projections available
+ * ("the seat replay is blocked on era-appropriate projections... value signal
+ * = THE MARKET'S OWN DRAFT ORDER... IS THE SAME INFORMATION THE HUMAN OWNER
+ * HAD"). This harness loads exactly one projection source: `public/draft_data
+ * .json`, the CURRENT 2026 board. Substituting its `proj_mean` for a 2023-25
+ * pick is not a units test in isolation — it is feeding the engine 2026
+ * hindsight (injuries since played, role changes since happened, three more
+ * years of NFL opinion) to make a 2023/2024/2025 decision, which the header's
+ * own no-hindsight symmetry claim explicitly rules out.
+ *
+ * RUN ANYWAY, BECAUSE THE QUESTION IS STILL WORTH THE ANSWER — filed as
+ * register TBD. The result below is not "does MLV survive a clean points
+ * encoding"; it is "does MLV survive THIS SPECIFIC contaminated points proxy",
+ * a strictly weaker and easier question. Reported as such, with coverage
+ * measured (not assumed): how many of the 30 seat-years' picks are even on
+ * the 2026 board at all. */
+const MLV_POINTS = process.argv.includes('--mlv-points');
+const CURRENT_BOARD_PROJ = {};
+if (MLV_POINTS) {
+  (BOARD.players || []).forEach(p => {
+    if (p.player_id != null && typeof p.proj_mean === 'number') {
+      CURRENT_BOARD_PROJ[String(p.player_id)] = p.proj_mean;
+    }
+  });
+}
+let mlvPointsCoverage = { matched: 0, total: 0 };
 
 function lineupValueOf(vals) {
   /* vals: {pos: [value, ...]} sorted desc. Dedicated slots then one flex. */
@@ -336,7 +369,18 @@ function buildSeat(season, draft, seatId, rosterOn) {
   /* value = the market's own order. Era-correct, no hindsight, and the same
    * information the owner had. */
   let valueOf = p => (N + 1) - p.pick_no;
-  if (SHRINK) {
+  if (MLV_POINTS) {
+    /* the units question: swap market rank for the CURRENT board's proj_mean.
+     * Coverage measured per-pick, not assumed — a player absent from the 2026
+     * board (retired, off the pool) falls back to the market-rank value so a
+     * whole roster does not go silently to zero. */
+    valueOf = p => {
+      mlvPointsCoverage.total++;
+      const pm = CURRENT_BOARD_PROJ[String(p.player_id)];
+      if (pm != null) { mlvPointsCoverage.matched++; return pm; }
+      return (N + 1) - p.pick_no;
+    };
+  } else if (SHRINK) {
     /* per-position mean of the market's own value, then shrink toward it */
     const byPos = {};
     picks.forEach(p => {
@@ -627,4 +671,10 @@ console.log('\n  by season:');
 });
 console.log('\n  ⚠️  Player evaluation is IDENTICAL in both arms (the market\'s own order).');
 console.log('     The only difference is the construction rule. This tests SHAPE, not projections.');
+if (MLV_POINTS) {
+  console.log(`\n  ⚠️  --mlv-points: value signal swapped to the 2026 board's proj_mean.`);
+  console.log(`     coverage: ${mlvPointsCoverage.matched}/${mlvPointsCoverage.total} picks matched to the current board `
+    + `(${(100 * mlvPointsCoverage.matched / mlvPointsCoverage.total).toFixed(1)}%); unmatched picks fell back to market rank.`);
+  console.log('     This is NOT era-correct — 2023-25 picks are valued on 2026 hindsight. See the flag\'s own header comment.');
+}
 process.exit(allOk ? 0 : 1);

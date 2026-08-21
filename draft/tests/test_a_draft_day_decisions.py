@@ -163,14 +163,28 @@ def test_every_A_decision_carries_a_default():
         assert cells[3], f"{rid} has no recommendation"
 
 
+#: Same TERMINAL-word set `register_recheck_check.js`'s `isClosed()` uses.
+#: RE-AIMED 2026-08-20 (D, at merge time): this used to be a positive match on
+#: OPEN/WAITING/IN HAND/AWAITING, which is a DIFFERENT convention than the rest
+#: of the house uses — and the house convention, enforced everywhere else this
+#: whole draft cycle, is "FIXED is not closed" (a row needs an explicit
+#: terminal word — closed/resolved/ruled/withdrawn/superseded/retracted — to
+#: stop being chased). The positive list silently undercounted 62 rows whose
+#: status was FIXED/BUILT/DIAGNOSED/MITIGATED/CORRECTED/ANSWERED — all still
+#: open by the convention `register_recheck_check.js` applies — which is why
+#: this test's own count (136) diverged from the live tool's (189) by 53 rows,
+#: outside its own tolerance. Reusing the existing TERMINAL regex instead of a
+#: second hand-maintained positive list is also Rule 11: don't reimplement
+#: logic that already exists and is already the enforced convention.
+_TERMINAL = re.compile(r"closed|resolved|ruled|withdrawn|superseded|retracted", re.I)
+
+
 def test_the_backlog_claim_is_still_roughly_true():
     """The sheet's premise is that the register is too large to read at four
     days out. If that stopped being true the sheet should be retired, not
     quietly left standing."""
     rows = _register_rows()
-    open_rows = [r for r, (status, _) in rows.items()
-                 if "OPEN" in status.upper() or "WAITING" in status.upper()
-                 or "IN HAND" in status.upper() or "AWAITING" in status.upper()]
+    open_rows = [r for r, (status, _) in rows.items() if not _TERMINAL.search(status)]
     assert len(open_rows) > 30, (
         f"only {len(open_rows)} open rows — the triage sheet's premise no longer "
         "holds; retire it rather than leaving a stale summary standing")

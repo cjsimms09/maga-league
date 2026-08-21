@@ -4,32 +4,32 @@
  "prereg": "header of draft/backtest/exp_tiebreak_signals.py",
  "part1_ceiling_structure": {
   "QB": {
-   "n": 76,
-   "distinct_variance_values": 12,
-   "spearman_ceiling_vs_mean": 0.9965,
-   "within_tier_pairs": 872,
-   "pair_inversion_pct": 4.36
+   "n": 79,
+   "distinct_variance_values": 7,
+   "spearman_ceiling_vs_mean": 0.9817,
+   "within_tier_pairs": 1119,
+   "pair_inversion_pct": 7.33
   },
   "RB": {
-   "n": 134,
-   "distinct_variance_values": 21,
-   "spearman_ceiling_vs_mean": 0.9993,
-   "within_tier_pairs": 1381,
-   "pair_inversion_pct": 3.91
+   "n": 137,
+   "distinct_variance_values": 7,
+   "spearman_ceiling_vs_mean": 0.9888,
+   "within_tier_pairs": 1976,
+   "pair_inversion_pct": 7.44
   },
   "WR": {
-   "n": 204,
-   "distinct_variance_values": 24,
-   "spearman_ceiling_vs_mean": 0.9993,
-   "within_tier_pairs": 1963,
-   "pair_inversion_pct": 6.21
+   "n": 207,
+   "distinct_variance_values": 7,
+   "spearman_ceiling_vs_mean": 0.9934,
+   "within_tier_pairs": 2229,
+   "pair_inversion_pct": 10.59
   },
   "TE": {
-   "n": 113,
-   "distinct_variance_values": 21,
-   "spearman_ceiling_vs_mean": 0.9994,
-   "within_tier_pairs": 1009,
-   "pair_inversion_pct": 3.87
+   "n": 117,
+   "distinct_variance_values": 9,
+   "spearman_ceiling_vs_mean": 0.9975,
+   "within_tier_pairs": 1294,
+   "pair_inversion_pct": 3.55
   }
  },
  "part2_age_experience": {
@@ -60,7 +60,7 @@
   "next_season_effect_by_exp": {
    "3-5yr": {
     "n": 71,
-    "mean_effect_pts": 13.1,
+    "mean_effect_pts": 13.0,
     "rough_se": 7.7,
     "null": null
    },
@@ -72,7 +72,7 @@
    },
    "rookie-2yr": {
     "n": 92,
-    "mean_effect_pts": 0.2,
+    "mean_effect_pts": 0.3,
     "rough_se": 8.0,
     "null": true
    }

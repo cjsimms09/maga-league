@@ -1,0 +1,604 @@
+{
+  "_territory": "TERRITORY: D \u2014 produced by draft/backtest/weekly_boom_baseline.py",
+  "_note": "The null every weekly-boom feature must beat: P(top-12 positional week | position, prior-season tier). Preregistered in draft/WEEKLY-BOOM-BASELINE-PREREG-2026-08-21.md before any rate was computed.",
+  "prereg": "draft/WEEKLY-BOOM-BASELINE-PREREG-2026-08-21.md",
+  "boom_rank": 12,
+  "tiers": {
+    "T1": [
+      1,
+      12
+    ],
+    "T2": [
+      13,
+      24
+    ],
+    "T3": [
+      25,
+      36
+    ],
+    "T4": [
+      37,
+      1000000
+    ]
+  },
+  "min_games": 4,
+  "target_seasons": [
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "positions": [
+    "QB",
+    "RB",
+    "WR",
+    "TE"
+  ],
+  "positions_out_of_scope": {
+    "positions": [
+      "K",
+      "DEF"
+    ],
+    "reason": "the component store's own provenance.position_groups is ['QB','RB','WR','TE'] \u2014 there is no K or DEF row in this population at all, so a boom rate for them is not computable here. Declared, not silently omitted."
+  },
+  "coverage_is_a_tautology": "nflverse_weekly_points_<season>.json is REBUILT from component_stats_<season>.json and inherits its population (that store's own _note), so the position-label coverage below is 100% BY CONSTRUCTION. It is not evidence of a healthy join \u2014 there is no join to lose.",
+  "degenerate_reading_warning": "`degenerate_unconditional` is mechanically 12/N_players_that_week and carries NO football information. It is emitted only so it is not recomputed elsewhere and quoted as a finding. The usable null is `conditional`.",
+  "seasons": [
+    {
+      "season": 2022,
+      "coverage": {
+        "scoring_player_weeks": 5351,
+        "labeled": 5351,
+        "unlabeled": 0,
+        "out_of_scope_position": 0
+      },
+      "cutoff_ties": {
+        "weeks_with_a_cutoff_tie": 4,
+        "weeks": 72
+      },
+      "conditional": {
+        "QB": {
+          "T1": {
+            "player_weeks": 176,
+            "booms": 101,
+            "boom_rate": 0.5739
+          },
+          "T2": {
+            "player_weeks": 113,
+            "booms": 42,
+            "boom_rate": 0.3717
+          },
+          "T3": {
+            "player_weeks": 113,
+            "booms": 39,
+            "boom_rate": 0.3451
+          },
+          "T4": {
+            "player_weeks": 125,
+            "booms": 20,
+            "boom_rate": 0.16
+          }
+        },
+        "RB": {
+          "T1": {
+            "player_weeks": 175,
+            "booms": 70,
+            "boom_rate": 0.4
+          },
+          "T2": {
+            "player_weeks": 151,
+            "booms": 37,
+            "boom_rate": 0.245
+          },
+          "T3": {
+            "player_weeks": 131,
+            "booms": 28,
+            "boom_rate": 0.2137
+          },
+          "T4": {
+            "player_weeks": 607,
+            "booms": 47,
+            "boom_rate": 0.0774
+          }
+        },
+        "WR": {
+          "T1": {
+            "player_weeks": 161,
+            "booms": 55,
+            "boom_rate": 0.3416
+          },
+          "T2": {
+            "player_weeks": 174,
+            "booms": 36,
+            "boom_rate": 0.2069
+          },
+          "T3": {
+            "player_weeks": 150,
+            "booms": 30,
+            "boom_rate": 0.2
+          },
+          "T4": {
+            "player_weeks": 1165,
+            "booms": 65,
+            "boom_rate": 0.0558
+          }
+        },
+        "TE": {
+          "T1": {
+            "player_weeks": 153,
+            "booms": 78,
+            "boom_rate": 0.5098
+          },
+          "T2": {
+            "player_weeks": 149,
+            "booms": 44,
+            "boom_rate": 0.2953
+          },
+          "T3": {
+            "player_weeks": 114,
+            "booms": 22,
+            "boom_rate": 0.193
+          },
+          "T4": {
+            "player_weeks": 398,
+            "booms": 39,
+            "boom_rate": 0.098
+          }
+        }
+      },
+      "degenerate_unconditional": {
+        "QB": {
+          "player_weeks": 648,
+          "mean_players_per_week": 36.0,
+          "rate": 0.3333
+        },
+        "RB": {
+          "player_weeks": 1482,
+          "mean_players_per_week": 82.3,
+          "rate": 0.1457
+        },
+        "WR": {
+          "player_weeks": 2138,
+          "mean_players_per_week": 118.8,
+          "rate": 0.101
+        },
+        "TE": {
+          "player_weeks": 1083,
+          "mean_players_per_week": 60.2,
+          "rate": 0.1994
+        }
+      }
+    },
+    {
+      "season": 2023,
+      "coverage": {
+        "scoring_player_weeks": 5372,
+        "labeled": 5372,
+        "unlabeled": 0,
+        "out_of_scope_position": 0
+      },
+      "cutoff_ties": {
+        "weeks_with_a_cutoff_tie": 5,
+        "weeks": 72
+      },
+      "conditional": {
+        "QB": {
+          "T1": {
+            "player_weeks": 170,
+            "booms": 88,
+            "boom_rate": 0.5176
+          },
+          "T2": {
+            "player_weeks": 95,
+            "booms": 35,
+            "boom_rate": 0.3684
+          },
+          "T3": {
+            "player_weeks": 93,
+            "booms": 20,
+            "boom_rate": 0.2151
+          },
+          "T4": {
+            "player_weeks": 121,
+            "booms": 36,
+            "boom_rate": 0.2975
+          }
+        },
+        "RB": {
+          "T1": {
+            "player_weeks": 164,
+            "booms": 66,
+            "boom_rate": 0.4024
+          },
+          "T2": {
+            "player_weeks": 162,
+            "booms": 40,
+            "boom_rate": 0.2469
+          },
+          "T3": {
+            "player_weeks": 146,
+            "booms": 18,
+            "boom_rate": 0.1233
+          },
+          "T4": {
+            "player_weeks": 609,
+            "booms": 59,
+            "boom_rate": 0.0969
+          }
+        },
+        "WR": {
+          "T1": {
+            "player_weeks": 180,
+            "booms": 72,
+            "boom_rate": 0.4
+          },
+          "T2": {
+            "player_weeks": 176,
+            "booms": 31,
+            "boom_rate": 0.1761
+          },
+          "T3": {
+            "player_weeks": 164,
+            "booms": 30,
+            "boom_rate": 0.1829
+          },
+          "T4": {
+            "player_weeks": 1069,
+            "booms": 46,
+            "boom_rate": 0.043
+          }
+        },
+        "TE": {
+          "T1": {
+            "player_weeks": 158,
+            "booms": 76,
+            "boom_rate": 0.481
+          },
+          "T2": {
+            "player_weeks": 160,
+            "booms": 31,
+            "boom_rate": 0.1938
+          },
+          "T3": {
+            "player_weeks": 142,
+            "booms": 20,
+            "boom_rate": 0.1408
+          },
+          "T4": {
+            "player_weeks": 369,
+            "booms": 45,
+            "boom_rate": 0.122
+          }
+        }
+      },
+      "degenerate_unconditional": {
+        "QB": {
+          "player_weeks": 663,
+          "mean_players_per_week": 36.8,
+          "rate": 0.3258
+        },
+        "RB": {
+          "player_weeks": 1423,
+          "mean_players_per_week": 79.1,
+          "rate": 0.1518
+        },
+        "WR": {
+          "player_weeks": 2211,
+          "mean_players_per_week": 122.8,
+          "rate": 0.0977
+        },
+        "TE": {
+          "player_weeks": 1075,
+          "mean_players_per_week": 59.7,
+          "rate": 0.2009
+        }
+      }
+    },
+    {
+      "season": 2024,
+      "coverage": {
+        "scoring_player_weeks": 5298,
+        "labeled": 5298,
+        "unlabeled": 0,
+        "out_of_scope_position": 0
+      },
+      "cutoff_ties": {
+        "weeks_with_a_cutoff_tie": 9,
+        "weeks": 72
+      },
+      "conditional": {
+        "QB": {
+          "T1": {
+            "player_weeks": 174,
+            "booms": 81,
+            "boom_rate": 0.4655
+          },
+          "T2": {
+            "player_weeks": 140,
+            "booms": 61,
+            "boom_rate": 0.4357
+          },
+          "T3": {
+            "player_weeks": 69,
+            "booms": 8,
+            "boom_rate": 0.1159
+          },
+          "T4": {
+            "player_weeks": 128,
+            "booms": 26,
+            "boom_rate": 0.2031
+          }
+        },
+        "RB": {
+          "T1": {
+            "player_weeks": 171,
+            "booms": 65,
+            "boom_rate": 0.3801
+          },
+          "T2": {
+            "player_weeks": 170,
+            "booms": 60,
+            "boom_rate": 0.3529
+          },
+          "T3": {
+            "player_weeks": 144,
+            "booms": 29,
+            "boom_rate": 0.2014
+          },
+          "T4": {
+            "player_weeks": 601,
+            "booms": 39,
+            "boom_rate": 0.0649
+          }
+        },
+        "WR": {
+          "T1": {
+            "player_weeks": 176,
+            "booms": 49,
+            "boom_rate": 0.2784
+          },
+          "T2": {
+            "player_weeks": 158,
+            "booms": 35,
+            "boom_rate": 0.2215
+          },
+          "T3": {
+            "player_weeks": 147,
+            "booms": 24,
+            "boom_rate": 0.1633
+          },
+          "T4": {
+            "player_weeks": 1135,
+            "booms": 78,
+            "boom_rate": 0.0687
+          }
+        },
+        "TE": {
+          "T1": {
+            "player_weeks": 163,
+            "booms": 76,
+            "boom_rate": 0.4663
+          },
+          "T2": {
+            "player_weeks": 134,
+            "booms": 45,
+            "boom_rate": 0.3358
+          },
+          "T3": {
+            "player_weeks": 113,
+            "booms": 25,
+            "boom_rate": 0.2212
+          },
+          "T4": {
+            "player_weeks": 474,
+            "booms": 46,
+            "boom_rate": 0.097
+          }
+        }
+      },
+      "degenerate_unconditional": {
+        "QB": {
+          "player_weeks": 664,
+          "mean_players_per_week": 36.9,
+          "rate": 0.3253
+        },
+        "RB": {
+          "player_weeks": 1414,
+          "mean_players_per_week": 78.6,
+          "rate": 0.1528
+        },
+        "WR": {
+          "player_weeks": 2132,
+          "mean_players_per_week": 118.4,
+          "rate": 0.1013
+        },
+        "TE": {
+          "player_weeks": 1088,
+          "mean_players_per_week": 60.4,
+          "rate": 0.1985
+        }
+      }
+    },
+    {
+      "season": 2025,
+      "coverage": {
+        "scoring_player_weeks": 6108,
+        "labeled": 6108,
+        "unlabeled": 0,
+        "out_of_scope_position": 0
+      },
+      "cutoff_ties": {
+        "weeks_with_a_cutoff_tie": 2,
+        "weeks": 72
+      },
+      "conditional": {
+        "QB": {
+          "T1": {
+            "player_weeks": 165,
+            "booms": 72,
+            "boom_rate": 0.4364
+          },
+          "T2": {
+            "player_weeks": 139,
+            "booms": 50,
+            "boom_rate": 0.3597
+          },
+          "T3": {
+            "player_weeks": 112,
+            "booms": 43,
+            "boom_rate": 0.3839
+          },
+          "T4": {
+            "player_weeks": 91,
+            "booms": 22,
+            "boom_rate": 0.2418
+          }
+        },
+        "RB": {
+          "T1": {
+            "player_weeks": 177,
+            "booms": 77,
+            "boom_rate": 0.435
+          },
+          "T2": {
+            "player_weeks": 167,
+            "booms": 35,
+            "boom_rate": 0.2096
+          },
+          "T3": {
+            "player_weeks": 132,
+            "booms": 27,
+            "boom_rate": 0.2045
+          },
+          "T4": {
+            "player_weeks": 643,
+            "booms": 42,
+            "boom_rate": 0.0653
+          }
+        },
+        "WR": {
+          "T1": {
+            "player_weeks": 158,
+            "booms": 50,
+            "boom_rate": 0.3165
+          },
+          "T2": {
+            "player_weeks": 175,
+            "booms": 42,
+            "boom_rate": 0.24
+          },
+          "T3": {
+            "player_weeks": 169,
+            "booms": 19,
+            "boom_rate": 0.1124
+          },
+          "T4": {
+            "player_weeks": 1200,
+            "booms": 84,
+            "boom_rate": 0.07
+          }
+        },
+        "TE": {
+          "T1": {
+            "player_weeks": 160,
+            "booms": 64,
+            "boom_rate": 0.4
+          },
+          "T2": {
+            "player_weeks": 170,
+            "booms": 41,
+            "boom_rate": 0.2412
+          },
+          "T3": {
+            "player_weeks": 153,
+            "booms": 34,
+            "boom_rate": 0.2222
+          },
+          "T4": {
+            "player_weeks": 459,
+            "booms": 35,
+            "boom_rate": 0.0763
+          }
+        }
+      },
+      "degenerate_unconditional": {
+        "QB": {
+          "player_weeks": 664,
+          "mean_players_per_week": 36.9,
+          "rate": 0.3253
+        },
+        "RB": {
+          "player_weeks": 1646,
+          "mean_players_per_week": 91.4,
+          "rate": 0.1312
+        },
+        "WR": {
+          "player_weeks": 2511,
+          "mean_players_per_week": 139.5,
+          "rate": 0.086
+        },
+        "TE": {
+          "player_weeks": 1287,
+          "mean_players_per_week": 71.5,
+          "rate": 0.1678
+        }
+      }
+    }
+  ],
+  "stability": {
+    "t1_boom_rate": {
+      "QB": {
+        "by_season": {
+          "2022": 0.5739,
+          "2023": 0.5176,
+          "2024": 0.4655,
+          "2025": 0.4364
+        },
+        "min": 0.4364,
+        "max": 0.5739,
+        "range": 0.1375
+      },
+      "RB": {
+        "by_season": {
+          "2022": 0.4,
+          "2023": 0.4024,
+          "2024": 0.3801,
+          "2025": 0.435
+        },
+        "min": 0.3801,
+        "max": 0.435,
+        "range": 0.0549
+      },
+      "WR": {
+        "by_season": {
+          "2022": 0.3416,
+          "2023": 0.4,
+          "2024": 0.2784,
+          "2025": 0.3165
+        },
+        "min": 0.2784,
+        "max": 0.4,
+        "range": 0.1216
+      },
+      "TE": {
+        "by_season": {
+          "2022": 0.5098,
+          "2023": 0.481,
+          "2024": 0.4663,
+          "2025": 0.4
+        },
+        "min": 0.4,
+        "max": 0.5098,
+        "range": 0.1098
+      }
+    },
+    "most_stable": "RB",
+    "least_stable": "QB",
+    "ranked_most_to_least_stable": [
+      "RB",
+      "TE",
+      "WR",
+      "QB"
+    ]
+  }
+}

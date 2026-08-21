@@ -68,7 +68,10 @@
     "seasons_positive": 0,
     "seasons": 3,
     "placebo_p": 0.9508,
-    "clears": false
+    "clears": false,
+    "correlation_vs_baseline": 0.9924,
+    "correlation_gate": 0.98,
+    "gate_clears": false
    }
   },
   "RB": {
@@ -115,7 +118,10 @@
     "seasons_positive": 2,
     "seasons": 3,
     "placebo_p": 0.0164,
-    "clears": false
+    "clears": false,
+    "correlation_vs_baseline": 0.9868,
+    "correlation_gate": 0.98,
+    "gate_clears": false
    }
   },
   "WR": {
@@ -162,7 +168,10 @@
     "seasons_positive": 1,
     "seasons": 3,
     "placebo_p": 0.9836,
-    "clears": false
+    "clears": false,
+    "correlation_vs_baseline": 0.995,
+    "correlation_gate": 0.98,
+    "gate_clears": false
    }
   },
   "TE": {
@@ -209,7 +218,10 @@
     "seasons_positive": 0,
     "seasons": 3,
     "placebo_p": 0.541,
-    "clears": false
+    "clears": false,
+    "correlation_vs_baseline": 1.0,
+    "correlation_gate": 0.98,
+    "gate_clears": false
    }
   }
  },
