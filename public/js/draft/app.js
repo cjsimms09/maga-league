@@ -7232,6 +7232,24 @@
      * reader inferring it from a source name. */
     state.bigBoardOrdering = !state.rankSource ? 'blend'
       : (state.rankSource === 'sleeper' ? 'pure' : 'derived');
+    /* Computed above, printed nowhere until now — Cory asked directly whether
+     * this tab's ordering changes with the source toggle, which it does, but
+     * he had no way to see it change short of counting rows himself. One
+     * sentence covers both surfaces below (the by-position columns and the
+     * full table), since both read this same srcBoard. */
+    (function () {
+      const note = document.getElementById('board-ordering-note');
+      if (!note) return;
+      if (state.bigBoardOrdering === 'blend') {
+        note.textContent = 'Ordered by the Blend — our own VONA-adjacent ranking, the board\'s default.';
+      } else if (state.bigBoardOrdering === 'pure') {
+        note.textContent = 'Ordered by Sleeper’s OWN published overall rank — their real board, not ours.';
+      } else {
+        const label = (SourceBoard.SOURCES.find(s => s.key === state.rankSource) || {}).label || state.rankSource;
+        note.textContent = 'Ordered by our replacement math applied to ' + label + '’s projections — '
+          + label + ' does not publish their own overall board, so this is OUR opinion of THEIR numbers, not a ranking ' + label + ' made.';
+      }
+    })();
     const rows = (state.search
       ? srcBoard.filter(match)
         .map((p, i) => ({ p: p, s: nameScore(p.name, state.search), i: i }))
