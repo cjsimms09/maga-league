@@ -46,6 +46,13 @@ import json
 import sys
 from pathlib import Path
 
+# Imported both as a package module and as a bare sibling (the test does
+# `import practice_participation`), so both spellings have to work.
+try:                                     # pragma: no cover
+    from . import id_crosswalk as _CROSSWALK
+except ImportError:                      # pragma: no cover
+    import id_crosswalk as _CROSSWALK
+
 HERE = Path(__file__).resolve().parent
 DRAFT = HERE.parent
 ROOT = DRAFT.parent
@@ -163,49 +170,25 @@ def _fetch_practice_rows(season: int) -> list:  # pragma: no cover  (egress)
 def _fetch_crosswalk() -> dict:  # pragma: no cover  (egress)
     """gsis_id -> sleeper_id, from nflverse's player crosswalk.
 
-    ⚠️ VERSION-TOLERANT ON PURPOSE (A, 2026-08-21). This called `nfl.import_ids()`
-    flat, and CI went red with `module 'nfl_data_py' has no attribute
-    'import_ids'` while the same call worked locally. `draft/requirements.txt`
-    pins only `nfl_data_py>=0.3.2`, so CI resolves whatever is newest and the
-    newest release dropped `import_ids` in favour of `import_players`. An
-    unpinned dependency plus a single-API call means upstream can turn this red
-    on any morning — including tomorrow's.
+    ⚠️ VERSION-TOLERANT, AND THE REASON FIRST GIVEN FOR IT WAS WRONG. This
+    called `nfl.import_ids()` flat and CI went red with `module 'nfl_data_py'
+    has no attribute 'import_ids'` while the same call worked locally. That was
+    read as an upstream rename under an unpinned requirement. **It was a test
+    leaking a one-attribute fake into `sys.modules` with no cleanup, so every
+    later test in the session saw a module with neither name** (A, `e12b3c2e`,
+    register 219; leak fixed there). Confirmed rather than accepted: pre-fix,
+    this file passes ALONE and fails when run after the leaking one.
 
-    Pinning backwards would freeze us on an old release to keep one call
-    working. Instead: try both, prefer the one that exists, and say plainly
-    which shapes were tried if neither does. Both return a frame carrying
-    `gsis_id` and `sleeper_id`, which is all this needs.
+    The first fallback written for it — `import_players` — was measured
+    afterwards and **carries `gsis_id` and no `sleeper_id`**, so it would not
+    have cured a real rename either (E, register 232). The chain stays anyway:
+    the dependency really is unpinned and this really was a single flat call.
+
+    The chain now ends somewhere no rename can reach — see
+    `id_crosswalk.DYNASTYPROCESS_IDS_URL`, which is the file `import_ids`
+    itself reads. All three sources return the SAME 6,183 pairs, checked.
     """
-    import nfl_data_py as nfl
-    df = None
-    tried = []
-    for name in ("import_ids", "import_players"):
-        fn = getattr(nfl, name, None)
-        if fn is None:
-            tried.append(name + " (absent)")
-            continue
-        try:
-            df = fn()
-            break
-        except Exception as exc:                            # noqa: BLE001
-            tried.append("%s (%s: %s)" % (name, type(exc).__name__, exc))
-    if df is None:
-        raise RuntimeError(
-            "no usable nfl_data_py crosswalk API — tried " + ", ".join(tried)
-            + ". Upstream renamed it again; add the new name to the list above "
-              "rather than pinning the package backwards.")
-    cols = set(getattr(df, "columns", []))
-    missing = {"gsis_id", "sleeper_id"} - cols
-    if missing:
-        raise RuntimeError(
-            "nfl_data_py crosswalk is missing %s — the columns this join needs. "
-            "Present: %s" % (sorted(missing), sorted(cols)[:20]))
-    out = {}
-    for row in df.to_dict("records"):
-        g, s = row.get("gsis_id"), row.get("sleeper_id")
-        if g and s and s == s:  # s == s excludes NaN
-            out[g] = str(int(s)) if float(s).is_integer() else str(s)
-    return out
+    return _CROSSWALK.crosswalk()
 
 
 def run(seasons=SEASONS) -> dict:  # pragma: no cover  (egress)
