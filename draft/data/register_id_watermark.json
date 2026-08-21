@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 177,
+ "next_numeric_id": 178,
  "history": [
   {
    "id": 47,
@@ -356,6 +356,11 @@
    "id": 176,
    "claimed_at": "2026-08-21",
    "note": "E: the cross-propagation gate shipped 08-21 detects neither laundering shape its own broadcast named -- keys only on the literal token IMPLEMENT (12 ordinary phrasings pass, including verbatim the real need->1.0 change), and accepts second-grade:/pending-second-grade/exempt: tokens entirely unverified (nonexistent row, self-citation, and no-expiry all pass). Known-positive control included."
+  },
+  {
+   "id": 177,
+   "claimed_at": "2026-08-21",
+   "note": "renumbered from origin/main's 173 (C's external-ingest program stranded on a branch while its ROUTES rows on main say 'built, dispatch-only') -- collided with this branch's 173 (keeper-lock withheld keepers), whose content traces to origin's own earlier 2026-08-20T23:54:12Z commit 10691411"
   }
  ]
 }
