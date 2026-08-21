@@ -1,0 +1,91 @@
+{
+  "_territory": "TERRITORY: D \u2014 produced by draft/backtest/target_quality_tilt.py",
+  "_note": "Grades the red-zone/end-zone opportunity tilt preregistered in draft/TARGET-QUALITY-PREREG-2026-08-21.md against a baseline_pg-only stand-in and cross-checks correlation against the already-graded P286 usage-interaction arm. RB/WR/TE only.",
+  "prereg": "draft/TARGET-QUALITY-PREREG-2026-08-21.md",
+  "target_seasons": [
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "min_games": 4,
+  "min_prior_weeks": 3,
+  "rz_mult_clip": [
+    0.0,
+    3.0
+  ],
+  "tilt_scale": 1.0,
+  "folds": [
+    {
+      "season": 2022,
+      "usable": true,
+      "population": 406,
+      "player_weeks_total": 3528,
+      "player_weeks_graded": 2863,
+      "player_weeks_no_rate": 665,
+      "mae": {
+        "baseline_pg": 4.54207475090389,
+        "rz_tilt": 9.748572015144944
+      },
+      "delta_mae": -5.2064972642410545
+    },
+    {
+      "season": 2023,
+      "usable": true,
+      "population": 403,
+      "player_weeks_total": 3509,
+      "player_weeks_graded": 2879,
+      "player_weeks_no_rate": 630,
+      "mae": {
+        "baseline_pg": 4.533187528440476,
+        "rz_tilt": 9.018285839318464
+      },
+      "delta_mae": -4.485098310877988
+    },
+    {
+      "season": 2024,
+      "usable": true,
+      "population": 382,
+      "player_weeks_total": 3586,
+      "player_weeks_graded": 2924,
+      "player_weeks_no_rate": 662,
+      "mae": {
+        "baseline_pg": 4.607195647242456,
+        "rz_tilt": 8.984863972227915
+      },
+      "delta_mae": -4.377668324985459
+    },
+    {
+      "season": 2025,
+      "usable": true,
+      "population": 378,
+      "player_weeks_total": 3777,
+      "player_weeks_graded": 3081,
+      "player_weeks_no_rate": 696,
+      "mae": {
+        "baseline_pg": 4.581981160680628,
+        "rz_tilt": 8.585221641293847
+      },
+      "delta_mae": -4.003240480613219
+    }
+  ],
+  "pooled": {
+    "n_player_weeks": 11747,
+    "n_folds_usable": 4,
+    "mae": {
+      "baseline_pg": 4.566572821555454,
+      "rz_tilt": 9.074369348972384
+    },
+    "delta_mae": -4.5077965274169305,
+    "folds_positive": 0,
+    "folds_total": 4,
+    "correlation_vs_baseline": 0.7403202422714814,
+    "correlation_vs_gsi_interaction": 0.7378129147784653,
+    "gsi_overlap_player_weeks": 11388,
+    "correlation_gate": 0.98,
+    "gate_clears": true,
+    "mae_bar": 0.1,
+    "fold_consistency_min": 3,
+    "clears": false
+  }
+}
