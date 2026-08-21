@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 178,
+ "next_numeric_id": 179,
  "history": [
   {
    "id": 47,
@@ -361,6 +361,11 @@
    "id": 177,
    "claimed_at": "2026-08-21",
    "note": "renumbered from origin/main's 173 (C's external-ingest program stranded on a branch while its ROUTES rows on main say 'built, dispatch-only') -- collided with this branch's 173 (keeper-lock withheld keepers), whose content traces to origin's own earlier 2026-08-20T23:54:12Z commit 10691411"
+  },
+  {
+   "id": 178,
+   "claimed_at": "2026-08-21",
+   "note": "renumbered from origin/main's 174 (Cory's need:1.0 ruling woke two dormant mechanisms; two red tests were the only thing that noticed) -- collided with this branch's 174 (refused rebuilds ate a day of an unbackfillable series), whose content traces to origin's own earlier commit dff0d169 at 2026-08-21T00:08:25Z"
   }
  ]
 }
