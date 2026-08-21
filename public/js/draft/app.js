@@ -877,6 +877,25 @@
    * now asserts the pinned baseline's weights EQUAL the shipped
    * MEASURED_WEIGHTS, so a future freeze that forgets the pin fails the build
    * instead of waiting for someone to notice. */
+  /* ⚠️ DELIBERATELY LEFT AT v31 WHILE THE REGRESSION BASELINE MOVED TO v32,
+   * 2026-08-21, and the reason is draft eve rather than principle.
+   *
+   * v32 was frozen tonight for the VONA constant split (9bb2a23e). Its WEIGHTS
+   * are byte-identical to v31's — {value 1, tier 0, need 1, risk 0, ceiling 0,
+   * keeper 1, bye 0, stack 1} — verified, not assumed, because this pin drives
+   * the "⏮ Restore the measured core" button and nothing else. What v32 changed
+   * is VONA arithmetic, which this button does not restore.
+   *
+   * So moving the pin buys ZERO correctness and costs a localStorage key
+   * rotation on the night before the draft, which is a live change to Cory's
+   * surface for no gain. Register 5g is the standing reason this pin matters at
+   * all: it once sat at v1 and one tap would have silently reverted two of his
+   * rulings. That hazard does not apply here — v31 and v32 restore the same
+   * numbers.
+   *
+   * MOVE IT after the draft, when a cache rotation costs nothing. If the two
+   * ever stop having identical weights, this comment is wrong and the pin must
+   * follow the freeze immediately. */
   const BASELINE_VERSION = 'v31';
   const BASELINE_KEY = 'mfga.draft.baseline.' + BASELINE_VERSION;
   function loadFrozenBaseline() {

@@ -1,0 +1,127 @@
+{
+ "_territory": "TERRITORY: A \u2014 draft/backtest/draft_pick_vs_random.py",
+ "_what": "Decision-null grading of the draft pick: season points delivered vs a random AVAILABLE player at that pick.",
+ "_supersedes": "the engine-minus-owner comparison in engine_seat_replay.json / replay_league_table.json, whose estimand carries no null (GRADING-POLICY).",
+ "n_picks": 345,
+ "mean_percentile": 0.8554,
+ "null_95": [
+  0.4695,
+  0.5305
+ ],
+ "controls": {
+  "random_available": 0.5034,
+  "best_available": 0.999,
+  "known_negative_band_half_width": 0.0305,
+  "band_derived_from_n": 345
+ },
+ "seasons_without_points_store": [
+  "2026"
+ ],
+ "n_draws": 400,
+ "seed": 20260821,
+ "skipped": 62,
+ "by_owner": {
+  "cashworth": {
+   "n": 35,
+   "mean_pct": 0.8077
+  },
+  "Sadbru": {
+   "n": 36,
+   "mean_pct": 0.8473
+  },
+  "Jreis": {
+   "n": 38,
+   "mean_pct": 0.8448
+  },
+  "B8T3S": {
+   "n": 34,
+   "mean_pct": 0.8443
+  },
+  "ds7mmet": {
+   "n": 34,
+   "mean_pct": 0.8479
+  },
+  "Schmelley": {
+   "n": 34,
+   "mean_pct": 0.8896
+  },
+  "MarianSaar": {
+   "n": 34,
+   "mean_pct": 0.8774
+  },
+  "mhagen": {
+   "n": 33,
+   "mean_pct": 0.8608
+  },
+  "coryjsimms": {
+   "n": 34,
+   "mean_pct": 0.8692
+  },
+  "Richard2121": {
+   "n": 33,
+   "mean_pct": 0.8687
+  }
+ },
+ "by_round": {
+  "1": {
+   "n": 12,
+   "mean_pct": 0.9023
+  },
+  "2": {
+   "n": 15,
+   "mean_pct": 0.8944
+  },
+  "3": {
+   "n": 20,
+   "mean_pct": 0.864
+  },
+  "4": {
+   "n": 30,
+   "mean_pct": 0.8838
+  },
+  "5": {
+   "n": 30,
+   "mean_pct": 0.8707
+  },
+  "6": {
+   "n": 30,
+   "mean_pct": 0.8942
+  },
+  "7": {
+   "n": 28,
+   "mean_pct": 0.8501
+  },
+  "8": {
+   "n": 30,
+   "mean_pct": 0.8455
+  },
+  "9": {
+   "n": 29,
+   "mean_pct": 0.8503
+  },
+  "10": {
+   "n": 28,
+   "mean_pct": 0.8449
+  },
+  "11": {
+   "n": 24,
+   "mean_pct": 0.8234
+  },
+  "12": {
+   "n": 23,
+   "mean_pct": 0.8483
+  },
+  "13": {
+   "n": 12,
+   "mean_pct": 0.7413
+  },
+  "14": {
+   "n": 16,
+   "mean_pct": 0.8637
+  },
+  "15": {
+   "n": 18,
+   "mean_pct": 0.8145
+  }
+ }
+}
