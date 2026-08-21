@@ -48,6 +48,14 @@
  * it carries the identical leakage guarantee). Every existing call site
  * (`backtest()` with no args, `require('./lineup_edge_backtest.js').backtest`
  * elsewhere) is unaffected. See draft/tools/lineup_edge_backtest_blend.js.
+ *
+ * ── ADDITIVE, 2026-08-21 (D, register 198) ──────────────────────────────────
+ * `backtest(seasons, projectFn, onWeek)` takes an OPTIONAL third argument,
+ * called once per graded week with that week's CHOICE SET — roster, eligible
+ * ids, positions, actual points, slots — so a grader can score the tool
+ * against a constructed null of legal alternatives rather than only against
+ * the humans. GRADING-POLICY.md requirement 2. Omitted, it is a no-op.
+ * See draft/tools/lineup_vs_random.js.
  */
 const path = require('path');
 const fs = require('fs');
@@ -73,7 +81,7 @@ function slotCount(slots) {
   return Object.values(slots).reduce((a, b) => a + b, 0);
 }
 
-function backtest(seasons, projectFn) {
+function backtest(seasons, projectFn, onWeek) {
   const history = LO.harvest();
   seasons = seasons || LO.defaultSeasons(history);
   const rows = [];
@@ -146,6 +154,26 @@ function backtest(seasons, projectFn) {
             season, roster_id: rid, week,
             actual: actualScore, tool: Math.round(toolRealized * 100) / 100, optimal,
           });
+          /* ── ADDITIVE, 2026-08-21 (D, register 198 / P298 / P314) ────────
+           * A grader can only score an ARM against a null if it can see the
+           * roster the arm was choosing FROM. The rows above carry points,
+           * not choice sets, so a random-legal null was unbuildable here —
+           * `lineup_edge_backtest.js` had zero mentions of `random`.
+           * `onWeek` hands out exactly the week's choice set and nothing
+           * else. Omitted, this is a no-op and every existing call site is
+           * byte-for-byte unchanged (same guarantee the P143 `projectFn`
+           * addition above carries). */
+          if (onWeek) {
+            onWeek({
+              season, roster_id: rid, week, slots, need,
+              rosterIds: rosterIds.slice(),
+              projectedIds: projectedIds.slice(),
+              pos, pts,
+              toolPoints: Math.round(toolRealized * 100) / 100,
+              actualPoints: actualScore,
+              optimalPoints: optimal,
+            });
+          }
         }
         // Update running totals AFTER this week, so it never leaks into its
         // own projection.
