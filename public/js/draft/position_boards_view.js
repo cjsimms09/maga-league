@@ -360,7 +360,12 @@
     });
   }
 
-  function positionColumn(pos, block, esc, liveSurvivalById, projSource, roundDropoffs, callsById, badgeInfo, takenIds) {
+  /* Short source labels for the VONA chip — kept next to the only thing that
+   * renders them, and deliberately short: this sits inside a column header. */
+  var SRC_LABEL = { ds: 'DS', sleeper: 'SLP', cbs: 'CBS', espn: 'ESPN',
+    fftoday: 'FFT', fantasypros: 'FP', clay: 'CLAY', ownmodel: 'OURS', blend: 'DS' };
+
+  function positionColumn(pos, block, esc, liveSurvivalById, projSource, roundDropoffs, callsById, badgeInfo, takenIds, rankKey) {
     if (!block) return '';
     var players = livePlayers(block, takenIds);
     var scale = rangeScaleFor(players, projSource);
@@ -387,11 +392,46 @@
          * so a reader was told the opposite of the truth about this chip.
          * The Big Board / THE PICK VONA is a DIFFERENT number from engine.js
          * and DOES follow the toggle (source_toggle_moves_vona.test.js). */
-        + '<span class="pb-vona" title="VONA — what waiting until your next pick costs. '
-          + 'Draft Sharks only: this figure does NOT follow the Ranking Source toggle, '
-          + 'because this list is a one-shot Draft-Sharks pre-draft simulation. '
-          + 'The Big Board VONA does follow it.">'
-          + 'VONA <b>' + esc(fmtNum(block.VONA)) + '</b> <span class="pb-vona-src">DS</span></span>'
+        + (function () {
+            /* ⚠️ CORY'S RULING, 2026-08-21, verbatim: "Vona should change for
+             * each source in which we have a projected points total. If we
+             * don't have projected points then it shouldn't show Vona for
+             * that source."
+             *
+             * `position_boards.js` now emits VONA_by_source, computed from the
+             * SAME 300 ADP-drained rooms re-priced under each source (the
+             * drain is ADP-driven and therefore source-independent, so no
+             * second simulation was needed). A source that prices fewer than
+             * three of the available men at this position emits null, and
+             * null prints as a dash with the reason — never a Draft Sharks
+             * number wearing another source's name, which is the defect E
+             * found and this replaces. */
+            var key = rankKey || 'ds';
+            var bySrc = block.VONA_by_source || null;
+            var cov = (block.covered_by_source || {})[key];
+            var v = bySrc ? bySrc[key] : undefined;
+            var srcLabel = SRC_LABEL[key] || key;
+            if (!bySrc) {
+              /* older artifact, before the per-source build — say so rather
+               * than silently printing the legacy Draft Sharks figure. */
+              return '<span class="pb-vona" title="VONA — what waiting until your next pick '
+                + 'costs. This board artifact predates per-source VONA, so this is Draft '
+                + 'Sharks\u2019 figure.">VONA <b>' + esc(fmtNum(block.VONA))
+                + '</b> <span class="pb-vona-src">DS</span></span>';
+            }
+            if (v == null) {
+              return '<span class="pb-vona pb-vona-none" title="' + esc(srcLabel)
+                + ' does not publish projected points for enough available '
+                + esc(pos) + 's here, so there is no VONA to show for it'
+                + (cov != null ? ' (' + cov + ' priced)' : '')
+                + '. Switch source, or use the Big Board.">VONA <b>—</b> '
+                + '<span class="pb-vona-src">' + esc(srcLabel) + '</span></span>';
+            }
+            return '<span class="pb-vona" title="VONA — what waiting until your next pick '
+              + 'costs, priced on ' + esc(srcLabel) + '\u2019 own projected points. Follows '
+              + 'the Ranking Source toggle.">VONA <b>' + esc(fmtNum(v)) + '</b> '
+              + '<span class="pb-vona-src">' + esc(srcLabel) + '</span></span>';
+          }())
         + '<span class="pb-surplus" title="best available, points over a free waiver pickup">'
           + '+' + esc(fmtNum(block.surplus_over_wire)) + ' wire</span>'
       + '</div>'
@@ -547,7 +587,7 @@
   /* THE PUBLIC ENTRY POINT. Returns '' if there is no data or no matching pick,
    * so a missing/stale artifact degrades to nothing rather than a broken panel.
    * `projSource` ('ds' default | 'blend') — see projSourceToggle above. */
-  function renderPositionBoards(data, pickNum, liveSurvivalById, esc, projSource, callsById, badgeInfo, takenIds) {
+  function renderPositionBoards(data, pickNum, liveSurvivalById, esc, projSource, callsById, badgeInfo, takenIds, rankKey) {
     if (!data || !Array.isArray(data.picks) || !data.picks.length) return '';
     var pick = findPick(data, pickNum);
     if (!pick) return '';
@@ -561,7 +601,7 @@
       if (b && b.players) removed += b.players.length - livePlayers(b, takenIds).length;
     });
     var cols = POS_ORDER.map(function (pos) {
-      return positionColumn(pos, (pick.positions || {})[pos], esc, liveSurvivalById, src, data.round_dropoffs, callsById, badgeInfo, takenIds);
+      return positionColumn(pos, (pick.positions || {})[pos], esc, liveSurvivalById, src, data.round_dropoffs, callsById, badgeInfo, takenIds, rankKey);
     }).join('');
     return '<div class="pb-wrap">'
       + '<div class="pb-head">Position boards — pick ' + esc(String(pick.pick))
