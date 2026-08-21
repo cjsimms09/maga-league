@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 185,
+ "next_numeric_id": 186,
  "history": [
   {
    "id": 47,
@@ -429,6 +429,11 @@
    "id": 184,
    "claimed_at": "2026-08-21",
    "note": "relay/C: 'C's entire external-ingest program is stranded on a branch while its ROUTES rows on main say BUILT' (workflow_dispatch only sees main, so a dispatch-only receipt is a real 404) landed on main's id 173, already held by D's *_pre_ds band-snapshot row which carries an inbound citation from the register-140 row. Renumbered to 184, first allocation wins -- moving the band row would have broken that citation. The ROUTES citation of 'register 173' referring to THIS finding was repointed to 184; the DEFECT-REGISTER citation refers to D's 173 and was correctly left alone. Main's commits 595b6020/9580cd5e cite it as 'Register 173' in immutable history; the row annotation records the mapping. Watermark now authoritative from 185."
+  },
+  {
+   "id": 185,
+   "claimed_at": "2026-08-21",
+   "note": "D: the 08-27 dispatch default will make the WRONG frozen control canonical, because D's claim on P298 is invisible from main (receipt returns 0 matches there while the default stands verbatim). Same root cause as register 184 reaching a second lane. Root cause is a real rule conflict: CLAUDE.md Rule 1b says the mailbox files push straight to main, but D's session constraints forbid pushing anywhere but its own branch. Routed to A with a two-minute partial fix (copy the three self-contained freeze files) as the alternative to a full merge. Watermark now authoritative from 186."
   }
  ]
 }
