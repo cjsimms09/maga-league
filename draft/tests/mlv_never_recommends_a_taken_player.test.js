@@ -143,8 +143,23 @@ check('every RosterBuilderMLV.recommend call site passes `taken`',
   === (APP.match(/taken: state\.drafted/g) || []).length,
 { calls: (APP.match(/RosterBuilderMLV\.recommend\(/g) || []).length });
 
-check('and the panel SURFACES a non-zero count rather than cleaning up quietly',
-  /_taken_filtered/.test(APP) && /should not have contained them/.test(APP));
+/* ⚠️ THE PANEL THAT USED TO SURFACE THIS IS RETIRED, 2026-08-21 — Cory:
+ * "I'm also very confused at parts below that show roster builder model,
+ * remove that from site." renderRosterBuilderPanel() (the "Roster builder
+ * model says" panel, the only place `_taken_filtered` ever reached a
+ * screen) is gone along with it. The SAFETY PROPERTY this file exists to
+ * guard — mlv.js itself never returns an already-taken player, and counts
+ * what it drops — is still fully covered above (checks against MLV.recommend
+ * directly, lines 41-124) and by model-compare-card's own MLV row, which
+ * still passes `taken: state.drafted` (checks 135-144 above). What is gone
+ * is only the ON-SCREEN warning for the case that count is non-zero — there
+ * being no screen left to warn on. */
+check('EVERY remaining RosterBuilderMLV.recommend call site (model-compare-'
+  + 'card, now the only one) still passes taken — the property this whole '
+  + 'file protects did not quietly stop being asked for when the panel that '
+  + 'used to print the warning was removed',
+  (APP.match(/RosterBuilderMLV\.recommend\(/g) || []).length >= 1
+  && (APP.match(/taken: state\.drafted/g) || []).length >= 1);
 
 console.log('\n  THE ROSTER BUILDER CANNOT NAME A PLAYER WHO IS GONE\n');
 console.log('    baseline top 3: ' + topNames.slice(0, 3).join(', '));
