@@ -1,0 +1,96 @@
+{
+  "_territory": "TERRITORY: D \u2014 produced by draft/backtest/red_zone_additive.py",
+  "_note": "Additive red-zone deviation arm, preregistered in draft/RED-ZONE-ADDITIVE-PREREG-2026-08-21.md. Population identical to P292's by import, so the transform is the only moving part.",
+  "prereg": "draft/RED-ZONE-ADDITIVE-PREREG-2026-08-21.md",
+  "alpha_grid": [
+    0.0,
+    0.25,
+    0.5,
+    1.0,
+    1.5,
+    2.0,
+    3.0
+  ],
+  "target_seasons": [
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "folds": {
+    "2022": {
+      "usable": true,
+      "fitted_on": [
+        2023,
+        2024,
+        2025
+      ],
+      "alpha": 1.0,
+      "mae_baseline": 4.5421,
+      "mae_arm": 4.5651,
+      "delta_mae": -0.0231,
+      "n": 2863
+    },
+    "2023": {
+      "usable": true,
+      "fitted_on": [
+        2022,
+        2024,
+        2025
+      ],
+      "alpha": 0.5,
+      "mae_baseline": 4.5332,
+      "mae_arm": 4.5177,
+      "delta_mae": 0.0155,
+      "n": 2879
+    },
+    "2024": {
+      "usable": true,
+      "fitted_on": [
+        2022,
+        2023,
+        2025
+      ],
+      "alpha": 0.5,
+      "mae_baseline": 4.6072,
+      "mae_arm": 4.6031,
+      "delta_mae": 0.0041,
+      "n": 2924
+    },
+    "2025": {
+      "usable": true,
+      "fitted_on": [
+        2022,
+        2023,
+        2024
+      ],
+      "alpha": 0.5,
+      "mae_baseline": 4.582,
+      "mae_arm": 4.572,
+      "delta_mae": 0.01,
+      "n": 3081
+    }
+  },
+  "pooled": {
+    "n_player_weeks": 11747,
+    "mae_baseline": 4.5666,
+    "mae_arm": 4.5648,
+    "delta_mae": 0.0018,
+    "folds_positive": 3,
+    "folds_total": 4,
+    "alphas_selected": [
+      1.0,
+      0.5,
+      0.5,
+      0.5
+    ],
+    "correlation_vs_baseline": 0.9986,
+    "correlation_gate": 0.98,
+    "gate_clears": false,
+    "mae_bar": 0.1,
+    "fold_consistency_min": 3,
+    "blend_breakeven_mae": 5.2,
+    "clears_blend_breakeven": true,
+    "clears": false
+  }
+}
