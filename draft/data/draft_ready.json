@@ -2,9 +2,9 @@
  "_territory": "TERRITORY: A — draft/tools/draft_ready.js",
  "mode": "PRE-LOCK (lock checks report only)",
  "_absent_is_not_pass": "Every check treats missing data as failure.",
- "go": false,
- "fatal_failures": 3,
- "soft_failures": 3,
+ "go": true,
+ "fatal_failures": 0,
+ "soft_failures": 4,
  "checks": [
   {
    "name": "the board file loads at all",
@@ -143,10 +143,10 @@
   },
   {
    "name": "the keeper lock has PASSED on Sleeper",
-   "ok": true,
+   "ok": false,
    "fatal": false,
    "detail": {
-    "keeper_lock_passed": true
+    "keeper_lock_passed": false
    },
    "fix": "expected FALSE before Friday 6pm"
   },
@@ -155,7 +155,7 @@
    "ok": false,
    "fatal": false,
    "detail": {
-    "status": "predicted",
+    "status": "partial",
     "confirmed": false
    },
    "fix": "status \"predicted\" means opponent keepers are GUESSES"
@@ -198,11 +198,11 @@
   },
   {
    "name": "the board was built within the last 24 hours",
-   "ok": false,
+   "ok": true,
    "fatal": true,
    "detail": {
-    "built_at": "2026-08-19T08:52:22Z",
-    "age_hours": 39.3
+    "built_at": "2026-08-21T00:29:00Z",
+    "age_hours": 0.8
    },
    "fix": "ADP, injuries and suspensions all move daily — rebuild before drafting"
   },
@@ -216,29 +216,28 @@
    "fix": null
   },
   {
-   "name": "the keeper lock has passed and the board is NOT withholding anybody — Cory's ruling \"Locks once deadline passes\" took effect",
-   "ok": false,
-   "fatal": true,
-   "detail": {
-    "withheld": true,
-    "teams": 5,
-    "keepers": 13
-   },
-   "fix": "the lock passed but the board still holds keepers back — rebuild; if it persists the second switch in _keeper_map_for_board did not fire and Cory will read gone players as available"
-  },
-  {
-   "name": "the slate was NOT released from an unverified state",
+   "name": "the keeper lock has NOT passed yet, so withholding is correct — this becomes a hard check the moment the deadline goes by",
    "ok": true,
    "fatal": false,
-   "detail": {},
-   "fix": "the lock released the slate from a state we could not verify — correct by the ruling, but the keepers applied may be stale or internally inconsistent. Eyeball the names on Sleeper against the board."
+   "detail": {
+    "keeper_lock_passed": false,
+    "deadline": {
+     "cory_ruling_verbatim": "Keepers will be set by 08/21 at 6pm",
+     "date": "2026-08-21",
+     "ruled_on": "2026-08-18",
+     "time": "6:00 PM",
+     "tz": "CDT"
+    },
+    "currently_withheld": 13
+   },
+   "fix": null
   },
   {
    "name": "the post-processing chain ran on the published board (blend + Draft Sharks bands) — without it the war room shows pre-blend numbers",
    "ok": true,
    "fatal": true,
    "detail": {
-    "post_processed_at": "2026-08-20T02:00:28Z"
+    "post_processed_at": "2026-08-21T00:34:49Z"
    },
    "fix": null
   },
@@ -321,7 +320,7 @@
    "fatal": true,
    "detail": {
     "stale": [],
-    "board_built_at": "2026-08-19T08:52:22Z"
+    "board_built_at": "2026-08-21T00:29:00Z"
    },
    "fix": "run python3 draft/tools/rerank_by_source.py after any board rebuild"
   },
@@ -334,7 +333,7 @@
   },
   {
    "name": "board_input_staleness: nothing derived predates the board it came from",
-   "ok": false,
+   "ok": true,
    "fatal": true,
    "detail": null,
    "fix": "node draft/tools/board_input_staleness.js"

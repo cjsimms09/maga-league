@@ -218,6 +218,43 @@ ck('  and app.js calls it unguarded, so loading it is not optional',
   ck('  mlv.js loads BEFORE app.js',
     ejs.indexOf('/js/draft/mlv.js') < ejs.indexOf('/js/draft/app.js')
     || ejs.indexOf('/js/draft/app.js') === -1);
+
+  /* ── THE HARD DEPENDENCY NOTHING PINNED, raised by the independent reviewer
+   * on run 32434594609 [medium/boundary]:
+   *
+   *   "Engine CFG now reads ADP_SD_* from S.CFG.*, introducing a load-order
+   *    dependency on survival.js providing a global S object and its CFG
+   *    before engine.js evaluates. If S is undefined at load time, the board
+   *    can crash or misconfigure survival calibration."
+   *
+   * It is right that the dependency is real and unpinned. Two things soften it
+   * and neither makes it safe to leave unasserted:
+   *   · engine.js:16 THROWS on a missing S rather than limping -- so the
+   *     failure is loud, not a silently miscalibrated survival curve, which is
+   *     the half of the reviewer's worry that does not apply;
+   *   · engine.test.js's `E.CFG.ADP_SD_RATE === 0.11` would also go red.
+   * But both of those fire at RUNTIME or in a suite that loads the modules by
+   * hand in the right order. Nothing checked the ORDER OF THE TAGS ON THE PAGE,
+   * which is the only place the production order is decided -- and every other
+   * ordering dependency in this file is pinned exactly this way. On 2026-08-21
+   * the page order is right (survival 37, composite 38, engine 39); this is so
+   * it stays right.
+   *
+   * composite.js is included because engine.js:16 requires BOTH: the same throw
+   * names `!S || !C`. */
+  const iSurv = ejs.indexOf('/js/draft/survival.js');
+  const iComp = ejs.indexOf('/js/draft/composite.js');
+  const iEng  = ejs.indexOf('/js/draft/engine.js');
+  ck('CONTROL: all three engine-dependency tags are on the page at all '
+     + '(a -1 makes every ordering comparison below meaninglessly true)',
+    iSurv !== -1 && iComp !== -1 && iEng !== -1,
+    JSON.stringify({ survival: iSurv, composite: iComp, engine: iEng }));
+  ck('  survival.js loads BEFORE engine.js (engine.js:16 throws without it)',
+    iSurv !== -1 && iEng !== -1 && iSurv < iEng,
+    'survival@' + iSurv + ' engine@' + iEng);
+  ck('  composite.js loads BEFORE engine.js (same throw names both)',
+    iComp !== -1 && iEng !== -1 && iComp < iEng,
+    'composite@' + iComp + ' engine@' + iEng);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
