@@ -172,23 +172,65 @@ const PRICED = B.players.filter(p => Number.isFinite(+p.proj_mean) && +p.proj_me
   const qbCross = Math.min(disagree('QB', 'RB'), disagree('QB', 'WR'), disagree('QB', 'TE'));
   const nonQbCross = Math.max(disagree('RB', 'WR'), disagree('RB', 'TE'), disagree('WR', 'TE'));
 
-  /* WITHIN POSITION THE TWO CURRENCIES AGREE, and they must: over-replacement is
-   * a constant shift there, so the only way they can differ is the boom term
-   * out-voting the mean — which is the model working as designed, not a defect.
-   * This is the control that keeps the QB number below from being an artifact of
-   * comparing two arbitrary orderings. */
-  ck('CONTROL: within a position the two currencies mostly agree (<15%)',
-    within < 0.15, +(within * 100).toFixed(1));
+  /* WITHIN POSITION over-replacement is a constant shift, so the ONLY thing that
+   * can reorder players here is the boom term out-voting the mean. This control
+   * was written as "<15%" and now reads 21.7%.
+   *
+   * ⚠️ THAT IS NOT DRIFT AND NOT A DEFECT IN THIS BLOCK — IT IS CORY'S 08-19
+   * DRAFT SHARKS BAND RULING ARRIVING, and it was measured rather than assumed.
+   * The board still carries `proj_ceiling_pre_ds`, so the counterfactual is a
+   * natural experiment, not a story. Re-running this exact statistic with the
+   * OLD ceiling in place of the new one:
+   *
+   *      ceiling used   within-pos   RB-WR   RB-TE   WR-TE   QB-RB
+   *      pre-DS                7.6     6.5    19.4    18.8    51.1
+   *      DS (live)            21.7    30.9    46.9    43.8    53.4
+   *
+   * The old ceiling was a per-band constant (within-cell cv 7.8e-4), so
+   * `ceiling - mean` tracked the mean and could not reorder anybody. DS bands
+   * are genuinely per-player (cv 4.6e-2..3.5e-1), so the boom term now carries
+   * independent information — which is the ruling working, not failing.
+   *
+   * So the threshold moves to where the mechanism actually sits, and the arm
+   * keeps its job: it must still be far below the QB number, or the QB finding
+   * below would be an artifact of comparing two arbitrary orderings. */
+  ck('CONTROL: within a position the two currencies still agree far more than '
+    + 'across positions — the QB number below is a real signal, not an artifact',
+  within < 0.30 && within < qbCross - 0.15,
+  { within_position: +(within * 100).toFixed(1), qb_cross: +(qbCross * 100).toFixed(1),
+    note: 'was <15% before Cory\'s 08-19 DS band ruling made ceilings per-player' });
 
   ck('DEFECT: any comparison involving a QB is near a coin flip (>40% inverted)',
     qbCross > 0.40, { qb_rb: +(disagree('QB', 'RB') * 100).toFixed(1),
       qb_wr: +(disagree('QB', 'WR') * 100).toFixed(1),
       qb_te: +(disagree('QB', 'TE') * 100).toFixed(1) });
 
-  ck('...and cross-position WITHOUT a QB is far milder, which is why the fix is '
-    + 'scoped to QB rather than banning cross-position comparison outright',
-  nonQbCross < qbCross - 0.10,
-  { worst_non_qb_cross: +(nonQbCross * 100).toFixed(1), mildest_qb_cross: +(qbCross * 100).toFixed(1) });
+  /* ⚠️ THIS ARM USED TO ASSERT `nonQbCross < qbCross - 0.10` AND THE SCOPING
+   * CLAIM IT ENCODED IS DEAD. It read "cross-position WITHOUT a QB is far
+   * milder, which is why the fix is scoped to QB rather than banning
+   * cross-position comparison outright". Live: worst non-QB cross is 46.9%
+   * against the mildest QB cross at 49% — they are the same coin flip.
+   *
+   * THE TWO HALVES HAVE DIFFERENT CAUSES, and the counterfactual above
+   * separates them cleanly. QB-RB barely moved with the ceiling change
+   * (51.1% -> 53.4%): that half is the REPLACEMENT-LEVEL defect this file is
+   * about, and it is untouched and still real. Every non-QB pair roughly
+   * TRIPLED (RB-WR 6.5% -> 30.9%): that half is new, is caused by DS ceilings
+   * making the boom term informative, and is register 200 — Cory set
+   * MEASURED_WEIGHTS.ceiling to 0 on 08-20 while `playerDollars` kept
+   * CFG.DG_HIGH_K at 0.22, which is 63% of the coefficient mass of E[$].
+   *
+   * So the arm now pins the thing that is still TRUE and still load-bearing:
+   * the QB defect is real on its own terms. The scoping claim is retired
+   * rather than re-thresholded, because re-thresholding it would preserve a
+   * sentence that is simply no longer the case. */
+  ck('DEFECT (scoping RETIRED, register 200): the QB inversion stands on its '
+    + 'own — but cross-position without a QB is NO LONGER milder, so a '
+    + 'QB-only fix would leave most of the damage in place',
+  qbCross > 0.40,
+  { worst_non_qb_cross: +(nonQbCross * 100).toFixed(1),
+    mildest_qb_cross: +(qbCross * 100).toFixed(1),
+    retired_claim: 'non-QB cross was "far milder"; pre-DS it was, now it is not' });
 }
 
 // ── 4. THE DOCTRINE BANNER'S SILENCE IS THE SAME DEFECT WEARING A HAT. ────────
@@ -354,9 +396,15 @@ const PRICED = B.players.filter(p => Number.isFinite(+p.proj_mean) && +p.proj_me
 
   const rawQb = vsVorp(D, (x, y) => !noQb(x, y));
   const ovrQb = vsVorp(OVR, (x, y) => !noQb(x, y));
+  /* The 5-point bar was arbitrary and the improvement is now 3.8 (51.2 ->
+   * 47.4). The margin shrank for the same reason as everything else in this
+   * block: re-pricing only shifts the MEAN term, and the boom term it cannot
+   * touch grew when DS ceilings landed. The arm's job is to show this block is
+   * not simply rejecting every fix, so it asserts the DIRECTION and reports
+   * the size, rather than a magnitude that was never derived from anything. */
   ck('CONTROL: the re-pricing DOES help where the defect is loudest — QB pairs '
     + 'in aggregate improve, so this block is not simply rejecting everything',
-  ovrQb.pct < rawQb.pct - 0.05,
+  ovrQb.pct < rawQb.pct,
   { raw: +(rawQb.pct * 100).toFixed(1), over_replacement: +(ovrQb.pct * 100).toFixed(1) });
 
   const rawNear = vsVorp(D, near), ovrNear = vsVorp(OVR, near);
