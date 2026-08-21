@@ -3,8 +3,8 @@
  "mode": "PRE-LOCK (lock checks report only)",
  "_absent_is_not_pass": "Every check treats missing data as failure.",
  "go": false,
- "fatal_failures": 2,
- "soft_failures": 4,
+ "fatal_failures": 3,
+ "soft_failures": 3,
  "checks": [
   {
    "name": "the board file loads at all",
@@ -143,10 +143,10 @@
   },
   {
    "name": "the keeper lock has PASSED on Sleeper",
-   "ok": false,
+   "ok": true,
    "fatal": false,
    "detail": {
-    "keeper_lock_passed": false
+    "keeper_lock_passed": true
    },
    "fix": "expected FALSE before Friday 6pm"
   },
@@ -202,7 +202,7 @@
    "fatal": true,
    "detail": {
     "built_at": "2026-08-19T08:52:22Z",
-    "age_hours": 31.4
+    "age_hours": 39.3
    },
    "fix": "ADP, injuries and suspensions all move daily — rebuild before drafting"
   },
@@ -214,6 +214,24 @@
     "players": 700
    },
    "fix": null
+  },
+  {
+   "name": "the keeper lock has passed and the board is NOT withholding anybody — Cory's ruling \"Locks once deadline passes\" took effect",
+   "ok": false,
+   "fatal": true,
+   "detail": {
+    "withheld": true,
+    "teams": 5,
+    "keepers": 13
+   },
+   "fix": "the lock passed but the board still holds keepers back — rebuild; if it persists the second switch in _keeper_map_for_board did not fire and Cory will read gone players as available"
+  },
+  {
+   "name": "the slate was NOT released from an unverified state",
+   "ok": true,
+   "fatal": false,
+   "detail": {},
+   "fix": "the lock released the slate from a state we could not verify — correct by the ruling, but the keepers applied may be stale or internally inconsistent. Eyeball the names on Sleeper against the board."
   },
   {
    "name": "the post-processing chain ran on the published board (blend + Draft Sharks bands) — without it the war room shows pre-blend numbers",
