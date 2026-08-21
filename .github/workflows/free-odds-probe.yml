@@ -1,10 +1,16 @@
 # FREE NFL ODDS PROBE — Cory 08-21: "Explore free Vegas odds we can get".
 # Runs the keyless-source census in CI (where the network is open; the sandbox
-# gateway 403s arbitrary hosts). Manual dispatch only — this is a probe, not a
-# capture; winners graduate to real capture workflows via C.
+# gateway 403s arbitrary hosts). Winners graduate to real capture workflows
+# via C. The Thursday cron exists for ONE open question — do player props post
+# on the per-event Bovada endpoint once the game week arrives? (Pre-game-week
+# they returned zero: "untested, not no", rule 3e.) That is the ledger's props
+# row; RETIRE THIS CRON when it grades — a probe that runs forever after its
+# question is answered is just noise commits.
 name: free-odds-probe
 on:
   workflow_dispatch: {}
+  schedule:
+    - cron: '30 12 * * 4'  # Thursday 12:30 UTC, after the lines capture
 permissions:
   contents: write
 jobs:
