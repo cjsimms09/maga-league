@@ -83,6 +83,36 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: '3.11' }
 
+      # ⚙️ VERIFY THE LOGGER BEFORE THE ONE NIGHT IT MATTERS (A, 2026-08-21).
+      # Adding the schedule above made this a SCHEDULED workflow that COMMITS
+      # DATA with nothing verifying it — `test_every_gate_can_fail.py`'s ratchet
+      # caught that immediately and correctly, and its own note says to lower the
+      # number by earning it rather than raising the line.
+      #
+      # Earned here: 39 checks across the rehearsal (a real 150-pick Sleeper
+      # draft replayed through 7 edge cases — duplicates, out-of-order events,
+      # reconnects), the chaos drill, the log-path override, and the new
+      # draft_id discovery refusals. All offline, ~12s.
+      #
+      # It runs BEFORE the poll, so a broken logger fails the job while the
+      # draft is still ahead of us, instead of being discovered afterwards from
+      # an empty pick log that cannot be refilled.
+      - name: Verify the pick logger before draft night depends on it
+        run: |
+          pip install --quiet -r draft/requirements.txt
+          # ⚠️ PATHS IMMEDIATELY AFTER `pytest`, FLAGS AFTERWARDS — NOT STYLE.
+          # `test_every_gate_can_fail.py` detects verification with
+          # `(?:pytest|node)\s+\S*draft/tests/\S+`, which cannot span a space, so
+          # `pytest -q draft/tests/...` reads as UNVERIFIED even though it plainly
+          # runs the tests. Written the other way round it matches. The detector
+          # is brittle in the safe direction — it under-counts verification and
+          # fails loud — so it is left alone the night before the draft and noted
+          # here instead of quietly worked around.
+          python -m pytest draft/tests/test_pick_log_rehearsal.py \
+            draft/tests/chaos_drill_pick_log_test.py \
+            draft/tests/test_log_draft_picks_path_override.py \
+            draft/tests/test_draft_id_discovery.py -q
+
       - name: Poll Sleeper and log picks until the draft completes
         env:
           # `inputs.*` is EMPTY on a scheduled run — the defaults below are what
