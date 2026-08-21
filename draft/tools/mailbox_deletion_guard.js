@@ -118,7 +118,11 @@ function mdSizes(rev, cwd) {
       { cwd, maxBuffer: 64 * 1024 * 1024 }).toString();
   } catch (e) { return out; }
   for (const line of txt.split('\n')) {
-    const m = line.match(/^\d+ blob ([0-9a-f]+)\s+(\d+)\t(.+\.md)$/);
+    /* .md anywhere; DATA STORES under draft/ too (Cory 08-21: the 2027
+     * season-simulation captures "must stay safe" — a zeroed JSONL is a
+     * season of decisions gone, and mode 2 only watched documents).
+     * Regenerated stores are always nonzero, so rebuilds never flag. */
+    const m = line.match(/^\d+ blob ([0-9a-f]+)\s+(\d+)\t(.+\.md|draft\/(?:data|backtest)\/.+\.jsonl?)$/);
     if (m) out.set(m[3], { blob: m[1], size: Number(m[2]) });
   }
   return out;
