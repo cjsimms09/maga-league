@@ -12,15 +12,65 @@ graded week exists, so no threshold can be invented after a result.
 
 ## The three rules, thresholds committed now
 
-1. **QUICK-KILL:** any published arm that grades below the champion for
-   **3 consecutive graded weeks** is BENCHED — it stops feeding any published
-   number but keeps grading in shadow. Benching is automatic (the Tuesday
-   grader prints the verdict); un-benching goes through rule 2 like any arm.
-2. **QUICK-PROMOTE:** any shadow arm that beats the champion for
-   **3 consecutive graded weeks** AND clears the best-of-K null in that
-   window is PROMOTED to publish from the next Tuesday. One promotion per
-   week maximum — two arms clearing at once means the better margin goes
-   first and the other waits a week (churn is its own failure mode).
+1. **QUICK-KILL — ⚠️ NOT IMPLEMENTED, and this line used to claim it was
+   automatic.** As written: any published arm grading below the champion for
+   3 consecutive graded weeks is BENCHED, automatically, with the Tuesday
+   grader printing the verdict. **Measured 2026-08-21 (register 199):
+   `weekly_own_grade.py` contains 49 mentions of `promot` and ZERO of
+   bench / quick-kill / demote / retire; `own-weekly-grade.yml` has none
+   either. There is no `decide_bench()`.** So a published arm that degrades
+   keeps publishing indefinitely and can only be displaced from below by a
+   challenger under rule 2 — **promotion is machine-enforced and benching is
+   not.** Left stated rather than deleted because the rule is wanted; A has
+   the ruling open (implement it, or say benching is manual and by whom).
+   **Until then, treat this rule as a stated intention, not a mechanism.**
+
+2. **QUICK-PROMOTE — RESTATED 2026-08-21 TO MATCH THE CODE (A's ruling,
+   register 199).** This rule previously said *"beats the champion for 3
+   consecutive graded weeks AND clears the best-of-K null"*. **Both halves
+   were wrong about the shipped rule**, and the doc was the simpler of the
+   two, so the DOC moved: the code's rule is strictly richer, and
+   *3 consecutive* silently dropped two live conditions. A shadow arm is
+   PROMOTED when **all four** of these hold:
+
+   a. at least **`PROMOTION_MIN_WEEKS` = 3** graded weeks in common with the
+      champion;
+   b. it beats the champion in **3 of the last 4** common weeks —
+      `PROMOTION_RECENT_WINS` of `PROMOTION_RECENT_WINDOW`, **consecutive not
+      required**;
+   c. it leads on **cumulative MAE** across the whole common span; and
+   d. its cumulative **Spearman** is not worse than the champion's by more
+      than **`PROMOTION_SPEARMAN_TOLERANCE` = 0.02** — a non-regression
+      guard, so an arm cannot buy MAE by wrecking the ordering.
+
+   **AND it must clear the best-of-K null, which now GATES rather than being
+   attached** (A's ruling (3)). The only stated reason it did not gate was a
+   comment in `decide_promotion()` claiming the rule was *Cory-ruled
+   verbatim*; **that was traced and is FALSE — the thresholds are `3a4a2805`'s
+   own design (08-16) and no Cory ruling on these numbers exists on either
+   side.** A blocked promotion is recorded on the ledger under
+   `blocked_promotions` with its reason, because a block recorded nowhere is
+   indistinguishable from a week when no arm qualified.
+
+   ⚠️ **KNOW WHAT THE GATE BUYS, AND WHAT IT COSTS — both measured, not
+   assumed.** Register 211: the rule as shipped promotes a **skill-free arm in
+   95.0% of seasons**; gating best-of-K cuts that to **17.9%**, but reaches
+   only **22.7%** power at a realistic −15% MAE edge and **54.8%** at −40%.
+   This is an improvement, not a solved gate. And the gate is **UNREACHABLE at
+   small n** — with 2 active arms even a perfect challenger scores p=0.2584 at
+   3 weeks, 0.1279 at 4, 0.0710 at 5, and first clears at **6 weeks**; with 4
+   arms it first clears at 4. **So gating raises the EFFECTIVE minimum from 3
+   weeks to six when only two arms are active.** `decide_promotion()` reports
+   that case as *cannot pass at this size* rather than as a verdict on the
+   arm, because those are different statements and only one is evidence.
+
+   One promotion per week maximum — two arms clearing at once means the
+   better margin goes first and the other waits a week (churn is its own
+   failure mode).
+
+   ⏰ **TIMING, which is why this landed on 08-21:** no graded week existed
+   yet, so aligning doc and code was not a post-result threshold move. After
+   week 1 it would be exactly that, and `no_fit_guard` forbids it.
 3. **NEVER-EMPTY:** every Tuesday, each of D/E (and C for capture health)
    files at least one of: a new blind P-row · a graded P-row · a line reading
    `NOTHING — <reason>`. The ledger's OPEN floor (≥6) already guards the

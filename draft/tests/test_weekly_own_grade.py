@@ -140,12 +140,65 @@ ARMS = [dict(a) for a in WP.DEFAULT_ARMS]
 
 
 def test_promotion_fires_on_the_stated_conditions():
-    # 3 weeks, challenger wins all 3, leads cumulative, same rho.
+    """The PROMOTION RULE still fires on exactly these conditions. What
+    changed 2026-08-21 (A's ruling, register 199) is that qualifying on the
+    rule is no longer sufficient — the best-of-K null now GATES — so the
+    record comes back carrying a `blocked` reason instead of being applied.
+    Both halves are asserted here rather than the test being flipped: the rule
+    still picks the right arm on the right weeks with the right evidence, AND
+    the gate holds it."""
     p = WG.decide_promotion(CHAMPION, _weeks([5.0, 5.0, 5.0], [4.0, 4.5, 4.8]), ARMS)
     assert p is not None
     assert p["to"] == {"version": "own_weekly_v2", "arm": "v1_notilt"}
     assert p["evidence"]["weeks_used"] == [1, 2, 3]
     assert p["evidence"]["cum_mae"] == round((4.0 + 4.5 + 4.8) / 3, 3)
+    # and the gate, which at k=2 over 3 weeks CANNOT pass — see below.
+    assert p.get("blocked"), "the best-of-K gate should hold this at n=3"
+
+
+def test_the_gate_says_UNREACHABLE_not_not_distinguishable_at_small_n():
+    """The distinction that keeps this a gate rather than a wall.
+
+    At k=2 over 3 weeks, even a perfect arm against a uniformly worse
+    champion does not reach p<0.05 (measured: 0.2584 at n=3, 0.1279 at n=4,
+    0.0710 at n=5, 0.0375 at n=6). A message saying the margin is "not
+    distinguishable from skill-free" would be a sentence about the ARM when
+    the true statement is that the test could not have passed regardless.
+    """
+    p = WG.decide_promotion(CHAMPION, _weeks([5.0, 5.0, 5.0], [4.0, 4.5, 4.8]), ARMS)
+    assert "CANNOT PASS at this size" in p["blocked"], p["blocked"]
+    assert "not for want of evidence" in p["blocked"]
+
+
+def test_the_gates_own_known_positive_matches_the_measured_table():
+    """`_gate_is_reachable` IS the gate's known-positive. If it ever stops
+    matching these measured values the gate's messages become guesses."""
+    assert WG._gate_is_reachable(2, 3) is False
+    assert WG._gate_is_reachable(2, 5) is False
+    assert WG._gate_is_reachable(2, 6) is True
+    assert WG._gate_is_reachable(4, 3) is False
+    assert WG._gate_is_reachable(4, 4) is True
+
+
+def test_an_UNRUNNABLE_null_BLOCKS_rather_than_passing():
+    """A gate that opens when it cannot see is not a gate. `_best_of_k_null`
+    never raises, so its failure arrives as a status string — treating that as
+    a pass is exactly the control-that-cannot-fail shape."""
+    assert WG._promotion_blocked({"status": "NOT RUN — needs >=2 arms"})
+    assert WG._promotion_blocked({"status": "FAILED to run (KeyError: x)"})
+    assert WG._promotion_blocked({"status": "ran", "survives": False,
+                                  "k": 4, "n_rows": 9, "field_p_value": 0.4})
+    assert WG._promotion_blocked({"status": "ran", "survives": True}) is None
+
+
+def test_a_CLEARING_null_lets_the_promotion_through():
+    """The gate must be passable on real evidence, or it is a wall. Six weeks,
+    challenger genuinely better every week — the size the measured table says
+    is the first reachable one at k=2."""
+    p = WG.decide_promotion(
+        CHAMPION, _weeks([9.0] * 6, [1.0, 1.2, 0.9, 1.1, 1.0, 1.3]), ARMS)
+    assert p is not None, "the promotion rule itself should qualify here"
+    assert not p.get("blocked"), p.get("blocked")
 
 
 def test_promotion_needs_three_weeks():
@@ -308,31 +361,66 @@ def test_main_dry_run_redirects_the_ledger(tmp_path):
     assert not (own / "grades_2026.json").exists()          # nothing in place
 
 
-def test_main_promotes_after_three_winning_weeks_and_writes_the_alert(tmp_path):
+def test_main_BLOCKS_a_three_week_promotion_and_records_why(tmp_path):
+    """END-TO-END, and it used to assert the opposite.
+
+    Before A's 2026-08-21 ruling (register 199) three winning weeks promoted.
+    The best-of-K null now GATES, and at k=2 over 3 weeks the gate is not
+    merely unmet, it is UNREACHABLE — a perfect arm scores p=0.2584 there.
+    So the run must hold the promotion AND say so on the ledger: a blocked
+    promotion recorded nowhere is indistinguishable from a week where no arm
+    qualified, and nobody would ever learn the rule wanted to promote.
+
+    The sibling below asserts the gate is passable at six weeks, so this pair
+    proves a gate rather than a wall.
+    """
     own, actuals, series = _setup_dir(tmp_path, weeks=(1, 2, 3))
-    # make the challenger strictly better every week: nudge actuals toward it
     doc = json.loads(Path(actuals).read_text())
     for w in doc["weeks"].values():
-        w["players"]["1"] = 9.0        # v1 proj 10 err 1; v1_notilt 9 err 0
-        w["players"]["2"] = 21.0       # v1 err 1; v1_notilt err 0
+        w["players"]["1"] = 9.0
+        w["players"]["2"] = 21.0
         w["players"]["3"] = 8.0
     Path(actuals).write_text(json.dumps(doc))
     env = _env(own, actuals, series, tmp_path)
     assert _run_main(["--date", "2026-09-29"], env) == 0
     ledger = json.loads((own / "grades_2026.json").read_text())
-    assert ledger["champion"] == {"version": "own_weekly_v2",
-                                  "arm": "v1_notilt", "since_week": 4}
+    # the champion does NOT move
+    assert ledger["champion"]["arm"] == "v1", ledger["champion"]
+    assert not ledger.get("promotions")
+    # ...and the block is on the record, with its reason
+    blocked = ledger.get("blocked_promotions") or []
+    assert len(blocked) == 1, blocked
+    assert blocked[0]["would_have_promoted"]["arm"] == "v1_notilt"
+    assert "CANNOT PASS at this size" in blocked[0]["reason"], blocked[0]["reason"]
+    # no promotion alert is written for a promotion that did not happen
+    assert not (tmp_path / "issue" / "promotion_title.txt").exists()
+
+
+def test_main_STILL_promotes_once_the_gate_is_reachable(tmp_path):
+    """The gate must be passable on real evidence. Six weeks is the first
+    reachable size at k=2 per the measured table, and the challenger is
+    genuinely better in every one of them."""
+    own, actuals, series = _setup_dir(tmp_path, weeks=(1, 2, 3, 4, 5, 6))
+    doc = json.loads(Path(actuals).read_text())
+    for w in doc["weeks"].values():
+        w["players"]["1"] = 9.0
+        w["players"]["2"] = 21.0
+        w["players"]["3"] = 8.0
+    Path(actuals).write_text(json.dumps(doc))
+    env = _env(own, actuals, series, tmp_path)
+    # a LATER run date: grading is capped by the calendar, and 09-29 only
+    # reaches ~week 3 — which is what made the first version of this test
+    # grade three weeks and fail for the wrong reason.
+    assert _run_main(["--date", "2026-11-10"], env) == 0
+    ledger = json.loads((own / "grades_2026.json").read_text())
+    assert ledger["champion"]["arm"] == "v1_notilt", ledger["champion"]
     assert len(ledger["promotions"]) == 1
     rec = ledger["promotions"][0]
     assert rec["from"]["arm"] == "v1" and rec["to"]["arm"] == "v1_notilt"
-    assert rec["effective_from_week"] == 4
-    # the OLD champion survives as an active challenger
     assert any(a["name"] == "v1" for a in ledger["active_arms"])
-    # the alert payload exists for the workflow's issue step
     issue = tmp_path / "issue"
     assert (issue / "promotion_title.txt").read_text().startswith(
         "Weekly model adapted: own_weekly_v1 -> own_weekly_v2")
-    assert "| 1 |" in (issue / "promotion_body.md").read_text()
 
 
 def test_main_holds_promotions_while_adaptation_is_paused(tmp_path):
@@ -442,3 +530,58 @@ def test_null_failure_is_named_not_swallowed(monkeypatch):
     rec = WG.decide_promotion(champion, weeks, arms)
     assert rec is not None                                # promotion unharmed
     assert rec["best_of_k"]["status"].startswith("FAILED to run")
+
+
+# ── GRADING-POLICY.md's four requirements, stated in the verdict ──────────
+# Conversion item (1), unblocked by A's register-199 ruling 2026-08-21. The
+# verdict Cory reads is the surface the policy applies to, so the four
+# requirements are asserted here by name: a reworded body that quietly drops
+# one is the failure this test exists to catch.
+
+def _promo_body():
+    p = WG.decide_promotion(
+        CHAMPION, _weeks([9.0] * 6, [1.0, 1.2, 0.9, 1.1, 1.0, 1.3]), ARMS)
+    assert p is not None and not p.get("blocked"), p
+    return WG.issue_text(p)[1]
+
+
+def test_the_verdict_states_all_FOUR_requirements_by_name():
+    body = _promo_body()
+    for want in ("1 · THE DECISION", "2 · THE NULL", "3 · THE CONTROLS",
+                 "4 · THE MARGIN"):
+        assert want in body, want
+
+
+def test_the_verdict_reports_the_MARGIN_IN_POINTS_before_the_win_count():
+    """Requirement 4: percentiles and counts say whether, points say how much.
+    The points gap must appear BEFORE the recent-wins count in the section."""
+    body = _promo_body()
+    sec = body[body.index("4 · THE MARGIN"):]
+    assert "points" in sec
+    assert sec.index("a gap of") < sec.index("is reported second")
+
+
+def test_the_verdict_names_the_gate_and_that_it_BLOCKS_when_the_null_cannot_run():
+    body = _promo_body()
+    assert "this null GATES the promotion" in body
+    assert "blocks rather than passes when the null cannot run" in body
+
+
+def test_the_verdict_carries_register_211s_ceiling_rather_than_claiming_the_arm_is_better():
+    """The honesty clause. Without it the verdict reads as 'this arm is
+    better', which the measured 95%/17.9% skill-free promotion rate does not
+    support."""
+    body = _promo_body()
+    assert "95.0% of seasons" in body and "17.9%" in body
+    assert "not as *this arm is better*" in body
+
+
+def test_the_verdict_says_NOT_AVAILABLE_when_the_null_did_not_run():
+    """The null section must not print a fabricated measurement when the null
+    is absent — absent is absent, the same rule the dispersion fields follow."""
+    rec = WG.decide_promotion(
+        CHAMPION, _weeks([9.0] * 6, [1.0, 1.2, 0.9, 1.1, 1.0, 1.3]), ARMS)
+    rec = {**rec, "best_of_k": {"status": "NOT RUN — needs >=2 arms"}}
+    body = WG.issue_text(rec)[1]
+    assert "NOT AVAILABLE" in body
+    assert "field margin" not in body

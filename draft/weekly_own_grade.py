@@ -359,19 +359,107 @@ def decide_promotion(champion: dict, weeks: dict, active_arms: list) -> dict | N
     best = min(qualifiers, key=lambda q: q["cum_mae"])
     m = re.match(r"^own_weekly_v(\d+)$", champion["version"])
     nxt = f"own_weekly_v{int(m.group(1)) + 1}" if m else champion["version"] + "+1"
-    return {
+    bok = _best_of_k_null(weeks, [a["name"] for a in active_arms])
+    record = {
         "from": {"version": champion["version"], "arm": champ_arm},
         "to": {"version": nxt, "arm": best["arm"]},
         "evidence": best,
         # THE STANDING NULL (BLEND-SEARCH-DESIGN §3, D's condition 4, wired
         # 08-18): picking the best of K arms buys a margin for free, and that
-        # free margin GROWS as arms are added. ATTACHED, NOT GATING — the
-        # promotion rule above is Cory-ruled verbatim and this does not change
-        # it; it makes every promotion carry the question "would K skill-free
-        # arms have produced this margin?" so the human reading the promotion
-        # issue sees the answer beside the win instead of nobody asking.
-        "best_of_k": _best_of_k_null(weeks, [a["name"] for a in active_arms]),
+        # free margin GROWS as arms are added.
+        #
+        # ⚠️ THIS COMMENT USED TO READ "ATTACHED, NOT GATING — the promotion
+        # rule above is Cory-ruled verbatim and this does not change it".
+        # THAT JUSTIFICATION WAS FALSE, and it was load-bearing: it was the
+        # only stated reason the null was decoration. A traced it 2026-08-21
+        # (register 199) — these thresholds entered at `3a4a2805` (08-16),
+        # whose own message calls them that session's design; the Cory
+        # verbatim quoted there is "We need to be making our own projections
+        # for every player, capturing, grading, and closing loop to learn!!",
+        # a mandate, not a threshold. `ADAPTATION-POLICY.md` quotes a
+        # different Cory verbatim, also a mandate. NO CORY RULING ON THESE
+        # NUMBERS EXISTS ON EITHER SIDE. The deference that froze this null
+        # was deference to nothing.
+        #
+        # It GATES now (A's ruling, register 199 (3)). See `_promotion_blocked`
+        # below for what that means and what register 211 measured it to be
+        # worth — which is less than the wording argument implied.
+        "best_of_k": bok,
     }
+    blocked = _promotion_blocked(bok)
+    return {**record, "blocked": blocked} if blocked else record
+
+
+def _promotion_blocked(bok: dict):
+    """The best-of-K gate. Returns a reason string, or None to allow.
+
+    A's ruling, register 199 (3), 2026-08-21: this null GATES. The only stated
+    reason it did not — a `Cory-ruled verbatim` claim in the record above —
+    was traced and found FALSE; no Cory ruling on these thresholds exists on
+    either side.
+
+    ⚠️ AN UNRUNNABLE NULL BLOCKS. `_best_of_k_null` is deliberately
+    never-raising, so its failure arrives as a status string rather than an
+    exception, and treating that as a pass would make the gate open exactly
+    when it cannot see — which is the shape of a control that cannot fail.
+    Not newly restrictive in practice: a run with too few common weeks to
+    permute also fails `PROMOTION_MIN_WEEKS` upstream.
+
+    ⚠️ AND KNOW WHAT IT BUYS, because register 211 measured it rather than
+    assuming: the promotion rule as shipped promotes a SKILL-FREE arm in 95.0%
+    of seasons. Gating here cuts that to 17.9%, but reaches only 22.7% power
+    at a realistic -15% MAE edge and 54.8% at -40%. This is a real
+    improvement and it is NOT a solved gate — 211 carries the rest.
+    """
+    st = bok.get("status")
+    if st != "ran":
+        return f"best-of-K null did not run ({st}) — an unmeasured null blocks"
+    if not bok.get("survives"):
+        reach = _gate_is_reachable(bok.get("k"), bok.get("n_rows"))
+        if reach is False:
+            return ("best-of-K CANNOT PASS at this size, so this is not a "
+                    f"verdict on the arm: with k={bok.get('k')} arms over "
+                    f"{bok.get('n_rows')} weeks, even a PERFECT arm against a "
+                    "uniformly worse champion does not reach p<0.05. Promotion "
+                    "is held for want of weeks, not for want of evidence")
+        return ("best-of-K: this margin is not distinguishable from picking the "
+                f"best of {bok.get('k')} skill-free arms "
+                f"(field p={bok.get('field_p_value')}, need < 0.05)")
+    return None
+
+
+def _gate_is_reachable(k, n):
+    """THE GATE'S OWN KNOWN-POSITIVE. Could this gate EVER have passed at this
+    (k, n)? Runs the most extreme evidence the design admits — one perfect arm
+    against a uniformly worse field — and reports whether that clears p<0.05.
+
+    WHY THIS EXISTS. Gating best-of-K (A's ruling, register 199) has a
+    consequence the ruling did not state and that measurement found: the gate
+    is UNREACHABLE at small n. Measured 2026-08-21 with the fixture below:
+
+        k=2:  n=3 p=0.2584 · n=4 0.1279 · n=5 0.0710 · n=6 0.0375  <- first pass
+        k=4:  n=3 p=0.0680 · n=4 0.0145                            <- first pass
+
+    So gating raises the EFFECTIVE minimum from `PROMOTION_MIN_WEEKS = 3` to
+    **six weeks when only two arms are active**, four when four are. Without
+    this check the early-season log would read "not distinguishable from
+    skill-free" every week — a sentence about the ARM — when the true statement
+    is that the test could not have passed regardless. That is the difference
+    between a gate and a wall, and only one of them is evidence.
+
+    Returns True/False, or None if the probe itself could not run (in which
+    case the caller falls back to the ordinary message rather than guessing).
+    """
+    try:
+        from best_of_k import best_of_k
+        if not k or not n or k < 2 or n < 1:
+            return None
+        errs = {"__perfect": [0.0] * n}
+        for j in range(k - 1):
+            errs[f"__worse{j}"] = [10.0] * n
+        return bool(best_of_k(errs)["survives"])
+    except Exception:                                     # noqa: BLE001
+        return None
 
 
 def _best_of_k_null(weeks: dict, arm_names: list) -> dict:
@@ -447,7 +535,58 @@ def issue_text(record: dict) -> tuple[str, str]:
     for w in ev["weeks_used"]:
         pw = ev["per_week"][str(w)]
         lines.append(f"| {w} | {pw['challenger']} | {pw['champion']} |")
+    bok = record.get("best_of_k") or {}
     lines += [
+        "",
+        "### What this verdict is, under `GRADING-POLICY.md`",
+        "",
+        "Every grade filed from 2026-08-21 states the four requirements. This "
+        "one states them here rather than leaving the reader to reconstruct "
+        "them from a table — a grade missing any of the four is not a grade.",
+        "",
+        "**1 · THE DECISION.** Which arm feeds the published weekly "
+        "projection from the next Tuesday. Made once, mechanically, on the "
+        "Tuesday after the last graded week above — not a judgement about "
+        "whether the season went well.",
+        "",
+        "**2 · THE NULL.** Best-of-K over the arms' common graded weeks: "
+        "would picking the best of "
+        f"{bok.get('k', 'K')} skill-free arms have produced this margin? "
+        "Rows are weekly MAEs, exchangeable under *arm identity carries no "
+        "information*. "
+        + (f"Measured: field margin {bok.get('field_margin')} against a null "
+           f"mean of {bok.get('null_field_margin_mean')}, p="
+           f"{bok.get('field_p_value')}. "
+           if bok.get("status") == "ran" else
+           f"⚠️ NOT AVAILABLE ({bok.get('status')}). ")
+        + "**Since 2026-08-21 this null GATES the promotion** (A's ruling, "
+          "register 199); before then it was attached and advisory, on a "
+          "justification that turned out to be false.",
+        "",
+        "**3 · THE CONTROLS.** The null's own permutation is the "
+        "known-negative — shuffling arm labels within each week must destroy "
+        "the margin, and the reported null mean is that destroyed margin. The "
+        "known-positive is `_gate_is_reachable`: a perfect arm against a "
+        "uniformly worse field at this same (k, n) **must** clear p<0.05, and "
+        "if it cannot the verdict says *cannot pass at this size* instead of "
+        "claiming the arm is indistinguishable from noise. Both run every "
+        "time and **the gate blocks rather than passes when the null cannot "
+        "run at all.**",
+        "",
+        "**4 · THE MARGIN, in the unit that pays.** Cumulative MAE above, in "
+        f"points per player-week: **{ev['cum_mae']}** against the champion's "
+        f"**{ev['champion_cum_mae']}** — a gap of "
+        f"**{round(ev['champion_cum_mae'] - ev['cum_mae'], 3)} points**, over "
+        f"{len(ev['weeks_used'])} graded week(s). The win count "
+        f"({ev['recent_wins']}) is reported second, because a count says "
+        "*whether* and points say *how much*.",
+        "",
+        "⚠️ **AND THE HONEST CEILING ON ALL OF IT (register 211):** this "
+        "promotion rule promotes a **skill-free arm in 95.0% of seasons** "
+        "ungated, and **17.9%** with the gate above. Read this verdict as "
+        "*the rule fired and the null did not stop it*, not as *this arm is "
+        "better*. The two are not the same claim and the second one needs "
+        "more weeks than a season has.",
         "",
         "Provider arms (sleeper / fantasypros / sleeper_fp_average) are study "
         "arms and are never auto-promoted; which provider feeds the live "
@@ -679,6 +818,22 @@ def main(argv: list | None = None) -> int:
     elif n_graded and ov:
         print(f"manual champion override active (arm {ov}) — mechanical "
               "promotions held while it stands")
+    if promo and promo.get("blocked"):
+        # A BLOCKED PROMOTION IS A RESULT, NOT A SILENCE. Returning None here
+        # would make the gate invisible: the week would look identical to a
+        # week where no arm qualified, and nobody would ever learn that the
+        # rule wanted to promote and the null said no. Recorded on the ledger
+        # so the block is auditable next week (A's ruling, register 199).
+        ledger.setdefault("blocked_promotions", []).append({
+            "blocked_at": today.isoformat(),
+            "would_have_promoted": promo["to"],
+            "from": promo["from"],
+            "reason": promo["blocked"],
+            "best_of_k": promo.get("best_of_k"),
+        })
+        print(f"PROMOTION BLOCKED: {promo['to']['arm']} qualified on the "
+              f"promotion rule and did NOT clear the null — {promo['blocked']}")
+        promo = None
     if promo:
         promoted_def = next(a for a in ledger["active_arms"]
                             if a["name"] == promo["to"]["arm"])
