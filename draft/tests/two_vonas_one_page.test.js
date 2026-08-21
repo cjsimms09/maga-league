@@ -1,35 +1,36 @@
 // TERRITORY: A
-/* THERE ARE TWO DIFFERENT VONA NUMBERS ON THE WAR ROOM AND ONLY ONE FOLLOWS
- * THE SOURCE TOGGLE. This file exists so nobody has to rediscover that.
+/* VONA FOLLOWS THE SOURCE, OR IT SHOWS NOTHING.
  *
- * E's audit, 2026-08-21, verbatim: "all VONA is coming from draft shark and
- * doesn't change with changing source." That is TRUE of one of them and FALSE
- * of the other, which is exactly why it was worth a guard — I had measured the
- * engine's VONA moving across all eight sources hours earlier and guarded it
- * (source_toggle_moves_vona.test.js, 20/20), so on the face of it we
- * contradicted each other. We did not. We were looking at different numbers.
+ * CORY, 2026-08-21, ruling this directly: "Vona should change by source? Or
+ * can it not because we only have projected points from draft shark? Vona
+ * should change for each source in which we have a projected points total. If
+ * we don't have projected points then it shouldn't show Vona for that source."
  *
- *   THE BIG BOARD / THE PICK VONA — engine.js `vona()`, computed live from
- *   `context()`, which passes `sourceAdjustedBoard()`. It FOLLOWS the toggle:
- *   median |shift| 3.0 to 19.0 across the top 200 depending on source, with
- *   2-17 sign flips each. Guarded by source_toggle_moves_vona.test.js.
+ * ── WHAT THIS FILE USED TO GUARD, AND WHY IT NO LONGER DOES ───────────────
  *
- *   THE BY-POSITION PANEL VONA — precomputed into public/position_boards.json
- *   by draft/tools/position_boards.js, from Draft Sharks' bestNow/bestNext.
- *   That tool's own comment states it: "Ranking, VONA, cliff and surplus above
- *   are unaffected: they stay computed from `ds`, only these three fields
- *   switch under the view's toggle." It does NOT follow the toggle and cannot,
- *   because it is a one-shot pre-draft simulation, not a live computation.
+ * E's audit found the symptom: "all VONA is coming from draft shark and
+ * doesn't change with changing source." True of the BY-POSITION panel — its
+ * VONA was precomputed once from Draft Sharks — and false of the Big Board,
+ * whose VONA is computed live and does follow the toggle. Two numbers, two
+ * pipelines, one page.
  *
- * BOTH ARE CORRECT NUMBERS. The defect was that the panel's own disclosure
- * said "only the projection NUMBER above changes" — and VONA is not the
- * projection number, so the sentence pointed the wrong way about the very
- * figure printed largest in the column header. Fixed by marking the chip `DS`
- * at the point of reading and naming VONA in the note.
+ * The first version of this file pinned the DISCLOSURE: mark the frozen number
+ * `DS` and say it does not follow the toggle. That was the right fix for one
+ * evening and the wrong fix in general, and Cory said so. The number should
+ * move. It now does, so this file pins the BEHAVIOUR instead.
  *
- * WHAT THIS PINS is the honesty, not the architecture: if the by-position VONA
- * is ever made live, delete this file in that commit. Until then, a frozen
- * number sitting under a toggle must say it is frozen.
+ * ── WHY IT WAS CHEAPER THAN "A REAL TECHNICAL LIMIT" SUGGESTED ────────────
+ *
+ * The blocker was believed to be the 300-room simulation — re-running it per
+ * source before Saturday was called impossible. It never needed re-running:
+ * the simulation drains the board by ADP, and ADP comes from our own board,
+ * not from any source's projections. Projections enter only when asking "who
+ * is the best of the men still available". So the SAME simulated availability
+ * is re-priced under each source in one extra pass per room-pick.
+ *
+ * The second stated blocker — "we only have projected points from Draft
+ * Sharks" — had already stopped being true earlier the same day:
+ * attach_multisource.py put eight projection columns on the board.
  */
 'use strict';
 const fs = require('fs');
@@ -39,72 +40,131 @@ const ROOT = path.join(__dirname, '..', '..');
 let pass = 0, fail = 0;
 const ck = (n, c, d) => {
   if (c) { pass++; console.log('PASS  ' + n); }
-  else { fail++; console.log('FAIL  ' + n + (d !== undefined ? '  — ' + String(JSON.stringify(d)).slice(0, 300) : '')); }
+  else { fail++; console.log('FAIL  ' + n + (d !== undefined ? '  — ' + String(JSON.stringify(d)).slice(0, 320) : '')); }
 };
 
-const VIEW = fs.readFileSync(path.join(ROOT, 'public/js/draft/position_boards_view.js'), 'utf8');
-const TOOL = fs.readFileSync(path.join(ROOT, 'draft/tools/position_boards.js'), 'utf8');
 const PB = JSON.parse(fs.readFileSync(path.join(ROOT, 'public/position_boards.json'), 'utf8'));
+global.window = global;
+require(path.join(ROOT, 'public/js/draft/position_boards_view.js'));
+const V = global.window.PositionBoardsView;
+const esc = x => String(x == null ? '' : x)
+  .replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-/* ── 1. THE PREMISE IS STILL TRUE: the panel's VONA really is DS-derived ──── */
-ck('CONTROL: position_boards.json still declares Draft Sharks as what selects '
-  + 'and ranks it — if this changes, the whole file needs re-reading',
-/Draft Sharks/.test(String(PB._sources || '') + String(PB._blend_toggle_caveat || '')),
-{ sources: PB._sources });
-
-ck('the TOOL still computes VONA from the Draft Sharks fields, which is the '
-  + 'fact the disclosure below has to match',
-/VONA[\s\S]{0,400}?stay computed from `ds`/.test(TOOL)
-  || /VONA:\s*vona/.test(TOOL),
-'position_boards.js VONA assignment');
-
-/* A VONA actually reaches the artifact — otherwise the panel prints nothing
- * and every check below is about an invisible number. */
+const SRCS = ['ds', 'sleeper', 'cbs', 'espn', 'fftoday', 'fantasypros', 'clay', 'ownmodel'];
+const POS = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
 const picks = PB.picks || [];
-const withVona = picks.filter(r => r.positions
-  && Object.keys(r.positions).some(q => r.positions[q] && r.positions[q].VONA != null));
-ck('CONTROL: the artifact actually carries VONA figures, so this is guarding '
-  + 'something a reader can see',
-withVona.length >= 1, { picks_with_vona: withVona.length, of: picks.length });
+const row = picks.find(r => (r.positions || {}).RB) || picks[0];
 
-/* ── 2. THE DISCLOSURE, AT THE POINT OF READING ──────────────────────────── */
-ck('the VONA chip itself is marked as Draft Sharks — a note further down the '
-  + 'panel is not where someone reading a number looks',
-/pb-vona-src/.test(VIEW) && /VONA <b>[\s\S]{0,80}pb-vona-src/.test(VIEW),
-'pb-vona-src marker on the VONA chip');
+// ── 1. THE ARTIFACT CARRIES A VONA PER SOURCE ────────────────────────────
+ck('CONTROL: the artifact has picks with positions, so everything below is '
+  + 'measuring real cells rather than an empty object',
+!!row && Object.keys(row.positions || {}).length >= 4,
+{ picks: picks.length, positions: row ? Object.keys(row.positions || {}) : null });
 
-ck('and its hover says plainly that it does NOT follow the Ranking Source '
-  + 'toggle, naming the Big Board VONA as the one that does',
-/does NOT follow the Ranking Source toggle/i.test(VIEW)
-  && /Big Board VONA does follow/i.test(VIEW),
-'chip title text');
+ck('every position cell carries VONA_by_source — the field Cory\'s ruling needs',
+POS.every(q => !row.positions[q] || row.positions[q].VONA_by_source),
+POS.filter(q => row.positions[q] && !row.positions[q].VONA_by_source));
 
-/* ── 3. THE NOTE MUST NAME VONA, NOT JUST "SELECTION AND ORDER" ──────────── */
-const note = (VIEW.match(/function projSourceNote\(\)[\s\S]{0,1200}?\n  \}/) || [''])[0];
-ck('CONTROL: the panel still HAS a source note to check — if it were deleted '
-  + 'the assertion below would pass vacuously on an empty string',
-note.length > 100, { note_len: note.length });
+/* THE RULING, HALF ONE: it must actually DIFFER across sources. A per-source
+ * field that holds the same number eight times is the old defect with more
+ * keys — exactly the "nine labels over one opinion" shape this repo keeps
+ * finding, so the count is asserted, not eyeballed. */
+const rbVals = SRCS.map(k => (row.positions.RB.VONA_by_source || {})[k]).filter(v => v != null);
+ck('THE RULING: VONA genuinely differs by source — it is not one number '
+  + 'wearing eight labels',
+new Set(rbVals.map(v => Number(v).toFixed(1))).size >= 4,
+{ rb_by_source: SRCS.map(k => k + '=' + (row.positions.RB.VONA_by_source || {})[k]).join(' ') });
 
-ck('THE FIX: the note names VONA explicitly. It used to say "only the '
-  + 'projection NUMBER above changes", which is true of the projection and '
-  + 'false of the VONA printed beside it — the exact sentence that made E\'s '
-  + 'finding possible',
-/VONA/.test(note),
-{ mentions_vona: /VONA/.test(note),
-  still_claims_only_projection: /only the[\s\S]{0,40}projection NUMBER above changes/.test(note) });
+/* KNOWN POSITIVE tying new to old: the `ds` arm must reproduce the legacy
+ * top-level VONA. If the per-source machinery had a bug, `ds` is the one cell
+ * whose right answer we already knew before writing any of it. */
+let dsMatches = 0, dsChecked = 0;
+picks.forEach(r => POS.forEach(q => {
+  const c = (r.positions || {})[q];
+  if (!c || c.VONA == null || !c.VONA_by_source) return;
+  dsChecked++;
+  if (Math.abs(Number(c.VONA_by_source.ds) - Number(c.VONA)) < 0.05) dsMatches++;
+}));
+ck('KNOWN POSITIVE: the `ds` arm reproduces the legacy Draft Sharks VONA cell '
+  + 'for cell — the one answer we already knew, so the new path is anchored '
+  + 'to the old one rather than merely self-consistent',
+dsChecked >= 20 && dsMatches === dsChecked, { matched: dsMatches, of: dsChecked });
 
-ck('and it does NOT still carry the old "only the projection NUMBER above '
-  + 'changes" phrasing, which would contradict the line above it',
-!/only the[\s\S]{0,40}projection NUMBER above changes/.test(note));
+// ── 2. THE RULING, HALF TWO: NO PROJECTIONS -> NO VONA ───────────────────
+/* TWO legitimate reasons a cell is null, and they are exhaustive:
+ *   · the source does not price enough available men there (Cory's rule), or
+ *   · it is his LAST pick, so there is no next pick to wait for and VONA is
+ *     undefined by definition — the legacy top-level VONA is null there too.
+ * The first version of this arm allowed only the first reason and went red on
+ * the 41 last-pick cells. That was the TEST being wrong, not the tool: the
+ * classification below was run before changing anything and returned ZERO
+ * unexplained cells, which is why the assertion is now "nothing outside these
+ * two" rather than a loosened threshold. */
+let nulls = 0, explained = 0, unexplained = [];
+picks.forEach(r => POS.forEach(q => {
+  const c = (r.positions || {})[q];
+  if (!c || !c.VONA_by_source) return;
+  SRCS.forEach(k => {
+    if (c.VONA_by_source[k] != null) return;
+    nulls++;
+    const noCoverage = !((c.covered_by_source || {})[k] > 2);
+    const noNextPick = r.next_pick == null;
+    if (noCoverage || noNextPick) explained++;
+    else unexplained.push('pick ' + r.pick + ' ' + q + ' ' + k);
+  });
+}));
+ck('CONTROL: there ARE uncovered (position, source) cells on this board, so '
+  + 'the rule below is exercised rather than vacuously satisfied',
+nulls > 0, { null_cells: nulls });
 
-/* ── 4. THE OTHER VONA IS STILL LIVE — the half E's claim does not cover.
- *      Asserted by pointing at the suite that measures it, so the two files
- *      cannot drift into disagreeing about which number does what. ───────── */
-const SIB = path.join(ROOT, 'draft/tests/source_toggle_moves_vona.test.js');
-ck('the sibling guard that proves the BIG BOARD VONA does follow the toggle '
-  + 'still exists — without it this file could be read as "VONA is frozen", '
-  + 'which is the misreading it was written to prevent',
-fs.existsSync(SIB), SIB);
+ck('THE RULING: every missing VONA is explained — the source prices too few '
+  + 'available men, or it is his last pick and waiting is not a choice. Never '
+  + 'a silent fallback to another source, and never an unexplained hole',
+unexplained.length === 0,
+{ nulls: nulls, explained: explained, unexplained: unexplained.slice(0, 6) });
+
+// ── 3. IT REACHES THE SCREEN ─────────────────────────────────────────────
+const render = k => V.renderPositionBoards(PB, row.pick, {}, esc,
+  (k === 'ds' ? 'ds' : 'blend'), {}, {}, new Set(), k);
+const chipsOf = html => [...html.matchAll(/VONA <b>([^<]*)<\/b>\s*<span class="pb-vona-src">([^<]*)<\/span>/g)]
+  .map(m => m[1] + '/' + m[2]);
+
+const perSource = {};
+SRCS.forEach(k => { perSource[k] = chipsOf(render(k)).join(' '); });
+ck('CONTROL: the panel actually renders VONA chips, so the comparison below '
+  + 'is over real markup',
+chipsOf(render('ds')).length >= 4, { chips: chipsOf(render('ds')) });
+
+ck('ON SCREEN: the rendered chips change when the source changes — this is '
+  + 'the thing E measured as frozen',
+new Set(Object.values(perSource)).size >= 4,
+{ ds: perSource.ds, sleeper: perSource.sleeper, espn: perSource.espn });
+
+ck('ON SCREEN: the chip is labelled with the source it was priced on, so a '
+  + 'reader can never mistake one source\'s number for another\'s',
+/pb-vona-src">SLP</.test(render('sleeper')) && /pb-vona-src">CBS</.test(render('cbs')),
+{ sleeper_labelled: /pb-vona-src">SLP</.test(render('sleeper')) });
+
+const clay = render('clay');
+ck('ON SCREEN: a source with no projections for a position prints a DASH and '
+  + 'says why — not a Draft Sharks number under its name',
+/pb-vona-none/.test(clay) && /VONA <b>—<\/b>/.test(clay)
+  && /does not publish projected points/.test(clay),
+{ dashes: (clay.match(/pb-vona-none/g) || []).length });
+
+/* FAIL ARM: the dash must be reachable ONLY through absent coverage. If every
+ * source covered everything, the branch above would never render and would rot
+ * untested — so this asserts the two states genuinely coexist on this board. */
+ck('FAIL ARM: a well-covered source shows numbers where the uncovered one '
+  + 'shows dashes, so the dash is a real signal and not the panel failing',
+!/pb-vona-none/.test(render('ds')) && /pb-vona-none/.test(clay),
+{ ds_has_dashes: /pb-vona-none/.test(render('ds')) });
+
+/* The Big Board VONA is a different number and still follows the toggle;
+ * its own suite proves that. Pointed at here so the two files cannot drift
+ * into disagreeing about which number does what. */
+ck('the sibling guard for the BIG BOARD VONA still exists',
+fs.existsSync(path.join(ROOT, 'draft/tests/source_toggle_moves_vona.test.js')));
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

@@ -1134,8 +1134,17 @@
      * (Draft Sharks' own, or the board's blend) straight from the real
      * toggle — no separate control, no separate state. */
     const pbProjSource = state.rankSource === 'ds' ? 'ds' : 'blend';
+    /* ⚠️ TWO DIFFERENT THINGS, PASSED SEPARATELY ON PURPOSE (Cory, 2026-08-21).
+     * `pbProjSource` is the ds/blend choice for the PER-PLAYER number in each
+     * row — collapsed, because only those two numbers are attached per player.
+     * `state.rankSource` is the REAL source key, and the column-header VONA
+     * now needs it: position_boards.json carries VONA_by_source for all eight,
+     * and his ruling is that VONA follows the source or prints nothing.
+     * Collapsing them into one argument is what made the header VONA look
+     * frozen — do not merge these two parameters back together. */
     host.innerHTML = PositionBoardsView.renderPositionBoards(d, cur, liveSurvivalById, escapeHtml,
-      pbProjSource, state.playerCalls || {}, badgeInfo(), state.drafted);
+      pbProjSource, state.playerCalls || {}, badgeInfo(), state.drafted,
+      state.rankSource || 'ds');
     wirePositionBoardsScroll(host);
   }
 
