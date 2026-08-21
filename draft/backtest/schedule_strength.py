@@ -31,6 +31,16 @@ team's schedule reads the SAME opponent rank until defenses actually play
 2026 games and the store is regenerated. `captured_at` and
 `defense_source_seasons` are stamped so staleness is visible, not silent.
 
+⚠️ MEASURED CAVEAT (P313, PREDICTION-LEDGER.md, 2026-08-21): this rank's
+predictive value is real WITHIN a season (leaky same-season correlation
+0.10-0.26 across four separate years, QB/RB/WR/TE) but COLLAPSES TO NOISE
+when the rank is built on past seasons and tested against a held-out one —
+in both a 1-year and a 4-year lookback. Read: these ranks are a real
+description of 2021-2025, not a measured predictor of 2026 matchups. Do
+not wire this store into anything that needs 2026 predictive power without
+knowing that; a same-season, in-progress refit (once 2026 games exist)
+is the only version of this signal shown to carry information.
+
 Run: python3 draft/backtest/schedule_strength.py
 """
 from __future__ import annotations
