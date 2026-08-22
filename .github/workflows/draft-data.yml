@@ -714,6 +714,15 @@ jobs:
           # own controls fail, so a broken join cannot reach the board.
           python3 draft/tools/attach_multisource.py
           python3 draft/tools/alt_source_rankings.py
+          # position_boards.js already ran ~140 lines above, BEFORE the attach
+          # step wrote proj_cbs/espn/fftoday/clay onto the board — so its
+          # covered_by_source was 0 for all four at every position and the war
+          # room printed a dash for their VONA (register 253, found on the
+          # live 2026-08-22 post-lock board). Re-run it here, against the
+          # board as it will actually publish. Re-running is the safe fix:
+          # moving the attach step earlier would reorder steps across the
+          # publish gate.
+          node draft/tools/position_boards.js
           # ⚠️ AND THIS LINE IS WHY conditional_value.py RUNS TWICE.
           #
           # alt_source_rankings.py WRITES public/draft_data.json (it adds the
