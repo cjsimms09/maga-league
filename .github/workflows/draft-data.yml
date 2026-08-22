@@ -33,6 +33,11 @@ on:
         type: boolean
         required: false
         default: false
+      allow_world_state_publish:
+        description: 'Publish even if WORLD-STATE tests fail (keeper-lock pins). Dispatch only — the cron can never set this. A real board failure still refuses.'
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   build:
@@ -308,7 +313,15 @@ jobs:
           # Set to "1" ONLY to publish over a WORLD-STATE alarm (see the long
           # note further down this step). Only the exact string "1" enables it.
           # Unset it again the moment the condition clears.
-          ALLOW_WORLD_STATE_PUBLISH: ""
+          # ⚠️ DISPATCH-ONLY, AND THAT IS THE POINT (2026-08-21, Cory's ruling).
+          # The 08-20 design said "change this line to \"1\" and re-run", which
+          # would have left a hardcoded override in the file where the 03:00 CRON
+          # reads it too — a one-time decision quietly becoming every future
+          # build's default. `inputs.*` is EMPTY on a scheduled run, so this
+          # resolves to "" there and the cron fails closed no matter what a
+          # dispatch did earlier. Only the exact string "1" enables it; the
+          # boolean input is compared explicitly so a typo cannot open it.
+          ALLOW_WORLD_STATE_PUBLISH: ${{ github.event.inputs.allow_world_state_publish == 'true' && '1' || '' }}
         # THE STEP THE OLD COMMENT DESCRIBED, in the only place it can be true:
         # after the artifact is built and before it is committed. A board is the
         # single input every draft-day surface reads, so publishing one that fails
@@ -375,10 +388,14 @@ jobs:
             # asserted, not claimed, by test_EQUIVALENCE_flag_off_classifies_
             # exactly_as_before. Nothing about this run changes.
             #
-            # TO TURN IT ON, if Friday night arrives with teams still unplaced:
-            # change the line below to `ALLOW_WORLD_STATE_PUBLISH: "1"` and
-            # re-run the workflow. Only the exact string "1" enables it — a typo
-            # fails closed. Even on, a real board failure still refuses, and the
+            # ⚠️ HOW YOU TURN IT ON CHANGED 2026-08-21 — this said "change the
+            # line below to `ALLOW_WORLD_STATE_PUBLISH: \"1\"`", and that would
+            # have written a one-time decision into the file the 03:00 CRON reads
+            # too. It is now a DISPATCH INPUT (`allow_world_state_publish`), so
+            # run the workflow manually with the box ticked. `inputs.*` is empty
+            # on a scheduled run, so the cron fails closed however the last
+            # dispatch went — the override cannot outlive the run that asked for
+            # it. Only the exact string "1" reaches the tool; a typo fails closed. Even on, a real board failure still refuses, and the
             # published board carries public/world_state_override.json naming
             # what was waived, so it can never be mistaken for a clean build.
             #
