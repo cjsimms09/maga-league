@@ -44,3 +44,44 @@ def test_draft_week_alarm_escalates():
     conf = KS.assess_slate(10, {str(i): ["x"] for i in range(1, 11)},
                            placements={str(i): ["x"] for i in range(1, 11)})
     assert KS.draft_week_alarm(conf, days_to_draft=1)[0] == "ok"        # confirmed = safe even at T-1
+
+
+# ── THE DEADLINE RESOLVES UNKNOWN INTO ZERO (2026-08-21, the first real lock) ──
+# Nine teams kept, one deliberately kept nobody; the status read 'partial', the
+# freeze could not seal, and the post-lock rebuild refused. These pin the
+# resolution branch and its three refusals-to-resolve.
+
+def _nine_placed():
+    return {str(i): [f"p{i}"] for i in range(1, 10)}
+
+
+def test_post_lock_a_silent_team_resolves_to_kept_none():
+    s = KS.assess_slate(10, _nine_placed(), placements=_nine_placed(), keeper_lock_passed=True)
+    assert s["confirmed"] and s["status"] == "confirmed"
+    assert s["resolved_none_at_lock"] == 1
+    assert "KEPT NONE" in s["reason"]
+
+
+def test_pre_lock_the_same_shape_stays_partial():
+    s = KS.assess_slate(10, _nine_placed(), placements=_nine_placed(), keeper_lock_passed=False)
+    assert s["status"] == "partial" and not s["confirmed"]
+
+
+def test_post_lock_designated_but_unplaced_still_blocks():
+    # the deadline resolves SILENCE, not contradictions: a designation with no
+    # placement is a lost commissioner action, not a decision to keep nobody.
+    des = _nine_placed(); des["10"] = ["p10x"]
+    s = KS.assess_slate(10, des, placements=_nine_placed(), keeper_lock_passed=True)
+    assert not s["confirmed"]
+
+
+def test_post_lock_mismatch_still_blocks():
+    pl = _nine_placed(); pl["1"] = ["different"]
+    s = KS.assess_slate(10, _nine_placed(), placements=pl, keeper_lock_passed=True)
+    assert not s["confirmed"]
+
+
+def test_full_slate_unchanged_and_resolution_count_zero():
+    pl = {str(i): [f"p{i}"] for i in range(1, 11)}
+    s = KS.assess_slate(10, dict(pl), placements=pl, keeper_lock_passed=True)
+    assert s["confirmed"] and s["resolved_none_at_lock"] == 0

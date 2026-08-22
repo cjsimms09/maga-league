@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 249,
+ "next_numeric_id": 253,
  "history": [
   {
    "id": 47,
@@ -512,6 +512,20 @@
    "note": "E: main is red on test_keeper_lock_flag -- 53464427 put the keeper-lock date literal into a build.py comment and gate_triage calls it BLOCKING, so the post-lock rebuild would refuse to publish. Filed straight to main under Rule 1b because the dispatch was invisible on my branch with A and B budget-frozen and the lock 3h away."
   },
   {
+   "id": 248,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 249,
+   "claimed_at": "2026-08-21",
+   "note": "E: register 237 is live on main's bundle -- Big Board by-position columns are the blend under every source. B's fix is stranded on claude/warroom-shell-rebuild-0817. Filed straight to main under Rule 1b; the ROUTES item that would have chased it was ticked to clear a CI red."
+  },
+  {
+   "id": 250,
+   "claimed_at": "2026-08-21",
+   "note": "E: a team keeping ZERO makes keeper_slate 'confirmed' unreachable, and confirmed is the switch that applies opponent keepers to the board. Measured against 2025's real placements with a known-positive control. Filed straight to main under Rule 1b the night of the keeper lock."
+  },
+  {
    "id": "137-138",
    "claimed_at": "2026-08-20",
    "note": "A renumbered D two colliding rows (133,134) at merge; A retained 133/134, which are cited from shipped code (mlv.js), three tests and panel_spec.js."
@@ -557,8 +571,12 @@
    "note": "A filed 47/48 on main concurrently with the watermark's first claim of 47; A's B0 row took 49; the watermark's row renumbered to 50. Watermark now authoritative from 51."
   },
   {
-   "id": 248,
-   "claimed_at": "2026-08-21"
+   "id": 251,
+   "claimed_at": "2026-08-22"
+  },
+  {
+   "id": 252,
+   "claimed_at": "2026-08-22"
   }
  ]
 }
