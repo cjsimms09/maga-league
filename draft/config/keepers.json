@@ -101,6 +101,62 @@
     {
       "draft_slot": 4,
       "slot_provisional": true,
+      "owner_id": "458507445241638912",
+      "keepers": [
+        {
+          "player_id": "4034",
+          "name": "Christian McCaffrey",
+          "position": "RB",
+          "original_round": 1,
+          "years_kept": 1
+        },
+        {
+          "player_id": "4984",
+          "name": "Josh Allen",
+          "position": "QB",
+          "original_round": 1,
+          "years_kept": 1
+        },
+        {
+          "player_id": "7547",
+          "name": "Amon-Ra St. Brown",
+          "position": "WR",
+          "original_round": 1,
+          "years_kept": 1
+        }
+      ]
+    },
+    {
+      "draft_slot": 5,
+      "slot_provisional": true,
+      "owner_id": "459850070410391552",
+      "keepers": [
+        {
+          "player_id": "12507",
+          "name": "Omarion Hampton",
+          "position": "RB",
+          "original_round": 1,
+          "years_kept": 1
+        },
+        {
+          "player_id": "4866",
+          "name": "Saquon Barkley",
+          "position": "RB",
+          "original_round": 1,
+          "years_kept": 1
+        },
+        {
+          "player_id": "9493",
+          "name": "Puka Nacua",
+          "position": "WR",
+          "original_round": 1,
+          "years_kept": 1
+        }
+      ]
+    },
+    {
+      "draft_slot": 6,
+      "slot_provisional": true,
       "owner_id": "461443264013135872",
       "keepers": [
         {
@@ -127,7 +183,7 @@
       ]
     },
     {
-      "draft_slot": 5,
+      "draft_slot": 7,
       "slot_provisional": true,
       "owner_id": "471160336402083840",
       "keepers": [
@@ -155,7 +211,7 @@
       ]
     },
     {
-      "draft_slot": 6,
+      "draft_slot": 9,
       "slot_provisional": true,
       "owner_id": "739930057887334400",
       "keepers": [
@@ -170,10 +226,10 @@
     }
   ],
   "_note": "generated from final_rosters keeper designations. Slots marked slot_provisional=true are placeholders: the COUNT is real and drives the pool and my pick numbers correctly, but WHICH seat that team occupies is not known until the draft order is set.",
-  "_placed_teams": 7,
-  "_provisional_slots": 6,
-  "_total_keepers": 17,
-  "_designating_teams": 7,
+  "_placed_teams": 9,
+  "_provisional_slots": 8,
+  "_total_keepers": 23,
+  "_designating_teams": 9,
   "_designations_source": "sleeper",
   "_problems": []
 }

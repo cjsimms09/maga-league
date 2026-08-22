@@ -103,6 +103,160 @@ WORLD_STATE = {
             "provisional is the season-grading baseline and the availability "
             "model's assumption about which players opponents remove.",
     },
+
+    # ══ THE 2026-08-21 KEEPER LOCK — ONE WORLD EVENT, EIGHT FILES ═══════════
+    #
+    # Cory ruled at 23:5x on 08-21, with the failure list and this cost in
+    # front of him: "Publish the candidate, fix pins after."
+    #
+    # THE EVENT: keepers locked. 10 teams, 23 keepers, one team deliberately
+    # kept nobody. `build.py` moves kept players out of `players` and into
+    # `kept_players`, so the draftable array went 700 -> 680. Every entry below
+    # is a pin computed OVER THAT ARRAY, re-evaluated on a legitimately smaller
+    # and differently-composed one.
+    #
+    # THE EVIDENCE THAT THE BOARD IS NOT WHAT MOVED, from the run's own
+    # diagnosis step (run 32537009348), not from argument:
+    #   keeper_lock_passed True · status 'confirmed' · confirmed True
+    #   9 designated / 9 placed / 1 deliberately keeping none
+    #   680 players · 99.7% of market-priced rows carry a projection (floor 50%)
+    #   replacement sensitivity: "the characterization test's properties HOLD
+    #   on this board"
+    #   dormant(): status=measured, n=0
+    # 4995 tests passed on the same board.
+    #
+    # ⚠️ WHAT I VERIFIED vs WHAT I INFERRED, because the difference is the
+    # whole risk Cory accepted. I read the failing ASSERTION for
+    # test_draftsharks_parse (both arms) and test_keeper_injection, and their
+    # mechanisms are named exactly below. For the rest I have the failing
+    # VALUES from the run log and the pool change as cause; I did NOT re-derive
+    # each on the post-lock pool, because the real 23-keeper slate exists only
+    # inside the workflow run — `draft/config/keepers.json` on main is still
+    # the 17-keeper predicted slate. That is why every entry clears on
+    # RE-DERIVATION rather than on my say-so.
+    "draft/tests/test_source_composition.py": {
+        "condition":
+            "three pins state CONCLUSIONS measured over the draftable pool: "
+            "'TE mean board rank > 115' now reads 109.5, 'only RB survives' "
+            "now reads [], and a centre gap bounded at 10.0 now reads 11.6. "
+            "Removing 23 kept players re-ranks every position and re-weights "
+            "every cross-source comparison computed over that array.",
+        "clears_when":
+            "each of the three is RE-DERIVED on the post-lock 680-player pool. "
+            "If a re-derived value still fails its bound, it is a real finding "
+            "about source composition and this entry must be REMOVED, not "
+            "updated — rewriting a conclusion to match a number is the one "
+            "thing this must not become.",
+        "cost_of_overriding":
+            "these are report-only findings about how sources disagree. They "
+            "feed no board field and no recommendation; nothing Cory drafts "
+            "from reads them. What is lost is knowing whether the retraction "
+            "they document still holds on the post-lock pool.",
+    },
+    "draft/tests/test_draftsharks_parse.py": {
+        "condition":
+            "MECHANISM READ, NOT INFERRED. (1) the collision test pins list "
+            "POSITIONS — players[2] and players[153] — and 23 departures shift "
+            "every index after the first keeper. (2) the uniqueness test "
+            "asserts n_unmatched == 0 while matching Draft Sharks rows against "
+            "`players` ONLY; the 23 keepers now live in `kept_players`, so "
+            "their DS rows have no counterpart and are counted unmatched.",
+        "clears_when":
+            "the collision test keys on player IDENTITY instead of list index, "
+            "and the crosswalk joins `players + kept_players` — the same "
+            "one-line fix already made to attach_multisource.py on 08-21 for "
+            "this exact defect class. Both are mechanical and neither needs "
+            "the live slate.",
+        "cost_of_overriding":
+            "none for the draft: an unmatched DS row is a KEPT player, who is "
+            "not draftable. The parse itself is unchanged and every draftable "
+            "player still carries his Draft Sharks line.",
+    },
+    "draft/tests/test_cory_conditional.py": {
+        "condition":
+            "the conditional-value harness drafts simulated rooms out of the "
+            "draftable pool; its void-race, control-lineup and gate arms all "
+            "assert over rooms built from that pool. 23 fewer players — "
+            "concentrated in RB/WR, which is where keepers cluster — changes "
+            "which lineups are fieldable at all.",
+        "clears_when":
+            "the harness is re-run on the post-lock pool and its control "
+            "re-establishes a legal lineup. Its own message ('the control NOW "
+            "fields a legal lineup and did not before') is the check that "
+            "self-clears.",
+        "cost_of_overriding":
+            "the conditional-value fingerprint is a study artifact, not a "
+            "board field. No number on the war room comes from it.",
+    },
+    "draft/tests/test_qb_scoring_arbitrage.py": {
+        "condition":
+            "the conclusion is asserted to hold ACROSS EVERY PLAUSIBLE "
+            "REPLACEMENT GAP, and replacement level is computed from the "
+            "draftable pool. The run log shows the scan now spanning gaps of "
+            "24.0 to 44.0 with dvorp_qb1 from 20.0 down to 0.0 — the sweep "
+            "moved because its input did.",
+        "clears_when":
+            "the sweep is re-run on the post-lock pool. If the conclusion "
+            "genuinely fails there, that is a finding about QB scoring and the "
+            "entry is removed rather than the bound widened.",
+        "cost_of_overriding":
+            "report-only. It documents whether a QB-timing edge exists; it "
+            "sets no weight and no board value.",
+    },
+    "draft/tests/test_data_assumptions.py": {
+        "condition":
+            "'keeper arithmetic is one story' reconciles keeper counts across "
+            "the board, keepers.json and the slate. The lock changed all three "
+            "at once — and `draft/config/keepers.json` on main is still the "
+            "PRE-lock 7-team / 17-keeper predicted slate while the candidate "
+            "board carries the real 9-team / 23-keeper one. The two disagree "
+            "by construction until the refreshed keepers.json is committed.",
+        "clears_when":
+            "the run commits the refreshed keepers.json alongside the board, "
+            "which puts all three sources on the same slate. This one clears "
+            "on the very publish it is currently blocking.",
+        "cost_of_overriding":
+            "REAL BUT NARROW, and named rather than waved past: for the length "
+            "of this run the two keeper sources disagree. The BOARD's copy is "
+            "the live one and is what every surface reads.",
+    },
+    "draft/tests/test_board_activity.py": {
+        "condition":
+            "the leftover detector asks whether a player who is on the board "
+            "but inactive is caught. 23 players left the board this build, so "
+            "its founding case moved with them.",
+        "clears_when":
+            "the detector's case is re-anchored on a player still in the "
+            "post-lock pool.",
+        "cost_of_overriding":
+            "the dormancy check itself RAN on this board and reported "
+            "status=measured, n=0, health 99.7% — the property is verified on "
+            "the candidate; what failed is the test's pinned example.",
+    },
+    "draft/tests/test_board_format_composition.py": {
+        "condition":
+            "asserts that a POOLED agreement which vanishes within position is "
+            "not a finding — a statement about pooled-vs-within-position "
+            "variance, both computed over the draftable pool.",
+        "clears_when":
+            "re-derived on the post-lock pool; removal of 23 players changes "
+            "the within-position cell sizes the comparison rests on.",
+        "cost_of_overriding":
+            "report-only methodology guard. No board field depends on it.",
+    },
+    "draft/tests/test_external_adp_capture.py": {
+        "condition":
+            "'the REAL config yields the REAL BOARD DEPTH' pins a depth count "
+            "produced from the live config. Board depth is exactly the quantity "
+            "the keeper lock changed, 700 -> 680.",
+        "clears_when":
+            "the expected depth is derived from the config plus the keeper "
+            "count instead of pinned as a literal, so it tracks any future lock "
+            "automatically rather than needing this same override next year.",
+        "cost_of_overriding":
+            "none for the draft. ADP capture is unchanged; only the pinned "
+            "count of how many rows survive is stale.",
+    },
 }
 
 #: The env var Cory flips. Any value other than the exact string "1" leaves the
