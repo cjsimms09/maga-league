@@ -508,24 +508,40 @@ if (!IS_FIXTURE) {
     !!(pk && pk.predictions && Object.keys(pk.predictions).length), 'absent');
 
   if (pk && pk.predictions) {
-    const mine = new Set((ART.kept_players || []).map(k => String(k.player_id)));
     const opp = [];
     Object.keys(pk.predictions).forEach(o => {
       if (o === 'coryjsimms') return;
       ((pk.predictions[o] || {}).predicted_keepers || []).forEach(k => opp.push(String(k.player_id)));
     });
-    check('R-rehearsal: predicted opponent keepers are DISJOINT from my confirmed slate',
-      opp.every(id => !mine.has(id)), 'overlap: ' + opp.filter(id => mine.has(id)).join(','));
     check('R-rehearsal: removing them actually thins the board (non-vacuous)',
       opp.length > 0 && ALL.some(p => opp.includes(String(p.player_id))),
       opp.length + ' predicted');
 
-    // The prediction must never be merged into kept_players — a prediction that
-    // reads as the confirmed slate is the failure the separate key prevents.
-    check('R-rehearsal: the confirmed slate is unchanged by the prediction',
-      (ART.kept_players || []).length === 3
-      && (ART.kept_players || []).every(k => Number(k.team_slot) === Number(LEAGUE.my_draft_slot)),
-      JSON.stringify((ART.kept_players || []).map(k => [k.name, k.team_slot])));
+    /* ⚠️ REWRITTEN AT KEEPER LOCK (2026-08-22). The two checks that stood here
+     * asserted the PRE-LOCK world: kept_players = Cory's own three, so any
+     * overlap with the predicted slate meant a prediction had leaked into the
+     * confirmed one. After lock, kept_players carries the whole league's
+     * confirmed slate, and overlap with the prediction store is just a
+     * prediction that came TRUE — 14 of them did. The invariant that survives
+     * both eras is the one the old checks were actually protecting: the
+     * confirmed slate's SOURCE is draft/config/keepers.json and nothing else.
+     * A kept_player absent from keepers.json's placements is exactly the
+     * prediction-leak the old DISJOINT check existed to catch. */
+    const SLATE = JSON.parse(fs.readFileSync(
+      path.join(__dirname, '..', 'config', 'keepers.json'), 'utf8'));
+    const placed = new Map();
+    (SLATE.teams || []).forEach(t =>
+      (t.keepers || []).forEach(k => placed.set(String(k.player_id), Number(t.draft_slot))));
+    const kept = ART.kept_players || [];
+    const strays = kept.filter(k => !placed.has(String(k.player_id)));
+    check('R-rehearsal: every confirmed keeper comes from keepers.json — a stray is a prediction leak',
+      strays.length === 0, JSON.stringify(strays.map(k => [k.name, k.team_slot])));
+    check('R-rehearsal: the confirmed slate is COMPLETE and seat-exact vs keepers.json',
+      kept.length === placed.size
+      && kept.every(k => placed.get(String(k.player_id)) === Number(k.team_slot)),
+      kept.length + ' on board vs ' + placed.size + ' placed; mismatches: '
+      + JSON.stringify(kept.filter(k => placed.get(String(k.player_id)) !== Number(k.team_slot))
+          .map(k => [k.name, k.team_slot, placed.get(String(k.player_id))]).slice(0, 5)));
 
     // Every predicted keeper carries a confidence, so the label can be honest
     // about how much of the slate is intel vs model.
@@ -577,10 +593,21 @@ if (!IS_FIXTURE) {
 
   // My keepers are stamped with MY league seat — the exact fact that made the
   // room-seat lookup return nothing and start every rehearsal empty.
+  // Post-lock (2026-08-22) kept_players carries the WHOLE confirmed slate, so
+  // "my" keepers are the subset keepers.json places at my seat — the old
+  // every() over the full list asserted a pre-lock world where the list WAS
+  // only mine.
   const mySeat = Number(LEAGUE.my_draft_slot);
+  const SLATE2 = JSON.parse(fs.readFileSync(
+    path.join(__dirname, '..', 'config', 'keepers.json'), 'utf8'));
+  const myTeam = (SLATE2.teams || []).find(t => Number(t.draft_slot) === mySeat);
+  const myIds = new Set(((myTeam || {}).keepers || []).map(k => String(k.player_id)));
+  const mineOnBoard = (ART.kept_players || []).filter(k => myIds.has(String(k.player_id)));
   check('R-seatdata: my kept players are stamped with my LEAGUE seat, not a room seat',
-    (ART.kept_players || []).every(k => Number(k.team_slot) === mySeat),
-    JSON.stringify((ART.kept_players || []).map(k => [k.name, k.team_slot])));
+    myIds.size > 0 && mineOnBoard.length === myIds.size
+    && mineOnBoard.every(k => Number(k.team_slot) === mySeat),
+    JSON.stringify(mineOnBoard.map(k => [k.name, k.team_slot]))
+    + ' expected ' + myIds.size + ' at seat ' + mySeat);
 }
 
 // R-manualclock: THE CONSUMER SWEEP. Every consumer of pick position must
