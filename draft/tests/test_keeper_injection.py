@@ -74,6 +74,34 @@ def _injected_rosters():
     return out
 
 
+def _my_keepers_in_the_injection(full_map):
+    """MY keepers AS THE INJECTION BUILT THEM — the only set the withheld board
+    can possibly return.
+
+    ⚠️ THIS IS THE SECOND FIX TO THE SAME ASSERTION, AND THE FIRST ONE WAS
+    INCOMPLETE. I replaced an unfiltered `ART["kept_players"]` with a
+    slot-filtered one, which was a real improvement and still wrong: it compared
+    MY KEEPERS ON THE ACTUAL POST-LOCK BOARD against MY KEEPERS IN THE INJECTED
+    PREDICTED SLATE. Pre-lock those were the same three players because the
+    board was BUILT from the predictions. Post-lock they are two different
+    populations — Cory's real designations are whatever he actually locked, and
+    the prediction is what the model guessed he would.
+
+    The board this run produced is the evidence: the gate went from 19 blocking
+    failures to exactly ONE, and that one was this test, still comparing across
+    the two populations after my first fix had shipped.
+
+    So the comparison is now entirely INSIDE the injection: `full_map` is what
+    `gk.build` produced from the injected rosters, and my slot's entry in it is
+    by construction the only thing `_keeper_map_for_board` can hand back while
+    it is withholding everyone else. No cross-population comparison remains, and
+    the test no longer depends on the board's vintage at all.
+    """
+    my_slot = str(CFG["my_draft_slot"])
+    return {str(k["player_id"]) for k in (full_map.get(my_slot) or [])
+            if k.get("player_id")}
+
+
 def _my_keepers_on_the_board(art=None):
     """MY keepers on the published board — filtered by draft slot, not "every
     keeper the board carries".
@@ -144,7 +172,7 @@ def test_THE_BOARD_WITHHOLDS_OPPONENT_KEEPERS_UNTIL_THE_SLATE_CONFIRMS(injected)
     this gate, not a broken pipe."""
     _, _, full = injected
     kept_pred, diag_pred = _kept_ids(full, "predicted")
-    mine = _my_keepers_on_the_board()
+    mine = _my_keepers_in_the_injection(full)
     assert kept_pred == mine, (
         f"under an unconfirmed slate the board should carry exactly my keepers "
         f"({sorted(mine)}), got {sorted(kept_pred)}")
@@ -245,3 +273,41 @@ def test_FAIL_ARM_the_unfiltered_derivation_really_would_have_broken():
         "the unfiltered derivation gives the same answer post-lock — then it "
         "was never the cause and the diagnosis is wrong")
     assert len(unfiltered) > len(filtered)
+
+
+def test_CONTROL_my_slot_in_the_injection_is_not_empty():
+    """`_my_keepers_in_the_injection` returning an empty set would make the
+    withholding assertion pass against a board that dropped even MY keepers —
+    the exact artifact this file's docstring records from its first run (0
+    instead of 3)."""
+    rosters = _injected_rosters()
+    out = gk.build(CFG, ART, HIST, rosters=rosters)
+    full = {str(t["draft_slot"]): t["keepers"] for t in out["teams"]}
+    mine = _my_keepers_in_the_injection(full)
+    assert mine, (
+        "my slot carries no keepers in the injection — the comparison in "
+        "test_THE_BOARD_WITHHOLDS... would then be {} == {} and prove nothing")
+
+
+def test_FAIL_ARM_comparing_ACROSS_populations_is_what_broke_the_rebuild():
+    """The first fix filtered the BOARD by slot; this one stays inside the
+    INJECTION. Post-lock those differ, and that difference is what left one
+    blocking failure after 18 others had cleared. If they ever stop differing
+    this arm goes quiet and the distinction stops mattering — which is
+    information, not a defect."""
+    rosters = _injected_rosters()
+    out = gk.build(CFG, ART, HIST, rosters=rosters)
+    full = {str(t["draft_slot"]): t["keepers"] for t in out["teams"]}
+    from_injection = _my_keepers_in_the_injection(full)
+    from_board = _my_keepers_on_the_board(ART)
+    # On the shipped PRE-lock board these coincide; the assertion is that the
+    # test no longer DEPENDS on them coinciding.
+    kept_pred, _ = _kept_ids(full, "predicted")
+    assert kept_pred == from_injection, (
+        "the withheld board must return exactly what the injection put at my "
+        "slot, whatever the board's own kept_players happen to be")
+    if from_injection != from_board:
+        # post-lock: prove the OLD comparison would have failed here
+        assert kept_pred != from_board, (
+            "the two populations differ but the old comparison still passes — "
+            "then it was never the cause and this diagnosis is wrong")
