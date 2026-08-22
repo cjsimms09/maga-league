@@ -74,6 +74,33 @@ def _injected_rosters():
     return out
 
 
+def _my_keepers_on_the_board(art=None):
+    """MY keepers on the published board — filtered by draft slot, not "every
+    keeper the board carries".
+
+    ⚠️ THIS WAS `{... for k in ART["kept_players"]}` WITH NO FILTER, AND IT
+    BLOCKED THE POST-LOCK REBUILD. Two different quantities were equal by
+    accident for as long as the slate was unconfirmed: while the board withholds
+    opponent keepers, EVERY keeper on it is mine, so an unfiltered set and a
+    slot-filtered set are the same three players. The moment the real lock
+    landed (2026-08-21: 10 teams, 23 keepers, one team deliberately kept none)
+    the board legitimately began carrying all 23 — and this assertion started
+    demanding that the WITHHELD state also produce 23, which is the opposite of
+    what the test exists to prove.
+
+    So the pin moved legitimately and the test was wrong, not the board. Fixing
+    it at the derivation rather than at the number: the intent — "under an
+    unconfirmed slate the board carries exactly MY keepers" — is unchanged and
+    now survives both vintages. Verified against the shipped pre-lock board:
+    all three of its `kept_players` carry `team_slot` 8, which is
+    `my_draft_slot`, so this is a no-op there and a real filter after the lock.
+    """
+    art = ART if art is None else art
+    my_slot = str(CFG["my_draft_slot"])
+    return {str(k["player_id"]) for k in (art.get("kept_players") or [])
+            if str(k.get("team_slot")) == my_slot}
+
+
 def _kept_ids(full_map, status):
     m, diag = B._keeper_map_for_board(full_map, {"status": status}, CFG)
     kept = {str(k["player_id"]) for ks in m.values() for k in ks if k.get("player_id")}
@@ -117,7 +144,7 @@ def test_THE_BOARD_WITHHOLDS_OPPONENT_KEEPERS_UNTIL_THE_SLATE_CONFIRMS(injected)
     this gate, not a broken pipe."""
     _, _, full = injected
     kept_pred, diag_pred = _kept_ids(full, "predicted")
-    mine = {str(k["player_id"]) for k in (ART.get("kept_players") or [])}
+    mine = _my_keepers_on_the_board()
     assert kept_pred == mine, (
         f"under an unconfirmed slate the board should carry exactly my keepers "
         f"({sorted(mine)}), got {sorted(kept_pred)}")
@@ -162,3 +189,59 @@ def test_keeper_slate_reason_IS_DERIVED_not_a_static_claim():
         "keepers until the slate confirms, which injection measured directly")
     assert "6 team(s) have not designated" in r4["reason"], (
         "undesignated teams must be reported as UNKNOWN, not folded away")
+
+
+# ── THE POST-LOCK REGRESSION (rule 3f) ────────────────────────────────────────
+# The fix above cannot be verified against the board on disk, because that board
+# is PRE-lock and the assertion it broke only breaks POST-lock. A fix validated
+# only against the state where it was already passing is a guess.
+#
+# So the post-lock board is synthesised from the real one: keep my three, add
+# opponent keepers at other slots, exactly as a confirmed slate produces.
+
+def _post_lock_art():
+    """The shipped board with opponent keepers applied, as after 2026-08-21."""
+    art = {"kept_players": list(ART.get("kept_players") or [])}
+    my_slot = int(CFG["my_draft_slot"])
+    for i, slot in enumerate([s for s in range(1, 11) if s != my_slot]):
+        art["kept_players"].append(
+            {"player_id": f"9{slot:03d}{i}", "name": f"Opponent Keeper {slot}",
+             "team_slot": slot})
+    return art
+
+
+def test_CONTROL_the_synthetic_post_lock_board_really_is_different():
+    """A control board that is not actually post-lock proves nothing."""
+    post = _post_lock_art()
+    assert len(post["kept_players"]) > len(ART.get("kept_players") or []), (
+        "the synthetic board carries no more keepers than the shipped one — "
+        "it is not reproducing the post-lock state and the check below is void")
+    slots = {str(k.get("team_slot")) for k in post["kept_players"]}
+    assert len(slots) >= 5, f"only {len(slots)} slots represented: {sorted(slots)}"
+
+
+def test_MY_KEEPERS_STAY_MINE_WHEN_THE_BOARD_CARRIES_EVERYONES():
+    """THE ACTUAL REGRESSION. Pre-lock this and the unfiltered set agree; post-
+    lock only this one is right, and the unfiltered version is what refused the
+    rebuild."""
+    post = _post_lock_art()
+    mine_post = _my_keepers_on_the_board(post)
+    mine_pre = _my_keepers_on_the_board(ART)
+    assert mine_post == mine_pre, (
+        f"my keepers changed when OTHER teams' keepers reached the board: "
+        f"{sorted(mine_pre)} -> {sorted(mine_post)}")
+    assert len(mine_post) == len(ART.get("kept_players") or []), (
+        "the shipped board is pre-lock, so all of its keepers are mine and the "
+        "filter must return all of them")
+
+
+def test_FAIL_ARM_the_unfiltered_derivation_really_would_have_broken():
+    """If the old expression still passed post-lock, this whole fix would be
+    churn. It does not: that is the blocker, reproduced."""
+    post = _post_lock_art()
+    unfiltered = {str(k["player_id"]) for k in post["kept_players"]}
+    filtered = _my_keepers_on_the_board(post)
+    assert unfiltered != filtered, (
+        "the unfiltered derivation gives the same answer post-lock — then it "
+        "was never the cause and the diagnosis is wrong")
+    assert len(unfiltered) > len(filtered)
