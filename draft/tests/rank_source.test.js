@@ -125,7 +125,8 @@ const SRC = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
    * the same way a regression to this one used to. */
   const css = fs.readFileSync(path.join(ROOT, 'public', 'css', 'style.css'), 'utf8');
   const ord = id => Number((css.match(new RegExp('\\.wr-zone1 > #' + id + '\\s*\\{\\s*order:\\s*(\\d+)')) || [])[1]);
-  const seq = ['position-boards', 'recs-card', 'model-compare-card', 'rank-source-card', 'source-top-board-card'];
+  /* FINAL ruling, Cory 08-22 ~21:10Z: 'ranking source needs to be at very top of screen!!!' */
+  const seq = ['rank-source-card', 'position-boards', 'recs-card', 'model-compare-card', 'source-top-board-card'];
   const vals = seq.map(ord);
   ck('CSS usage order holds: position-boards < recs-card < model-compare < rank-source < top-available (Cory 08-22)',
     vals.every(v => Number.isFinite(v)) && vals.every((v, i) => i === 0 || vals[i - 1] < v),

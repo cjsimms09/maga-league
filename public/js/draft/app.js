@@ -7048,7 +7048,7 @@
       }
       /* Cory, draft day: "different tools give different tier cliffs and I
        * have no idea what's real." Say it on the surface itself. */
-      note.textContent += ' Red tier lines are drawn from the numbers shown — switch source and the cliffs move. A cliff is that source\u2019s opinion of where the shelf drops, not a fact; when two sources disagree, the STRIKE line on the Draft tab\u2019s position boards is the one timing signal we simulate ourselves.';
+      note.textContent += ' Red tier lines = this source\u2019s opinion. For timing, trust \u26a1 STRIKE on the Draft tab.';
     })();
     const rows = (state.search
       ? srcBoard.filter(match)

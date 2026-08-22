@@ -2730,7 +2730,7 @@ body.warroom-page .preset-why { max-width: 42em; line-height: 1.55; }
  * deleted — still fully there, one scroll down, Take buttons and all —
  * this is a visual reorder only, and it is reversible in one line if
  * Cory wants the old card back on top. */
-.wr-zone1 > #rank-source-card  { order: 8; }   /* Cory, draft day 08-22: "rearrange based on what I should use the most" — the lens is set-and-forget, so it sits below the three decide-cards it re-prices */
+.wr-zone1 > #rank-source-card  { order: 5; }   /* Cory, draft day 08-22, FINAL: "ranking source needs to be at very top of screen!!!" — first card, above everything it re-prices */
 /* Cory, 2026-08-21, direct: "need more options on Home Screen and I'll
  * toggle source" — the top-N-per-position list is the MAIN content the
  * toggle drives, so it sits right below the toggle itself, ahead of
@@ -2745,15 +2745,15 @@ body.warroom-page .preset-why { max-width: 42em; line-height: 1.55; }
  * that card measured 3400+px tall. Given its own top-level card and order,
  * right beside rank-source-card (the toggle it's the fuller companion to). */
 .wr-zone1 > #source-boards     { order: 10; }   /* per-source best-available table — was nested inside #recs-card, not a real panel */
-.wr-zone1 > #position-boards   { order: 5; }   /* STEP 1 — which position. Cory 08-19 "position boards first" holds: first decide-card on the page */
-.wr-zone1 > #recs-card         { order: 6; }   /* STEP 2 — the name. Directly under position boards (Cory 08-22 usage reorder) */
+.wr-zone1 > #position-boards   { order: 6; }   /* STEP 2 — which position (first DECIDE card; the lens sits above it) */
+.wr-zone1 > #recs-card         { order: 7; }   /* STEP 3 — the name. Directly under position boards */
 /* E's war-room draft-value audit (2026-08-20/21, finding 2): model-compare-
  * card answers "do the models even agree on this pick" — four lenses, four
  * different picks, live, in a 184px card — and it was sitting at order 13,
  * buried below #recs-card's own 3400+px length (finding 1) where a glance
  * never lands. Promoted to right after the recommendation; no content
  * changed, position only. */
-.wr-zone1 > #model-compare-card { order: 7; }  /* STEP 3 — second opinions incl. Roster Builder (Cory 08-22 usage reorder) */
+.wr-zone1 > #model-compare-card { order: 8; }  /* STEP 4 — second opinions incl. Roster Builder */
 .wr-zone1 > #doctrine-banner   { order: 11; }   /* THE PLAN — reference, beneath the rec */
 .wr-zone1 > #legality-strip    { order: 12; }   /* WATCH — reference, beneath the rec */
 /* #seat-plan was never given an order here, so it defaulted to 0 — lower than
@@ -4482,3 +4482,14 @@ table.roll td.num, .pf, .wh-race-scale, .wh-band-note{ color: var(--ink); }
    answering to nobody. Capture is untouched (the ledger writes in the pick
    path, not in this render); only the display goes. */
 body.warroom-page #shadow-projection { display: none !important; }
+
+/* Cory, draft day 08-22: the tier-cliff bar chart draws from the LIVE engine
+   scoring while the position boards' cliff/STRIKE come from the pre-draft
+   simulated room — two honest numbers from two worlds, which on screen reads
+   as the tool disagreeing with itself ("they dont match... I have no idea
+   whats real"). His rule: conflicting info comes OFF. STRIKE stays; the
+   chart goes. Reversible in one line. */
+body.warroom-page #tier-cliff-wrap { display: none !important; }
+.pb-strike-head { display:flex; flex-direction:column; padding:.15rem .5rem; border-right:1px solid var(--line); }
+.pb-strike-head .pb-strike-pos { color: var(--gold, #c9a227); font-weight:800; }
+.pb-strike-head .pb-strike-cost { font-size:.65rem; }
