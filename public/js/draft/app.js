@@ -8135,6 +8135,27 @@
    */
   function importDraftOrder(draft) {
     if (!draft) return null;
+    /* ⚠️ REAL-DRAFT VERIFICATION — Cory, draft day 08-22: "how does it
+     * differentiate between mock and real draft!!" It does not guess: the
+     * draft OBJECT Sleeper returns carries the league_id it belongs to. A
+     * lobby mock carries none (or a different one). Say the verdict on the
+     * status line the moment the room is fetched, so a wrong paste is
+     * caught before pick one — display + capture tag only, never blocks
+     * the sync (a stale league_id must not freeze a live draft). */
+    try {
+      const ourLeague = String((state.data.league || {}).league_id || '');
+      const roomLeague = draft.league_id != null ? String(draft.league_id) : null;
+      state.roomLeagueCheck = !ourLeague ? 'unknown'
+        : (roomLeague === ourLeague ? 'league'
+          : (roomLeague ? 'other_league' : 'mock_lobby'));
+      if (state.roomLeagueCheck === 'league') {
+        setStatus({ state: 'ok', message: '✅ REAL LEAGUE DRAFT — this room belongs to your league. Everything recorded counts.' });
+      } else if (state.roomLeagueCheck === 'mock_lobby') {
+        setStatus({ state: 'warn', message: '⚠️ MOCK ROOM — this draft belongs to NO league. Fine for practice; NOT tonight’s draft. Paste the room from your league’s Draft tab.' });
+      } else if (state.roomLeagueCheck === 'other_league') {
+        setStatus({ state: 'warn', message: '⚠️ WRONG LEAGUE — this room belongs to a different league than the board. Check the URL.' });
+      }
+    } catch (e) { /* verification is advisory — never costs a pick */ }
     // URGENT (chat-Claude, 2026-08-08): the LEAGUE settings showed draft_rounds:3.
     // The DRAFT OBJECT's rounds is authoritative — capture it so the checklist
     // can verify it equals 15. A 3-round draft object is a draft-night disaster
