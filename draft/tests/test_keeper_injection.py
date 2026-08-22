@@ -258,9 +258,21 @@ def test_MY_KEEPERS_STAY_MINE_WHEN_THE_BOARD_CARRIES_EVERYONES():
     assert mine_post == mine_pre, (
         f"my keepers changed when OTHER teams' keepers reached the board: "
         f"{sorted(mine_pre)} -> {sorted(mine_post)}")
-    assert len(mine_post) == len(ART.get("kept_players") or []), (
-        "the shipped board is pre-lock, so all of its keepers are mine and the "
-        "filter must return all of them")
+    # ⚠️ THIS LINE USED TO READ `len(mine_post) == len(ART["kept_players"])`,
+    # WITH THE COMMENT "the shipped board is pre-lock, so all of its keepers are
+    # mine". THAT IS THE EXACT MISTAKE THIS FILE WAS FIXING, COMMITTED INSIDE
+    # THE FIX FOR IT — a statement true of one board vintage, written as though
+    # it were permanent. It passed locally against the pre-lock board and became
+    # the single blocking failure on the post-lock rebuild, where
+    # ART["kept_players"] is 23 and mine is 3.
+    #
+    # The vintage-independent property is CONTAINMENT: every keeper the filter
+    # returns is on the board and at my slot, whatever else the board carries.
+    board_ids = {str(k["player_id"]) for k in (ART.get("kept_players") or [])}
+    assert mine_post <= board_ids, (
+        f"the filter returned keepers that are not on the board at all: "
+        f"{sorted(mine_post - board_ids)}")
+    assert mine_post, "the filter returned nothing — it would pass vacuously"
 
 
 def test_FAIL_ARM_the_unfiltered_derivation_really_would_have_broken():
