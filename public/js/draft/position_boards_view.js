@@ -643,7 +643,7 @@
      * mean." The bar carried the numbers but never its own NAME. */
     return '<div class="pb-strike-bar" title="The pick where waiting on this position costs the most across your 12 picks — not a recommendation, a fact about the position (WAR-ROOM-SPEC.md P2)">'
       + '<div class="pb-strike-head"><span class="pb-strike-pos">⚡ STRIKE</span>'
-      + '<span class="pb-strike-cost">take the position BY this pick</span></div>'
+      + '<span class="pb-strike-cost">take the position BY this pick · Draft Sharks</span></div>'
       + cells + '</div>';
   }
 
@@ -689,7 +689,8 @@
        * plain English — so "VONA", "STRIKE" and "cliff" are never jargon he
        * has to hold in his head while on the clock. */
       + '<div class="pb-legend muted">'
-        + '<b>VONA</b> = cost of waiting · <b>⚡ STRIKE</b> = take the position by that pick'
+        + '<b>VONA</b> = cost of waiting, on YOUR source · '
+        + '<b>⚡ STRIKE</b> = take the position by that pick <i>(Draft Sharks — does not follow the toggle)</i>'
       + '</div>'
       /* pb-toolbar: the six pb-grid columns are wider than the panel at a
        * normal desktop width by design (see .pb-grid's own CSS comment —

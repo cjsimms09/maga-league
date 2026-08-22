@@ -7048,7 +7048,23 @@
       }
       /* Cory, draft day: "different tools give different tier cliffs and I
        * have no idea what's real." Say it on the surface itself. */
-      note.textContent += ' Red tier lines = this source\u2019s opinion. For timing, trust \u26a1 STRIKE on the Draft tab.';
+      /* ⚠️ CORRECTED 2026-08-22, ~2h before the draft. This read 'Red tier
+       * lines = this source\u2019s opinion. For timing, trust \u26a1 STRIKE on the
+       * Draft tab.' BOTH HALVES WERE FALSE, and they contradicted the source
+       * banner two inches away, which says these two do NOT follow the toggle.
+       *
+       * Measured, not argued: `position_boards.json` carries `cliff_after_rank`
+       * and `cliff_size` with NO `_by_source` variant, and `strikePeaks()`
+       * (position_boards_view.js) reads `d.VONA` — the plain Draft-Sharks field —
+       * not `VONA_by_source[rankKey]`. So the cliffs are not this source's
+       * opinion, and STRIKE is not this source's timing.
+       *
+       * Telling Cory to trust STRIKE for timing while he is on CBS points him at
+       * a Draft Sharks answer wearing CBS's label — the exact defect the banner
+       * exists to prevent, reintroduced in the panel the banner is warning about. */
+      note.textContent += ' Red tier lines and \u26a1 STRIKE are DRAFT SHARKS, whatever'
+        + ' source you pick \u2014 they do not follow the toggle. Where they disagree'
+        + ' with the VONA chip beside them, the VONA chip is the one on your source.';
     })();
     const rows = (state.search
       ? srcBoard.filter(match)
