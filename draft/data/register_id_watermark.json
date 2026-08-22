@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 254,
+ "next_numeric_id": 255,
  "history": [
   {
    "id": 47,
@@ -537,6 +537,11 @@
    "id": 253,
    "claimed_at": "2026-08-22",
    "note": "E: position_boards.json was generated before the multi-source attach, so ESPN/CBS/FFToday/Clay have covered_by_source 0 and no VONA on draft day. Proven by re-running position_boards.js unchanged on the committed board. Filed straight to main under Rule 1b."
+  },
+  {
+   "id": 254,
+   "claimed_at": "2026-08-22",
+   "note": "E: second stranded-fix-claimed-delivered in twelve hours (249 was the first), and each one makes main unpublishable via test_lane_coherence. Verified by sha AND by content grep."
   },
   {
    "id": "137-138",
