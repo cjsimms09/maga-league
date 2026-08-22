@@ -663,7 +663,7 @@
       return positionColumn(pos, (pick.positions || {})[pos], esc, liveSurvivalById, src, data.round_dropoffs, callsById, badgeInfo, takenIds, rankKey);
     }).join('');
     return '<div class="pb-wrap">'
-      + '<div class="pb-head">Position boards — pick ' + esc(String(pick.pick))
+      + '<div class="pb-head"><span class="wr-step">STEP 1</span> Position boards — WHICH POSITION to take at pick ' + esc(String(pick.pick))
         + ' (round ' + esc(String(pick.round)) + ')'
         + (pick.next_pick ? ', your next pick is ' + esc(String(pick.next_pick)) : '')
         /* ⚠️ SAY WHAT THESE NUMBERS ARE. The names are now filtered against the
@@ -680,6 +680,18 @@
               + ' · ⚠️ ' + esc(String(removed)) + ' already drafted, hidden — '
               + 'VONA/cliff below are from the pre-draft simulation</span>'
             : '') + '</div>'
+      /* Cory, draft day: "all these things you're talking about need a label."
+       * The words we use in chat, defined on the surface itself, once, in
+       * plain English — so "VONA", "STRIKE" and "cliff" are never jargon he
+       * has to hold in his head while on the clock. */
+      + '<div class="pb-legend muted">'
+        + '<b>VONA</b> = points you LOSE at a position by waiting until your next pick '
+        + '(follows the Ranking Source toggle) · '
+        + '<b>STRIKE</b> = the last pick to act before the shelf drops — our own simulation, '
+        + 'the timing signal to trust · '
+        + '<b>cliff</b> = where a source’s tiers break; different sources draw different cliffs '
+        + 'because they are opinions, not facts'
+      + '</div>'
       /* pb-toolbar: the six pb-grid columns are wider than the panel at a
        * normal desktop width by design (see .pb-grid's own CSS comment —
        * widening to fit the header labels without ellipsis pushed K/DEF

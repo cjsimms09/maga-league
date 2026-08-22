@@ -7036,6 +7036,9 @@
         note.textContent = 'Ordered by our replacement math applied to ' + label + '’s projections — '
           + label + ' does not publish their own overall board, so this is OUR opinion of THEIR numbers, not a ranking ' + label + ' made.';
       }
+      /* Cory, draft day: "different tools give different tier cliffs and I
+       * have no idea what's real." Say it on the surface itself. */
+      note.textContent += ' Red tier lines are drawn from the numbers shown — switch source and the cliffs move. A cliff is that source\u2019s opinion of where the shelf drops, not a fact; when two sources disagree, the STRIKE line on the Draft tab\u2019s position boards is the one timing signal we simulate ourselves.';
     })();
     const rows = (state.search
       ? srcBoard.filter(match)
@@ -9327,7 +9330,7 @@
           { league: state.data.league, topN: 1, taken: state.drafted,
             waiver: activeWaiverBaseline() });
         if (recs && recs.length && recs[0].player) {
-          rows.push({ label: 'MLV Displacement', player: recs[0].player.name,
+          rows.push({ label: 'Roster Builder (MLV Displacement)', player: recs[0].player.name,
             position: recs[0].position, player_id: String(recs[0].player.player_id),
             title: 'The player who adds the most points to your STARTING lineup right now (marginal lineup value) — a different model from the three above.' });
         }

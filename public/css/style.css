@@ -2730,12 +2730,12 @@ body.warroom-page .preset-why { max-width: 42em; line-height: 1.55; }
  * deleted — still fully there, one scroll down, Take buttons and all —
  * this is a visual reorder only, and it is reversible in one line if
  * Cory wants the old card back on top. */
-.wr-zone1 > #rank-source-card  { order: 5; }   /* Cory: "should just rearrange the board... vona calc or recommended player" — above the rec on purpose */
+.wr-zone1 > #rank-source-card  { order: 8; }   /* Cory, draft day 08-22: "rearrange based on what I should use the most" — the lens is set-and-forget, so it sits below the three decide-cards it re-prices */
 /* Cory, 2026-08-21, direct: "need more options on Home Screen and I'll
  * toggle source" — the top-N-per-position list is the MAIN content the
  * toggle drives, so it sits right below the toggle itself, ahead of
  * #source-boards (the smaller single-pick-per-source comparison table). */
-.wr-zone1 > #source-top-board-card { order: 6; }   /* the source's own top-N per position — "the old list", his words */
+.wr-zone1 > #source-top-board-card { order: 9; }   /* the source's own top-N per position — "the old list", his words */
 /* E's war-room draft-value audit (2026-08-20/21, finding 1's real root
  * cause): sourceBoardsHost() in app.js had NO real mount point here, so its
  * fallback nested a 400+px card INSIDE #recs-card's own .body (specifically
@@ -2744,16 +2744,16 @@ body.warroom-page .preset-why { max-width: 42em; line-height: 1.55; }
  * nesting, not the visible content of #recs-card itself, is most of why
  * that card measured 3400+px tall. Given its own top-level card and order,
  * right beside rank-source-card (the toggle it's the fuller companion to). */
-.wr-zone1 > #source-boards     { order: 7; }   /* per-source best-available table — was nested inside #recs-card, not a real panel */
-.wr-zone1 > #position-boards   { order: 8; }   /* six columns + strike bar + the toggle */
-.wr-zone1 > #recs-card         { order: 9; }   /* the retired one-answer card — still fully present, now second */
+.wr-zone1 > #source-boards     { order: 10; }   /* per-source best-available table — was nested inside #recs-card, not a real panel */
+.wr-zone1 > #position-boards   { order: 5; }   /* STEP 1 — which position. Cory 08-19 "position boards first" holds: first decide-card on the page */
+.wr-zone1 > #recs-card         { order: 6; }   /* STEP 2 — the name. Directly under position boards (Cory 08-22 usage reorder) */
 /* E's war-room draft-value audit (2026-08-20/21, finding 2): model-compare-
  * card answers "do the models even agree on this pick" — four lenses, four
  * different picks, live, in a 184px card — and it was sitting at order 13,
  * buried below #recs-card's own 3400+px length (finding 1) where a glance
  * never lands. Promoted to right after the recommendation; no content
  * changed, position only. */
-.wr-zone1 > #model-compare-card { order: 10; }  /* Cory: "click in... what each model would take" — promoted, was 13 */
+.wr-zone1 > #model-compare-card { order: 7; }  /* STEP 3 — second opinions incl. Roster Builder (Cory 08-22 usage reorder) */
 .wr-zone1 > #doctrine-banner   { order: 11; }   /* THE PLAN — reference, beneath the rec */
 .wr-zone1 > #legality-strip    { order: 12; }   /* WATCH — reference, beneath the rec */
 /* #seat-plan was never given an order here, so it defaulted to 0 — lower than
@@ -4457,3 +4457,20 @@ table.roll td.num, .pf, .wh-race-scale, .wh-band-note{ color: var(--ink); }
    not a refusal like .lo-inactive, a flag the manager has to weigh. */
 .lo-questionable { margin: .5rem 0 0; font-size: .82rem; color: var(--ink);
   border-left: 3px solid #96681c; padding-left: .6rem; }
+
+/* ── DRAFT-DAY LABEL PASS (Cory: "all these things need a label... quick
+   rearrange and better labeling so I know what you're talking about").
+   Step chips give the four decide-cards the same names we use in chat:
+   STEP 1 pick your lens → STEP 2 which position → STEP 3 the name →
+   STEP 4 second opinions. Labels only — card ORDER is untouched, it is
+   Cory's own 08-19/21 rulings encoded in the order rules above. */
+.wr-step {
+  display: inline-block; flex: 0 0 auto; margin-right: .45rem;
+  padding: .1rem .5rem; border-radius: 999px; font-size: .68rem;
+  font-weight: 800; letter-spacing: .06em; vertical-align: middle;
+  background: var(--gold, #c9a227); color: #14100a;
+}
+.pb-legend {
+  margin: .35rem 0 .55rem; font-size: .8rem; line-height: 1.45;
+}
+.pb-legend b { color: var(--gold, #c9a227); }
