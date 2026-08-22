@@ -5393,16 +5393,26 @@
       return '<tr><td><span class="rec-pos ' + q + '">' + q + '</span></td>' + cells + '</tr>';
     }).join('');
 
+    /* Cory, draft day 08-22: "clean up all the conflicting info... only
+     * needs good info! so many tools I feel like you or A have told me not
+     * to follow." This table is six voices and the board acts on ONE of
+     * them (its own caption says so). It stays reachable — he has asked to
+     * see the sources side by side — but ships COLLAPSED: a disagreeing
+     * table is a click he chooses, never a second unmarked answer sitting
+     * open on the decide path. */
     host.innerHTML = '<div class="body">'
-      + '<h3 style="margin:0 0 .3rem">📋 Best available, by source '
+      + '<details class="src-collapse">'
+      + '<summary style="cursor:pointer"><h3 style="margin:0 0 .3rem;display:inline">📋 Best available, by source '
       + explainPanel('source_boards') + '</h3>'
+      + ' <span class="muted" style="font-size:.75rem">reference — the board acts on the Blend; tap to see where sources disagree</span>'
+      + '</summary>'
       + '<div style="overflow-x:auto"><table style="font-size:.8rem;border-collapse:collapse;width:100%">'
       + head + rows + '</table></div>'
       + '<p class="muted" style="margin:.5rem 0 0;font-size:.75rem">'
       + '<b>•</b> marks a source that wants someone different from the blend. '
       + 'Order only — no points are shown, because the sources are not on one scale '
       + 'and their offsets differ by position. Our own projections are excluded on '
-      + 'your ruling.</p></div>';
+      + 'your ruling.</p></details></div>';
     /* Given a real mount point (E's finding 1 fix, 2026-08-20/21) the shell
      * starts display:none so it never flashes empty before state.sourceBoards
      * loads — same convention as #model-compare-card. Un-hide only once

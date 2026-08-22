@@ -4474,3 +4474,11 @@ table.roll td.num, .pf, .wh-race-scale, .wh-band-note{ color: var(--ink); }
   margin: .35rem 0 .55rem; font-size: .8rem; line-height: 1.45;
 }
 .pb-legend b { color: var(--gold, #c9a227); }
+
+/* DE-CONFLICT PASS (Cory, draft day 08-22: "if I shouldn't listen or follow
+   something, it shouldn't be on there"). The shadow strip is a GRADING
+   instrument — nine strategies' would-be picks, captured for post-draft
+   analysis — and it duplicates Model Comparison's job on the screen while
+   answering to nobody. Capture is untouched (the ledger writes in the pick
+   path, not in this render); only the display goes. */
+body.warroom-page #shadow-projection { display: none !important; }
