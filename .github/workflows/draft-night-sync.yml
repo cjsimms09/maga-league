@@ -177,11 +177,20 @@ jobs:
             # no-op, not noise in the history. Skipped entirely in dry_run:
             # the whole point is proving the polling/exit mechanics without
             # ever committing or pushing anything.
-            if [ "$DRY_RUN" != "true" ] && ! git diff --quiet -- draft/data/draft_pick_log_2026.jsonl draft/data/draft_shadow_2026.jsonl 2>/dev/null; then
-              # shadow ledger rides the same commit — without this line the
-              # per-pick recommendations die with the runner (shadow pass)
-              git add draft/data/draft_pick_log_2026.jsonl draft/data/draft_shadow_2026.jsonl
-              git commit -m "[skip deploy] draft-night sync: pick log update" -q
+            # ⚠️ REAL-DRAFT BUG, found 2026-08-23 with the actual draft's data
+            # stranded in two green runs: `git diff --quiet` only sees TRACKED
+            # files, and the pick log's very first capture IS the file's
+            # creation — untracked, no diff, commit skipped, runner reclaimed.
+            # The dry run couldn't catch it because dry_run skips this block
+            # by design. Stage first, then ask the INDEX if anything changed —
+            # that answers correctly for both a new file and an update.
+            if [ "$DRY_RUN" != "true" ]; then
+              git add draft/data/draft_pick_log_2026.jsonl draft/data/draft_shadow_2026.jsonl 2>/dev/null || true
+              if ! git diff --cached --quiet 2>/dev/null; then
+                # shadow ledger rides the same commit — without this the
+                # per-pick recommendations die with the runner (shadow pass)
+                git commit -m "[skip deploy] draft-night sync: pick log update" -q
+              fi
             fi
             # Enter the push path whenever local HEAD is AHEAD of the remote —
             # not only when this poll's tree was dirty (audit round 4: a
