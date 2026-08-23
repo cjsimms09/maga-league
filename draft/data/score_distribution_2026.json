@@ -1,0 +1,389 @@
+{
+  "_what": "Engine score distribution at each of Cory's 12 live picks, 2026.",
+  "_why": "Rule 3i — rank 439 with a gap of 0.146 at pick 108 is two numbers that cannot both mean what they appear to. This is the population behind them.",
+  "generated_from": {
+    "board_sha256": "7c1c1d0d7e705924909d69cf817d07b7385f03c821cb90175416c9bbfecc279f",
+    "board_built_at": "2026-08-22T03:43:05Z",
+    "freeze_sha256": "98f580261a2ea898194cf13cfa72a692723184b7d3d776b81e2cb60356c98d39",
+    "pick_log_rows": 150
+  },
+  "control": {
+    "width": {
+      "pick": 33,
+      "why": "An early board must be WIDE. If this reports flat, the probe is broken and its late-board \"flat\" readings mean nothing.",
+      "measured_spread_top_to_p90": 446.211,
+      "required_at_least": 5,
+      "passed": true
+    },
+    "reproduces_shadow_log": {
+      "why": "draft_shadow_2026.jsonl is what the engine actually told Cory. This tool re-runs that engine, so its #1 must match at every pick. A mismatch indicts THIS tool, never the log.",
+      "compared": 12,
+      "agreed": 12,
+      "disagreed": [],
+      "passed": true
+    },
+    "all_passed": true
+  },
+  "picks": [
+    {
+      "pick": 33,
+      "took": {
+        "name": "Rashee Rice",
+        "position": "WR",
+        "player_id": "10229"
+      },
+      "pool_size": 671,
+      "recs_returned": 671,
+      "scored": 588,
+      "actual_in_pool": true,
+      "actual_in_recs": true,
+      "actual_rank": 1,
+      "actual_rank_by_score": 1,
+      "rank_disagreement": 0,
+      "demoted_entries": 77,
+      "top_score": 100.76446297565366,
+      "p50": -163.89084550678842,
+      "p90": -345.4464697707734,
+      "p99": -360.20891870265945,
+      "min_score": -364.6089187026594,
+      "spread_top_to_p90": 446.211,
+      "players_within_1pt_of_top": 1,
+      "players_within_half_pt_of_top": 1,
+      "top3": [
+        "WR Rashee Rice (100.76446297565366)",
+        "WR Zay Flowers (60.98234143629065)",
+        "WR DeVonta Smith (42.31138115565115)"
+      ]
+    },
+    {
+      "pick": 48,
+      "took": {
+        "name": "Davante Adams",
+        "position": "WR",
+        "player_id": "2133"
+      },
+      "pool_size": 656,
+      "recs_returned": 656,
+      "scored": 573,
+      "actual_in_pool": true,
+      "actual_in_recs": true,
+      "actual_rank": 4,
+      "actual_rank_by_score": 4,
+      "rank_disagreement": 0,
+      "demoted_entries": 77,
+      "top_score": 10.664261696792302,
+      "p50": -146.86601022221464,
+      "p90": -338.5137674059047,
+      "p99": -361.11376740590464,
+      "min_score": -365.61376740590464,
+      "spread_top_to_p90": 349.178,
+      "players_within_1pt_of_top": 1,
+      "players_within_half_pt_of_top": 1,
+      "top3": [
+        "RB Travis Etienne (10.664261696792302)",
+        "QB Drake Maye (2.1202325940953384)",
+        "QB Joe Burrow (1.9142325940953269)"
+      ]
+    },
+    {
+      "pick": 53,
+      "took": {
+        "name": "Quinshon Judkins",
+        "position": "RB",
+        "player_id": "12512"
+      },
+      "pool_size": 651,
+      "recs_returned": 651,
+      "scored": 568,
+      "actual_in_pool": true,
+      "actual_in_recs": true,
+      "actual_rank": 1,
+      "actual_rank_by_score": 1,
+      "rank_disagreement": 0,
+      "demoted_entries": 77,
+      "top_score": 13.781213560858305,
+      "p50": -121.68564874245521,
+      "p90": -174.91878643914168,
+      "p99": -359.65650447231224,
+      "min_score": -364.15650447231224,
+      "spread_top_to_p90": 188.7,
+      "players_within_1pt_of_top": 1,
+      "players_within_half_pt_of_top": 1,
+      "top3": [
+        "RB Quinshon Judkins (13.781213560858305)",
+        "WR Jameson Williams (7.245751616126142)",
+        "QB Drake Maye (3.577495527687742)"
+      ]
+    },
+    {
+      "pick": 68,
+      "took": {
+        "name": "Rome Odunze",
+        "position": "WR",
+        "player_id": "11620"
+      },
+      "pool_size": 636,
+      "recs_returned": 636,
+      "scored": 553,
+      "actual_in_pool": true,
+      "actual_in_recs": true,
+      "actual_rank": 1,
+      "actual_rank_by_score": 1,
+      "rank_disagreement": 0,
+      "demoted_entries": 77,
+      "top_score": 3.778214171637785,
+      "p50": -122.0208360686609,
+      "p90": -166.62178582836222,
+      "p99": -351.1530031077058,
+      "min_score": -355.6530031077058,
+      "spread_top_to_p90": 170.4,
+      "players_within_1pt_of_top": 1,
+      "players_within_half_pt_of_top": 1,
+      "top3": [
+        "WR Rome Odunze (3.778214171637785)",
+        "QB Jalen Hurts (1.3809968922941918)",
+        "TE Kyle Pitts (0.9995651182772514)"
+      ]
+    },
+    {
+      "pick": 73,
+      "took": {
+        "name": "Parker Washington",
+        "position": "WR",
+        "player_id": "9487"
+      },
+      "pool_size": 631,
+      "recs_returned": 631,
+      "scored": 548,
+      "actual_in_pool": true,
+      "actual_in_recs": true,
+      "actual_rank": 12,
+      "actual_rank_by_score": 14,
+      "rank_disagreement": -2,
+      "demoted_entries": 77,
+      "top_score": 5.180875168969521,
+      "p50": -117.46243054448736,
+      "p90": -158.51912483103047,
+      "p99": -345.85220755171946,
+      "min_score": -350.35220755171946,
+      "spread_top_to_p90": 163.7,
+      "players_within_1pt_of_top": 1,
+      "players_within_half_pt_of_top": 1,
+      "top3": [
+        "RB Jaylen Warren (5.180875168969521)",
+        "TE Harold Fannin (3.567371529546609)",
+        "QB Jayden Daniels (2.294792448280495)"
+      ]
+    },
+    {
+      "pick": 88,
+      "took": {
+        "name": "Courtland Sutton",
+        "position": "WR",
+        "player_id": "5045"
+      },
+      "pool_size": 616,
+      "recs_returned": 616,
+      "scored": 533,
+      "actual_in_pool": true,
+      "actual_in_recs": true,
+      "actual_rank": 2,
+      "actual_rank_by_score": 2,
+      "rank_disagreement": 0,
+      "demoted_entries": 77,
+      "top_score": 4.816803642816133,
+      "p50": -114.68399031208533,
+      "p90": -155.98399031208533,
+      "p99": -340.89119635718384,
+      "min_score": -345.59119635718383,
+      "spread_top_to_p90": 160.801,
+      "players_within_1pt_of_top": 2,
+      "players_within_half_pt_of_top": 1,
+      "top3": [
+        "QB Matthew Stafford (4.816803642816133)",
+        "WR Courtland Sutton (3.9160096879146806)",
+        "RB Rico Dowdle (3.4110660311936556)"
+      ]
+    },
+    {
+      "pick": 93,
+      "took": {
+        "name": "Caleb Williams",
+        "position": "QB",
+        "player_id": "11560"
+      },
+      "pool_size": 611,
+      "recs_returned": 611,
+      "scored": 528,
+      "actual_in_pool": true,
+      "actual_in_recs": true,
+      "actual_rank": 7,
+      "actual_rank_by_score": 9,
+      "rank_disagreement": -2,
+      "demoted_entries": 77,
+      "top_score": 5.348962173513151,
+      "p50": -107.00352895478815,
+      "p90": -145.30352895478816,
+      "p99": -340.3590378264868,
+      "min_score": -345.0590378264868,
+      "spread_top_to_p90": 150.652,
+      "players_within_1pt_of_top": 1,
+      "players_within_half_pt_of_top": 1,
+      "top3": [
+        "QB Matthew Stafford (5.348962173513151)",
+        "QB Trevor Lawrence (3.8509621735131736)",
+        "RB Kyle Monangai (2.1346367300473617)"
+      ]
+    },
+    {
+      "pick": 108,
+      "took": {
+        "name": "Houston Texans",
+        "position": "DEF",
+        "player_id": "HOU"
+      },
+      "pool_size": 596,
+      "recs_returned": 596,
+      "scored": 513,
+      "actual_in_pool": true,
+      "actual_in_recs": true,
+      "actual_rank": 439,
+      "actual_rank_by_score": 2,
+      "rank_disagreement": 437,
+      "demoted_entries": 75,
+      "top_score": 0.8421736827848747,
+      "p50": -107.03840635852809,
+      "p90": -141.6384063585281,
+      "p99": -340.7562034767029,
+      "min_score": -345.4562034767029,
+      "spread_top_to_p90": 142.481,
+      "players_within_1pt_of_top": 7,
+      "players_within_half_pt_of_top": 3,
+      "top3": [
+        "RB Kenny Gainwell (0.8421736827848747)",
+        "QB Matthew Stafford (0.6491796523297048)",
+        "TE Dallas Goedert (0.30906735844564537)"
+      ]
+    },
+    {
+      "pick": 113,
+      "took": {
+        "name": "Emmett Johnson",
+        "position": "RB",
+        "player_id": "13337"
+      },
+      "pool_size": 591,
+      "recs_returned": 591,
+      "scored": 508,
+      "actual_in_pool": true,
+      "actual_in_recs": true,
+      "actual_rank": 143,
+      "actual_rank_by_score": 212,
+      "rank_disagreement": -69,
+      "demoted_entries": 73,
+      "top_score": 6.154689158397389,
+      "p50": -104.86446859596364,
+      "p90": -141.16446859596365,
+      "p99": -338.0632187418973,
+      "min_score": -342.7632187418973,
+      "spread_top_to_p90": 147.319,
+      "players_within_1pt_of_top": 1,
+      "players_within_half_pt_of_top": 1,
+      "top3": [
+        "RB Kenny Gainwell (6.154689158397389)",
+        "RB Rachaad White (2.8546891583973775)",
+        "TE Dallas Goedert (1.4177613260833368)"
+      ]
+    },
+    {
+      "pick": 128,
+      "took": {
+        "name": "Zach Charbonnet",
+        "position": "RB",
+        "player_id": "9753"
+      },
+      "pool_size": 576,
+      "recs_returned": 576,
+      "scored": 493,
+      "actual_in_pool": true,
+      "actual_in_recs": true,
+      "actual_rank": 22,
+      "actual_rank_by_score": 65,
+      "rank_disagreement": -43,
+      "demoted_entries": 67,
+      "top_score": 2.9524079848077633,
+      "p50": -107.69035038745426,
+      "p90": -141.69035038745426,
+      "p99": -340.16073560257377,
+      "min_score": -344.66073560257377,
+      "spread_top_to_p90": 144.643,
+      "players_within_1pt_of_top": 2,
+      "players_within_half_pt_of_top": 1,
+      "top3": [
+        "RB Rachaad White (2.9524079848077633)",
+        "QB Brock Purdy (0.3559264397426223)",
+        "TE Dallas Goedert (0.16070147631259601)"
+      ]
+    },
+    {
+      "pick": 133,
+      "took": {
+        "name": "Oronde Gadsden",
+        "position": "TE",
+        "player_id": "12493"
+      },
+      "pool_size": 571,
+      "recs_returned": 158,
+      "scored": 142,
+      "actual_in_pool": true,
+      "actual_in_recs": true,
+      "actual_rank": 41,
+      "actual_rank_by_score": 41,
+      "rank_disagreement": 0,
+      "demoted_entries": 0,
+      "top_score": 1.8937687300983979,
+      "p50": -100.47957890019627,
+      "p90": -132.17957890019628,
+      "p99": -134.67957890019628,
+      "min_score": -136.27957890019627,
+      "spread_top_to_p90": 134.073,
+      "players_within_1pt_of_top": 1,
+      "players_within_half_pt_of_top": 1,
+      "top3": [
+        "K Harrison Mevis (1.8937687300983979)",
+        "TE Dallas Goedert (0.320421099803724)",
+        "K Jake Bates (-0.35023126990159087)"
+      ]
+    },
+    {
+      "pick": 148,
+      "took": {
+        "name": "Rachaad White",
+        "position": "RB",
+        "player_id": "8136"
+      },
+      "pool_size": 556,
+      "recs_returned": 36,
+      "scored": 36,
+      "actual_in_pool": true,
+      "actual_in_recs": false,
+      "actual_rank": null,
+      "actual_rank_by_score": null,
+      "rank_disagreement": null,
+      "demoted_entries": 0,
+      "top_score": 0.084,
+      "p50": -24.099999999999994,
+      "p90": -83,
+      "p99": -103,
+      "min_score": -103,
+      "spread_top_to_p90": 83.084,
+      "players_within_1pt_of_top": 1,
+      "players_within_half_pt_of_top": 1,
+      "top3": [
+        "K Harrison Mevis (0.084)",
+        "K Cairo Santos (-2.8739999999999917)",
+        "K Nick Folk (-3.5879999999999943)"
+      ]
+    }
+  ]
+}

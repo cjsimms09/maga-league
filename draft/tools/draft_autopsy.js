@@ -127,10 +127,40 @@ const picks = myPicks.map((pk, i) => {
       mlv: mlvTop ? mlvTop.position + ' ' + mlvTop.name : null,
     },
     took_was_still_there_next_pick: survived,
-    /* what the pick gave up, in the projection currency, against the best man
-     * at the position that was most expensive to wait on */
-    points_vs_best_wait_position: (tookP && vonaTop)
-      ? +(tookP.proj_mean - vonaTop.proj_mean).toFixed(1) : null,
+
+    /* ⚠️ WITHDRAWN: `points_vs_best_wait_position` USED TO SUBTRACT proj_mean
+     * ACROSS POSITIONS, and every value it produced was an artifact of
+     * positional scoring baselines rather than of anything Cory decided. It
+     * read +213.3 at pick 93 (a QB against the best DEF) and -158.9 at pick 68
+     * (a WR against the best QB), and summed to a headline "-147.4 points" that
+     * was about nothing but the fact that quarterbacks out-score defences. A
+     * raw projection is not comparable between positions; that is the entire
+     * reason `replacement` and VORP exist in this repo.
+     *
+     * VORP is comparable, because it is measured from each position's own
+     * replacement level, so the same subtraction in VORP space is a real
+     * statement: how much value-over-replacement this pick gave up against the
+     * best man at the position that was most expensive to wait on.
+     *
+     * `cost_of_waiting_by_position` above was always sound and is untouched —
+     * it compares a position to ITSELF one pick later, so no cross-position
+     * subtraction ever happens in it. */
+    vorp_vs_best_wait_position: (tookP && vonaTop
+      && tookP.vorp != null && vonaTop.vorp != null)
+      ? +(tookP.vorp - vonaTop.vorp).toFixed(1) : null,
+
+    /* AND VORP IS NOT CLEAN EITHER WHEN A ONESIE IS ON ONE SIDE OF IT. This
+     * repo has already measured that DEF VORP sits flat near 29 for a hundred
+     * picks while skill VORP collapses through zero, because the onesie
+     * replacement levels come off a 10-man pool that never thins. So a late
+     * skill player measured against the best remaining K or DEF reads as a
+     * huge loss that is an artifact of that flatness: pick 128 scored -126.8
+     * against a KICKER. The number is kept per-pick because it is real when
+     * both sides are skill positions, and flagged so it is never summed
+     * across the mixed set. There is deliberately NO total in this artifact. */
+    comparison_crosses_onesie: (tookP && vonaTop)
+      ? (['K', 'DEF'].indexOf(tookP.position) >= 0
+        !== ['K', 'DEF'].indexOf(vonaTop.position) >= 0) : null,
   };
 });
 
