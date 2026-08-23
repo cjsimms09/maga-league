@@ -258,7 +258,7 @@ Ranked by measured impact, not by how interesting they are.
 1. **🔴 Split the two orderings, everywhere.** Any artifact reporting a rank
    beside a gap must label which ordering each is in, or report both
    (`actual_rank_in_tool` *and* `actual_rank_by_score`). 437 places of
-   disagreement on a real pick is not an edge case. → register 266.
+   disagreement on a real pick is not an edge case. → register 269.
 2. **🔴 Revisit `RAIL_LATE_ROUNDS: 2`.** It is a hardcoded constant that
    forced both onesies into his last two picks and produced a kicker as the
    tool's #1 at both, which he overrode, which is why he finished without a
