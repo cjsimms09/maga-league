@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 277,
+ "next_numeric_id": 280,
  "history": [
   {
    "id": 47,
@@ -651,6 +651,15 @@
   {
    "id": 276,
    "claimed_at": "2026-08-23"
+  },
+  {
+   "id": 278,
+   "claimed_at": "2026-08-23"
+  },
+  {
+   "id": 279,
+   "claimed_at": "2026-08-23",
+   "note": "A: merge_pick_reasons rewrote-the-log row renumbered 276 -> 279 at merge. main printed its own 276 (the four-tools-believe-23-keepers row) plus 274, 275 and 277 while this branch was in flight. Register 186 protocol, main-printed canonical. Matched BY CONTENT, verified by count: exactly one row now sits at each of 274-279. Watermark to 280, committed WITH the register."
   }
  ]
 }

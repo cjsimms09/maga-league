@@ -245,6 +245,11 @@
 
 <%# ── One-tap bet against them ─────────────────────────────────────────────── %>
 <div class="card matchup-card" style="margin-bottom:1.2rem">
+  <%# Walkthrough finding 22, RESOLVED ON INSPECTION: this page already carries
+      a prefilled quick-bet form below (party, kind, week — one stake field and
+      send). The finding stands only for the FULL builder, which correctly
+      lives in The Book; nothing to add here. Recorded so the spec's item 22
+      doesn't send someone to build a duplicate. %>
   <h2>🤝 Bet <%= opp.name %> on it <span class="sub">straight up, this week</span></h2>
   <div class="body">
     <%# Already-placed bet on this game — show the standing wager so you don't

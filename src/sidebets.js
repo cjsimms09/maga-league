@@ -96,6 +96,7 @@ function normalize(b) {
   b.pool ??= null;
   b.draft ??= null;
   for (const p of b.parties || []) { p.position ??= ''; p.picks ??= []; }
+  b.terms_version ??= 1;   // true-edit versioning (Cory's ruling, 2026-08-23)
   if (b.status === STATUS.SETTLED && !b.legs) b.legs = buildLegs(b);
   b.legs ??= [];
   // Payer's I-paid claim (receiver-confirms model) — default at read time so a
@@ -201,11 +202,21 @@ function isParty(bet, owner_id) {
 }
 
 /** Accepting is the handshake. Once the last party accepts, the bet is on. */
-async function accept(id, owner_id, by_name, { position = '', picks = null } = {}) {
+async function accept(id, owner_id, by_name, { position = '', picks = null, expected_version = null } = {}) {
   const bet = await get(id);
   if (!bet || bet.status !== STATUS.PROPOSED) return null;
   const party = (bet.parties || []).find(p => p.owner_id === Number(owner_id));
   if (!party || party.accepted) return bet;
+  /* THE EDIT SAFETY RULE (Cory's true-edit ruling, 2026-08-23): an accept
+   * binds you to the terms YOU WERE LOOKING AT. The form carries the
+   * terms_version it rendered; if the proposer edited in between, this
+   * refuses rather than binding you to words you never saw. A form that
+   * sends no version (older cached page) is treated as stale the moment any
+   * edit exists — refusing is the safe direction. */
+  if ((bet.terms_version || 1) > 1
+      && Number(expected_version || 1) !== (bet.terms_version || 1)) {
+    return { stale_terms: true, id: bet.id, terms_version: bet.terms_version };
+  }
 
   if (position) party.position = String(position).slice(0, MAX_POSITION);
   if (picks) party.picks = [...new Set(picks.map(Number))].filter(Boolean);
@@ -992,9 +1003,41 @@ function disputed(bets, owner_id) {
   return bets.filter(b => b.status === STATUS.DISPUTED && isParty(b, me));
 }
 
+/**
+ * TRUE EDIT of an unaccepted offer — Cory, 2026-08-23: "I didn't say bet
+ * withdrawal I said edit." Same card, same thread, no withdraw-and-resend
+ * noise. Allowed ONLY while the bet is a proposal and nobody but the
+ * proposer has accepted; every edit bumps terms_version (see accept's
+ * stale-terms refusal), keeps the prior terms in `edits` so the card can
+ * show what changed, and writes the audit line. Once anyone else accepts,
+ * editing is over — that is what accepted means.
+ */
+async function edit(id, owner_id, { stake = null, terms = null } = {}) {
+  const bet = await get(id);
+  if (!bet) return null;
+  if (bet.status !== STATUS.PROPOSED) return { refused: 'not_editable' };
+  if (Number(bet.proposer_id) !== Number(owner_id)) return { refused: 'not_yours' };
+  if ((bet.parties || []).some(p => p.accepted && Number(p.owner_id) !== Number(owner_id)))
+    return { refused: 'already_accepted' };
+  const nextTerms = terms != null && String(terms).trim() !== ''
+    ? String(terms).slice(0, MAX_TERMS) : bet.terms;
+  const nextStake = stake != null && String(stake).trim() !== ''
+    ? Math.abs(Number(stake) || 0) : bet.stake;
+  if (nextTerms === bet.terms && nextStake === bet.stake) return bet;   // no-op
+  bet.edits = bet.edits || [];
+  bet.edits.push({ terms: bet.terms, stake: bet.stake, version: bet.terms_version || 1, at: now() });
+  bet.terms = nextTerms;
+  bet.stake = nextStake;
+  bet.terms_version = (bet.terms_version || 1) + 1;
+  bet.audit.push({ at: now(), by: Number(owner_id),
+    what: `Edited (v${bet.terms_version}): $${bet.stake} — ${bet.terms.slice(0, 80)}` });
+  await store.set(KEY(bet.id), bet);
+  return bet;
+}
+
 module.exports = {
   STATUS, MAX_OPEN_SLOTS,
-  all, get, propose, accept, take, decline, settle, reopen, remove,
+  all, get, propose, accept, take, decline, settle, reopen, remove, edit,
   declareResult, confirmResult, disputeResult,
   startPoolDraft, poolDraftPick, snakeTurn,
   setPosition, markLeg, isParty, offerBuyout, acceptBuyout, clearBuyout, resend,
