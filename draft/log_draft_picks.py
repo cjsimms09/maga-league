@@ -145,6 +145,47 @@ def next_pick_of_mine(after: int, my_picks: list[int]) -> int | None:
     return None
 
 
+def my_slot(fz: dict) -> int | None:
+    """WHICH SEAT IS CORY'S, read off the freeze instead of being passed in.
+
+    ⚠️ THIS EXISTS BECAUSE `is_mine` WAS FALSE ON ALL 150 ROWS OF THE 2026
+    DRAFT — Cory's twelve picks included. `_from_sleeper` builds a pick entry
+    with `pick, team_slot, player_id, player_name, position, is_keeper` and has
+    never set `is_mine`; `record` then wrote `bool(entry.get("is_mine"))`,
+    which is `bool(None)`, which is False, for every row of every draft. The
+    field was not wrong occasionally — it was structurally incapable of being
+    True on the live path, because nothing on that path knew which seat was
+    ours.
+
+    Nothing crashed and no test failed. `--status` printed `mine: 0 of 12` in
+    plain English while the draft was running and its exit code gates nothing,
+    so the one instrument that noticed was the one nobody was required to read.
+    That is the same shape as the freeze-mismatch guard fifty lines above,
+    which was moved from `--status` into a refusal at append time for exactly
+    this reason.
+
+    The freeze already knows the answer and is the right authority: `my_picks`
+    are our overall picks, and `pick_order.picks` maps every overall to a seat,
+    so the seat that owns our picks is a lookup, not a configuration value
+    somebody has to remember to set. Returns None rather than guessing if the
+    freeze does not name exactly one seat — a wrong seat silently relabels
+    another owner's draft as ours, which is worse than an absent flag.
+    """
+    mine = set(fz.get("my_picks") or [])
+    if not mine:
+        return None
+    # `pick_order.picks` is a list of dicts on the real freeze, but the chaos
+    # drill's synthetic freeze builds it as a list of plain ints — and an int
+    # has no .get, so the unguarded form raises AttributeError from inside a
+    # field derivation rather than returning "seat unknown". A freeze whose
+    # shape we do not recognise means we cannot name the seat; that is a None,
+    # which every caller already handles, not an exception.
+    slots = {p.get("slot") for p in (fz.get("pick_order") or {}).get("picks", [])
+             if isinstance(p, dict) and p.get("overall") in mine
+             and p.get("slot") is not None}
+    return slots.pop() if len(slots) == 1 else None
+
+
 def old_path_recommendation(fz: dict, gone: set[str], top: int = 5) -> list[dict]:
     """The production valuation, at this moment, from FROZEN inputs.
 
@@ -323,6 +364,7 @@ def record(entry: dict) -> dict:
     gone = {str(r["player_id"]) for r in rows if r.get("player_id")}
     my_next = next_pick_of_mine(pick, fz["my_picks"])
     pid = str(entry["player_id"])
+    _ms = my_slot(fz)
 
     avail = None
     if my_next is not None:
@@ -366,8 +408,33 @@ def record(entry: dict) -> dict:
         "is_keeper": bool(entry.get("is_keeper")),
         "is_selection": not bool(entry.get("is_keeper")),
 
-        "is_mine": bool(entry.get("is_mine")),
-        "my_actual_pick": entry.get("my_actual_pick"),
+        # ⚠️ DERIVED, NOT COPIED — see my_slot(). The old form was
+        # `bool(entry.get("is_mine"))`, and because the live Sleeper path never
+        # sets that key it evaluated `bool(None)` on all 150 rows of the 2026
+        # draft. An explicit value on the entry still wins so a hand-recorded
+        # row or a test can state its own truth; only the absent case derives.
+        "is_mine": (bool(entry.get("is_mine")) if entry.get("is_mine") is not None
+                    else (_ms is not None and entry.get("team_slot") == _ms)),
+        "my_slot_source": ("explicit on the entry" if entry.get("is_mine") is not None
+                           else ("pre_draft_freeze my_picks -> pick_order slot"
+                                 if _ms is not None else
+                                 "UNKNOWN — the freeze does not name exactly one seat")),
+
+        # THE WHY BEHIND THE PICK. Both were None on all 150 rows of 2026 and
+        # Cory's verdict on that was "the why behind your twelve decisions is
+        # unrecoverable". `my_actual_pick` is now DERIVED for our own rows —
+        # the row is the pick, so leaving it blank was never anything but a
+        # missing assignment. `my_deviation_reason` is the one field that
+        # genuinely needs a human, and it is the only one left blank here.
+        "my_actual_pick": (entry.get("my_actual_pick")
+                           if entry.get("my_actual_pick") is not None
+                           else ({"player_id": pid,
+                                  "name": entry.get("player_name"),
+                                  "position": entry.get("position"),
+                                  "pick": pick}
+                                 if (_ms is not None
+                                     and entry.get("team_slot") == _ms
+                                     and not entry.get("is_keeper")) else None)),
         "my_deviation_reason": entry.get("my_deviation_reason"),
 
         # A ROW JOINED TO THE WRONG BOARD LOOKS EXACTLY LIKE A GOOD ONE.
@@ -621,12 +688,31 @@ def status() -> int:
     fz = _freeze()
     rows = _rows()
     total = len(fz["pick_order"]["picks"])
-    mine = [r for r in rows if r["is_mine"]]
+    # DERIVED, NOT TRUSTED. The 2026 log is on disk with `is_mine` False on all
+    # 150 rows and it is append-only on purpose — a correction there is a new
+    # row with `supersedes`, never an edit, because a log you rewrite is a log
+    # that flatters itself. So the flag is not repaired retroactively; it is
+    # simply not the authority. `team_slot` was captured correctly all along
+    # and the freeze names our seat, so ownership is recoverable for every past
+    # row without touching one of them. A reader falls back to the flag only
+    # when the seat cannot be derived.
+    _ms = my_slot(fz)
+    mine = [r for r in rows
+            if (r.get("team_slot") == _ms if _ms is not None else r.get("is_mine"))]
     scored = [r for r in rows if r["availability_at_my_next_pick"] is not None]
     print("freeze     : %s (%d players)" % (fz["_sha256_of_payload"][:12],
                                             len(fz["players"])))
     print("picks       : %d of %d logged" % (len(rows), total))
-    print("mine        : %d of %d" % (len(mine), len(fz["my_picks"])))
+    # KEEPERS AND SELECTIONS ARE DIFFERENT POPULATIONS AND THIS LINE COMPARED
+    # THEM. `mine` is every row at our seat — 15 in 2026 — and `my_picks` is
+    # the twelve LIVE picks only, so the first honest run of this fix printed
+    # "mine: 15 of 12", a ratio above 1 that reads as a bug in either
+    # direction. A keeper is not a pick anybody made; it is counted, and
+    # counted separately.
+    mine_live = [r for r in mine if not r.get("is_keeper")]
+    mine_kept = len(mine) - len(mine_live)
+    print("mine        : %d of %d live picks (+%d keepers)"
+          % (len(mine_live), len(fz["my_picks"]), mine_kept))
     print("with an availability prediction attached: %d" % len(scored))
     shadowed = {r["pick_no"] for r in _shadow_rows()}
     lag = len({r["pick"] for r in rows} - shadowed)
@@ -635,6 +721,21 @@ def status() -> int:
     bad = [r["pick"] for r in rows if r["freeze_sha256"] != fz["_sha256_of_payload"]]
     if bad:
         print("⚠ %d row(s) joined to a DIFFERENT freeze: %s" % (len(bad), bad[:8]))
+        return 1
+
+    # ⚠️ THIS LINE USED TO BE PRINTED AND NOT ENFORCED, AND THAT IS HOW THE
+    # 2026 DRAFT WAS LOGGED WITH `is_mine` FALSE ON ALL 150 ROWS. "mine: 0 of
+    # 12" was on screen, correct, and cost nothing to ignore, so it was
+    # ignored. A count that can only ever be right is not worth printing; a
+    # count that can be wrong has to be able to fail. Zero of our own picks
+    # flagged, in a log that HAS picks, is never a real draft — it is always a
+    # broken seat derivation, and it makes the shadow grading, the autopsy and
+    # every "what did we do differently" question unanswerable after the fact.
+    if rows and not mine_live:
+        print("⚠ REFUSING to report healthy: %d picks logged and NOT ONE is "
+              "flagged as ours. my_slot() returned %s. Every downstream grade "
+              "that filters on is_mine sees an empty draft."
+              % (len(rows), my_slot(fz)))
         return 1
     return 0
 
