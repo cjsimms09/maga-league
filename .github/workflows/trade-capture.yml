@@ -1,0 +1,79 @@
+name: Trade capture (in-season queue item 2)
+
+# TERRITORY: C — dispatches draft/backtest/trade_capture.py.
+#
+# Cory (via relay), 08-21: "TRADES AS THEY HAPPEN: the trade null is
+# starved (6 trades in 3 seasons) — capture every 2026 trade WITH both
+# rosters as they stood at accept-time, same reasoning as (1): at-the-
+# moment state is uncapturable later."
+#
+# DAILY, NOT WEEKLY: trades happen on no fixed schedule (unlike waivers,
+# which clear on a known cadence), so the capture's own approximation
+# ("as they stood at first DETECTION") is only as tight as this cadence.
+# Daily is the practical floor — historically ~2 trades/season, so this
+# is a near-zero-cost poll almost every day; the module itself is a
+# clean no-op (exits 0, nothing written) on a day with no new trade.
+#
+# job.timeout-minutes set after game-weather-capture.yml's real incident
+# (a hung dispatch, 2026-08-21) — cheap insurance even though this
+# module's own fetch calls are bounded (sleeper_import._get has its own
+# retry/backoff, capped attempts, not an unbounded loop).
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '0 10 * * *'   # 10:00 UTC daily — ahead of this session's
+                            # other daily jobs (kalshi-capture 11:00,
+                            # ffanalytics-probe 06:00, site-check 07:00,
+                            # market-capture 13:00, rehearsals 12:30,
+                            # inbox-health 13:17, external-adp-capture 11:20,
+                            # draft-data 08:00, standing-check 12:00)
+
+permissions:
+  contents: write
+
+concurrency:
+  group: trade-capture
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Install
+        run: pip install -r draft/requirements.txt pytest
+
+      - name: The pure detection/snapshot logic is tested before any real fetch runs
+        run: python3 -m pytest draft/tests/test_trade_capture.py -q
+
+      - name: Check for new trades and snapshot both rosters if found
+        run: python3 draft/backtest/trade_capture.py
+
+      - name: Commit any newly captured trades
+        run: |
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "::warning::Dispatched from '$GITHUB_REF_NAME', not main. The"
+            echo "::warning::result is in this run's log and is deliberately"
+            echo "::warning::NOT committed. Re-dispatch from main."
+            echo "_Dispatched from \`$GITHUB_REF_NAME\` — result NOT committed._" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/data/trade_capture_2026.jsonl
+          if ! git diff --cached --quiet; then
+            git commit -m "trade_capture: new trade(s) snapshotted (in-season queue item 2) [skip deploy]"
+            for i in 1 2 3; do
+              git fetch origin main || true
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              if git push origin HEAD:main; then exit 0; fi
+              sleep $((i * 5))
+            done
+            echo "::error::RESULT NOT PUSHED — a real trade's roster context is lost and cannot be recaptured."
+            exit 1
+          fi
+          echo "no new trades — nothing to commit"
