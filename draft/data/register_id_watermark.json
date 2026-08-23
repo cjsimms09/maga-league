@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 259,
+ "next_numeric_id": 266,
  "history": [
   {
    "id": 47,
@@ -552,6 +552,31 @@
    "id": 258,
    "claimed_at": "2026-08-23",
    "note": "E: the draft log's stored recommendation is a cross-position VORP sort that names a DEFENSE as #1 on 80% of picks (Rams DEF for 58 consecutive). Not what the war room showed. Grading the draft off it would report Cory ignoring his tool on 4 picks in 5."
+  },
+  {
+   "id": 259,
+   "claimed_at": "2026-08-23"
+  },
+  {
+   "id": 260,
+   "claimed_at": "2026-08-23"
+  },
+  {
+   "id": 262,
+   "claimed_at": "2026-08-23"
+  },
+  {
+   "id": 263,
+   "claimed_at": "2026-08-23"
+  },
+  {
+   "id": 264,
+   "claimed_at": "2026-08-23"
+  },
+  {
+   "id": 265,
+   "claimed_at": "2026-08-23",
+   "note": "E: availability_at_my_next_pick is not gradeable as stored -- 144 of 144 outcomes are 'gone' because a row is written when the player is taken. Base rate 1.0, nothing to score. The allocator handed me 259 but main already printed 259 (Cory's ADP catch), so this took the watermark's next free id instead."
   },
   {
    "id": "137-138",

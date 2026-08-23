@@ -85,7 +85,17 @@ ck('FAIL ARM — the keeper counts genuinely DIFFER across those seasons, so the
 // ── 2. THE DERIVED SCHEDULE MATCHES THE ARITHMETIC CORY DID BY HAND ──────
 const teams = +L.teams, mySlot = +L.my_draft_slot;
 const forfeitedCount = () => (po.forfeited || []).length;
-const forfeited = po.forfeited || [];
+/* ⚠️ REWRITTEN AT KEEPER LOCK (2026-08-23). Pre-lock, po.forfeited held only
+ * MY keeper costs, so its length WAS my first-live-round offset. Post-lock it
+ * holds the whole league's 23 forfeits and the old arithmetic derived a
+ * first pick of overall 233. The era-robust read filters to my seat — each
+ * entry has carried team_slot in both eras. My forfeits also must be the
+ * OPENING rounds for the contiguous-schedule algebra below to hold, so that
+ * is asserted rather than assumed. */
+const forfeited = (po.forfeited || []).filter(f => Number(f.team_slot) === mySlot);
+ck('my forfeited rounds are the opening rounds (contiguous from round 1)',
+  forfeited.map(f => Number(f.cost_round)).sort((a, b) => a - b)
+    .every((r, i) => r === i + 1), forfeited.map(f => f.cost_round));
 const firstLiveRound = forfeited.length + 1;
 // Round r, slot s: odd rounds run 1..teams, even rounds run teams..1.
 const overallOf = (r, s) => (r - 1) * teams
@@ -131,7 +141,9 @@ ck('and none of my own picks sits on a keeper slot',
 /* FAIL ARM — the specific wrong answer, still named. A future edit that
  * reintroduces renumbering produces exactly this and must be caught. */
 {
-  const compressed = PLAN.SCHED.map(v => v - forfeitedCount());
+  // MY forfeit count — the historical bug compressed by the drafter's own
+  // keepers (3), and post-lock forfeitedCount() counts the whole league's 23.
+  const compressed = PLAN.SCHED.map(v => v - forfeited.length);
   ck('FAIL ARM — the compressed list would be REJECTED by the check above',
     !(compressed.length === PLAN.SCHED.length
       && compressed.every((v, i) => v === PLAN.SCHED[i])),

@@ -19,7 +19,14 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 HIST = HERE / "data" / "league_history.json"
 BOARD = HERE.parent / "public" / "draft_data.json"
-OUT = HERE / "data" / "predicted_keepers.json"
+# PREDICTED_KEEPERS_PATH: test override, same convention as
+# DRAFT_PICK_LOG_PATH in log_draft_picks.py — the default is unchanged for
+# every real caller. Added 2026-08-23 after the full pytest sweep left this
+# COMMITTED artifact rewritten in the working tree: test_predict_keepers.py
+# subprocess-runs this tool, and the tool wrote in place. Third instance of
+# the probe-writes-into-committed-data class (E declared two).
+import os as _os
+OUT = Path(_os.environ.get("PREDICTED_KEEPERS_PATH") or (HERE / "data" / "predicted_keepers.json"))
 MAX_KEEPERS = 3
 
 # Cory intel overrides. Locked reads that override / confirm the model.
