@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Which register rows have EVER existed on main and are gone today?
+"""Which register rows -- and ROUTES items -- have EVER existed on main and are gone today?
 
 WHY THIS EXISTS, AS THE FAILURE IT ENDS (E, 2026-08-23). Register 268 was
 deleted within an hour of being filed, by a commit whose subject was about
@@ -20,6 +20,7 @@ never on the id chain — register 212's lesson, learned by deleting a row.
 
 Exit 1 if any row is genuinely lost, so CI can hold the line.
 """
+import os
 import re
 import subprocess
 import sys
@@ -30,6 +31,54 @@ REF = "origin/main"
 
 def sh(*a):
     return subprocess.run(list(a), capture_output=True, text=True).stdout
+
+
+ITEM = re.compile(r'^- \[([ x])\] (.*)$')
+
+
+def routes() -> int:
+    """ROUTES has the same exposure and one extra question.
+
+    ROUTES is a QUEUE, so an item disappearing could be deliberate pruning. The
+    test that separates the two: was it EVER ticked? Measured 2026-08-23 across
+    1,452 commits -- 84 items vanished while still open and ZERO were ticked
+    first. Nothing here is ever completed-then-removed, so any disappearance is
+    a loss. Completed items are kept in place or moved to ROUTES-ARCHIVE.md,
+    which is why both files are searched.
+    """
+    shas = sh('git', 'log', '--format=%H', REF, '--', 'ROUTES.md').split()
+    if not shas:
+        return 0
+    opened, ticked = {}, set()
+    for s in shas:
+        for line in sh('git', 'show', s + ':ROUTES.md').split('\n'):
+            m = ITEM.match(line)
+            if not m:
+                continue
+            key = m.group(2)[:120]
+            if m.group(1) == 'x':
+                ticked.add(key)
+            else:
+                opened.setdefault(key, line)
+    hay = open('ROUTES.md', encoding='utf-8').read()
+    if os.path.exists('ROUTES-ARCHIVE.md'):
+        hay += open('ROUTES-ARCHIVE.md', encoding='utf-8').read()
+    lost = []
+    for key, body in opened.items():
+        if key in ticked:
+            continue
+        frags = re.findall(r'[A-Za-z`][^|*]{45,90}', body)[:6] or [body[10:90]]
+        if not any(f in hay for f in frags):
+            lost.append(body)
+    print("\nROUTES items ever open: %d | vanished while still open: %d"
+          % (len(opened), len(lost)))
+    if lost:
+        recent = [b for b in lost if re.search(r'2026-08-1[5-9]|2026-08-2', b)]
+        print("  of those, filed 08-15 or later: %d  (the rest are day-one churn)"
+              % len(recent))
+        for b in recent[:10]:
+            print("    %s" % b[:118])
+    return 0
 
 
 def main() -> int:
@@ -72,4 +121,6 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    rc = main()
+    routes()          # reported, not gated -- see routes() for why
+    sys.exit(rc)
