@@ -107,8 +107,17 @@
   # server because that has the full repo on disk — the gap is production-only.
   # Proven by simulating a bundle of included_files alone: build() throws ENOENT
   # on league_history.json. draft_data.json is the 2026 board (player id->name).
+  # public/js/draft/** — found LIVE on 2026-08-23, first real in-season page
+  # load (Cory: "waiver tool isn't working"): src/routes/waivers.js,
+  # src/slotpicker.js and the survival reader all require these shared browser
+  # modules via path.join at runtime. esbuild cannot trace a dynamic require,
+  # so in production the files were simply absent — /waivers 500'd naming
+  # valuation.js, and /admin/slot-picker's catch turned the same absence into
+  # a message blaming keepers.js. Dev servers never see it: the full repo is
+  # on disk. Same production-only class as the /history ENOENT above.
   included_files = ["views/**", "STATUS.md", "DECISIONS-NEEDED.md", "TASK-AUDIT.md",
     "draft/data/**", "draft/config/**", "public/draft_data.json",
+    "public/js/draft/**",
     "docs/MOCK-DRAFT-REHEARSAL.md"]
 
 # The web-app manifest needs its own content type — Netlify serves unknown
