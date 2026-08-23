@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 269,
+ "next_numeric_id": 271,
  "history": [
   {
    "id": 47,
@@ -590,6 +590,14 @@
    "id": 268,
    "claimed_at": "2026-08-23",
    "note": "E: my 267 claim collided with main's PRINTED 267 (the four-quarterbacks row) -- register 186's protocol, main-printed ids canonical, so the survival-model grade renumbers 267->268. One citation repointed in ROUTES."
+  },
+  {
+   "id": 269,
+   "claimed_at": "2026-08-23"
+  },
+  {
+   "id": 270,
+   "claimed_at": "2026-08-23"
   },
   {
    "id": "137-138",
