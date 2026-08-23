@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 257,
+ "next_numeric_id": 258,
  "history": [
   {
    "id": 47,
@@ -542,6 +542,11 @@
    "id": 256,
    "claimed_at": "2026-08-23",
    "note": "E: the draft-night sync logged 150/150 picks and committed nothing -- git diff --quiet reports no-change for an UNTRACKED file, so the commit block was skipped on every poll. Proven with a two-arm control. Recoverable from Sleeper if the fix lands first."
+  },
+  {
+   "id": 257,
+   "claimed_at": "2026-08-23",
+   "note": "Row 257 (is_mine false on every pick-log row) was written to the register without advancing the watermark, so test_register_ids_never_pass_the_watermark went red on main. Recorded here by E to restore the invariant; the row and the finding are its author's, not E's."
   },
   {
    "id": "137-138",
