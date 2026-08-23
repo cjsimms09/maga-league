@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 258,
+ "next_numeric_id": 259,
  "history": [
   {
    "id": 47,
@@ -547,6 +547,11 @@
    "id": 257,
    "claimed_at": "2026-08-23",
    "note": "Row 257 (is_mine false on every pick-log row) was written to the register without advancing the watermark, so test_register_ids_never_pass_the_watermark went red on main. Recorded here by E to restore the invariant; the row and the finding are its author's, not E's."
+  },
+  {
+   "id": 258,
+   "claimed_at": "2026-08-23",
+   "note": "E: the draft log's stored recommendation is a cross-position VORP sort that names a DEFENSE as #1 on 80% of picks (Rams DEF for 58 consecutive). Not what the war room showed. Grading the draft off it would report Cory ignoring his tool on 4 picks in 5."
   },
   {
    "id": "137-138",
