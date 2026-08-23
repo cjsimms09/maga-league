@@ -1,0 +1,413 @@
+{
+ "_what": "Post-draft autopsy: every pick against every arm, with the cost of waiting computed from what the room ACTUALLY did rather than simulated.",
+ "_limit": "No football has been played. Nothing here grades whether a player is GOOD — only whether the pick captured value that was on the table, priced on draft-day projections.",
+ "generated_from": {
+  "log": "draft_pick_log_2026.jsonl",
+  "freeze_sha256": "98f580261a2ea898194cf13cfa72a692723184b7d3d776b81e2cb60356c98d39"
+ },
+ "my_slot": "8",
+ "my_picks": [
+  33,
+  48,
+  53,
+  68,
+  73,
+  88,
+  93,
+  108,
+  113,
+  128,
+  133,
+  148
+ ],
+ "keepers": [
+  {
+   "name": "Ja'Marr Chase",
+   "position": "WR",
+   "proj_mean": 271.8,
+   "vorp": 128.9,
+   "cost_round": 2,
+   "source": "board.kept_players"
+  },
+  {
+   "name": "Derrick Henry",
+   "position": "RB",
+   "proj_mean": 259.15,
+   "vorp": 111.35,
+   "cost_round": 1,
+   "source": "board.kept_players"
+  },
+  {
+   "name": "Kenneth Walker",
+   "position": "RB",
+   "proj_mean": 233.82,
+   "vorp": 86.02,
+   "cost_round": 3,
+   "source": "board.kept_players"
+  }
+ ],
+ "keepers_unresolved": 0,
+ "picks": [
+  {
+   "pick": 33,
+   "next_pick": 48,
+   "took": {
+    "name": "Rashee Rice",
+    "position": "WR",
+    "proj_mean": 188.35,
+    "vorp": 15.08
+   },
+   "pool_size": 653,
+   "cost_of_waiting_by_position": {
+    "QB": 0,
+    "RB": 8,
+    "WR": 15.4,
+    "TE": 20.3,
+    "K": 0,
+    "DEF": 0
+   },
+   "highest_wait_cost_position": "TE",
+   "arms": {
+    "vorp": "WR DeVonta Smith",
+    "vona_hindsight": "TE Colston Loveland",
+    "mlv": "RB Breece Hall"
+   },
+   "took_was_still_there_next_pick": false,
+   "points_vs_best_wait_position": -1.7
+  },
+  {
+   "pick": 48,
+   "next_pick": 53,
+   "took": {
+    "name": "Davante Adams",
+    "position": "WR",
+    "proj_mean": 180.73,
+    "vorp": 7.46
+   },
+   "pool_size": 638,
+   "cost_of_waiting_by_position": {
+    "QB": 0,
+    "RB": 22.8,
+    "WR": 0,
+    "TE": 0,
+    "K": 0,
+    "DEF": 0
+   },
+   "highest_wait_cost_position": "RB",
+   "arms": {
+    "vorp": "DEF Los Angeles Rams",
+    "vona_hindsight": "RB Travis Etienne",
+    "mlv": "RB Travis Etienne"
+   },
+   "took_was_still_there_next_pick": false,
+   "points_vs_best_wait_position": -36.2
+  },
+  {
+   "pick": 53,
+   "next_pick": 68,
+   "took": {
+    "name": "Quinshon Judkins",
+    "position": "RB",
+    "proj_mean": 194.09,
+    "vorp": 4.99
+   },
+   "pool_size": 633,
+   "cost_of_waiting_by_position": {
+    "QB": 14.9,
+    "RB": 24.2,
+    "WR": 8.3,
+    "TE": 10.3,
+    "K": 0,
+    "DEF": 0
+   },
+   "highest_wait_cost_position": "RB",
+   "arms": {
+    "vorp": "DEF Los Angeles Rams",
+    "vona_hindsight": "RB Quinshon Judkins",
+    "mlv": "RB Quinshon Judkins"
+   },
+   "took_was_still_there_next_pick": false,
+   "points_vs_best_wait_position": 0
+  },
+  {
+   "pick": 68,
+   "next_pick": 73,
+   "took": {
+    "name": "Rome Odunze",
+    "position": "WR",
+    "proj_mean": 193.94,
+    "vorp": 20.67
+   },
+   "pool_size": 618,
+   "cost_of_waiting_by_position": {
+    "QB": 2.7,
+    "RB": 0,
+    "WR": 1.7,
+    "TE": 0,
+    "K": 0,
+    "DEF": 0
+   },
+   "highest_wait_cost_position": "QB",
+   "arms": {
+    "vorp": "DEF Los Angeles Rams",
+    "vona_hindsight": "QB Dak Prescott",
+    "mlv": "RB Jaylen Warren"
+   },
+   "took_was_still_there_next_pick": false,
+   "points_vs_best_wait_position": -158.9
+  },
+  {
+   "pick": 73,
+   "next_pick": 88,
+   "took": {
+    "name": "Parker Washington",
+    "position": "WR",
+    "proj_mean": 192.25,
+    "vorp": 18.98
+   },
+   "pool_size": 613,
+   "cost_of_waiting_by_position": {
+    "QB": 0,
+    "RB": 5.9,
+    "WR": 25.7,
+    "TE": 7.5,
+    "K": 0,
+    "DEF": 0
+   },
+   "highest_wait_cost_position": "WR",
+   "arms": {
+    "vorp": "DEF Los Angeles Rams",
+    "vona_hindsight": "WR Parker Washington",
+    "mlv": "RB Jaylen Warren"
+   },
+   "took_was_still_there_next_pick": false,
+   "points_vs_best_wait_position": 0
+  },
+  {
+   "pick": 88,
+   "next_pick": 93,
+   "took": {
+    "name": "Courtland Sutton",
+    "position": "WR",
+    "proj_mean": 166.52,
+    "vorp": -6.75
+   },
+   "pool_size": 598,
+   "cost_of_waiting_by_position": {
+    "QB": 0,
+    "RB": 14.5,
+    "WR": 2.6,
+    "TE": 0,
+    "K": 0,
+    "DEF": 0
+   },
+   "highest_wait_cost_position": "RB",
+   "arms": {
+    "vorp": "DEF Los Angeles Rams",
+    "vona_hindsight": "RB Chuba Hubbard",
+    "mlv": "RB Chuba Hubbard"
+   },
+   "took_was_still_there_next_pick": false,
+   "points_vs_best_wait_position": 2.6
+  },
+  {
+   "pick": 93,
+   "next_pick": 108,
+   "took": {
+    "name": "Caleb Williams",
+    "position": "QB",
+    "proj_mean": 345.34,
+    "vorp": 3.62
+   },
+   "pool_size": 593,
+   "cost_of_waiting_by_position": {
+    "QB": 0,
+    "RB": 13.8,
+    "WR": 5.6,
+    "TE": 0,
+    "K": 3,
+    "DEF": 14
+   },
+   "highest_wait_cost_position": "DEF",
+   "arms": {
+    "vorp": "DEF Los Angeles Rams",
+    "vona_hindsight": "DEF Los Angeles Rams",
+    "mlv": "RB Kyle Monangai"
+   },
+   "took_was_still_there_next_pick": false,
+   "points_vs_best_wait_position": 213.3
+  },
+  {
+   "pick": 108,
+   "next_pick": 113,
+   "took": {
+    "name": "Houston Texans",
+    "position": "DEF",
+    "proj_mean": 118,
+    "vorp": 15
+   },
+   "pool_size": 578,
+   "cost_of_waiting_by_position": {
+    "QB": 0,
+    "RB": 0,
+    "WR": 0,
+    "TE": 0,
+    "K": 0,
+    "DEF": 6
+   },
+   "highest_wait_cost_position": "DEF",
+   "arms": {
+    "vorp": "DEF Houston Texans",
+    "vona_hindsight": "DEF Houston Texans",
+    "mlv": "RB Kenny Gainwell"
+   },
+   "took_was_still_there_next_pick": false,
+   "points_vs_best_wait_position": 0
+  },
+  {
+   "pick": 113,
+   "next_pick": 128,
+   "took": {
+    "name": "Emmett Johnson",
+    "position": "RB",
+    "proj_mean": 59.2,
+    "vorp": -129.9
+   },
+   "pool_size": 573,
+   "cost_of_waiting_by_position": {
+    "QB": 0,
+    "RB": 5.6,
+    "WR": 8.8,
+    "TE": 0,
+    "K": 2,
+    "DEF": 0
+   },
+   "highest_wait_cost_position": "WR",
+   "arms": {
+    "vorp": "DEF New England Patriots",
+    "vona_hindsight": "WR Jordan Addison",
+    "mlv": "RB Kenny Gainwell"
+   },
+   "took_was_still_there_next_pick": false,
+   "points_vs_best_wait_position": -99.2
+  },
+  {
+   "pick": 128,
+   "next_pick": 133,
+   "took": {
+    "name": "Zach Charbonnet",
+    "position": "RB",
+    "proj_mean": 67.32,
+    "vorp": -121.78
+   },
+   "pool_size": 558,
+   "cost_of_waiting_by_position": {
+    "QB": 0,
+    "RB": 0,
+    "WR": 0,
+    "TE": 0,
+    "K": 3,
+    "DEF": 0
+   },
+   "highest_wait_cost_position": "K",
+   "arms": {
+    "vorp": "DEF New England Patriots",
+    "vona_hindsight": "K Jason Myers",
+    "mlv": "RB Chris Rodriguez"
+   },
+   "took_was_still_there_next_pick": false,
+   "points_vs_best_wait_position": -34.7
+  },
+  {
+   "pick": 133,
+   "next_pick": 148,
+   "took": {
+    "name": "Oronde Gadsden",
+    "position": "TE",
+    "proj_mean": 119.31,
+    "vorp": -32.64
+   },
+   "pool_size": 553,
+   "cost_of_waiting_by_position": {
+    "QB": 0,
+    "RB": 11.8,
+    "WR": 0,
+    "TE": 14.3,
+    "K": 0,
+    "DEF": 6
+   },
+   "highest_wait_cost_position": "TE",
+   "arms": {
+    "vorp": "DEF New England Patriots",
+    "vona_hindsight": "TE Mark Andrews",
+    "mlv": "RB Chris Rodriguez"
+   },
+   "took_was_still_there_next_pick": false,
+   "points_vs_best_wait_position": -32.6
+  },
+  {
+   "pick": 148,
+   "next_pick": null,
+   "took": {
+    "name": "Rachaad White",
+    "position": "RB",
+    "proj_mean": 118.24,
+    "vorp": -70.86
+   },
+   "pool_size": 538,
+   "cost_of_waiting_by_position": {
+    "QB": null,
+    "RB": null,
+    "WR": null,
+    "TE": null,
+    "K": null,
+    "DEF": null
+   },
+   "highest_wait_cost_position": null,
+   "arms": {
+    "vorp": "QB Brock Purdy",
+    "vona_hindsight": null,
+    "mlv": "RB Rachaad White"
+   },
+   "took_was_still_there_next_pick": null,
+   "points_vs_best_wait_position": null
+  }
+ ],
+ "roster_shape": {
+  "QB": 1,
+  "RB": 4,
+  "WR": 5,
+  "TE": 1,
+  "K": 0,
+  "DEF": 1
+ },
+ "ruled_target": {
+  "QB": 1.56,
+  "RB": 4.78,
+  "WR": 5,
+  "TE": 1.67,
+  "K": 1,
+  "DEF": 1
+ },
+ "shape_gap": {
+  "QB": -0.56,
+  "RB": -0.78,
+  "WR": 0,
+  "TE": -0.67,
+  "K": -1,
+  "DEF": 0
+ },
+ "starting_slots": {
+  "BN": 6,
+  "DEF": 1,
+  "FLEX": 1,
+  "K": 1,
+  "QB": 1,
+  "RB": 2,
+  "TE": 1,
+  "WR": 2
+ },
+ "short_at_start": [
+  "K"
+ ]
+}
