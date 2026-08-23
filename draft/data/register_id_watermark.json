@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 274,
+ "next_numeric_id": 275,
  "history": [
   {
    "id": 47,
@@ -582,6 +582,16 @@
   {
    "id": 271,
    "claimed_at": "2026-08-23"
+  },
+  {
+   "id": 272,
+   "claimed_at": "2026-08-23",
+   "note": "E: my 271 claim collided with main's PRINTED 271 (the hardcoded-rail/onesies row) -- register 186's protocol, so the ROUTES-sweep row renumbers 271->272. Pushed 271 to main before running the duplicate check, which is my own mistake and the reason the check exists."
+  },
+  {
+   "id": 274,
+   "claimed_at": "2026-08-23",
+   "note": "E: the ROUTES-sweep row, after two collisions (271 then 272). Allocated from max(file)+1 rather than the allocator, and verified against the file before writing."
   },
   {
    "id": "137-138",
