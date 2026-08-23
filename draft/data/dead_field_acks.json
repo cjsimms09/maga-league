@@ -1,0 +1,41 @@
+{
+  "_what": "Fields that dead_field_sweep.py flags as suspect and a human has RULED ON. An ack means 'somebody looked', NOT 'this is fine' — a field can be acknowledged and still be an open defect, and three of the five below are exactly that. Openness lives in DEFECT-REGISTER.md; this file only stops the sweep re-reporting what is already known, so that a NEW dead field fails the build instead of drowning in the old ones.",
+  "_why_this_file_exists": "register 272. `is_mine` was false on all 150 rows of the 2026 draft because nothing on the live path set it, and a field that is always its default is indistinguishable from a field that is correctly its default. The sweep can tell you a column never carried anything; only a person can say which of those two it is. That ruling belongs in a file, in the commit that makes it.",
+  "_adding_an_entry": "reason is mandatory and must say WHICH of the two it is. A bare 'known' entry is how this file becomes a rubber stamp.",
+  "acknowledged": {
+    "draft/data/draft_pick_log_2026.jsonl": {
+      "is_mine": {
+        "verdict": "DEFECT — fixed forward, 2026 rows frozen",
+        "register": 264,
+        "reason": "`_from_sleeper()` never set the key, so `record()` evaluated bool(None) on every row of every draft. Fixed 2026-08-23: the seat now derives from the freeze and `is_mine` from `team_slot`. The 2026 log is append-only and is NOT backfilled; ownership is recoverable for all 150 rows from `team_slot`, which was always correct.",
+        "acked": "2026-08-23 by A"
+      },
+      "my_actual_pick": {
+        "verdict": "DEFECT — fixed forward, 2026 rows frozen",
+        "register": 264,
+        "reason": "Never assigned. The row IS the pick, so this was only ever a missing assignment; it now derives for our own live picks. Nothing is lost for 2026 — the pick is the row.",
+        "acked": "2026-08-23 by A"
+      },
+      "my_deviation_reason": {
+        "verdict": "DEFECT — STILL OPEN, and it is the one that matters",
+        "register": 264,
+        "reason": "The only field here that cannot be derived after the fact. Cory: 'the why behind your twelve decisions is unrecoverable.' It needs a human at eight seconds a pick, and no surface asked for it. pick_reasons.js + merge_pick_reasons.js are built and tested but have never been exercised in a rehearsal. Acknowledged so the sweep stops re-finding it — NOT because it is resolved.",
+        "acked": "2026-08-23 by A"
+      },
+      "new_path_recommendation": {
+        "verdict": "DEFECT — fixed forward, 2026 rows frozen",
+        "register": 265,
+        "reason": "The pick-time VONA path had not landed when the draft was captured, and the row said so in `new_path_reason` rather than going silent. It landed 2026-08-23. The frozen inputs make it computable out of sample for 2026, which is what the reason field promised.",
+        "acked": "2026-08-23 by A"
+      }
+    },
+    "draft/data/draft_shadow_2026.jsonl": {
+      "board_matches_freeze_source": {
+        "verdict": "CORRECT DEFAULT — not a defect",
+        "register": null,
+        "reason": "False on all 150 rows because it is TRUE that they never matched: the freeze was built from a 2026-08-16 source artifact and the board Cory drafted from was rebuilt 2026-08-22, after the Draft Sharks switch and the ceiling ruling. The field is doing its job. It would be a defect only if it read true.",
+        "acked": "2026-08-23 by A"
+      }
+    }
+  }
+}
