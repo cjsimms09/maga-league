@@ -86,3 +86,82 @@ Bet-this-matchup and trash talk as two buttons, not two sections; head-to-head h
 5. This Week / My Team / Matchup re-cuts  6. Visual-system sweep (chips + headings)
 Ground rule: presentation over logic — betlogic.js and vote logic untouched; withdraw/rescind
 already exist server-side and get surfaced, not rewritten.
+
+---
+# THE LITTLE THINGS CATALOG — 2026-08-23 addendum
+**Cory:** *"look for more little things like that!! I was telling you to really look at whole site."*
+Every owner flow walked against the BUILD (each item verified missing or unsurfaced, not guessed).
+Tags: **[surface]** = exists server-side, needs a button · **[small]** = new, hours ·
+**[med]** = new, a day+. B implements top-down within each flow; Cory vetoes by number.
+
+## Bets (The Book)
+1. **Decline an offer** [surface] — DECLINED exists in the lifecycle; there is no button. An
+   ignored offer and a declined one look identical to the sender. Decline button + optional
+   one-line reason that posts to the bet thread ("$50? on THAT line?").
+2. **Visible expiry** [small] — acceptDeadline computes exactly when every offer dies; show it
+   as a countdown chip on the card ("expires Thu 8:15pm"). The server already knows; the owner
+   should not find out by being refused.
+3. **Counter-offer** [med] — instead of decline-then-retype: tap Counter, edit the terms, it
+   becomes YOUR offer back on the same thread. The natural end of the edit machinery.
+4. **Run it back** [small] — on any settled bet: one tap re-offers the same bet for the
+   current week. Rivalries are the product; this is the rivalry button.
+5. **Nudge** [small] — one reminder tap on a pending offer, rate-limited to once/day: "Cory
+   is waiting on your answer." Goes to the NEEDS YOU card, not a text wall.
+6. **Head-to-head bet record** [small] — on any opponent: lifetime W-L and net $ against them,
+   one tap from every bet card. The trash-talk stat.
+
+## Money
+7. **Mark as paid** [med] — the ledger computes who owes who and then nothing can ever be
+   resolved. Debtor taps "I paid" → creditor confirms → line clears with a date. Two taps,
+   two parties, no commissioner in the loop.
+8. **Prefilled payment links** [small] — the bank page lists payment handles as TEXT. A "Pay
+   $25 →" Venmo/CashApp deep link with amount and note prefilled removes the last excuse.
+
+## Votes
+9. **Change vote = one tap** [surface] — changing is rescind-then-recast today. Show your
+   current choice with the other options tappable; a tap IS the recast. Same server calls.
+10. **Proposer can edit/withdraw an unvoted proposal** [small] — same rule as bets: until
+    anyone has acted on it, the author owns it. Typo'd ballots currently live forever.
+11. **Deadline chip + quorum bar** [small] — "closes Sun · 6 of 10 voted." An open ballot
+    should advertise its own urgency.
+
+## Locker Room
+12. **Delete/edit your own message, 5-minute window** [small] — typos are forever right now.
+    Show "edited"; after 5 minutes it is the record, same as the mailbox rule.
+13. **Reply-to** [med] — quote a message; without it every hot thread is two conversations
+    braided. (Reactions ride along if cheap: 🔥 💀 🤡 and done.)
+
+## My Team / This Week
+14. **"Open in Sleeper" everywhere an action lives there** [small] — ZERO deep links exist
+    today. Lineup warnings, waiver ideas, IR moves: every one ends at the transaction, which
+    happens in Sleeper. One button per surface: our site is the brain, Sleeper is the hands.
+15. **Empty-slot alarm** [small] — the site knows your lineup has a hole or a BYE/OUT starter
+    before Sunday; it should be the top line of NEEDS YOU, not a Monday discovery.
+16. **Injury chips on every player name, site-wide** [small] — the board carries the status;
+    show Q/OUT/IR beside every rendered name, one component.
+
+## Everywhere
+17. **Confirmation toasts that say the thing** [small] — "Bet sent to Rich · $25" not
+    "Saved." Every POST already knows what it did.
+18. **Human timestamps** [small] — "2h ago" with the real date on hover/tap.
+19. **NEEDS YOU badge = the truth** [small] — the More button badge count equals exactly:
+    bets waiting + ballots uncast + debts unconfirmed + lineup holes. Nothing else, ever.
+
+**Explicitly NOT in scope, stated so nobody assumes:** trades UI (Sleeper's job), push
+notifications (a later program), anything that changes bet/vote/money MATH.
+
+## From the field — the Cory/Richard pool bet (specimens, 08-23)
+20. **"Record our picks" mode for pool bets** [small] — the pool builder FORCES an in-site
+    snake draft of the franchises (sidebets.js:399 — "a pool bet is a DRAFT, not a form").
+    Fun when the split hasn't happened; insulting when it has. Cory and Richard had already
+    divided the teams and were made to re-draft a done deal. Fix: the builder offers both —
+    **⚡ Record our picks** (sender checks off each side's teams; accepting IS confirming the
+    split; server validates disjoint + right count) and **🎲 Draft them on the site** (the
+    snake stays, for pools that want the ceremony). Same bet object either way.
+21. **Pool stake copy says the wrong thing** [small] — the rooting-interest rows stamp the
+    FULL stake on EVERY picked team ("Richard has $50 on them" × his five teams,
+    sidebets.js:765), which reads as "bet per team" / 5×$50 when the truth is ONE
+    winner-take-all stake decided by whoever holds the champion. The money math nets
+    correctly — the WORDS lie. Fix: the bet card says "$50 · winner take all · his 5 teams
+    vs your 5"; per-team rows say "one of Richard's 5 in the pool", never a dollar amount
+    that isn't really riding on that one team.
