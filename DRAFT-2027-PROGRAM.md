@@ -34,7 +34,7 @@ unreachable for /players/nfl: 403 Forbidden`*.
 result** — rebuilding bundles yields today's bundles, not the ones the number was
 measured on. **`8th of 10`, `−188.35` and the conversion table below are
 unfalsifiable as they stand: they cannot be checked, and they cannot be compared
-against a re-run, because the inputs are gone.** Register 265.
+against a re-run, because the inputs are gone.** Register 266.
 
 That does not make them wrong. It makes them **unverifiable at the weights we
 ship**, and every ranked item below is provisional on a measurement nobody can
