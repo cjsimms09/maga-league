@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 266,
+ "next_numeric_id": 269,
  "history": [
   {
    "id": 47,
@@ -577,6 +577,19 @@
    "id": 265,
    "claimed_at": "2026-08-23",
    "note": "E: availability_at_my_next_pick is not gradeable as stored -- 144 of 144 outcomes are 'gone' because a row is written when the player is taken. Base rate 1.0, nothing to score. The allocator handed me 259 but main already printed 259 (Cory's ADP catch), so this took the watermark's next free id instead."
+  },
+  {
+   "id": 266,
+   "claimed_at": "2026-08-23"
+  },
+  {
+   "id": 267,
+   "claimed_at": "2026-08-23"
+  },
+  {
+   "id": 268,
+   "claimed_at": "2026-08-23",
+   "note": "E: my 267 claim collided with main's PRINTED 267 (the four-quarterbacks row) -- register 186's protocol, main-printed ids canonical, so the survival-model grade renumbers 267->268. One citation repointed in ROUTES."
   },
   {
    "id": "137-138",

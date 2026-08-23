@@ -23,9 +23,22 @@ measured with the roster-aware term switched OFF.**
 own drafting describes a configuration we no longer ship, and **we do not
 currently know whether our biggest known defect is still a defect.**
 
-**This is the first thing to do and it is cheap** — `replay_seats.js` regenerates
-the choices, `replay_seats_grade.py` grades them. Until it is re-run, every
-ranked item below is provisional, including the ones I am most confident about.
+~~**This is the first thing to do and it is cheap**~~ — ⚠️ **CORRECTED 08-23,
+HOURS AFTER WRITING IT, BY TRYING TO DO IT. IT IS NOT CHEAP AND I COULD NOT RUN
+IT AT ALL.** `replay_seats.js` reads `draft/backtest/bundles.json`, which is
+**gitignored and has never been committed**; it is rebuilt by `cli.py`, which
+needs Sleeper egress — verified by running it: *`RuntimeError: Sleeper
+unreachable for /players/nfl: 403 Forbidden`*.
+
+**So the replay runs only in CI, and even there it cannot REPRODUCE the 08-19
+result** — rebuilding bundles yields today's bundles, not the ones the number was
+measured on. **`8th of 10`, `−188.35` and the conversion table below are
+unfalsifiable as they stand: they cannot be checked, and they cannot be compared
+against a re-run, because the inputs are gone.** Register 266.
+
+That does not make them wrong. It makes them **unverifiable at the weights we
+ship**, and every ranked item below is provisional on a measurement nobody can
+currently take.
 
 ## 1 · THE ROSTER PROBLEM IS REAL, AND IT IS SPECIFICALLY QUARTERBACKS
 
@@ -72,6 +85,39 @@ actually starts. RB is set at half its proper depth and DEF at three times.
 VORP. Set RB's bar too shallow and RB value collapses to zero early, which is
 exactly when the board starts preferring other positions for reasons that are an
 artifact of the bar rather than of football.
+
+## 2b · AND HERE IS WHAT THAT CALIBRATION ACTUALLY COSTS — measured
+
+Simulated on committed data only: opponents pick exactly as they did, and at
+each of Cory's twelve picks the tool takes its own #1 off the corrected board.
+
+| | WR | QB | TE | **RB** | K | DEF |
+|---|---|---|---|---|---|---|
+| **the tool** | 5 | **4** | 3 | **0** | 0 | 0 |
+| Cory | 5 | 1 | 1 | **4** | 0 | 1 |
+
+**Four quarterbacks in a one-QB league — three unstartable by construction — and
+zero running backs in twelve picks.** Cory drafted four RBs. He was right and the
+board was telling him not to be.
+
+**The mechanism, at his real picks:** best available RB by VORP runs **+36** at
+pick 33, **+28** at 48, **+5** at 53, then **−19** at 68 and 73. **By round six
+every remaining back is below replacement**, so the board stops recommending the
+position at all — while quarterbacks stay positive all the way down and it takes
+four.
+
+That is §2's arithmetic doing exactly what it predicts: **RB's bar at 19 where it
+should be 35**, and QB's bar shallow relative to a league that starts one.
+
+**It also explains §1's conversion gap without needing the unrunnable replay** —
+the 08-19 audit found the gap tracks QB surplus and nothing else, and a 2023 seat
+drafting seven QBs. Same defect, different year, **reproducible from committed
+files this time.**
+
+⚠️ **Limits: one seat, one year, opponents fixed — and this is the RANKING alone.
+It does not include `need`, which ships at 1.0 and exists to stop precisely
+this.** So it measures how much work `need` is being asked to do, not what the
+live engine drafts. Register 267.
 
 ## 3 · WHAT WENT WRONG ON THE NIGHT — capture, not the board
 
