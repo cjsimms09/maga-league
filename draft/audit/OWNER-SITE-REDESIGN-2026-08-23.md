@@ -165,3 +165,35 @@ notifications (a later program), anything that changes bet/vote/money MATH.
     correctly — the WORDS lie. Fix: the bet card says "$50 · winner take all · his 5 teams
     vs your 5"; per-team rows say "one of Richard's 5 in the pool", never a dollar amount
     that isn't really riding on that one team.
+
+## From the walkthrough — driving the site as owner "Rich" (08-23, real app, real POSTs)
+Cory: *"I don't want you to just fix the things I mention I want you to think through the site
+and proactively solve things like this!!"* — so the site was walked, not read. Found:
+
+22. **Placing a bet is a treasure hunt** [nav] — "Start a bet" renders ONLY inside
+    /bank → the sidebets section tab. It is not on the home page, not on the matchup page
+    (whose 🤝 Bet heading is a pointer, not a builder), not in any nav. Verified by driving
+    it: an owner on /, /matchup, or /team never sees the button. The Book tab fixes the home;
+    the matchup page ALSO gets the builder inline, prefilled with that opponent.
+23. **A structured bet demands an essay** [small] — sending "🏁 Finish above me" (a fully
+    structured bet: kind, stake, party) is REFUSED without hand-typed `terms` text; the
+    failure is a redirect to `?betfail=terms`. Structured tickets should write their own
+    terms line ("Rich finishes above Cory, $25") — the form fills it, the sender can tweak.
+24. **Failure by query param** [small] — `betfail=terms` as the whole error experience.
+    Every refused POST gets a human sentence at the top of the returned page: what failed,
+    which field, nothing lost.
+25. **The landing page leads with money math** [home] — first card after login is "💰 The
+    Money", then buy-in status, then payout structure. An owner's first glance should be
+    THEIR WEEK (score, opponent) and NEEDS YOU. Money is a tab, not a greeting.
+26. **An incoming offer whispers** [home] — a pending offer on you is visible only as a hint
+    inside /bank, one section-tap from its Accept button. Confirmed by sending Rich→Cory and
+    hunting for it. NEEDS YOU on home carries it with the Accept inline.
+27. **"Teams" means two things** [copy] — pool bets pick LEAGUE teams; half the site's other
+    uses of "team" mean NFL franchises. Pool copy says "league teams" everywhere.
+
+## Rule 6 — PHONE FIRST (Cory, 08-23: "most people will probably visit site on their phone")
+Every layout decision is made at 390px width first; desktop inherits. Concretely: one column,
+cards full-width; tap targets ≥44px; the bottom tab bar is the primary nav surface (five tabs,
+no More for owners); long tables become stacked cards; hover-only affordances are banned
+(tooltips get a tap trigger); sticky NEEDS YOU count on the tab bar badge. The walkthrough
+above repeats ON A PHONE VIEWPORT after every build slice ships — findings go here.
