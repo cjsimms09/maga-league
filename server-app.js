@@ -96,6 +96,26 @@ function createApp() {
             href: '/bank?section=sidebets', linkText: 'Take a look →',
           }, ...res.locals.alerts];
         }
+        // Cory, 2026-08-22: "not very convenient to get to votes tab... needs
+        // to be more clear." Same problem as the side-bet badge just above,
+        // and the same fix: an open ballot you haven't cast is exactly the
+        // "somebody is waiting on you and you do not know it" case, so it
+        // gets the identical badge + top-of-page treatment, not a new
+        // mechanism.
+        res.locals.votesWaiting = 0;
+        if (req.owner) {
+          try {
+            res.locals.votesWaiting = await helpers.votesAwaiting(
+              helpers.activeOwners(world.owners), world.config, req.owner.id);
+          } catch (e) { /* badge is cosmetic */ }
+        }
+        if (res.locals.votesWaiting && req.path !== '/votes') {
+          res.locals.alerts = [{
+            level: 'info',
+            message: `${res.locals.votesWaiting} vote${res.locals.votesWaiting === 1 ? '' : 's'} open and waiting on your ballot.`,
+            href: '/votes', linkText: 'Cast your vote →',
+          }, ...res.locals.alerts];
+        }
         // Live draft-order alert: whoever is on the clock gets told, loudly.
         const season = helpers.currentSeason(world.seasons);
         if (!req.owner || !season || !season.draft_open) return next();

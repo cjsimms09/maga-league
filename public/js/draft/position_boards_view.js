@@ -639,7 +639,11 @@
           : '<span class="pb-strike-pick">—</span>')
         + '</div>';
     }).join('');
+    /* Cory, draft day: "make sure STRIKE is labelled? i dont know what you
+     * mean." The bar carried the numbers but never its own NAME. */
     return '<div class="pb-strike-bar" title="The pick where waiting on this position costs the most across your 12 picks — not a recommendation, a fact about the position (WAR-ROOM-SPEC.md P2)">'
+      + '<div class="pb-strike-head"><span class="pb-strike-pos">⚡ STRIKE</span>'
+      + '<span class="pb-strike-cost">take the position BY this pick · Draft Sharks</span></div>'
       + cells + '</div>';
   }
 
@@ -663,7 +667,7 @@
       return positionColumn(pos, (pick.positions || {})[pos], esc, liveSurvivalById, src, data.round_dropoffs, callsById, badgeInfo, takenIds, rankKey);
     }).join('');
     return '<div class="pb-wrap">'
-      + '<div class="pb-head">Position boards — pick ' + esc(String(pick.pick))
+      + '<div class="pb-head"><span class="wr-step">STEP 2</span> Position boards — WHICH POSITION to take at pick ' + esc(String(pick.pick))
         + ' (round ' + esc(String(pick.round)) + ')'
         + (pick.next_pick ? ', your next pick is ' + esc(String(pick.next_pick)) : '')
         /* ⚠️ SAY WHAT THESE NUMBERS ARE. The names are now filtered against the
@@ -680,6 +684,14 @@
               + ' · ⚠️ ' + esc(String(removed)) + ' already drafted, hidden — '
               + 'VONA/cliff below are from the pre-draft simulation</span>'
             : '') + '</div>'
+      /* Cory, draft day: "all these things you're talking about need a label."
+       * The words we use in chat, defined on the surface itself, once, in
+       * plain English — so "VONA", "STRIKE" and "cliff" are never jargon he
+       * has to hold in his head while on the clock. */
+      + '<div class="pb-legend muted">'
+        + '<b>VONA</b> = cost of waiting, on YOUR source · '
+        + '<b>⚡ STRIKE</b> = take the position by that pick <i>(Draft Sharks — does not follow the toggle)</i>'
+      + '</div>'
       /* pb-toolbar: the six pb-grid columns are wider than the panel at a
        * normal desktop width by design (see .pb-grid's own CSS comment —
        * widening to fit the header labels without ellipsis pushed K/DEF

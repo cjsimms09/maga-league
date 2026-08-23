@@ -5393,16 +5393,26 @@
       return '<tr><td><span class="rec-pos ' + q + '">' + q + '</span></td>' + cells + '</tr>';
     }).join('');
 
+    /* Cory, draft day 08-22: "clean up all the conflicting info... only
+     * needs good info! so many tools I feel like you or A have told me not
+     * to follow." This table is six voices and the board acts on ONE of
+     * them (its own caption says so). It stays reachable — he has asked to
+     * see the sources side by side — but ships COLLAPSED: a disagreeing
+     * table is a click he chooses, never a second unmarked answer sitting
+     * open on the decide path. */
     host.innerHTML = '<div class="body">'
-      + '<h3 style="margin:0 0 .3rem">📋 Best available, by source '
+      + '<details class="src-collapse">'
+      + '<summary style="cursor:pointer"><h3 style="margin:0 0 .3rem;display:inline">📋 Best available, by source '
       + explainPanel('source_boards') + '</h3>'
+      + ' <span class="muted" style="font-size:.75rem">reference — the board acts on the Blend; tap to see where sources disagree</span>'
+      + '</summary>'
       + '<div style="overflow-x:auto"><table style="font-size:.8rem;border-collapse:collapse;width:100%">'
       + head + rows + '</table></div>'
       + '<p class="muted" style="margin:.5rem 0 0;font-size:.75rem">'
       + '<b>•</b> marks a source that wants someone different from the blend. '
       + 'Order only — no points are shown, because the sources are not on one scale '
       + 'and their offsets differ by position. Our own projections are excluded on '
-      + 'your ruling.</p></div>';
+      + 'your ruling.</p></details></div>';
     /* Given a real mount point (E's finding 1 fix, 2026-08-20/21) the shell
      * starts display:none so it never flashes empty before state.sourceBoards
      * loads — same convention as #model-compare-card. Un-hide only once
@@ -7036,6 +7046,25 @@
         note.textContent = 'Ordered by our replacement math applied to ' + label + '’s projections — '
           + label + ' does not publish their own overall board, so this is OUR opinion of THEIR numbers, not a ranking ' + label + ' made.';
       }
+      /* Cory, draft day: "different tools give different tier cliffs and I
+       * have no idea what's real." Say it on the surface itself. */
+      /* ⚠️ CORRECTED 2026-08-22, ~2h before the draft. This read 'Red tier
+       * lines = this source\u2019s opinion. For timing, trust \u26a1 STRIKE on the
+       * Draft tab.' BOTH HALVES WERE FALSE, and they contradicted the source
+       * banner two inches away, which says these two do NOT follow the toggle.
+       *
+       * Measured, not argued: `position_boards.json` carries `cliff_after_rank`
+       * and `cliff_size` with NO `_by_source` variant, and `strikePeaks()`
+       * (position_boards_view.js) reads `d.VONA` — the plain Draft-Sharks field —
+       * not `VONA_by_source[rankKey]`. So the cliffs are not this source's
+       * opinion, and STRIKE is not this source's timing.
+       *
+       * Telling Cory to trust STRIKE for timing while he is on CBS points him at
+       * a Draft Sharks answer wearing CBS's label — the exact defect the banner
+       * exists to prevent, reintroduced in the panel the banner is warning about. */
+      note.textContent += ' Red tier lines and \u26a1 STRIKE are DRAFT SHARKS, whatever'
+        + ' source you pick \u2014 they do not follow the toggle. Where they disagree'
+        + ' with the VONA chip beside them, the VONA chip is the one on your source.';
     })();
     const rows = (state.search
       ? srcBoard.filter(match)
@@ -8106,6 +8135,27 @@
    */
   function importDraftOrder(draft) {
     if (!draft) return null;
+    /* ⚠️ REAL-DRAFT VERIFICATION — Cory, draft day 08-22: "how does it
+     * differentiate between mock and real draft!!" It does not guess: the
+     * draft OBJECT Sleeper returns carries the league_id it belongs to. A
+     * lobby mock carries none (or a different one). Say the verdict on the
+     * status line the moment the room is fetched, so a wrong paste is
+     * caught before pick one — display + capture tag only, never blocks
+     * the sync (a stale league_id must not freeze a live draft). */
+    try {
+      const ourLeague = String((state.data.league || {}).league_id || '');
+      const roomLeague = draft.league_id != null ? String(draft.league_id) : null;
+      state.roomLeagueCheck = !ourLeague ? 'unknown'
+        : (roomLeague === ourLeague ? 'league'
+          : (roomLeague ? 'other_league' : 'mock_lobby'));
+      if (state.roomLeagueCheck === 'league') {
+        setStatus({ state: 'ok', message: '✅ REAL LEAGUE DRAFT — this room belongs to your league. Everything recorded counts.' });
+      } else if (state.roomLeagueCheck === 'mock_lobby') {
+        setStatus({ state: 'warn', message: '⚠️ MOCK ROOM — this draft belongs to NO league. Fine for practice; NOT tonight’s draft. Paste the room from your league’s Draft tab.' });
+      } else if (state.roomLeagueCheck === 'other_league') {
+        setStatus({ state: 'warn', message: '⚠️ WRONG LEAGUE — this room belongs to a different league than the board. Check the URL.' });
+      }
+    } catch (e) { /* verification is advisory — never costs a pick */ }
     // URGENT (chat-Claude, 2026-08-08): the LEAGUE settings showed draft_rounds:3.
     // The DRAFT OBJECT's rounds is authoritative — capture it so the checklist
     // can verify it equals 15. A 3-round draft object is a draft-night disaster
@@ -9327,7 +9377,7 @@
           { league: state.data.league, topN: 1, taken: state.drafted,
             waiver: activeWaiverBaseline() });
         if (recs && recs.length && recs[0].player) {
-          rows.push({ label: 'MLV Displacement', player: recs[0].player.name,
+          rows.push({ label: 'Roster Builder (MLV Displacement)', player: recs[0].player.name,
             position: recs[0].position, player_id: String(recs[0].player.player_id),
             title: 'The player who adds the most points to your STARTING lineup right now (marginal lineup value) — a different model from the three above.' });
         }

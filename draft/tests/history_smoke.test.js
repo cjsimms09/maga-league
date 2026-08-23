@@ -74,6 +74,19 @@ const cookieFrom = res => res.headers.getSetCookie().map(s => s.split(';')[0]).j
     check('/history distinguishes the written 2024 chapter from records-only years',
       /<span class="tag">/.test(body) && /tag (pending|ghost)/.test(body),
       'no written/records tag distinction found — the chapters set is not driving the tags');
+    // Cory, 2026-08-22: "The financial scoreboard needs an easy to access tab
+    // at the top of history page." Before this the Money Board was only
+    // reachable via a "door" card below a long story chapter and a season
+    // timeline -- several screens down. The other /history/* pages already
+    // carried the _subnav tab bar (records/money/badbeats/catalogue); the
+    // hub page itself did not include it. Pin that it now does, and that the
+    // tab bar renders above the doors section, not after it.
+    check('/history renders the chron-nav tab bar (not just the Four Doors grid)',
+      /<nav class="chron-nav"/.test(body));
+    check('/history\'s Money Board is reachable one tap from the top, via the tab bar',
+      /<nav class="chron-nav"[\s\S]*?<a href="\/history\/money"[^>]*>[^<]*💰 Money Board<\/a>[\s\S]*?<\/nav>/.test(body));
+    check('the tab bar appears before the Four Doors grid, not after',
+      body.indexOf('chron-nav') < body.indexOf('class="doors"'));
   }
 
   // /history/season/2024 — the written chapter must carry real prose, not a shell.

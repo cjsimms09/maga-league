@@ -1,0 +1,66 @@
+{
+ "_territory": "TERRITORY: A \u2014 written by the relay under the 08-21 budget freeze; commitment schedule-rerun-on-slate",
+ "_what": "Cory's REAL 2026 pick schedule, resolved by the confirmed keeper slate at lock. This is the file that retires both assumed schedules ('12 picks from 34' and 'slot-8 snake with no keeper cost').",
+ "source": "confirmed keeper slate at lock (draft/config/keepers.json, lock 2026-08-21 18:00 CDT) applied to the slot-8 snake by the board build's pick_order (build 2026-08-22T03:43:05Z)",
+ "confirmed_at": "2026-08-22T03:43:05Z",
+ "numbering": "sleeper_uncompressed",
+ "numbering_note": "A keeper occupies his pick slot; the pick is not removed and nothing after it shifts up. Verified against seasons 2023/2024/2025 in league_history: 150 picks and round 4 at overall 31 every year, with 0, 23 and 20 keepers respectively. `picks` is the BOARD (depth: how many players leave the pool). `live_picks` is how many SELECTIONS happen. They differ by the keeper count and conflating them is a real defect this carries both to prevent.",
+ "my_draft_slot": 8,
+ "picks": [
+  33,
+  48,
+  53,
+  68,
+  73,
+  88,
+  93,
+  108,
+  113,
+  128,
+  133,
+  148
+ ],
+ "picks_before_keepers": [
+  8,
+  13,
+  28,
+  33,
+  48,
+  53,
+  68,
+  73,
+  88,
+  93,
+  108,
+  113,
+  128,
+  133,
+  148
+ ],
+ "keeper_costs": [
+  {
+   "name": "Derrick Henry",
+   "player_id": "3198",
+   "cost_round": 1,
+   "occupies_overall": 8
+  },
+  {
+   "name": "Ja'Marr Chase",
+   "player_id": "7564",
+   "cost_round": 2,
+   "occupies_overall": 13
+  },
+  {
+   "name": "Kenneth Walker",
+   "player_id": "8151",
+   "cost_round": 3,
+   "occupies_overall": 28
+  }
+ ],
+ "which_assumption_won": "Neither exactly. The snake numbers 33/48/53/... are correct AND the keeper rounds are gone: Henry occupies R1 (overall 8), Chase R2 (13), Walker R3 (28), leaving 12 selections starting at overall 33. '12 picks from 34' is dead.",
+ "reruns_on_this_schedule": [
+  "fieldability re-run on the real twelve (register 98): shipped arm RB7/TE1, slot-aware RB8, need:1.0 RB6, auto QB3, draft_plan QB2/RB5/WR4/TE2 \u2014 draft/audit/seat_rank_and_the_conversion_gap_2026-08-19.md",
+  "seat_plan.json and mlv_plan.json built at 2026-08-22T03:43:05Z on pick_order.my_picks \u2014 identical to this file's picks",
+  "NOT re-run, recorded honestly: the roster-construction lab's archetype-policy sweeps from the 08-19/20 preregs \u2014 research artifacts, not tonight's surface; queued post-draft"
+ ]
+}
