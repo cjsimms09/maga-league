@@ -86,6 +86,39 @@ VORP. Set RB's bar too shallow and RB value collapses to zero early, which is
 exactly when the board starts preferring other positions for reasons that are an
 artifact of the bar rather than of football.
 
+## 2b · AND HERE IS WHAT THAT CALIBRATION ACTUALLY COSTS — measured
+
+Simulated on committed data only: opponents pick exactly as they did, and at
+each of Cory's twelve picks the tool takes its own #1 off the corrected board.
+
+| | WR | QB | TE | **RB** | K | DEF |
+|---|---|---|---|---|---|---|
+| **the tool** | 5 | **4** | 3 | **0** | 0 | 0 |
+| Cory | 5 | 1 | 1 | **4** | 0 | 1 |
+
+**Four quarterbacks in a one-QB league — three unstartable by construction — and
+zero running backs in twelve picks.** Cory drafted four RBs. He was right and the
+board was telling him not to be.
+
+**The mechanism, at his real picks:** best available RB by VORP runs **+36** at
+pick 33, **+28** at 48, **+5** at 53, then **−19** at 68 and 73. **By round six
+every remaining back is below replacement**, so the board stops recommending the
+position at all — while quarterbacks stay positive all the way down and it takes
+four.
+
+That is §2's arithmetic doing exactly what it predicts: **RB's bar at 19 where it
+should be 35**, and QB's bar shallow relative to a league that starts one.
+
+**It also explains §1's conversion gap without needing the unrunnable replay** —
+the 08-19 audit found the gap tracks QB surplus and nothing else, and a 2023 seat
+drafting seven QBs. Same defect, different year, **reproducible from committed
+files this time.**
+
+⚠️ **Limits: one seat, one year, opponents fixed — and this is the RANKING alone.
+It does not include `need`, which ships at 1.0 and exists to stop precisely
+this.** So it measures how much work `need` is being asked to do, not what the
+live engine drafts. Register 267.
+
 ## 3 · WHAT WENT WRONG ON THE NIGHT — capture, not the board
 
 The board Cory drafted on was **fine**: zero K/DEF in its top 40, LA Rams DEF at
