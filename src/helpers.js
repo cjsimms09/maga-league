@@ -273,6 +273,16 @@ const voteThreshold = config => {
   return Number.isFinite(t) && t > 0 ? t : 6;
 };
 
+// Open ballots this owner hasn't cast — the ONE place this count is computed.
+// The dashboard's "Needs you" strip and the global nav badge/banner (Cory,
+// 2026-08-22: "not very convenient to get to votes tab") both need it; before
+// this they'd have been two copies of the same filter, one per file, free to
+// drift the next time either changed (Rule 11).
+async function votesAwaiting(owners, config, ownerId) {
+  const openVotes = (await allVotes(owners, voteThreshold(config))).filter(v => v.status === 'open');
+  return openVotes.filter(v => !v.ballots.some(b => b.owner_id === ownerId)).length;
+}
+
 // Career W-L. When the commissioner has synced with Sleeper, an owner carries a
 // frozen pre-Sleeper baseline (years from the league's old site, which Sleeper
 // has never heard of) and the Sleeper era is added live on top. Un-synced
@@ -350,6 +360,6 @@ module.exports = {
   CATEGORY_LABELS, CATEGORIES, money, loadWorld, activeOwners, ownerById, currentSeason,
   payoutTable, winningsGrid, gridYears, careerTotals, accolades, draftState, keepersForYear,
   allVotes, activeAlerts, pickRandom, chatFeed, punishmentWall, getDoc, setDoc, mutateDoc, store,
-  voteThreshold, careerRecord, sleeperEraByOwner, chatUnread,
+  voteThreshold, careerRecord, sleeperEraByOwner, chatUnread, votesAwaiting,
   ROASTS: seedData.ROASTS, QUIPS: seedData.QUIPS,
 };
