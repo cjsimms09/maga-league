@@ -550,6 +550,30 @@ router.get('/', aw(async (req, res) => {
   // this same helper now (helpers.js, Cory 2026-08-22) so there is one
   // definition of "an open vote you haven't cast", not two that can drift.
   const unvoted = await H.votesAwaiting(owners, world.config, req.owner.id);
+  /* NEEDS YOU — the one aggregation on the site (owner-site redesign spec,
+   * rule 5: a badge means "you must act"). Everything below already existed
+   * somewhere two taps deep; this surfaces it in one card. */
+  const needsYou = [];
+  try {
+    const _nameOf = id => (H.ownerById(owners, id) || {}).name || 'Someone';
+    for (const bb of await SB.all()) {
+      const mine = (bb.parties || []).find(pp => pp.owner_id === req.owner.id);
+      if (!mine) continue;
+      if (bb.status === SB.STATUS.PROPOSED && !mine.accepted) {
+        const from = (bb.parties || []).find(pp => pp.accepted);
+        needsYou.push({ icon: '🤝', href: '/bank?section=sidebets',
+          text: `${_nameOf(from && from.owner_id)} sent you a $${bb.stake} bet`, cue: 'accept or decline →' });
+      }
+      if (bb.status === SB.STATUS.AWAITING_CONFIRM && bb.declared && bb.declared.by !== req.owner.id) {
+        needsYou.push({ icon: '⚖️', href: '/bank?section=sidebets',
+          text: `${_nameOf(bb.declared.by)} declared a result on your $${bb.stake} bet`, cue: 'confirm or dispute →' });
+      }
+    }
+  } catch (e) { /* the card degrades to fewer rows, never breaks the page */ }
+  if (unvoted && unvoted.length) {
+    needsYou.push({ icon: '🗳', href: '/votes',
+      text: `${unvoted.length} open ballot${unvoted.length === 1 ? '' : 's'} waiting on your vote`, cue: 'cast it →' });
+  }
 
   // THE DRAFT-DAY ANNOUNCEMENT — derived from config (date/time/place) so it's
   // one source of truth for the front-page banner AND the pinned site-wide alert.
@@ -865,6 +889,10 @@ router.get('/', aw(async (req, res) => {
   // with a box to reply — is the difference between a chat and a ghost town.
   const chatLatest = (await H.chatFeed(owners, CHAT_ON_HOME));
   const myBalance = bal[req.owner.id] ? bal[req.owner.id].balance : 0;
+  if (Number(myBalance) < 0) {
+    needsYou.push({ icon: '💸', href: '/bank',
+      text: `You owe $${Math.abs(Math.round(myBalance))}`, cue: 'square up →' });
+  }
   // Which teams have side-bet money riding on them, so the standings can say so.
   const betMoney = SB.moneyOnTeams(await SB.all(), req.owner.id,
     id => (H.ownerById(owners, id) || {}).name || '?');
@@ -921,7 +949,7 @@ router.get('/', aw(async (req, res) => {
     // check the scores screen while games are actually live.
     gameNight: WW.primetimeWindow(),
     season, payouts: H.payoutTable(season), buyins, weekly, awards, standings, draft,
-    unvoted, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance, draftInfo, keeperInfo, weekHero,
+    unvoted, needsYou, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance, draftInfo, keeperInfo, weekHero,
     liveStale: await liveFreshness(),
     // The money scoreboard: banked dollars + rank this season, from the ledger.
     moneyBoard: L.moneyStandings(world.ledger, owners, season), meId: req.owner.id,
@@ -1489,6 +1517,7 @@ router.get('/bank', aw(async (req, res) => {
     section, bets, tallies, owners, betNames, sbLedger, sbOwed, sbOwedMine, verdicts, liveOrder,
     sbGrid, sbView, sbDrill,
     deadlines, late: req.query.late === '1',
+    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1',
     betFail: betFailMessage(req.query.betfail),
     currentWeek: (await sleeper.bundle(world.config.sleeper_league_id) || {}).week || 1,
     BL, payDirectory: owners.filter(o => o.venmo || o.paypal || o.cashapp || o.zelle),
@@ -1819,6 +1848,18 @@ async function tooLate(bet, req) {
   return null;
 }
 
+router.post('/sidebets/:id/edit', aw(async (req, res) => {
+  // TRUE EDIT (Cory's ruling, 2026-08-23) — proposer only, unaccepted only;
+  // SB.edit enforces both and versions the terms so a stale accept refuses.
+  const out = await SB.edit(req.params.id, req.owner.id, {
+    stake: req.body.stake, terms: req.body.terms,
+  });
+  if (out && out.refused) {
+    return res.redirect('/bank?section=sidebets&betfail=' + out.refused + '#bet-' + req.params.id);
+  }
+  return res.redirect('/bank?section=sidebets&edited=1#bet-' + req.params.id);
+}));
+
 router.post('/sidebets/:id/accept', aw(async (req, res) => {
   const bet = await SB.get(req.params.id);
   const late = await tooLate(bet, req);
@@ -1829,7 +1870,13 @@ router.post('/sidebets/:id/accept', aw(async (req, res) => {
   const accepted = await SB.accept(req.params.id, req.owner.id, req.owner.name, {
     position: String(req.body.position || '').trim(),
     picks: picksFrom(req.body),
+    expected_version: req.body.terms_version,
   });
+  if (accepted && accepted.stale_terms) {
+    // The proposer edited while this page was open — show the CURRENT terms
+    // and let them accept those, never the ones that no longer exist.
+    return res.redirect('/bank?section=sidebets&stale_terms=1#bet-' + req.params.id);
+  }
   // A pool bet is a DRAFT: the moment both are in, open the franchise draft with
   // the order computed from the prior season's finish (higher finisher first).
   if (accepted && accepted.format === 'pool' && accepted.status === SB.STATUS.LOCKED
@@ -2276,6 +2323,7 @@ router.get('/team', aw(async (req, res) => {
 
   res.render('team', { viewOwner, owners, roster, matchup, betWindow, trend,
     matchupPending, aboutMe, late: req.query.late === '1',
+    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1',
     // Roster is the default — it is what this page has always been, and it is
     // the half that works without a live matchup.
     section: req.query.section === 'week' ? 'week' : 'roster',
@@ -2641,7 +2689,8 @@ router.get('/matchup', aw(async (req, res) => {
     injuryFlag: MU.injuryFlag,
     goatId: MK.goatOwnerId(sData, world.config.sleeper_map || {}),
     configured: !!world.config.sleeper_league_id,
-    late: req.query.late === '1', sent: req.query.sent === '1',
+    late: req.query.late === '1',
+    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', sent: req.query.sent === '1',
     betFail: betFailMessage(req.query.betfail),
     nameOf,
   });
@@ -2761,6 +2810,7 @@ router.get('/pickem', aw(async (req, res) => {
   res.render('pickem', {
     me: req.owner, ...c,
     saved: req.query.saved === '1', late: req.query.late === '1',
+    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1',
   });
 }));
 

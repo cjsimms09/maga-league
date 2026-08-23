@@ -34,16 +34,21 @@
   <div class="body">
     <p class="pass-note" style="margin:0 0 .4rem">Proposed by <b><%= v.proposer_name %></b></p>
     <% if (v.description) { %><p style="margin-top:0"><%= v.description %></p><% } %>
+    <p class="pass-note"><%= v.cast %> of <%= electorate %> votes in — needs <%= threshold %> YES to pass<%= v.passed ? ' — ✅ currently passing' : '' %></p>
+    <%# THE SPLIT AND THE ROLL CALL, BEHIND ONE TAP (Cory, 08-23: "don't have
+        to show who voted for what on votes, can have a click in to see that").
+        This SUPERSEDES the 08-16 always-visible roll call: the 08-16 intent —
+        the names are league-public, never secret — survives one tap down,
+        and the card face stays clean: the question, the quorum line, your
+        buttons. %>
+    <details class="ledger-history">
+      <summary>🗳 See the votes — <%= v.yes %> yes / <%= v.no %> no</summary>
+      <div style="padding:.55rem .2rem 0">
     <div class="tally-bar" title="<%= v.yes %> yes / <%= v.no %> no">
       <% const tot = Math.max(v.cast, 1); %>
       <div class="yes" style="width:<%= (v.yes / tot) * 100 %>%"><%= v.yes ? 'YES ' + v.yes : '' %></div>
       <div class="no" style="width:<%= (v.no / tot) * 100 %>%"><%= v.no ? 'NO ' + v.no : '' %></div>
     </div>
-    <p class="pass-note"><%= v.cast %> of <%= electorate %> votes in — needs <%= threshold %> YES to pass<%= v.passed ? ' — ✅ currently passing' : '' %></p>
-    <%# THE ROLL CALL (Cory, 2026-08-16: "see how everyone voted for everyone").
-        Open ballots were always server-known and never secret by design — the
-        tally bar printed the counts; this prints the names behind them, plus
-        the holdouts, which is what actually gets a measure over the line. %>
     <div class="roll-call" style="font-size:.78rem; margin:.2rem 0 .5rem; line-height:1.5">
       <div><b style="color:var(--green)">YES (<%= v.yes %>):</b>
         <%= v.ballots.filter(b => b.choice === 'yes').map(b => b.name).sort().join(', ') || '—' %></div>
@@ -53,6 +58,8 @@
         <div class="muted">Yet to vote (<%= v.not_voted.length %>): <%= v.not_voted.join(', ') %></div>
       <% } %>
     </div>
+      </div>
+    </details>
     <div class="vote-actions">
       <form class="asis" method="post" action="/votes/<%= v.id %>/ballot">
         <input type="hidden" name="choice" value="yes">

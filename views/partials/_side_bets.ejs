@@ -30,6 +30,19 @@
     about has already started. Nobody's money moved.</span>
   </div>
 <% } %>
+<% if (typeof stale_terms !== 'undefined' && stale_terms) { %>
+  <div class="alert-banner alert-warning" style="margin-bottom:1rem">
+    <span class="tag">✎</span><span><b>That offer changed while you were looking at it.</b>
+    Nothing was accepted — read the current terms below (marked ✎ edited) and
+    accept those if you still want it.</span>
+  </div>
+<% } %>
+<% if (typeof edited !== 'undefined' && edited) { %>
+  <div class="alert-banner alert-info" style="margin-bottom:1rem">
+    <span class="tag">✎</span><span>Offer updated — the card now shows the new terms,
+    and the old ones stay one tap away on it.</span>
+  </div>
+<% } %>
 <%
   const myId = owner.id;
   const inIt = b => (b.parties || []).some(p => p.owner_id === myId);
@@ -190,7 +203,12 @@ function betCard(b, opts) {
     </div>
 
     <%# WHAT'S THE BET — one plain-English line, always first. %>
-    <div class="bc-what"><%= b.terms %></div>
+    <div class="bc-what"><%= b.terms %><% if ((b.terms_version || 1) > 1 && b.edits && b.edits.length) { %>
+      <details style="display:inline-block;font-size:.74rem;margin-left:.4rem;vertical-align:middle">
+        <summary class="muted" style="cursor:pointer;display:inline">✎ edited</summary>
+        <span class="muted">was: $<%= b.edits[b.edits.length - 1].stake %> — <%= b.edits[b.edits.length - 1].terms %></span>
+      </details>
+    <% } %></div>
     <% if (sentence(b) || (b.format === 'prop' && b.conditions.length > 1)) { %>
       <div class="bc-rule">📐 <%= sentence(b) || b.terms %><% if (b.format === 'prop' && b.conditions.length > 1) { %>
         <span class="muted">(<%= b.logic === 'any' ? 'any one of them' : 'all of them' %>, for <%= betNames(b.for_id) %>)</span><% } %></div>
@@ -449,11 +467,13 @@ function betCard(b, opts) {
       <% if (opts.withAccept && needsAccept(b)) { %>
         <form method="post" action="/sidebets/<%= b.id %>/accept" class="accept-form grow"
               data-handshake="<%= esc(b.terms) %>"
+              data-terms-version="<%= b.terms_version || 1 %>"
               data-stake="<%= money(b.stake) %>"
               data-with="<%= esc(b.parties.filter(p => p.owner_id !== owner.id).map(p => betNames(p.owner_id)).join(', ')) %>">
           <% if (b.format === 'pool') { %>
             <p class="muted" style="margin:.1rem 0 .2rem; font-size:.74rem">Accepting opens the franchise draft — you pick your teams there, turn by turn.</p>
           <% } %>
+          <input type="hidden" name="terms_version" value="<%= b.terms_version || 1 %>">
           <% if (!deadlines[b.id] || deadlines[b.id].open) { %>
             <button class="btn small gold" type="submit">Accept — it's on</button>
           <% } else { %>
@@ -516,6 +536,19 @@ function betCard(b, opts) {
           </form>
         <% } %>
         <% if (b.status === 'proposed') { %>
+          <%# TRUE EDIT (Cory, 08-23): change the offer in place while nobody
+              has accepted. SB.edit versions the terms; an accept of the old
+              version refuses, so nobody can be bound to words they never saw. %>
+          <details class="asis" style="display:inline-block">
+            <summary class="btn small ghost" style="list-style:none;cursor:pointer">✎ Edit</summary>
+            <form method="post" action="/sidebets/<%= b.id %>/edit"
+                  style="display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;margin-top:.4rem">
+              <label class="muted" style="font-size:.76rem">$
+                <input name="stake" type="number" min="1" step="1" value="<%= b.stake %>" style="width:5.5rem"></label>
+              <input name="terms" value="<%= esc(b.terms) %>" maxlength="1200" style="flex:1 1 14rem">
+              <button class="btn small gold" type="submit">Save changes</button>
+            </form>
+          </details>
           <form class="asis" method="post" action="/sidebets/<%= b.id %>/delete"
                 onsubmit="return confirm('Pull this bet back? Nobody will be able to accept it.')">
             <button class="btn small ghost" type="submit">Rescind</button>
