@@ -162,6 +162,120 @@ def old_path_recommendation(fz: dict, gone: set[str], top: int = 5) -> list[dict
             for p in pool[:top]]
 
 
+VONA_ROOMS = 200
+VONA_SEED = 20260823
+
+
+def vona_path_recommendation(fz: dict, gone: set[str], current_pick: int,
+                             my_next_pick: int | None, top: int = 5) -> dict | None:
+    """THE PICK-TIME PATH — cost of waiting, not a static ranking.
+
+    ── WHY THIS EXISTS, measured rather than asserted ────────────────────────
+
+    `old_path_recommendation` above sorts by `vorp`, which IS what the shipped
+    board ranks on and IS correct for a full board. It is not a pick-time
+    quantity. Measured on the real 2026 draft
+    (`draft/audit/why_the_shadow_log_recommends_defences_2026-08-23.md`):
+
+        after N picks   RB    WR    TE    QB     K   DEF
+              0        156   125    81    64    10    29
+             60        -19    29    18    11    10    29   <- DEF leads
+            100        -53    -9     0     8    10    29   <- and never stops
+
+    DEF VORP is FLAT AT 29 for a hundred picks (32 defences exist, ~10 get
+    taken, all late) while skill VORP collapses and goes negative. So a static
+    ranking hands you a defence from pick ~60 onward, which is what the 2026
+    log actually recorded at 101 of 150 picks.
+
+    VONA re-baselines against WHAT IS LEFT: what does waiting until my next
+    pick cost me, per position. That is the question a pick answers.
+
+    ── DETERMINISTIC, because a capture that cannot be reproduced is a story ──
+
+    `old_path_recommendation`'s docstring makes determinism its defining
+    property. This is a SIMULATION, so it seeds from a fixed constant plus the
+    pick number — same freeze, same gone-set, same pick, byte-identical output,
+    re-runnable in January. Never `random.random()` unseeded.
+
+    ⚠️ AND IT IS AN ESTIMATE, WHICH THE AUTOPSY LATER GRADES. At pick time
+    nobody knows who the room will actually take, so the drain is simulated
+    from `adjusted_adp` and `adp_sd`. After the draft, `draft_autopsy.js`
+    computes the SAME quantity from the real pick order — so the gap between
+    this field and the autopsy's is a measurement of the simulator itself.
+    That comparison is the reason to record it rather than compute it later.
+    """
+    import random as _random
+
+    pool = [p for p in fz["players"]
+            if str(p["player_id"]) not in gone and p.get("proj_mean") is not None]
+    if not pool:
+        return None
+    positions = sorted({p["position"] for p in pool if p.get("position")})
+
+    def best_of(players, pos):
+        cands = [p for p in players if p.get("position") == pos]
+        return max(cands, key=lambda p: p["proj_mean"]) if cands else None
+
+    best_now = {q: best_of(pool, q) for q in positions}
+
+    if my_next_pick is None:
+        # Last pick of the draft: nothing to wait for, so waiting costs
+        # nothing and the honest answer is the best man left, not a VONA.
+        top_now = sorted(pool, key=lambda p: -p["proj_mean"])[:top]
+        return {"basis": "last_pick_no_wait", "rooms": 0,
+                "cost_of_waiting": {},
+                "recommendation": [_slim(p) for p in top_now]}
+
+    gap = max(0, my_next_pick - current_pick - 1)
+    rng = _random.Random(VONA_SEED + current_pick)
+    sums = {q: 0.0 for q in positions}
+    counts = {q: 0 for q in positions}
+    for _ in range(VONA_ROOMS):
+        keyed = []
+        for p in pool:
+            adp = p.get("adjusted_adp")
+            sd = p.get("adp_sd") or 12
+            if adp is None:
+                continue
+            keyed.append((adp + rng.gauss(0, sd), p))
+        keyed.sort(key=lambda t: t[0])
+        taken = {str(t[1]["player_id"]) for t in keyed[:gap]}
+        left = [p for p in pool if str(p["player_id"]) not in taken]
+        for q in positions:
+            b = best_of(left, q)
+            if b is not None:
+                sums[q] += b["proj_mean"]
+                counts[q] += 1
+
+    cost = {}
+    for q in positions:
+        bn = best_now.get(q)
+        if bn is None or not counts[q]:
+            continue
+        cost[q] = round(bn["proj_mean"] - sums[q] / counts[q], 1)
+
+    if not cost:
+        return None
+    order = sorted(cost, key=lambda q: -cost[q])
+    lead = order[0]
+    picks = [p for p in pool if p.get("position") == lead]
+    picks.sort(key=lambda p: -p["proj_mean"])
+    return {
+        "basis": "vona_adp_drain",
+        "rooms": VONA_ROOMS,
+        "opponent_picks_until_my_next": gap,
+        "cost_of_waiting": cost,
+        "highest_cost_position": lead,
+        "recommendation": [_slim(p) for p in picks[:top]],
+    }
+
+
+def _slim(p: dict) -> dict:
+    return {"player_id": str(p["player_id"]), "name": p.get("name"),
+            "position": p.get("position"), "proj_mean": p.get("proj_mean"),
+            "vorp": p.get("vorp")}
+
+
 def record(entry: dict) -> dict:
     """Append ONE pick. Refuses a duplicate rather than overwriting it."""
     fz = _freeze()
@@ -228,11 +342,19 @@ def record(entry: dict) -> dict:
         "availability_source": "pre_draft_freeze_2026.json (frozen, not recomputed)",
 
         "old_path_recommendation": old_path_recommendation(fz, gone),
-        "new_path_recommendation": None,
+        # LANDED 2026-08-23, on Cory's order after the 2026 draft. The old
+        # reason read "Step 5 VORP-space path not landed at capture time" —
+        # true then, and it left new_path_recommendation None on all 150 rows,
+        # so the before/after this log exists for had a before and no after.
+        "new_path_recommendation": vona_path_recommendation(
+            fz, gone, int(entry["pick"]), my_next),
         "new_path_reason":
-            "Step 5 VORP-space path not landed at capture time. The freeze "
-            "carries proj_mean, replacement, adp and adp_sd, so this is "
-            "computable later and scorable OUT OF SAMPLE against these rows.",
+            "Pick-time VONA (cost of waiting until my next pick), estimated by "
+            "seeded ADP drain over %d rooms. Deterministic given (freeze, gone, "
+            "pick). The old path above is a STATIC vorp ranking, which measured "
+            "flat-at-29 for DEF across a hundred picks while skill VORP went "
+            "negative -- see why_the_shadow_log_recommends_defences_2026-08-23."
+            % VONA_ROOMS,
 
         # ⚠️ THIS PAIR WAS DROPPED BY THE FIRST CUT AND THE REHEARSAL CAUGHT IT.
         # `_from_sleeper` set `is_keeper` and `record` never copied it, so all
