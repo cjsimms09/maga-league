@@ -113,7 +113,13 @@
   // for this one item — Cory's direct ask on his own site wins over a prior
   // internal convention.
   const _nav = [
-    { href: '/',        label: 'League Office', short: 'Office',  icon: '🏛',  primary: true },
+    /* NAV DE-CRAM (Cory, 08-23, from his phone: "Nav is a little crammed at
+     * bottom on phone, not easy to use"): seven bottom items truncated their
+     * own labels. Interim cut consistent with the redesign spec's final map:
+     * Office rides the logo (and tops the More panel), My Team joins the bar
+     * (it was the most-wanted page, buried), Votes moves to More with its
+     * badge surfacing on the More button. Five tabs + More. */
+    { href: '/',        label: 'League Office', short: 'Office',  icon: '🏛' },
     // PRIMARY since the 2026-08-15 member-site review: the goal is tracking
     // matchups HERE instead of on Sleeper, and Sleeper's whole pitch is the
     // matchup one tap from anywhere.
@@ -123,11 +129,11 @@
     // 08-18, A-approved) — each is a real page and a real route, boxed into
     // the page it's most related to instead (Races/Pick'em on /scoreboard,
     // Watch on /matchup) so the top bar carries five destinations, not eight.
-    { href: '/team',    label: 'My Team',       short: 'Team',    icon: '🏈' },
+    { href: '/team',    label: 'My Team',       short: 'Team',    icon: '🏈', primary: true },
     { href: '/bank',    label: 'League Finances', short: 'Finances', icon: '💰',  primary: true, badge: _bets },
     { href: '/chat',    label: 'Locker Room',   short: 'Locker',  icon: '💬',  primary: true, badge: _unread },
     { href: '/draft',   label: 'Draft Spot',     short: 'Draft',   icon: '🎯',  match: '/draft' },
-    { href: '/votes',   label: 'Voting Booth',  short: 'Votes',   icon: '🗳',  match: '/votes', primary: true, badge: _votes },
+    { href: '/votes',   label: 'Voting Booth',  short: 'Votes',   icon: '🗳',  match: '/votes', badge: _votes },
     // Owners and Record Book are sections of /history now, not nav items.
     // Three entries answering one question ("who has won what") cost three
     // slots in a bar that was already 70% off-screen on a phone.
@@ -194,12 +200,14 @@
     <summary aria-label="More pages">
       <span class="tb-icon" aria-hidden="true">☰</span>
       <span class="tb-label">More</span>
+      <% const _moreBadge = _more.reduce((n, x) => n + (Number(x.badge) || 0), 0); %>
+      <% if (_moreBadge) { %><span class="tb-badge"><%= _moreBadge %></span><% } %>
     </summary>
     <div class="more-panel">
       <div class="more-head"><%= _owner.name %></div>
       <div class="more-links">
         <% for (const n of _more) { %>
-          <a href="<%= n.href %>" class="<%= n.commish ? 'commish ' : '' %><%= _isActive(n) ? 'active' : '' %>"><span aria-hidden="true"><%= n.icon %></span> <%= n.short %></a>
+          <a href="<%= n.href %>" class="<%= n.commish ? 'commish ' : '' %><%= _isActive(n) ? 'active' : '' %>"><span aria-hidden="true"><%= n.icon %></span> <%= n.short %><% if (n.badge) { %> <span class="tb-badge"><%= n.badge %></span><% } %></a>
         <% } %>
         <a href="/password"><span aria-hidden="true">🔑</span> Password</a>
       </div>
