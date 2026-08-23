@@ -3743,7 +3743,10 @@
     // stylesheet is the single owner of this color now; do not re-add inline.
     clockNameEl.style.color = '';
     $('#clock-meta').textContent = (p.team || '') + (p.bye ? ' · bye ' + p.bye : '')
-      + ' · ADP ' + Math.round(p.adjusted_adp);
+      /* Cory's ruling, 08-23 post-draft: cards show the OUTSIDE-SOURCE ADP,
+       * never the internal keeper-adjusted remap (register 260 — Judkins
+       * showed 21 while FantasyPros said 44). adjusted_adp stays engine-only. */
+      + ' · ADP ' + (p.adp == null ? '—' : Math.round(p.adp));
     // C3 — the RAW projection as a sanity check, next to our valuation, labelled
     // honestly by source count (consensus.js: "Consensus (N src)" at ≥2 — today's
     // board carries Sleeper+FP, plus our own model where it attaches — a single
@@ -5445,7 +5448,7 @@
       const why = (s.reasons && s.reasons.length) ? s.reasons[0] : '';
       return '<li style="margin-bottom:.35rem"><b>' + escapeHtml(p.name) + '</b> '
         + '<span class="muted">' + escapeHtml(p.position) + (p.team ? ' ' + escapeHtml(p.team) : '')
-        + ' · ADP ' + (p.adjusted_adp == null ? '—' : Math.round(p.adjusted_adp))
+        + ' · ADP ' + (p.adp == null ? '—' : Math.round(p.adp))
         + ' · score ' + s.score.toFixed(1) + '</span>'
         + (gone == null ? ''
             : '<br><span style="font-size:.78rem">' + gone + '% gone by pick ' + next
@@ -6032,7 +6035,7 @@
         + '<div class="cmp-name"' + (p.player_id != null ? ' data-drill="' + escapeHtml(String(p.player_id)) + '"' : '')
           + '>' + escapeHtml(p.name) + '<span class="rec-pos ' + p.position + '">' + p.position + '</span></div>'
         + '<div class="cmp-stat">proj <b>' + Math.round(p.proj_mean || 0) + '</b> · ceil <b>' + Math.round(p.proj_ceiling || 0) + '</b></div>'
-        + '<div class="cmp-stat">tier <b>' + (p.tier || '?') + '</b> · ADP <b>' + Math.round(p.adjusted_adp || p.adp || 0) + '</b></div>'
+        + '<div class="cmp-stat">tier <b>' + (p.tier || '?') + '</b> · ADP <b>' + Math.round(p.adp || p.raw_adp || 0) + '</b></div>'
         + '</div>';
     };
     host.style.display = '';
@@ -6423,7 +6426,8 @@
         + escapeHtml(rp.label.replace(/ proj$/, '')) + ' <b>'
         + (rp.value == null ? '—' : Math.round(rp.value)) + '</b></span>'
       + '<span>Tier <b>' + p.tier + '</b> (' + p.tier_rank + '/' + p.tier_size + ')</span>'
-      + '<span>ADP <b>' + Math.round(p.adjusted_adp) + '</b></span>'
+      + '<span title="outside-source ADP (' + escapeHtml(p.adp_source || 'blend') + ')">ADP <b>'
+        + (p.adp == null ? '—' : Math.round(p.adp)) + '</b></span>'
       + (pct ? '<span class="' + (pct > 70 ? 'neg' : '') + '" title="market+room estimate — the number the score uses">~' + pct + '% gone by next</span>' : '')
       // One tap deeper: the full dossier of engine fields for this row.
       + '<button class="rec-expand" data-dossier="' + p.player_id + '">'
@@ -6787,15 +6791,20 @@
       const pct = survivalPct(1 - (s.survival_to_next || 0));
       /* FALLING (Cory, cockpit steering): value sliding past its market price —
        * he is on the board 10+ picks after the market expected him gone. */
-      const falling = (curPickNo != null && p.adjusted_adp != null
-        && p.adp_source !== 'search_rank' && (curPickNo - p.adjusted_adp) >= 10);
+      /* Cory's definition, 08-23: "if someone normally goes ADP 20 and I can
+       * get him at 30, that's value" — FALLING is market price vs the pick on
+       * the clock, so it uses the OUTSIDE-SOURCE ADP. The old adjusted_adp
+       * here also mixed scales (board slots minus selection index — register
+       * 260), overstating falls by up to the keeper count. */
+      const falling = (curPickNo != null && p.adp != null
+        && p.adp_source !== 'search_rank' && (curPickNo - p.adp) >= 10);
       return '<div class="rec-card' + (i === 0 ? ' top' : '') + (s.demoted ? ' demoted' : '') + '">' +
         '<div class="rec-rank">' + (s.demoted ? '↓' : (i + 1)) + '</div>' +
         '<div class="rec-main">' +
           '<div class="rec-name"><span class="rec-nm" data-drill="' + p.player_id + '" title="Full dossier">' + escapeHtml(p.name) + '</span>' +
             '<span class="rec-pos ' + p.position + '">' + p.position + '</span>' +
             '<span class="muted">' + escapeHtml(p.team || '') + (p.bye ? ' · bye ' + p.bye : '') + '</span>' +
-            (falling ? '<span class="wr-falling" title="On the board ' + Math.round(curPickNo - p.adjusted_adp)
+            (falling ? '<span class="wr-falling" title="On the board ' + Math.round(curPickNo - p.adp)
               + ' picks past his ADP (' + Math.round(p.adjusted_adp) + ') — the room is letting him slide">FALLING '
               + Math.round(curPickNo - p.adjusted_adp) + '</span>' : '') +
             sourceGapBadge(p, state.board) +
