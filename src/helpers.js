@@ -141,6 +141,30 @@ async function loadWorld() {
     if (seasons[2026]) { seasons[2026].draft_open = true; await setDoc('seasons', seasons); }
     config = await mutateDoc('config', {}, c => { c.draft2026_reopened = true; return c; });
   }
+  // One-time, post-draft (2026-08-23, Cory: "draft day alert should be
+  // gone..? So should draft spot picker.."): the draft-day alert was pinned
+  // by the migration above with no expiry, and draft_open stayed true, so a
+  // week after the draft the home page still opened with two dead banners.
+  // Retire both here — self-healing on the next page load, no admin taps.
+  // The general rule (owner-site redesign spec): lifecycle alerts must carry
+  // their own expiry; this cleans up the two that predate that rule.
+  if (!config.draft2026_closed) {
+    alerts = await mutateDoc('alerts', [], as => {
+      let changed = false;
+      for (const a of as) {
+        if (a.active && /draft (day|spots)|keeper deadline/i.test(a.message || '')) {
+          a.active = false; a.retired = 'auto: 2026 draft completed';
+          changed = true;
+        }
+      }
+      return changed ? as : undefined;
+    });
+    if (seasons[2026] && seasons[2026].draft_open) {
+      seasons[2026].draft_open = false;
+      await setDoc('seasons', seasons);
+    }
+    config = await mutateDoc('config', {}, c => { c.draft2026_closed = true; return c; });
+  }
   return { config, owners, seasons, ledger, alerts, history };
 }
 
