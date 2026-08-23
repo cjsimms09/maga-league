@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 275,
+ "next_numeric_id": 276,
  "history": [
   {
    "id": 47,
@@ -592,6 +592,11 @@
    "id": 274,
    "claimed_at": "2026-08-23",
    "note": "E: the ROUTES-sweep row, after two collisions (271 then 272). Allocated from max(file)+1 rather than the allocator, and verified against the file before writing."
+  },
+  {
+   "id": 275,
+   "claimed_at": "2026-08-23",
+   "note": "E: Cory finished the draft with no kicker -- the only team in the league without one -- and 6 RB / 6 WR he cannot start. Register 60's roster-shape prediction in the real roster. Id allocated from max(file)+1 and verified against the file first."
   },
   {
    "id": "137-138",
