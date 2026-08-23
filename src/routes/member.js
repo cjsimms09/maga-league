@@ -3376,6 +3376,17 @@ router.get('/waivers', requireCommissioner, aw(async (req, res) => {
       weekNo = sData.week || (sData.state && sData.state.week) || null;
       const map = world.config.sleeper_map || {};
       const myRid = Object.keys(map).find(rid => Number(map[rid]) === Number(me.id));
+      /* Found live, day after the 2026 draft (Cory: "waiver tool isn't
+       * working"): sleeper_map seeds {} and nothing forces the one-time
+       * mapping, so this page rendered its dormant shell with NO claims and
+       * NO error — a silent failure on the first day the map ever mattered.
+       * Say the cause and the fix instead. */
+      if (!myRid) {
+        err = 'No Sleeper team is mapped to your login yet, so the wire cannot '
+          + 'be priced against YOUR roster. One-time fix: Admin → Sleeper tab → '
+          + 'map each Sleeper team to its owner → Save. Everything here lights '
+          + 'up on the next page load.';
+      }
       const playersDb = await sleeper.players();
       let artifact = {};
       try {
