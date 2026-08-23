@@ -175,7 +175,36 @@ Final drafted shape against the ruled top-3-finisher target:
 
 **Short of a starter at K** — he acquired a kicker after the draft.
 
-The mechanism is the rail above, and it is a complete causal chain:
+> ## ⚠️ CORRECTED 2026-08-23, SAME DAY, BY MEASURING IT
+>
+> **The causal chain below is wrong at step 1, and I wrote it before I had
+> swept the constant.** `draft/tools/rail_late_rounds_sweep.js` replays Cory's
+> real seat at seven values of `RAIL_LATE_ROUNDS` from 0 to 99. **The roster
+> the tool drafts is identical at every one** — QB 1 · RB 5 · WR 6 · TE 1 ·
+> **K 1** · DEF 1, short of nothing — with DEF taken at 128 and K at 133 in
+> all seven arms. The constant does not drive the shape, and left to itself
+> the tool fills both onesies comfortably.
+>
+> **So Cory's K 0 came from overriding the tool at 133 and 148, not from the
+> rail making a kicker unreachable.** Step 5 below still stands and is the
+> part that matters: at pick 108 the model's own score agreed with him and the
+> display buried it.
+>
+> **And the sweep found something worth more than the thing it was built to
+> check.** At pick 108 the shipped value demotes 75 players; turning the
+> onesie rail *fully off* still demotes **68**. `demoteFlaggedOnesies()` sinks
+> any K/DEF carrying **any** rail flag, and 68 of them carry
+> *"~N picks ahead of ADP — verify before taking"*. Kickers and defences have
+> very late ADPs, so that flag fires on essentially all of them at any
+> realistic pick. **The onesie constant is not the lever it looks like —
+> changing it leaves 68 of 75 demotions in place.** A rail meaning *"check
+> this number"* is being read as *"do not recommend this player"*. That is the
+> real defect, and register 271 is rewritten around it.
+>
+> Recorded rather than deleted: the chain below is what a plausible mechanism
+> looks like before anybody measures it, and it took one sweep to falsify.
+
+The mechanism I believed before the sweep, kept as the record:
 
 1. `RAIL_LATE_ROUNDS: 2` suppresses every K and DEF until his **last two
    picks** (133, 148). Both onesies were required to come from those two slots.
@@ -259,10 +288,13 @@ Ranked by measured impact, not by how interesting they are.
    beside a gap must label which ordering each is in, or report both
    (`actual_rank_in_tool` *and* `actual_rank_by_score`). 437 places of
    disagreement on a real pick is not an edge case. → register 273.
-2. **🔴 Revisit `RAIL_LATE_ROUNDS: 2`.** It is a hardcoded constant that
-   forced both onesies into his last two picks and produced a kicker as the
-   tool's #1 at both, which he overrode, which is why he finished without a
-   kicker. Nothing about the value 2 has ever been measured. → register 271.
+2. **🔴 The demotion trigger, not `RAIL_LATE_ROUNDS`.** ~~Revisit the
+   constant~~ — **swept the same day and it changes nothing**: the tool drafts
+   the identical, complete roster at every value from 0 to 99. The real defect
+   is that `demoteFlaggedOnesies()` sinks a K or DEF carrying **any** rail
+   flag, so 68 of 75 demotions at pick 108 come from an *ADP-ahead* warning
+   and survive turning the onesie rail fully off. Separate "verify this
+   number" from "do not recommend this player". → register 271.
 3. **🟡 A demoted player needs to say so on the board.** At pick 108 the model
    ranked Houston 2nd on score and showed it 439th with no visible
    "demoted: DEF this early is almost never right". Cory was right and the
