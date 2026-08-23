@@ -149,3 +149,19 @@ Tags: **[surface]** = exists server-side, needs a button · **[small]** = new, h
 
 **Explicitly NOT in scope, stated so nobody assumes:** trades UI (Sleeper's job), push
 notifications (a later program), anything that changes bet/vote/money MATH.
+
+## From the field — the Cory/Richard pool bet (specimens, 08-23)
+20. **"Record our picks" mode for pool bets** [small] — the pool builder FORCES an in-site
+    snake draft of the franchises (sidebets.js:399 — "a pool bet is a DRAFT, not a form").
+    Fun when the split hasn't happened; insulting when it has. Cory and Richard had already
+    divided the teams and were made to re-draft a done deal. Fix: the builder offers both —
+    **⚡ Record our picks** (sender checks off each side's teams; accepting IS confirming the
+    split; server validates disjoint + right count) and **🎲 Draft them on the site** (the
+    snake stays, for pools that want the ceremony). Same bet object either way.
+21. **Pool stake copy says the wrong thing** [small] — the rooting-interest rows stamp the
+    FULL stake on EVERY picked team ("Richard has $50 on them" × his five teams,
+    sidebets.js:765), which reads as "bet per team" / 5×$50 when the truth is ONE
+    winner-take-all stake decided by whoever holds the champion. The money math nets
+    correctly — the WORDS lie. Fix: the bet card says "$50 · winner take all · his 5 teams
+    vs your 5"; per-team rows say "one of Richard's 5 in the pool", never a dollar amount
+    that isn't really riding on that one team.
