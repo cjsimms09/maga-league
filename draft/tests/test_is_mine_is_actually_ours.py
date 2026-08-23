@@ -225,3 +225,41 @@ def test_the_real_2026_log_is_recoverable_without_editing_it():
     assert not any(r.get("is_mine") for r in rows), (
         "the 2026 log's is_mine is False on all 150 rows — if this ever fails, "
         "the log was rewritten, which the format forbids")
+
+
+# ── the keeper-name truncation, which hit ONLY our own keepers ─────────────
+def test_a_player_missing_from_the_pool_still_gets_a_FULL_name():
+    """Three rows of the 2026 log carry "Ja'Marr", "Derrick", "Kenneth" — a
+    first name and nothing else. All three are CORY'S keepers, at his seat;
+    the other 20 keepers in the draft carry full names, which is why this never
+    read as "keepers are broken" and read as nothing at all.
+
+    Mechanism, and it is the `is_mine` mechanism again: OUR keepers are removed
+    from the board pool by design, so `players.get(pid)` misses for them and
+    only for them, and the fallback fired. The old fallback was `first_name`
+    alone. A first name joins to nothing."""
+    sleeper_pick = {"pick_no": 8, "player_id": "7564", "draft_slot": 8,
+                    "is_keeper": True,
+                    "metadata": {"first_name": "Ja'Marr", "last_name": "Chase",
+                                 "position": "WR"}}
+    row = L._from_sleeper(sleeper_pick, {}, {})     # empty pool — the real case
+    assert row["player_name"] == "Ja'Marr Chase"
+    assert row["position"] == "WR"
+
+
+def test_the_pool_still_wins_when_it_has_the_player():
+    """The fallback must stay a fallback — this is the 20-of-23 case that was
+    working all along and must not change."""
+    pool = {"9221": {"name": "Jahmyr Gibbs", "position": "RB"}}
+    row = L._from_sleeper({"pick_no": 3, "player_id": "9221", "draft_slot": 1,
+                           "metadata": {"first_name": "J", "last_name": "G"}},
+                          {}, pool)
+    assert row["player_name"] == "Jahmyr Gibbs"
+
+
+def test_a_first_name_only_payload_still_yields_something():
+    """Sleeper serving no last_name must not produce an empty string, which
+    would be a silent downgrade from the truncation this fixes."""
+    row = L._from_sleeper({"pick_no": 1, "player_id": "X", "draft_slot": 1,
+                           "metadata": {"first_name": "Solo"}}, {}, {})
+    assert row["player_name"] == "Solo"

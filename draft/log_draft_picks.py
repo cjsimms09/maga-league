@@ -459,6 +459,18 @@ def _from_sleeper(p: dict, slot_to_roster: dict, players: dict) -> dict:
     """
     pid = str(p.get("player_id") or "")
     meta = players.get(pid) or {}
+    md = p.get("metadata") or {}
+    # ⚠️ THE FALLBACK USED TO BE `md["first_name"]` ALONE, AND IT TRUNCATED
+    # EXACTLY THREE ROWS OF THE 2026 LOG: "Ja'Marr", "Derrick", "Kenneth" —
+    # CORY'S OWN THREE KEEPERS, all at his seat. The other 20 keepers in the
+    # draft carry full names, so this never read as "keepers are broken"; it
+    # read as nothing at all.
+    #
+    # Same root cause as the `is_mine` defect: OUR keepers are removed from the
+    # board pool by design (`keepers_on_board_at_freeze`), so `players.get(pid)`
+    # misses for them and only for them, and the fallback fires on the three
+    # rows the autopsy needs most. A first name alone joins to nothing.
+    full = " ".join(x for x in [md.get("first_name"), md.get("last_name")] if x)
     roster = p.get("roster_id")
     slot = next((int(s) for s, r in (slot_to_roster or {}).items() if r == roster),
                 p.get("draft_slot"))
@@ -466,8 +478,8 @@ def _from_sleeper(p: dict, slot_to_roster: dict, players: dict) -> dict:
         "pick": int(p["pick_no"]),
         "team_slot": slot,
         "player_id": pid,
-        "player_name": meta.get("name") or (p.get("metadata") or {}).get("first_name"),
-        "position": meta.get("position") or (p.get("metadata") or {}).get("position"),
+        "player_name": meta.get("name") or full or md.get("first_name"),
+        "position": meta.get("position") or md.get("position"),
         "is_keeper": bool(p.get("is_keeper")),
     }
 
