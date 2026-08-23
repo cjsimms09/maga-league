@@ -1,0 +1,445 @@
+{
+  "_what": "Roster shape the tool would have drafted at Cory's real 2026 seat, swept over CFG.RAIL_LATE_ROUNDS.",
+  "_limitation": "The other nine seats keep their REAL picks and forfeit if the counterfactual already took their man. Divergences are counted per arm.",
+  "_not_measured": "Points. A counterfactual roster's points need a season that has not happened.",
+  "shipped_value": 2,
+  "ruled_target": {
+    "QB": 1.56,
+    "RB": 4.78,
+    "WR": 5,
+    "TE": 1.67,
+    "K": 1,
+    "DEF": 1
+  },
+  "controls": {
+    "reproduces_shadow_log": {
+      "why": "With Cory taking his REAL picks, the shipped value must reproduce draft_shadow_2026.jsonl. A mismatch indicts this harness, not the log.",
+      "compared": 12,
+      "agreed": 12,
+      "mismatches": [],
+      "passed": true
+    },
+    "knob_is_live": {
+      "why": "The knob must be shown to MOVE SOMETHING before \"the picks do not change\" can be read as a result rather than as a dead constant. What it moves is the demotion count; whether that reaches the picks is the question being answered, not the control.",
+      "arms_whose_demotion_count_differs": [
+        4,
+        6,
+        99
+      ],
+      "arms_whose_PICKS_differ": [],
+      "passed": true
+    },
+    "all_passed": true
+  },
+  "arms": [
+    {
+      "rail_late_rounds": 0,
+      "shipped": false,
+      "shape": {
+        "QB": 1,
+        "RB": 5,
+        "WR": 6,
+        "TE": 1,
+        "K": 1,
+        "DEF": 1
+      },
+      "shape_gap_vs_ruled_target": {
+        "QB": -0.56,
+        "RB": 0.22,
+        "WR": 1,
+        "TE": -0.67,
+        "K": 0,
+        "DEF": 0
+      },
+      "short_of_a_starter_at": [],
+      "onesie_picks": [
+        "128:DEF",
+        "133:K"
+      ],
+      "demoted_at_pick_108": 75,
+      "demoted_total_across_my_picks": 688,
+      "demoted_rail_reasons_at_pick_108": {
+        "DEF this early is almost never right": 31,
+        "K this early is almost never right": 44,
+        "~N picks ahead of ADP — verify before taking": 68,
+        "ceiling is 1.2x this player's VORP — possible bug": 1,
+        "ceiling is 5.4x this player's VORP — possible bug": 1,
+        "ceiling is 15.2x this player's VORP — possible bug": 1,
+        "ceiling is 6.0x this player's VORP — possible bug": 1,
+        "ceiling is 17.5x this player's VORP — possible bug": 1,
+        "ceiling is 1.6x this player's VORP — possible bug": 1,
+        "ceiling is 2.8x this player's VORP — possible bug": 1,
+        "ceiling is 1.1x this player's VORP — possible bug": 1,
+        "ceiling is 1.8x this player's VORP — possible bug": 1,
+        "ceiling is 9.0x this player's VORP — possible bug": 1,
+        "ceiling is 1.4x this player's VORP — possible bug": 1,
+        "ceiling is 1.5x this player's VORP — possible bug": 1
+      },
+      "divergences_from_the_real_draft": 4,
+      "tool_top_by_pick": [
+        "33 WR Rashee Rice",
+        "48 RB Travis Etienne",
+        "53 RB Quinshon Judkins",
+        "68 WR Davante Adams",
+        "73 WR Rome Odunze",
+        "88 QB Matthew Stafford",
+        "93 WR Courtland Sutton",
+        "108 WR Parker Washington",
+        "113 RB Kenny Gainwell",
+        "128 DEF Houston Texans",
+        "133 K Harrison Mevis",
+        "148 TE Dallas Goedert"
+      ]
+    },
+    {
+      "rail_late_rounds": 1,
+      "shipped": false,
+      "shape": {
+        "QB": 1,
+        "RB": 5,
+        "WR": 6,
+        "TE": 1,
+        "K": 1,
+        "DEF": 1
+      },
+      "shape_gap_vs_ruled_target": {
+        "QB": -0.56,
+        "RB": 0.22,
+        "WR": 1,
+        "TE": -0.67,
+        "K": 0,
+        "DEF": 0
+      },
+      "short_of_a_starter_at": [],
+      "onesie_picks": [
+        "128:DEF",
+        "133:K"
+      ],
+      "demoted_at_pick_108": 75,
+      "demoted_total_across_my_picks": 688,
+      "demoted_rail_reasons_at_pick_108": {
+        "DEF this early is almost never right": 31,
+        "K this early is almost never right": 44,
+        "~N picks ahead of ADP — verify before taking": 68,
+        "ceiling is 1.2x this player's VORP — possible bug": 1,
+        "ceiling is 5.4x this player's VORP — possible bug": 1,
+        "ceiling is 15.2x this player's VORP — possible bug": 1,
+        "ceiling is 6.0x this player's VORP — possible bug": 1,
+        "ceiling is 17.5x this player's VORP — possible bug": 1,
+        "ceiling is 1.6x this player's VORP — possible bug": 1,
+        "ceiling is 2.8x this player's VORP — possible bug": 1,
+        "ceiling is 1.1x this player's VORP — possible bug": 1,
+        "ceiling is 1.8x this player's VORP — possible bug": 1,
+        "ceiling is 9.0x this player's VORP — possible bug": 1,
+        "ceiling is 1.4x this player's VORP — possible bug": 1,
+        "ceiling is 1.5x this player's VORP — possible bug": 1
+      },
+      "divergences_from_the_real_draft": 4,
+      "tool_top_by_pick": [
+        "33 WR Rashee Rice",
+        "48 RB Travis Etienne",
+        "53 RB Quinshon Judkins",
+        "68 WR Davante Adams",
+        "73 WR Rome Odunze",
+        "88 QB Matthew Stafford",
+        "93 WR Courtland Sutton",
+        "108 WR Parker Washington",
+        "113 RB Kenny Gainwell",
+        "128 DEF Houston Texans",
+        "133 K Harrison Mevis",
+        "148 TE Dallas Goedert"
+      ]
+    },
+    {
+      "rail_late_rounds": 2,
+      "shipped": true,
+      "shape": {
+        "QB": 1,
+        "RB": 5,
+        "WR": 6,
+        "TE": 1,
+        "K": 1,
+        "DEF": 1
+      },
+      "shape_gap_vs_ruled_target": {
+        "QB": -0.56,
+        "RB": 0.22,
+        "WR": 1,
+        "TE": -0.67,
+        "K": 0,
+        "DEF": 0
+      },
+      "short_of_a_starter_at": [],
+      "onesie_picks": [
+        "128:DEF",
+        "133:K"
+      ],
+      "demoted_at_pick_108": 75,
+      "demoted_total_across_my_picks": 688,
+      "demoted_rail_reasons_at_pick_108": {
+        "DEF this early is almost never right": 31,
+        "K this early is almost never right": 44,
+        "~N picks ahead of ADP — verify before taking": 68,
+        "ceiling is 1.2x this player's VORP — possible bug": 1,
+        "ceiling is 5.4x this player's VORP — possible bug": 1,
+        "ceiling is 15.2x this player's VORP — possible bug": 1,
+        "ceiling is 6.0x this player's VORP — possible bug": 1,
+        "ceiling is 17.5x this player's VORP — possible bug": 1,
+        "ceiling is 1.6x this player's VORP — possible bug": 1,
+        "ceiling is 2.8x this player's VORP — possible bug": 1,
+        "ceiling is 1.1x this player's VORP — possible bug": 1,
+        "ceiling is 1.8x this player's VORP — possible bug": 1,
+        "ceiling is 9.0x this player's VORP — possible bug": 1,
+        "ceiling is 1.4x this player's VORP — possible bug": 1,
+        "ceiling is 1.5x this player's VORP — possible bug": 1
+      },
+      "divergences_from_the_real_draft": 4,
+      "tool_top_by_pick": [
+        "33 WR Rashee Rice",
+        "48 RB Travis Etienne",
+        "53 RB Quinshon Judkins",
+        "68 WR Davante Adams",
+        "73 WR Rome Odunze",
+        "88 QB Matthew Stafford",
+        "93 WR Courtland Sutton",
+        "108 WR Parker Washington",
+        "113 RB Kenny Gainwell",
+        "128 DEF Houston Texans",
+        "133 K Harrison Mevis",
+        "148 TE Dallas Goedert"
+      ]
+    },
+    {
+      "rail_late_rounds": 3,
+      "shipped": false,
+      "shape": {
+        "QB": 1,
+        "RB": 5,
+        "WR": 6,
+        "TE": 1,
+        "K": 1,
+        "DEF": 1
+      },
+      "shape_gap_vs_ruled_target": {
+        "QB": -0.56,
+        "RB": 0.22,
+        "WR": 1,
+        "TE": -0.67,
+        "K": 0,
+        "DEF": 0
+      },
+      "short_of_a_starter_at": [],
+      "onesie_picks": [
+        "128:DEF",
+        "133:K"
+      ],
+      "demoted_at_pick_108": 75,
+      "demoted_total_across_my_picks": 688,
+      "demoted_rail_reasons_at_pick_108": {
+        "DEF this early is almost never right": 31,
+        "K this early is almost never right": 44,
+        "~N picks ahead of ADP — verify before taking": 68,
+        "ceiling is 1.2x this player's VORP — possible bug": 1,
+        "ceiling is 5.4x this player's VORP — possible bug": 1,
+        "ceiling is 15.2x this player's VORP — possible bug": 1,
+        "ceiling is 6.0x this player's VORP — possible bug": 1,
+        "ceiling is 17.5x this player's VORP — possible bug": 1,
+        "ceiling is 1.6x this player's VORP — possible bug": 1,
+        "ceiling is 2.8x this player's VORP — possible bug": 1,
+        "ceiling is 1.1x this player's VORP — possible bug": 1,
+        "ceiling is 1.8x this player's VORP — possible bug": 1,
+        "ceiling is 9.0x this player's VORP — possible bug": 1,
+        "ceiling is 1.4x this player's VORP — possible bug": 1,
+        "ceiling is 1.5x this player's VORP — possible bug": 1
+      },
+      "divergences_from_the_real_draft": 4,
+      "tool_top_by_pick": [
+        "33 WR Rashee Rice",
+        "48 RB Travis Etienne",
+        "53 RB Quinshon Judkins",
+        "68 WR Davante Adams",
+        "73 WR Rome Odunze",
+        "88 QB Matthew Stafford",
+        "93 WR Courtland Sutton",
+        "108 WR Parker Washington",
+        "113 RB Kenny Gainwell",
+        "128 DEF Houston Texans",
+        "133 K Harrison Mevis",
+        "148 TE Dallas Goedert"
+      ]
+    },
+    {
+      "rail_late_rounds": 4,
+      "shipped": false,
+      "shape": {
+        "QB": 1,
+        "RB": 5,
+        "WR": 6,
+        "TE": 1,
+        "K": 1,
+        "DEF": 1
+      },
+      "shape_gap_vs_ruled_target": {
+        "QB": -0.56,
+        "RB": 0.22,
+        "WR": 1,
+        "TE": -0.67,
+        "K": 0,
+        "DEF": 0
+      },
+      "short_of_a_starter_at": [],
+      "onesie_picks": [
+        "128:DEF",
+        "133:K"
+      ],
+      "demoted_at_pick_108": 75,
+      "demoted_total_across_my_picks": 682,
+      "demoted_rail_reasons_at_pick_108": {
+        "DEF this early is almost never right": 31,
+        "K this early is almost never right": 44,
+        "~N picks ahead of ADP — verify before taking": 68,
+        "ceiling is 1.2x this player's VORP — possible bug": 1,
+        "ceiling is 5.4x this player's VORP — possible bug": 1,
+        "ceiling is 15.2x this player's VORP — possible bug": 1,
+        "ceiling is 6.0x this player's VORP — possible bug": 1,
+        "ceiling is 17.5x this player's VORP — possible bug": 1,
+        "ceiling is 1.6x this player's VORP — possible bug": 1,
+        "ceiling is 2.8x this player's VORP — possible bug": 1,
+        "ceiling is 1.1x this player's VORP — possible bug": 1,
+        "ceiling is 1.8x this player's VORP — possible bug": 1,
+        "ceiling is 9.0x this player's VORP — possible bug": 1,
+        "ceiling is 1.4x this player's VORP — possible bug": 1,
+        "ceiling is 1.5x this player's VORP — possible bug": 1
+      },
+      "divergences_from_the_real_draft": 4,
+      "tool_top_by_pick": [
+        "33 WR Rashee Rice",
+        "48 RB Travis Etienne",
+        "53 RB Quinshon Judkins",
+        "68 WR Davante Adams",
+        "73 WR Rome Odunze",
+        "88 QB Matthew Stafford",
+        "93 WR Courtland Sutton",
+        "108 WR Parker Washington",
+        "113 RB Kenny Gainwell",
+        "128 DEF Houston Texans",
+        "133 K Harrison Mevis",
+        "148 TE Dallas Goedert"
+      ]
+    },
+    {
+      "rail_late_rounds": 6,
+      "shipped": false,
+      "shape": {
+        "QB": 1,
+        "RB": 5,
+        "WR": 6,
+        "TE": 1,
+        "K": 1,
+        "DEF": 1
+      },
+      "shape_gap_vs_ruled_target": {
+        "QB": -0.56,
+        "RB": 0.22,
+        "WR": 1,
+        "TE": -0.67,
+        "K": 0,
+        "DEF": 0
+      },
+      "short_of_a_starter_at": [],
+      "onesie_picks": [
+        "128:DEF",
+        "133:K"
+      ],
+      "demoted_at_pick_108": 68,
+      "demoted_total_across_my_picks": 668,
+      "demoted_rail_reasons_at_pick_108": {
+        "~N picks ahead of ADP — verify before taking": 68,
+        "ceiling is 1.2x this player's VORP — possible bug": 1,
+        "ceiling is 5.4x this player's VORP — possible bug": 1,
+        "ceiling is 15.2x this player's VORP — possible bug": 1,
+        "ceiling is 6.0x this player's VORP — possible bug": 1,
+        "ceiling is 17.5x this player's VORP — possible bug": 1,
+        "ceiling is 1.6x this player's VORP — possible bug": 1,
+        "ceiling is 2.8x this player's VORP — possible bug": 1,
+        "ceiling is 1.1x this player's VORP — possible bug": 1,
+        "ceiling is 1.8x this player's VORP — possible bug": 1,
+        "ceiling is 9.0x this player's VORP — possible bug": 1,
+        "ceiling is 1.4x this player's VORP — possible bug": 1,
+        "ceiling is 1.5x this player's VORP — possible bug": 1
+      },
+      "divergences_from_the_real_draft": 4,
+      "tool_top_by_pick": [
+        "33 WR Rashee Rice",
+        "48 RB Travis Etienne",
+        "53 RB Quinshon Judkins",
+        "68 WR Davante Adams",
+        "73 WR Rome Odunze",
+        "88 QB Matthew Stafford",
+        "93 WR Courtland Sutton",
+        "108 WR Parker Washington",
+        "113 RB Kenny Gainwell",
+        "128 DEF Houston Texans",
+        "133 K Harrison Mevis",
+        "148 TE Dallas Goedert"
+      ]
+    },
+    {
+      "rail_late_rounds": 99,
+      "shipped": false,
+      "shape": {
+        "QB": 1,
+        "RB": 5,
+        "WR": 6,
+        "TE": 1,
+        "K": 1,
+        "DEF": 1
+      },
+      "shape_gap_vs_ruled_target": {
+        "QB": -0.56,
+        "RB": 0.22,
+        "WR": 1,
+        "TE": -0.67,
+        "K": 0,
+        "DEF": 0
+      },
+      "short_of_a_starter_at": [],
+      "onesie_picks": [
+        "128:DEF",
+        "133:K"
+      ],
+      "demoted_at_pick_108": 68,
+      "demoted_total_across_my_picks": 659,
+      "demoted_rail_reasons_at_pick_108": {
+        "~N picks ahead of ADP — verify before taking": 68,
+        "ceiling is 1.2x this player's VORP — possible bug": 1,
+        "ceiling is 5.4x this player's VORP — possible bug": 1,
+        "ceiling is 15.2x this player's VORP — possible bug": 1,
+        "ceiling is 6.0x this player's VORP — possible bug": 1,
+        "ceiling is 17.5x this player's VORP — possible bug": 1,
+        "ceiling is 1.6x this player's VORP — possible bug": 1,
+        "ceiling is 2.8x this player's VORP — possible bug": 1,
+        "ceiling is 1.1x this player's VORP — possible bug": 1,
+        "ceiling is 1.8x this player's VORP — possible bug": 1,
+        "ceiling is 9.0x this player's VORP — possible bug": 1,
+        "ceiling is 1.4x this player's VORP — possible bug": 1,
+        "ceiling is 1.5x this player's VORP — possible bug": 1
+      },
+      "divergences_from_the_real_draft": 4,
+      "tool_top_by_pick": [
+        "33 WR Rashee Rice",
+        "48 RB Travis Etienne",
+        "53 RB Quinshon Judkins",
+        "68 WR Davante Adams",
+        "73 WR Rome Odunze",
+        "88 QB Matthew Stafford",
+        "93 WR Courtland Sutton",
+        "108 WR Parker Washington",
+        "113 RB Kenny Gainwell",
+        "128 DEF Houston Texans",
+        "133 K Harrison Mevis",
+        "148 TE Dallas Goedert"
+      ]
+    }
+  ]
+}

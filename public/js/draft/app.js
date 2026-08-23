@@ -2019,7 +2019,23 @@
      * this REFUSES and keeps the pipeline's value rather than shipping a board
      * that thinks I own three picks I do not. */
     const teams = Number((data.league || {}).teams) || 0;
-    const myKeepers = ((data.kept_players || []).length);
+    /* Post-lock (2026-08-23) kept_players carries the WHOLE league's slate —
+     * counting it raw made expected = 15 − 23 = −8 and this refusal fire on
+     * every seat, its fallback silently masking the check it exists to make.
+     * The BUILT seat's keeper count comes from the built artifact's own two
+     * pick lists — never from league.my_draft_slot (a moved seat rewrites
+     * that config, which is exactly the scenario this refusal guards) and
+     * never from the requested slot (a seat whose keeper count happens to
+     * fit would slip through). Era-robust: both lists exist pre- and
+     * post-lock. */
+    const _before = (data.pick_order || {}).my_picks_before_keepers || [];
+    /* Round 1 of any draft type runs 1..teams, so the built seat IS the
+     * first uncompressed pick number — read from the artifact, immune to a
+     * league.my_draft_slot rewrite. kept_players stays the independent field
+     * the conservation compares against, now scoped to that seat. */
+    const builtSlot = _before.length ? Number(_before[0]) : Number((data.league || {}).my_draft_slot);
+    const myKeepers = ((data.kept_players || [])
+      .filter(k => Number(k.team_slot) === builtSlot).length);
     const rounds = teams ? picks.length / teams : 0;
     if (rounds && Number.isInteger(rounds)) {
       const expected = rounds - myKeepers;
