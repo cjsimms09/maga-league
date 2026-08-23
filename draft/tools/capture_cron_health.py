@@ -188,9 +188,90 @@ def check_store(name: str, spec: dict, now: datetime) -> dict:
            "cadence_days": spec["cadence_days"], "stale_after_days": floor_days}
 
 
+#: Cory's in-season queue item 5: "the Bovada Sunday snapshot is the
+#: [closing-line] benchmark's spine... add its expected-cadence check ...
+#: so a missed Sunday pages the register rather than being noticed in
+#: November." This does NOT fit the single-timestamp MANIFEST pattern
+#: above -- bovada_lines_capture.py is a TWICE-weekly append-only JSONL
+#: (Thu opening + Sun closing), and "the file moved recently" cannot
+#: distinguish "both ran" from "Thursday ran, Sunday silently didn't" --
+#: exactly the completeness gap named. Checked separately, in the shape
+#: this store actually has.
+BOVADA_PATH = "draft/data/bovada_lines_2026.jsonl"
+BOVADA_WORKFLOW = "bovada-lines-capture.yml"
+#: A rolling window a little over a week, so a check run any day still
+#: sees the most recent Thu+Sun pair even a few days after Sunday.
+BOVADA_WINDOW_DAYS = 10
+
+
+def check_bovada_cadence(path_str: str, now: datetime) -> dict:
+    """Real completeness, not just recency: within the trailing window,
+    did BOTH a Thursday-ish and a Sunday-ish snapshot land? Pure given a
+    pre-read set of timestamps -- see check_bovada_cadence_file for the
+    real-file wrapper."""
+    path = ROOT / path_str
+    if not path.exists():
+        return {"name": "bovada_closing_line_cadence", "workflow": BOVADA_WORKFLOW,
+               "status": "MISSING", "detail": f"{path_str} does not exist"}
+
+    timestamps = set()
+    try:
+        for line in path.read_text().splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            row = json.loads(line)
+            ts = parse_timestamp(row.get("ts"))
+            if ts is not None:
+                timestamps.add(ts)
+    except OSError as e:
+        return {"name": "bovada_closing_line_cadence", "workflow": BOVADA_WORKFLOW,
+               "status": "UNREADABLE", "detail": f"{type(e).__name__}: {e}"}
+
+    cutoff = now.timestamp() - BOVADA_WINDOW_DAYS * 86400
+    recent = [t for t in timestamps if t.timestamp() >= cutoff]
+    weekdays_seen = {t.weekday() for t in recent}  # Mon=0 ... Sun=6
+    has_thursday = 3 in weekdays_seen
+    has_sunday = 6 in weekdays_seen
+
+    if not recent:
+        return {"name": "bovada_closing_line_cadence", "workflow": BOVADA_WORKFLOW,
+               "status": "STALE",
+               "detail": f"no snapshot at all in the last {BOVADA_WINDOW_DAYS} days"}
+
+    # BOOTSTRAP GRACE, real incident this exists to prevent (checked, not
+    # theoretical): the capture's OWN earliest timestamp can be younger
+    # than BOVADA_WINDOW_DAYS -- a store that has not existed long enough
+    # to have seen one real Thursday+Sunday cycle is not "missing" one,
+    # the same "correctly not-yet-due" shape fp_expert_ranks_weekly's own
+    # preseason_gated entry already carries in this file.
+    earliest = min(timestamps)
+    age_of_capture_days = (now - earliest).total_seconds() / 86400
+    if age_of_capture_days < BOVADA_WINDOW_DAYS and not (has_thursday and has_sunday):
+        return {"name": "bovada_closing_line_cadence", "workflow": BOVADA_WORKFLOW,
+               "status": "PENDING (bootstrap grace)",
+               "detail": f"capture is only {age_of_capture_days:.1f}d old, "
+                         f"younger than the {BOVADA_WINDOW_DAYS}d window -- "
+                         "has not had a full Thu+Sun cycle yet, correctly "
+                         "not flagged as a gap"}
+
+    if has_thursday and has_sunday:
+        return {"name": "bovada_closing_line_cadence", "workflow": BOVADA_WORKFLOW,
+               "status": "OK",
+               "detail": f"both Thursday and Sunday snapshots present in the "
+                         f"last {BOVADA_WINDOW_DAYS} days"}
+    missing = ("Sunday" if has_thursday else "Thursday" if has_sunday
+              else "Thursday and Sunday")
+    return {"name": "bovada_closing_line_cadence", "workflow": BOVADA_WORKFLOW,
+           "status": "STALE",
+           "detail": f"missing {missing} in the last {BOVADA_WINDOW_DAYS} days "
+                     f"— the closing-line benchmark has a real gap"}
+
+
 def run(now: datetime | None = None) -> dict:
     now = now or datetime.now(timezone.utc)
     results = [check_store(name, spec, now) for name, spec in MANIFEST.items()]
+    results.append(check_bovada_cadence(BOVADA_PATH, now))
     stale = [r for r in results if not is_healthy(r["status"])]
     return {"_territory": "TERRITORY: C — draft/tools/capture_cron_health.py",
            "_why": ("Register 155's class: a scheduled capture can run green "

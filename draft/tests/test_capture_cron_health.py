@@ -121,5 +121,67 @@ def test_check_store_control_only_reports_failure_when_the_control_failed(tmp_pa
 def test_run_against_the_real_committed_stores_does_not_crash():
     doc = CCH.run()
     names = {r["name"] for r in doc["results"]}
-    assert names == set(CCH.MANIFEST)
+    # bovada_closing_line_cadence is a special-case check outside the
+    # single-timestamp MANIFEST pattern (Cory's in-season queue item 5) --
+    # every MANIFEST name must appear, plus that one extra.
+    assert names == set(CCH.MANIFEST) | {"bovada_closing_line_cadence"}
     assert "checked_at" in doc
+
+
+# ── bovada_closing_line_cadence (Cory's in-season queue item 5) ──────────
+
+def _write_bovada_jsonl(tmp_path, monkeypatch, rows):
+    monkeypatch.setattr(CCH, "ROOT", tmp_path)
+    d = tmp_path / "draft" / "data"
+    d.mkdir(parents=True)
+    path = d / "bovada_lines_2026.jsonl"
+    with path.open("w") as f:
+        for ts in rows:
+            f.write(json.dumps({"ts": ts, "game": "X @ Y"}) + "\n")
+    return path
+
+
+def test_check_bovada_cadence_ok_when_both_days_present_and_capture_is_old_enough(tmp_path, monkeypatch):
+    # An old anchor row (establishes the capture existed well before the
+    # window, clearing bootstrap grace) plus a real recent Thursday
+    # (2026-08-13) and Sunday (2026-08-16) inside the trailing window.
+    _write_bovada_jsonl(tmp_path, monkeypatch,
+                        ["2026-07-01T12:00:00Z",
+                        "2026-08-13T12:00:00Z", "2026-08-16T16:00:00Z"])
+    now = datetime(2026, 8, 20, tzinfo=timezone.utc)
+    result = CCH.check_bovada_cadence(CCH.BOVADA_PATH, now)
+    assert result["status"] == "OK"
+
+
+def test_check_bovada_cadence_flags_a_genuinely_missing_thursday(tmp_path, monkeypatch):
+    # THE REAL INCIDENT this pins: a capture old enough to have had a real
+    # Thu+Sun cycle, but only Sunday snapshots landed -- a real gap, not a
+    # bootstrap artifact. Two Sundays, spread across weeks so the capture's
+    # own age clears the bootstrap grace, no Thursday anywhere.
+    _write_bovada_jsonl(tmp_path, monkeypatch,
+                        ["2026-08-02T16:00:00Z", "2026-08-09T16:00:00Z",
+                        "2026-08-16T16:00:00Z"])
+    now = datetime(2026, 8, 20, tzinfo=timezone.utc)
+    result = CCH.check_bovada_cadence(CCH.BOVADA_PATH, now)
+    assert result["status"] == "STALE"
+    assert "Thursday" in result["detail"]
+
+
+def test_check_bovada_cadence_bootstrap_grace_does_not_false_positive_a_new_capture(tmp_path, monkeypatch):
+    # THE REAL INCIDENT this pins directly: bovada-lines-capture.yml's own
+    # first real Actions history (checked 2026-08-23) has exactly one
+    # `event: schedule` run ever (Sunday) and zero Thursday runs, because
+    # the workflow was merged to main only days earlier and has not seen
+    # its first real Thursday yet. That is correctly PENDING, not STALE.
+    _write_bovada_jsonl(tmp_path, monkeypatch, ["2026-08-23T16:13:11Z"])
+    now = datetime(2026, 8, 23, 20, 0, tzinfo=timezone.utc)
+    result = CCH.check_bovada_cadence(CCH.BOVADA_PATH, now)
+    assert result["status"] == "PENDING (bootstrap grace)"
+
+
+def test_check_bovada_cadence_missing_file_is_a_real_problem(tmp_path, monkeypatch):
+    monkeypatch.setattr(CCH, "ROOT", tmp_path)
+    (tmp_path / "draft" / "data").mkdir(parents=True)
+    now = datetime(2026, 8, 20, tzinfo=timezone.utc)
+    result = CCH.check_bovada_cadence(CCH.BOVADA_PATH, now)
+    assert result["status"] == "MISSING"
