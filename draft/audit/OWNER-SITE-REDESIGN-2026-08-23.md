@@ -42,7 +42,14 @@ Buy-in status, payout table, chat preview: gone from the fold — linked where t
 ### The Book (bank + bets merged) — the sportsbook page
 - **Bet cards**: who vs who · stake · the line in plain words · state chip · the ONE legal
   action as a button (Accept / Withdraw / —). Sent-but-unaccepted cards carry **Withdraw**
-  and **Edit** (edit = withdraw + re-open the send form prefilled — honest, zero new bet logic).
+  and **Edit**.
+- **Edit is a TRUE edit, in place** (Cory's correction, 08-23: *"I didn't say bet withdrawal
+  I said edit"*): tap Edit on your unaccepted bet, change stake or terms, save — same card,
+  same thread, no withdrawn-and-resent noise. Two integrity rules make it safe, and they are
+  the only new server logic this spec allows: ① every edit bumps a terms-version and the card
+  shows an **"edited"** chip with the old terms one tap away; ② an Accept submits the version
+  it was looking at, and the server refuses a stale accept — nobody can ever accept terms they
+  did not see. Once accepted, Edit disappears; that is what accepted means.
 - **MY BETS** tabs: *Open on me* · *I sent* · *Live* · *Settled (P&L running total)*. This is
   "easily track your own bets" — it becomes the tab's landing view.
 - **The ledger**: one net line per pair ("Rich owes you $25"), square-up math behind a tap,
