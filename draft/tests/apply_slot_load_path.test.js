@@ -76,10 +76,15 @@ const clone = () => JSON.parse(JSON.stringify(DATA));
 
 // ── THE TRUTH, from the shared module, for MY seat ──────────────────────────
 const league = DATA.league;
-const KEEPERS = (DATA.kept_players || []).length
-  ? DATA.kept_players
-  : ((DATA.pick_order || {}).forfeited || []);
 const MYSLOT = Number(league.my_draft_slot);
+/* Post-lock (2026-08-23) kept_players carries the WHOLE league's slate; the
+ * truth call below charges keepers to MY seat, so feeding it all 23 forfeits
+ * 23 of my 15 rounds and "truth" collapses to []. Filter to my seat —
+ * entries have carried team_slot in both eras. */
+const KEEPERS = ((DATA.kept_players || []).length
+  ? DATA.kept_players
+  : ((DATA.pick_order || {}).forfeited || []))
+  .filter(k => Number(k.team_slot) === MYSLOT);
 const truth = K.buildTruePickOrder({
   teams: league.teams, rounds: league.rounds,
   draft_type: league.draft_type || 'snake', my_draft_slot: MYSLOT,
