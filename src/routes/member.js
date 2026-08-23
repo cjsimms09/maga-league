@@ -1804,7 +1804,14 @@ async function tooLate(bet, req) {
   // Anybody scoring anywhere means the week is under way. Not just this
   // matchup — a bet between two people whose players all play Sunday is still
   // a bet on a week that started on Thursday.
-  const anyScore = (sData && Array.isArray(sData.matchups))
+  /* PRESEASON POINTS ARE NOISE, NOT KICKOFF — found live 2026-08-23, the
+   * day after the draft (Cory: bets on week 1 closed "because week 1 has
+   * started"). The weekend's preseason games put real player points into
+   * Sleeper's matchup rows, and points-on-the-board was read as the week
+   * being under way. A week can only be under way in the REGULAR season —
+   * Sleeper's own state says which it is. */
+  const inRegularSeason = !!(sData && sData.season_type === 'regular');
+  const anyScore = inRegularSeason && (sData && Array.isArray(sData.matchups))
     && sData.matchups.some(m => (m.points || 0) > 0);
   if (anyScore && !(bet.created_at && new Date(bet.created_at) > BL.kickoffOf(earliest, world.config.season_start))) {
     return `Week ${earliest} is under way — there are points on the board. This one had to be accepted before anybody scored.`;
@@ -2660,7 +2667,8 @@ async function pickemContext(world, me, { wantBoards = true } = {}) {
 
   const sData = await sleeper.bundle(leagueId);
   const weekNo = (sData && sData.week) || 1;
-  const anyScore = PE.anyScoreOnBoard(sData);
+  // Same preseason gate as the bet clock: preseason points must not lock picks.
+  const anyScore = !!(sData && sData.season_type === 'regular') && PE.anyScoreOnBoard(sData);
   const locked = PE.isLocked({ week: weekNo, seasonStart, anyScore });
   const lockAt = PE.lockAt(weekNo, seasonStart);
 

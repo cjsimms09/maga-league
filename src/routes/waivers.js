@@ -26,7 +26,11 @@
 'use strict';
 const path = require('path');
 const V = require(path.join(__dirname, '..', '..', 'public', 'js', 'draft', 'valuation.js'));
-const LO = require(path.join(__dirname, '..', '..', 'src', 'routes', 'lineup.js'));
+// STATIC on purpose (2026-08-23): a path.join require of a SIBLING module is
+// invisible to esbuild, so production lacked the file on disk and this line
+// was the next 500 behind the valuation.js one Cory hit live. A static
+// relative require is traced and bundled like every other src module.
+const LO = require('./lineup.js');
 
 // The dollar value of ONE marginal projected point added to my starting lineup,
 // via the SAME model the lineup tool uses: it nudges P(win) (worth matchupValue)

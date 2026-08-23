@@ -73,7 +73,8 @@
     "mlv": "RB Breece Hall"
    },
    "took_was_still_there_next_pick": false,
-   "points_vs_best_wait_position": -1.7
+   "vorp_vs_best_wait_position": -23,
+   "comparison_crosses_onesie": false
   },
   {
    "pick": 48,
@@ -100,7 +101,8 @@
     "mlv": "RB Travis Etienne"
    },
    "took_was_still_there_next_pick": false,
-   "points_vs_best_wait_position": -36.2
+   "vorp_vs_best_wait_position": -20.3,
+   "comparison_crosses_onesie": false
   },
   {
    "pick": 53,
@@ -127,7 +129,8 @@
     "mlv": "RB Quinshon Judkins"
    },
    "took_was_still_there_next_pick": false,
-   "points_vs_best_wait_position": 0
+   "vorp_vs_best_wait_position": 0,
+   "comparison_crosses_onesie": false
   },
   {
    "pick": 68,
@@ -154,7 +157,8 @@
     "mlv": "RB Jaylen Warren"
    },
    "took_was_still_there_next_pick": false,
-   "points_vs_best_wait_position": -158.9
+   "vorp_vs_best_wait_position": 9.5,
+   "comparison_crosses_onesie": false
   },
   {
    "pick": 73,
@@ -181,7 +185,8 @@
     "mlv": "RB Jaylen Warren"
    },
    "took_was_still_there_next_pick": false,
-   "points_vs_best_wait_position": 0
+   "vorp_vs_best_wait_position": 0,
+   "comparison_crosses_onesie": false
   },
   {
    "pick": 88,
@@ -208,7 +213,8 @@
     "mlv": "RB Chuba Hubbard"
    },
    "took_was_still_there_next_pick": false,
-   "points_vs_best_wait_position": 2.6
+   "vorp_vs_best_wait_position": 18.4,
+   "comparison_crosses_onesie": false
   },
   {
    "pick": 93,
@@ -235,7 +241,8 @@
     "mlv": "RB Kyle Monangai"
    },
    "took_was_still_there_next_pick": false,
-   "points_vs_best_wait_position": 213.3
+   "vorp_vs_best_wait_position": -25.4,
+   "comparison_crosses_onesie": true
   },
   {
    "pick": 108,
@@ -262,7 +269,8 @@
     "mlv": "RB Kenny Gainwell"
    },
    "took_was_still_there_next_pick": false,
-   "points_vs_best_wait_position": 0
+   "vorp_vs_best_wait_position": 0,
+   "comparison_crosses_onesie": false
   },
   {
    "pick": 113,
@@ -289,7 +297,8 @@
     "mlv": "RB Kenny Gainwell"
    },
    "took_was_still_there_next_pick": false,
-   "points_vs_best_wait_position": -99.2
+   "vorp_vs_best_wait_position": -115,
+   "comparison_crosses_onesie": false
   },
   {
    "pick": 128,
@@ -316,7 +325,8 @@
     "mlv": "RB Chris Rodriguez"
    },
    "took_was_still_there_next_pick": false,
-   "points_vs_best_wait_position": -34.7
+   "vorp_vs_best_wait_position": -126.8,
+   "comparison_crosses_onesie": true
   },
   {
    "pick": 133,
@@ -343,7 +353,8 @@
     "mlv": "RB Chris Rodriguez"
    },
    "took_was_still_there_next_pick": false,
-   "points_vs_best_wait_position": -32.6
+   "vorp_vs_best_wait_position": -32.6,
+   "comparison_crosses_onesie": false
   },
   {
    "pick": 148,
@@ -370,7 +381,8 @@
     "mlv": "RB Rachaad White"
    },
    "took_was_still_there_next_pick": null,
-   "points_vs_best_wait_position": null
+   "vorp_vs_best_wait_position": null,
+   "comparison_crosses_onesie": null
   }
  ],
  "roster_shape": {
