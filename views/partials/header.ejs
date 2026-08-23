@@ -97,12 +97,21 @@
   // lives behind "More". Splitting the list in two places is how they drift.
   const _unread = typeof chatUnread !== 'undefined' ? chatUnread : 0;
   const _bets = typeof betsWaiting !== 'undefined' ? betsWaiting : 0;
+  const _votes = typeof votesWaiting !== 'undefined' ? votesWaiting : 0;
   // MEMBER-SITE PASS (2026-08-16): the phone tab bar is the season's shape now
   // — Office / Matchup / Scores / Finances / Locker. "Scores" (the whole
   // slate) replaces "Team" in the five: on a Sunday the league lives on the
   // scoreboard, and My Team is one tap away from the matchup footer and More.
   // The Races joins the nav (the new member page); week nav lives ON the
   // matchup/scoreboard pages, not here.
+  //
+  // Cory, 2026-08-22: "not very convenient to get to votes tab... needs to be
+  // more clear." Voting Booth was buried in More the whole time — two taps,
+  // no badge, easy to miss an open ballot entirely. It now joins the primary
+  // five (same badge treatment as Finances/Locker: a live count of ballots
+  // you haven't cast), which supersedes the 08-16 "five is the shape" call
+  // for this one item — Cory's direct ask on his own site wins over a prior
+  // internal convention.
   const _nav = [
     { href: '/',        label: 'League Office', short: 'Office',  icon: '🏛',  primary: true },
     // PRIMARY since the 2026-08-15 member-site review: the goal is tracking
@@ -118,7 +127,7 @@
     { href: '/bank',    label: 'League Finances', short: 'Finances', icon: '💰',  primary: true, badge: _bets },
     { href: '/chat',    label: 'Locker Room',   short: 'Locker',  icon: '💬',  primary: true, badge: _unread },
     { href: '/draft',   label: 'Draft Spot',     short: 'Draft',   icon: '🎯',  match: '/draft' },
-    { href: '/votes',   label: 'Voting Booth',  short: 'Votes',   icon: '🗳',  match: '/votes' },
+    { href: '/votes',   label: 'Voting Booth',  short: 'Votes',   icon: '🗳',  match: '/votes', primary: true, badge: _votes },
     // Owners and Record Book are sections of /history now, not nav items.
     // Three entries answering one question ("who has won what") cost three
     // slots in a bar that was already 70% off-screen on a phone.

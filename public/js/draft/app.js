@@ -1076,6 +1076,27 @@
     return SourceBoard.forSource(state.myRoster, state.rankSource);
   }
 
+  /* THE WAIVER BASELINE FOR WHATEVER SOURCE IS ACTIVE — register 221, 08-21.
+   *
+   * `sourceAdjustedBoard()` above re-prices every player under the active
+   * source. RosterBuilderMLV then scores each one as `proj − waiver[pos]`, so
+   * if the numerator follows the toggle and the denominator does not, the
+   * roster-builder's answer drifts on every switch for a reason that is not
+   * about football. This closes that pairing for the second voice, the same
+   * way `surplus_over_wire_by_source` closed it for the "+N wire" chip.
+   *
+   * NULL IS A REAL ANSWER HERE, and it is the safe one: `position_boards.json`
+   * is fetched async and may not have landed, or may be a pre-08-21 artifact
+   * with no `waiver_by_source`. Returning null makes mlv.js keep its derived
+   * BLEND default rather than fall back to zero, which would price every
+   * player as pure surplus. */
+  function activeWaiverBaseline() {
+    const pb = state.positionBoards;
+    const by = pb && pb.waiver_by_source;
+    if (!by) return null;
+    return by[state.rankSource || 'blend'] || null;
+  }
+
   /* HOW DEEP THE BOARD ACTUALLY MATTERS — Cory, 2026-08-20: "We really just
    * need to focus on top 200 players maybe 250".
    *
@@ -3415,9 +3436,17 @@
       // derive() computes them after the verdict and backed pick are final, so
       // this input can never move the recommendation — pinned by
       // ui_fidelity_tiebreak.test.js.
+      /* CORY'S 08-21 RULING: the headline is the highest-VONA player on the
+       * ACTIVE source, so derive() has to be told which source that is — the
+       * sentence it prints names it, and a headline that said "the blend"
+       * while the board was ranked on CBS would be worse than no label. */
+      const _srcLabel = state.rankSource
+        ? ((SourceBoard.SOURCES.find(s => s.key === state.rankSource) || {}).label
+            || state.rankSource)
+        : 'the blend';
       v = DraftVerdict.derive({ cfg: E.CFG, scored: out.scored,
         confidence: out.confidence, rule: rule, plan: plan, poll: poll,
-        roster: state.myRoster || [] });
+        roster: state.myRoster || [], sourceLabel: _srcLabel });
     } catch (e) {
       console.error('[verdict]', e && e.message);
       host.style.display = 'none'; host.innerHTML = ''; return;
@@ -3714,7 +3743,10 @@
     // stylesheet is the single owner of this color now; do not re-add inline.
     clockNameEl.style.color = '';
     $('#clock-meta').textContent = (p.team || '') + (p.bye ? ' · bye ' + p.bye : '')
-      + ' · ADP ' + Math.round(p.adjusted_adp);
+      /* Cory's ruling, 08-23 post-draft: cards show the OUTSIDE-SOURCE ADP,
+       * never the internal keeper-adjusted remap (register 260 — Judkins
+       * showed 21 while FantasyPros said 44). adjusted_adp stays engine-only. */
+      + ' · ADP ' + (p.adp == null ? '—' : Math.round(p.adp));
     // C3 — the RAW projection as a sanity check, next to our valuation, labelled
     // honestly by source count (consensus.js: "Consensus (N src)" at ≥2 — today's
     // board carries Sleeper+FP, plus our own model where it attaches — a single
@@ -5364,16 +5396,26 @@
       return '<tr><td><span class="rec-pos ' + q + '">' + q + '</span></td>' + cells + '</tr>';
     }).join('');
 
+    /* Cory, draft day 08-22: "clean up all the conflicting info... only
+     * needs good info! so many tools I feel like you or A have told me not
+     * to follow." This table is six voices and the board acts on ONE of
+     * them (its own caption says so). It stays reachable — he has asked to
+     * see the sources side by side — but ships COLLAPSED: a disagreeing
+     * table is a click he chooses, never a second unmarked answer sitting
+     * open on the decide path. */
     host.innerHTML = '<div class="body">'
-      + '<h3 style="margin:0 0 .3rem">📋 Best available, by source '
+      + '<details class="src-collapse">'
+      + '<summary style="cursor:pointer"><h3 style="margin:0 0 .3rem;display:inline">📋 Best available, by source '
       + explainPanel('source_boards') + '</h3>'
+      + ' <span class="muted" style="font-size:.75rem">reference — the board acts on the Blend; tap to see where sources disagree</span>'
+      + '</summary>'
       + '<div style="overflow-x:auto"><table style="font-size:.8rem;border-collapse:collapse;width:100%">'
       + head + rows + '</table></div>'
       + '<p class="muted" style="margin:.5rem 0 0;font-size:.75rem">'
       + '<b>•</b> marks a source that wants someone different from the blend. '
       + 'Order only — no points are shown, because the sources are not on one scale '
       + 'and their offsets differ by position. Our own projections are excluded on '
-      + 'your ruling.</p></div>';
+      + 'your ruling.</p></details></div>';
     /* Given a real mount point (E's finding 1 fix, 2026-08-20/21) the shell
      * starts display:none so it never flashes empty before state.sourceBoards
      * loads — same convention as #model-compare-card. Un-hide only once
@@ -5406,7 +5448,7 @@
       const why = (s.reasons && s.reasons.length) ? s.reasons[0] : '';
       return '<li style="margin-bottom:.35rem"><b>' + escapeHtml(p.name) + '</b> '
         + '<span class="muted">' + escapeHtml(p.position) + (p.team ? ' ' + escapeHtml(p.team) : '')
-        + ' · ADP ' + (p.adjusted_adp == null ? '—' : Math.round(p.adjusted_adp))
+        + ' · ADP ' + (p.adp == null ? '—' : Math.round(p.adp))
         + ' · score ' + s.score.toFixed(1) + '</span>'
         + (gone == null ? ''
             : '<br><span style="font-size:.78rem">' + gone + '% gone by pick ' + next
@@ -5993,7 +6035,7 @@
         + '<div class="cmp-name"' + (p.player_id != null ? ' data-drill="' + escapeHtml(String(p.player_id)) + '"' : '')
           + '>' + escapeHtml(p.name) + '<span class="rec-pos ' + p.position + '">' + p.position + '</span></div>'
         + '<div class="cmp-stat">proj <b>' + Math.round(p.proj_mean || 0) + '</b> · ceil <b>' + Math.round(p.proj_ceiling || 0) + '</b></div>'
-        + '<div class="cmp-stat">tier <b>' + (p.tier || '?') + '</b> · ADP <b>' + Math.round(p.adjusted_adp || p.adp || 0) + '</b></div>'
+        + '<div class="cmp-stat">tier <b>' + (p.tier || '?') + '</b> · ADP <b>' + Math.round(p.adp || p.raw_adp || 0) + '</b></div>'
         + '</div>';
     };
     host.style.display = '';
@@ -6041,6 +6083,15 @@
             + ' <span class="muted">(entry $' + g.terms.B.dollars.entry + ' + RS $' + g.terms.B.dollars.rs + ', fixed 1.6:1)</span>'
           + '<br><span class="muted">boom is the only term with independent information: '
             + 'entry and RS are both a constant times the projection, so they always move together.</span>'
+          /* Register 238 family, label-only (relay, Cory's direction, draft
+           * eve): the dollar model overprices QUARTERBACKS in this 1-QB
+           * league, so a $ comparison touching a QB says so out loud instead
+           * of relying on the reader remembering. Model re-rank is Sunday
+           * work; this line comes out with it. */
+          + ((a.position === 'QB' || b.position === 'QB')
+            ? '<br><span class="muted">\u26a0 dollar figures overprice QBs in a 1-QB league \u2014 '
+              + 'discount the QB side of this comparison.</span>'
+            : '')
           : '')
         + (g.terms.echo ? '<br>next-pick echo: cost of taking ' + escapeHtml(a.name) + ' = ' + g.terms.echo.cost_of_taking_A + ' pts, ' + escapeHtml(b.name) + ' = ' + g.terms.echo.cost_of_taking_B + ' pts' : '')
         + '</div></details>'
@@ -6375,7 +6426,8 @@
         + escapeHtml(rp.label.replace(/ proj$/, '')) + ' <b>'
         + (rp.value == null ? '—' : Math.round(rp.value)) + '</b></span>'
       + '<span>Tier <b>' + p.tier + '</b> (' + p.tier_rank + '/' + p.tier_size + ')</span>'
-      + '<span>ADP <b>' + Math.round(p.adjusted_adp) + '</b></span>'
+      + '<span title="outside-source ADP (' + escapeHtml(p.adp_source || 'blend') + ')">ADP <b>'
+        + (p.adp == null ? '—' : Math.round(p.adp)) + '</b></span>'
       + (pct ? '<span class="' + (pct > 70 ? 'neg' : '') + '" title="market+room estimate — the number the score uses">~' + pct + '% gone by next</span>' : '')
       // One tap deeper: the full dossier of engine fields for this row.
       + '<button class="rec-expand" data-dossier="' + p.player_id + '">'
@@ -6739,17 +6791,22 @@
       const pct = survivalPct(1 - (s.survival_to_next || 0));
       /* FALLING (Cory, cockpit steering): value sliding past its market price —
        * he is on the board 10+ picks after the market expected him gone. */
-      const falling = (curPickNo != null && p.adjusted_adp != null
-        && p.adp_source !== 'search_rank' && (curPickNo - p.adjusted_adp) >= 10);
+      /* Cory's definition, 08-23: "if someone normally goes ADP 20 and I can
+       * get him at 30, that's value" — FALLING is market price vs the pick on
+       * the clock, so it uses the OUTSIDE-SOURCE ADP. The old adjusted_adp
+       * here also mixed scales (board slots minus selection index — register
+       * 260), overstating falls by up to the keeper count. */
+      const falling = (curPickNo != null && p.adp != null
+        && p.adp_source !== 'search_rank' && (curPickNo - p.adp) >= 10);
       return '<div class="rec-card' + (i === 0 ? ' top' : '') + (s.demoted ? ' demoted' : '') + '">' +
         '<div class="rec-rank">' + (s.demoted ? '↓' : (i + 1)) + '</div>' +
         '<div class="rec-main">' +
           '<div class="rec-name"><span class="rec-nm" data-drill="' + p.player_id + '" title="Full dossier">' + escapeHtml(p.name) + '</span>' +
             '<span class="rec-pos ' + p.position + '">' + p.position + '</span>' +
             '<span class="muted">' + escapeHtml(p.team || '') + (p.bye ? ' · bye ' + p.bye : '') + '</span>' +
-            (falling ? '<span class="wr-falling" title="On the board ' + Math.round(curPickNo - p.adjusted_adp)
-              + ' picks past his ADP (' + Math.round(p.adjusted_adp) + ') — the room is letting him slide">FALLING '
-              + Math.round(curPickNo - p.adjusted_adp) + '</span>' : '') +
+            (falling ? '<span class="wr-falling" title="On the board ' + Math.round(curPickNo - p.adp)
+              + ' picks past his ADP (' + Math.round(p.adp) + ') — the room is letting him slide">FALLING '
+              + Math.round(curPickNo - p.adp) + '</span>' : '') +
             sourceGapBadge(p, state.board) +
             (typeof MarketDelta !== 'undefined' ? MarketDelta.chipHtml(p, escapeHtml) : '') +
           '</div>' +
@@ -6998,6 +7055,25 @@
         note.textContent = 'Ordered by our replacement math applied to ' + label + '’s projections — '
           + label + ' does not publish their own overall board, so this is OUR opinion of THEIR numbers, not a ranking ' + label + ' made.';
       }
+      /* Cory, draft day: "different tools give different tier cliffs and I
+       * have no idea what's real." Say it on the surface itself. */
+      /* ⚠️ CORRECTED 2026-08-22, ~2h before the draft. This read 'Red tier
+       * lines = this source\u2019s opinion. For timing, trust \u26a1 STRIKE on the
+       * Draft tab.' BOTH HALVES WERE FALSE, and they contradicted the source
+       * banner two inches away, which says these two do NOT follow the toggle.
+       *
+       * Measured, not argued: `position_boards.json` carries `cliff_after_rank`
+       * and `cliff_size` with NO `_by_source` variant, and `strikePeaks()`
+       * (position_boards_view.js) reads `d.VONA` — the plain Draft-Sharks field —
+       * not `VONA_by_source[rankKey]`. So the cliffs are not this source's
+       * opinion, and STRIKE is not this source's timing.
+       *
+       * Telling Cory to trust STRIKE for timing while he is on CBS points him at
+       * a Draft Sharks answer wearing CBS's label — the exact defect the banner
+       * exists to prevent, reintroduced in the panel the banner is warning about. */
+      note.textContent += ' Red tier lines and \u26a1 STRIKE are DRAFT SHARKS, whatever'
+        + ' source you pick \u2014 they do not follow the toggle. Where they disagree'
+        + ' with the VONA chip beside them, the VONA chip is the one on your source.';
     })();
     const rows = (state.search
       ? srcBoard.filter(match)
@@ -7681,7 +7757,7 @@
       // report; say that in one short line instead of inventing one.
       var totalPicks = ((state.data.pick_order || {}).picks || []).length || null;
       var stTarget = st.target || atPos[0];
-      var tgtAdp = stTarget && (stTarget.adjusted_adp || stTarget.raw_adp) || null;
+      var tgtAdp = stTarget && (stTarget.adp || stTarget.raw_adp) || null;
       var noDeadline = !!(totalPicks && tgtAdp && tgtAdp > totalPicks
         && st.by_pick === upcoming[upcoming.length - 1]);
       /* THE POOL IDS RIDE WITH THE CALL, because the claim is about the POOL and
@@ -8068,6 +8144,27 @@
    */
   function importDraftOrder(draft) {
     if (!draft) return null;
+    /* ⚠️ REAL-DRAFT VERIFICATION — Cory, draft day 08-22: "how does it
+     * differentiate between mock and real draft!!" It does not guess: the
+     * draft OBJECT Sleeper returns carries the league_id it belongs to. A
+     * lobby mock carries none (or a different one). Say the verdict on the
+     * status line the moment the room is fetched, so a wrong paste is
+     * caught before pick one — display + capture tag only, never blocks
+     * the sync (a stale league_id must not freeze a live draft). */
+    try {
+      const ourLeague = String((state.data.league || {}).league_id || '');
+      const roomLeague = draft.league_id != null ? String(draft.league_id) : null;
+      state.roomLeagueCheck = !ourLeague ? 'unknown'
+        : (roomLeague === ourLeague ? 'league'
+          : (roomLeague ? 'other_league' : 'mock_lobby'));
+      if (state.roomLeagueCheck === 'league') {
+        setStatus({ state: 'ok', message: '✅ REAL LEAGUE DRAFT — this room belongs to your league. Everything recorded counts.' });
+      } else if (state.roomLeagueCheck === 'mock_lobby') {
+        setStatus({ state: 'warn', message: '⚠️ MOCK ROOM — this draft belongs to NO league. Fine for practice; NOT tonight’s draft. Paste the room from your league’s Draft tab.' });
+      } else if (state.roomLeagueCheck === 'other_league') {
+        setStatus({ state: 'warn', message: '⚠️ WRONG LEAGUE — this room belongs to a different league than the board. Check the URL.' });
+      }
+    } catch (e) { /* verification is advisory — never costs a pick */ }
     // URGENT (chat-Claude, 2026-08-08): the LEAGUE settings showed draft_rounds:3.
     // The DRAFT OBJECT's rounds is authoritative — capture it so the checklist
     // can verify it equals 15. A 3-round draft object is a draft-night disaster
@@ -8549,7 +8646,7 @@
     const seen = (state.recentPicks || []).filter(p => p && p.player && p.pick_no);
     state.drift = E.survivalModel.adpDrift(seen.map(p => ({
       pick_no: p.pick_no,
-      adp: p.player.adjusted_adp || p.player.raw_adp,
+      adp: p.player.adp || p.player.raw_adp,
     })));
     const host = $('#drift-note');
     if (!host) return;
@@ -9112,10 +9209,26 @@
         + 'source, not the blend. <b>' + missingCount + ' players ' + esc(activeSrc.label)
         + ' does not cover are OFF the board right now</b> — they are not gone, just hidden until you '
         + 'switch back to Blend.'
+        /* ⚠️ THE "+N wire" CHIP CAME OFF THIS LIST 2026-08-21 BECAUSE IT NOW
+         * FOLLOWS THE TOGGLE — register 221 closed the same day this sentence
+         * was written to describe it. Leaving it named here would be the
+         * register 5h shape in the sentence written to prevent register 5h: a
+         * banner telling Cory to distrust a number that is now correct is not
+         * a smaller error than one telling him to trust a number that is not.
+         * `surplus_over_wire_by_source` is what the chip reads; if that ever
+         * stops being emitted the chip prints a labelled fallback, and
+         * wire_follows_source.test.js goes red before this line does.
+         *
+         * THE OTHER TWO ARE STILL FROZEN AND ARE STILL NAMED. Cliffs and the
+         * strike strip need a signature change through position_boards.js
+         * (registers 216 / 226); that is post-draft work, and until it lands
+         * this banner must keep saying so. */
         + '<br><b>Still Draft Sharks, NOT ' + esc(activeSrc.label) + ':</b> the tier-cliff lines '
-        + '("next tier drops N pts"), the strike strip and the "+N wire" chip. They do not follow '
+        + '("next tier drops N pts") and the strike strip. They do not follow '
         + 'this toggle — if one of them disagrees with the VONA chip beside it, the VONA chip is the '
-        + 'one on ' + esc(activeSrc.label) + '.</div>'
+        + 'one on ' + esc(activeSrc.label) + '. <b>The "+N wire" chip DOES follow it now</b> — its '
+        + 'count of players this league rosters comes from our own last three drafts, its price '
+        + 'from ' + esc(activeSrc.label) + '.</div>'
       : '';
     const panelHtml = '<div class="rs-buttons">' + btnHtml + '</div>' + warn
       /* BOTH NUMBERS, COMPUTED, NEVER QUOTED. An earlier draft of this line
@@ -9270,9 +9383,10 @@
         /* `taken` — the MLV Displacement lens is one of the four models Cory
          * clicks; it must not name a player who is gone (2026-08-20). */
         const recs = RosterBuilderMLV.recommend(sourceAdjustedBoard(), sourceAdjustedRoster() || [],
-          { league: state.data.league, topN: 1, taken: state.drafted });
+          { league: state.data.league, topN: 1, taken: state.drafted,
+            waiver: activeWaiverBaseline() });
         if (recs && recs.length && recs[0].player) {
-          rows.push({ label: 'MLV Displacement', player: recs[0].player.name,
+          rows.push({ label: 'Roster Builder (MLV Displacement)', player: recs[0].player.name,
             position: recs[0].position, player_id: String(recs[0].player.player_id),
             title: 'The player who adds the most points to your STARTING lineup right now (marginal lineup value) — a different model from the three above.' });
         }
@@ -10034,7 +10148,7 @@
     try {
       const c = ledgerCtx();
       const pickNo = Number(pick.pick_no) || null;
-      const adp = player.adjusted_adp != null ? player.adjusted_adp
+      const adp = player.adp != null ? player.adp
         : (player.raw_adp != null ? player.raw_adp : null);
       const scale = selectionIndexOf(pickNo, picks);
       // The whole point: where did the platform take him vs where the market
@@ -10113,7 +10227,7 @@
       seen.add(key);
       // §2(d): each pick is opponent-model evidence — show ADP delta (reach/fell).
       const pl = playerById(id);
-      const adp = pl ? (pl.adjusted_adp != null ? pl.adjusted_adp : pl.adp) : null;
+      const adp = pl ? (pl.adp != null ? pl.adp : pl.raw_adp) : null;
       let delta = null;
       if (no && adp != null) delta = Math.round(no - adp);   // <0 = drafted EARLY (reach), >0 = fell
       rows.push({ no: no || 0, name, pos, tag, who: seatLabel(slot), delta });
@@ -10730,7 +10844,8 @@
     try {
       if (typeof RosterBuilderMLV !== 'undefined') {
         const r = RosterBuilderMLV.recommend(boardAtPick, state.myRoster || [],
-          { league: state.data.league, topN: 1, taken: state.drafted });
+          { league: state.data.league, topN: 1, taken: state.drafted,
+            waiver: activeWaiverBaseline() });
         if (r && r.length) add('mlv_displacement', r[0].player, { marginal: r[0].marginal });
       }
     } catch (e) { /* ignore */ }
@@ -11950,6 +12065,21 @@
   window.WarRoomData = {
     scored: function () { return (state.lastClock && state.lastClock.scored) || []; },
     board: function () { return state.board || []; },
+    /* ⚠️ REGISTER 220/237 (E, 2026-08-21, re-measured and reproduced by B
+     * against live code): the Big Board tab's per-position COLUMNS
+     * (renderColumns() in warroom_charts.js) read `board()` above — always
+     * the raw blend, never the selected source — while the flat "Overall
+     * ranking" table on the SAME tab, right below the columns, already
+     * follows state.rankSource via renderBoard()'s own sourceAdjustedBoard()
+     * call. The ordering-basis caption (#board-ordering-note) repaints
+     * correctly on every source click, so the click lands and the sentence
+     * changes — the columns just never moved, making the sentence false for
+     * that half of the tab. REUSE, NOT REIMPLEMENTATION (Rule 11): this is
+     * the SAME sourceAdjustedBoard() renderBoard() already calls — the fix
+     * is which board warroom_charts.js reads, not new sort/swap logic. */
+    sourceAdjustedBoard: function () {
+      try { return sourceAdjustedBoard(); } catch (e) { return state.board || []; }
+    },
     players: function () { return (state.data && state.data.players) || []; },
     roster: function () { return state.myRoster || []; },
     starters: function () { return (((state.data || {}).league) || {}).starters || {}; },

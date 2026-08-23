@@ -33,6 +33,11 @@ on:
         type: boolean
         required: false
         default: false
+      allow_world_state_publish:
+        description: 'Publish even if WORLD-STATE tests fail (keeper-lock pins). Dispatch only — the cron can never set this. A real board failure still refuses.'
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   build:
@@ -308,7 +313,15 @@ jobs:
           # Set to "1" ONLY to publish over a WORLD-STATE alarm (see the long
           # note further down this step). Only the exact string "1" enables it.
           # Unset it again the moment the condition clears.
-          ALLOW_WORLD_STATE_PUBLISH: ""
+          # ⚠️ DISPATCH-ONLY, AND THAT IS THE POINT (2026-08-21, Cory's ruling).
+          # The 08-20 design said "change this line to \"1\" and re-run", which
+          # would have left a hardcoded override in the file where the 03:00 CRON
+          # reads it too — a one-time decision quietly becoming every future
+          # build's default. `inputs.*` is EMPTY on a scheduled run, so this
+          # resolves to "" there and the cron fails closed no matter what a
+          # dispatch did earlier. Only the exact string "1" enables it; the
+          # boolean input is compared explicitly so a typo cannot open it.
+          ALLOW_WORLD_STATE_PUBLISH: ${{ github.event.inputs.allow_world_state_publish == 'true' && '1' || '' }}
         # THE STEP THE OLD COMMENT DESCRIBED, in the only place it can be true:
         # after the artifact is built and before it is committed. A board is the
         # single input every draft-day surface reads, so publishing one that fails
@@ -375,10 +388,14 @@ jobs:
             # asserted, not claimed, by test_EQUIVALENCE_flag_off_classifies_
             # exactly_as_before. Nothing about this run changes.
             #
-            # TO TURN IT ON, if Friday night arrives with teams still unplaced:
-            # change the line below to `ALLOW_WORLD_STATE_PUBLISH: "1"` and
-            # re-run the workflow. Only the exact string "1" enables it — a typo
-            # fails closed. Even on, a real board failure still refuses, and the
+            # ⚠️ HOW YOU TURN IT ON CHANGED 2026-08-21 — this said "change the
+            # line below to `ALLOW_WORLD_STATE_PUBLISH: \"1\"`", and that would
+            # have written a one-time decision into the file the 03:00 CRON reads
+            # too. It is now a DISPATCH INPUT (`allow_world_state_publish`), so
+            # run the workflow manually with the box ticked. `inputs.*` is empty
+            # on a scheduled run, so the cron fails closed however the last
+            # dispatch went — the override cannot outlive the run that asked for
+            # it. Only the exact string "1" reaches the tool; a typo fails closed. Even on, a real board failure still refuses, and the
             # published board carries public/world_state_override.json naming
             # what was waived, so it can never be mistaken for a clean build.
             #
@@ -697,6 +714,15 @@ jobs:
           # own controls fail, so a broken join cannot reach the board.
           python3 draft/tools/attach_multisource.py
           python3 draft/tools/alt_source_rankings.py
+          # position_boards.js already ran ~140 lines above, BEFORE the attach
+          # step wrote proj_cbs/espn/fftoday/clay onto the board — so its
+          # covered_by_source was 0 for all four at every position and the war
+          # room printed a dash for their VONA (register 253, found on the
+          # live 2026-08-22 post-lock board). Re-run it here, against the
+          # board as it will actually publish. Re-running is the safe fix:
+          # moving the attach step earlier would reorder steps across the
+          # publish gate.
+          node draft/tools/position_boards.js
           # ⚠️ AND THIS LINE IS WHY conditional_value.py RUNS TWICE.
           #
           # alt_source_rankings.py WRITES public/draft_data.json (it adds the
@@ -810,7 +836,7 @@ jobs:
           # workflow (so the gate stopped failing on a stale census) but not into
           # this list — so CI graded a fresh census and committed the old one, and
           # the repo's copy stayed one rebuild behind for every consumer but the gate.
-          PATHS="public/draft_data.json public/mlv_plan.json public/board_ds.json public/board_sleeper.json public/board_own.json public/board_fp.json public/source_boards.json public/seat_plan.json public/position_boards.json public/mlv_recommend.json public/conditional_value_2026.json draft/data/conditional_value_2026.json public/opponent_need_2026.json draft/data/blended_projection.json draft/config/keepers.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md draft/data/adp_series.json draft/data/proj_series.json draft/data/room_read.md draft/data/room_read.json draft/data/player_positions.json draft/backtest/projection_coverage_census.json draft/data/roster_state_series.json"
+          PATHS="public/draft_data.json public/mlv_plan.json public/board_ds.json public/board_sleeper.json public/board_own.json public/board_fp.json public/source_boards.json public/seat_plan.json public/position_boards.json public/mlv_recommend.json public/conditional_value_2026.json draft/data/conditional_value_2026.json public/opponent_need_2026.json draft/data/blended_projection.json draft/config/keepers.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md draft/data/adp_series.json draft/data/proj_series.json draft/data/room_read.md draft/data/room_read.json draft/data/player_positions.json draft/backtest/projection_coverage_census.json draft/data/roster_state_series.json public/world_state_override.json draft/data/draft_day_consistency.json"
           EXISTING=""
           for p in $PATHS; do [ -e "$p" ] && EXISTING="$EXISTING $p"; done
           if [ -z "$EXISTING" ] || git diff --quiet -- $EXISTING; then

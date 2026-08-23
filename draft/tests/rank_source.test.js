@@ -115,16 +115,22 @@ const SRC = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
 {
   const ejs = fs.readFileSync(path.join(ROOT, 'views', 'admin', 'warroom.ejs'), 'utf8');
   ck('warroom.ejs has the mount point', /id="rank-source-card"/.test(ejs) && /id="rank-source"/.test(ejs));
-  const rankIdx = ejs.indexOf('id="rank-source-card"');
-  const recsIdx = ejs.indexOf('id="recs-card"');
-  ck('it sits BEFORE #recs-card in the document (and CSS order agrees — see style.css)',
-    rankIdx > 0 && recsIdx > 0 && rankIdx < recsIdx);
-
+  /* ⚠️ RULING SUPERSEDED, Cory, draft day 2026-08-22: "let's rearrange them
+   * in a way that makes sense based on what I should use the most." The
+   * 08-21 pin here ("toggle above the rec") encoded the previous ruling;
+   * the usage order now is decide-cards first, lens after: position-boards
+   * (STEP 1) < recs-card (STEP 2) < model-compare (STEP 3) <
+   * rank-source-card (STEP 4) < the two reference lists it drives. The pin
+   * flips to guard THAT order, so a regression to the old layout fails here
+   * the same way a regression to this one used to. */
   const css = fs.readFileSync(path.join(ROOT, 'public', 'css', 'style.css'), 'utf8');
-  const rsOrder = (css.match(/\.wr-zone1 > #rank-source-card\s*\{\s*order:\s*(\d+)/) || [])[1];
-  const recsOrder = (css.match(/\.wr-zone1 > #recs-card\s*\{\s*order:\s*(\d+)/) || [])[1];
-  ck('CSS order also places it before #recs-card (order numbers, not just DOM position)',
-    rsOrder != null && recsOrder != null && Number(rsOrder) < Number(recsOrder), { rsOrder, recsOrder });
+  const ord = id => Number((css.match(new RegExp('\\.wr-zone1 > #' + id + '\\s*\\{\\s*order:\\s*(\\d+)')) || [])[1]);
+  /* FINAL ruling, Cory 08-22 ~21:10Z: 'ranking source needs to be at very top of screen!!!' */
+  const seq = ['rank-source-card', 'position-boards', 'recs-card', 'model-compare-card', 'source-top-board-card'];
+  const vals = seq.map(ord);
+  ck('CSS usage order holds: position-boards < recs-card < model-compare < rank-source < top-available (Cory 08-22)',
+    vals.every(v => Number.isFinite(v)) && vals.every((v, i) => i === 0 || vals[i - 1] < v),
+    Object.fromEntries(seq.map((k, i) => [k, vals[i]])));
 }
 
 // ── 6b. MOUNTED A SECOND TIME ON THE BIG BOARD TAB ──────────────────────────

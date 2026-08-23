@@ -218,7 +218,6 @@
 
 <%
   const myTurn = draft.current && draft.current.owner_id === owner.id;
-  const unvoted = openVotes.filter(v => !v.myChoice).length;
   const iOwe = myBalance < 0;
   const pkNudge = (typeof pickemNudge !== 'undefined' && pickemNudge) ? pickemNudge : null;
 %>

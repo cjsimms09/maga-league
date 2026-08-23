@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 246,
+ "next_numeric_id": 265,
  "history": [
   {
    "id": 47,
@@ -296,18 +296,15 @@
   },
   {
    "id": 194,
-   "claimed_at": "2026-08-21",
-   "note": "E: my 192 claim collided with main's PRINTED register 192 (the Draft Sharks ceiling-ordering row, 19c8b68c) -- under register 186's protocol main-printed ids are canonical, so my row renumbers 192->194. My 191 and 193 are unaffected: main prints neither. Three citations repointed individually (ROUTES dispatch to A, draft/audit/MAIN-IS-RED-AND-NOBODY-HAS-SEEN-IT-2026-08-21.md header and section 6, and register 191's own 'filed as' sentence)."
+   "claimed_at": "2026-08-21"
   },
   {
    "id": 195,
-   "claimed_at": "2026-08-21",
-   "note": "E: my 193 claim collided with main's PRINTED register 193 (the dead `variance` board field, 91800237) -- register 186's protocol, main-printed ids canonical, so my control-band row renumbers 193->195. Second collision this session; my earlier 192->194 is the first. Both were SILENT: the duplicate rows sat on different lines and git auto-merged with no conflict marker, so only a post-merge grep for duplicate ids caught them."
+   "claimed_at": "2026-08-21"
   },
   {
    "id": 196,
-   "claimed_at": "2026-08-21",
-   "note": "E: reserved for the register row on my own defect -- a throwaway control probe wrote its biased output into draft/backtest/waiver_vs_random.json (TERRITORY: A) and `git add -A` committed it."
+   "claimed_at": "2026-08-21"
   },
   {
    "id": 197,
@@ -315,8 +312,7 @@
   },
   {
    "id": 198,
-   "claimed_at": "2026-08-21",
-   "note": "E: my 194 claim collided with main's PRINTED register 194 (A's row for the retired-comparison headline, 556d59c7). Register 186's protocol, main-printed ids canonical, so my blind-control row renumbers 194->198 -- its SECOND move (192->194->198). FOURTH silent collision of this session (192, 193, P313, 194): every one auto-merged with no conflict marker because the duplicate rows sat on different lines. The allocator cannot prevent this class -- branch and main allocate independently and only the merge can see both -- so the post-merge duplicate-id grep is the only detector, and it should be a CI step rather than a habit."
+   "claimed_at": "2026-08-21"
   },
   {
    "id": 199,
@@ -324,8 +320,7 @@
   },
   {
    "id": 200,
-   "claimed_at": "2026-08-21",
-   "note": "E: my 195 claim collided with main's PRINTED register 195 (the pre-draft survival collapse, fc55104c/edf59a15). Register 186's protocol, main-printed ids canonical, so my control-band row renumbers 195->200. SIXTH silent collision of this session (192, 193, P313, 194, 195) -- not one produced a conflict marker, because duplicate rows sit on different lines and git auto-merges them cleanly. The allocator cannot see across branch and main; only the merge can. ASK ON RECORD: the post-merge duplicate-id grep should be a CI step, not a habit -- test_defect_register.py already has test_no_two_rows_share_an_id, so the gap is that it only runs AFTER someone thinks to run it locally on a merged tree."
+   "claimed_at": "2026-08-21"
   },
   {
    "id": 201,
@@ -345,8 +340,7 @@
   },
   {
    "id": 205,
-   "claimed_at": "2026-08-21",
-   "note": "E: my 196 claim collided with main's PRINTED register 196 (the conservation-tilt constant, register 195's sweep). Protocol 186, main-printed ids canonical, so my probe-contamination row renumbers 196->205. SEVENTH silent collision of this session (192, 193, P313, 194, 195, 196) -- none produced a conflict marker."
+   "claimed_at": "2026-08-21"
   },
   {
    "id": 206,
@@ -403,6 +397,18 @@
    "claimed_at": "2026-08-21"
   },
   {
+   "id": 221,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 222,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 223,
+   "claimed_at": "2026-08-21"
+  },
+  {
    "id": 228,
    "claimed_at": "2026-08-21",
    "note": "E: THIRTEENTH collision round -- main printed 217 for the deploy-verify fix; my generator-verification row takes 228. Two rounds in a row now; the merge tax is becoming the dominant cost of this lane and is worth a ruling of its own."
@@ -431,6 +437,108 @@
   {
    "id": 234,
    "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 235,
+   "claimed_at": "2026-08-21",
+   "note": "E: claimed by an accidental `next_register_id.js` run during a merge resolve, then USED — my 219 claim collided with main's PRINTED register 219 (A's sys.modules stub-leak row, e12b3c2e). Register 186's protocol: main-printed ids are canonical, so my pre-deploy VONA row renumbers 219->235. Fifteenth collision this session and SILENT again: the two rows sat twelve lines apart, git auto-merged with no marker, and only a duplicate-id grep caught it. Five citations repointed individually with a per-line ownership assertion (ROUTES 13, 2830, 2831; DEFECT-REGISTER 427 twice); draft/audit/PRE-DEPLOY-VONA-VERIFICATION-2026-08-21.md carries no id and needed none."
+  },
+  {
+   "id": 236,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 240,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 241,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 242,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 243,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 244,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 245,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 246,
+   "claimed_at": "2026-08-21",
+   "note": "E: RESERVED on main so nobody re-claims it. My pre-draft-prep left-rail row holds 246 (renumbered 245->246 when main printed 245 for the reverse-standings waiver row). The row itself lands with E's branch merge; only the claim is published here."
+  },
+  {
+   "id": 247,
+   "claimed_at": "2026-08-21",
+   "note": "E: main is red on test_keeper_lock_flag -- 53464427 put the keeper-lock date literal into a build.py comment and gate_triage calls it BLOCKING, so the post-lock rebuild would refuse to publish. Filed straight to main under Rule 1b because the dispatch was invisible on my branch with A and B budget-frozen and the lock 3h away."
+  },
+  {
+   "id": 248,
+   "claimed_at": "2026-08-21"
+  },
+  {
+   "id": 249,
+   "claimed_at": "2026-08-21",
+   "note": "E: register 237 is live on main's bundle -- Big Board by-position columns are the blend under every source. B's fix is stranded on claude/warroom-shell-rebuild-0817. Filed straight to main under Rule 1b; the ROUTES item that would have chased it was ticked to clear a CI red."
+  },
+  {
+   "id": 250,
+   "claimed_at": "2026-08-21",
+   "note": "E: a team keeping ZERO makes keeper_slate 'confirmed' unreachable, and confirmed is the switch that applies opponent keepers to the board. Measured against 2025's real placements with a known-positive control. Filed straight to main under Rule 1b the night of the keeper lock."
+  },
+  {
+   "id": 251,
+   "claimed_at": "2026-08-22"
+  },
+  {
+   "id": 252,
+   "claimed_at": "2026-08-22"
+  },
+  {
+   "id": 253,
+   "claimed_at": "2026-08-22",
+   "note": "E: position_boards.json was generated before the multi-source attach, so ESPN/CBS/FFToday/Clay have covered_by_source 0 and no VONA on draft day. Proven by re-running position_boards.js unchanged on the committed board. Filed straight to main under Rule 1b."
+  },
+  {
+   "id": 254,
+   "claimed_at": "2026-08-22",
+   "note": "E: second stranded-fix-claimed-delivered in twelve hours (249 was the first), and each one makes main unpublishable via test_lane_coherence. Verified by sha AND by content grep."
+  },
+  {
+   "id": 255,
+   "claimed_at": "2026-08-22"
+  },
+  {
+   "id": 256,
+   "claimed_at": "2026-08-23",
+   "note": "E: the draft-night sync logged 150/150 picks and committed nothing -- git diff --quiet reports no-change for an UNTRACKED file, so the commit block was skipped on every poll. Proven with a two-arm control. Recoverable from Sleeper if the fix lands first."
+  },
+  {
+   "id": 257,
+   "claimed_at": "2026-08-23",
+   "note": "Row 257 (is_mine false on every pick-log row) was written to the register without advancing the watermark, so test_register_ids_never_pass_the_watermark went red on main. Recorded here by E to restore the invariant; the row and the finding are its author's, not E's."
+  },
+  {
+   "id": 258,
+   "claimed_at": "2026-08-23",
+   "note": "E: the draft log's stored recommendation is a cross-position VORP sort that names a DEFENSE as #1 on 80% of picks (Rams DEF for 58 consecutive). Not what the war room showed. Grading the draft off it would report Cory ignoring his tool on 4 picks in 5."
+  },
+  {
+   "id": 259,
+   "claimed_at": "2026-08-23"
+  },
+  {
+   "id": 260,
+   "claimed_at": "2026-08-23"
   },
   {
    "id": "137-138",
@@ -478,73 +586,16 @@
    "note": "A filed 47/48 on main concurrently with the watermark's first claim of 47; A's B0 row took 49; the watermark's row renumbered to 50. Watermark now authoritative from 51."
   },
   {
-   "id": 235,
-   "claimed_at": "2026-08-21",
-   "note": "E: claimed by an accidental `next_register_id.js` run during a merge resolve, then USED — my 219 claim collided with main's PRINTED register 219 (A's sys.modules stub-leak row, e12b3c2e). Register 186's protocol: main-printed ids are canonical, so my pre-deploy VONA row renumbers 219->235. Fifteenth collision this session and SILENT again: the two rows sat twelve lines apart, git auto-merged with no marker, and only a duplicate-id grep caught it. Five citations repointed individually with a per-line ownership assertion (ROUTES 13, 2830, 2831; DEFECT-REGISTER 427 twice); draft/audit/PRE-DEPLOY-VONA-VERIFICATION-2026-08-21.md carries no id and needed none."
+   "id": 262,
+   "claimed_at": "2026-08-23"
   },
   {
-   "id": 236,
-   "claimed_at": "2026-08-21"
+   "id": 263,
+   "claimed_at": "2026-08-23"
   },
   {
-   "id": 194,
-   "claimed_at": "2026-08-21"
-  },
-  {
-   "id": 195,
-   "claimed_at": "2026-08-21"
-  },
-  {
-   "id": 196,
-   "claimed_at": "2026-08-21"
-  },
-  {
-   "id": 198,
-   "claimed_at": "2026-08-21"
-  },
-  {
-   "id": 200,
-   "claimed_at": "2026-08-21"
-  },
-  {
-   "id": 205,
-   "claimed_at": "2026-08-21"
-  },
-  {
-   "id": 221,
-   "claimed_at": "2026-08-21"
-  },
-  {
-   "id": 222,
-   "claimed_at": "2026-08-21"
-  },
-  {
-   "id": 240,
-   "claimed_at": "2026-08-21"
-  },
-  {
-   "id": 241,
-   "claimed_at": "2026-08-21"
-  },
-  {
-   "id": 242,
-   "claimed_at": "2026-08-21"
-  },
-  {
-   "id": 223,
-   "claimed_at": "2026-08-21"
-  },
-  {
-   "id": 243,
-   "claimed_at": "2026-08-21"
-  },
-  {
-   "id": 244,
-   "claimed_at": "2026-08-21"
-  },
-  {
-   "id": 245,
-   "claimed_at": "2026-08-21"
+   "id": 264,
+   "claimed_at": "2026-08-23"
   }
  ]
 }

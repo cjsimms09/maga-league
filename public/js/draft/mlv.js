@@ -80,8 +80,37 @@
    *   QB 322.9 · RB 78.4 · WR 124.8 · TE 130.4 · K 128.6 · DEF 100.0
    *
    * A 415 QB is then worth 92 and Nacua 158, which is the ordering the board
-   * has used all season. */
-  var WAIVER = { QB: 322.9, RB: 78.4, WR: 124.8, TE: 130.4, K: 128.6, DEF: 100.0 };
+   * has used all season.
+   *
+   * ── DERIVED NOW, NOT FROZEN — 2026-08-21, register 221 ───────────────────
+   *
+   * The paragraph above is the only place in the repo that ever stated where
+   * these six numbers came from, and the method it states is the RIGHT one —
+   * it is Cory's own, asked for again on 08-21: *"should we use last few years
+   * of draft to determine how many at each position are rostered/drafted then
+   * use that to compare waiver wire"*. What was wrong is that the arithmetic
+   * ran ONCE and the answer was pasted into three files
+   * (`position_boards.js:41`, `vona_board.js:41`, here).
+   *
+   * `draft/tools/waiver_baseline.js` now recomputes it every board build:
+   * COUNT from three seasons of this league's own `final_rosters`, VALUE from
+   * a source's own projection of the (count+1)-th man. Reconciled against the
+   * legacy literal rather than replacing it blind — QB, WR and DEF land within
+   * 1-2 ranks of it, which is the evidence it was honestly derived; **RB is
+   * the one real divergence, sitting at board rank 51 against a drafted count
+   * of 47 and a rostered count of 44, worth 18.5 blend points.** One position,
+   * and it is the one Cory weights most.
+   *
+   * DEFAULTS ARE THE DERIVED **BLEND** BASELINE, because `recommend()`'s
+   * default `valueField` is `proj_mean` — the blend. Numerator and denominator
+   * from one source, which the legacy pairing never guaranteed. Callers pricing
+   * on a different source pass `opts.waiver` (app.js does, from
+   * `position_boards.json`'s `waiver_by_source`); passing nothing keeps the
+   * blend, and passing a partial object falls back per position rather than to
+   * zero — a MISSING baseline must never silently become "everything is pure
+   * surplus", which is the 415-point-QB failure this whole mechanism exists to
+   * stop. */
+  var WAIVER = { QB: 317.7, RB: 96.9, WR: 129.0, TE: 119.7, K: 125.7, DEF: 93.3 };
 
   function startersOf(league) {
     var s = (league && (league.roster_slots || league.starters)) || {};
@@ -205,10 +234,20 @@
     opts = opts || {};
     var st = startersOf(opts.league);
     var field = opts.valueField || 'proj_mean';
+    /* PER-POSITION FALLBACK, NOT PER-OBJECT. `opts.waiver` may be one source's
+     * baseline with holes in it (FFToday prices no kickers, Clay no defences —
+     * measured, not hypothetical). A hole must fall back to the derived blend
+     * figure for that position, never to 0: a zero baseline makes every player
+     * at that position pure surplus and hands the lineup a 400-point kicker. */
+    var wire = opts.waiver || null;
+    var waiverAt = function (pos) {
+      var v = wire ? wire[pos] : null;
+      return (v == null ? WAIVER[pos] : v) || 0;
+    };
     var valueFn = opts.valueFn || function (p) {
       var raw = Number(p[field]) || 0;
       /* surplus over what the wire leaves at his position — never raw points */
-      return Math.max(0, raw - (WAIVER[p.position] || 0));
+      return Math.max(0, raw - waiverAt(p.position));
     };
     var base = bagOf(roster, valueFn);
     var baseVal = lineupValue(base, st);

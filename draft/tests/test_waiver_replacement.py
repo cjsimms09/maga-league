@@ -594,8 +594,11 @@ def test_the_RECORD_IS_OVERLAID_BY_THE_LIVE_BOARD_so_corrections_still_land():
 
 #: What the gap is today. Lower it when it shrinks; never raise it without saying
 #: what changed and why the new rows are legitimately unknowable.
-KNOWN_UNRESOLVABLE_IDS = {"7045", "4080", "7066", "5916", "7617"}
-KNOWN_UNRESOLVABLE_ACQUISITIONS = 9
+# Ratchet tightened 2026-08-21 as the test itself prescribed when the gap
+# closed 9 -> 8 on the post-keeper-lock board ('good news that must be
+# recorded'): 4080 resolved, so it leaves the known-unresolvable set.
+KNOWN_UNRESOLVABLE_IDS = {"5916", "7045", "7066", "7617"}
+KNOWN_UNRESOLVABLE_ACQUISITIONS = 8
 
 
 def _unresolvable():

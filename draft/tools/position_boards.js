@@ -38,7 +38,45 @@ const DS = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data', 'draftsha
 
 const POS = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
 const TOPN = { RB: 10, WR: 10, QB: 6, TE: 6, K: 4, DEF: 4 };   // Cory: "more on RB and WR"
-const WAIVER = { QB: 322.9, RB: 78.4, WR: 124.8, TE: 130.4, K: 128.6, DEF: 100.0 };
+/* ── THE WAIVER BASELINE IS DERIVED NOW, AND IT FOLLOWS THE SOURCE ─────────
+ *
+ * Cory, 2026-08-21: *"we need to fix wire logic! should we use last few years
+ * of draft to determine how many at each position are rostered/drafted then use
+ * that to compare waiver wire"* and *"it should also change with each source
+ * probably?"*
+ *
+ * This line was `{ QB: 322.9, RB: 78.4, WR: 124.8, TE: 130.4, K: 128.6,
+ * DEF: 100.0 }` — six literals, duplicated verbatim in `vona_board.js:41` and
+ * `mlv.js:84`. `mlv.js` states where they came from and it is ALREADY Cory's
+ * method (the (N+1)-th best at each position, N = how many this room takes), so
+ * what was wrong was not the arithmetic but that it ran ONCE: never recomputed,
+ * frozen to one source, and copy-pasted into three files free to drift.
+ *
+ * `draft/tools/waiver_baseline.js` recomputes both halves and the split is the
+ * whole point — the COUNT is a fact about this league (source-independent,
+ * from three seasons of `final_rosters`), the VALUE is that source's own
+ * opinion of the (count+1)-th man. Which is exactly why the chip must follow
+ * the toggle: the count does not move, the price does.
+ *
+ * FALLBACK IS THE OLD CONSTANT, NOT A CRASH, and it is LABELLED in the
+ * artifact (`waiver_baseline_meta.derived === false`): this file runs inside
+ * the nightly board build hours before a draft, and a missing artifact must
+ * degrade to the number we shipped yesterday rather than take the board down. */
+const LEGACY_WAIVER = { QB: 322.9, RB: 78.4, WR: 124.8, TE: 130.4, K: 128.6, DEF: 100.0 };
+const WB = (() => {
+  try {
+    const d = JSON.parse(fs.readFileSync(
+      path.join(ROOT, 'draft', 'data', 'waiver_baseline.json'), 'utf8'));
+    if (!d.controls_all_passed) return { ok: false, why: 'controls failed: ' + (d.control_failures || []).join('; ') };
+    return { ok: true, doc: d };
+  } catch (e) { return { ok: false, why: e.code === 'ENOENT' ? 'artifact not built' : String(e.message) }; }
+})();
+/* The DS-priced baseline is the one the legacy `surplus_over_wire` compares
+ * against, because `projUsed` reads `x.ds.proj` — comparing a Draft Sharks
+ * projection to some other source's wire was half of what made the old number
+ * hard to defend. */
+const WAIVER = (WB.ok && WB.doc.baseline.ds) || LEGACY_WAIVER;
+const WAIVER_BY_SRC = WB.ok ? WB.doc.baseline : null;
 const SCHED = PLAN.SCHED;
 const arg = (f, d) => { const i = process.argv.indexOf(f); return i >= 0 ? +process.argv[i + 1] : d; };
 const ROOMS = arg('--rooms', 300);
@@ -241,6 +279,35 @@ const picks = SCHED.map((pk, i) => {
         ? +Math.max(0, bn - nx).toFixed(1) : null;
     });
 
+    /* PER-SOURCE SURPLUS OVER THE WIRE — Cory's second sentence, 2026-08-21:
+     * "it should also change with each source probably?"
+     *
+     * Same gate as VONA and for the same reason: a source that does not price
+     * enough of the available men here has no opinion about this position, and
+     * a source with no derived baseline at this position (too few players
+     * priced league-wide to reach the (count+1)-th man) has no wire to measure
+     * against. Either way NULL, which the view prints as a dash — never
+     * another source's number wearing this one's name.
+     *
+     * `bestNowBySrc` is already the best AVAILABLE man under that source's own
+     * points, so this is that man's points minus that source's own wire. Both
+     * halves come from one source; the old chip took its numerator from Draft
+     * Sharks and its denominator from a frozen literal. */
+    const surplusBySrc = {}, wireBySrc = {}, noteBySrc = {};
+    SRC.forEach(sc => {
+      const base = WAIVER_BY_SRC ? WAIVER_BY_SRC[sc.key] : null;
+      const w = base ? base[q] : null;
+      wireBySrc[sc.key] = w == null ? null : w;
+      const bn = bestNowBySrc[sc.key];
+      surplusBySrc[sc.key] = (w == null || bn == null
+        || coveredBySrc[sc.key] < SRC_MIN_COVERED)
+        ? null : +Math.max(0, bn - w).toFixed(1);
+      /* The NOTE reads the same two numbers the chips do, so it cannot end up
+       * describing a different source than the chips beside it — which is the
+       * failure this whole family was built out of. */
+      noteBySrc[sc.key] = noteFor(q, vonaBySrc[sc.key], surplusBySrc[sc.key], here);
+    });
+
     row.positions[q] = {
       best_now: bestNow == null ? null : +bestNow.toFixed(1),
       expected_best_at_next_pick: bestNext == null ? null : +bestNext.toFixed(1),
@@ -252,6 +319,13 @@ const picks = SCHED.map((pk, i) => {
       expected_best_at_next_pick_by_source: bestNextBySrcOut,
       covered_by_source: coveredBySrc,
       surplus_over_wire: surplus == null ? null : +surplus.toFixed(1),
+      //: Cory 2026-08-21 — the "+N wire" chip per source, on the SAME null rule
+      //: as VONA. `waiver_by_source` is published beside it so the number can be
+      //: audited without re-deriving it (it is what the surplus was measured
+      //: against, not a decoration).
+      surplus_over_wire_by_source: surplusBySrc,
+      waiver_by_source: wireBySrc,
+      note_by_source: noteBySrc,
       cliff_after_rank: cliffAfter, cliff_size: +cliffSize.toFixed(1),
       note: noteFor(q, vona, surplus, here),
       players: here.map(o => ({
@@ -401,7 +475,21 @@ const out = {
     + ' simulated rooms. The war room MUST override it with survival.js, which '
     + 'composes ADP with opponent-need Layer 2 and needs live draft context.',
   built_at: BOARD.built_at || null,
-  rooms: ROOMS, adjuster_a: A, top_n: TOPN, waiver: WAIVER, picks,
+  rooms: ROOMS, adjuster_a: A, top_n: TOPN, waiver: WAIVER,
+  /* WHERE THE WIRE NUMBER CAME FROM, travelling WITH the numbers rather than
+   * living only in a tool nobody opens. `derived:false` is the honest label for
+   * the fallback — a consumer can tell a recomputed baseline from yesterday's
+   * frozen literal without guessing. */
+  waiver_by_source: WAIVER_BY_SRC,
+  waiver_baseline_meta: WB.ok ? {
+    derived: true,
+    seasons_used: WB.doc.seasons_used,
+    rostered_count: WB.doc.rostered_count,
+    drafted_count: WB.doc.drafted_count,
+    generated_at: WB.doc.generated_at,
+    method: WB.doc._method,
+  } : { derived: false, why: WB.why, using: 'LEGACY_WAIVER (frozen literal)' },
+  picks,
   opponents_compact, round_dropoffs, ceiling_steals,
   _steals_caveat: 'ceiling_steals is an IF, not a forecast: it ranks players by '
     + 'how much earlier their CEILING would have ranked them AT THEIR OWN POSITION than their ADP did. It says '

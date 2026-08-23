@@ -722,7 +722,14 @@
     var d = D();
     if (!host || !d) return;
     if (ui.tab !== 'board') return;   // only paint while visible; cheap anyway
-    var board = d.board();
+    /* ⚠️ REGISTER 220/237 — was `d.board()`, the raw blend, unconditionally,
+     * while the "Overall ranking" table right below these columns already
+     * follows the Ranking Source toggle. #board-ordering-note repainted a
+     * true sentence about the wrong half of the tab. `sourceAdjustedBoard()`
+     * is the SAME swap renderBoard() already uses; boardAtPos()'s existing
+     * `p.proj_mean` sort needs no change, because that field IS what the
+     * swap overwrites. */
+    var board = (typeof d.sourceAdjustedBoard === 'function') ? d.sourceAdjustedBoard() : d.board();
     if (!board.length) { host.innerHTML = '<p class="wr-chart-empty">no board yet</p>'; return; }
     var cols = POS_ALL.map(function (pos) {
       var at = boardAtPos(board, pos);

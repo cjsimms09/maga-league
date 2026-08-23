@@ -38,7 +38,21 @@ const PLAN = require('./draft_plan.js');
 const DS = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data', 'draftsharks_projections_2026.json'), 'utf8'));
 
 const POS = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
-const WAIVER = { QB: 322.9, RB: 78.4, WR: 124.8, TE: 130.4, K: 128.6, DEF: 100.0 };
+/* THE THIRD COPY OF THE FROZEN LITERAL, now reading the derived artifact —
+ * register 221, 2026-08-21. `ds`, not `blend`, because everything on this page
+ * is priced from `x.ds.proj`: the whole point of the fix is that the numerator
+ * and the denominator come from the SAME source. Falls back to the literal
+ * rather than crashing a board build, and says which it used in the artifact. */
+const LEGACY_WAIVER = { QB: 322.9, RB: 78.4, WR: 124.8, TE: 130.4, K: 128.6, DEF: 100.0 };
+const WB = (() => {
+  try {
+    const d = JSON.parse(fs.readFileSync(
+      path.join(ROOT, 'draft', 'data', 'waiver_baseline.json'), 'utf8'));
+    return d.controls_all_passed ? d : null;
+  } catch (e) { return null; }
+})();
+const WAIVER = (WB && WB.baseline.ds) || LEGACY_WAIVER;
+const WAIVER_DERIVED = !!(WB && WB.baseline.ds);
 const SCHED = PLAN.SCHED;
 const arg = (f, d) => { const i = process.argv.indexOf(f); return i >= 0 ? +process.argv[i + 1] : d; };
 const ROOMS = arg('--rooms', 300);
@@ -147,6 +161,7 @@ const out = {
        + 'Cory chooses the position; this says what waiting costs.',
   _sources: 'projections/floor/ceiling = Draft Sharks; ADP + adp_sd = our board (Sleeper/FantasyPros)',
   rooms: ROOMS, adjuster_a: A, picks: SCHED, waiver: WAIVER,
+  waiver_derived: WAIVER_DERIVED,
   rows, ceiling_crossover_pick: crossover,
 };
 fs.writeFileSync(path.join(ROOT, 'draft', 'data', 'vona_board.json'), JSON.stringify(out, null, 1));

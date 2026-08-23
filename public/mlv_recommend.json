@@ -25,83 +25,83 @@
  ],
  "recommendations": [
   {
-   "name": "Jahmyr Gibbs",
+   "name": "Josh Jacobs",
    "position": "RB",
-   "adp": 1,
-   "proj": 324.5,
-   "marginal": 246.1,
+   "adp": 29.33,
+   "proj": 223.9,
+   "marginal": 127,
    "why": "takes your open FLEX seat"
   },
   {
-   "name": "Bijan Robinson",
+   "name": "Jeremiyah Love",
    "position": "RB",
-   "adp": 2,
-   "proj": 315.7,
-   "marginal": 237.3,
+   "adp": 26.67,
+   "proj": 220.5,
+   "marginal": 123.6,
    "why": "takes your open FLEX seat"
   },
   {
-   "name": "Christian McCaffrey",
+   "name": "Breece Hall",
    "position": "RB",
-   "adp": 5.33,
-   "proj": 287.7,
-   "marginal": 209.3,
+   "adp": 32.67,
+   "proj": 220.1,
+   "marginal": 123.2,
    "why": "takes your open FLEX seat"
   },
   {
-   "name": "Jonathan Taylor",
+   "name": "Javonte Williams",
    "position": "RB",
-   "adp": 6.33,
-   "proj": 279.6,
-   "marginal": 201.2,
+   "adp": 31.33,
+   "proj": 215.4,
+   "marginal": 118.5,
    "why": "takes your open FLEX seat"
   },
   {
-   "name": "James Cook",
+   "name": "Kyren Williams",
    "position": "RB",
-   "adp": 9.33,
-   "proj": 254.9,
-   "marginal": 176.5,
+   "adp": 28.67,
+   "proj": 214.1,
+   "marginal": 117.2,
    "why": "takes your open FLEX seat"
   },
   {
-   "name": "De'Von Achane",
+   "name": "Travis Etienne",
    "position": "RB",
-   "adp": 13,
-   "proj": 249.7,
-   "marginal": 171.3,
+   "adp": 41.67,
+   "proj": 205.2,
+   "marginal": 108.3,
    "why": "takes your open FLEX seat"
   },
   {
-   "name": "Ashton Jeanty",
+   "name": "Cam Skattebo",
    "position": "RB",
-   "adp": 11,
-   "proj": 244.4,
-   "marginal": 166,
+   "adp": 37.67,
+   "proj": 204.6,
+   "marginal": 107.7,
    "why": "takes your open FLEX seat"
   },
   {
-   "name": "Saquon Barkley",
+   "name": "D'Andre Swift",
    "position": "RB",
-   "adp": 13,
-   "proj": 240.1,
-   "marginal": 161.7,
+   "adp": 50.33,
+   "proj": 198.5,
+   "marginal": 101.6,
    "why": "takes your open FLEX seat"
   },
   {
-   "name": "Puka Nacua",
-   "position": "WR",
-   "adp": 4,
-   "proj": 286,
-   "marginal": 161.2,
-   "why": "fills your open WR slot"
+   "name": "Bucky Irving",
+   "position": "RB",
+   "adp": 47,
+   "proj": 192.8,
+   "marginal": 95.9,
+   "why": "takes your open FLEX seat"
   },
   {
-   "name": "Chase Brown",
+   "name": "Quinshon Judkins",
    "position": "RB",
-   "adp": 14.67,
-   "proj": 237.8,
-   "marginal": 159.4,
+   "adp": 44.33,
+   "proj": 192.5,
+   "marginal": 95.6,
    "why": "takes your open FLEX seat"
   }
  ]

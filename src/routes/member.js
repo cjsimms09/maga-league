@@ -546,8 +546,10 @@ router.get('/', aw(async (req, res) => {
     .map(e => ({ ...e, name: (H.ownerById(owners, e.owner_id) || {}).name || '?' }));
   const standings = (season.standings || []).map((oid, i) => ({ rank: i + 1, name: (H.ownerById(owners, oid) || {}).name || '?' }));
   const draft = await H.draftState(season.year, owners);
-  const openVotes = (await H.allVotes(owners, H.voteThreshold(world.config))).filter(v => v.status === 'open')
-    .map(v => ({ ...v, myChoice: (v.ballots.find(b => b.owner_id === req.owner.id) || {}).choice || null }));
+  // The "Needs you" strip's count and the global nav badge/banner both read
+  // this same helper now (helpers.js, Cory 2026-08-22) so there is one
+  // definition of "an open vote you haven't cast", not two that can drift.
+  const unvoted = await H.votesAwaiting(owners, world.config, req.owner.id);
 
   // THE DRAFT-DAY ANNOUNCEMENT — derived from config (date/time/place) so it's
   // one source of truth for the front-page banner AND the pinned site-wide alert.
@@ -919,7 +921,7 @@ router.get('/', aw(async (req, res) => {
     // check the scores screen while games are actually live.
     gameNight: WW.primetimeWindow(),
     season, payouts: H.payoutTable(season), buyins, weekly, awards, standings, draft,
-    openVotes, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance, draftInfo, keeperInfo, weekHero,
+    unvoted, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance, draftInfo, keeperInfo, weekHero,
     liveStale: await liveFreshness(),
     // The money scoreboard: banked dollars + rank this season, from the ledger.
     moneyBoard: L.moneyStandings(world.ledger, owners, season), meId: req.owner.id,

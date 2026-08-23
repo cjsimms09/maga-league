@@ -286,7 +286,97 @@
     var backed = ruleDiffers ? (ruleEntry ? ruleEntry.player : rulePick) : top.player;
     if (planEntry) backed = planEntry.player;
 
-    if (conf.level === 'pinned') {
+    /* ══ CORY'S RULING, 2026-08-21, VERBATIM ══════════════════════════════
+     *
+     *   "the pick should show the player with highest VONA for the source
+     *    selected."
+     *
+     * Ruled again the same evening, after being shown the measurement below
+     * and asked to choose: "Ship it — pure top-VONA headline."
+     *
+     * ── WHAT HE WAS TOLD BEFORE HE RULED, because he was owed the size ────
+     *
+     * This is not a relabel. Measured on the 08-21 board, across 8 sources ×
+     * his first 6 picks: the composite verdict and the top-VONA player name
+     * the SAME man in only **11 of 54 cells (20%)**. On the blend at pick 33
+     * it changes his first-round pick from Puka Nacua to Jahmyr Gibbs, and it
+     * stays Gibbs at every one of his first six picks. Sleeper and FantasyPros
+     * are the two sources where the two answers already agree.
+     *
+     * ── WHAT THIS COSTS, STATED RATHER THAN BURIED ────────────────────────
+     *
+     * The headline pick no longer reflects `need`, `keeper` or `stack` at
+     * their live weights — and `keeper` and `stack` both ship at 1.0, so real
+     * terms are dropped from the answer on screen, not merely down-weighted.
+     * B flagged exactly this before any code moved and was right to. The
+     * lenses, alternatives and tie-break facts all survive UNDERNEATH and now
+     * re-anchor to the VONA pick, so what the composite thinks is still one
+     * line away rather than gone — and when the two disagree the `why`
+     * sentence says so by name.
+     *
+     * ── WHY IT SITS HERE, FIRST ───────────────────────────────────────────
+     *
+     * "The pick" is one answer, and Cory's ruling names which one. Putting
+     * this branch after the plan/rule split logic would have let those lenses
+     * override the headline he just ruled on, which is the same defect —
+     * a control that says one thing and does another — in the panel he reads
+     * every eight seconds.
+     *
+     * `vonaHeadline: false` restores the composite headline exactly. It is
+     * how `verdict.test.js`'s pre-ruling cases still run, and how this gets
+     * reverted in one argument if he changes his mind mid-draft. */
+    var vonaTop = null, vonaSecond = null;
+    for (var vi = 0; vi < scored.length; vi++) {
+      var vv = scored[vi].components ? scored[vi].components.vona : null;
+      if (vv == null) continue;
+      if (vonaTop === null || vv > vonaTop.vona) {
+        vonaSecond = vonaTop;
+        vonaTop = { entry: scored[vi], vona: vv };
+      } else if (vonaSecond === null || vv > vonaSecond.vona) {
+        vonaSecond = { entry: scored[vi], vona: vv };
+      }
+    }
+    if (input.vonaHeadline !== false && vonaTop) {
+      var srcLabel = input.sourceLabel || 'the blend';
+      var vGap = vonaSecond ? (vonaTop.vona - vonaSecond.vona) : null;
+      backed = vonaTop.entry.player;
+      /* The chip is read off the VONA separation, in VONA's own units. Reusing
+       * the composite's confidence band here would have printed a LOCK earned
+       * by a gap the headline is no longer made from. */
+      verdict = (vGap == null || vGap >= band) ? 'LOCK'
+        : (vGap >= band / 2 ? 'LEAN' : 'TOSS-UP');
+      var compDiffers = String(top.player.player_id) !== String(vonaTop.entry.player.player_id);
+      why = 'Highest VONA on ' + srcLabel + ': ' + _name(backed)
+        + ' at ' + vonaTop.vona.toFixed(1) + ' pts'
+        + (vonaSecond
+            ? ', ahead of ' + _name(vonaSecond.entry.player) + ' by '
+              + vGap.toFixed(1) + '.'
+            : '.')
+        /* NAME THE DISAGREEMENT. A headline that silently drops need/keeper/
+         * stack while the full board still ranks on them would put two
+         * different answers on one screen with nothing explaining the gap —
+         * which is the failure this project has paid for repeatedly. */
+        + (compDiffers
+            ? ' The full model — VONA plus need, keeper and stacking at your'
+              + ' weights — prefers ' + _name(top.player) + '; you ruled the'
+              + ' headline to VONA alone on 08-21, so that name is your'
+              + ' alternative, one line down.'
+            : ' The full model agrees.')
+        /* REGISTER 238 — four wait-cost numbers share this screen answering
+         * DIFFERENT questions (this player-level figure from engine.js's
+         * survival model; the position chips' 300-room ADP-drained wait cost;
+         * the strike strip's Draft Sharks figure; RUNNING OUT's tier drop).
+         * The biggest number sits in the biggest type, so IT carries the
+         * reconciliation clause. Label only — no computation changed.
+         * Applied by the relay on Cory's direction (A and B budget-frozen on
+         * draft eve); B rewords freely. */
+        + ' VONA here is player-level on our survival model. The position'
+        + ' columns\u2019 smaller VONA chips are position-level wait costs from'
+        + ' ADP-simulated rooms \u2014 when they disagree, the room usually lets'
+        + ' that position slide, and this number is what you lose if it'
+        + ' doesn\u2019t.';
+      splitBy = compDiffers ? 'vona-ruling' : null;
+    } else if (conf.level === 'pinned') {
       verdict = 'PINNED';
       backed = top.player;
       why = conf.message; // the engine's own sentence — keep him on purpose, or take the other.
