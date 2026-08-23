@@ -82,3 +82,5 @@ roster/injury state has NEVER reached main (register 155) — every night since
 08-17 is unrecoverable. Its fix rides A's first green CI run, which is hours
 away after the keeper-lock alarms clear. Escalated to A with Cory's order
 attached: the first green run must carry the $PATHS fix, not follow it.
+
+**Row 15 (added 08-23, from Cory's own post-draft catch, register 259):** the room-vs-national ADP gap is now a MEASURED −9.1 mean / −18.6 late-round bias on the 2026 draft. Everything needed to fix it for 2027 is already captured (pick log, board ADP snapshot, keeper slate, league shape) — no new capture required; this row exists so the 2027 build remembers to SHOW room-adjusted ADP on player cards instead of raw national. ✅ ACCRUING via existing rows 1/2/5.
