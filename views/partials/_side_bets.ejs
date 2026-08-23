@@ -662,6 +662,18 @@ function betCard(b, opts) {
   </div>
 <% } %>
 
+<%# ══════════════════════════════════════════════════════════════════════════
+    🎲 MY BETS — one screen (Cory, 2026-08-23: "should be able to easily
+    track your own bets... site just needs to be a little easier to get
+    around"). Everything below this heading, down to the "Rest of the Book"
+    divider, is about YOU and only you: what needs you, what's live, what
+    you've sent, what's settled, and the running total. Nothing here is new
+    logic or a new card grammar — every section already existed on this page
+    (2026-08-15 design pass); they were just interleaved with the market,
+    the builder and the league-wide record so "my stuff" never read as one
+    place. This groups them and nothing else. ════════════════════════════ %>
+<h2 class="sb-section-title">🎲 My Bets <span class="sub">everything that's yours, in one place</span></h2>
+
 <%# ══ THE HERO — your book at a glance ═════════════════════════════════════ %>
 <div class="hero" style="margin-bottom:1.2rem">
   <div class="hero-item <%= t.net > 0 ? 'good' : t.net < 0 ? 'bad' : '' %>">
@@ -769,17 +781,10 @@ function betCard(b, opts) {
 </div>
 <% } %>
 
-<%# ══ 3. THE BOARD — open bets you can take. ═══════════════════════════════ %>
-<% if (market.length) { %>
-<div class="card" style="margin-bottom:1.2rem; border-color:rgba(37,99,235,.45)">
-  <h2>📢 On the Board <span class="sub">posted open — take the other side and it's on</span></h2>
-  <div class="body"><% for (const b of market) { betCard(b, { withTake: true }); } %></div>
-</div>
-<% } %>
-
-<%- include('_bet_builder') %>
-
-<%# ══ 4. THE BOOK — money riding right now. ════════════════════════════════ %>
+<%# ══ 3. THE BOOK — money riding right now. ═════════════════════════════════
+    Moved up next to Needs You / Who Owes Who (still yours, still "My Bets") —
+    it used to sit AFTER the market and the builder, which put someone else's
+    open offers between you and your own live money. ══════════════════════ %>
 <% if (live.length) { %>
 <div class="card" style="margin-bottom:1.2rem">
   <h2>🔥 On the Books <span class="sub"><%= live.length %> live — money riding</span></h2>
@@ -787,7 +792,7 @@ function betCard(b, opts) {
 </div>
 <% } %>
 
-<%# ══ 5. YOUR OUTBOX — offers of yours still waiting for an answer. ════════ %>
+<%# ══ 4. YOUR OUTBOX — offers of yours still waiting for an answer. ════════ %>
 <% if (sent.length) { %>
 <div class="card" style="margin-bottom:1.2rem">
   <h2>📤 Bets You've Sent <span class="sub">waiting on an answer — pull them back any time</span></h2>
@@ -795,30 +800,35 @@ function betCard(b, opts) {
 </div>
 <% } %>
 
-<% if (proposedOthers.length) { %>
-<div class="card" style="margin-bottom:1.2rem">
-  <h2>⏳ Proposed <span class="sub">not a bet until everyone agrees</span></h2>
-  <div class="body"><% for (const b of proposedOthers) { betCard(b, {}); } %></div>
-</div>
+<%# ══ 5. SETTLED, YOURS — Cory's fifth "MY BETS" ingredient. Filtered to bets
+    you're actually a party to; everyone else's settled book stays down in
+    the whole-league record so a bet still renders in EXACTLY ONE section
+    (the design pass's own rule) — never here AND in "Settled & declined". %>
+<% const doneMine = done.filter(inIt), deadMine = dead.filter(inIt); %>
+<% if (doneMine.length || deadMine.length) { %>
+<details class="card entry-card" style="margin-bottom:1.2rem">
+  <%# THE SEASON BOOK LINE (redesign spec, The Book): the one number a bettor
+      wants over their own settled pile — am I up or down? ledgerFor already
+      keeps the running total; this says it right where YOUR settled bets
+      live, not on the league-wide pile below (that number is about you, not
+      about everyone, so it belongs on "Settled, Yours"). %>
+  <% const _net = sbLedger ? Math.round(sbLedger.net || 0) : 0; %>
+  <summary>✅ Settled, Yours <span class="sub"><%= doneMine.length %> settled<% if (deadMine.length) { %>, <%= deadMine.length %> never happened<% } %></span>
+    <% if (doneMine.length) { %>
+      <span class="<%= _net >= 0 ? 'money-up' : 'money-down' %>" style="font-weight:800;margin-left:.4rem">
+        your book: <%= _net >= 0 ? '+$' + _net : '−$' + Math.abs(_net) %></span>
+    <% } %>
+  </summary>
+  <div class="body">
+    <% for (const b of doneMine) { betCard(b, {}); } %>
+    <% for (const b of deadMine) { betCard(b, {}); } %>
+  </div>
+</details>
 <% } %>
 
-<details class="sb-rules" style="margin-bottom:1.2rem">
-  <summary>⏱ How long a bet offer stays live</summary>
-  <ul>
-    <li><b>On one week's games</b> — until the first point is scored that week.
-      After that nobody can take it, because they'd be betting on a score they
-      can already see.</li>
-    <li><b>Offered mid-week, with games under way</b> — <b>3 hours</b>. Live
-      betting is fine, you're both watching. Leaving a live offer lying around
-      is not, because the price moves while it sits.</li>
-    <li><b>Season-long bets and pools</b> — <b>10 days</b> to answer, and dead
-      once the playoffs start either way.</li>
-  </ul>
-  <p>Expired offers can be sent again from <b>Bets You've Sent</b>. They don't
-  renew on their own — if you still want the bet, you have to still want it.</p>
-</details>
-
-<%# ══ 6. THE RECORDS — your ledger, the tracker grid, the standings. ═══════ %>
+<%# ══ 6. THE RECORDS — your ledger. Moved up with the rest of My Bets; the
+    tracker grid and the league-wide standings stay below, past the divider,
+    because those are about everyone, not you. ═══════════════════════════ %>
 <div class="card" style="margin-bottom:1.2rem">
   <h2>📒 Your Side-Bet Ledger <span class="sub">every bet you're in, with a running total</span></h2>
   <div class="body tight scroll-x">
@@ -862,6 +872,46 @@ function betCard(b, opts) {
     <% } %>
   </div>
 </div>
+
+<%# ══════════════════════════════════════════════════════════════════════════
+    🌐 THE REST OF THE BOOK — everything past here is NOT about you specifically:
+    the open market anyone can take, the tool that builds a new bet, other
+    people's still-negotiating offers, the league-wide tracker and standings.
+    "My Bets" ended at the ledger above. ═══════════════════════════════════ %>
+<h2 class="sb-section-title sb-section-title-alt">🌐 The Rest of the Book <span class="sub">the open market, the tools, the league-wide record</span></h2>
+
+<%# ══ 7. THE BOARD — open bets you can take. ═══════════════════════════════ %>
+<% if (market.length) { %>
+<div class="card" style="margin-bottom:1.2rem; border-color:rgba(37,99,235,.45)">
+  <h2>📢 On the Board <span class="sub">posted open — take the other side and it's on</span></h2>
+  <div class="body"><% for (const b of market) { betCard(b, { withTake: true }); } %></div>
+</div>
+<% } %>
+
+<%- include('_bet_builder') %>
+
+<% if (proposedOthers.length) { %>
+<div class="card" style="margin-bottom:1.2rem">
+  <h2>⏳ Proposed <span class="sub">not a bet until everyone agrees</span></h2>
+  <div class="body"><% for (const b of proposedOthers) { betCard(b, {}); } %></div>
+</div>
+<% } %>
+
+<details class="sb-rules" style="margin-bottom:1.2rem">
+  <summary>⏱ How long a bet offer stays live</summary>
+  <ul>
+    <li><b>On one week's games</b> — until the first point is scored that week.
+      After that nobody can take it, because they'd be betting on a score they
+      can already see.</li>
+    <li><b>Offered mid-week, with games under way</b> — <b>3 hours</b>. Live
+      betting is fine, you're both watching. Leaving a live offer lying around
+      is not, because the price moves while it sits.</li>
+    <li><b>Season-long bets and pools</b> — <b>10 days</b> to answer, and dead
+      once the playoffs start either way.</li>
+  </ul>
+  <p>Expired offers can be sent again from <b>Bets You've Sent</b>. They don't
+  renew on their own — if you still want the bet, you have to still want it.</p>
+</details>
 
 <%# The tracker grid — the long war, owners × years. Drill-downs render at the
     top of the page (you tapped to get there); the grid itself lives with the
@@ -939,21 +989,16 @@ function betCard(b, opts) {
   </div>
 </div>
 
-<% if (done.length || dead.length) { %>
+<%# Everyone ELSE's settled/declined bets — yours already rendered above in
+    "Settled, Yours" (My Bets); this keeps the "exactly one section" rule the
+    design pass established, now that settled bets are split by whose they are. %>
+<% const doneOthers = done.filter(b => !inIt(b)), deadOthers = dead.filter(b => !inIt(b)); %>
+<% if (doneOthers.length || deadOthers.length) { %>
 <details class="card entry-card">
-  <%# THE SEASON BOOK LINE (redesign spec, The Book): the one number a bettor
-      wants over the settled pile — am I up or down? ledgerFor already keeps
-      the running total; this just says it where the settled bets live. %>
-  <% const _net = sbLedger ? Math.round(sbLedger.net || 0) : 0; %>
-  <summary>📜 Settled &amp; declined <span class="sub"><%= done.length %> settled, <%= dead.length %> never happened</span>
-    <% if (done.length) { %>
-      <span class="<%= _net >= 0 ? 'money-up' : 'money-down' %>" style="font-weight:800;margin-left:.4rem">
-        your book: <%= _net >= 0 ? '+$' + _net : '−$' + Math.abs(_net) %></span>
-    <% } %>
-  </summary>
+  <summary>📜 Settled &amp; declined, league-wide <span class="sub"><%= doneOthers.length %> settled, <%= deadOthers.length %> never happened</span></summary>
   <div class="body">
-    <% for (const b of done) { betCard(b, {}); } %>
-    <% for (const b of dead) { betCard(b, {}); } %>
+    <% for (const b of doneOthers) { betCard(b, {}); } %>
+    <% for (const b of deadOthers) { betCard(b, {}); } %>
   </div>
 </details>
 <% } %>

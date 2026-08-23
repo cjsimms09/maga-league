@@ -1535,6 +1535,27 @@ table.ledger .btn.ghost:hover { color: var(--gold-bright); border-color: var(--g
 /* ---------- side bets ----------
    Adjacent to league money and emphatically not the same thing, so the
    separation is stated in words at the top rather than implied by a tab. */
+
+/* The two umbrella headings that split the side-bet tab into "My Bets" and
+   "The Rest of the Book" (Cory, 2026-08-23: "should be able to easily track
+   your own bets"). Plain section titles, not cards — they group what's
+   already there rather than adding new chrome. The alt variant (Rest of the
+   Book) is visually quieter: you already found your own stuff by then. */
+.sb-section-title {
+  font-family: var(--font-display); font-weight: 800; font-size: 1.05rem;
+  letter-spacing: .01em; color: var(--ink);
+  margin: 1.6rem 0 .9rem; padding-top: 1.2rem;
+  border-top: 1px solid var(--line);
+}
+.sb-section-title:first-of-type { margin-top: 0; padding-top: 0; border-top: none; }
+.sb-section-title .sub {
+  display: block; font-family: var(--font-body); font-weight: 400;
+  font-size: .78rem; color: var(--muted); letter-spacing: normal;
+  margin-top: .15rem;
+}
+.sb-section-title-alt { color: var(--muted); font-size: .92rem; }
+.sb-section-title-alt .sub { font-size: .74rem; }
+
 .sb-note {
   padding: .7rem .9rem; margin-bottom: 1rem; border-radius: var(--radius);
   border: 1px dashed rgba(255, 255, 255, .18); background: rgba(255, 255, 255, .03);
