@@ -106,8 +106,9 @@ every remaining back is below replacement**, so the board stops recommending the
 position at all — while quarterbacks stay positive all the way down and it takes
 four.
 
-That is §2's arithmetic doing exactly what it predicts: **RB's bar at 19 where it
-should be 35**, and QB's bar shallow relative to a league that starts one.
+⚠️ **AND THEN I TESTED THE FIX AND IT FAILED — see §2c. Re-deriving the bars
+from the league config makes the roster WORSE, and §2's *RB should be 35* was
+borrowed from a model calibrated for a different league.**
 
 **It also explains §1's conversion gap without needing the unrunnable replay** —
 the 08-19 audit found the gap tracks QB surplus and nothing else, and a 2023 seat
@@ -118,6 +119,42 @@ files this time.**
 It does not include `need`, which ships at 1.0 and exists to stop precisely
 this.** So it measures how much work `need` is being asked to do, not what the
 live engine drafts. Register 267.
+
+## 2c · THE CALIBRATION FIX IS REFUTED — and that is the useful part
+
+Derived from `draft/config/league_config.json` (10 teams; QB1 RB2 WR2 TE1 FLEX1
+K1 DEF1), replacement = teams × starters with FLEX shared across RB/WR/TE:
+**QB10 · RB24 · WR24 · TE12 · K10 · DEF10.**
+
+Re-running the same twelve-pick counterfactual at those bars:
+
+| bars | QB | RB | WR | TE |
+|---|---|---|---|---|
+| current | 4 | **0** | 5 | 3 |
+| **league-derived** | 3 | 2 | **0** | **7** |
+
+**Seven tight ends in a league that starts one, and now zero wide receivers. The
+pile did not shrink — it moved.**
+
+**Two corrections to §2, both mine.** `ffanalytics`'s QB13/RB35/WR36/TE13/K8/DST3
+are correct for the league *that model* was calibrated on, not for a 10-team
+league starting one QB — derived from our own config, RB is **24, not 35**, so
+"RB's bar is at half its proper depth" was measured against a number that does
+not apply here.
+
+**What the test does establish is more useful than what it refutes: no placement
+of the replacement bar produces a startable roster.** Cross-position VORP is
+exquisitely sensitive to where each bar sits on that position's own curve — TE's
+lands where the TE curve is flat, so TEs 2-12 all price just above it. **A
+ranking with no notion of how many of each position you can START cannot build a
+roster you can field, at any calibration.** That is the ceiling of the method,
+not a bug in the bar.
+
+**So the lever is not calibration. It is roster-slot awareness in the SELECTION**
+— `need`, and register 60's flex rule, empty-slot insurance, slot-aware VONA and
+wire bench rule, all built and all disconnected. **This measurement is the
+argument for connecting them, and it makes register 60 the highest-value open row
+in the project.**
 
 ## 3 · WHAT WENT WRONG ON THE NIGHT — capture, not the board
 
