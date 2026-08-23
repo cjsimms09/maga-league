@@ -5,13 +5,20 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent.parent
-OUT = HERE / "data" / "predicted_keepers.json"
 
+# Write to a scratch file, never the committed artifact — the sweep of
+# 2026-08-23 caught this test rewriting draft/data/predicted_keepers.json in
+# the working tree on every full pytest run.
+import os
+import tempfile
 
 def _predictions():
-    subprocess.run([sys.executable, str(HERE / "predict_keepers.py")],
-                   check=True, capture_output=True)
-    return json.loads(OUT.read_text())["predictions"]
+    with tempfile.TemporaryDirectory() as td:
+        out = Path(td) / "predicted_keepers.json"
+        env = dict(os.environ, PREDICTED_KEEPERS_PATH=str(out))
+        subprocess.run([sys.executable, str(HERE / "predict_keepers.py")],
+                       check=True, capture_output=True, env=env)
+        return json.loads(out.read_text())["predictions"]
 
 
 def test_recovers_my_real_keepers():
