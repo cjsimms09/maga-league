@@ -1,0 +1,5007 @@
+{
+ "_territory": "TERRITORY: D \u2014 produced by draft/tools/recover_shadow_recommendations.py",
+ "_what": "The draft-night shadow ledger's recommendations RE-RANKED with Cory's 2026-08-17 onesie demotion applied (apply_vorp's cross-position order), over the same frozen pool and the same gone-set.",
+ "_reconstruction_not_capture": "\u26a0\ufe0f Computed after the draft, NOT recorded before it. Outcome-blind \u2014 the freeze predates the draft and the gone-set carries no season result \u2014 so it is valid for grading PLAYER EVALUATION, and it is NOT evidence about what the tool displayed on the night. Anything filed off this must say so.",
+ "_source_freeze": "pre_draft_freeze_2026.json",
+ "_source_log": "draft_pick_log_2026.jsonl",
+ "controls": {
+  "ok": true,
+  "checks": [
+   {
+    "control": "known-positive",
+    "case": "demotion OFF reproduces the logger's K/DEF flood",
+    "want": ">= 90 onesie-led",
+    "got": 101,
+    "ok": true
+   },
+   {
+    "control": "known-negative",
+    "case": "demotion ON leaves no selection led by a K/DEF",
+    "want": 0,
+    "got": 0,
+    "ok": true
+   },
+   {
+    "control": "outcome-blind",
+    "case": "the recovery reads only frozen fields",
+    "want": true,
+    "got": true,
+    "ok": true
+   },
+   {
+    "control": "recovers n",
+    "case": "decidable disagreements strictly increase",
+    "want": "> 21",
+    "got": 118,
+    "ok": true
+   }
+  ]
+ },
+ "counts_original_raw_vorp": {
+  "disagreement": 21,
+  "agreement": 5,
+  "onesie_led": 101,
+  "no_pool": 0
+ },
+ "counts_recovered_demoted": {
+  "disagreement": 118,
+  "agreement": 9,
+  "onesie_led": 0,
+  "no_pool": 0
+ },
+ "records": [
+  {
+   "pick": 4,
+   "seat": 4,
+   "room_took": "Brock Bowers",
+   "room_took_id": "11604",
+   "room_took_position": "TE",
+   "recovered_top": "Bijan Robinson",
+   "recovered_top_id": "9509",
+   "recovered_top_position": "RB",
+   "recovered_top5": [
+    {
+     "name": "Bijan Robinson",
+     "position": "RB",
+     "vorp": 147.73
+    },
+    {
+     "name": "Puka Nacua",
+     "position": "WR",
+     "vorp": 124.58
+    },
+    {
+     "name": "Christian McCaffrey",
+     "position": "RB",
+     "vorp": 105.3
+    },
+    {
+     "name": "Jonathan Taylor",
+     "position": "RB",
+     "vorp": 103.34
+    },
+    {
+     "name": "Jaxon Smith-Njigba",
+     "position": "WR",
+     "vorp": 97.09
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 12,
+   "seat": 9,
+   "room_took": "Kyren Williams",
+   "room_took_id": "8150",
+   "room_took_position": "RB",
+   "recovered_top": "Christian McCaffrey",
+   "recovered_top_id": "4034",
+   "recovered_top_position": "RB",
+   "recovered_top5": [
+    {
+     "name": "Christian McCaffrey",
+     "position": "RB",
+     "vorp": 105.3
+    },
+    {
+     "name": "Jonathan Taylor",
+     "position": "RB",
+     "vorp": 103.34
+    },
+    {
+     "name": "Saquon Barkley",
+     "position": "RB",
+     "vorp": 73.33
+    },
+    {
+     "name": "Chase Brown",
+     "position": "RB",
+     "vorp": 71.6
+    },
+    {
+     "name": "A.J. Brown",
+     "position": "WR",
+     "vorp": 65.58
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 17,
+   "seat": 4,
+   "room_took": "Malik Nabers",
+   "room_took_id": "11632",
+   "room_took_position": "WR",
+   "recovered_top": "Christian McCaffrey",
+   "recovered_top_id": "4034",
+   "recovered_top_position": "RB",
+   "recovered_top5": [
+    {
+     "name": "Christian McCaffrey",
+     "position": "RB",
+     "vorp": 105.3
+    },
+    {
+     "name": "Jonathan Taylor",
+     "position": "RB",
+     "vorp": 103.34
+    },
+    {
+     "name": "Chase Brown",
+     "position": "RB",
+     "vorp": 71.6
+    },
+    {
+     "name": "Josh Allen",
+     "position": "QB",
+     "vorp": 63.78
+    },
+    {
+     "name": "George Pickens",
+     "position": "WR",
+     "vorp": 63.28
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 21,
+   "seat": 1,
+   "room_took": "Jeremiyah Love",
+   "room_took_id": "13287",
+   "room_took_position": "RB",
+   "recovered_top": "Christian McCaffrey",
+   "recovered_top_id": "4034",
+   "recovered_top_position": "RB",
+   "recovered_top5": [
+    {
+     "name": "Christian McCaffrey",
+     "position": "RB",
+     "vorp": 105.3
+    },
+    {
+     "name": "George Pickens",
+     "position": "WR",
+     "vorp": 63.28
+    },
+    {
+     "name": "Trey McBride",
+     "position": "TE",
+     "vorp": 62.99
+    },
+    {
+     "name": "Drake London",
+     "position": "WR",
+     "vorp": 62.71
+    },
+    {
+     "name": "De'Von Achane",
+     "position": "RB",
+     "vorp": 61.48
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 24,
+   "seat": 4,
+   "room_took": "Lamar Jackson",
+   "room_took_id": "4881",
+   "room_took_position": "QB",
+   "recovered_top": "George Pickens",
+   "recovered_top_id": "8137",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "George Pickens",
+     "position": "WR",
+     "vorp": 63.28
+    },
+    {
+     "name": "Trey McBride",
+     "position": "TE",
+     "vorp": 62.99
+    },
+    {
+     "name": "De'Von Achane",
+     "position": "RB",
+     "vorp": 61.48
+    },
+    {
+     "name": "Chris Olave",
+     "position": "WR",
+     "vorp": 50.63
+    },
+    {
+     "name": "DeVonta Smith",
+     "position": "WR",
+     "vorp": 44.31
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 25,
+   "seat": 5,
+   "room_took": "Chris Olave",
+   "room_took_id": "8144",
+   "room_took_position": "WR",
+   "recovered_top": "George Pickens",
+   "recovered_top_id": "8137",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "George Pickens",
+     "position": "WR",
+     "vorp": 63.28
+    },
+    {
+     "name": "Trey McBride",
+     "position": "TE",
+     "vorp": 62.99
+    },
+    {
+     "name": "De'Von Achane",
+     "position": "RB",
+     "vorp": 61.48
+    },
+    {
+     "name": "Chris Olave",
+     "position": "WR",
+     "vorp": 50.63
+    },
+    {
+     "name": "DeVonta Smith",
+     "position": "WR",
+     "vorp": 44.31
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 29,
+   "seat": 9,
+   "room_took": "Javonte Williams",
+   "room_took_id": "7588",
+   "room_took_position": "RB",
+   "recovered_top": "George Pickens",
+   "recovered_top_id": "8137",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "George Pickens",
+     "position": "WR",
+     "vorp": 63.28
+    },
+    {
+     "name": "Trey McBride",
+     "position": "TE",
+     "vorp": 62.99
+    },
+    {
+     "name": "DeVonta Smith",
+     "position": "WR",
+     "vorp": 44.31
+    },
+    {
+     "name": "Zay Flowers",
+     "position": "WR",
+     "vorp": 42.58
+    },
+    {
+     "name": "Colston Loveland",
+     "position": "TE",
+     "vorp": 38.05
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 31,
+   "seat": 10,
+   "room_took": "George Pickens",
+   "room_took_id": "8137",
+   "room_took_position": "WR",
+   "recovered_top": "George Pickens",
+   "recovered_top_id": "8137",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "George Pickens",
+     "position": "WR",
+     "vorp": 63.28
+    },
+    {
+     "name": "DeVonta Smith",
+     "position": "WR",
+     "vorp": 44.31
+    },
+    {
+     "name": "Zay Flowers",
+     "position": "WR",
+     "vorp": 42.58
+    },
+    {
+     "name": "Colston Loveland",
+     "position": "TE",
+     "vorp": 38.05
+    },
+    {
+     "name": "Ladd McConkey",
+     "position": "WR",
+     "vorp": 37.98
+    }
+   ],
+   "decidable": false,
+   "kind": "agreement"
+  },
+  {
+   "pick": 32,
+   "seat": 9,
+   "room_took": "Tetairoa McMillan",
+   "room_took_id": "12526",
+   "room_took_position": "WR",
+   "recovered_top": "DeVonta Smith",
+   "recovered_top_id": "7525",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "DeVonta Smith",
+     "position": "WR",
+     "vorp": 44.31
+    },
+    {
+     "name": "Zay Flowers",
+     "position": "WR",
+     "vorp": 42.58
+    },
+    {
+     "name": "Colston Loveland",
+     "position": "TE",
+     "vorp": 38.05
+    },
+    {
+     "name": "Ladd McConkey",
+     "position": "WR",
+     "vorp": 37.98
+    },
+    {
+     "name": "Breece Hall",
+     "position": "RB",
+     "vorp": 35.84
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 33,
+   "seat": 8,
+   "room_took": "Rashee Rice",
+   "room_took_id": "10229",
+   "room_took_position": "WR",
+   "recovered_top": "DeVonta Smith",
+   "recovered_top_id": "7525",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "DeVonta Smith",
+     "position": "WR",
+     "vorp": 44.31
+    },
+    {
+     "name": "Zay Flowers",
+     "position": "WR",
+     "vorp": 42.58
+    },
+    {
+     "name": "Colston Loveland",
+     "position": "TE",
+     "vorp": 38.05
+    },
+    {
+     "name": "Ladd McConkey",
+     "position": "WR",
+     "vorp": 37.98
+    },
+    {
+     "name": "Breece Hall",
+     "position": "RB",
+     "vorp": 35.84
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 34,
+   "seat": 7,
+   "room_took": "Breece Hall",
+   "room_took_id": "8155",
+   "room_took_position": "RB",
+   "recovered_top": "DeVonta Smith",
+   "recovered_top_id": "7525",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "DeVonta Smith",
+     "position": "WR",
+     "vorp": 44.31
+    },
+    {
+     "name": "Zay Flowers",
+     "position": "WR",
+     "vorp": 42.58
+    },
+    {
+     "name": "Colston Loveland",
+     "position": "TE",
+     "vorp": 38.05
+    },
+    {
+     "name": "Ladd McConkey",
+     "position": "WR",
+     "vorp": 37.98
+    },
+    {
+     "name": "Breece Hall",
+     "position": "RB",
+     "vorp": 35.84
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 35,
+   "seat": 6,
+   "room_took": "Josh Jacobs",
+   "room_took_id": "5850",
+   "room_took_position": "RB",
+   "recovered_top": "DeVonta Smith",
+   "recovered_top_id": "7525",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "DeVonta Smith",
+     "position": "WR",
+     "vorp": 44.31
+    },
+    {
+     "name": "Zay Flowers",
+     "position": "WR",
+     "vorp": 42.58
+    },
+    {
+     "name": "Colston Loveland",
+     "position": "TE",
+     "vorp": 38.05
+    },
+    {
+     "name": "Ladd McConkey",
+     "position": "WR",
+     "vorp": 37.98
+    },
+    {
+     "name": "Jaylen Waddle",
+     "position": "WR",
+     "vorp": 35.76
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 36,
+   "seat": 5,
+   "room_took": "Colston Loveland",
+   "room_took_id": "12517",
+   "room_took_position": "TE",
+   "recovered_top": "DeVonta Smith",
+   "recovered_top_id": "7525",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "DeVonta Smith",
+     "position": "WR",
+     "vorp": 44.31
+    },
+    {
+     "name": "Zay Flowers",
+     "position": "WR",
+     "vorp": 42.58
+    },
+    {
+     "name": "Colston Loveland",
+     "position": "TE",
+     "vorp": 38.05
+    },
+    {
+     "name": "Ladd McConkey",
+     "position": "WR",
+     "vorp": 37.98
+    },
+    {
+     "name": "Jaylen Waddle",
+     "position": "WR",
+     "vorp": 35.76
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 37,
+   "seat": 4,
+   "room_took": "DeVonta Smith",
+   "room_took_id": "7525",
+   "room_took_position": "WR",
+   "recovered_top": "DeVonta Smith",
+   "recovered_top_id": "7525",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "DeVonta Smith",
+     "position": "WR",
+     "vorp": 44.31
+    },
+    {
+     "name": "Zay Flowers",
+     "position": "WR",
+     "vorp": 42.58
+    },
+    {
+     "name": "Ladd McConkey",
+     "position": "WR",
+     "vorp": 37.98
+    },
+    {
+     "name": "Jaylen Waddle",
+     "position": "WR",
+     "vorp": 35.76
+    },
+    {
+     "name": "Tee Higgins",
+     "position": "WR",
+     "vorp": 33.59
+    }
+   ],
+   "decidable": false,
+   "kind": "agreement"
+  },
+  {
+   "pick": 38,
+   "seat": 3,
+   "room_took": "Emeka Egbuka",
+   "room_took_id": "12514",
+   "room_took_position": "WR",
+   "recovered_top": "Zay Flowers",
+   "recovered_top_id": "9997",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Zay Flowers",
+     "position": "WR",
+     "vorp": 42.58
+    },
+    {
+     "name": "Ladd McConkey",
+     "position": "WR",
+     "vorp": 37.98
+    },
+    {
+     "name": "Jaylen Waddle",
+     "position": "WR",
+     "vorp": 35.76
+    },
+    {
+     "name": "Tee Higgins",
+     "position": "WR",
+     "vorp": 33.59
+    },
+    {
+     "name": "Emeka Egbuka",
+     "position": "WR",
+     "vorp": 30.91
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 39,
+   "seat": 2,
+   "room_took": "Cam Skattebo",
+   "room_took_id": "12481",
+   "room_took_position": "RB",
+   "recovered_top": "Zay Flowers",
+   "recovered_top_id": "9997",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Zay Flowers",
+     "position": "WR",
+     "vorp": 42.58
+    },
+    {
+     "name": "Ladd McConkey",
+     "position": "WR",
+     "vorp": 37.98
+    },
+    {
+     "name": "Jaylen Waddle",
+     "position": "WR",
+     "vorp": 35.76
+    },
+    {
+     "name": "Tee Higgins",
+     "position": "WR",
+     "vorp": 33.59
+    },
+    {
+     "name": "Mike Evans",
+     "position": "WR",
+     "vorp": 28.93
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 40,
+   "seat": 1,
+   "room_took": "Zay Flowers",
+   "room_took_id": "9997",
+   "room_took_position": "WR",
+   "recovered_top": "Zay Flowers",
+   "recovered_top_id": "9997",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Zay Flowers",
+     "position": "WR",
+     "vorp": 42.58
+    },
+    {
+     "name": "Ladd McConkey",
+     "position": "WR",
+     "vorp": 37.98
+    },
+    {
+     "name": "Jaylen Waddle",
+     "position": "WR",
+     "vorp": 35.76
+    },
+    {
+     "name": "Tee Higgins",
+     "position": "WR",
+     "vorp": 33.59
+    },
+    {
+     "name": "Mike Evans",
+     "position": "WR",
+     "vorp": 28.93
+    }
+   ],
+   "decidable": false,
+   "kind": "agreement"
+  },
+  {
+   "pick": 41,
+   "seat": 1,
+   "room_took": "Tee Higgins",
+   "room_took_id": "6801",
+   "room_took_position": "WR",
+   "recovered_top": "Ladd McConkey",
+   "recovered_top_id": "11635",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Ladd McConkey",
+     "position": "WR",
+     "vorp": 37.98
+    },
+    {
+     "name": "Jaylen Waddle",
+     "position": "WR",
+     "vorp": 35.76
+    },
+    {
+     "name": "Tee Higgins",
+     "position": "WR",
+     "vorp": 33.59
+    },
+    {
+     "name": "Mike Evans",
+     "position": "WR",
+     "vorp": 28.93
+    },
+    {
+     "name": "Travis Etienne",
+     "position": "RB",
+     "vorp": 27.81
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 42,
+   "seat": 2,
+   "room_took": "Ladd McConkey",
+   "room_took_id": "11635",
+   "room_took_position": "WR",
+   "recovered_top": "Ladd McConkey",
+   "recovered_top_id": "11635",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Ladd McConkey",
+     "position": "WR",
+     "vorp": 37.98
+    },
+    {
+     "name": "Jaylen Waddle",
+     "position": "WR",
+     "vorp": 35.76
+    },
+    {
+     "name": "Mike Evans",
+     "position": "WR",
+     "vorp": 28.93
+    },
+    {
+     "name": "Travis Etienne",
+     "position": "RB",
+     "vorp": 27.81
+    },
+    {
+     "name": "Garrett Wilson",
+     "position": "WR",
+     "vorp": 27.21
+    }
+   ],
+   "decidable": false,
+   "kind": "agreement"
+  },
+  {
+   "pick": 43,
+   "seat": 3,
+   "room_took": "Garrett Wilson",
+   "room_took_id": "8146",
+   "room_took_position": "WR",
+   "recovered_top": "Jaylen Waddle",
+   "recovered_top_id": "7526",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Jaylen Waddle",
+     "position": "WR",
+     "vorp": 35.76
+    },
+    {
+     "name": "Mike Evans",
+     "position": "WR",
+     "vorp": 28.93
+    },
+    {
+     "name": "Travis Etienne",
+     "position": "RB",
+     "vorp": 27.81
+    },
+    {
+     "name": "Garrett Wilson",
+     "position": "WR",
+     "vorp": 27.21
+    },
+    {
+     "name": "Jameson Williams",
+     "position": "WR",
+     "vorp": 26.51
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 44,
+   "seat": 4,
+   "room_took": "Bucky Irving",
+   "room_took_id": "11584",
+   "room_took_position": "RB",
+   "recovered_top": "Jaylen Waddle",
+   "recovered_top_id": "7526",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Jaylen Waddle",
+     "position": "WR",
+     "vorp": 35.76
+    },
+    {
+     "name": "Mike Evans",
+     "position": "WR",
+     "vorp": 28.93
+    },
+    {
+     "name": "Travis Etienne",
+     "position": "RB",
+     "vorp": 27.81
+    },
+    {
+     "name": "Jameson Williams",
+     "position": "WR",
+     "vorp": 26.51
+    },
+    {
+     "name": "Drake Maye",
+     "position": "QB",
+     "vorp": 26.04
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 45,
+   "seat": 5,
+   "room_took": "David Montgomery",
+   "room_took_id": "5892",
+   "room_took_position": "RB",
+   "recovered_top": "Jaylen Waddle",
+   "recovered_top_id": "7526",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Jaylen Waddle",
+     "position": "WR",
+     "vorp": 35.76
+    },
+    {
+     "name": "Mike Evans",
+     "position": "WR",
+     "vorp": 28.93
+    },
+    {
+     "name": "Travis Etienne",
+     "position": "RB",
+     "vorp": 27.81
+    },
+    {
+     "name": "Jameson Williams",
+     "position": "WR",
+     "vorp": 26.51
+    },
+    {
+     "name": "Drake Maye",
+     "position": "QB",
+     "vorp": 26.04
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 46,
+   "seat": 6,
+   "room_took": "Jaylen Waddle",
+   "room_took_id": "7526",
+   "room_took_position": "WR",
+   "recovered_top": "Jaylen Waddle",
+   "recovered_top_id": "7526",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Jaylen Waddle",
+     "position": "WR",
+     "vorp": 35.76
+    },
+    {
+     "name": "Mike Evans",
+     "position": "WR",
+     "vorp": 28.93
+    },
+    {
+     "name": "Travis Etienne",
+     "position": "RB",
+     "vorp": 27.81
+    },
+    {
+     "name": "Jameson Williams",
+     "position": "WR",
+     "vorp": 26.51
+    },
+    {
+     "name": "Drake Maye",
+     "position": "QB",
+     "vorp": 26.04
+    }
+   ],
+   "decidable": false,
+   "kind": "agreement"
+  },
+  {
+   "pick": 47,
+   "seat": 7,
+   "room_took": "Tyler Warren",
+   "room_took_id": "12518",
+   "room_took_position": "TE",
+   "recovered_top": "Mike Evans",
+   "recovered_top_id": "2216",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Mike Evans",
+     "position": "WR",
+     "vorp": 28.93
+    },
+    {
+     "name": "Travis Etienne",
+     "position": "RB",
+     "vorp": 27.81
+    },
+    {
+     "name": "Jameson Williams",
+     "position": "WR",
+     "vorp": 26.51
+    },
+    {
+     "name": "Drake Maye",
+     "position": "QB",
+     "vorp": 26.04
+    },
+    {
+     "name": "Tyler Warren",
+     "position": "TE",
+     "vorp": 24.29
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 48,
+   "seat": 8,
+   "room_took": "Davante Adams",
+   "room_took_id": "2133",
+   "room_took_position": "WR",
+   "recovered_top": "Mike Evans",
+   "recovered_top_id": "2216",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Mike Evans",
+     "position": "WR",
+     "vorp": 28.93
+    },
+    {
+     "name": "Travis Etienne",
+     "position": "RB",
+     "vorp": 27.81
+    },
+    {
+     "name": "Jameson Williams",
+     "position": "WR",
+     "vorp": 26.51
+    },
+    {
+     "name": "Drake Maye",
+     "position": "QB",
+     "vorp": 26.04
+    },
+    {
+     "name": "D'Andre Swift",
+     "position": "RB",
+     "vorp": 23.82
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 49,
+   "seat": 9,
+   "room_took": "DJ Moore",
+   "room_took_id": "4983",
+   "room_took_position": "WR",
+   "recovered_top": "Mike Evans",
+   "recovered_top_id": "2216",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Mike Evans",
+     "position": "WR",
+     "vorp": 28.93
+    },
+    {
+     "name": "Travis Etienne",
+     "position": "RB",
+     "vorp": 27.81
+    },
+    {
+     "name": "Jameson Williams",
+     "position": "WR",
+     "vorp": 26.51
+    },
+    {
+     "name": "Drake Maye",
+     "position": "QB",
+     "vorp": 26.04
+    },
+    {
+     "name": "D'Andre Swift",
+     "position": "RB",
+     "vorp": 23.82
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 50,
+   "seat": 10,
+   "room_took": "D'Andre Swift",
+   "room_took_id": "6790",
+   "room_took_position": "RB",
+   "recovered_top": "Mike Evans",
+   "recovered_top_id": "2216",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Mike Evans",
+     "position": "WR",
+     "vorp": 28.93
+    },
+    {
+     "name": "Travis Etienne",
+     "position": "RB",
+     "vorp": 27.81
+    },
+    {
+     "name": "Jameson Williams",
+     "position": "WR",
+     "vorp": 26.51
+    },
+    {
+     "name": "Drake Maye",
+     "position": "QB",
+     "vorp": 26.04
+    },
+    {
+     "name": "D'Andre Swift",
+     "position": "RB",
+     "vorp": 23.82
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 51,
+   "seat": 10,
+   "room_took": "Terry McLaurin",
+   "room_took_id": "5927",
+   "room_took_position": "WR",
+   "recovered_top": "Mike Evans",
+   "recovered_top_id": "2216",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Mike Evans",
+     "position": "WR",
+     "vorp": 28.93
+    },
+    {
+     "name": "Travis Etienne",
+     "position": "RB",
+     "vorp": 27.81
+    },
+    {
+     "name": "Jameson Williams",
+     "position": "WR",
+     "vorp": 26.51
+    },
+    {
+     "name": "Drake Maye",
+     "position": "QB",
+     "vorp": 26.04
+    },
+    {
+     "name": "Terry McLaurin",
+     "position": "WR",
+     "vorp": 22.32
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 52,
+   "seat": 9,
+   "room_took": "Travis Etienne",
+   "room_took_id": "7543",
+   "room_took_position": "RB",
+   "recovered_top": "Mike Evans",
+   "recovered_top_id": "2216",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Mike Evans",
+     "position": "WR",
+     "vorp": 28.93
+    },
+    {
+     "name": "Travis Etienne",
+     "position": "RB",
+     "vorp": 27.81
+    },
+    {
+     "name": "Jameson Williams",
+     "position": "WR",
+     "vorp": 26.51
+    },
+    {
+     "name": "Drake Maye",
+     "position": "QB",
+     "vorp": 26.04
+    },
+    {
+     "name": "Rome Odunze",
+     "position": "WR",
+     "vorp": 20.67
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 53,
+   "seat": 8,
+   "room_took": "Quinshon Judkins",
+   "room_took_id": "12512",
+   "room_took_position": "RB",
+   "recovered_top": "Mike Evans",
+   "recovered_top_id": "2216",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Mike Evans",
+     "position": "WR",
+     "vorp": 28.93
+    },
+    {
+     "name": "Jameson Williams",
+     "position": "WR",
+     "vorp": 26.51
+    },
+    {
+     "name": "Drake Maye",
+     "position": "QB",
+     "vorp": 26.04
+    },
+    {
+     "name": "Rome Odunze",
+     "position": "WR",
+     "vorp": 20.67
+    },
+    {
+     "name": "Joe Burrow",
+     "position": "QB",
+     "vorp": 20.4
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 54,
+   "seat": 7,
+   "room_took": "Drake Maye",
+   "room_took_id": "11564",
+   "room_took_position": "QB",
+   "recovered_top": "Mike Evans",
+   "recovered_top_id": "2216",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Mike Evans",
+     "position": "WR",
+     "vorp": 28.93
+    },
+    {
+     "name": "Jameson Williams",
+     "position": "WR",
+     "vorp": 26.51
+    },
+    {
+     "name": "Drake Maye",
+     "position": "QB",
+     "vorp": 26.04
+    },
+    {
+     "name": "Rome Odunze",
+     "position": "WR",
+     "vorp": 20.67
+    },
+    {
+     "name": "Joe Burrow",
+     "position": "QB",
+     "vorp": 20.4
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 55,
+   "seat": 6,
+   "room_took": "Jameson Williams",
+   "room_took_id": "8148",
+   "room_took_position": "WR",
+   "recovered_top": "Mike Evans",
+   "recovered_top_id": "2216",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Mike Evans",
+     "position": "WR",
+     "vorp": 28.93
+    },
+    {
+     "name": "Jameson Williams",
+     "position": "WR",
+     "vorp": 26.51
+    },
+    {
+     "name": "Rome Odunze",
+     "position": "WR",
+     "vorp": 20.67
+    },
+    {
+     "name": "Joe Burrow",
+     "position": "QB",
+     "vorp": 20.4
+    },
+    {
+     "name": "Parker Washington",
+     "position": "WR",
+     "vorp": 18.98
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 56,
+   "seat": 5,
+   "room_took": "Bhayshul Tuten",
+   "room_took_id": "12490",
+   "room_took_position": "RB",
+   "recovered_top": "Mike Evans",
+   "recovered_top_id": "2216",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Mike Evans",
+     "position": "WR",
+     "vorp": 28.93
+    },
+    {
+     "name": "Rome Odunze",
+     "position": "WR",
+     "vorp": 20.67
+    },
+    {
+     "name": "Joe Burrow",
+     "position": "QB",
+     "vorp": 20.4
+    },
+    {
+     "name": "Parker Washington",
+     "position": "WR",
+     "vorp": 18.98
+    },
+    {
+     "name": "Sam LaPorta",
+     "position": "TE",
+     "vorp": 17.74
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 57,
+   "seat": 4,
+   "room_took": "Jadarian Price",
+   "room_took_id": "13286",
+   "room_took_position": "RB",
+   "recovered_top": "Mike Evans",
+   "recovered_top_id": "2216",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Mike Evans",
+     "position": "WR",
+     "vorp": 28.93
+    },
+    {
+     "name": "Rome Odunze",
+     "position": "WR",
+     "vorp": 20.67
+    },
+    {
+     "name": "Joe Burrow",
+     "position": "QB",
+     "vorp": 20.4
+    },
+    {
+     "name": "Parker Washington",
+     "position": "WR",
+     "vorp": 18.98
+    },
+    {
+     "name": "Sam LaPorta",
+     "position": "TE",
+     "vorp": 17.74
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 58,
+   "seat": 3,
+   "room_took": "Tucker Kraft",
+   "room_took_id": "9484",
+   "room_took_position": "TE",
+   "recovered_top": "Mike Evans",
+   "recovered_top_id": "2216",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Mike Evans",
+     "position": "WR",
+     "vorp": 28.93
+    },
+    {
+     "name": "Rome Odunze",
+     "position": "WR",
+     "vorp": 20.67
+    },
+    {
+     "name": "Joe Burrow",
+     "position": "QB",
+     "vorp": 20.4
+    },
+    {
+     "name": "Parker Washington",
+     "position": "WR",
+     "vorp": 18.98
+    },
+    {
+     "name": "Sam LaPorta",
+     "position": "TE",
+     "vorp": 17.74
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 59,
+   "seat": 2,
+   "room_took": "Luther Burden",
+   "room_took_id": "12519",
+   "room_took_position": "WR",
+   "recovered_top": "Mike Evans",
+   "recovered_top_id": "2216",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Mike Evans",
+     "position": "WR",
+     "vorp": 28.93
+    },
+    {
+     "name": "Rome Odunze",
+     "position": "WR",
+     "vorp": 20.67
+    },
+    {
+     "name": "Joe Burrow",
+     "position": "QB",
+     "vorp": 20.4
+    },
+    {
+     "name": "Parker Washington",
+     "position": "WR",
+     "vorp": 18.98
+    },
+    {
+     "name": "Sam LaPorta",
+     "position": "TE",
+     "vorp": 17.74
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 60,
+   "seat": 1,
+   "room_took": "Joe Burrow",
+   "room_took_id": "6770",
+   "room_took_position": "QB",
+   "recovered_top": "Mike Evans",
+   "recovered_top_id": "2216",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Mike Evans",
+     "position": "WR",
+     "vorp": 28.93
+    },
+    {
+     "name": "Rome Odunze",
+     "position": "WR",
+     "vorp": 20.67
+    },
+    {
+     "name": "Joe Burrow",
+     "position": "QB",
+     "vorp": 20.4
+    },
+    {
+     "name": "Parker Washington",
+     "position": "WR",
+     "vorp": 18.98
+    },
+    {
+     "name": "Sam LaPorta",
+     "position": "TE",
+     "vorp": 17.74
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 61,
+   "seat": 1,
+   "room_took": "Sam LaPorta",
+   "room_took_id": "10859",
+   "room_took_position": "TE",
+   "recovered_top": "Mike Evans",
+   "recovered_top_id": "2216",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Mike Evans",
+     "position": "WR",
+     "vorp": 28.93
+    },
+    {
+     "name": "Rome Odunze",
+     "position": "WR",
+     "vorp": 20.67
+    },
+    {
+     "name": "Parker Washington",
+     "position": "WR",
+     "vorp": 18.98
+    },
+    {
+     "name": "Sam LaPorta",
+     "position": "TE",
+     "vorp": 17.74
+    },
+    {
+     "name": "Christian Watson",
+     "position": "WR",
+     "vorp": 14.57
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 62,
+   "seat": 2,
+   "room_took": "Christian Watson",
+   "room_took_id": "8167",
+   "room_took_position": "WR",
+   "recovered_top": "Mike Evans",
+   "recovered_top_id": "2216",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Mike Evans",
+     "position": "WR",
+     "vorp": 28.93
+    },
+    {
+     "name": "Rome Odunze",
+     "position": "WR",
+     "vorp": 20.67
+    },
+    {
+     "name": "Parker Washington",
+     "position": "WR",
+     "vorp": 18.98
+    },
+    {
+     "name": "Christian Watson",
+     "position": "WR",
+     "vorp": 14.57
+    },
+    {
+     "name": "Brian Thomas",
+     "position": "WR",
+     "vorp": 11.58
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 63,
+   "seat": 3,
+   "room_took": "Patrick Mahomes",
+   "room_took_id": "4046",
+   "room_took_position": "QB",
+   "recovered_top": "Mike Evans",
+   "recovered_top_id": "2216",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Mike Evans",
+     "position": "WR",
+     "vorp": 28.93
+    },
+    {
+     "name": "Rome Odunze",
+     "position": "WR",
+     "vorp": 20.67
+    },
+    {
+     "name": "Parker Washington",
+     "position": "WR",
+     "vorp": 18.98
+    },
+    {
+     "name": "Brian Thomas",
+     "position": "WR",
+     "vorp": 11.58
+    },
+    {
+     "name": "Dak Prescott",
+     "position": "QB",
+     "vorp": 11.16
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 64,
+   "seat": 4,
+   "room_took": "Jonathon Brooks",
+   "room_took_id": "11583",
+   "room_took_position": "RB",
+   "recovered_top": "Mike Evans",
+   "recovered_top_id": "2216",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Mike Evans",
+     "position": "WR",
+     "vorp": 28.93
+    },
+    {
+     "name": "Rome Odunze",
+     "position": "WR",
+     "vorp": 20.67
+    },
+    {
+     "name": "Parker Washington",
+     "position": "WR",
+     "vorp": 18.98
+    },
+    {
+     "name": "Brian Thomas",
+     "position": "WR",
+     "vorp": 11.58
+    },
+    {
+     "name": "Dak Prescott",
+     "position": "QB",
+     "vorp": 11.16
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 65,
+   "seat": 5,
+   "room_took": "Mike Evans",
+   "room_took_id": "2216",
+   "room_took_position": "WR",
+   "recovered_top": "Mike Evans",
+   "recovered_top_id": "2216",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Mike Evans",
+     "position": "WR",
+     "vorp": 28.93
+    },
+    {
+     "name": "Rome Odunze",
+     "position": "WR",
+     "vorp": 20.67
+    },
+    {
+     "name": "Parker Washington",
+     "position": "WR",
+     "vorp": 18.98
+    },
+    {
+     "name": "Brian Thomas",
+     "position": "WR",
+     "vorp": 11.58
+    },
+    {
+     "name": "Dak Prescott",
+     "position": "QB",
+     "vorp": 11.16
+    }
+   ],
+   "decidable": false,
+   "kind": "agreement"
+  },
+  {
+   "pick": 66,
+   "seat": 6,
+   "room_took": "TreVeyon Henderson",
+   "room_took_id": "12529",
+   "room_took_position": "RB",
+   "recovered_top": "Rome Odunze",
+   "recovered_top_id": "11620",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Rome Odunze",
+     "position": "WR",
+     "vorp": 20.67
+    },
+    {
+     "name": "Parker Washington",
+     "position": "WR",
+     "vorp": 18.98
+    },
+    {
+     "name": "Brian Thomas",
+     "position": "WR",
+     "vorp": 11.58
+    },
+    {
+     "name": "Dak Prescott",
+     "position": "QB",
+     "vorp": 11.16
+    },
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 67,
+   "seat": 7,
+   "room_took": "Carnell Tate",
+   "room_took_id": "13279",
+   "room_took_position": "WR",
+   "recovered_top": "Rome Odunze",
+   "recovered_top_id": "11620",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Rome Odunze",
+     "position": "WR",
+     "vorp": 20.67
+    },
+    {
+     "name": "Parker Washington",
+     "position": "WR",
+     "vorp": 18.98
+    },
+    {
+     "name": "Brian Thomas",
+     "position": "WR",
+     "vorp": 11.58
+    },
+    {
+     "name": "Dak Prescott",
+     "position": "QB",
+     "vorp": 11.16
+    },
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 68,
+   "seat": 8,
+   "room_took": "Rome Odunze",
+   "room_took_id": "11620",
+   "room_took_position": "WR",
+   "recovered_top": "Rome Odunze",
+   "recovered_top_id": "11620",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Rome Odunze",
+     "position": "WR",
+     "vorp": 20.67
+    },
+    {
+     "name": "Parker Washington",
+     "position": "WR",
+     "vorp": 18.98
+    },
+    {
+     "name": "Brian Thomas",
+     "position": "WR",
+     "vorp": 11.58
+    },
+    {
+     "name": "Dak Prescott",
+     "position": "QB",
+     "vorp": 11.16
+    },
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    }
+   ],
+   "decidable": false,
+   "kind": "agreement"
+  },
+  {
+   "pick": 69,
+   "seat": 9,
+   "room_took": "Jalen Hurts",
+   "room_took_id": "6904",
+   "room_took_position": "QB",
+   "recovered_top": "Parker Washington",
+   "recovered_top_id": "9487",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Parker Washington",
+     "position": "WR",
+     "vorp": 18.98
+    },
+    {
+     "name": "Brian Thomas",
+     "position": "WR",
+     "vorp": 11.58
+    },
+    {
+     "name": "Dak Prescott",
+     "position": "QB",
+     "vorp": 11.16
+    },
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Harold Fannin",
+     "position": "TE",
+     "vorp": 7.45
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 70,
+   "seat": 10,
+   "room_took": "Dak Prescott",
+   "room_took_id": "3294",
+   "room_took_position": "QB",
+   "recovered_top": "Parker Washington",
+   "recovered_top_id": "9487",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Parker Washington",
+     "position": "WR",
+     "vorp": 18.98
+    },
+    {
+     "name": "Brian Thomas",
+     "position": "WR",
+     "vorp": 11.58
+    },
+    {
+     "name": "Dak Prescott",
+     "position": "QB",
+     "vorp": 11.16
+    },
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Harold Fannin",
+     "position": "TE",
+     "vorp": 7.45
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 71,
+   "seat": 10,
+   "room_took": "Rhamondre Stevenson",
+   "room_took_id": "7611",
+   "room_took_position": "RB",
+   "recovered_top": "Parker Washington",
+   "recovered_top_id": "9487",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Parker Washington",
+     "position": "WR",
+     "vorp": 18.98
+    },
+    {
+     "name": "Brian Thomas",
+     "position": "WR",
+     "vorp": 11.58
+    },
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Harold Fannin",
+     "position": "TE",
+     "vorp": 7.45
+    },
+    {
+     "name": "Kyle Pitts",
+     "position": "TE",
+     "vorp": 7.44
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 72,
+   "seat": 9,
+   "room_took": "Kyle Pitts",
+   "room_took_id": "7553",
+   "room_took_position": "TE",
+   "recovered_top": "Parker Washington",
+   "recovered_top_id": "9487",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Parker Washington",
+     "position": "WR",
+     "vorp": 18.98
+    },
+    {
+     "name": "Brian Thomas",
+     "position": "WR",
+     "vorp": 11.58
+    },
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Harold Fannin",
+     "position": "TE",
+     "vorp": 7.45
+    },
+    {
+     "name": "Kyle Pitts",
+     "position": "TE",
+     "vorp": 7.44
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 73,
+   "seat": 8,
+   "room_took": "Parker Washington",
+   "room_took_id": "9487",
+   "room_took_position": "WR",
+   "recovered_top": "Parker Washington",
+   "recovered_top_id": "9487",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Parker Washington",
+     "position": "WR",
+     "vorp": 18.98
+    },
+    {
+     "name": "Brian Thomas",
+     "position": "WR",
+     "vorp": 11.58
+    },
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Harold Fannin",
+     "position": "TE",
+     "vorp": 7.45
+    },
+    {
+     "name": "Travis Kelce",
+     "position": "TE",
+     "vorp": 4.91
+    }
+   ],
+   "decidable": false,
+   "kind": "agreement"
+  },
+  {
+   "pick": 74,
+   "seat": 7,
+   "room_took": "RJ Harvey",
+   "room_took_id": "12489",
+   "room_took_position": "RB",
+   "recovered_top": "Brian Thomas",
+   "recovered_top_id": "11631",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Brian Thomas",
+     "position": "WR",
+     "vorp": 11.58
+    },
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Harold Fannin",
+     "position": "TE",
+     "vorp": 7.45
+    },
+    {
+     "name": "Travis Kelce",
+     "position": "TE",
+     "vorp": 4.91
+    },
+    {
+     "name": "Caleb Williams",
+     "position": "QB",
+     "vorp": 3.62
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 75,
+   "seat": 6,
+   "room_took": "Harold Fannin",
+   "room_took_id": "12506",
+   "room_took_position": "TE",
+   "recovered_top": "Brian Thomas",
+   "recovered_top_id": "11631",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Brian Thomas",
+     "position": "WR",
+     "vorp": 11.58
+    },
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Harold Fannin",
+     "position": "TE",
+     "vorp": 7.45
+    },
+    {
+     "name": "Travis Kelce",
+     "position": "TE",
+     "vorp": 4.91
+    },
+    {
+     "name": "Caleb Williams",
+     "position": "QB",
+     "vorp": 3.62
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 76,
+   "seat": 5,
+   "room_took": "Brian Thomas",
+   "room_took_id": "11631",
+   "room_took_position": "WR",
+   "recovered_top": "Brian Thomas",
+   "recovered_top_id": "11631",
+   "recovered_top_position": "WR",
+   "recovered_top5": [
+    {
+     "name": "Brian Thomas",
+     "position": "WR",
+     "vorp": 11.58
+    },
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Travis Kelce",
+     "position": "TE",
+     "vorp": 4.91
+    },
+    {
+     "name": "Caleb Williams",
+     "position": "QB",
+     "vorp": 3.62
+    },
+    {
+     "name": "Trevor Lawrence",
+     "position": "QB",
+     "vorp": 1.7
+    }
+   ],
+   "decidable": false,
+   "kind": "agreement"
+  },
+  {
+   "pick": 77,
+   "seat": 4,
+   "room_took": "Jordan Mason",
+   "room_took_id": "8408",
+   "room_took_position": "RB",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Travis Kelce",
+     "position": "TE",
+     "vorp": 4.91
+    },
+    {
+     "name": "Caleb Williams",
+     "position": "QB",
+     "vorp": 3.62
+    },
+    {
+     "name": "Trevor Lawrence",
+     "position": "QB",
+     "vorp": 1.7
+    },
+    {
+     "name": "George Kittle",
+     "position": "TE",
+     "vorp": 0.85
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 78,
+   "seat": 3,
+   "room_took": "DK Metcalf",
+   "room_took_id": "5846",
+   "room_took_position": "WR",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Travis Kelce",
+     "position": "TE",
+     "vorp": 4.91
+    },
+    {
+     "name": "Caleb Williams",
+     "position": "QB",
+     "vorp": 3.62
+    },
+    {
+     "name": "Trevor Lawrence",
+     "position": "QB",
+     "vorp": 1.7
+    },
+    {
+     "name": "George Kittle",
+     "position": "TE",
+     "vorp": 0.85
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 79,
+   "seat": 2,
+   "room_took": "Jaylen Warren",
+   "room_took_id": "8228",
+   "room_took_position": "RB",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Travis Kelce",
+     "position": "TE",
+     "vorp": 4.91
+    },
+    {
+     "name": "Caleb Williams",
+     "position": "QB",
+     "vorp": 3.62
+    },
+    {
+     "name": "Trevor Lawrence",
+     "position": "QB",
+     "vorp": 1.7
+    },
+    {
+     "name": "George Kittle",
+     "position": "TE",
+     "vorp": 0.85
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 80,
+   "seat": 1,
+   "room_took": "Marvin Harrison",
+   "room_took_id": "11628",
+   "room_took_position": "WR",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Travis Kelce",
+     "position": "TE",
+     "vorp": 4.91
+    },
+    {
+     "name": "Caleb Williams",
+     "position": "QB",
+     "vorp": 3.62
+    },
+    {
+     "name": "Trevor Lawrence",
+     "position": "QB",
+     "vorp": 1.7
+    },
+    {
+     "name": "George Kittle",
+     "position": "TE",
+     "vorp": 0.85
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 81,
+   "seat": 1,
+   "room_took": "Tony Pollard",
+   "room_took_id": "5967",
+   "room_took_position": "RB",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Travis Kelce",
+     "position": "TE",
+     "vorp": 4.91
+    },
+    {
+     "name": "Caleb Williams",
+     "position": "QB",
+     "vorp": 3.62
+    },
+    {
+     "name": "Trevor Lawrence",
+     "position": "QB",
+     "vorp": 1.7
+    },
+    {
+     "name": "George Kittle",
+     "position": "TE",
+     "vorp": 0.85
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 82,
+   "seat": 2,
+   "room_took": "Travis Kelce",
+   "room_took_id": "1466",
+   "room_took_position": "TE",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Travis Kelce",
+     "position": "TE",
+     "vorp": 4.91
+    },
+    {
+     "name": "Caleb Williams",
+     "position": "QB",
+     "vorp": 3.62
+    },
+    {
+     "name": "Trevor Lawrence",
+     "position": "QB",
+     "vorp": 1.7
+    },
+    {
+     "name": "George Kittle",
+     "position": "TE",
+     "vorp": 0.85
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 83,
+   "seat": 3,
+   "room_took": "J.K. Dobbins",
+   "room_took_id": "6806",
+   "room_took_position": "RB",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Caleb Williams",
+     "position": "QB",
+     "vorp": 3.62
+    },
+    {
+     "name": "Trevor Lawrence",
+     "position": "QB",
+     "vorp": 1.7
+    },
+    {
+     "name": "George Kittle",
+     "position": "TE",
+     "vorp": 0.85
+    },
+    {
+     "name": "Jayden Daniels",
+     "position": "QB",
+     "vorp": 0.0
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 84,
+   "seat": 4,
+   "room_took": "Alec Pierce",
+   "room_took_id": "8142",
+   "room_took_position": "WR",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Caleb Williams",
+     "position": "QB",
+     "vorp": 3.62
+    },
+    {
+     "name": "Trevor Lawrence",
+     "position": "QB",
+     "vorp": 1.7
+    },
+    {
+     "name": "George Kittle",
+     "position": "TE",
+     "vorp": 0.85
+    },
+    {
+     "name": "Jayden Daniels",
+     "position": "QB",
+     "vorp": 0.0
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 85,
+   "seat": 5,
+   "room_took": "Jayden Daniels",
+   "room_took_id": "11566",
+   "room_took_position": "QB",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Caleb Williams",
+     "position": "QB",
+     "vorp": 3.62
+    },
+    {
+     "name": "Trevor Lawrence",
+     "position": "QB",
+     "vorp": 1.7
+    },
+    {
+     "name": "George Kittle",
+     "position": "TE",
+     "vorp": 0.85
+    },
+    {
+     "name": "Jayden Daniels",
+     "position": "QB",
+     "vorp": 0.0
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 86,
+   "seat": 6,
+   "room_took": "George Kittle",
+   "room_took_id": "4217",
+   "room_took_position": "TE",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Caleb Williams",
+     "position": "QB",
+     "vorp": 3.62
+    },
+    {
+     "name": "Trevor Lawrence",
+     "position": "QB",
+     "vorp": 1.7
+    },
+    {
+     "name": "George Kittle",
+     "position": "TE",
+     "vorp": 0.85
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 87,
+   "seat": 7,
+   "room_took": "Makai Lemon",
+   "room_took_id": "13294",
+   "room_took_position": "WR",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Caleb Williams",
+     "position": "QB",
+     "vorp": 3.62
+    },
+    {
+     "name": "Trevor Lawrence",
+     "position": "QB",
+     "vorp": 1.7
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Justin Herbert",
+     "position": "QB",
+     "vorp": -4.24
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 88,
+   "seat": 8,
+   "room_took": "Courtland Sutton",
+   "room_took_id": "5045",
+   "room_took_position": "WR",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Caleb Williams",
+     "position": "QB",
+     "vorp": 3.62
+    },
+    {
+     "name": "Trevor Lawrence",
+     "position": "QB",
+     "vorp": 1.7
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Justin Herbert",
+     "position": "QB",
+     "vorp": -4.24
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 89,
+   "seat": 9,
+   "room_took": "Michael Wilson",
+   "room_took_id": "10232",
+   "room_took_position": "WR",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Caleb Williams",
+     "position": "QB",
+     "vorp": 3.62
+    },
+    {
+     "name": "Trevor Lawrence",
+     "position": "QB",
+     "vorp": 1.7
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Justin Herbert",
+     "position": "QB",
+     "vorp": -4.24
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 90,
+   "seat": 10,
+   "room_took": "Chuba Hubbard",
+   "room_took_id": "7594",
+   "room_took_position": "RB",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Caleb Williams",
+     "position": "QB",
+     "vorp": 3.62
+    },
+    {
+     "name": "Trevor Lawrence",
+     "position": "QB",
+     "vorp": 1.7
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Justin Herbert",
+     "position": "QB",
+     "vorp": -4.24
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 91,
+   "seat": 10,
+   "room_took": "Chris Godwin",
+   "room_took_id": "4037",
+   "room_took_position": "WR",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Caleb Williams",
+     "position": "QB",
+     "vorp": 3.62
+    },
+    {
+     "name": "Trevor Lawrence",
+     "position": "QB",
+     "vorp": 1.7
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Justin Herbert",
+     "position": "QB",
+     "vorp": -4.24
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 92,
+   "seat": 9,
+   "room_took": "Rico Dowdle",
+   "room_took_id": "7021",
+   "room_took_position": "RB",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Caleb Williams",
+     "position": "QB",
+     "vorp": 3.62
+    },
+    {
+     "name": "Trevor Lawrence",
+     "position": "QB",
+     "vorp": 1.7
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Justin Herbert",
+     "position": "QB",
+     "vorp": -4.24
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 93,
+   "seat": 8,
+   "room_took": "Caleb Williams",
+   "room_took_id": "11560",
+   "room_took_position": "QB",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Caleb Williams",
+     "position": "QB",
+     "vorp": 3.62
+    },
+    {
+     "name": "Trevor Lawrence",
+     "position": "QB",
+     "vorp": 1.7
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Justin Herbert",
+     "position": "QB",
+     "vorp": -4.24
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 94,
+   "seat": 7,
+   "room_took": "Jacory Croskey-Merritt",
+   "room_took_id": "12533",
+   "room_took_position": "RB",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Trevor Lawrence",
+     "position": "QB",
+     "vorp": 1.7
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Justin Herbert",
+     "position": "QB",
+     "vorp": -4.24
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 95,
+   "seat": 6,
+   "room_took": "Justin Herbert",
+   "room_took_id": "6797",
+   "room_took_position": "QB",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Trevor Lawrence",
+     "position": "QB",
+     "vorp": 1.7
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Justin Herbert",
+     "position": "QB",
+     "vorp": -4.24
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 96,
+   "seat": 5,
+   "room_took": "Kyle Monangai",
+   "room_took_id": "12534",
+   "room_took_position": "RB",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Trevor Lawrence",
+     "position": "QB",
+     "vorp": 1.7
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 97,
+   "seat": 4,
+   "room_took": "De'Zhaun Stribling",
+   "room_took_id": "13417",
+   "room_took_position": "WR",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Trevor Lawrence",
+     "position": "QB",
+     "vorp": 1.7
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 98,
+   "seat": 3,
+   "room_took": "Stefon Diggs",
+   "room_took_id": "2449",
+   "room_took_position": "WR",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Trevor Lawrence",
+     "position": "QB",
+     "vorp": 1.7
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 99,
+   "seat": 2,
+   "room_took": "Michael Pittman",
+   "room_took_id": "6819",
+   "room_took_position": "WR",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Trevor Lawrence",
+     "position": "QB",
+     "vorp": 1.7
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 100,
+   "seat": 1,
+   "room_took": "Dalton Kincaid",
+   "room_took_id": "10236",
+   "room_took_position": "TE",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Trevor Lawrence",
+     "position": "QB",
+     "vorp": 1.7
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 101,
+   "seat": 1,
+   "room_took": "Jayden Reed",
+   "room_took_id": "10222",
+   "room_took_position": "WR",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Trevor Lawrence",
+     "position": "QB",
+     "vorp": 1.7
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 102,
+   "seat": 2,
+   "room_took": "Blake Corum",
+   "room_took_id": "11586",
+   "room_took_position": "RB",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Trevor Lawrence",
+     "position": "QB",
+     "vorp": 1.7
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 103,
+   "seat": 3,
+   "room_took": "KC Concepcion",
+   "room_took_id": "13298",
+   "room_took_position": "WR",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Trevor Lawrence",
+     "position": "QB",
+     "vorp": 1.7
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 104,
+   "seat": 4,
+   "room_took": "Los Angeles Rams",
+   "room_took_id": "LAR",
+   "room_took_position": "DEF",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Trevor Lawrence",
+     "position": "QB",
+     "vorp": 1.7
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 105,
+   "seat": 5,
+   "room_took": "Isaiah Likely",
+   "room_took_id": "8131",
+   "room_took_position": "TE",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Trevor Lawrence",
+     "position": "QB",
+     "vorp": 1.7
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 106,
+   "seat": 6,
+   "room_took": "Trevor Lawrence",
+   "room_took_id": "7523",
+   "room_took_position": "QB",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Trevor Lawrence",
+     "position": "QB",
+     "vorp": 1.7
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 107,
+   "seat": 7,
+   "room_took": "Brandon Aubrey",
+   "room_took_id": "11533",
+   "room_took_position": "K",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Matthew Stafford",
+     "position": "QB",
+     "vorp": -8.5
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 108,
+   "seat": 8,
+   "room_took": "Houston Texans",
+   "room_took_id": "HOU",
+   "room_took_position": "DEF",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Matthew Stafford",
+     "position": "QB",
+     "vorp": -8.5
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 109,
+   "seat": 9,
+   "room_took": "Seattle Seahawks",
+   "room_took_id": "SEA",
+   "room_took_position": "DEF",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Matthew Stafford",
+     "position": "QB",
+     "vorp": -8.5
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 110,
+   "seat": 10,
+   "room_took": "Aaron Jones",
+   "room_took_id": "4199",
+   "room_took_position": "RB",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Matthew Stafford",
+     "position": "QB",
+     "vorp": -8.5
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 111,
+   "seat": 10,
+   "room_took": "Xavier Worthy",
+   "room_took_id": "11624",
+   "room_took_position": "WR",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Matthew Stafford",
+     "position": "QB",
+     "vorp": -8.5
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 112,
+   "seat": 9,
+   "room_took": "Matthew Stafford",
+   "room_took_id": "421",
+   "room_took_position": "QB",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Matthew Stafford",
+     "position": "QB",
+     "vorp": -8.5
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 113,
+   "seat": 8,
+   "room_took": "Emmett Johnson",
+   "room_took_id": "13337",
+   "room_took_position": "RB",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Hunter Henry",
+     "position": "TE",
+     "vorp": -8.78
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 114,
+   "seat": 7,
+   "room_took": "Josh Downs",
+   "room_took_id": "9500",
+   "room_took_position": "WR",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Hunter Henry",
+     "position": "TE",
+     "vorp": -8.78
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 115,
+   "seat": 6,
+   "room_took": "Jordyn Tyson",
+   "room_took_id": "13281",
+   "room_took_position": "WR",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Hunter Henry",
+     "position": "TE",
+     "vorp": -8.78
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 116,
+   "seat": 5,
+   "room_took": "Jordan Addison",
+   "room_took_id": "9756",
+   "room_took_position": "WR",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Hunter Henry",
+     "position": "TE",
+     "vorp": -8.78
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 117,
+   "seat": 4,
+   "room_took": "Cyrus Allen",
+   "room_took_id": "13413",
+   "room_took_position": "WR",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Hunter Henry",
+     "position": "TE",
+     "vorp": -8.78
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 118,
+   "seat": 3,
+   "room_took": "Harrison Butker",
+   "room_took_id": "4227",
+   "room_took_position": "K",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Hunter Henry",
+     "position": "TE",
+     "vorp": -8.78
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 119,
+   "seat": 2,
+   "room_took": "Denver Broncos",
+   "room_took_id": "DEN",
+   "room_took_position": "DEF",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Hunter Henry",
+     "position": "TE",
+     "vorp": -8.78
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 120,
+   "seat": 1,
+   "room_took": "Quentin Johnston",
+   "room_took_id": "9754",
+   "room_took_position": "WR",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Hunter Henry",
+     "position": "TE",
+     "vorp": -8.78
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 121,
+   "seat": 1,
+   "room_took": "Jaxson Dart",
+   "room_took_id": "12508",
+   "room_took_position": "QB",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Hunter Henry",
+     "position": "TE",
+     "vorp": -8.78
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 122,
+   "seat": 2,
+   "room_took": "Romeo Doubs",
+   "room_took_id": "8121",
+   "room_took_position": "WR",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Hunter Henry",
+     "position": "TE",
+     "vorp": -8.78
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 123,
+   "seat": 3,
+   "room_took": "Philadelphia Eagles",
+   "room_took_id": "PHI",
+   "room_took_position": "DEF",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Hunter Henry",
+     "position": "TE",
+     "vorp": -8.78
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 124,
+   "seat": 4,
+   "room_took": "Ka'imi Fairbairn",
+   "room_took_id": "3451",
+   "room_took_position": "K",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Hunter Henry",
+     "position": "TE",
+     "vorp": -8.78
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 125,
+   "seat": 5,
+   "room_took": "Cam Little",
+   "room_took_id": "11786",
+   "room_took_position": "K",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Hunter Henry",
+     "position": "TE",
+     "vorp": -8.78
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 126,
+   "seat": 6,
+   "room_took": "Cameron Dicker",
+   "room_took_id": "8259",
+   "room_took_position": "K",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Hunter Henry",
+     "position": "TE",
+     "vorp": -8.78
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 127,
+   "seat": 7,
+   "room_took": "Kenny Gainwell",
+   "room_took_id": "7567",
+   "room_took_position": "RB",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Hunter Henry",
+     "position": "TE",
+     "vorp": -8.78
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 128,
+   "seat": 8,
+   "room_took": "Zach Charbonnet",
+   "room_took_id": "9753",
+   "room_took_position": "RB",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Hunter Henry",
+     "position": "TE",
+     "vorp": -8.78
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 129,
+   "seat": 9,
+   "room_took": "Jason Myers",
+   "room_took_id": "2747",
+   "room_took_position": "K",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Hunter Henry",
+     "position": "TE",
+     "vorp": -8.78
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 130,
+   "seat": 10,
+   "room_took": "Kansas City Chiefs",
+   "room_took_id": "KC",
+   "room_took_position": "DEF",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Hunter Henry",
+     "position": "TE",
+     "vorp": -8.78
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 131,
+   "seat": 10,
+   "room_took": "Will Reichard",
+   "room_took_id": "11792",
+   "room_took_position": "K",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Hunter Henry",
+     "position": "TE",
+     "vorp": -8.78
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 132,
+   "seat": 9,
+   "room_took": "Jake Ferguson",
+   "room_took_id": "8110",
+   "room_took_position": "TE",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Hunter Henry",
+     "position": "TE",
+     "vorp": -8.78
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 133,
+   "seat": 8,
+   "room_took": "Oronde Gadsden",
+   "room_took_id": "12493",
+   "room_took_position": "TE",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Hunter Henry",
+     "position": "TE",
+     "vorp": -8.78
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 134,
+   "seat": 7,
+   "room_took": "Bo Nix",
+   "room_took_id": "11563",
+   "room_took_position": "QB",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Bo Nix",
+     "position": "QB",
+     "vorp": -6.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Hunter Henry",
+     "position": "TE",
+     "vorp": -8.78
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 135,
+   "seat": 6,
+   "room_took": "Matthew Golden",
+   "room_took_id": "12501",
+   "room_took_position": "WR",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Hunter Henry",
+     "position": "TE",
+     "vorp": -8.78
+    },
+    {
+     "name": "Brenton Strange",
+     "position": "TE",
+     "vorp": -14.29
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 136,
+   "seat": 5,
+   "room_took": "New England Patriots",
+   "room_took_id": "NE",
+   "room_took_position": "DEF",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Hunter Henry",
+     "position": "TE",
+     "vorp": -8.78
+    },
+    {
+     "name": "Brenton Strange",
+     "position": "TE",
+     "vorp": -14.29
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 137,
+   "seat": 4,
+   "room_took": "Chris Rodriguez",
+   "room_took_id": "10219",
+   "room_took_position": "RB",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Hunter Henry",
+     "position": "TE",
+     "vorp": -8.78
+    },
+    {
+     "name": "Brenton Strange",
+     "position": "TE",
+     "vorp": -14.29
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 138,
+   "seat": 3,
+   "room_took": "Mark Andrews",
+   "room_took_id": "5012",
+   "room_took_position": "TE",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Mark Andrews",
+     "position": "TE",
+     "vorp": 0.0
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Hunter Henry",
+     "position": "TE",
+     "vorp": -8.78
+    },
+    {
+     "name": "Brenton Strange",
+     "position": "TE",
+     "vorp": -14.29
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 139,
+   "seat": 2,
+   "room_took": "Hunter Henry",
+   "room_took_id": "3214",
+   "room_took_position": "TE",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Hunter Henry",
+     "position": "TE",
+     "vorp": -8.78
+    },
+    {
+     "name": "Brenton Strange",
+     "position": "TE",
+     "vorp": -14.29
+    },
+    {
+     "name": "T.J. Hockenson",
+     "position": "TE",
+     "vorp": -19.03
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 140,
+   "seat": 1,
+   "room_took": "Eddy Pineiro",
+   "room_took_id": "5189",
+   "room_took_position": "K",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Brenton Strange",
+     "position": "TE",
+     "vorp": -14.29
+    },
+    {
+     "name": "T.J. Hockenson",
+     "position": "TE",
+     "vorp": -19.03
+    },
+    {
+     "name": "Jordan Love",
+     "position": "QB",
+     "vorp": -19.2
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 141,
+   "seat": 1,
+   "room_took": "Jacksonville Jaguars",
+   "room_took_id": "JAX",
+   "room_took_position": "DEF",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Brenton Strange",
+     "position": "TE",
+     "vorp": -14.29
+    },
+    {
+     "name": "T.J. Hockenson",
+     "position": "TE",
+     "vorp": -19.03
+    },
+    {
+     "name": "Jordan Love",
+     "position": "QB",
+     "vorp": -19.2
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 142,
+   "seat": 2,
+   "room_took": "Jake Bates",
+   "room_took_id": "11539",
+   "room_took_position": "K",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Brenton Strange",
+     "position": "TE",
+     "vorp": -14.29
+    },
+    {
+     "name": "T.J. Hockenson",
+     "position": "TE",
+     "vorp": -19.03
+    },
+    {
+     "name": "Jordan Love",
+     "position": "QB",
+     "vorp": -19.2
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 143,
+   "seat": 3,
+   "room_took": "Alvin Kamara",
+   "room_took_id": "4035",
+   "room_took_position": "RB",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Brenton Strange",
+     "position": "TE",
+     "vorp": -14.29
+    },
+    {
+     "name": "T.J. Hockenson",
+     "position": "TE",
+     "vorp": -19.03
+    },
+    {
+     "name": "Jordan Love",
+     "position": "QB",
+     "vorp": -19.2
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 144,
+   "seat": 4,
+   "room_took": "Jalen Nailor",
+   "room_took_id": "8180",
+   "room_took_position": "WR",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Brenton Strange",
+     "position": "TE",
+     "vorp": -14.29
+    },
+    {
+     "name": "T.J. Hockenson",
+     "position": "TE",
+     "vorp": -19.03
+    },
+    {
+     "name": "Jordan Love",
+     "position": "QB",
+     "vorp": -19.2
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 145,
+   "seat": 5,
+   "room_took": "Tyler Shough",
+   "room_took_id": "12545",
+   "room_took_position": "QB",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Brenton Strange",
+     "position": "TE",
+     "vorp": -14.29
+    },
+    {
+     "name": "T.J. Hockenson",
+     "position": "TE",
+     "vorp": -19.03
+    },
+    {
+     "name": "Jordan Love",
+     "position": "QB",
+     "vorp": -19.2
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 146,
+   "seat": 6,
+   "room_took": "Baltimore Ravens",
+   "room_took_id": "BAL",
+   "room_took_position": "DEF",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Brenton Strange",
+     "position": "TE",
+     "vorp": -14.29
+    },
+    {
+     "name": "T.J. Hockenson",
+     "position": "TE",
+     "vorp": -19.03
+    },
+    {
+     "name": "Jordan Love",
+     "position": "QB",
+     "vorp": -19.2
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 147,
+   "seat": 7,
+   "room_took": "Minnesota Vikings",
+   "room_took_id": "MIN",
+   "room_took_position": "DEF",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Brenton Strange",
+     "position": "TE",
+     "vorp": -14.29
+    },
+    {
+     "name": "T.J. Hockenson",
+     "position": "TE",
+     "vorp": -19.03
+    },
+    {
+     "name": "Jordan Love",
+     "position": "QB",
+     "vorp": -19.2
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 148,
+   "seat": 8,
+   "room_took": "Rachaad White",
+   "room_took_id": "8136",
+   "room_took_position": "RB",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Brenton Strange",
+     "position": "TE",
+     "vorp": -14.29
+    },
+    {
+     "name": "T.J. Hockenson",
+     "position": "TE",
+     "vorp": -19.03
+    },
+    {
+     "name": "Jordan Love",
+     "position": "QB",
+     "vorp": -19.2
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 149,
+   "seat": 9,
+   "room_took": "Dallas Goedert",
+   "room_took_id": "5022",
+   "room_took_position": "TE",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Brenton Strange",
+     "position": "TE",
+     "vorp": -14.29
+    },
+    {
+     "name": "T.J. Hockenson",
+     "position": "TE",
+     "vorp": -19.03
+    },
+    {
+     "name": "Jordan Love",
+     "position": "QB",
+     "vorp": -19.2
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  },
+  {
+   "pick": 150,
+   "seat": 10,
+   "room_took": "Kyler Murray",
+   "room_took_id": "5849",
+   "room_took_position": "QB",
+   "recovered_top": "Brock Purdy",
+   "recovered_top_id": "8183",
+   "recovered_top_position": "QB",
+   "recovered_top5": [
+    {
+     "name": "Brock Purdy",
+     "position": "QB",
+     "vorp": 8.48
+    },
+    {
+     "name": "Jared Goff",
+     "position": "QB",
+     "vorp": -8.26
+    },
+    {
+     "name": "Brenton Strange",
+     "position": "TE",
+     "vorp": -14.29
+    },
+    {
+     "name": "T.J. Hockenson",
+     "position": "TE",
+     "vorp": -19.03
+    },
+    {
+     "name": "Jordan Love",
+     "position": "QB",
+     "vorp": -19.2
+    }
+   ],
+   "decidable": true,
+   "kind": "disagreement"
+  }
+ ]
+}
