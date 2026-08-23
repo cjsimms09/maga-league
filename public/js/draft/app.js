@@ -6805,8 +6805,8 @@
             '<span class="rec-pos ' + p.position + '">' + p.position + '</span>' +
             '<span class="muted">' + escapeHtml(p.team || '') + (p.bye ? ' · bye ' + p.bye : '') + '</span>' +
             (falling ? '<span class="wr-falling" title="On the board ' + Math.round(curPickNo - p.adp)
-              + ' picks past his ADP (' + Math.round(p.adjusted_adp) + ') — the room is letting him slide">FALLING '
-              + Math.round(curPickNo - p.adjusted_adp) + '</span>' : '') +
+              + ' picks past his ADP (' + Math.round(p.adp) + ') — the room is letting him slide">FALLING '
+              + Math.round(curPickNo - p.adp) + '</span>' : '') +
             sourceGapBadge(p, state.board) +
             (typeof MarketDelta !== 'undefined' ? MarketDelta.chipHtml(p, escapeHtml) : '') +
           '</div>' +
@@ -7757,7 +7757,7 @@
       // report; say that in one short line instead of inventing one.
       var totalPicks = ((state.data.pick_order || {}).picks || []).length || null;
       var stTarget = st.target || atPos[0];
-      var tgtAdp = stTarget && (stTarget.adjusted_adp || stTarget.raw_adp) || null;
+      var tgtAdp = stTarget && (stTarget.adp || stTarget.raw_adp) || null;
       var noDeadline = !!(totalPicks && tgtAdp && tgtAdp > totalPicks
         && st.by_pick === upcoming[upcoming.length - 1]);
       /* THE POOL IDS RIDE WITH THE CALL, because the claim is about the POOL and
@@ -8646,7 +8646,7 @@
     const seen = (state.recentPicks || []).filter(p => p && p.player && p.pick_no);
     state.drift = E.survivalModel.adpDrift(seen.map(p => ({
       pick_no: p.pick_no,
-      adp: p.player.adjusted_adp || p.player.raw_adp,
+      adp: p.player.adp || p.player.raw_adp,
     })));
     const host = $('#drift-note');
     if (!host) return;
@@ -10148,7 +10148,7 @@
     try {
       const c = ledgerCtx();
       const pickNo = Number(pick.pick_no) || null;
-      const adp = player.adjusted_adp != null ? player.adjusted_adp
+      const adp = player.adp != null ? player.adp
         : (player.raw_adp != null ? player.raw_adp : null);
       const scale = selectionIndexOf(pickNo, picks);
       // The whole point: where did the platform take him vs where the market
@@ -10227,7 +10227,7 @@
       seen.add(key);
       // §2(d): each pick is opponent-model evidence — show ADP delta (reach/fell).
       const pl = playerById(id);
-      const adp = pl ? (pl.adjusted_adp != null ? pl.adjusted_adp : pl.adp) : null;
+      const adp = pl ? (pl.adp != null ? pl.adp : pl.raw_adp) : null;
       let delta = null;
       if (no && adp != null) delta = Math.round(no - adp);   // <0 = drafted EARLY (reach), >0 = fell
       rows.push({ no: no || 0, name, pos, tag, who: seatLabel(slot), delta });
