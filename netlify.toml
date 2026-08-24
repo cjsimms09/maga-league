@@ -73,6 +73,19 @@
   # EMIT ONLY: resolution stays in claims-cron, grading in grade-cron.
   schedule = "10 0 * * 3"
 
+[functions."lineup-reco-cron"]
+  # register 287's lineup twin: the optimizer's start/sit advice, emitted by
+  # the SAME liveOptimizeFor() the /lineup page renders from. The shared
+  # LO modules read the committed history/config from disk — same
+  # production-only ENOENT class as the app function's list below.
+  included_files = ["draft/data/**", "draft/config/**", "public/draft_data.json"]
+  # Sunday 12:50 UTC (~8:50am ET) — before the 1pm slate and ten minutes
+  # ahead of claims-cron, on weekly-proj-snapshot's decision-time reasoning:
+  # the lineup a person would have set is the pre-slate one, not Tuesday's
+  # hindsight. EMIT ONLY: resolution stays in claims-cron, grading in
+  # grade-cron.
+  schedule = "50 12 * * 0"
+
 [functions."player-projection-cron"]
   # Thursday 10:00 UTC — BEFORE Thursday Night Football (earliest kickoff of an
   # NFL week is ~00:20 UTC Friday). Emits per-player point forecasts for the

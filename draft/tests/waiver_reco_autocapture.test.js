@@ -11,7 +11,8 @@ process.env.DATA_DIR = require('fs').mkdtempSync(
 
 const path = require('path');
 const ROOT = path.join(__dirname, '..', '..');
-const { buildAutoWaiverEntry } = require(path.join(ROOT, 'src', 'waiver_reco'));
+const { buildAutoWaiverEntry, buildAutoStreamEntry, buildAutoLineupEntry } =
+  require(path.join(ROOT, 'src', 'waiver_reco'));
 const { autoCaptureContext } = require(path.join(ROOT, 'netlify', 'functions', 'waiver-reco-cron'));
 const predledger = require(path.join(ROOT, 'src', 'predledger'));
 const store = require(path.join(ROOT, 'src', 'store'));
@@ -91,6 +92,62 @@ const ok = (name, cond, detail) => {
   const res2 = FG.buildInseasonResolutions(unresolved, { '3': { '9509': 12.5, '4046': 4.0 } },
     { finalWeek: 18 });
   ok('an incomplete window stays pending (negative arm)', res2.length === 0, res2);
+
+  // ── the STREAM twin (register 287 ①) ──────────────────────────────────────
+  const sReco = {
+    live: true, claims: [],
+    streamClaims: [{ player_id: 'DEN', name: 'Broncos', position: 'DEF',
+                     net_value: 4.2, dollars: 6 }],
+    currentKD: [{ player_id: 'CAR', name: 'Panthers', position: 'DEF' },
+                { player_id: '1234', name: 'Some Kicker', position: 'K' }],
+  };
+  const sEntry = buildAutoStreamEntry(sReco, '2026', 3, 1);
+  ok('stream: chosen is the top stream, counterfactual is the HELD unit at that position',
+    sEntry && sEntry.kind === 'stream_call'
+      && sEntry.payload.chosen.player_id === 'DEN'
+      && sEntry.payload.counterfactual.player_id === 'CAR', sEntry);
+  ok('stream: key surface is stream_auto',
+    sEntry.payload.key === 'stream_auto|2026|w3|1|DEN', sEntry.payload.key);
+  const sApp = await predledger.append(store, sEntry);
+  const sRes = FG.buildInseasonResolutions(FG.unresolvedDecisionEntries([sApp]),
+    { '3': { 'DEN': 11.0, 'CAR': 2.0 } }, { finalWeek: 18 });
+  ok('stream: the real resolver grades chosen vs held for the one week',
+    sRes.length === 1 && sRes[0].payload.realized_chosen === 11.0
+      && sRes[0].payload.realized_counterfactual === 2.0, sRes);
+  const sEmpty = buildAutoStreamEntry({ live: true, claims: [],
+    streamClaims: [{ player_id: 'DEN', name: 'Broncos', position: 'DEF', net_value: 4.2 }],
+    currentKD: [] }, '2026', 3, 1);
+  ok('stream: no held unit records the resolver\'s empty-slot note shape',
+    sEmpty && /no current DEF/.test(sEmpty.payload.counterfactual.note || ''), sEmpty);
+  ok('stream: no positive stream -> null',
+    buildAutoStreamEntry({ live: true, claims: [], streamClaims: [], currentKD: [] }, '2026', 3, 1) === null);
+
+  // ── the LINEUP twin (register 287 ①) ──────────────────────────────────────
+  const live = {
+    lineup: [{ pid: 'p1', name: 'Stud One', pos: 'QB', proj: 20 },
+             { pid: 'p2', name: 'Value Two', pos: 'RB', proj: 14 }],
+    naive:  [{ pid: 'p1', name: 'Stud One', pos: 'QB', proj: 20 },
+             { pid: 'p3', name: 'Big Name', pos: 'RB', proj: 12 }],
+    edge: 1.4, confidence: 'one swap, +2.0 proj', ev: {},
+  };
+  const lEntry = buildAutoLineupEntry(live, { median: 148.5 }, '2026', 3, 1);
+  ok('lineup: recommended/counterfactual are the form\'s {id,name,pos,proj} arrays',
+    lEntry && lEntry.kind === 'lineup_call'
+      && lEntry.payload.recommended[1].id === 'p2'
+      && lEntry.payload.counterfactual[1].id === 'p3'
+      && lEntry.payload.opp_mean === Math.round(148.5),
+    lEntry && lEntry.payload);
+  ok('lineup: key is one call per owner-week on the lineup_auto surface',
+    lEntry.payload.key === 'lineup_auto|2026|w3|1', lEntry.payload.key);
+  const lApp = await predledger.append(store, lEntry);
+  const lRes = FG.buildInseasonResolutions(FG.unresolvedDecisionEntries([lApp]),
+    { '3': { 'p1': 18.0, 'p2': 16.5, 'p3': 3.0 } }, { finalWeek: 18 });
+  ok('lineup: the real resolver sums recommended vs counterfactual over real points',
+    lRes.length === 1 && lRes[0].payload.realized_chosen === 34.5
+      && lRes[0].payload.realized_counterfactual === 21.0, lRes);
+  ok('lineup: a dead optimizer emits nothing',
+    buildAutoLineupEntry(null, { median: 148 }, '2026', 3, 1) === null
+      && buildAutoLineupEntry({ lineup: [], naive: [] }, { median: 148 }, '2026', 3, 1) === null);
 
   console.log(`\n${pass}/${pass + fail} waiver auto-capture checks passed`);
   process.exit(fail ? 1 : 0);

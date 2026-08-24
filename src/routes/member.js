@@ -4064,3 +4064,9 @@ router.get('/rules', aw(async (req, res) => {
 }));
 
 module.exports = router;
+// The lineup auto-capture cron (netlify/functions/lineup-reco-cron.js) runs
+// the SAME optimizer call the /lineup page renders from, so the graded row is
+// definitionally what the page showed — register 287, the volunteered-data
+// gap. Attached to the router object rather than moved: 100+ lines of
+// battle-tested computation stay where their history is.
+module.exports.liveOptimizeFor = liveOptimizeFor;
