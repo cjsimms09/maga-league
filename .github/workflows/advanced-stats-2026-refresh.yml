@@ -1,0 +1,84 @@
+name: Advanced stats (air-yards/EPA/WOPR) 2026 weekly refresh — proposed diff, TERRITORY:A merges
+
+# PROPOSED BY C, TO BE MERGED BY A — dispatches draft/backtest/fetch_advanced_stats.py
+# (TERRITORY: A), which this workflow does not modify. Written here rather than
+# built as a new C-owned capture because the tool that already does exactly
+# this (EPA/air-yards/CPOE/RACR/WOPR, per-player-week) exists and is A's;
+# duplicating it under a different name would be the two-tables defect this
+# repo already has a register pattern for (Rule 11).
+#
+# THE GAP: `advanced_stats_2021.json` .. `advanced_stats_2025.json` are
+# committed (a one-time historical backfill) but nothing schedules a 2026
+# refresh — verified directly: no workflow references fetch_advanced_stats.py
+# anywhere in .github/workflows/ before this file. `weekly-arm-data-readiness
+# -2026-08-24.md` named this the one Tier-1 arm (D's air-yards/EPA signal,
+# BLEND-SEARCH-DESIGN.md, ships 09-03) with ZERO 2026 in-season capture behind
+# it — every field the arm needs (ay_share/wopr/rec_epa) lives only in the
+# one-time `pre_draft_freeze_2026.json` snapshot.
+#
+# WHY THIS IS SAFE TO STAND UP NOW, BEFORE WEEK 1: fetch_advanced_stats.py's
+# own refusal floor (`kept_player_weeks < 3000`) and its `status: "unreachable"`
+# path already handle "the season hasn't started" cleanly — verified directly,
+# not assumed: `python3 draft/backtest/fetch_advanced_stats.py --seasons 2026`
+# returns `{"season": 2026, "status": "unreachable", ...}` right now (nflverse's
+# stats_player_week_2026.parquet does not exist yet), the same release-not-
+# published-yet shape every other in-season capture in this repo already
+# handles by writing nothing and exiting clean. Confirmed this is a real
+# "not yet released" result and not a sandbox network block by running the
+# identical fetch against season 2025, which succeeds.
+#
+# Wednesday 12:30 UTC — after player-bio-capital-refresh.yml (12:00) so a
+# roster move has settled, same slot family as the other Wednesday jobs.
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '30 12 * * 3'   # Wednesdays 12:30 UTC
+
+permissions:
+  contents: write
+
+concurrency:
+  group: advanced-stats-2026-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Install
+        run: pip install -r draft/requirements.txt pytest
+
+      - name: The existing test suite runs before any real fetch
+        run: python3 -m pytest draft/tests/test_advanced_stats.py -q
+
+      - name: Refresh the 2026 store only (2021-2025 stay the untouched historical backfill)
+        run: python3 draft/backtest/fetch_advanced_stats.py --seasons 2026
+
+      - name: Commit the store
+        run: |
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "::warning::Dispatched from '$GITHUB_REF_NAME', not main. The"
+            echo "::warning::result is in this run's log and is deliberately"
+            echo "::warning::NOT committed. Re-dispatch from main."
+            echo "_Dispatched from \`$GITHUB_REF_NAME\` — result NOT committed._" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/backtest/advanced_stats_2026.json
+          if ! git diff --cached --quiet; then
+            git commit -m "advanced_stats_2026: weekly refresh (air-yards/EPA Tier-1 arm feed) [skip deploy]"
+            for i in 1 2 3; do
+              git fetch origin main || true
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              if git push origin HEAD:main; then exit 0; fi
+              sleep $((i * 5))
+            done
+            echo "::error::RESULT NOT PUSHED — the fetch is spent and the answer is lost."
+            exit 1
+          fi
+          echo "no change — nothing to commit (correctly no-ops pre-week-1 and on an unrevised week)"
