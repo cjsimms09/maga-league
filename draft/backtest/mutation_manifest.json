@@ -2431,6 +2431,32 @@
      "verdict": "KILLED"
     }
    ]
+  },
+  "draft/vorp.py": {
+   "_note": "FIRST SCORING-PATH MODULE IN THIS MANIFEST (E, 2026-08-24, register 308). Every other module here is draft/backtest/* or a test file: the ingest and replay path had 275 recorded mutations and the code that decides what Cory DRAFTS and STARTS had none. 256 commits claim mutation work and vorp is named in 34 of them, so the kills were done \u2014 they were just never made re-checkable, which is the exact failure this file's own header describes. Baseline green (15 passed), collection count unchanged (15) under both.",
+   "tests": [
+    "draft/tests/test_replacement_sensitivity.py"
+   ],
+   "mutations": [
+    {
+     "old": "    replacement = _replacement_from_counts(by_pos, counts)\n    diagnostics = {",
+     "new": "    replacement = _replacement_from_counts(by_pos, counts)\n    replacement = {k: v * 1.5 for k, v in replacement.items()}\n    diagnostics = {",
+     "must_fail": [
+      "test_a_within_error_projection_shift_moves_replacement_by_a_step"
+     ],
+     "verdict": "KILLED",
+     "_note": "A 50% error in the constant every VORP is measured against and `overall_rank` sorts by. Eleven of the fifteen suites I hand-tested do not notice it; this one does."
+    },
+    {
+     "old": "        elif n <= len(ranked):\n            out[pos] = float(ranked[n - 1].get(\"proj_mean\", 0))",
+     "new": "        elif n <= len(ranked):\n            out[pos] = float(ranked[0].get(\"proj_mean\", 0))",
+     "must_fail": [
+      "test_a_within_error_projection_shift_moves_replacement_by_a_step"
+     ],
+     "verdict": "KILLED",
+     "_note": "Replacement becomes the BEST player at the position instead of the Nth-best \u2014 the definition inverted, not merely mis-set."
+    }
+   ]
   }
  }
 }
