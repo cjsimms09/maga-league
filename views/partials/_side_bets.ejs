@@ -55,6 +55,19 @@
     just saw who's sitting on your offer.</span>
   </div>
 <% } %>
+<%# Catalog item 17 ("confirmation toasts that say the thing — 'Bet sent to
+    Rich · $25' not 'Saved.'"): set only by the propose route's own success
+    path (member.js), never guessed here — same discipline as matchup.ejs's
+    sibling banner, which learned the hard way that a confirmation for a bet
+    that never happened is worse than none. Named justSent, not sent — this
+    file already has its OWN `const sent` below (the "Bets You've Sent"
+    array), and reusing the name would TDZ-crash the whole page. %>
+<% if (typeof justSent !== 'undefined' && justSent) { %>
+  <div class="alert-banner alert-info" style="margin-bottom:1rem; border-color:rgba(74,222,128,.5)">
+    <span class="tag">✅</span><span>Bet sent<% if (typeof sentTo !== 'undefined' && sentTo) { %> to <b><%= sentTo %></b><% } %><% if (typeof sentAmt !== 'undefined' && sentAmt) { %> · <b><%= money(Number(sentAmt)) %></b><% } %>.
+    It's in the ledger as <b>OPEN</b> — it locks in once they accept.</span>
+  </div>
+<% } %>
 <% if (typeof rerun !== 'undefined' && rerun) { %>
   <div class="alert-banner alert-info" style="margin-bottom:1rem">
     <span class="tag">🔁</span><span>It's back on the table — same bet, fresh offer,
