@@ -242,7 +242,15 @@ const PRICED = B.players.filter(p => Number.isFinite(+p.proj_mean) && +p.proj_me
 {
   const DD = require(path.join(ROOT, 'public', 'js', 'draft', 'doctrine.js'));
   const ents = PRICED.map(p => ({ player: p }));
-  const roster = (B.kept_players || []).map(k => ({ position: k.position || k.pos }));
+  /* ⚠️ FILTERED TO CORY'S SEAT (A, 2026-08-24, register 303). Post-lock
+   * `kept_players` is the whole league's 23, and this roster goes straight into
+   * `DD.scoreBoardDetail`, which binds on POSITIONAL need — a 23-man roster
+   * covers every position, so nothing binds and the doctrine arms below were
+   * scoring a roster that cannot exist. This suite was PASSING throughout. */
+  const _mySlot = String((B.league || {}).my_draft_slot);
+  const roster = (B.kept_players || [])
+    .filter(k => String(k.team_slot) === _mySlot)
+    .map(k => ({ position: k.position || k.pos }));
   const top = PRICED.slice().sort((x, y) => D(y) - D(x))[0];
   ck('the man topping the board by E[$] is a QB — the premise of everything below',
     top.position === 'QB', { name: top.name, position: top.position });

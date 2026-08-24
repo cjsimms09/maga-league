@@ -1448,6 +1448,15 @@ router.get('/bank', aw(async (req, res) => {
   const sbOwed = SB.settlementsFor(bets, viewCard ? viewCard.owner.id : req.owner.id, nameOf);
   // The side-bet tab is always about YOU, even if you are looking at somebody
   // else's ledger card on the money tab. Two different questions, two objects.
+  // LIFETIME HEAD-TO-HEAD (catalog item 6): my record vs each opponent, from
+  // the same settled bets the tracker grid reads. Nine cheap passes, view-only.
+  const h2h = {};
+  for (const o of owners) {
+    if (o.id === req.owner.id) continue;
+    const r = SB.pairRecord(bets, req.owner.id, o.id);
+    if (r.games > 0) h2h[o.id] = r;
+  }
+
   const sbOwedMine = viewCard && viewCard.owner.id !== req.owner.id
     ? SB.settlementsFor(bets, req.owner.id, nameOf) : sbOwed;
   // The pool board wants the live standings order so "who picked whom" reads
@@ -1568,10 +1577,10 @@ router.get('/bank', aw(async (req, res) => {
     prefillParty: Number(req.query.betvs) || null,
     cards, season, totalOwedToLeague, totalLeagueOwes, viewCard, leagueEntries, settlement,
     TYPE_LABELS: L.TYPE_LABELS,
-    section, bets, tallies, owners, betNames, sbLedger, sbOwed, sbOwedMine, verdicts, liveOrder,
+    section, bets, tallies, owners, betNames, sbLedger, sbOwed, sbOwedMine, verdicts, liveOrder, h2h,
     sbGrid, sbView, sbDrill,
     deadlines, late: req.query.late === '1',
-    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1',
+    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1', rerun: req.query.rerun === '1',
     betFail: betFailMessage(req.query.betfail),
     currentWeek: (await sleeper.bundle(world.config.sleeper_league_id) || {}).week || 1,
     BL, payDirectory: owners.filter(o => o.venmo || o.paypal || o.cashapp || o.zelle),
@@ -1776,6 +1785,7 @@ function betFailMessage(code) {
   if (c === 'not_two_party_prop') return 'Counters only work on two-person bets — for pools and group bets, decline and propose fresh.';
   if (c === 'already_accepted') return "You already accepted this one — that's a handshake, not a negotiation.";
   if (c === 'no_change') return "Your counter matched their offer exactly — that's an accept. Tap Accept instead.";
+  if (c === 'not_finished') return 'That bet is still live — run it back once it has settled.';
   return 'That bet was not created (' + c + '). Nothing was written — fix it and send again.';
 }
 
@@ -1944,6 +1954,17 @@ router.post('/sidebets/:id/counter', aw(async (req, res) => {
       + '#bet-' + req.params.id);
   }
   return res.redirect('/bank?section=sidebets&countered=1#bet-' + out.next.id);
+}));
+
+router.post('/sidebets/:id/rerun', aw(async (req, res) => {
+  // RUN IT BACK (catalog item 4) — one tap re-proposes a finished two-party
+  // prop; SB.rerun owns the guardrails and drops stale week-bound conditions.
+  const out = await SB.rerun(req.params.id, req.owner.id);
+  if (!out || out.refused) {
+    return res.redirect('/bank?section=sidebets&betfail=' + ((out && out.refused) || 'gone')
+      + '#bet-' + req.params.id);
+  }
+  return res.redirect('/bank?section=sidebets&rerun=1#bet-' + out.id);
 }));
 
 router.post('/sidebets/:id/accept', aw(async (req, res) => {
@@ -2410,7 +2431,7 @@ router.get('/team', aw(async (req, res) => {
 
   res.render('team', { viewOwner, owners, roster, matchup, betWindow, trend,
     matchupPending, aboutMe, late: req.query.late === '1',
-    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1',
+    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1', rerun: req.query.rerun === '1',
     // Roster is the default — it is what this page has always been, and it is
     // the half that works without a live matchup.
     section: req.query.section === 'week' ? 'week' : 'roster',
@@ -2777,7 +2798,7 @@ router.get('/matchup', aw(async (req, res) => {
     goatId: MK.goatOwnerId(sData, world.config.sleeper_map || {}),
     configured: !!world.config.sleeper_league_id,
     late: req.query.late === '1',
-    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1', sent: req.query.sent === '1',
+    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1', rerun: req.query.rerun === '1', sent: req.query.sent === '1',
     betFail: betFailMessage(req.query.betfail),
     nameOf,
   });
@@ -2897,7 +2918,7 @@ router.get('/pickem', aw(async (req, res) => {
   res.render('pickem', {
     me: req.owner, ...c,
     saved: req.query.saved === '1', late: req.query.late === '1',
-    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1',
+    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1', rerun: req.query.rerun === '1',
   });
 }));
 

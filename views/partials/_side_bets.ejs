@@ -49,6 +49,12 @@
     yours is in front of them now.</span>
   </div>
 <% } %>
+<% if (typeof rerun !== 'undefined' && rerun) { %>
+  <div class="alert-banner alert-info" style="margin-bottom:1rem">
+    <span class="tag">🔁</span><span>It's back on the table — same bet, fresh offer,
+    waiting on them to accept.</span>
+  </div>
+<% } %>
 
 <%# ── THE OFFER SHEET (commissioner-only; Cory's 08-24 mandate) — the +EV
     bets worth ORIGINATING this week, priced by the same arithmetic the edge
@@ -241,6 +247,18 @@ function betCard(b, opts) {
         <summary class="muted" style="cursor:pointer;display:inline">✎ edited</summary>
         <span class="muted">was: $<%= b.edits[b.edits.length - 1].stake %> — <%= b.edits[b.edits.length - 1].terms %></span>
       </details>
+    <% } %><%
+      /* LIFETIME HEAD-TO-HEAD (catalog item 6) — on any two-party bet I'm in,
+         the running score against exactly this opponent. Guarded: only the
+         bank render supplies the map; other includes render without it. */
+      const _h2h = (typeof h2h !== 'undefined' && h2h) ? h2h : {};
+      const _opp = (b.parties || []).length === 2 && inIt(b)
+        ? (b.parties.find(p => p.owner_id !== myId) || null) : null;
+      const _rec = _opp ? _h2h[_opp.owner_id] : null; %>
+    <% if (_rec) { %>
+      <span class="muted" style="font-size:.72rem;margin-left:.4rem;white-space:nowrap"
+            title="every settled two-person bet between you two, all seasons">📊 lifetime vs <%= betNames(_opp.owner_id) %>:
+        <b><%= _rec.aWins %>–<%= _rec.bWins %><%= _rec.pushes ? '–' + _rec.pushes : '' %></b><%= _rec.aNet ? ' · ' + (_rec.aNet > 0 ? '+$' : '−$') + Math.abs(_rec.aNet) : '' %></span>
     <% } %><% if (b.countered_from) { %>
       <span class="muted" style="font-size:.72rem;margin-left:.4rem">↩ counter-offer — replaces an earlier one</span>
     <% } %><% if (b.countered_to) { %>
@@ -583,6 +601,16 @@ function betCard(b, opts) {
       <% if (b.status === 'settled' && (inIt(b) || owner.is_commissioner)) { %>
         <form class="asis" method="post" action="/sidebets/<%= b.id %>/reopen">
           <button class="btn small ghost" title="Undo the result">↺ Undo</button>
+        </form>
+      <% } %>
+      <%# RUN IT BACK (catalog item 4) — a finished two-person bet re-proposes
+          in one tap: same words, same stake, roles set by who tapped. Stale
+          week-bound conditions are dropped server-side with the reason. %>
+      <% if (['settled', 'declined', 'void'].includes(b.status) && inIt(b)
+             && b.format === 'prop' && (b.parties || []).length === 2) { %>
+        <form class="asis" method="post" action="/sidebets/<%= b.id %>/rerun">
+          <button class="btn small ghost" type="submit"
+                  title="Offer this exact bet again — same terms, same stake">🔁 Run it back</button>
         </form>
       <% } %>
       <% if (['proposed', 'open'].includes(b.status) && b.proposer_id === owner.id) { %>
