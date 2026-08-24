@@ -98,6 +98,21 @@
   #
   # EMIT ONLY. Resolution stays in claims-cron (Sunday), grading in grade-cron
   # (Tuesday): three jobs, so no run settles or grades a row it just wrote.
+  # ⚠️ included_files ADDED 2026-08-24 (A) — THIS FUNCTION HAD NONE AND
+  # READS REPO DATA AT RUN TIME. esbuild bundles the JS, not the data, so
+  # without these globs it ENOENTs in production while running perfectly
+  # on a dev server that has the whole repo on disk. Caught by
+  # draft/tests/cron_bundles_cover_their_reads.test.js on its first run:
+  # bundling_guard.test.js only ever read the APP function's own list, so every
+  # scheduled function was outside the one guard for this class. Same globs the
+  # reco crons use.
+  #
+  # ⚠️ AND DO NOT WRITE THE APP FUNCTION'S TOML HEADER LITERALLY IN A COMMENT
+  # HERE. Two guards locate that block by SPLITTING THIS FILE on that exact
+  # token, so a comment quoting it is matched instead of the real block and
+  # they silently read the wrong function's globs. The first draft of this
+  # comment did precisely that and turned 6/6 and 7/7 into 3/6 and 6/7.
+  included_files = ["draft/data/**", "draft/config/**", "public/draft_data.json"]
   schedule = "0 10 * * 4"
 
 [functions."analyzer-cron"]
@@ -121,6 +136,21 @@
   # reports the pending count by name; at season-final it resolves the two
   # kinds once, deduped on forecast_key, this run's own emissions excluded —
   # a job must never settle a forecast it just made.
+  # ⚠️ included_files ADDED 2026-08-24 (A) — THIS FUNCTION HAD NONE AND
+  # READS REPO DATA AT RUN TIME. esbuild bundles the JS, not the data, so
+  # without these globs it ENOENTs in production while running perfectly
+  # on a dev server that has the whole repo on disk. Caught by
+  # draft/tests/cron_bundles_cover_their_reads.test.js on its first run:
+  # bundling_guard.test.js only ever read the APP function's own list, so every
+  # scheduled function was outside the one guard for this class. Same globs the
+  # reco crons use.
+  #
+  # ⚠️ AND DO NOT WRITE THE APP FUNCTION'S TOML HEADER LITERALLY IN A COMMENT
+  # HERE. Two guards locate that block by SPLITTING THIS FILE on that exact
+  # token, so a comment quoting it is matched instead of the real block and
+  # they silently read the wrong function's globs. The first draft of this
+  # comment did precisely that and turned 6/6 and 7/7 into 3/6 and 6/7.
+  included_files = ["draft/data/**", "draft/config/**", "public/draft_data.json"]
   schedule = "5 13 * * 0"
 
 [functions."app"]

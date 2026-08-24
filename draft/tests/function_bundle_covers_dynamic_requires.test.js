@@ -19,7 +19,15 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS  ' + n))
   : (fail++, console.log('FAIL  ' + n + (d !== undefined ? '  -> ' + JSON.stringify(d) : ''))); };
 
 const toml = fs.readFileSync(path.join(ROOT, 'netlify.toml'), 'utf8');
-const appBlock = toml.split(/\[functions\."app"\]/)[1] || '';
+// ⚠️ ANCHORED AT LINE START ON PURPOSE (A, 2026-08-24). This used to split
+// on the bare header token anywhere in the file, so ANY comment quoting that
+// token was matched instead of the real block — and the guard then read a
+// DIFFERENT function's included_files without saying so. Demonstrated: a
+// netlify.toml comment mentioning it took this suite from 6/6 to 3/6 and its
+// sibling from 7/7 to 6/7. The dangerous direction is the quiet one — reading
+// the wrong globs can pass vacuously as easily as it can fail. A TOML table
+// header is always at column 0; a comment never is.
+const appBlock = (toml.split(/^\[functions\."app"\]/m)[1] || '').split(/^\[/m)[0];
 const filesMatch = appBlock.match(/included_files\s*=\s*\[([^\]]*)\]/);
 const globs = (filesMatch ? filesMatch[1] : '').match(/"([^"]+)"/g)
   ? filesMatch[1].match(/"([^"]+)"/g).map(s => s.slice(1, -1)) : [];
