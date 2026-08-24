@@ -427,9 +427,112 @@ def correlation_gate(pair_results: list, positions: dict) -> dict:
     }
 
 
+# ── INDEPENDENT CONTROLS (D, 2026-08-24) ────────────────────────────────────
+# WHY THESE EXIST. The original `known_positive_control` asks:
+#   "do 2024 breakout WRs show positive 2023 delta-share above chance?"
+# That is the CONVERSE of the hypothesis under test -- P(high delta | boom)
+# against P(boom | high delta). If Cory's signal is false, this control is
+# EXPECTED to fail, so it cannot license a null: a control that can only pass
+# when the hypothesis is true is not a control, it is a second measurement of
+# the hypothesis.
+#
+# It did fail its own stated criterion (positive rate 0.40 on n=5, p=1.0), its
+# corrupted-join demonstration shows 85.4% of DELIBERATELY BROKEN joins doing as
+# well or better, and `status` was a hardcoded literal that read as a pass. Yet
+# 5 of the 6 breakout WRs DID match by id into the 2023 table, so the join is
+# demonstrably functional -- the control was mis-specified, not tripped.
+#
+# The two below are independent of the hypothesis by construction: one tests the
+# ARITHMETIC on fabricated input, the other tests IDENTITY across seasons.
+# Neither can be affected by whether target-share trend predicts booms.
+
+def _synthetic_delta_share_control() -> dict:
+    """MECHANICAL: fabricate two players and confirm delta_share's arithmetic.
+
+    A player whose second-half target count DOUBLES must produce a large
+    positive delta; one whose second-half count HALVES must produce a large
+    negative one. Independent of the hypothesis: it is arithmetic on invented
+    numbers, and it fails only if the computation is wrong."""
+    weeks = {}
+    for wk in range(1, 18):
+        late = wk >= 10
+        weeks[wk] = {
+            "RISER": {"pos": "WR", "team": "AAA", "tgt": 12 if late else 6},
+            "FALLER": {"pos": "WR", "team": "AAA", "tgt": 6 if late else 12},
+            "FILLER": {"pos": "WR", "team": "AAA", "tgt": 12},
+        }
+    team_wk = {wk: _team_week_targets(pl) for wk, pl in weeks.items()}
+
+    def half(pid, rng):
+        num = den = 0.0
+        for wk in rng:
+            num += weeks[wk][pid]["tgt"]
+            den += team_wk[wk]["AAA"]
+        return num / den
+
+    riser = half("RISER", range(10, 18)) - half("RISER", range(1, 10))
+    faller = half("FALLER", range(10, 18)) - half("FALLER", range(1, 10))
+    ok = riser > 0.05 and faller < -0.05
+    return {
+        "passed": ok,
+        "riser_delta": round(riser, 4),
+        "faller_delta": round(faller, 4),
+        "requirement": "riser delta > +0.05 and faller delta < -0.05",
+        "why_independent": "arithmetic on fabricated targets; cannot be affected "
+                           "by whether the hypothesis is true",
+    }
+
+
+def _cross_season_identity_control(y: int, y1: int) -> dict:
+    """IDENTITY: the same pid must denote the same POSITION in both seasons.
+
+    A scrambled id-join would mix WRs with RBs/QBs at close to the population
+    rate. Independent of the hypothesis: positions do not encode target trend."""
+    try:
+        a = _component_raw_weeks(y)
+        b = _component_raw_weeks(y1)
+    except FileNotFoundError:
+        return {"passed": None, "reason": f"component_stats missing for {y} or {y1}"}
+    def pos_of(weeks):
+        out = {}
+        for _wk, players in weeks.items():
+            for pid, line in players.items():
+                if line.get("pos"):
+                    out.setdefault(pid, line["pos"])
+        return out
+    pa, pb = pos_of(a), pos_of(b)
+    shared = [pid for pid in pa if pid in pb]
+    agree = sum(1 for pid in shared if pa[pid] == pb[pid])
+    rate = agree / len(shared) if shared else None
+    ok = bool(shared) and rate is not None and rate >= 0.95
+    return {
+        "passed": ok,
+        "seasons": f"{y}->{y1}",
+        "shared_pids": len(shared),
+        "position_agreement_rate": round(rate, 4) if rate is not None else None,
+        "requirement": ">=0.95 position agreement on shared pids",
+        "why_independent": "position identity does not encode target-share trend",
+    }
+
+
 def main() -> dict:
     positions = EDV.positions_record()
     control = known_positive_control(positions)
+    # The original control's own criterion, evaluated rather than assumed. Its
+    # `status` field is a hardcoded literal meaning "it ran", not "it passed".
+    control["passes_its_own_criterion"] = bool(
+        control.get("positive_rate") is not None
+        and control["positive_rate"] > 0.5
+        and (control.get("binomial_p_vs_chance") or 1.0) < 0.05)
+    control["licenses_a_null"] = False
+    control["why_not"] = ("this control is the CONVERSE of the hypothesis "
+                          "(P(high delta|boom) vs P(boom|high delta)), so it is "
+                          "expected to fail whenever the hypothesis is false. It "
+                          "cannot license a null. See the independent controls.")
+    independent = {
+        "arithmetic": _synthetic_delta_share_control(),
+        "identity": [_cross_season_identity_control(y, y1) for y, y1 in YEAR_PAIRS],
+    }
     pair_results = [grade_pair(y, y1, positions) for y, y1 in YEAR_PAIRS]
     pooled = pooled_grade(pair_results)
     corr = correlation_gate(pair_results, positions)
@@ -439,6 +542,7 @@ def main() -> dict:
                  "CEILING-PROGRAM-PREREG-2026-08-20.md SS4. Written by "
                  "p151_target_share_trend.py.",
         "known_positive_control": control,
+        "independent_controls": independent,
         "year_pairs": pair_results,
         "pooled": pooled,
         "correlation_gate": corr,
@@ -450,3 +554,16 @@ if __name__ == "__main__":
     out = main()
     (HERE / "p151_target_share_trend.json").write_text(json.dumps(out, indent=2, default=str))
     print(json.dumps(out, indent=2, default=str))
+    # GATE (D, 2026-08-24): this script used to exit 0 whatever its controls
+    # said, so a broken pipeline and a real null were indistinguishable from
+    # outside. The independent controls now gate the exit code.
+    ic = out["independent_controls"]
+    failed = []
+    if not ic["arithmetic"]["passed"]:
+        failed.append("arithmetic")
+    for row in ic["identity"]:
+        if row["passed"] is False:
+            failed.append("identity " + row.get("seasons", "?"))
+    if failed:
+        print("INDEPENDENT CONTROLS FAILED: " + ", ".join(failed), file=sys.stderr)
+        sys.exit(2)
