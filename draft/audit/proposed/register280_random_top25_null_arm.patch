@@ -1,0 +1,83 @@
+diff --git a/draft/tools/archetype_policy.js b/draft/tools/archetype_policy.js
+index 8d4fc668..1e98c05f 100644
+--- a/draft/tools/archetype_policy.js
++++ b/draft/tools/archetype_policy.js
+@@ -168,6 +168,32 @@ function banClass(recs, banClasses, classOf) {
+   return null;
+ }
+ 
++/* Deterministic per-pick stream for the constructed-null arm. Inlined rather
++ * than imported so this module stays dependency-free like the rest of it. */
++function mulberry32(a) {
++  return function () {
++    a |= 0; a = (a + 0x6D2B79F5) | 0;
++    let t = Math.imul(a ^ (a >>> 15), 1 | a);
++    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
++    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
++  };
++}
++
++/** The null arm's seed, or a refusal. A silent fallback to Math.random here
++ *  would make the null irreproducible AND unpaired — the two properties the
++ *  whole paired design rests on — so it refuses, exactly as requireClassOf
++ *  refuses a missing classifier. */
++function requirePickSeed(state) {
++  const s = state && state.pickSeed;
++  if (!Number.isFinite(s)) {
++    throw new Error('random_top25 needs state.pickSeed — the driver must supply '
++      + 'a deterministic per-pick seed derived from the ROOM seed and pick '
++      + 'number, and NOT drawn from the room rng (drawing from it would shift '
++      + 'every later opponent pick and break pairing against the control)');
++  }
++  return s >>> 0;
++}
++
+ /* ── THE ARCHETYPES ──────────────────────────────────────────────────────────
+  * Each: choose(recs, state) -> the chosen rec (never null for non-empty recs).
+  * state: { round, picksLeft, posCounts } — posCounts INCLUDES keepers, so
+@@ -354,6 +380,25 @@ const ARCHETYPES = {
+ 
+   /* Pure market: take the room's own next guy (lowest ADP) — what a
+    * follow-the-market drafter at seat 8 would do. */
++  /* THE CONSTRUCTED NULL FOR P322, and it is the arm that tells two very
++   * different diagnoses apart. `market_adp` beats `shipped` by reordering the
++   * engine's own top-25. That is consistent with BOTH "ADP carries ordering
++   * information our score lacks" AND "our fine-grained ordering inside our own
++   * shortlist is worse than noise". Uniform choice from the SAME slate
++   * separates them: if this also beats shipped, the second reading is live and
++   * an ADP prior is the wrong repair. */
++  random_top25: {
++    doc: 'CONSTRUCTED NULL: uniform among the same top-25 non-onesie candidates '
++      + 'market_adp reorders — separates ADP information from anti-informative '
++      + 'fine-grained ordering',
++    choose(recs, state) {
++      const owned = legalityOwns(recs); if (owned) return owned;
++      const cand = candidates(recs).filter(r => !ONESIE[r.player.position]);
++      if (!cand.length) return recs[0];
++      const draw = mulberry32(requirePickSeed(state))();
++      return cand[Math.min(cand.length - 1, Math.floor(draw * cand.length))] || recs[0];
++    },
++  },
+   market_adp: {
+     doc: 'lowest ADP among engine top candidates (follow-the-market arm)',
+     choose(recs) {
+diff --git a/draft/tools/archetype_rooms.js b/draft/tools/archetype_rooms.js
+index d064f5e7..18990b8c 100644
+--- a/draft/tools/archetype_rooms.js
++++ b/draft/tools/archetype_rooms.js
+@@ -310,7 +310,14 @@ function runRoom(seed, armName) {
+       t.roster.forEach(p => { posCounts[p.position] = (posCounts[p.position] || 0) + 1; });
+       const chosen = AP.choosePick(armName, recs,
+         { round, picksLeft: MY_PICKS.length - myPickIndex, posCounts,
+-          planSlot: PLAN_SLOT[overall] || null, classOf: UC.classify });
++          planSlot: PLAN_SLOT[overall] || null, classOf: UC.classify,
++          /* P322: a deterministic per-pick stream for the constructed-null arm,
++           * derived PURELY from the room seed and the pick number. It draws
++           * NOTHING from `rng` on purpose — consuming from the shared stream
++           * would shift every later opponent pick and silently unpair this arm
++           * from the control, which is the failure the paired design exists to
++           * avoid. */
++          pickSeed: (seed * 2654435761 + overall) >>> 0 });
+       if (chosen !== recs[0]) overlayDiverged++;
+       const p = chosen.player;
+       // The upside class of BOTH the taken player and the engine's own top
