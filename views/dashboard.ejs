@@ -120,14 +120,15 @@
   <%- include('partials/_rivalry_banner', { rivalry: rivalryOfWeek, aName: rivalryOfWeek.pair.a, bName: rivalryOfWeek.pair.b, rivalryRank: rivalryOfWeek.rank }) %>
   <% if (rivalryMore > 0) { %><p class="muted" style="text-align:center; margin:-.7rem 0 1.1rem; font-size:.76rem">+ <%= rivalryMore %> more rivalry game<%= rivalryMore === 1 ? '' : 's' %> on the slate this week</p><% } %>
 <% } %>
-<%# ── THE DISPATCH — transient popups. They appear, get read, get dismissed,
-    and are gone (server-side per owner). With JS this is an overlay that clears
-    instantly; without JS it's a dismissible stack at the top of the page. Never
-    persists once dismissed. Archived elsewhere for the chronicle. %>
+<%# ── THE DISPATCH — transient notices. They appear at the top of the feed,
+    get read, get dismissed, and are gone (server-side per owner). Always an
+    inline dismissible stack — never a blocking overlay; the old modal
+    treatment ambushed the whole home page on load (phone walkthrough,
+    2026-08-24). With JS the ✕ clears without a reload. Archived elsewhere
+    for the chronicle. %>
 <% const _dsp = (typeof dispatches !== 'undefined' && dispatches) ? dispatches : []; %>
 <% if (_dsp.length) { %>
 <div class="dispatch-region" id="dispatch-region" data-count="<%= _dsp.length %>">
-  <div class="dispatch-backdrop" aria-hidden="true"></div>
   <div class="dispatch-stack" role="region" aria-label="League dispatch">
     <div class="dispatch-head">
       <span class="dispatch-kicker">📣 The Dispatch</span>

@@ -668,7 +668,14 @@ router.get('/', aw(async (req, res) => {
         if (Array.isArray(res.locals.alerts)) {
           res.locals.alerts = res.locals.alerts.filter(a => !isKeeperAlert(a));
         }
-      } else if (!pinned) {
+      } else if (!pinned && !keeperInfo.passed) {
+        // The !passed guard matters: keeperInfo.message is built whether or not
+        // the deadline is in the past, and on a store with no pinned row (fresh
+        // seed, or a wiped alerts doc) this branch used to CREATE an active
+        // "KEEPER DEADLINE" alert days after the deadline — it then showed on
+        // every non-dashboard page until the next home visit deactivated it
+        // (found on the 08-24 phone walkthrough: Aug 21 banner still up on
+        // /votes on Aug 24).
         const created = { id: 'keeperdeadline', message: keeperInfo.message, level: 'urgent', active: true, created_at: now() };
         await mutateDoc('alerts', [], as => {
           if (as.find(isKeeperAlert)) return undefined;

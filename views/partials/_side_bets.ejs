@@ -838,7 +838,16 @@ function betCard(b, opts) {
 
 <% if (done.length || dead.length) { %>
 <details class="card entry-card">
-  <summary>📜 Settled &amp; declined <span class="sub"><%= done.length %> settled, <%= dead.length %> never happened</span></summary>
+  <%# THE SEASON BOOK LINE (redesign spec, The Book): the one number a bettor
+      wants over the settled pile — am I up or down? ledgerFor already keeps
+      the running total; this just says it where the settled bets live. %>
+  <% const _net = sbLedger ? Math.round(sbLedger.net || 0) : 0; %>
+  <summary>📜 Settled &amp; declined <span class="sub"><%= done.length %> settled, <%= dead.length %> never happened</span>
+    <% if (done.length) { %>
+      <span class="<%= _net >= 0 ? 'money-up' : 'money-down' %>" style="font-weight:800;margin-left:.4rem">
+        your book: <%= _net >= 0 ? '+$' + _net : '−$' + Math.abs(_net) %></span>
+    <% } %>
+  </summary>
   <div class="body">
     <% for (const b of done) { betCard(b, {}); } %>
     <% for (const b of dead) { betCard(b, {}); } %>
