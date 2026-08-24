@@ -1,0 +1,74 @@
+name: Reco-cron probe (register 287's week-1 verification, weekly forever)
+
+# A: "a cron that has never emitted a row hasn't been tested, only scheduled.
+# A green run and an empty store look identical. Week 1 must produce a real
+# graded row." This makes that check mechanical and permanent: shortly after
+# each reco cron's scheduled fire, hit its manual endpoint from CI (the
+# sandbox cannot reach netlify.app; CI can) and interpret the answer with
+# draft/tools/reco_probe_interpret.sh — 'already captured' PROVES the
+# scheduled run fired and wrote; a fresh capture means the schedule failed
+# but the probe itself just emitted as fallback (still before the slate /
+# before waivers clear), loudly; pre-season is a clean wiring check.
+#
+# EACH FUNCTION IS PROBED ONLY ON ITS OWN DAY. An off-day invocation would
+# CAPTURE at the wrong decision moment and consume the week's marker with it
+# (a Wednesday lineup is not Sunday-morning advice), so 'auto' picks by UTC
+# day and the manual override exists for deliberate use only.
+#
+# UNLIKE site-check this one FAILS RED on a broken emitter: it is not "we
+# asked a question", it is a contract — the season's grading depends on these
+# rows existing.
+
+on:
+  workflow_dispatch:
+    inputs:
+      site:
+        description: 'Site URL'
+        required: false
+        default: 'https://makefbgreatagain.netlify.app'
+      which:
+        description: 'auto = pick by UTC day; or waiver / lineup (off-day use captures at the wrong moment — deliberate use only)'
+        required: false
+        default: 'auto'
+  schedule:
+    # Sunday 13:30 UTC — 40 min after lineup-reco-cron (12:50), before the 1pm ET slate.
+    - cron: '30 13 * * 0'
+    # Wednesday 01:00 UTC — 50 min after waiver-reco-cron (Wed 00:10), before waivers clear ~3am ET.
+    - cron: '0 1 * * 3'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Probe today's reco cron and interpret the answer
+        env:
+          SITE: ${{ inputs.site || vars.SITE_URL || 'https://makefbgreatagain.netlify.app' }}
+          WHICH: ${{ inputs.which || 'auto' }}
+          # If the function's env key is unset on Netlify the value here is
+          # irrelevant (the handler only compares when its own env var exists);
+          # if keys are ever set, add matching repo secrets and reference them.
+          KEY: probe
+        run: |
+          set -uo pipefail
+          day=$(date -u +%u)   # 1=Mon .. 3=Wed .. 7=Sun
+          pick="$WHICH"
+          if [ "$pick" = "auto" ]; then
+            if [ "$day" = "7" ]; then pick=lineup
+            elif [ "$day" = "3" ]; then pick=waiver
+            else
+              echo "auto on a non-probe day (UTC day $day): probing nothing rather than capturing at the wrong moment."
+              echo "Use which=waiver or which=lineup to force one deliberately."
+              exit 0
+            fi
+          fi
+          fn="${pick}-reco-cron"
+          url="$SITE/.netlify/functions/$fn?key=$KEY"
+          echo "Probing $fn …"
+          body_file="$RUNNER_TEMP/probe-body.json"
+          code=$(curl -sS --max-time 60 -o "$body_file" -w '%{http_code}' "$url" || echo 000)
+          echo "HTTP $code"; cat "$body_file" || true; echo
+          bash draft/tools/reco_probe_interpret.sh "$code" "$fn" < "$body_file"
