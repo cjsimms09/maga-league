@@ -74,8 +74,29 @@ const LC = require(path.join(ROOT, 'draft', 'tools', 'live_context.js'));
 const ARMS = [0, 1, 2, 3, 4, 6, 99];
 const SHIPPED = 2;
 const POS = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
-/* The ruled top-3-finisher shape (draft/audit, roster-shape lab). */
-const TARGET = { QB: 1.56, RB: 4.78, WR: 5.00, TE: 1.67, K: 1.00, DEF: 1.00 };
+/* ⚠️ READ FROM `league_config.ruled_roster_target`, NOT TYPED. This file
+ * carried the six numbers as a local literal, which is exactly what
+ * `ruled_target_is_one_definition.test.js` exists to forbid — and that guard
+ * has been RED because of this file since I added it (A, 2026-08-24).
+ *
+ * The guard's own header says why it is not pedantry: register 70's five-arm
+ * shape ranking measured against RB 4.44 — a DIFFERENT quantity from a
+ * different study — instead of Cory's ruled 4.78, and "the verdict FLIPPED
+ * when corrected... Cory nearly ruled on the wrong comparison." A second copy
+ * of a ruled number is a second thing that can drift from the ruling.
+ *
+ * Same accessor as the two approved consumers (mlv_seat_plan.js,
+ * need_weight_rerun.js), REFUSING rather than falling back — a default target
+ * would be the invented constant all over again. */
+const TARGET = (() => {
+  const t = require(path.join(ROOT, 'draft', 'config', 'league_config.json'))
+    .ruled_roster_target;
+  if (!t || !t.targets) {
+    throw new Error('league_config.ruled_roster_target missing — refusing to '
+      + 'invent a roster target (register 70: the wrong target flipped a verdict)');
+  }
+  return t.targets;
+})();
 
 const readJsonl = p => !fs.existsSync(p) ? []
   : fs.readFileSync(p, 'utf8').split('\n').filter(Boolean).map(JSON.parse);
@@ -305,7 +326,11 @@ function main(argv) {
       String(a.demoted_at_pick_108).padStart(11),
       String(a.divergences_from_the_real_draft).padStart(8));
   }
-  console.log('\n(* = shipped)   ruled target  QB 1.56  RB 4.78  WR 5.00  TE 1.67  K 1  DEF 1');
+  /* Printed FROM the config too. A second copy of the ruling in a display
+   * string drifts exactly as silently as one in a constant — and this is
+   * the line the guard actually caught after I fixed the constant. */
+  console.log('\n(* = shipped)   ruled target  '
+    + POS.map(q => q + ' ' + TARGET[q]).join('  '));
   console.log('wrote %s', path.relative(ROOT, outP));
   return doc.controls.all_passed ? 0 : 1;
 }
