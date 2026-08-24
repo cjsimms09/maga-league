@@ -105,6 +105,23 @@
   const sbCls = n => (n == null ? 'sb-dash' : (n > 0 ? 'sb-pos' : (n < 0 ? 'sb-neg' : 'sb-zero')));
   const fmtDL = d => new Date(d).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + ' ET';
 
+  // ── HEAD-TO-HEAD, the trash-talk stat (Little Things Catalog item 6) ─────
+  // "lifetime W-L and net $ against them, one tap from every bet card." No
+  // new settlement math (Rule 11) — sbLedger already carries every bet I'm
+  // in with its settled/unsettled delta, computed the same way the ledger
+  // table and the hero P&L are; this just groups those SAME rows down to
+  // one-on-one bets against a single opponent.
+  const h2hVs = oppId => {
+    const rows = sbLedger.rows.filter(r => r.bet.parties.length === 2
+      && r.bet.parties.some(p => Number(p.owner_id) === Number(oppId)));
+    const settled = rows.filter(r => r.delta != null);
+    const wins = settled.filter(r => r.delta > 0).length;
+    const losses = settled.filter(r => r.delta < 0).length;
+    const pushes = settled.filter(r => r.delta === 0).length;
+    const net = Math.round(settled.reduce((s, r) => s + (r.delta || 0), 0) * 100) / 100;
+    return { rows, wins, losses, pushes, net, settledCount: settled.length };
+  };
+
   // ── The four ways a bet can need YOU ─────────────────────────────────────
   const needsAccept  = b => b.status === 'proposed' && (b.parties || []).some(p => p.owner_id === myId && !p.accepted);
   const needsConfirm = b => b.status === 'awaiting_confirm' && b.declared && inIt(b) && Number(b.declared.by) !== myId;
@@ -394,6 +411,35 @@ function betCard(b, opts) {
           </li>
         <% } %>
       </ul>
+    <% } %>
+
+    <%# ── HEAD-TO-HEAD (item 6): the trash-talk stat, one tap from every
+        one-on-one card. Answer first (the record), detail behind a tap (the
+        game list) — the redesign spec's rule 1. Silent when there's no
+        settled history yet; a 0-0 chip is furniture, not information. %>
+    <% if (b.parties.length === 2 && inIt(b)) {
+         const opp = b.parties.find(p => p.owner_id !== myId);
+         const h2h = opp ? h2hVs(opp.owner_id) : null;
+    %>
+      <% if (h2h && h2h.settledCount > 0) { %>
+        <details class="bc-h2h">
+          <summary>vs <%= betNames(opp.owner_id) %>: <b><%= h2h.wins %>-<%= h2h.losses %><%= h2h.pushes ? '-' + h2h.pushes : '' %></b>
+            <span class="<%= h2h.net >= 0 ? 'money-up' : 'money-down' %>"><%= h2h.net >= 0 ? '+$' + h2h.net : '−$' + Math.abs(h2h.net) %></span> all-time</summary>
+          <ul class="bc-h2h-list">
+            <% for (const r of h2h.rows) { %>
+              <li>
+                <span class="bc-h2h-terms"><%= r.bet.terms %></span>
+                <span class="<%= r.delta == null ? 'muted' : r.delta > 0 ? 'money-up' : r.delta < 0 ? 'money-down' : 'muted' %>">
+                  <%= r.delta == null
+                        ? (r.bet.status === 'locked' ? 'live' : r.bet.status === 'open' ? 'posted' : r.bet.status === 'proposed' ? 'pending' : r.bet.status)
+                        : r.delta === 0 ? 'push'
+                        : (r.delta > 0 ? '+$' : '−$') + Math.abs(r.delta) %>
+                </span>
+              </li>
+            <% } %>
+          </ul>
+        </details>
+      <% } %>
     <% } %>
 
     <%# ── THE SCORE BUG — the engine's live read on a running bet. Headline
