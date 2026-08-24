@@ -821,6 +821,18 @@ router.get('/', aw(async (req, res) => {
         const oppOwner = myGame.opp.owner;
         weekHero.prev = oppOwner ? MW.previewFor(req.owner.name, oppOwner.name) : null;
       } catch (e) { weekHero.prev = null; }
+      // EMPTY-SLOT ALARM (redesign catalog 15): a dead starter is the one
+      // error that costs points with CERTAINTY, so it outranks every other
+      // needs-you row — unshifted to the top, cueing straight to Sleeper
+      // where the fix actually happens (catalog 14's deep-link rule).
+      if (weekHero.lineupWarn) {
+        const w = weekHero.lineupWarn;
+        needsYou.unshift({ icon: '🚨',
+          href: 'https://sleeper.com/leagues/' + (world.config.sleeper_league_id || '') + '/team',
+          text: 'Lineup problem: ' + w.items.map(i => i.text).join(', ')
+            + (w.count > w.items.length ? ' +' + (w.count - w.items.length) + ' more' : ''),
+          cue: 'fix on Sleeper →' });
+      }
     }
   }
 
