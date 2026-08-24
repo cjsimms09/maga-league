@@ -182,6 +182,68 @@ worst(unfixed) > Math.max(...Object.values(RECO.startableSlotCaps(CFG.starters))
     .length === 1, zeroed);
 }
 
+/* ── THE STREAM BLOCK, WHICH HAD THE SAME DEFECT ────────────────────────────
+ * Rule 3g follow-up on 294, not a second discovery. `.slice(0, 2)` on a K/DEF
+ * POOL renders the best two of whichever position is inflated — on Cory's
+ * roster, TWO KICKERS. The block meant to hold his kicker decision and his
+ * defense decision held the kicker decision twice. */
+{
+  const kd = ranked.filter(c => c.position === 'K' || c.position === 'DEF');
+  const shipped = kd.slice(0, 2);
+  ck('KNOWN POSITIVE — the stream block as it shipped put the SAME position in '
+    + 'both of its two rows on the real board',
+  shipped.length === 2 && shipped[0].position === shipped[1].position,
+  shipped.map(c => c.position + ' ' + c.name));
+
+  const capped = RECO.capPerPosition(kd, CFG.starters, 2);
+  ck('...and the cap leaves at most one of each, which is how many of each he '
+    + 'can field', new Set(capped.map(c => c.position)).size === capped.length,
+  capped.map(c => c.position + ' ' + c.name));
+
+  /* ⚠️ THE CONTROL THAT STOPS THE OBVIOUS WRONG FIX. It would be natural to
+   * make this a "one K and one DEF" rule. On today's board that would INVENT a
+   * decision: no defense clears the bar at all, because his rostered DEF beats
+   * every free one. An absent row is the correct answer and the cap must be
+   * able to return one. */
+  const defs = ranked.filter(c => c.position === 'DEF');
+  ck('CONTROL — zero DEF claims clear net_value > 0 today, so a ONE-ROW stream '
+    + 'block is correct and a rule forcing one of each position would fabricate '
+    + 'a decision he does not have', defs.length === 0
+    && capped.every(c => c.position === 'K'),
+  { def_claims: defs.length, capped: capped.map(c => c.position) });
+
+  /* And the fixed path must still be a pure refinement here too. */
+  ck('KNOWN NEGATIVE — an unbounded template reproduces the old two-row stream '
+    + 'block exactly',
+  JSON.stringify(RECO.capPerPosition(kd,
+    { QB: 99, RB: 99, WR: 99, TE: 99, K: 99, DEF: 99, FLEX: 0 }, 2)
+    .map(c => c.player_id)) === JSON.stringify(shipped.map(c => c.player_id)));
+}
+
+/* ── THE TWO SURFACES THE SWEEP CLEARED, ASSERTED RATHER THAN REMEMBERED ────
+ * A sweep is a person remembering. These two rank-and-truncate the same way and
+ * were checked and found IMMUNE BY CONSTRUCTION; that immunity is a property of
+ * their code and can be lost by an edit, so it is pinned here.
+ *
+ *   blockWatch  — builds `byPos[pos].sort(...)[0]`, exactly one per position.
+ *   sundayAlert — `calls`/`changes` are optimizer swaps, and a swap set has one
+ *                 entry per SLOT, so it is already bounded by the template.
+ *
+ * Checked structurally, on source, because instantiating the live Sleeper
+ * bundle here would make this suite need the network. */
+{
+  const src = fs.readFileSync(path.join(ROOT, 'src', 'waiver_reco.js'), 'utf8');
+  ck('blockWatch still takes exactly ONE player per position — if this becomes '
+    + 'a pooled ranking it inherits register 294 and this line is the warning',
+  /byPos\[pos\][\s\S]{0,80}\[0\]/.test(src), 'byPos[pos]...[0] not found');
+
+  const lo = fs.readFileSync(path.join(ROOT, 'src', 'routes', 'lineup.js'), 'utf8');
+  ck('the Sunday alert still derives its rows from optimizer SWAPS (result.calls '
+    + '/ set.changes) rather than from a free-agent pool — a swap set is bounded '
+    + 'by slots, which is what makes it immune',
+  /result\.calls/.test(lo) && /set\.changes/.test(lo));
+}
+
 // ── FAIL ARM: the checker must be able to fail ─────────────────────────────
 {
   const flood = Array.from({ length: 8 }, (_, i) =>

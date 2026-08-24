@@ -136,8 +136,24 @@ function computeWaiverReco(sData, playersDb, artifact, myRid, ownersCount) {
   // counterfactual is "kept who I have", not "held priority". Same tested
   // net_value ranking; limitation (season-value, not matchup-tuned) is stated
   // on the page.
-  out.streamClaims = res.claims.filter(c => (c.position === 'K' || c.position === 'DEF')
-    && c.net_value > 0).slice(0, 2);
+  /* ⚠️ THE SAME DEFECT WAS HERE TOO, and it is the Rule 3g follow-up on 294
+   * rather than a second discovery: `.slice(0, 2)` on a K/DEF POOL renders the
+   * best two of whichever position is inflated. On Cory's roster that is TWO
+   * KICKERS — Mevis and Santos — and he can start one. The block meant to hold
+   * his kicker decision AND his defense decision held the kicker decision
+   * twice.
+   *
+   * Capped by the same rule, it renders the best K and the best DEF, at most
+   * one each, which is how many of each he can field.
+   *
+   * ⚠️ AND ON TODAY'S BOARD IT RENDERS ONE ROW, NOT TWO — that is CORRECT and
+   * is why the cap is not a "show one of each" rule. ZERO defenses clear
+   * net_value > 0: his rostered DEF beats every free one, so there is no
+   * defense decision to present. A rule that forced a second row would invent
+   * one. Measured, not assumed — the control is in the guard suite. */
+  out.streamClaims = capPerPosition(
+    res.claims.filter(c => (c.position === 'K' || c.position === 'DEF')
+      && c.net_value > 0), league.starters, 2);
   out.currentKD = (inputs.myRoster || [])
     .filter(p => p.position === 'K' || p.position === 'DEF')
     .map(p => ({ player_id: p.player_id, name: p.name, position: p.position }));
