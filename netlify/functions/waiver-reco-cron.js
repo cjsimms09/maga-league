@@ -93,12 +93,17 @@ exports.handler = async (event) => {
       buildAutoStreamEntry(reco, ctx.season, ctx.week, ctx.ownerId),
     ].filter(Boolean);
     if (!entries.length) {
-      await store.set(markKey, { none: true, live: reco.live, at: new Date().toISOString() });
+      await store.set(markKey, { none: true, live: reco.live,
+        blockWatch: (reco && reco.blockWatch) || [], at: new Date().toISOString() });
       return { statusCode: 200, body: JSON.stringify({ ok: true, week: ctx.week,
         captured: 0, note: reco.live ? 'tool says hold — recorded as the week marker' : 'reco not live' }) };
     }
     for (const entry of entries) await predledger.append(store, entry);
-    await store.set(markKey, { keys: entries.map(e => e.payload.key), at: new Date().toISOString() });
+    // blockWatch rides on the marker: P331 grades whether flagged players
+    // actually get claimed by the owners they were flagged for, and that grade
+    // needs the Tuesday-night snapshot, not a Tuesday-morning re-derivation.
+    await store.set(markKey, { keys: entries.map(e => e.payload.key),
+      blockWatch: reco.blockWatch || [], at: new Date().toISOString() });
     return { statusCode: 200, body: JSON.stringify({ ok: true, week: ctx.week,
       captured: entries.length, keys: entries.map(e => e.payload.key) }) };
   } catch (e) {

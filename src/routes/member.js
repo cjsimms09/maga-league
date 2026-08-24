@@ -288,7 +288,11 @@ router.get('/api/sunday-alert', aw(async (req, res) => {
 
   const r = await notify.sundayAlert(world.owners, alert).catch(e => ({ error: String((e && e.message) || e) }));
   const sent = (r && !r.skipped && !r.error) ? 1 : 0;
-  if (sent) await setDoc(stampKey, { at: new Date().toISOString(), calls: alert.calls.length, dead: alert.dead.length });
+  if (sent) await setDoc(stampKey, { at: new Date().toISOString(), calls: alert.calls.length, dead: alert.dead.length,
+    // The exact recommendation the email showed, kept so the one-tap WHY
+    // (/lineup/why) can attach what Cory was actually looking at when he
+    // decided — not a re-derivation that may have moved by Tuesday.
+    todo: (alert.lineupKnown ? (alert.changes || []) : (alert.calls || [])).slice(0, 4) });
   res.json({ ok: true, sent, quiet: false, emailConfigured, week: weekNo,
     hasCalls: alert.hasCalls, dead: alert.dead.length,
     changes: alert.changes.length, lineupKnown: alert.lineupKnown,
@@ -3477,7 +3481,7 @@ router.get('/waivers', requireCommissioner, aw(async (req, res) => {
   const W = require('./waivers');
 
   let claims = [], drop = null, perPoint = 0, weekNo = null, err = null, live = false;
-  let streamClaims = [], currentKD = [];
+  let streamClaims = [], currentKD = [], blockWatch = [];
   try {
     const sData = await sleeper.bundle(world.config.sleeper_league_id);
     if (sData && Array.isArray(sData.rosters) && sData.rosters.length) {
@@ -3523,11 +3527,18 @@ router.get('/waivers', requireCommissioner, aw(async (req, res) => {
       drop = reco.drop; perPoint = reco.perPoint;
       claims = reco.claims; streamClaims = reco.streamClaims;
       currentKD = reco.currentKD;
+      // BLOCK WATCH rows carry roster ids; name them here (map: rid → owner)
+      // so the card says WHO a claim denies, not a number.
+      const ridName = rid => {
+        const oid = Number((world.config.sleeper_map || {})[String(rid)]);
+        return (H.ownerById(owners, oid) || {}).name || `team ${rid}`;
+      };
+      blockWatch = (reco.blockWatch || []).map(bw => ({ ...bw, denies_names: bw.denies.map(ridName) }));
     }
   } catch (e) { err = String((e && e.message) || e); }
 
   res.render('waivers', {
-    me, season, weekNo, live, err, claims, drop, perPoint, streamClaims, currentKD,
+    me, season, weekNo, live, err, claims, drop, perPoint, streamClaims, currentKD, blockWatch,
     liveStale: await liveFreshness(),
     captureError: req.query.captureError === '1',
     // The explainer contract (what/read/do/src per panel) — view-model only.
@@ -4015,6 +4026,101 @@ router.post('/lineup/log', requireCommissioner, aw(async (req, res) => {
 // Sleeper afterwards, the final played lineup can differ, and the resolution
 // grades what was set at the decision moment, which is the decision-time
 // record this whole ledger exists to keep.
+// ── ONE-TAP WHY FROM THE SUNDAY ALERT (A's ranked item 3, 2026-08-24:
+// "Capture WHY, weekly, at the moment of the call... One tap, at decision
+// time — not a text box on Tuesday.") The email's reason chips link here.
+//
+// GET with a side effect, deliberately and guardedly: a tap in a mail client
+// is a GET, and requireCommissioner means only Cory's logged-in browser can
+// record — a mail client prefetching links carries no cookie and bounces off
+// the login wall writing nothing. One record per week (marker), so a re-tap
+// says "already noted" instead of stacking rows. The recommendation attached
+// is the exact snapshot the email showed (stored on the send stamp), not a
+// re-derivation that may have moved since.
+router.get('/lineup/why', requireCommissioner, aw(async (req, res) => {
+  const season = String(H.currentSeason(req.world.seasons).year || new Date().getUTCFullYear());
+  const week = parseInt(req.query.week, 10) || null;
+  const REASONS = ['doing it', 'injury news', "don't buy the projection", 'riding my guy'];
+  const reason = REASONS.includes(String(req.query.reason)) ? String(req.query.reason) : 'unstated';
+  const page = (title, sub) => res.send(
+    `<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1">`
+    + `<body style="font-family:system-ui;max-width:26rem;margin:3rem auto;padding:0 1rem;text-align:center">`
+    + `<div style="font-size:2.2rem">📝</div><h2 style="margin:.4rem 0">${title}</h2>`
+    + `<p style="color:#3c4a60">${sub}</p>`
+    + `<a href="/lineup" style="display:inline-block;margin-top:.6rem;background:#1b2c4d;color:#fff;`
+    + `text-decoration:none;font-weight:800;padding:.7rem 1.2rem;border-radius:8px">Open the optimizer</a></body>`);
+  if (!week) return page('Missing the week', 'This link came without a week number — open the optimizer instead.');
+  const markKey = `sundaywhy:${season}:${week}`;
+  const already = await getDoc(markKey, null);
+  if (already) {
+    return page('Already on the record',
+      `Week ${week} is noted as “${already.reason}”. One call per week — the season grades what's written.`);
+  }
+  const stamp = await getDoc(`sunday-alert-sent:${season}:${week}`, null);
+  const todo = (stamp && stamp.todo) || [];
+  try {
+    const predledger = require('../predledger');
+    await predledger.append(store, {
+      kind: 'inseason_override',
+      method: 'sunday-why-v1',
+      season,
+      payload: {
+        key: decisionKey('override:sunday', season, week, req.owner.id),
+        owner_id: req.owner.id,
+        week,
+        // What the email actually showed at decision time.
+        recommended: todo,
+        counterfactual: todo,
+        // The final lineup is knowable only after kickoff; the resolver's
+        // fill-actual-from-Sleeper extension is routed to A (register 290's
+        // owner). Until then this row is a captured WHY, honestly pending.
+        actual: null,
+        reason,
+        followed: reason === 'doing it',
+      },
+    });
+    await setDoc(markKey, { reason, at: now() });
+  } catch (e) {
+    return page('That didn’t save', 'The tap reached the site but the record failed — try once more, or log it on the optimizer page.');
+  }
+  return page(reason === 'doing it' ? 'Noted — you’re on the tool' : 'Noted — you went your own way',
+    `Week ${week}: “${reason}”. That's the whole tap — the season grades it from here.`);
+}));
+
+// ── RECO-CAPTURE HEALTH (A's ranked item 1, 2026-08-24: "a cron that has
+// never emitted a row hasn't been tested, only scheduled. A green run and an
+// empty store look identical. Week 1 must produce a real graded row, checked
+// by hand.") This is the hand-check surface: the week markers each auto-
+// capture cron writes, plus the actual latest ledger row per auto method —
+// so "marker exists but no row" and "no marker at all" are both visible in
+// one commissioner-gated read of the LIVE store.
+router.get('/admin/api/reco-capture-health', requireCommissioner, aw(async (req, res) => {
+  const season = String(req.query.season || H.currentSeason(req.world.seasons).year || new Date().getUTCFullYear());
+  const markers = {};
+  for (const fam of ['waiverauto', 'lineupauto']) {
+    markers[fam] = {};
+    try {
+      const keys = await store.listKeys(`${fam}:${season}:`);
+      for (const k of keys.sort()) markers[fam][k.split(':').pop()] = await store.get(k);
+    } catch (e) { markers[fam] = { error: String(e && e.message || e) }; }
+  }
+  const AUTO_METHODS = ['waiver-auto-v1', 'stream-auto-v1', 'lineup-auto-v1', 'sunday-why-v1'];
+  const latest = Object.fromEntries(AUTO_METHODS.map(m => [m, null]));
+  let ledgerRows = 0;
+  try {
+    const keys = (await store.listKeys(`pred:${season}:`)).sort();
+    ledgerRows = keys.length;
+    for (const k of keys) {
+      const e = await store.get(k);
+      if (e && AUTO_METHODS.includes(e.method)) {
+        latest[e.method] = { key: e.payload && e.payload.key, week: e.payload && e.payload.week, at: e.at || e.created_at || null };
+      }
+    }
+  } catch (e) { /* reported via ledgerRows staying 0 */ }
+  res.json({ ok: true, season, ledger_rows: ledgerRows, markers, latest_auto_row: latest,
+    read_me: 'A week with a marker but no matching row means the cron ran and emitted nothing — read the marker (none:true is an honest hold week, anything else is a defect).' });
+}));
+
 router.post('/lineup/override', requireCommissioner, aw(async (req, res) => {
   const season = String(H.currentSeason(req.world.seasons).year || new Date().getUTCFullYear());
   const predledger = require('../predledger');
