@@ -1,7 +1,7 @@
-name: Advanced stats (air-yards/EPA/WOPR) 2026 weekly refresh — proposed diff, TERRITORY:A merges
+name: Advanced stats (air-yards/EPA/WOPR) 2026 weekly refresh — proposed diff, A merges
 
 # PROPOSED BY C, TO BE MERGED BY A — dispatches draft/backtest/fetch_advanced_stats.py
-# (TERRITORY: A), which this workflow does not modify. Written here rather than
+# (owned by A), which this workflow does not modify. Written here rather than
 # built as a new C-owned capture because the tool that already does exactly
 # this (EPA/air-yards/CPOE/RACR/WOPR, per-player-week) exists and is A's;
 # duplicating it under a different name would be the two-tables defect this
