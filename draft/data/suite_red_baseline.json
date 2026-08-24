@@ -8,7 +8,7 @@
   "This file never makes CI pass. The JS suite step still exits non-zero while anything is failing -- see ci.yml. A permanently green build with 32 broken suites is the decay this whole exercise was about."
  ],
  "_baseline_taken": "2026-08-24, after register 300 phase (1): 49 failing / 16 inert -> 32 failing / 1 inert, of 437 suites.",
- "count": 32,
+ "count": 31,
  "suites": [
   "archetype_rooms",
   "barbell_policy",
@@ -31,7 +31,6 @@
   "panel_spec",
   "pickem_surface",
   "roster_room_audit",
-  "ruled_target_is_one_definition",
   "seat_plan_contract",
   "seat_plan_knows_the_seat_is_filled",
   "sidebet_lifecycle_gate",
@@ -42,5 +41,8 @@
   "vona_wire_bench",
   "waiver_surface",
   "withheld_slate_exposure"
+ ],
+ "_ratchet_log": [
+  "2026-08-24: -ruled_target_is_one_definition. It was failing because TWO tools I added THIS SESSION (rail_late_rounds_sweep.js, draft_autopsy.js) each hardcoded Cory's ruled roster target instead of reading league_config.ruled_roster_target. The guard that forbids that had been red since, and my own baseline had just enshrined my regression as 'known'. Both now read the config and REFUSE rather than defaulting; the printed copy in the sweep's output is derived too, because a second copy in a display string drifts as silently as one in a constant."
  ]
 }
