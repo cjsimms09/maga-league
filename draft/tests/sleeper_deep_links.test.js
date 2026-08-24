@@ -126,6 +126,11 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS  ' + n))
       title: 'x', owner: { id: cory.id, name: cory.name, is_commissioner: true },
       currentPath: '/waivers', alerts: [], quip: '', chatUnread: 0, betsWaiting: 0, votesWaiting: 0,
       money: n => '$' + n, humanTime: () => ({ text: '', title: '' }), venmoLink: () => null,
+      // Another lane added its own injury chip to this same claims loop
+      // (catalog item 16, waivers.ejs) in parallel with item 14's button —
+      // reuse the real classifier here too, same as server-app.js wires it
+      // sitewide, rather than stub it and risk missing a real crash.
+      injuryFlag: require(path.join(ROOT, 'src', 'matchup.js')).injuryFlag,
       sleeperLink: suffix => `https://sleeper.com/leagues/${LID}` + (suffix ? '/' + suffix : ''),
       viewerIsChamp: false,
       me: { id: cory.id, name: cory.name }, season: '2026', weekNo: 3, live: true, err: null,
