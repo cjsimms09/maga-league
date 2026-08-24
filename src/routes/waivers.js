@@ -180,6 +180,9 @@ function evaluateClaims(freeAgents, myRoster, league, ctx) {
       player_id: fa.player_id,
       name: fa.name,
       position: fa.position,
+      // carried so the wire page can flag an injured target BEFORE priority is
+      // spent on him (catalog 16) — same field enrich() already reads.
+      injury_status: fa.injury_status || null,
       fills: sv.fills,
       why: sv.why,
       startable_value: round2(sv.value),

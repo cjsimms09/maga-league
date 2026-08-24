@@ -122,7 +122,9 @@
           <% claims.forEach((c, i) => { %>
             <div class="lo-call">
               <div class="lo-call-main">
-                <span class="lo-start">▲ Claim <b><%= c.name %></b>
+                <span class="lo-start">▲ Claim <b><%= c.name %></b><%
+                  const _cf = injuryFlag({ inj: c.injury_status }); %><% if (_cf.level) { %>
+                  <span class="mu-flag <%= _cf.level === 'out' ? 'out' : 'q' %>" title="injury designation — check before spending priority"><%= _cf.text %></span><% } %>
                   <span class="muted">(<%= c.position %><% if (c.consensus_projection != null) { %>, <%= c.consensus_label %> <%= c.consensus_projection %><% } %>)</span></span>
                 <span class="lo-sit">▼ drop <b><%= c.drop ? c.drop.name : '—' %></b>
                   <span class="muted"><%= c.why %></span></span>

@@ -98,7 +98,37 @@ function rows(text) {
  * rows that were still live, and this one held open rows that were already dead.
  * **The status cell is the single most misread field in the register**, which is
  * why every rule about it is a WORD LIST rather than a symbol or a substring. */
-const TERMINAL = /\b(closed|resolved|ruled|withdrawn|superseded|retracted)\b/i;
+/* ⚠️ ONE VOCABULARY, READ FROM draft/config/register_status_vocabulary.json
+ * (register 313, 2026-08-24). This was a literal regex and
+ * test_defect_register.py carried a DIFFERENT literal set, so the two guards
+ * disagreed about what a status is. A row reading `✅ FIXED` matched NEITHER:
+ * invisible to that file's owner/action/pipe checks, and counted OPEN forever
+ * here. 25 of 295 numbered rows were in that gap, two of them ORANGE — live
+ * work nothing was tracking. Two lists kept in sync by hand is how they
+ * diverged; one file read by both is the fix.
+ *
+ * REFUSES rather than falling back to a literal. A silent fallback is precisely
+ * how the drift happened, and a guard that quietly reverts to its old
+ * vocabulary would hide the next divergence exactly as well as this one hid. */
+const TERMINAL = (() => {
+  const fsv = require('fs');
+  const pv = require('path').join(__dirname, '..', 'config',
+    'register_status_vocabulary.json');
+  let doc;
+  try { doc = JSON.parse(fsv.readFileSync(pv, 'utf8')); }
+  catch (e) {
+    console.error('REGISTER RECHECKS: cannot read register_status_vocabulary.json ('
+      + e.message + '). REFUSING to fall back to a hardcoded status list — a '
+      + 'silent fallback is how the two guards drifted apart (register 313).');
+    process.exit(2);
+  }
+  const words = (doc.terminal || []).map(w => String(w).toLowerCase());
+  if (!words.length) {
+    console.error('REGISTER RECHECKS: the vocabulary carries no `terminal` words.');
+    process.exit(2);
+  }
+  return new RegExp('\\b(' + words.join('|') + ')\\b', 'i');
+})();
 
 function isClosed(r) {
   return TERMINAL.test(r.status);

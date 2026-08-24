@@ -1592,7 +1592,7 @@ router.get('/bank', aw(async (req, res) => {
     section, bets, tallies, owners, betNames, sbLedger, sbOwed, sbOwedMine, verdicts, liveOrder, h2h,
     sbGrid, sbView, sbDrill,
     deadlines, late: req.query.late === '1',
-    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1', rerun: req.query.rerun === '1',
+    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1', rerun: req.query.rerun === '1', nudged: req.query.nudged === '1',
     betFail: betFailMessage(req.query.betfail),
     currentWeek: (await sleeper.bundle(world.config.sleeper_league_id) || {}).week || 1,
     BL, payDirectory: owners.filter(o => o.venmo || o.paypal || o.cashapp || o.zelle),
@@ -2193,6 +2193,34 @@ router.post('/profile/contact', aw(async (req, res) => {
 
 // ---------- buying out of a live bet ----------
 // Re-offer a proposal whose ten days ran out. Proposer only.
+// THE NUDGE (redesign catalog 5): the proposer pokes whoever is sitting on
+// their offer — as a PUBLIC 🔔 in the Locker Room, which is exactly the
+// pressure this league runs on, lands in everyone's chat badge, and needs no
+// email plumbing. Once per bet per 24 hours; the audit trail records each.
+router.post('/sidebets/:id/nudge', aw(async (req, res) => {
+  const bet = await SB.get(req.params.id);
+  const dayMs = 24 * 60 * 60 * 1000;
+  if (bet && bet.status === 'proposed'
+      && Number(bet.proposer_id) === Number(req.owner.id)
+      && !(bet.nudged_at && Date.now() - Date.parse(bet.nudged_at) < dayMs)) {
+    const waitingOn = (bet.parties || [])
+      .filter(p => !p.accepted && Number(p.owner_id) !== Number(req.owner.id))
+      .map(p => (H.ownerById(req.world.owners, p.owner_id) || {}).name || '?');
+    if (waitingOn.length) {
+      await setDoc(`chat:${newId()}`, { owner_id: req.owner.id,
+        text: `🔔 ${req.owner.name} is waiting on ${waitingOn.join(' and ')}: `
+          + `"${String(bet.terms || '').slice(0, 120)}" — $${bet.stake} on the table. `
+          + `Answer it in The Book.`,
+        created_at: now() });
+      bet.nudged_at = now();
+      bet.audit.push({ at: now(), by: req.owner.id,
+        what: `Nudged ${waitingOn.join(' and ')} in the Locker Room` });
+      await H.store.set(`sidebet:${bet.id}`, bet);
+    }
+  }
+  res.redirect('/bank?section=sidebets&nudged=1#bet-' + req.params.id);
+}));
+
 router.post('/sidebets/:id/resend', aw(async (req, res) => {
   await SB.resend(req.params.id, req.owner.id, req.owner.name);
   res.redirect('/bank?section=sidebets');
@@ -2463,7 +2491,7 @@ router.get('/team', aw(async (req, res) => {
 
   res.render('team', { viewOwner, owners, roster, matchup, betWindow, trend,
     matchupPending, aboutMe, late: req.query.late === '1',
-    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1', rerun: req.query.rerun === '1',
+    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1', rerun: req.query.rerun === '1', nudged: req.query.nudged === '1',
     // Roster is the default — it is what this page has always been, and it is
     // the half that works without a live matchup.
     section: req.query.section === 'week' ? 'week' : 'roster',
@@ -2830,7 +2858,7 @@ router.get('/matchup', aw(async (req, res) => {
     goatId: MK.goatOwnerId(sData, world.config.sleeper_map || {}),
     configured: !!world.config.sleeper_league_id,
     late: req.query.late === '1',
-    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1', rerun: req.query.rerun === '1', sent: req.query.sent === '1',
+    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1', rerun: req.query.rerun === '1', nudged: req.query.nudged === '1', sent: req.query.sent === '1',
     betFail: betFailMessage(req.query.betfail),
     nameOf,
   });
@@ -2950,7 +2978,7 @@ router.get('/pickem', aw(async (req, res) => {
   res.render('pickem', {
     me: req.owner, ...c,
     saved: req.query.saved === '1', late: req.query.late === '1',
-    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1', rerun: req.query.rerun === '1',
+    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1', rerun: req.query.rerun === '1', nudged: req.query.nudged === '1',
   });
 }));
 
@@ -4247,20 +4275,64 @@ router.post('/lineup/override', requireCommissioner, aw(async (req, res) => {
 }));
 
 // ---------- the locker room ----------
+// You can fix a typo or take back a message for five minutes; after that it
+// is the record (redesign catalog 12 — "Permanent. No takebacks." stays true
+// of anything old enough that somebody has read it).
+const CHAT_EDIT_WINDOW_MS = 5 * 60 * 1000;
+const chatEditable = m => m && Date.now() - Date.parse(m.created_at || 0) < CHAT_EDIT_WINDOW_MS;
+
 router.get('/chat', aw(async (req, res) => {
   const owners = H.activeOwners(req.world.owners);
   const feed = await H.chatFeed(owners);
   await setDoc(`chat-seen:${req.owner.id}`, { at: now() });
-  res.render('chat', { feed });
+  // Reply-to (catalog 13), no-JS: the ↩ link carries ?reply=<id>, the GET
+  // resolves it to the message being answered, the composer quotes it.
+  const replyTo = req.query.reply
+    ? feed.find(m => m.key === 'chat:' + req.query.reply) || null : null;
+  res.render('chat', { feed, replyTo, editWindowMs: CHAT_EDIT_WINDOW_MS });
 }));
 
 router.post('/chat', aw(async (req, res) => {
   const text = String(req.body.text || '').trim().slice(0, 500);
-  if (text) await setDoc(`chat:${newId()}`, { owner_id: req.owner.id, text, created_at: now() });
+  if (text) {
+    const msg = { owner_id: req.owner.id, text, created_at: now() };
+    // The quote is a SNAPSHOT, not a pointer: if the original is later edited
+    // or deleted, the reply still shows what was actually being answered.
+    if (req.body.reply_key) {
+      const orig = await getDoc('chat:' + String(req.body.reply_key), null);
+      if (orig) {
+        const origOwner = H.ownerById(req.world.owners, orig.owner_id);
+        msg.reply = { name: (origOwner && origOwner.name) || '?',
+                      text: String(orig.text || '').slice(0, 90) };
+      }
+    }
+    await setDoc(`chat:${newId()}`, msg);
+  }
   // Posting from the home page returns you to the home page. Being teleported
   // into a different tab because you replied to a message is how people learn
   // not to reply.
   res.redirect(req.body.back === 'home' ? '/#locker' : '/chat#end');
+}));
+
+router.post('/chat/:id/edit', aw(async (req, res) => {
+  const key = 'chat:' + req.params.id;
+  const msg = await getDoc(key, null);
+  const text = String(req.body.text || '').trim().slice(0, 500);
+  if (msg && Number(msg.owner_id) === Number(req.owner.id) && chatEditable(msg) && text) {
+    msg.text = text;
+    msg.edited_at = now();
+    await setDoc(key, msg);
+  }
+  res.redirect('/chat#end');
+}));
+
+router.post('/chat/:id/delete', aw(async (req, res) => {
+  const key = 'chat:' + req.params.id;
+  const msg = await getDoc(key, null);
+  if (msg && Number(msg.owner_id) === Number(req.owner.id) && chatEditable(msg)) {
+    await H.store.del(key);
+  }
+  res.redirect('/chat#end');
 }));
 
 router.get('/rules', aw(async (req, res) => {

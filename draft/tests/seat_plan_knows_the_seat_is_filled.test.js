@@ -47,8 +47,15 @@ ck('CONTROL: and that seat steers to a QB rather than to the best player',
 const league = board.league;
 const byName = n => board.players.find(p => p.name === n);
 const qb = byName('Joe Burrow') || board.players.find(p => p.position === 'QB');
-const noQB = { roster: board.kept_players, league };
-const withQB = { roster: board.kept_players.concat([qb]), league };
+/* ⚠️ FILTERED TO CORY'S SEAT (A, 2026-08-24, register 303). Post-lock
+ * `kept_players` is the league's 23, not his three. * This file asserts "a QB starter slot is an OPEN gap before any QB is
+ * rostered" — and the league's 23 keepers INCLUDE a quarterback (Josh
+ * Allen), so the premise was false by construction and the gap could
+ * never be open. */
+const MY_KEEPERS_HERE = (board.kept_players || [])
+  .filter(k => Number(k.team_slot) === Number((board.league || {}).my_draft_slot));
+const noQB = { roster: MY_KEEPERS_HERE, league };
+const withQB = { roster: MY_KEEPERS_HERE.concat([qb]), league };
 
 ck('a QB starter slot is an OPEN gap before any QB is rostered',
   E.mandatoryGaps(noQB).indexOf('QB') !== -1,

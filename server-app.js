@@ -74,6 +74,10 @@ function createApp() {
         // each view hand-building a bare profile URL — the exact drift
         // venmo.js's header says it exists to prevent.
         res.locals.venmoLink = (owner, opts) => require('./src/venmo').link(owner, opts);
+        // matchup.js's ONE injury ladder, exposed sitewide (catalog 16) so
+        // team/waivers chips can never disagree with the matchup card about
+        // the same player. cell: { inj, onBye, empty }.
+        res.locals.injuryFlag = require('./src/matchup').injuryFlag;
         res.locals.alerts = req.owner ? helpers.activeAlerts(world.alerts) : [];
         res.locals.currentPath = req.path;
         res.locals.quip = helpers.pickRandom(helpers.QUIPS);

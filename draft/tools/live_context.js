@@ -106,7 +106,16 @@ function liveContext(opts) {
   // draftable pool, so looking them up by name in `players` finds nothing and
   // hands the engine an empty roster — which is the defect this file's header
   // describes, and the one that produced two wrong answers about the stack term.
-  const keepers = data.kept_players || [];
+  /* ⚠️ FILTERED TO CORY'S SEAT (A, 2026-08-24, register 300/303). This read
+   * `kept_players` whole, and the comment above already says whose roster it
+   * is meant to be. Pre-lock that WAS his three; post-lock (08-23) the board
+   * carries the league's 23, so the plan started from a 23-man roster
+   * belonging to ten managers — which fills every starter seat, zeroes `need`
+   * for everybody and collapses the keeper term. Same correction as
+   * draft_ready.js, archetype_rooms.js and the shared test fixture. */
+  const _mySlot = Number((data.league || {}).my_draft_slot);
+  const keepers = (data.kept_players || [])
+    .filter(k => Number(k.team_slot) === _mySlot);
   const myPicks = (order.my_picks || []).map(p => p.overall != null ? p.overall : p)
     .filter(n => typeof n === 'number');
   const picksLeft = myPicks.filter(n => n >= o.currentPick).length || null;
