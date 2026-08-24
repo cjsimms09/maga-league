@@ -27,13 +27,10 @@ const predledger = require('../../src/predledger');
 const { buildAutoLineupEntry } = require('../../src/waiver_reco');
 const { autoCaptureContext } = require('./waiver-reco-cron');
 
-exports.handler = async (event) => {
-  store.initBlobs(event);
-  const qs = (event && event.queryStringParameters) || {};
-  const isManual = qs.key !== undefined;
-  if (isManual && process.env.LINEUP_RECO_CRON_KEY && qs.key !== process.env.LINEUP_RECO_CRON_KEY) {
-    return { statusCode: 403, body: JSON.stringify({ ok: false, error: 'bad key' }) };
-  }
+/* Callable from both entry points — see waiver-reco-cron's note: scheduled
+ * functions are not HTTP-invocable, so verification goes through the app's
+ * /api/reco-probe route calling this directly. */
+exports.runCapture = async () => {
   try {
     const sleeper = require('../../src/sleeper');
     const cfg = (await store.get('config')) || {};
@@ -69,4 +66,9 @@ exports.handler = async (event) => {
   } catch (e) {
     return { statusCode: 500, body: JSON.stringify({ ok: false, error: String(e && e.message || e) }) };
   }
+};
+
+exports.handler = async (event) => {
+  store.initBlobs(event);
+  return exports.runCapture();
 };

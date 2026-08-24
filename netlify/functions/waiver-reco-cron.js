@@ -77,13 +77,13 @@ function wirePayload(reco, week, ridName) {
 }
 exports.wirePayload = wirePayload;
 
-exports.handler = async (event) => {
-  store.initBlobs(event);
-  const qs = (event && event.queryStringParameters) || {};
-  const isManual = qs.key !== undefined;
-  if (isManual && process.env.WAIVER_RECO_CRON_KEY && qs.key !== process.env.WAIVER_RECO_CRON_KEY) {
-    return { statusCode: 403, body: JSON.stringify({ ok: false, error: 'bad key' }) };
-  }
+/* The capture itself, callable from BOTH entry points: the schedule (below)
+ * and the app's /api/reco-probe route. Netlify SCHEDULED functions are not
+ * HTTP-invocable — the probe's first live run answered an edge 403 with an
+ * empty body and proved it (2026-08-24), which also falsifies grade-cron's
+ * old "manually invocable" comment for scheduled functions generally. The
+ * app function IS reachable, so verification goes through it. */
+exports.runCapture = async () => {
   try {
     const sleeper = require('../../src/sleeper');
     const cfg = (await store.get('config')) || {};
@@ -161,4 +161,9 @@ exports.handler = async (event) => {
   } catch (e) {
     return { statusCode: 500, body: JSON.stringify({ ok: false, error: String(e && e.message || e) }) };
   }
+};
+
+exports.handler = async (event) => {
+  store.initBlobs(event);
+  return exports.runCapture();
 };
