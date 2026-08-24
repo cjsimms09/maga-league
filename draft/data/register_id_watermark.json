@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 285,
+ "next_numeric_id": 287,
  "history": [
   {
    "id": 47,
@@ -675,6 +675,14 @@
   },
   {
    "id": 284,
+   "claimed_at": "2026-08-24"
+  },
+  {
+   "id": 285,
+   "claimed_at": "2026-08-24"
+  },
+  {
+   "id": 286,
    "claimed_at": "2026-08-24"
   }
  ]
