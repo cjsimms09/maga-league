@@ -107,15 +107,29 @@ ck('CONTROL — the real, unmutated repo passes the pre-lock gate. Without this 
   clean.code === 0, { code: clean.code, fatal: failedNames(clean) });
 
 /* ── 1. KEEPERS — the thing Cory named first ───────────────────────────────*/
-let r = runGate(b => { b.board.kept_players = b.board.kept_players.slice(0, 2); }, false);
+/* ⚠️ THE BREAK ARMS MUST MUTATE A KEEPER AT CORY'S SEAT (A, 2026-08-24,
+ * register 300). Post-lock `kept_players` holds all 23 league keepers and
+ * `[0]` is CeeDee Lamb, who belongs to another manager — so corrupting him
+ * proved nothing about the gate that guards Cory's roster, and once the gate
+ * was narrowed to his seat (draft/tools/draft_ready.js, same date) it correctly
+ * ignored the mutation and the arm went red. A break arm that corrupts the
+ * wrong record tests nothing, which is the same inert shape as a control that
+ * cannot fail. Indexed by seat now, so it keeps working whatever order the
+ * artifact lists them in. */
+const MY_KEEPER_IX = b => (b.board.kept_players || [])
+  .findIndex(k => Number(k.team_slot) === Number(b.board.league.my_draft_slot));
+let r = runGate(b => {
+  const ix = MY_KEEPER_IX(b);
+  b.board.kept_players = b.board.kept_players.filter((k, i) => i !== ix);
+}, false);
 ck('BREAK: a keeper vanishes from the board -> the gate REFUSES',
   r.code !== 0 && caught(r, 'keeper COUNT'), failedNames(r));
 
-r = runGate(b => { b.board.kept_players[0].player_id = '999999'; }, false);
+r = runGate(b => { b.board.kept_players[MY_KEEPER_IX(b)].player_id = '999999'; }, false);
 ck('BREAK: a keeper id is changed -> refused (ids compared, not just counts)',
   r.code !== 0 && caught(r, 'PLAYER IDS'), failedNames(r));
 
-r = runGate(b => { b.board.kept_players[0].name = 'Somebody Else'; }, false);
+r = runGate(b => { b.board.kept_players[MY_KEEPER_IX(b)].name = 'Somebody Else'; }, false);
 ck('BREAK: an id resolves to a DIFFERENT MAN -> refused. This is the worst '
    + 'version of the failure and a count check alone would miss it.',
   r.code !== 0 && caught(r, 'NAMES AND POSITIONS'), failedNames(r));
@@ -168,8 +182,31 @@ ck('the SAME repo passes pre-lock and FAILS after-lock — the two modes are '
   pre.code === 0 && post.code !== 0,
   { pre: pre.code, post: post.code, post_fatal: failedNames(post) });
 
+/* ⚠️ THIS TESTED MEMBERSHIP IN THE FAILED LIST, AND THE ARM'S OWN NAME SAYS
+ * CLASSIFICATION (A, 2026-08-24, register 300). `caught(post, n)` can only see
+ * a check that is currently FAILING, so it silently required these four to be
+ * broken as well as promoted. Two of them — "lock has PASSED" and "slate
+ * TRUTH" — now genuinely PASS, because the lock passed and the slate is
+ * confirmed, so they left the failed list and the arm went red on reality
+ * improving.
+ *
+ * The gate records `fatal` per check in its own artifact, so the promotion can
+ * be asserted directly and in BOTH directions: not fatal pre-lock, fatal
+ * after-lock. That is strictly stronger than the original — it holds whether
+ * or not the check happens to be failing today, which is the whole point of a
+ * severity test. Verified against the live gate: all four go false -> true. */
+const sev = (r, n) => {
+  const c = ((r.doc || {}).checks || []).find(x => String(x.name).indexOf(n) >= 0);
+  return c ? { found: true, fatal: !!c.fatal, ok: !!c.ok } : { found: false };
+};
 ['lock has PASSED', 'slate TRUTH', 'has designated', 'SEALED'].forEach(n => {
-  ck('after-lock, "' + n + '" is FATAL rather than a warning', caught(post, n),
+  const a = sev(pre, n), b = sev(post, n);
+  ck('after-lock, "' + n + '" is PROMOTED to FATAL — not fatal pre-lock, fatal '
+    + 'after-lock, regardless of whether it currently passes',
+  a.found && b.found && a.fatal === false && b.fatal === true,
+  { pre: a, post: b });
+  ck('(legacy view) after-lock, "' + n + '" is FATAL rather than a warning',
+    b.found && b.fatal === true,
     failedNames(post));
 });
 

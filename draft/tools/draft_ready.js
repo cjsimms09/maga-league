@@ -79,20 +79,52 @@ if (myTeam) {
     myTeam.slot_provisional === false, { slot_provisional: myTeam.slot_provisional });
 
   const cfgKeepers = myTeam.keepers || [];
-  const boardKept = BOARD.kept_players || [];
-  const boardIds = (BOARD.kept_player_ids || []).map(String);
+  /* ⚠️ THE BOARD'S KEEPER LIST WENT LEAGUE-WIDE AND THIS GATE COMPARED IT
+   * AGAINST A CORY-ONLY LIST (A, 2026-08-24, register 300).
+   *
+   * `keepers.json` is per-team and `myTeam.keepers` is Cory's three.
+   * `BOARD.kept_players` used to be the same three; post-lock (08-23) it is all
+   * 23. So "keeper COUNT matches" compared 3 against 23 and the gate issued a
+   * STOP that had become STRUCTURALLY GUARANTEED — it could not pass again, on
+   * any repo, ever.
+   *
+   * THIS IS THE SHIPPED READINESS GATE, NOT A TEST FIXTURE, AND THAT IS THE
+   * SERIOUS PART. A gate that always says no is a gate people learn to
+   * override, and the checks it is actually for — an id that resolves to a
+   * different man, a provisional draft slot, the slate's truth — go with it.
+   * Its own test file says so in its first line: "THE READINESS GATE MUST BE
+   * ABLE TO SAY NO", and the arm that caught this is that suite's CONTROL:
+   * "the real, unmutated repo passes the pre-lock gate. Without this every 'it
+   * caught the break' below could just be a gate that always fails."
+   *
+   * Both lists are narrowed to Cory's seat, which is the comparison the check
+   * was always describing. The league-wide totals are still reported so a
+   * mismatch in the OTHER direction — the board losing his keepers among 23 —
+   * is still visible rather than hidden by the filter. */
+  const allBoardKept = BOARD.kept_players || [];
+  const boardKept = allBoardKept.filter(k => k.team_slot == null
+    || Number(k.team_slot) === Number(MY_SLOT));
+  const allBoardIds = (BOARD.kept_player_ids || []).map(String);
+  const keptIdSet = new Set(boardKept.map(k => String(k.player_id)));
+  const boardIds = allBoardIds.filter(id => keptIdSet.has(id));
 
   ck(true, 'CONTROL — Cory actually has keepers to check (a comparison of two '
     + 'empty lists passes and proves nothing)', cfgKeepers.length > 0,
     { n: cfgKeepers.length });
 
-  ck(true, 'keeper COUNT matches between keepers.json and the board',
+  ck(true, 'CONTROL — the board\'s keeper list is LEAGUE-WIDE, so narrowing to '
+    + 'Cory\'s seat is load-bearing rather than decorative',
+    allBoardKept.length >= boardKept.length && boardKept.length > 0,
+    { league_wide: allBoardKept.length, at_my_seat: boardKept.length, slot: MY_SLOT });
+
+  ck(true, 'keeper COUNT matches between keepers.json and the board AT MY SEAT',
     cfgKeepers.length === boardKept.length,
-    { keepers_json: cfgKeepers.length, board: boardKept.length });
+    { keepers_json: cfgKeepers.length, board_my_seat: boardKept.length,
+      board_league_wide: allBoardKept.length });
 
   const cfgIds = cfgKeepers.map(k => String(k.player_id)).sort();
   const kptIds = boardKept.map(k => String(k.player_id)).sort();
-  ck(true, 'keeper PLAYER IDS match exactly — keepers.json vs board.kept_players',
+  ck(true, 'keeper PLAYER IDS match exactly — keepers.json vs board.kept_players at my seat',
     JSON.stringify(cfgIds) === JSON.stringify(kptIds),
     { keepers_json: cfgIds, board: kptIds },
     'a mismatch means the board thinks he owns someone he does not, or vice versa');
