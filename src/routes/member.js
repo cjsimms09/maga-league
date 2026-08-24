@@ -3482,41 +3482,18 @@ router.get('/waivers', requireCommissioner, aw(async (req, res) => {
           process.env.DRAFT_DATA_PATH
             || path.join(__dirname, '..', '..', 'public', 'draft_data.json'), 'utf8'));
       } catch (e) { artifact = {}; }
-      const inputs = W.waiverInputsFromBundle(sData, playersDb, artifact, myRid);
-      if (inputs && inputs.myRoster.length) {
-        live = true;
-        const band = LO.weeklyHighBand();
-        // The league's own slot template, not a default — a wrong template
-        // prices every claim against a lineup we do not play.
-        const template = (sData.league && sData.league.roster_positions) || null;
-        const league = { teams: (sData.league && sData.league.total_rosters) || owners.length,
-                         starters: template ? LO.slotsFromTemplate(template) : LO.DEFAULT_SLOTS };
-        // Rank by what reaches the field, and only look at the top of the wire —
-        // a full FA pool is thousands of names and the tail is all zeros.
-        const typical = LO.typicalTeamScore();
-        const res2 = W.evaluateClaims(inputs.freeAgents, inputs.myRoster, league, {
-          band, lineupMean: typical.median, lineupSd: typical.sd, oppMean: typical.median,
-          leagueRosters: Object.fromEntries((sData.rosters || [])
-            .filter(r => String(r.roster_id) !== String(myRid))
-            .map(r => [r.roster_id, (r.players || []).map(pid => {
-              const info = (playersDb && playersDb.players && playersDb.players[pid]) || {};
-              return { player_id: pid, position: info.pos, proj_mean: null };
-            }).filter(p => p.position)])),
-        });
-        drop = res2.drop; perPoint = res2.dollars_per_point;
-        claims = res2.claims.filter(c => c.net_value > 0).slice(0, 8);
-        // STREAMING (K/DEF), same underlying valuation, different decision shape.
-        // A stream is a FREE weekly swap, not a priority-costly claim — the
-        // counterfactual is "kept who I have", not "held priority". Uses the SAME
-        // tested net_value ranking as the claims above (no new scoring logic,
-        // that gate stays closed this close to the draft) with the limitation
-        // stated honestly on the page: season-value, not matchup-tuned.
-        streamClaims = res2.claims.filter(c => (c.position === 'K' || c.position === 'DEF')
-          && c.net_value > 0).slice(0, 2);
-        currentKD = (inputs.myRoster || [])
-          .filter(p => p.position === 'K' || p.position === 'DEF')
-          .map(p => ({ player_id: p.player_id, name: p.name, position: p.position }));
-      }
+      /* THE COMPUTATION MOVED to src/waiver_reco.js (2026-08-24) so the page
+       * and the Tuesday-night auto-capture cron (waiver-reco-cron) share ONE
+       * recommendation — the graded ledger row is definitionally what this
+       * page shows, because both call the same function on the same inputs.
+       * Cory: "you should be logging and grading ALL recommendations
+       * everywhere even if I don't do them." */
+      const reco = require('../waiver_reco').computeWaiverReco(
+        sData, playersDb, artifact, myRid, owners.length);
+      live = reco.live;
+      drop = reco.drop; perPoint = reco.perPoint;
+      claims = reco.claims; streamClaims = reco.streamClaims;
+      currentKD = reco.currentKD;
     }
   } catch (e) { err = String((e && e.message) || e); }
 
