@@ -43,6 +43,12 @@
     and the old ones stay one tap away on it.</span>
   </div>
 <% } %>
+<% if (typeof countered !== 'undefined' && countered) { %>
+  <div class="alert-banner alert-info" style="margin-bottom:1rem">
+    <span class="tag">↩</span><span>Counter sent — their original offer is closed and
+    yours is in front of them now.</span>
+  </div>
+<% } %>
 <%
   const myId = owner.id;
   const inIt = b => (b.parties || []).some(p => p.owner_id === myId);
@@ -208,6 +214,10 @@ function betCard(b, opts) {
         <summary class="muted" style="cursor:pointer;display:inline">✎ edited</summary>
         <span class="muted">was: $<%= b.edits[b.edits.length - 1].stake %> — <%= b.edits[b.edits.length - 1].terms %></span>
       </details>
+    <% } %><% if (b.countered_from) { %>
+      <span class="muted" style="font-size:.72rem;margin-left:.4rem">↩ counter-offer — replaces an earlier one</span>
+    <% } %><% if (b.countered_to) { %>
+      <span class="muted" style="font-size:.72rem;margin-left:.4rem">↩ answered with a counter — see the new offer</span>
     <% } %></div>
     <% if (sentence(b) || (b.format === 'prop' && b.conditions.length > 1)) { %>
       <div class="bc-rule">📐 <%= sentence(b) || b.terms %><% if (b.format === 'prop' && b.conditions.length > 1) { %>
@@ -487,6 +497,22 @@ function betCard(b, opts) {
         <form class="asis" method="post" action="/sidebets/<%= b.id %>/decline">
           <button class="btn small ghost" type="submit">Decline</button>
         </form>
+        <%# COUNTER (catalog item 3) — answer with your own price instead of a
+            flat yes/no. Two-party props only; the server refuses the rest. %>
+        <% if (b.format === 'prop' && (b.parties || []).length === 2 && b.proposer_id !== owner.id) { %>
+          <details class="sb-counter" style="flex-basis:100%">
+            <summary class="btn small ghost" style="display:inline-block;cursor:pointer">↩ Counter</summary>
+            <form method="post" action="/sidebets/<%= b.id %>/counter"
+                  style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin-top:.5rem">
+              <label style="font-size:.76rem">$ <input type="number" name="stake" min="1" step="1"
+                     value="<%= b.stake %>" style="width:5.5rem"></label>
+              <input type="text" name="terms" maxlength="400" value="<%= b.terms %>"
+                     style="flex:1 1 12rem;font-size:.82rem">
+              <button class="btn small navy" type="submit">Send counter</button>
+              <span class="muted" style="flex-basis:100%;font-size:.72rem">This declines their offer and sends yours back — they accept, decline, or counter again.</span>
+            </form>
+          </details>
+        <% } %>
       <% } %>
       <% if (opts.withTake && b.status === 'open' && !inIt(b)) { %>
         <form method="post" action="/sidebets/<%= b.id %>/take" class="take-form grow"

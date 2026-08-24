@@ -1534,7 +1534,7 @@ router.get('/bank', aw(async (req, res) => {
     section, bets, tallies, owners, betNames, sbLedger, sbOwed, sbOwedMine, verdicts, liveOrder,
     sbGrid, sbView, sbDrill,
     deadlines, late: req.query.late === '1',
-    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1',
+    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1',
     betFail: betFailMessage(req.query.betfail),
     currentWeek: (await sleeper.bundle(world.config.sleeper_league_id) || {}).week || 1,
     BL, payDirectory: owners.filter(o => o.venmo || o.paypal || o.cashapp || o.zelle),
@@ -1733,6 +1733,12 @@ function betFailMessage(code) {
   if (c === 'stake-zero') return 'A stake has to be more than $0.';
   if (c === 'nobody') return "Nobody's on the other side. Name at least one opponent, or post it to the board with open slots so someone can take it.";
   if (c.startsWith('rejected:')) return 'The bet was refused: ' + c.slice(9) + '. Nothing was written — fix it and send again.';
+  // Counter-offer refusals (SB.counter) — each names what to do instead.
+  if (c === 'not_counterable') return 'That offer is no longer open, so there is nothing to counter.';
+  if (c === 'own_offer') return "It's your own offer — use ✎ Edit on it instead of countering yourself.";
+  if (c === 'not_two_party_prop') return 'Counters only work on two-person bets — for pools and group bets, decline and propose fresh.';
+  if (c === 'already_accepted') return "You already accepted this one — that's a handshake, not a negotiation.";
+  if (c === 'no_change') return "Your counter matched their offer exactly — that's an accept. Tap Accept instead.";
   return 'That bet was not created (' + c + '). Nothing was written — fix it and send again.';
 }
 
@@ -1888,6 +1894,19 @@ router.post('/sidebets/:id/edit', aw(async (req, res) => {
     return res.redirect('/bank?section=sidebets&betfail=' + out.refused + '#bet-' + req.params.id);
   }
   return res.redirect('/bank?section=sidebets&edited=1#bet-' + req.params.id);
+}));
+
+router.post('/sidebets/:id/counter', aw(async (req, res) => {
+  // COUNTER-OFFER (catalog item 3) — decline + re-propose with roles swapped,
+  // linked both ways; SB.counter enforces every guardrail and names refusals.
+  const out = await SB.counter(req.params.id, req.owner.id, req.owner.name, {
+    stake: req.body.stake, terms: req.body.terms,
+  });
+  if (!out || out.refused) {
+    return res.redirect('/bank?section=sidebets&betfail=' + ((out && out.refused) || 'gone')
+      + '#bet-' + req.params.id);
+  }
+  return res.redirect('/bank?section=sidebets&countered=1#bet-' + out.next.id);
 }));
 
 router.post('/sidebets/:id/accept', aw(async (req, res) => {
@@ -2354,7 +2373,7 @@ router.get('/team', aw(async (req, res) => {
 
   res.render('team', { viewOwner, owners, roster, matchup, betWindow, trend,
     matchupPending, aboutMe, late: req.query.late === '1',
-    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1',
+    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1',
     // Roster is the default — it is what this page has always been, and it is
     // the half that works without a live matchup.
     section: req.query.section === 'week' ? 'week' : 'roster',
@@ -2721,7 +2740,7 @@ router.get('/matchup', aw(async (req, res) => {
     goatId: MK.goatOwnerId(sData, world.config.sleeper_map || {}),
     configured: !!world.config.sleeper_league_id,
     late: req.query.late === '1',
-    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', sent: req.query.sent === '1',
+    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1', sent: req.query.sent === '1',
     betFail: betFailMessage(req.query.betfail),
     nameOf,
   });
@@ -2841,7 +2860,7 @@ router.get('/pickem', aw(async (req, res) => {
   res.render('pickem', {
     me: req.owner, ...c,
     saved: req.query.saved === '1', late: req.query.late === '1',
-    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1',
+    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1',
   });
 }));
 

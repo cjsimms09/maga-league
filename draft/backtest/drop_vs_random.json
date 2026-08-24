@@ -1,0 +1,74 @@
+{
+  "_territory": "TERRITORY: A \u2014 draft/backtest/drop_vs_random.py",
+  "_what": "Decision-null grading of the DROP: rest-of-season points the cut player went on to score, against a random other man on the same roster that week. Higher = better cut.",
+  "_direction": "INVERTED vs the add/pick/start-sit graders on purpose \u2014 for a drop, LESS rest-of-season value is the good outcome. The known-positive control is what pins the sign.",
+  "n_drops": 676,
+  "mean_percentile": 0.8001,
+  "null_95": [
+    0.4782,
+    0.5218
+  ],
+  "controls": {
+    "random_own_player": 0.4974,
+    "cut_the_least_scoring": 0.9545,
+    "known_negative_band_half_width": 0.0218,
+    "band_derived_from_n": 676
+  },
+  "median_pool_size": 15.0,
+  "n_draws": 300,
+  "seed": 20260824,
+  "skipped": 76,
+  "mean_points_handed_away_per_drop": 25.86,
+  "by_owner": {
+    "MarianSaar": {
+      "n": 72,
+      "mean_pct": 0.8107,
+      "mean_cost": 24.84
+    },
+    "Schmelley": {
+      "n": 82,
+      "mean_pct": 0.794,
+      "mean_cost": 24.46
+    },
+    "cashworth": {
+      "n": 61,
+      "mean_pct": 0.7911,
+      "mean_cost": 28.08
+    },
+    "Richard2121": {
+      "n": 96,
+      "mean_pct": 0.7711,
+      "mean_cost": 30.62
+    },
+    "ds7mmet": {
+      "n": 96,
+      "mean_pct": 0.7987,
+      "mean_cost": 25.7
+    },
+    "B8T3S": {
+      "n": 50,
+      "mean_pct": 0.749,
+      "mean_cost": 32.82
+    },
+    "coryjsimms": {
+      "n": 77,
+      "mean_pct": 0.8306,
+      "mean_cost": 27.24
+    },
+    "Jreis": {
+      "n": 45,
+      "mean_pct": 0.8309,
+      "mean_cost": 16.71
+    },
+    "mhagen": {
+      "n": 63,
+      "mean_pct": 0.8183,
+      "mean_cost": 25.07
+    },
+    "Sadbru": {
+      "n": 34,
+      "mean_pct": 0.8269,
+      "mean_cost": 14.55
+    }
+  }
+}

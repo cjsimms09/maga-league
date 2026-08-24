@@ -1046,9 +1046,64 @@ async function edit(id, owner_id, { stake = null, terms = null } = {}) {
   return bet;
 }
 
+/**
+ * COUNTER-OFFER (redesign catalog item 3, 2026-08-24): "I'd take this bet at a
+ * different price." The recipient of a PROPOSED two-party prop answers with
+ * their own numbers instead of a flat yes/no.
+ *
+ * Mechanically a counter is DECLINE + RE-PROPOSE WITH ROLES SWAPPED, linked
+ * both ways — deliberately, because both halves already have correct
+ * semantics: the original dies on the record (its proposer sees why), and the
+ * counter is a first-class proposal (auto-accepted by its proposer, expiry
+ * clock, terms_version 1) that lands in the ORIGINAL proposer's NEEDS YOU.
+ * They can accept, decline, or counter back — a negotiation is just this,
+ * repeated, and every offer in the chain stays auditable.
+ *
+ * Guardrails: PROPOSED only · a named party only · not the proposer (they
+ * EDIT, they don't counter themselves) · not after you already accepted
+ * (that's a handshake, not a negotiation) · two-party props only — a
+ * multi-party or pool counter would silently renegotiate other people's
+ * agreement, so it refuses with the reason.
+ */
+async function counter(id, owner_id, by_name, { stake = null, terms = null } = {}) {
+  const bet = await get(id);
+  if (!bet) return null;
+  if (bet.status !== STATUS.PROPOSED) return { refused: 'not_counterable' };
+  if (!isParty(bet, owner_id)) return { refused: 'not_yours' };
+  if (Number(bet.proposer_id) === Number(owner_id)) return { refused: 'own_offer' };
+  if (bet.format !== 'prop' || (bet.parties || []).length !== 2) return { refused: 'not_two_party_prop' };
+  const me = bet.parties.find(p => Number(p.owner_id) === Number(owner_id));
+  if (me && me.accepted) return { refused: 'already_accepted' };
+
+  const nextTerms = terms != null && String(terms).trim() !== ''
+    ? String(terms).slice(0, MAX_TERMS) : bet.terms;
+  const nextStake = stake != null && String(stake).trim() !== ''
+    ? Math.abs(Number(stake) || 0) : bet.stake;
+  if (nextTerms === bet.terms && nextStake === bet.stake) return { refused: 'no_change' };
+
+  const next = await propose({
+    proposer_id: owner_id,
+    party_ids: [bet.proposer_id],
+    terms: nextTerms, stake: nextStake,
+    resolves: bet.resolves, week: bet.week,
+    conditions: bet.conditions, logic: bet.logic, kind: bet.kind,
+  });
+  next.countered_from = bet.id;
+  next.audit.push({ at: now(), by: Number(owner_id),
+    what: `Counter-offer: was $${bet.stake} — now $${nextStake}` });
+  await store.set(KEY(next.id), next);
+
+  bet.status = STATUS.DECLINED;
+  bet.countered_to = next.id;
+  bet.audit.push({ at: now(), by: Number(owner_id),
+    what: `${by_name || 'Someone'} countered — see the new offer` });
+  await store.set(KEY(bet.id), bet);
+  return { bet, next };
+}
+
 module.exports = {
   STATUS, MAX_OPEN_SLOTS,
-  all, get, propose, accept, take, decline, settle, reopen, remove, edit,
+  all, get, propose, accept, take, decline, settle, reopen, remove, edit, counter,
   declareResult, confirmResult, disputeResult,
   startPoolDraft, poolDraftPick, snakeTurn,
   setPosition, markLeg, isParty, offerBuyout, acceptBuyout, clearBuyout, resend,
