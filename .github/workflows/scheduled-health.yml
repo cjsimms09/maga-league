@@ -1,0 +1,150 @@
+name: Scheduled-workflow health (is anything red, and does anyone know?)
+
+# TERRITORY: A.
+#
+# ── WHY THIS EXISTS ────────────────────────────────────────────────────────
+#
+# Measured 2026-08-24 (registers 318, 319): NINE OF TWENTY scheduled workflows
+# had failed their most recent run, and nobody knew. Among them:
+#
+#   draft-data.yml        — the board build. Six consecutive scheduled failures
+#                           since 08-19. A's owned outcome, "the board
+#                           publishes", had been false for five days.
+#   capture-cron-health   — THE MONITOR ITSELF. It exits 1 on a stale store, so
+#                           it had been going red every Sunday, correctly
+#                           reporting `external_adp_series` stale — for over a
+#                           week, unread.
+#
+# That last one is the whole argument for this file. We already had a mechanism
+# that detected the problem, ran on schedule, and reported it accurately. It
+# changed nothing, because a red run in a tab nobody opens is indistinguishable
+# from a green one. Register 300 says this in its own words about `main`: a
+# permanently red signal stops being read. The same thing happened to the crons
+# and it took five days plus a draft to notice.
+#
+# ── SO THE DELIVERABLE IS THE ISSUE, NOT THE CHECK ─────────────────────────
+#
+# GitHub issues email Cory. That is the only audience mechanism in this repo
+# that has ever worked, and `own-weekly-grade.yml` already uses it for
+# champion changes (reused here rather than invented — rule 11).
+#
+# ONE OPEN ISSUE AT A TIME, deliberately. A daily job that opens a fresh issue
+# every morning trains its reader to filter it, which is the failure this file
+# is about, wearing a different hat. If the issue is already open, this job
+# says so in the log and stops.
+#
+# ── WHAT IT DOES NOT DO ────────────────────────────────────────────────────
+#
+# It does not judge whether a failure MATTERS. Some of these workflows are
+# probes whose red is expected and some are load-bearing; sorting them is a
+# human call and pretending otherwise would either suppress a real break or
+# cry wolf. It reports the list and names the two that are known to be
+# load-bearing today.
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '0 15 * * *'   # daily 15:00 UTC — after Tuesday's 13:30 learning jobs
+
+permissions:
+  contents: read
+  actions: read
+  issues: write
+
+concurrency:
+  group: scheduled-health
+  cancel-in-progress: false   # QUEUE, never drop — register 309
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Which scheduled workflows are failing?
+        id: scan
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+
+          # The set to check is DERIVED from the repo, not a hand-kept list —
+          # a hand-kept list is one more thing that silently stops covering a
+          # new workflow, which is register 155's class all over again.
+          #
+          # ⚠️ MATCHES BOTH QUOTING STYLES. My first sweep of this directory
+          # used `grep -A2 '^on:'` and reported EIGHT scheduled workflows when
+          # the real number is 34 — the window was two lines and the workflow
+          # that mattered carries a seven-line comment between `on:` and its
+          # first cron. It printed a clean, plausible, wrong list. Grep the
+          # whole file for `cron:` and nothing else.
+          mapfile -t FILES < <(grep -lE '^\s*-?\s*cron:' .github/workflows/*.yml | sort)
+
+          echo "scheduled workflows found: ${#FILES[@]}"
+
+          # ⭐ RULE 3e CONTROL. "Nothing is failing" and "my query found nothing
+          # to ask about" print the same reassuring thing. This repo has ~34
+          # scheduled workflows; if the discovery step finds almost none, the
+          # discovery is broken and this job must NOT report a clean bill.
+          if [ "${#FILES[@]}" -lt 10 ]; then
+            echo "::error::found only ${#FILES[@]} scheduled workflows — this repo has ~34."
+            echo "::error::The DISCOVERY is broken, not the crons. Refusing to report health."
+            exit 1
+          fi
+
+          FAILING=""
+          COUNT=0
+          for f in "${FILES[@]}"; do
+            base="$(basename "$f")"
+            # Latest SCHEDULED run only. A green manual dispatch must never
+            # mask a dead cron — that is precisely how draft-data.yml stayed
+            # broken for five days while looking maintained.
+            concl="$(gh run list --workflow="$base" --event=schedule --limit=1 \
+                       --json conclusion --jq '.[0].conclusion' 2>/dev/null || echo '')"
+            case "$concl" in
+              success)  printf '  %-42s OK\n'      "$base" ;;
+              "")       printf '  %-42s (never run on schedule)\n' "$base" ;;
+              *)        printf '  %-42s FAILING (%s)\n' "$base" "$concl"
+                        FAILING="${FAILING}- \`${base}\` — ${concl}"$'\n'
+                        COUNT=$((COUNT+1)) ;;
+            esac
+          done
+
+          echo "failing=$COUNT" >> "$GITHUB_OUTPUT"
+          {
+            echo 'body<<ENDOFBODY'
+            echo "**${COUNT} scheduled workflow(s) failed their most recent scheduled run.**"
+            echo
+            echo "$FAILING"
+            echo "Checked ${#FILES[@]} workflows that carry a \`cron:\`. Only the latest"
+            echo "**scheduled** run counts — a green manual dispatch does not clear a row,"
+            echo "because that is exactly how \`draft-data.yml\` stayed broken for five days"
+            echo "while looking maintained (register 319)."
+            echo
+            echo "Not every red here is load-bearing; some are probes. Two that are:"
+            echo "\`draft-data.yml\` (the board publishes) and \`capture-cron-health.yml\`"
+            echo "(it goes red when a store is stale, so its red is a real second alarm)."
+            echo
+            echo "_Close this issue when the list is dealt with; it will reopen as a new"
+            echo "issue the next time something is red._"
+            echo 'ENDOFBODY'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Tell someone (one open issue at a time)
+        if: steps.scan.outputs.failing != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TITLE="Scheduled workflows are failing"
+          EXISTING="$(gh issue list --state open --search "$TITLE in:title" \
+                        --json number --jq '.[0].number' 2>/dev/null || echo '')"
+          if [ -n "$EXISTING" ]; then
+            echo "issue #$EXISTING is already open — not opening a second one."
+            echo "A daily job that files a fresh issue every morning teaches its"
+            echo "reader to filter it, which is the failure this workflow exists to fix."
+            exit 0
+          fi
+          gh issue create --title "$TITLE" \
+            --body "${{ steps.scan.outputs.body }}" \
+            --repo "$GITHUB_REPOSITORY"
