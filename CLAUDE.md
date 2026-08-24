@@ -121,14 +121,34 @@ pattern in its own words and this one is a fresh instance of it.**
 (`engine_seat_choices_need1.json`): `need: 1.0` KILLS THE PILEUP. Seats with 3+
 QB fall 8/30 → 2/30, the seven-QB seat falls to ONE, max on any seat 7 → 3.**
 ⚠️ **2024 gets worse (1.20 → 1.80) — `need` helps where the defect was and
-hurts where it was not.** ⚠️ **AND THAT IS QB COUNTS, NOT CONVERSION: the need1
-arm cannot be scored from these artifacts (83.1% actuals coverage, and the
+hurts where it was not.** ~~⚠️ **AND THAT IS QB COUNTS, NOT CONVERSION: the need1
+arm cannot be scored from these artifacts** (83.1% actuals coverage, and the
 missing 17% is exactly the players it drafted that need0 did not — a
-selection-biased subset), and it still carries the PRE-RULING ceiling weight rather than the shipped 0.0.** **So the
+selection-biased subset)**. So the
 honest headline is that the conversion defect's named mechanism is measurably
 smaller under the shipped weights and the defect itself is UNMEASURED there.
 Re-running the replay at the shipped constant is the highest-value measurement
-available for 2027.** Register 317. **The mechanism BEHIND the gap, however, is
+available for 2027.**~~
+
+⚠️⚠️ **CORRECTED WITHIN THE HOUR — "CANNOT BE SCORED" WAS FALSE AND I ASSERTED
+IT WITHOUT GREPPING FOR THE TOOL THAT REMOVES THE LIMIT.** I measured coverage
+against `engine_seat_replay.json`, found 83.1%, and wrote down a limit of the
+ARTIFACT as though it were a limit of the QUESTION.
+`draft/backtest/conversion_by_arm_lab.py` scores every arm off the season
+bundles instead — full coverage — **and it had already been run on 08-19, as
+the grade for P127.** **RE-RUN TODAY, three controls green: `need: 1.0` DOES
+NOT MERELY SHRINK THE CONVERSION GAP, IT CLOSES IT AND PASSES THE OWNERS IN TWO
+OF THREE SEASONS — 0.876 / 0.849 / 0.829 against 0.828 / 0.826 / 0.834, a gap
+of +0.049 / +0.023 / −0.004 where the shipped arm read −0.087 / −0.011 /
+−0.062.** **SO THE LOOP WORKED AND I MISREAD IT AS BROKEN:** the gap was
+measured, an arm that closes it was graded, Cory ruled A13 on that evidence on
+08-20, and the weight shipped. **Only the prose decayed — which is register 5h,
+exactly what it says on the tin, and nothing more.** Register 317. **THE REAL
+REMAINING GAP IS SEAT RANK, which is the question Cory actually asked:
+`seat_rank_lab.json` carries NO arm dimension and `seat_rank_lab.py` takes only
+`--json`, so *8th of 10* is the need0 rank and the need1 rank has never been
+computed.** ⚠️ **And every recorded arm still carries `ceiling: 0.45` while the
+shipped constant is 0.0, so no artifact yet describes the exact live config.** **The mechanism BEHIND the gap, however, is
 now established far more strongly than the audit showed: across 30 seat-years
 QB count vs conversion is r = −0.832 (t = −7.95), monotone at every step
 (QB 1 → 0.824 · 2 → 0.817 · 3 → 0.757 · 4 → 0.679 · 5 → 0.650 · 7 → 0.515),
