@@ -105,6 +105,53 @@ console.log('\n  AND THE TOP TWO APPEAR TWICE: `out.streamClaims` is the same ra
 console.log('  filtered to K/DEF, so ' + live.claims.slice(0, 2).map(c => c.name).join(' and ')
   + ' render in both blocks on one page.');
 
+/* ---- REGISTER 277'S UNTRACED HALF ---------------------------------------
+ * D fixed `waiverInputsFromBundle` to index `kept_players` (the wire was
+ * nominating Ja'Marr Chase as the drop) and flagged one thing as NOT traced:
+ * *"`lineupPoints` reads `proj_mean || 0`, so every '+N pts to your starting
+ * lineup' on that surface has been computed against a lineup missing his three
+ * best players — I have NOT traced that half."*
+ *
+ * Traced here. `lineupPoints` has exactly ONE call site (`evaluateClaims`,
+ * waivers.js:175) and its roster comes from the same fixed
+ * `waiverInputsFromBundle`, so D's own fix covers it — there is no second path.
+ * What it was worth before the fix is below. */
+console.log('\nREGISTER 277\'s UNTRACED HALF — what the lineup baseline was worth');
+const LO = require(path.join(ROOT, 'src', 'routes', 'lineup.js'));
+const preIdx = {};
+avail.forEach(p => { preIdx[String(p.player_id)] = p; });   // pre-277: `players` only
+const mineIds = LOG.filter(r => Number(r.team_slot) === MY_SLOT).map(r => String(r.player_id));
+const lineup = (zeroMissing) => {
+  const pts = {}, pos = {};
+  mineIds.forEach(id => {
+    const seen = preIdx[id], fullRow = byId[id];
+    if (seen) { pts[id] = Number(seen.proj_mean || 0); pos[id] = seen.position; }
+    else if (zeroMissing && fullRow) { pts[id] = 0; pos[id] = fullRow.position; }
+  });
+  const b = LO.bestLineup(pts, pos, Object.keys(pts), DATA.league.starters);
+  return { total: (b.starters || []).reduce((s, x) => s + Number(x.points || 0), 0),
+           slots: (b.starters || []).map(x => x.slot + ' ' + (byId[x.pid] ? byId[x.pid].name : x.pid)) };
+};
+const fixedPts = {}, fixedPos = {};
+roster.forEach(p => { fixedPts[String(p.player_id)] = Number(p.proj_mean || 0); fixedPos[String(p.player_id)] = p.position; });
+const bFixed = LO.bestLineup(fixedPts, fixedPos, Object.keys(fixedPts), DATA.league.starters);
+const fixedTotal = (bFixed.starters || []).reduce((s, x) => s + Number(x.points || 0), 0);
+const preDrop = lineup(false), preZero = lineup(true);
+/* The two pre-fix simulations must AGREE. A keeper the index misses is either
+ * absent from the roster or present priced at zero, and a zero-point player
+ * never wins a slot while alternatives exist — so if these differ, I have
+ * modelled the pre-fix path wrong and the number below is void. */
+console.log('  control: absent-keeper and priced-at-zero simulations agree — '
+  + (preDrop.total === preZero.total ? 'OK' : '*** FAILED, number void ***'));
+console.log('  best lineup, keepers indexed (today) : ' + fixedTotal.toFixed(1));
+console.log('  best lineup, pre-277 path            : ' + preZero.total.toFixed(1));
+console.log('  baseline was ' + (fixedTotal - preZero.total).toFixed(1)
+  + ' points low, and every "+N pts to your starting lineup" was measured against it');
+console.log('  it started:  ' + preZero.slots.filter(s => !(bFixed.starters || [])
+  .some(x => s === x.slot + ' ' + (byId[x.pid] ? byId[x.pid].name : x.pid))).join(' · '));
+console.log('  in place of: ' + (bFixed.starters || []).map(x => x.slot + ' ' + (byId[x.pid] ? byId[x.pid].name : x.pid))
+  .filter(s => !preZero.slots.includes(s)).join(' · '));
+
 console.log('\nWHAT IT WOULD RENDER WITH K/DEF EXCLUDED FROM THE CLAIMS BLOCK');
 live.claims.filter(c => c.position !== 'K' && c.position !== 'DEF' && c.net_value > 0)
   .slice(0, SHOWN)
