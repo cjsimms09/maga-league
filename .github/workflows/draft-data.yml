@@ -179,7 +179,34 @@ jobs:
         working-directory: .
         run: python draft/gen_keepers_json.py
       - name: Export league history
-        if: github.event.inputs.export_history == 'true'
+        # ⚠️ THIS STEP NEVER RAN ON A SCHEDULE (A, 2026-08-24, register below).
+        # The condition was `github.event.inputs.export_history == 'true'` alone,
+        # and on a `schedule` trigger `github.event.inputs` does not exist — the
+        # comparison is null == 'true', which is false on every scheduled run.
+        # So league_history.json was refreshed ONLY when a human dispatched the
+        # workflow with the box ticked. Its committed `built_at` was 16 days
+        # stale when this was found.
+        #
+        # WHY THAT MATTERS MORE THAN A STALE FILE: league_history.json is what
+        # ALL FIVE decision graders read (start/sit, waiver, drop, keeper, draft
+        # pick — draft/backtest/*_vs_random.py). Left alone, they would have run
+        # green every Tuesday of the season and graded 2023-25 forever, never
+        # seeing a single 2026 decision. A grader that reports the same
+        # historical number all season is indistinguishable from one that is
+        # working, which is the whole failure this project calls "a grade that
+        # moved nothing".
+        #
+        # FIXED NARROWLY, not by running it on all three crons: the Tuesday
+        # 11:00 UTC schedule only. That lands AFTER own-weekly-grade (Tue 06:00)
+        # and BEFORE weekly-grade (Tue 13:30), which is the run the five
+        # graders execute in — so they read a history refreshed the same
+        # morning. The nightly 08:00 and Sunday 13:00 crons are deliberately
+        # left alone: this is a full multi-season Sleeper re-fetch, the export
+        # is idempotent for completed seasons, and once a week matches the
+        # cadence the graders actually consume.
+        if: >-
+          github.event.inputs.export_history == 'true'
+          || github.event.schedule == '0 11 * * 2'
         working-directory: draft
         run: python history_export.py "${{ github.event.inputs.league_id || '1374848328470102016' }}"
       - name: Money-weighted history archaeology
