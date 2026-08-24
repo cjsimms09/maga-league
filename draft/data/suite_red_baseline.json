@@ -8,7 +8,7 @@
   "This file never makes CI pass. The JS suite step still exits non-zero while anything is failing -- see ci.yml. A permanently green build with 32 broken suites is the decay this whole exercise was about."
  ],
  "_baseline_taken": "2026-08-24, after register 300 phase (1): 49 failing / 16 inert -> 32 failing / 1 inert, of 437 suites.",
- "count": 22,
+ "count": 21,
  "suites": [
   "barbell_policy",
   "draft_alert_lifecycle",
@@ -21,7 +21,6 @@
   "member_copy",
   "member_email_policy",
   "onesie_history_check",
-  "panel_spec",
   "pickem_surface",
   "roster_room_audit",
   "seat_plan_contract",
@@ -34,6 +33,7 @@
   "withheld_slate_exposure"
  ],
  "_ratchet_log": [
+  "2026-08-24: -panel_spec. It was red on a DOC-ACCURACY claim, not a code defect: the spec said renderRecommendations was 392 lines and it is 422. The section header states the standard -- these claims \"must be true now, not true when they were typed\" -- so the fix is to make the claims true, and all 14 were re-derived from app.js rather than typed. THE REAL FIND WAS THE COVERAGE: the test checked ONE panel, and sweeping all 14 showed THREE out of tolerance with the largest invisible -- renderSeatPlan claimed 121 and was 252, MORE THAN DOUBLED with nothing watching; renderThreats +37. The check now covers every claim, and its fail arm was proven by planting the exact renderSeatPlan drift that hid (exit 1 with the poison, 0 restored).",
   "2026-08-24: -2 (slotpicker, every_route_renders). BOTH were fixed EARLIER TODAY and the baseline was not tightened behind them, which is the exact rot red_baseline_is_honest.test.js exists to catch in the other direction. slotpicker was a LIVE PRODUCTION 500 on /admin/slot-picker: src/slotpicker.js read the league-wide forfeited list (23 keepers) as one seat's, so myPicks() forfeited 23 of 15 rounds, my_picks came back empty and the fail-loud throw fired -- with a message pointing at keepers.js, which loaded fine. every_route_renders was red FOR that 500 and went green with it. Both verified green immediately before this edit, not remembered.",
   "2026-08-24: -ruled_target_is_one_definition. It was failing because TWO tools I added THIS SESSION (rail_late_rounds_sweep.js, draft_autopsy.js) each hardcoded Cory's ruled roster target instead of reading league_config.ruled_roster_target. The guard that forbids that had been red since, and my own baseline had just enshrined my regression as 'known'. Both now read the config and REFUSE rather than defaulting; the printed copy in the sweep's output is derived too, because a second copy in a display string drifts as silently as one in a constant.",
   "2026-08-24: -7 (archetype_rooms, live_context, mlv_seat_plan, seat_plan_knows_the_seat_is_filled, keeper_bar_ignores_what_it_cannot_value, draft_session, keeper_lock_reorders_the_board). All the same root as register 303 -- the 08-23 keeper slate went league-wide and these read `kept_players` whole where they meant Cory's three. keeper_bar needed the fix in THREE places in one file, which is why 303's action asks for a guard rather than a sweep."
