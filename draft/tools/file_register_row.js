@@ -22,6 +22,28 @@
  *   * it RUNS the register guards afterwards and REVERTS the file if they fail,
  *     so a broken row never survives long enough to be committed.
  *
+ * ── THE REVERT PATH IS PROVEN, NOT ASSUMED (Rule 3e) ───────────────────────
+ *
+ * A guard that has only ever printed success has not been tested, only run, and
+ * my FIRST attempt to prove this one proved nothing: I filed a row with the
+ * status `BANANA` expecting rejection and all sixteen register tests PASSED —
+ * because the row was not rejected, it was never SEEN (that became register
+ * 313). A probe whose failure case cannot fire is the exact defect this session
+ * spent its day removing, so it does not get to live in the tool built to stop
+ * such defects.
+ *
+ * PROVEN 2026-08-24, by filing a row that genuinely fails a guard: an OPEN row
+ * whose action carries `recheck 01-01`, a date in the past, which
+ * register_recheck_check.js is built to fail on. Result: the guard failed, the
+ * tool exited 1, and DEFECT-REGISTER.md came back BYTE-IDENTICAL to before the
+ * run. No half-filed row survived.
+ *
+ * ⚠️ IDS ARE BURNED BY A FAILED FILE, AND THAT IS CORRECT. 311, 312 and 314
+ * were claimed during these experiments and no row carries them. Register 186's
+ * watermark rule is that an id is spent once handed out — reusing one is how
+ * two findings came to share a number. A gap in the numbering is the cheap
+ * outcome; a collision is the expensive one.
+ *
  * ── WHAT IT DOES NOT DO ────────────────────────────────────────────────────
  *
  * It does not commit, and it does not decide anything. The row's CONTENT — the
