@@ -318,7 +318,30 @@ const FILLED = state(ROSTER_FULL);
   ck('  CONTROL: the same leavers at need=0 are NOT repriced — identical scores '
     + 'in both arms, which is what displacement looks like',
   (function () {
-    const W0 = Object.assign({}, E.MEASURED_WEIGHTS, { need: 0 });
+    /* ⚠️ `need: 0` DOES NOT MAKE THE ENGINE ROSTER-BLIND, AND THIS CONTROL
+     * ASSUMED IT DID (A, 2026-08-24, register 300).
+     *
+     * Established from composite.js rather than assumed: THREE terms read
+     * `ctx.roster` at a non-zero shipped weight —
+     *   need    (needrule.js counts(roster))            weight 1.0
+     *   keeper  (keeperOptionValue, composite.js:277)   weight 1.0
+     *   stack   (correlationAdjustment, :415)           weight 1.0
+     * and a fourth, bye (byeCollisionPenalty, :353), reads it but ships at 0
+     * and is therefore inert. Zeroing only `need` left keeper and stack live,
+     * so swapping the roster still repriced the leavers and this control —
+     * whose whole job is to show what NO repricing looks like — failed.
+     *
+     * This is the same fact CLAUDE.md records for 08-20 ("the KEEPER term is
+     * roster-aware too, and it ships at weight 1.0") and that
+     * _empty_roster_fiction_precondition.js's header states outright ("THE
+     * KEEPER TERM IS STILL NOT CERTIFIED SAFE... reads ctx.roster AND
+     * ctx.currentKeepers, carries weight 1.0, and is NOT measured-dead"). The
+     * control predates both and was never revisited.
+     *
+     * Every roster-reading term is zeroed now, so the arm isolates `need`,
+     * which is what it always claimed to do. */
+    const W0 = Object.assign({}, E.MEASURED_WEIGHTS,
+      { need: 0, keeper: 0, stack: 0, bye: 0 });
     const a = state(keep, W0), b = state(ROSTER_FULL, W0);
     const gone = a.names.filter(n => b.names.indexOf(n) < 0);
     if (!gone.length) return true;
