@@ -1756,13 +1756,26 @@ router.post('/sidebets', aw(async (req, res) => {
       // picks at propose time — the alternating draft opens on accept. So the
       // teams-in-play are all active owners, and the proposer's picks are ignored.
       const poolTeams = format === 'pool' ? owners.map(o => o.id) : [];
+      // RECORD MODE: filled checkboxes = the split already happened offline.
+      // Empty = the live snake draft opens on accept, exactly as before.
+      const recMine = format === 'pool' ? picksFrom(req.body) : [];
+      const recTheirs = format === 'pool'
+        ? [].concat(req.body.picks_theirs || []).map(Number).filter(Boolean) : [];
+      const recording = !!(recMine.length || recTheirs.length);
+      if (recording) {
+        const need = Number(req.body.picks_required) || recMine.length;
+        if (ids.length !== 1) throw new Error('record-one-opponent');
+        if (recMine.some(t => recTheirs.includes(t))) throw new Error('record-overlap');
+        if (recMine.length !== need || recTheirs.length !== need) throw new Error('record-count');
+      }
       const poolWins = format === 'pool'
         ? (String(req.body.pool_outcome || '').trim() || 'holds the eventual league champion')
         : '';
       const bet = await SB.propose({
         proposer_id: req.owner.id, party_ids: ids, terms, stake,
         position: String(req.body.position || '').trim(),
-        picks: format === 'pool' ? [] : picksFrom(req.body),
+        picks: format === 'pool' ? recMine : picksFrom(req.body),
+        party_picks: recording ? { [ids[0]]: recTheirs } : null,
         resolves: String(req.body.resolves || '').trim(),
         format, conditions, logic: req.body.logic, kind: String(req.body.kind || ''),
         // Ordered: the first rule that separates the field wins, the rest are
@@ -1880,6 +1893,7 @@ router.post('/sidebets/:id/accept', aw(async (req, res) => {
   // A pool bet is a DRAFT: the moment both are in, open the franchise draft with
   // the order computed from the prior season's finish (higher finisher first).
   if (accepted && accepted.format === 'pool' && accepted.status === SB.STATUS.LOCKED
+      && !(accepted.pool && accepted.pool.recorded)
       && !accepted.draft && accepted.parties.length >= 2) {
     const owners = H.activeOwners(req.world.owners);
     const [aId, bId] = accepted.parties.map(p => p.owner_id);

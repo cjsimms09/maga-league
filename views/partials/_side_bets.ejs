@@ -470,7 +470,11 @@ function betCard(b, opts) {
               data-terms-version="<%= b.terms_version || 1 %>"
               data-stake="<%= money(b.stake) %>"
               data-with="<%= esc(b.parties.filter(p => p.owner_id !== owner.id).map(p => betNames(p.owner_id)).join(', ')) %>">
-          <% if (b.format === 'pool') { %>
+          <% if (b.format === 'pool' && b.pool && b.pool.recorded) { %>
+            <p class="muted" style="margin:.1rem 0 .2rem; font-size:.74rem">The split is already recorded —
+              your teams: <b><%= (b.parties.find(p => p.owner_id === owner.id) || {}).picks.map(betNames).join(', ') || '—' %></b>.
+              Accepting confirms it.</p>
+          <% } else if (b.format === 'pool') { %>
             <p class="muted" style="margin:.1rem 0 .2rem; font-size:.74rem">Accepting opens the franchise draft — you pick your teams there, turn by turn.</p>
           <% } %>
           <input type="hidden" name="terms_version" value="<%= b.terms_version || 1 %>">
