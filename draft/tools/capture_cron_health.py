@@ -122,6 +122,33 @@ MANIFEST = {
         "extract_timestamp": _no_timestamp_control_only,
         "cadence_days": 7,
     },
+    # ── THE IN-SEASON LEARNING CHAIN (added by A, 2026-08-24) ───────────────
+    # This manifest's own header says it was verified against every scheduled
+    # TERRITORY: C workflow, which it was — but the stores that feed the
+    # GRADERS are not C's, so register 155's class ("must never need a human to
+    # notice again") was guarded for the captures and not for the learning
+    # loop. Found the expensive way: league_history.json's export step was
+    # gated on a workflow_dispatch input and therefore never fired on any
+    # schedule, and its `built_at` sat 16 days stale with nothing watching.
+    "league_history": {
+        "workflow": "draft-data.yml",
+        "glob": "draft/data/league_history.json",
+        "extract_timestamp": _flat_field("built_at"),
+        # Refreshed by the Tuesday 11:00 UTC cron only — deliberately weekly,
+        # matching the cadence the five decision graders consume it at.
+        "cadence_days": 7,
+    },
+    "weekly_own_grades": {
+        "workflow": "own-weekly-grade.yml",
+        "glob": "draft/data/weekly_own/grades_*.json",
+        "extract_timestamp": _flat_field("graded_at"),
+        "cadence_days": 7,
+        # Correctly absent until week 1 is played and graded (first grade
+        # ~09-15). Same reasoning as fp_expert_ranks_weekly: MISSING must not
+        # fail the check for a store that has never been able to exist yet, or
+        # this false-positives every day of the preseason.
+        "preseason_gated": True,
+    },
 }
 
 GRACE_MULTIPLIER = 2  # a single missed run must not false-positive

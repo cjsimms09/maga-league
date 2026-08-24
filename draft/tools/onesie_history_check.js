@@ -47,7 +47,20 @@ function positionIndex() {
   } catch (e) { /* fixture optional */ }
   try {
     const board = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
-    for (const p of board.players || []) {
+    /* ⚠️ KEPT_PLAYERS TOO — REGISTER 277's DEFECT, IN A SECOND CONSUMER.
+     *
+     * After the 2026-08-23 keeper lock `kept_players` is DISJOINT from
+     * `players`: 23 of 23 kept ids appear in neither the 680-row pool nor this
+     * index. Those 23 are current players who were DRAFTED in 2023-25, so
+     * their historical picks stopped resolving a position — 61 of the 450, and
+     * position coverage fell to 79.3% against the 86-97% band PARKED.md itself
+     * declares acceptable.
+     *
+     * `waivers.js` got exactly this concat on 08-23 when the same root cause
+     * made the wire tell Cory to drop Ja'Marr Chase. This consumer was not
+     * swept then, and it reported the damage as three stale DOC claims — which
+     * is how a data regression comes to look like paperwork. */
+    for (const p of (board.players || []).concat(board.kept_players || [])) {
       const pid = String(p.player_id);
       if (pid && p.position && !idx[pid]) idx[pid] = p.position;
     }

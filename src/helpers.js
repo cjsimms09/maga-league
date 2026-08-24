@@ -377,6 +377,27 @@ async function chatFeed(owners, limit = 100) {
   })).sort((a, b) => (a.created_at < b.created_at ? -1 : 1));
 }
 
+/* HUMAN TIMESTAMPS (redesign catalog 18). One rule for the whole site:
+ * under a minute "just now", under an hour "Nm ago", under a day "Nh ago",
+ * under a week the weekday + wall-clock time, older the date — wall times in
+ * the league's own timezone (America/Chicago; Cory rules dates in CDT), which
+ * also fixes chat showing raw UTC clock time to a Central-time league.
+ * `nowMs` is injectable for deterministic tests. */
+function timeago(iso, nowMs) {
+  const t = Date.parse(iso || '');
+  if (!Number.isFinite(t)) return '';
+  const d = (nowMs != null ? nowMs : Date.now()) - t;
+  if (d < 60e3) return 'just now';
+  if (d < 3600e3) return Math.floor(d / 60e3) + 'm ago';
+  if (d < 24 * 3600e3) return Math.floor(d / 3600e3) + 'h ago';
+  const dt = new Date(t);
+  if (d < 7 * 24 * 3600e3) {
+    return dt.toLocaleString('en-US', { weekday: 'short', hour: 'numeric',
+      minute: '2-digit', timeZone: 'America/Chicago' }).replace(',', '');
+  }
+  return dt.toLocaleString('en-US', { month: 'numeric', day: 'numeric', timeZone: 'America/Chicago' });
+}
+
 // Rotating fun.
 const pickRandom = arr => arr[Math.floor(Math.random() * arr.length)];
 
@@ -384,6 +405,6 @@ module.exports = {
   CATEGORY_LABELS, CATEGORIES, money, loadWorld, activeOwners, ownerById, currentSeason,
   payoutTable, winningsGrid, gridYears, careerTotals, accolades, draftState, keepersForYear,
   allVotes, activeAlerts, pickRandom, chatFeed, punishmentWall, getDoc, setDoc, mutateDoc, store,
-  voteThreshold, careerRecord, sleeperEraByOwner, chatUnread, votesAwaiting,
+  voteThreshold, careerRecord, sleeperEraByOwner, chatUnread, votesAwaiting, timeago,
   ROASTS: seedData.ROASTS, QUIPS: seedData.QUIPS,
 };
