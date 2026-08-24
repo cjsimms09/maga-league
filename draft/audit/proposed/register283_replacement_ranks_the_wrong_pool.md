@@ -74,23 +74,80 @@ lock**.
   direction — a keeper is worth what he beats *at the slot he costs* — but it is
   a second surface, named here rather than found later.
 
-## Test state, measured not assumed
+## ⚠️ My first evidence was weak, and mutation-testing it is what showed that
 
-Seven replacement-sensitive suites run before and after:
+I originally offered *"seven replacement-sensitive suites, six PASS → PASS."*
+**Register 303 landed the same day making exactly the argument that kills that:
+a wrong fixture does not go red — it quietly answers a different question.** A
+PASS → PASS pair proves nothing changed. It does not prove the suite can SEE a
+change.
+
+So I mutation-tested my own evidence: inject `replacement × 1.5` into
+`vorp.py` — a **50% error in the constant every VORP is measured against** — and
+see which suites fire.
+
+| suite | catches a 50% replacement error? |
+|---|---|
+| `test_replacement_sensitivity` | **CAUGHT** |
+| `test_constant_multiple_sweep` | **CAUGHT** |
+| `keeper_option_floor` | **CAUGHT** |
+| `keeper_lock_reorders_the_board` | **CAUGHT** |
+| `board_is_internally_consistent` | blind |
+| `dollar_replacement_baseline` | blind |
+| `override_vorp` | blind |
+| `test_kept_players_carry_vorp` | blind |
+| `test_keeper_lock_releases_the_slate` | blind |
+| `test_exp34_dollars` | blind |
+| `test_replacement_vs_realized` | blind |
+| `test_waiver_replacement` | blind |
+| `test_keeper_optimize` | blind |
+| `engine` · `valuation` · `claim_value` · `dollar_gap_kdef` | blind |
+
+**Six of the seven suites I first cited are blind to it.** Real coverage of the
+replacement level is four suites, none of which I had run. Scope stated: 15
+suites mutation-tested, not all 167 that mention `replacement` or `vorp`.
+
+## Test state, against the suites that can actually see it
+
+All four suites that catch the mutation, run on both trees:
 
 ```
-board_is_internally_consistent    PASS -> PASS
-dollar_replacement_baseline       PASS -> PASS
-override_vorp                     PASS -> PASS
-test_kept_players_carry_vorp      PASS -> PASS
-test_keeper_lock_releases_slate   PASS -> PASS
-test_exp34_dollars                PASS -> PASS
-keeper_lock_reorders_the_board    FAIL -> FAIL   (pre-existing on pristine main,
-                                                  register 276's expired-premise
-                                                  slate rows — not this patch)
+test_replacement_sensitivity      PASS -> PASS
+test_constant_multiple_sweep      FAIL -> FAIL   pre-existing: identical failure,
+                                                 same line 245, 1 failed/6 passed
+                                                 on pristine main
+keeper_option_floor               FAIL -> FAIL   pre-existing
+keeper_lock_reorders_the_board    FAIL -> FAIL   pre-existing, register 276's
+                                                 expired-premise slate rows
 ```
 
-**Nothing breaks.** The one red was red before, verified with `git stash`.
+Plus the six blind ones, PASS -> PASS, which is now offered as *"the patch does
+not disturb them"* and **not** as evidence that it is correct.
+
+**Nothing breaks, and the one suite with real replacement coverage that is green
+stays green.** Three of the four were red before this patch existed — verified by
+running each on pristine `origin/main`, not inferred.
+
+⚠️ **THE STANDALONE FINDING, which is bigger than this patch: three of the four
+suites that can see the replacement level are RED on `main` right now.** The
+constant every VORP on the board is measured against has exactly one working
+guard. That is filed separately as register 308 rather than buried here.
+
+## A full-suite comparison was attempted and is VOID — recorded, not hidden
+
+I ran the whole pytest suite on both trees concurrently. The failure sets
+differed by 8 tests, all in `test_mutation_gate` / `test_mutation_manifest`.
+
+**That difference is mine, not the patch's.** I was editing both worktrees while
+their suites ran — injecting and reverting the `replacement × 1.5` mutation in
+one, committing files in the other — and those two suites mutate and restore
+source files as their whole subject. Re-run cleanly on the patched tree with
+nothing else touching it: **31 passed and 8 passed, zero failures.**
+
+So the numbers from that run (26 failures pristine, 34 patched) mean nothing and
+are not offered as evidence in either direction. The targeted before/after runs
+above were each done on a quiet tree, one at a time, and are what this patch
+rests on.
 
 ## Controls
 

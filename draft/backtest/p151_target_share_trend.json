@@ -10,10 +10,56 @@
     "binomial_p_vs_chance": 1.0,
     "control_demonstration": {
       "method": "shuffled the pid<->2023-delta-share mapping 1000x (same value distribution, identity destroyed) to confirm a broken join would NOT pass this control",
-      "corrupted_join_mean_positive_rate": 0.5378000000000006,
+      "corrupted_join_mean_positive_rate": 0.5186000000000005,
       "corrupted_join_reps": 1000,
-      "fraction_of_corrupted_reps_matching_or_beating_real_rate": 0.854
-    }
+      "fraction_of_corrupted_reps_matching_or_beating_real_rate": 0.842
+    },
+    "passes_its_own_criterion": false,
+    "licenses_a_null": false,
+    "why_not": "this control is the CONVERSE of the hypothesis (P(high delta|boom) vs P(boom|high delta)), so it is expected to fail whenever the hypothesis is false. It cannot license a null. See the independent controls."
+  },
+  "independent_controls": {
+    "arithmetic": {
+      "passed": true,
+      "riser_delta": 0.2,
+      "faller_delta": -0.2,
+      "requirement": "riser delta > +0.05 and faller delta < -0.05",
+      "why_independent": "arithmetic on fabricated targets; cannot be affected by whether the hypothesis is true"
+    },
+    "identity": [
+      {
+        "passed": true,
+        "seasons": "2021->2022",
+        "shared_pids": 449,
+        "position_agreement_rate": 1.0,
+        "requirement": ">=0.95 position agreement on shared pids",
+        "why_independent": "position identity does not encode target-share trend"
+      },
+      {
+        "passed": true,
+        "seasons": "2022->2023",
+        "shared_pids": 424,
+        "position_agreement_rate": 0.9953,
+        "requirement": ">=0.95 position agreement on shared pids",
+        "why_independent": "position identity does not encode target-share trend"
+      },
+      {
+        "passed": true,
+        "seasons": "2023->2024",
+        "shared_pids": 424,
+        "position_agreement_rate": 1.0,
+        "requirement": ">=0.95 position agreement on shared pids",
+        "why_independent": "position identity does not encode target-share trend"
+      },
+      {
+        "passed": true,
+        "seasons": "2024->2025",
+        "shared_pids": 447,
+        "position_agreement_rate": 0.9933,
+        "requirement": ">=0.95 position agreement on shared pids",
+        "why_independent": "position identity does not encode target-share trend"
+      }
+    ]
   },
   "year_pairs": [
     {
@@ -28,21 +74,21 @@
         2024,
         2025
       ],
-      "delta_share_eligible_n": 147,
-      "quintile_cutoff_delta": 0.036,
+      "delta_share_eligible_n": 148,
+      "quintile_cutoff_delta": 0.0364,
       "top_quintile_n": 30,
-      "top_quintile_gradable_n": 10,
-      "top_quintile_gradable_excluded_undrafted_in_Y+1": 20,
+      "top_quintile_gradable_n": 9,
+      "top_quintile_gradable_excluded_undrafted_in_Y+1": 21,
       "top_quintile_booms": 1,
-      "top_quintile_boom_rate": 0.1,
-      "rest_gradable_n": 45,
+      "top_quintile_boom_rate": 0.1111111111111111,
+      "rest_gradable_n": 46,
       "rest_booms": 7,
-      "rest_boom_rate": 0.15555555555555556,
-      "lift_vs_10pct_base_rate": 1.0,
+      "rest_boom_rate": 0.15217391304347827,
+      "lift_vs_10pct_base_rate": 1.111111111111111,
       "shuffled_label_null": {
         "reps": 2000,
-        "null_mean_rate": 0.14364999999999872,
-        "empirical_p_observed_or_more_extreme": 0.8255
+        "null_mean_rate": 0.14855555555555666,
+        "empirical_p_observed_or_more_extreme": 0.777
       },
       "top_quintile_delta_share_values": [
         0.1981,
@@ -73,8 +119,8 @@
         0.0441,
         0.0406,
         0.04,
-        0.0365,
-        0.0362
+        0.0378,
+        0.0365
       ],
       "top_quintile_positions": {
         "WR": 22,
@@ -88,8 +134,8 @@
         2023,
         2025
       ],
-      "delta_share_eligible_n": 152,
-      "quintile_cutoff_delta": 0.0423,
+      "delta_share_eligible_n": 153,
+      "quintile_cutoff_delta": 0.0422,
       "top_quintile_n": 31,
       "top_quintile_gradable_n": 12,
       "top_quintile_gradable_excluded_undrafted_in_Y+1": 19,
@@ -214,13 +260,13 @@
     "pairs_excluded": [
       "2021->2022"
     ],
-    "top_quintile_gradable_n": 38,
+    "top_quintile_gradable_n": 37,
     "top_quintile_booms": 2,
-    "top_quintile_boom_rate": 0.05263157894736842,
-    "rest_gradable_n": 130,
+    "top_quintile_boom_rate": 0.05405405405405406,
+    "rest_gradable_n": 131,
     "rest_booms": 19,
-    "rest_boom_rate": 0.14615384615384616,
-    "lift_vs_10pct_base_rate": 0.5263157894736842,
+    "rest_boom_rate": 0.1450381679389313,
+    "lift_vs_10pct_base_rate": 0.5405405405405406,
     "clears_1.5x_bar": false
   },
   "correlation_gate": {

@@ -173,9 +173,76 @@ const mv = (cand, cfg) => B.marginalValue(R, cand, Object.assign({ sims: SIMS },
 // is a full week of his whole edge. Both are asserted, because the SMALL one
 // alone would pass against a harness that had a rounding error in it.
 {
+  /* ⚠️ THIS BLOCK RAN AT `lineupInfo: 'prior'` AND 'prior' HAS A BUG THE
+   * SHIPPED MODE DOES NOT (A, 2026-08-24, register 300 triage).
+   *
+   * MEASURED, deterministically, sweeping an RB's weekly mean on this roster:
+   *
+   *     lineupInfo        6    8   10     12     14    16    18   monotone?
+   *     'prior'           0    0  +0.9  -40.9  -11.4 +18.4 +48.3   NO
+   *     0.353 (SHIPPED)  0.2  1.4   5.0   15.7   34.5  57.8  83.8  yes
+   *     1 (clairvoyant) 12.3 20.8  32.8   47.8   66.9  89.0 113.7  yes
+   *
+   * A candidate two points per week BETTER makes the roster forty-one points
+   * WORSE, at 'prior' only. `emit_seat_plan.js:259` — the one shipped caller —
+   * passes the MEASURED rho (0.353), never 'prior', so nothing published is
+   * affected; the anomaly is confined to a mode only this file exercises. Filed
+   * on its own rather than fixed here.
+   *
+   * The bye block moves to the SHIPPED mode, which is what its own derivation
+   * above describes: it predicts "≈ 0.8 points" for the bench back, and the
+   * measured cost at rho is 1.25. At 'prior' the same comparison came out
+   * NEGATIVE — the bye made the player more valuable — which is the sign of a
+   * broken baseline, not of a bye effect.
+   *
+   * RHO IS READ FROM THE PUBLISHED ARTIFACT, not typed, so this cannot drift
+   * away from what the emitter actually uses. */
+  /* ⚠️ AND MY FIRST VERSION OF THIS READER SWALLOWED ITS OWN BUG. It used `fs`,
+   * which this file never requires, so it threw a ReferenceError straight into
+   * a bare `catch { return null; }` and reported "rho: null" — indistinguishable
+   * from a seat plan that genuinely carries no rho. I wrote a swallowed error
+   * while repairing suites whose whole problem is checks that cannot tell two
+   * states apart. The catch now REPORTS what went wrong. */
+  const RHO = (() => {
+    try {
+      const _fs = require('fs');
+      const sp = JSON.parse(_fs.readFileSync(
+        path.join(ROOT, 'public', 'seat_plan.json'), 'utf8'));
+      const r = ((sp || {}).lineup_skill || {}).rho;
+      if (typeof r !== 'number') {
+        console.log('      seat_plan.json carries no numeric lineup_skill.rho ('
+          + JSON.stringify(r) + ') — falling back to the measured 0.353');
+        return null;
+      }
+      return r;
+    } catch (e) {
+      console.log('      could not read seat_plan.json rho: ' + e.message
+        + ' — falling back to the measured 0.353');
+      return null;
+    }
+  })();
+  ck('CONTROL — the measured lineup skill is READ from the published seat plan, '
+    + 'so this block exercises the mode the emitter actually ships',
+  typeof RHO === 'number' && RHO > 0 && RHO < 1, { rho: RHO });
+  const LI = { lineupInfo: RHO == null ? 0.353 : RHO };
+
+  /* NEW GUARD, and the reason this block went red is that nothing checked it:
+   * a BETTER candidate must never price LOWER. Monotonicity is a property of
+   * the metric, independent of any board, and it is what 'prior' violates. */
+  {
+    let prev = -Infinity, viol = [];
+    for (let wm = 6; wm <= 24; wm += 2) {
+      const v = mv(synth('RB', wm, 6), LI);
+      if (v < prev - 0.001) viol.push(wm);
+      prev = v;
+    }
+    ck('MONOTONE at the shipped lineup skill — a better candidate never prices '
+      + 'lower than a worse one', viol.length === 0, { violations_at: viol });
+  }
+
   const inWin = synth('RB', 13, 6, { bye: 7 });
   const outWin = synth('RB', 13, 6, { bye: 0 });
-  const a = mv(inWin, { lineupInfo: 'prior' }), b = mv(outWin, { lineupInfo: 'prior' });
+  const a = mv(inWin, LI), b = mv(outWin, LI);
   ck('CONTROL — this player is good enough to start sometimes, or the bye cannot '
     + 'matter', b > 5, b);
   ck('a bench player\'s bye inside weeks ' + B.FIRST_WEEK + '-' + B.LAST_WEEK
@@ -183,11 +250,11 @@ const mv = (cand, cfg) => B.marginalValue(R, cand, Object.assign({ sims: SIMS },
     { with_bye: a, without: b, cost: b - a });
   const lockIn = synth('QB', 60, 3, { bye: 7 });
   const lockOut = synth('QB', 60, 3, { bye: 0 });
-  const c = mv(lockIn, { lineupInfo: 'prior' }), d = mv(lockOut, { lineupInfo: 'prior' });
+  const c = mv(lockIn, LI), d = mv(lockOut, LI);
   ck('and a LOCKED starter\'s bye costs a whole week of his edge',
     (d - c) > 20, { with_bye: c, without: d, cost: d - c });
   ck('CONTROL — a bye OUTSIDE the window costs nothing at all',
-    mv(synth('QB', 60, 3, { bye: 16 }), { lineupInfo: 'prior' }) === d);
+    mv(synth('QB', 60, 3, { bye: 16 }), LI) === d);
 }
 
 // ── 6. THE SEASON WINDOW IS READ, NOT ASSUMED ────────────────────────────

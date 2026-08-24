@@ -1,0 +1,44 @@
+{
+  "_territory": "TERRITORY: D",
+  "_note": "False-bench rate for ADAPTATION-POLICY.md rule 1. Written by draft/backtest/bench_rule_false_positive_rate.py for A's open ruling on rule 1 (implement it, or say benching is manual).",
+  "rule_as_written": "3 consecutive weekly losses to the champion",
+  "season_weeks_assumed": 17,
+  "controls": {
+    "single_window_coinflip": 0.1262,
+    "analytic_expectation": 0.125,
+    "always_loses_benched": 1.0,
+    "always_wins_benched": 0.0
+  },
+  "by_arm_quality": {
+    "equal_to_champion": {
+      "p_week_loss": 0.5,
+      "benched_at_3_consecutive_over_17_weeks": 0.7258,
+      "benched_at_4_consecutive_over_17_weeks": 0.4176,
+      "benched_at_5_consecutive_over_17_weeks": 0.2087
+    },
+    "slightly_worse": {
+      "p_week_loss": 0.55,
+      "benched_at_3_consecutive_over_17_weeks": 0.8174,
+      "benched_at_4_consecutive_over_17_weeks": 0.535,
+      "benched_at_5_consecutive_over_17_weeks": 0.3039
+    },
+    "clearly_worse": {
+      "p_week_loss": 0.7,
+      "benched_at_3_consecutive_over_17_weeks": 0.9715,
+      "benched_at_4_consecutive_over_17_weeks": 0.8501,
+      "benched_at_5_consecutive_over_17_weeks": 0.6605
+    },
+    "slightly_better": {
+      "p_week_loss": 0.45,
+      "benched_at_3_consecutive_over_17_weeks": 0.6153,
+      "benched_at_4_consecutive_over_17_weeks": 0.3068,
+      "benched_at_5_consecutive_over_17_weeks": 0.1376
+    },
+    "clearly_better": {
+      "p_week_loss": 0.3,
+      "benched_at_3_consecutive_over_17_weeks": 0.2657,
+      "benched_at_4_consecutive_over_17_weeks": 0.0797,
+      "benched_at_5_consecutive_over_17_weeks": 0.0228
+    }
+  }
+}

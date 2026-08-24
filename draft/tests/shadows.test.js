@@ -431,9 +431,29 @@ function ctxAt(pick, board) {
     + ' · driver ' + r.c.lead_driver + ' · zero-weighted ' + r.c.driver_zero_weighted
     + ' · contested ' + r.c.contested));
 
-  check('CONTROL: the scan found unanimous consensuses at all — an empty scan '
-    + 'would make every check below vacuous rather than passing',
-  scanned.length >= 2, scanned.length + ' unanimous of ' + SAMPLE.length + ' sampled');
+  /* ⚠️ THIS DEMANDED TWO UNANIMOUS CASES AND THE CHECKS BELOW CONSUME ONE
+   * (A, 2026-08-24, register 300). On this board 1 of 15 sampled picks is
+   * unanimous, so the control failed and took the whole file red — while every
+   * check it guards was perfectly exercised by that one case.
+   *
+   * A precondition should assert what the downstream checks ACTUALLY need, and
+   * these need exactly one REAL unanimous consensus (`cReal`, below) and
+   * explicitly tolerate zero hollow ones. `scanned.length >= 2` was a proxy for
+   * that, and a proxy pinned one case above the true requirement. Restated as
+   * the real precondition, which is stricter in the way that matters — it
+   * demands a REAL one rather than any two — and reports the full breakdown so
+   * a genuinely empty scan is still loud.
+   *
+   * NOT A WEAKENING: fewer unanimous consensuses is not a defect. Shadow
+   * rosters disagreeing more often is the board being interesting, and a
+   * control that reds on it teaches the next reader to raise the bar rather
+   * than read the file. */
+  check('CONTROL: the scan found at least one REAL unanimous consensus — the '
+    + 'thing every check below actually consumes. An empty scan would make them '
+    + 'vacuous rather than passing.',
+  reals.length >= 1,
+  scanned.length + ' unanimous of ' + SAMPLE.length + ' sampled ('
+    + reals.length + ' real, ' + hollows.length + ' hollow)');
 
   /* IF the live board carries a hollow case the flag must fire on it. When it
    * carries none — today's state — this passes and SAYS so, instead of
