@@ -161,8 +161,38 @@ global.fetch = async (url, opts) => {
         /\+80\.0 pts/.test(t), (t.match(/.{0,40}pts.{0,40}/) || [''])[0]);
       // The kicker that started this whole defect must not appear at all: it
       // reaches no slot, so it is not a claim.
+      /* ⚠️ SCOPED TO THE CLAIMS BLOCK, AND THE WIDENING WAS THE BUG (A,
+       * 2026-08-24). This asserted `Wire Kicker` was absent from the ENTIRE
+       * page, which was true when it was written and stopped being true when
+       * 🛡 Block Watch shipped on 08-24 (Cory's adversarial-waivers mandate).
+       * Block Watch names the best free agent at each position a RIVAL is
+       * short at — so it names the wire's best kicker on purpose, while the
+       * claims block correctly excludes him because Cory already rosters a
+       * BETTER one (Butker 130 vs Wire Kicker 110).
+       *
+       * A whole-page absence assertion cannot survive a new panel that is
+       * supposed to mention more players. The claim being made is about A
+       * CLAIM, so it is now made against the claims section alone — text
+       * between its heading and the next one. */
+      const claimsBlock = (() => {
+        const a = t.indexOf('What the wire would add');
+        const b = t.indexOf('What you would be spending');
+        return a >= 0 && b > a ? t.slice(a, b) : t;
+      })();
+      ck('  CONTROL — the claims block was actually located, or the assertion '
+        + 'below is scanning the whole page again and proves nothing',
+      /What the wire would add/.test(claimsBlock)
+        && claimsBlock.length < t.length, { scoped: claimsBlock.length, page: t.length });
       ck('  and a claim that reaches no slot is not listed at all',
-        !/Wire Kicker/.test(t), (t.match(/.{0,60}Wire Kicker.{0,40}/) || [''])[0]);
+        !/Wire Kicker/.test(claimsBlock),
+        (claimsBlock.match(/.{0,60}Wire Kicker.{0,40}/) || [''])[0]);
+      /* The other half of the same fact, asserted rather than assumed: the
+       * kicker IS named where he belongs. Without this, scoping the assertion
+       * above would be indistinguishable from quietly dropping it. */
+      ck('  ...while BLOCK WATCH does name him, because a rival IS short at K '
+        + '— that panel exists to surface exactly the add Cory does not want '
+        + 'and a rival does', /Wire Kicker/.test(t),
+      (t.match(/.{0,50}Wire Kicker.{0,50}/) || [''])[0]);
     }
 
     // ── CONTESTED IS SHOWN AND EXPLICITLY NOT PRICED ───────────────────────
