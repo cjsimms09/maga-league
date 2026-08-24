@@ -70,21 +70,21 @@ TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
 . "$TMP/served_refs.env"
 
 # served change since last build -> BUILD
-run "a served change (views/) since last build deploys"            1 "$BASE"    "$SERVED"
+run "a served change (views/) since last build deploys"            1 "$BASE"    "$SERVED" DEPLOY_WINDOW_HOURS=0
 # EVERY OTHER SERVED ROOT. `public/` is the war room itself; if it ever falls out
 # of the gate's pattern, draft-night JS silently stops shipping and BOTH the gate
 # and deploy-verify report green over it.
-run "a served change under public/ deploys"          1 "$SERVED_PUBLIC_BEFORE"   "$SERVED_PUBLIC_AFTER"
-run "a served change under src/ deploys"             1 "$SERVED_SRC_BEFORE"      "$SERVED_SRC_AFTER"
-run "a change to server-app.js deploys"              1 "$SERVED_SERVERJS_BEFORE" "$SERVED_SERVERJS_AFTER"
-run "a change to package.json deploys"               1 "$SERVED_PKG_BEFORE"      "$SERVED_PKG_AFTER"
-run "a change to netlify.toml deploys"               1 "$SERVED_TOML_BEFORE"     "$SERVED_TOML_AFTER"
-run "a change under netlify/functions/ deploys"      1 "$SERVED_FUNCS_BEFORE"    "$SERVED_FUNCS_AFTER"
+run "a served change under public/ deploys"          1 "$SERVED_PUBLIC_BEFORE"   "$SERVED_PUBLIC_AFTER" DEPLOY_WINDOW_HOURS=0
+run "a served change under src/ deploys"             1 "$SERVED_SRC_BEFORE"      "$SERVED_SRC_AFTER" DEPLOY_WINDOW_HOURS=0
+run "a change to server-app.js deploys"              1 "$SERVED_SERVERJS_BEFORE" "$SERVED_SERVERJS_AFTER" DEPLOY_WINDOW_HOURS=0
+run "a change to package.json deploys"               1 "$SERVED_PKG_BEFORE"      "$SERVED_PKG_AFTER" DEPLOY_WINDOW_HOURS=0
+run "a change to netlify.toml deploys"               1 "$SERVED_TOML_BEFORE"     "$SERVED_TOML_AFTER" DEPLOY_WINDOW_HOURS=0
+run "a change under netlify/functions/ deploys"      1 "$SERVED_FUNCS_BEFORE"    "$SERVED_FUNCS_AFTER" DEPLOY_WINDOW_HOURS=0
 # docs-only since last build -> SKIP (budget batching)
 run "a docs-only change does NOT deploy"                           0 "$SERVED"  "$DOC"
 # THE RACE FIX: a served change BURIED under a later docs commit still deploys,
 # because the gate scans BASE..DOC (which includes the served commit), not the tip.
-run "a served change buried under a later docs commit STILL deploys" 1 "$BASE"  "$DOC"
+run "a served change buried under a later docs commit STILL deploys" 1 "$BASE"  "$DOC" DEPLOY_WINDOW_HOURS=0
 # [deploy] anywhere in range forces a build even for non-served files
 run "[deploy] in the range builds even for a Lab-only change"      1 "$DOC"     "$DEPLOYP"
 # [skip deploy] on the tip suppresses even a served change
@@ -95,5 +95,22 @@ run "first build with no CACHED_COMMIT_REF deploys"                1 ""         
 run "a build hook deploys regardless of range"                     1 "$SERVED"  "$DOC" INCOMING_HOOK_TITLE="manual deploy"
 
 echo
+
+# ── CORY'S CADENCE WINDOW (2026-08-24) ────────────────────────────────────────
+# "we shouldn't deploy 100x a day, 2-3xs a day is enough". MEASURED that day:
+# 170 commits on main in 24h, 143 already suppressed by the served-file gate,
+# 27 would have built. The window caps the remainder.
+#
+# BOTH DIRECTIONS, because a cap that never lets anything through and a cap that
+# never stops anything are both silent. And the escape hatches are re-asserted
+# WITH the window active — if [deploy] stopped working under a cadence cap, an
+# urgent fix would be stuck behind a timer with no way out, which is worse than
+# the over-deploying this solves.
+run "served change INSIDE the window is held for the next build"    0 "$BASE" "$SERVED" DEPLOY_WINDOW_HOURS=8
+run "served change OUTSIDE the window builds"                       1 "$BASE" "$SERVED" DEPLOY_WINDOW_HOURS=0
+run "ESCAPE HATCH — [deploy] forces a build inside the window"      1 "$DOC" "$DEPLOYP" DEPLOY_WINDOW_HOURS=8
+run "ESCAPE HATCH — a build hook forces a build inside the window"  1 "$BASE" "$SERVED" DEPLOY_WINDOW_HOURS=8 INCOMING_HOOK_TITLE="manual deploy"
+run "a docs-only change still skips regardless of the window"       0 "$SERVED" "$DOC" DEPLOY_WINDOW_HOURS=0
+
 echo "$pass/$((pass+fail)) deploy-gate checks passed"
 [ "$fail" -eq 0 ] || exit 1
