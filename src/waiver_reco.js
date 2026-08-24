@@ -66,6 +66,45 @@ function computeWaiverReco(sData, playersDb, artifact, myRid, ownersCount) {
   out.currentKD = (inputs.myRoster || [])
     .filter(p => p.position === 'K' || p.position === 'DEF')
     .map(p => ({ player_id: p.player_id, name: p.name, position: p.position }));
+
+  /* BLOCK WATCH (Cory's 08-24 mandate, the adversarial-waivers item): the
+   * best available player at each position an EAGER opponent has a hole at —
+   * the claim whose value is partly that it denies THEM. Rolling priority
+   * makes this real: a block spends your position exactly like a claim does,
+   * so the surface states who it denies and leaves the spend to Cory.
+   *
+   * MEASURED INPUTS ONLY: opponent need comes from the same
+   * openStartableSlots/whoElseNeeds read the CONTESTED chip already uses; the
+   * player ranking is proj_mean. What is NOT modelled is stated on the
+   * surface: whether the opponent would actually claim (that is P331's grade
+   * — flagged players must get added by flagged owners at a higher rate than
+   * unflagged same-position peers, or this panel retires). */
+  const byPos = {};
+  for (const fa of inputs.freeAgents) {
+    if (fa.proj_mean == null) continue;
+    (byPos[fa.position] || (byPos[fa.position] = [])).push(fa);
+  }
+  const leagueRosters = Object.fromEntries((sData.rosters || [])
+    .filter(r => String(r.roster_id) !== String(myRid))
+    .map(r => [r.roster_id, (r.players || []).map(pid => {
+      const info = (playersDb && playersDb.players && playersDb.players[pid]) || {};
+      return { player_id: pid, position: info.pos, proj_mean: null };
+    }).filter(p => p.position)]));
+  out.blockWatch = [];
+  for (const pos of Object.keys(byPos)) {
+    const best = byPos[pos].sort((a, b) => b.proj_mean - a.proj_mean)[0];
+    const rivals = W.whoElseNeeds(best, leagueRosters, league, null).filter(r => r.eager);
+    if (!rivals.length) continue;
+    const mine = out.claims.find(c => String(c.player_id) === String(best.player_id));
+    out.blockWatch.push({
+      player_id: String(best.player_id), name: best.name, position: pos,
+      proj_mean: best.proj_mean,
+      denies: rivals.map(r => r.rid),
+      my_net_value: mine ? mine.net_value : null,
+    });
+  }
+  out.blockWatch.sort((a, b) => (b.denies.length - a.denies.length) || (b.proj_mean - a.proj_mean));
+  out.blockWatch = out.blockWatch.slice(0, 4);
   return out;
 }
 

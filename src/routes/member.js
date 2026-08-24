@@ -3481,7 +3481,7 @@ router.get('/waivers', requireCommissioner, aw(async (req, res) => {
   const W = require('./waivers');
 
   let claims = [], drop = null, perPoint = 0, weekNo = null, err = null, live = false;
-  let streamClaims = [], currentKD = [];
+  let streamClaims = [], currentKD = [], blockWatch = [];
   try {
     const sData = await sleeper.bundle(world.config.sleeper_league_id);
     if (sData && Array.isArray(sData.rosters) && sData.rosters.length) {
@@ -3527,11 +3527,18 @@ router.get('/waivers', requireCommissioner, aw(async (req, res) => {
       drop = reco.drop; perPoint = reco.perPoint;
       claims = reco.claims; streamClaims = reco.streamClaims;
       currentKD = reco.currentKD;
+      // BLOCK WATCH rows carry roster ids; name them here (map: rid → owner)
+      // so the card says WHO a claim denies, not a number.
+      const ridName = rid => {
+        const oid = Number((world.config.sleeper_map || {})[String(rid)]);
+        return (H.ownerById(owners, oid) || {}).name || `team ${rid}`;
+      };
+      blockWatch = (reco.blockWatch || []).map(bw => ({ ...bw, denies_names: bw.denies.map(ridName) }));
     }
   } catch (e) { err = String((e && e.message) || e); }
 
   res.render('waivers', {
-    me, season, weekNo, live, err, claims, drop, perPoint, streamClaims, currentKD,
+    me, season, weekNo, live, err, claims, drop, perPoint, streamClaims, currentKD, blockWatch,
     liveStale: await liveFreshness(),
     captureError: req.query.captureError === '1',
     // The explainer contract (what/read/do/src per panel) — view-model only.

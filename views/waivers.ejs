@@ -303,4 +303,37 @@
     </div>
   </div>
 <% } %>
+
+<%# ── BLOCK WATCH (Cory's 08-24 adversarial-waivers mandate) — the best
+    available player at each position an opponent has a startable hole at.
+    In a rolling-priority league a claim can be worth making partly because
+    it DENIES them. Information, priced honestly: what IS measured (their
+    open slots, his projection, your own upgrade value) is shown; whether
+    they would actually claim him is P331's grade, and the panel says so. %>
+<% const _bw = (typeof blockWatch !== 'undefined' && blockWatch) ? blockWatch : []; %>
+<% if (live && !err && _bw.length) { %>
+<div class="card" style="margin-top:1.2rem">
+  <h2>🛡 Block Watch <span class="sub">the adds your rivals need more than you do</span></h2>
+  <div class="body">
+    <% for (const bw of _bw) { %>
+      <div style="display:flex;align-items:baseline;gap:.6rem;padding:.45rem 0;border-bottom:1px solid var(--line,#e5e7eb);flex-wrap:wrap">
+        <b><%= bw.name %></b> <span class="muted"><%= bw.position %> · proj <%= Math.round(bw.proj_mean) %></span>
+        <span style="flex:1 1 auto"></span>
+        <span class="muted" style="font-size:.78rem">fills a startable hole for <b><%= bw.denies_names.join(', ') %></b></span>
+        <% if (bw.my_net_value != null && bw.my_net_value > 0) { %>
+          <span class="muted" style="font-size:.78rem">— and worth <b>+<%= Math.round(bw.my_net_value) %></b> to you outright</span>
+        <% } else { %>
+          <span class="muted" style="font-size:.78rem">— little direct value to you: claiming him is a pure block, priced in priority</span>
+        <% } %>
+      </div>
+    <% } %>
+    <p class="muted" style="margin:.6rem 0 0;font-size:.74rem">
+      What's measured: their open starting slots and his projection. What isn't:
+      whether they'd actually spend their priority — that's on trial (P331), and
+      if flagged players don't get claimed at a higher rate than their peers,
+      this panel retires.
+    </p>
+  </div>
+</div>
+<% } %>
 <%- include('partials/footer') %>
