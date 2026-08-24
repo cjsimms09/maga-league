@@ -1276,6 +1276,13 @@ body.is-rehearsal .slot-watermark { display: none !important; }
 .stale-block h3 { margin: 0 0 .4rem; font-family: var(--font-display); color: var(--red); font-size: 1rem; }
 .stale-block p { margin: 0 0 .7rem; color: var(--ink); font-size: .86rem; line-height: 1.5; font-weight: 500; }
 #warroom.is-stale { opacity: .55; filter: grayscale(.35); pointer-events: none; }
+/* The stale lock freezes the BOARD, never navigation. The toolbar (Accuracy /
+   Lineup / Analyzer / the Office exit) lives inside #warroom, so without this
+   a stale board made every one of those links tap-dead — post-draft the board
+   is always stale, which turned "the war room is old" into "you cannot leave
+   the war room" (Cory's phone, 2026-08-24: "The accuracy page won't go..
+   I click and nothing happens"). */
+#warroom.is-stale #wr-tabbar { pointer-events: auto; }
 
 /* ==========================================================================
    THE TAB — an actual ledger
