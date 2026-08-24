@@ -4,6 +4,40 @@
 
 ## HOW IT WORKS
 
+## THE SEASON RULING (Cory, 2026-08-24) — READ BEFORE YOUR SECTION
+
+**Verbatim:** *"we should be moving on from the draft, making sure we have everything
+we need and throughout the year are trying to make draft better for next year but now
+the focus should be on inseason tools, capturing everything we can and making our
+model better for inseason tools.. find me edge."* (Same day as the weekly-prediction
+#1 ruling — this is its scope statement.)
+
+**What it changes, concretely:**
+
+1. **DRAFT-ERA ROWS PARK.** Every lane triages its OPEN register rows and routed
+   items into **IN-SEASON** (anything that changes a number Cory starts, claims,
+   trades or bets on THIS season — keeps a live recheck) vs **DRAFT-2027**
+   (board/VONA/war-room/draft-weight work — recheck moves to the offseason window,
+   prefix the recheck reason `[2027]`). A's ledger alone carries ~137 open rows and
+   ~184 routed items, most draft-era: that is not lateness, it is a queue the
+   ruling just re-scoped. **Nobody closes a row in this triage — dates and tags
+   move, findings stay.** Owners triage their own; the relay audits the split on
+   the Wednesday sweep and re-dates anything left behind, with reasons.
+2. **A's "would not do" stands as ruled:** no draft-weight re-tuning in-season.
+   Draft learnings ACCUMULATE (capture stays on) for 2027; they do not consume
+   build time now.
+3. **CAPTURE EVERYTHING is the standing bar.** Register 290's instruction sweep
+   (every surface's instructions scored) is the season's coverage map; the
+   auto-capture crons + reco probe are its enforcement. A new surface ships WITH
+   its capture or names why not.
+4. **The edge programs of record, in Cory's priority:** ① the weekly blend
+   (Tier-1 arms 09-03, first grade 09-15) · ② bench-leak conversion (P143 grade
+   09-01 decides the fork; Sunday alert + WHY capture live) · ③ Tuesday wire
+   speed (alert + block watch live; C's closing-line + priority-order captures
+   feed it) · ④ opponent modeling (E's P284 family; trade advisor next) ·
+   ⑤ side-bet EV (offer sheet live). Work that serves none of these five needs a
+   reason in its commit message.
+
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock **Aug 21 6:00 PM CDT (Cory ruled 08-18)**, draft Aug 22
 
 ## TO: A
