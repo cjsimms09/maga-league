@@ -325,3 +325,54 @@ if (fail) { console.log('FAILED'); process.exit(1); }
   res.claims.some(c => c.player_id === 'hurt'),
   res.claims.map(c => c.player_id));
 }
+
+/* ── THE DROP SIDE (register 321), AND A CORRECTION TO MY OWN CLAIM ──────────
+ *
+ * Filing 321 I wrote that the drop side "has a clear right answer, unlike the
+ * claim side" — an IR player being exactly the body you want to cut. On
+ * reflection that is WRONG, and it is wrong for the reason register 320 gives:
+ * whether to drop an injured man depends on WHEN HE RETURNS, which is
+ * rest-of-season information the tool does not have. Season-ending IR on a
+ * bench scrub is an obvious cut; short-term IR on a stud is the worst move
+ * available. Same missing input, so the drop side is no clearer than the claim
+ * side and gets the same treatment: surface it, do not re-rank it.
+ *
+ * WHAT IS ASSERTED HERE IS THE CURRENT STATE, LABELLED AS SUCH. If someone
+ * later teaches dropCandidate about availability, the witness below goes red —
+ * and that is correct. It should be a deliberate edit with a football reason,
+ * not a silent drift.
+ */
+{
+  const W2 = require(path.join(ROOT, 'src', 'routes', 'waivers.js'));
+  const lg = { teams: 10, starters: CFG.starters };
+  const mine = [
+    { player_id: 'ok', name: 'Healthy Bench', position: 'WR', proj_mean: 80, vorp: -20 },
+    { player_id: 'ir', name: 'Hurt Bench', position: 'WR', proj_mean: 190, vorp: 50,
+      injury_status: 'IR' },
+    { player_id: 'st', name: 'Starter', position: 'RB', proj_mean: 200, vorp: 60 },
+  ];
+  const out = W2.evaluateClaims(
+    [{ player_id: 'fa', name: 'FA', position: 'WR', proj_mean: 150, vorp: 20 }],
+    mine, lg, {});
+
+  ck('CONTROL — the fixture really does contain a hard-out player, or the '
+    + 'witness below is vacuous', W2.isOutNow(mine[1]));
+
+  ck('the drop payload carries the injury fields, so a page can say "you are '
+    + 'being told to cut a healthy man" instead of showing a bare name',
+  out.drop && 'injury_status' in out.drop && 'inactive' in out.drop, out.drop);
+
+  ck('and the TOP-LEVEL drop and the CLAIM-EMBEDDED drop are the same shape — '
+    + 'they were built inline in two places with the same three fields, which '
+    + 'is how one object comes to have two shapes (rule 11)',
+  JSON.stringify(Object.keys(out.drop))
+    === JSON.stringify(Object.keys(out.claims[0].drop)),
+  { top: Object.keys(out.drop), embedded: Object.keys(out.claims[0].drop) });
+
+  ck('WITNESS, not a goal — dropCandidate is TODAY blind to availability: it '
+    + 'picks the healthy bench body (value -20) and leaves the IR man (value '
+    + '+50) because his frozen projection scores higher. If this goes red, '
+    + 'someone taught it about availability and should say so on register 321.',
+  out.drop.player_id === 'ok' && out.drop.inactive === false,
+  { chose: out.drop.player_id, inactive: out.drop.inactive });
+}

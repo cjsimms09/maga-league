@@ -175,6 +175,16 @@ function isOutNow(p) {
   return !!raw && LO.INACTIVE_INJURY.has(raw);
 }
 
+/* ONE construction of the drop payload — it was built inline in two places
+ * with the same three fields, which is how two shapes of the same object come
+ * to drift (rule 11). Register 321 needed a fourth and fifth field in both. */
+function dropPayload(drop, dropVal) {
+  return { player_id: drop.player.player_id, name: drop.player.name,
+    value: round2(dropVal),
+    injury_status: injuryTag(drop.player) || null,
+    inactive: isOutNow(drop.player) };
+}
+
 function evaluateClaims(freeAgents, myRoster, league, ctx) {
   ctx = ctx || {};
   const drop = dropCandidate(myRoster, league);
@@ -198,7 +208,12 @@ function evaluateClaims(freeAgents, myRoster, league, ctx) {
       why: sv.why,
       startable_value: round2(sv.value),
       net_value: round2(netPoints),
-      drop: drop ? { player_id: drop.player.player_id, name: drop.player.name, value: round2(dropVal) } : null,
+      /* REGISTER 321, drop side — same additive treatment as the claim above.
+       * `dropCandidate` ranks purely on startableValue, which derives from the
+       * frozen board projection and knows nothing about who can play. So the
+       * tool can tell Cory to cut a healthy bench body while a hard-out player
+       * sits beside him, and the payload gave the page no way to mention it. */
+      drop: drop ? dropPayload(drop, dropVal) : null,
       dollars: round2(netPoints * dpp.perPoint),
       consensus_projection: consensus.value == null ? null : round2(consensus.value),
       consensus_label: consensus.label,
@@ -228,7 +243,7 @@ function evaluateClaims(freeAgents, myRoster, league, ctx) {
   // What reaches the field first, and downgrades now SINK BELOW ZERO instead of
   // piling up at it; depth (A's marginal, untouched) breaks the tie among equals.
   claims.sort((a, b) => (b.net_value - a.net_value) || (b.startable_value - a.startable_value));
-  return { drop: claims.length ? claims[0].drop : (drop ? { player_id: drop.player.player_id, name: drop.player.name, value: round2(dropVal) } : null),
+  return { drop: claims.length ? claims[0].drop : (drop ? dropPayload(drop, dropVal) : null),
            dollars_per_point: round2(dpp.perPoint), claims };
 }
 
