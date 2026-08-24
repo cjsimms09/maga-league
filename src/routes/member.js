@@ -208,6 +208,26 @@ router.get('/api/weekly-recap', aw(async (req, res) => {
                       note: (r && (r.error || r.note)) || 'the mailer declined to send' }) });
 }));
 
+/* THE RECO-PROBE ROUTE (register 287's week-1 verification). Netlify
+ * SCHEDULED functions are not HTTP-invocable — the probe's first live run
+ * answered an edge 403 with an empty body and proved it — so CI verifies the
+ * capture THROUGH the app function instead, which shares the same store and
+ * the same bundled modules. Calling this runs the capture: marker-idempotent,
+ * so on a day the schedule already fired it answers 'already captured' (the
+ * proof), and on a day it didn't, this IS the fallback emitter. Same secret
+ * family as the sibling cron routes. */
+router.get('/api/reco-probe/:which', aw(async (req, res) => {
+  const secret = process.env.SUNDAY_ALERT_KEY || process.env.CRON_SECRET;
+  if (!cronAuthorized(req, secret)) return res.status(403).json({ ok: false, error: 'forbidden' });
+  const which = req.params.which === 'lineup' ? 'lineup' : req.params.which === 'waiver' ? 'waiver' : null;
+  if (!which) return res.status(400).json({ ok: false, error: 'which must be waiver or lineup' });
+  const mod = which === 'lineup'
+    ? require('../../netlify/functions/lineup-reco-cron')
+    : require('../../netlify/functions/waiver-reco-cron');
+  const out = await mod.runCapture();
+  return res.status(out.statusCode || 200).type('application/json').send(out.body);
+}));
+
 router.get('/api/sunday-alert', aw(async (req, res) => {
   const secret = process.env.SUNDAY_ALERT_KEY || process.env.CRON_SECRET;
   if (!cronAuthorized(req, secret)) return res.status(403).json({ ok: false, error: 'forbidden' });

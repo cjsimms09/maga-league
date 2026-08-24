@@ -48,12 +48,18 @@ jobs:
         env:
           SITE: ${{ inputs.site || vars.SITE_URL || 'https://makefbgreatagain.netlify.app' }}
           WHICH: ${{ inputs.which || 'auto' }}
-          # If the function's env key is unset on Netlify the value here is
-          # irrelevant (the handler only compares when its own env var exists);
-          # if keys are ever set, add matching repo secrets and reference them.
-          KEY: probe
+          # The app route /api/reco-probe/:which shares the sunday-alert secret
+          # family. Scheduled functions are NOT HTTP-invocable (proven by this
+          # probe's own first live run: edge 403, empty body), so verification
+          # goes through the app function, which runs the same capture code
+          # against the same store.
+          KEY: ${{ secrets.SUNDAY_ALERT_KEY }}
         run: |
           set -uo pipefail
+          if [ -z "$KEY" ]; then
+            echo "::warning title=Reco probe cannot verify::SUNDAY_ALERT_KEY is not set as a repo secret, so the probe cannot authenticate to /api/reco-probe. Week-1 emission verification is NOT happening — configure it before 09-10."
+            exit 0
+          fi
           day=$(date -u +%u)   # 1=Mon .. 3=Wed .. 7=Sun
           pick="$WHICH"
           if [ "$pick" = "auto" ]; then
@@ -65,10 +71,9 @@ jobs:
               exit 0
             fi
           fi
-          fn="${pick}-reco-cron"
-          url="$SITE/.netlify/functions/$fn?key=$KEY"
-          echo "Probing $fn …"
+          url="$SITE/api/reco-probe/$pick"
+          echo "Probing $pick capture via the app route …"
           body_file="$RUNNER_TEMP/probe-body.json"
-          code=$(curl -sS --max-time 60 -o "$body_file" -w '%{http_code}' "$url" || echo 000)
+          code=$(curl -sS --max-time 60 -H "Authorization: Bearer $KEY" -o "$body_file" -w '%{http_code}' "$url" || echo 000)
           echo "HTTP $code"; cat "$body_file" || true; echo
-          bash draft/tools/reco_probe_interpret.sh "$code" "$fn" < "$body_file"
+          bash draft/tools/reco_probe_interpret.sh "$code" "$pick-reco" < "$body_file"
