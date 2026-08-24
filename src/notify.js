@@ -283,6 +283,19 @@ async function sundayAlert(owners, alert) {
     body += '<br><br>' + todo.map(c =>
       `▲ <b>Start ${c.start}</b> over ${c.sit} — <b style="color:#0d7a44">$${Math.round(c.dollars)}</b> <span style="color:#3c4a60">(${c.why})</span>`
     ).join('<br>');
+    // ONE TAP SAYS WHY, AT THE MOMENT OF THE CALL (A's ranked item 3,
+    // 2026-08-24: "not a text box on Tuesday"). Each chip is a link into
+    // /lineup/why, which records the reason against the exact recommendation
+    // this email showed. The route requires the commissioner's logged-in
+    // cookie, so a mail client prefetching links records nothing.
+    const why = r => `${SITE}/lineup/why?week=${encodeURIComponent(alert.week || '')}&reason=${encodeURIComponent(r)}`;
+    const chip = (r, label) =>
+      `<a href="${why(r)}" style="display:inline-block;margin:4px 6px 0 0;padding:7px 12px;border:1px solid #c9d2e0;border-radius:8px;color:#1b2c4d;text-decoration:none;font-size:13px;font-weight:700">${label}</a>`;
+    body += `<div style="margin-top:14px;font-size:13px;color:#3c4a60">Doing it — or going another way? One tap goes on the record, and the season grades it either direction:</div>`
+          + `<div>` + chip('doing it', '✅ Doing it')
+          + chip('injury news', '🏥 Injury news')
+          + chip("don't buy the projection", '📉 Don’t buy it')
+          + chip('riding my guy', '🤝 Riding my guy') + `</div>`;
   } else if (dead.length) {
     // A DEAD SLOT AND NO PRICED CALL. The swap is normally a call, but a call
     // under the $0.50 print threshold is filtered out — and then the old email
