@@ -65,8 +65,8 @@ jobs:
       # owner must land at ~0.5 and an oracle at ~1.0 -- and it exits non-zero
       # if they fail, so a broken instrument reds the run instead of printing a
       # confident number.
-      - name: Grade DECISIONS against their nulls (start/sit, waivers, draft picks, drops)
-        # All three run every week and all three gate on their own controls, so
+      - name: Grade DECISIONS against their nulls (start/sit, waivers, draft picks, drops, keepers)
+        # All five run every week and all five gate on their own controls, so
         # a broken instrument reds the run instead of publishing a confident
         # number. The known-negative band is DERIVED from each grader's own
         # sample size -- a hardcoded one was 3.3-3.9x looser than the null it
@@ -80,6 +80,14 @@ jobs:
           # how the wire came to recommend dropping Ja'Marr Chase (register
           # 277) with nothing measuring the advice.
           python3 draft/backtest/drop_vs_random.py
+          # THE KEEPER — the highest-stakes single decision Cory makes (his
+          # three 2026 keepers are his three best players). TWO panels, FOUR
+          # controls, all gating: panel 1 is keeper-vs-random-name (0.9082,
+          # and near-vacuous — real picks score 0.8554 on that same null and
+          # are flat at ~0.85 from round 1 to round 15); panel 2 is
+          # keeper-vs-a-REAL-PICK-at-that-round, which is the decision, and
+          # says NOT RESOLVED. Register 289.
+          python3 draft/backtest/keeper_vs_random.py
 
       - name: Commit the refreshed loop artifacts
         run: |
@@ -90,6 +98,7 @@ jobs:
           git add draft/backtest/waiver_vs_random.json
           git add draft/backtest/draft_pick_vs_random.json
           git add draft/backtest/drop_vs_random.json
+          git add draft/backtest/keeper_vs_random.json
           git add draft/data/model_update_recommendations.json
           # the mirror only exists once SITE_URL is configured and grade-cron
           # has produced a snapshot — absent is a named preseason state
