@@ -2312,7 +2312,7 @@ router.get('/team', aw(async (req, res) => {
   // This week's game, so the page answers "who am I playing" before it answers
   // "who is on my bench" — and so a bet against that opponent is one tap away.
   const matchup = sleeper.myMatchup(sData, world.config.sleeper_map || {}, viewOwner.id, owners);
-  const betWindow = BL.matchupWindow(matchup);
+  const betWindow = BL.matchupWindow(matchup, new Date(), { seasonStart: world.config.season_start, seasonType: sData && sData.season_type });
   const nameOf = id => (H.ownerById(owners, id) || {}).name || '?';
   const allBets = await SB.all();
   // Bets your opponent has put in front of you for this week.
@@ -2476,7 +2476,7 @@ router.get('/matchup', aw(async (req, res) => {
   if (!opp && oppParam && oppParam !== me.id) opp = H.ownerById(owners, oppParam) || null;
 
   const weekNo = (liveMatchup && liveMatchup.week) || (sData && sData.week) || 1;
-  const betWindow = BL.matchupWindow(liveMatchup);
+  const betWindow = BL.matchupWindow(liveMatchup, new Date(), { seasonStart: world.config.season_start, seasonType: sData && sData.season_type });
 
   // ── WEEK NAVIGATION (member-site pass, 2026-08-16) ────────────────────────
   // "Matchup tracking, this week and other weeks" — ?week=N opens any past

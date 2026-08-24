@@ -242,11 +242,28 @@ function acceptDeadline(bet, ctx = {}, at = new Date()) {
  * Can a bet on this week's matchup still be accepted?
  *
  * @param matchup  sleeper.myMatchup() shape, or null
+ * @param ctx      { seasonStart, seasonType } — config.season_start (without
+ *                 it, the current year's default week-1 Thursday) and Sleeper's
+ *                 state.season_type ('pre' | 'regular' | 'post')
  * @returns { open, reason, locks_at }
  */
-function matchupWindow(matchup, at = new Date()) {
-  const locks_at = weekLockAt(at);
-  const scored = matchup
+function matchupWindow(matchup, at = new Date(), ctx = {}) {
+  // The lock is this calendar week's Thursday-night kickoff — but "this week's
+  // matchup" cannot lock before the SEASON's first kickoff. weekLockAt() alone
+  // is a pure calendar clock: in late August it points at a Thursday that has
+  // already passed and closes week 1 two weeks before week 1 exists (Cory's
+  // phone, 2026-08-24 — the third surface of the preseason false-lock, after
+  // the two anyScore gates). Week 1's real kickoff wins the max; from week 1
+  // on, the weekly Thursday is always the later instant and behavior is
+  // unchanged.
+  const week1 = kickoffOf(1, ctx.seasonStart);
+  const weekly = weekLockAt(at);
+  const locks_at = weekly > week1 ? weekly : week1;
+  // Preseason fantasy points are artifacts, not games started — the exact
+  // signal that falsely closed the pick'em and bet-accept locks (both gated
+  // on season_type the same way). Points still beat the clock in-season: an
+  // unknown seasonType trusts the points, only a known 'pre' ignores them.
+  const scored = ctx.seasonType !== 'pre' && matchup
     && ((matchup.me && matchup.me.points > 0) || (matchup.opp && matchup.opp.points > 0));
   if (scored) {
     return { open: false, locks_at,
