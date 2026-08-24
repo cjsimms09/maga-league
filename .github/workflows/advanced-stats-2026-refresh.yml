@@ -1,11 +1,13 @@
-name: Advanced stats (air-yards/EPA/WOPR) 2026 weekly refresh — proposed diff, A merges
+# TERRITORY: C — this workflow file itself; it does not modify
+# draft/backtest/fetch_advanced_stats.py, which is owned by A.
+name: Advanced stats (air-yards/EPA/WOPR) 2026 weekly refresh — proposed diff, A reviews
 
-# PROPOSED BY C, TO BE MERGED BY A — dispatches draft/backtest/fetch_advanced_stats.py
-# (owned by A), which this workflow does not modify. Written here rather than
-# built as a new C-owned capture because the tool that already does exactly
-# this (EPA/air-yards/CPOE/RACR/WOPR, per-player-week) exists and is A's;
-# duplicating it under a different name would be the two-tables defect this
-# repo already has a register pattern for (Rule 11).
+# PROPOSED BY C, FOR A TO REVIEW AND TAKE OVER — dispatches fetch_advanced_stats.py
+# (A's script, unmodified). Written here rather than built as a new C-owned
+# capture because the tool that already does exactly this (EPA/air-yards/CPOE/
+# RACR/WOPR, per-player-week) exists and is A's; duplicating it under a
+# different name would be the two-tables defect this repo already has a
+# register pattern for (Rule 11).
 #
 # THE GAP: `advanced_stats_2021.json` .. `advanced_stats_2025.json` are
 # committed (a one-time historical backfill) but nothing schedules a 2026
