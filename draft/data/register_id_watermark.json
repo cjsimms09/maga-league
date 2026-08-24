@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 297,
+ "next_numeric_id": 299,
  "history": [
   {
    "id": 47,
@@ -719,7 +719,20 @@
    "claimed_at": "2026-08-24"
   },
   {
+   "id": 295,
+   "claimed_at": "2026-08-24"
+  },
+  {
    "id": 296,
+   "claimed_at": "2026-08-24"
+  },
+  {
+   "id": 297,
+   "claimed_at": "2026-08-24",
+   "note": "A: the scheduled-cron included_files row renumbered 295 -> 297 at merge. main printed its own 295 while this branch was in flight. Register 186 protocol, main-printed canonical. Matched by content and verified by count."
+  },
+  {
+   "id": 298,
    "claimed_at": "2026-08-24"
   }
  ]

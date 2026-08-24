@@ -3,40 +3,29 @@
  *
  * DOES AN ARM'S RESULT SURVIVE THE CONFIGURATION IT WAS MEASURED IN?
  *
- * P329 cost a day: I replicated `market_adp` across two disjoint seed blocks,
- * published three grades on it, and only then swapped the opponent model and
- * watched the sign reverse. The deeper failure was cheaper than that to avoid --
- * `draft/data/archetype_rooms_wirefloor.json` has carried the OPPOSITE SIGN for
- * that arm, at my exact opponents/keepers configuration, since 2026-08-16. The
- * contradicting evidence was committed in this repo and nothing read it.
+ * ⚠️ THIS TOOL SHIPPED WITH THE EXACT BUG IT EXISTS TO CATCH, AND IS FIXED HERE.
+ * v1 compared every committed artifact against every other and printed
+ * "UNSTABLE" wherever two disagreed. It never checked whether the two were
+ * COMPARABLE. They are not: the committed artifacts differ on `rooms` (40 vs
+ * 120), on `wire_floor` (null vs a real floor -- one is literally named
+ * `_wirefloor`), and on `opp_keeper_teams` (0, 3, 4). Two artifacts running
+ * different experiments are SUPPOSED to disagree; calling that instability is
+ * the same error as reading a single-model result as robust. Register 295's
+ * first headline was built on a v1 flag and is corrected there.
  *
- * So this reads EVERY committed archetype_rooms artifact and reports, per arm,
- * whether the paired-vs-shipped sign agrees across all of them -- and prints the
- * configuration axes (opponents, keepers, board era) that vary between them, so
- * a disagreement is attributable rather than mysterious.
+ * v2 compares only artifacts whose declared configuration MATCHES on every
+ * field below, and reports incomparable groups separately rather than silently
+ * pooling them.
  *
- * EXIT CODE GATES: non-zero if any arm's sign flips while its CI excludes zero
- * on both sides. That is the state in which two artifacts in this repo make
- * contradictory significant claims about the same arm.
- *
- * CONTROLS (Rule 3e/3f) -- a clean "all agree" is exactly what a broken reader
- * prints, so two things are asserted before any verdict:
- *   C1 at least 2 artifacts loaded and at least 2 distinct `opponents` values,
- *      or the comparison is vacuous.
- *   C2 a SYNTHETIC contradiction is detected, and a SYNTHETIC agreement is not.
- *      Two fabricated records are pushed through the same detector: one pair
- *      significant in opposite directions (must flag), one pair significant the
- *      same way (must not). Asserting the real answer would be circular; this
- *      asserts the mechanism.
- *
- * ⚠️ C2 ORIGINALLY ASSERTED THE WRONG THING AND FAILED ON ITS FIRST RUN, WHICH
- * IS THE ONLY REASON THE HEADLINE BELOW IS RIGHT. It demanded that `market_adp`
- * be reported UNSTABLE. It is not: all FOUR committed artifacts carrying that
- * arm say it LOSES (-0.97 to -2.23, every CI excluding zero). The +1.37 that
- * P321 was built on lives in no committed artifact -- it was produced, reverted
- * (correctly, the store is A's), replicated only against itself on a second
- * seed block, and published. Four committed artifacts disagreed with it the
- * whole time and none was consulted.
+ * CONTROLS (Rule 3e/3f):
+ *   C1 at least 2 artifacts load, or the comparison is vacuous.
+ *   C2 the DETECTOR works on synthetic input: a fabricated opposite-sign pair
+ *      must flag, a same-sign pair must not. Asserting a real answer would be
+ *      circular; this asserts the mechanism.
+ *   C3 THE COMPARABILITY GATE ITSELF FIRES: the known-incomparable pair
+ *      (archetype_rooms.json vs archetype_rooms_wirefloor.json, differing on
+ *      rooms/wire_floor/opp_keeper_teams) must land in DIFFERENT groups. This
+ *      is the control v1 did not have and the reason its headline was wrong.
  */
 'use strict';
 const fs = require('fs'), path = require('path');
@@ -65,27 +54,38 @@ if (docs.length < 2 || models.size < 2) {
 }
 console.log('\nC1 ok —', docs.length, 'artifacts,', models.size, 'opponent models:', [...models].join(', '));
 
-const arms = [...new Set(docs.flatMap(x => x.d.arms))].filter(a => a !== 'shipped').sort();
-const unstable = [];
-console.log('\narm            n  sig+  sig-   verdict');
-for (const arm of arms) {
-  let pos = 0, neg = 0, n = 0;
-  for (const { d } of docs) {
-    const r = (d.paired_vs_shipped[arm] || {}).mean_weekly;
-    if (!r || !r.ci95) continue;
-    n++;
-    const sig = r.ci95[0] > 0 || r.ci95[1] < 0;
-    if (!sig) continue;
-    if (r.mean > 0) pos++; else if (r.mean < 0) neg++;
-  }
-  let verdict = '';
-  if (pos && neg) { verdict = '*** UNSTABLE — significant BOTH ways ***'; unstable.push(arm); }
-  else if (pos || neg) verdict = 'consistent';
-  else verdict = 'never significant';
-  console.log(`${arm.padEnd(15)}${String(n).padStart(2)}${String(pos).padStart(6)}${String(neg).padStart(6)}   ${verdict}`);
+const CFG = ['opponents', 'keepers', 'rooms', 'seed_start', 'sims_per_room',
+  'wire_floor', 'engine_flags', 'opp_keeper_teams'];
+const keyOf = d => CFG.map(k => k + '=' + JSON.stringify(d[k])).join(' | ');
+const groups = new Map();
+for (const x of docs) {
+  const k = keyOf(x.d);
+  if (!groups.has(k)) groups.set(k, []);
+  groups.get(k).push(x);
 }
-console.log('\nUNSTABLE ARMS (an artifact in this repo contradicts another, both significant):',
-  unstable.length ? unstable.join(', ') : 'none');
+console.log('\ncomparable groups (identical declared config):', groups.size);
+let gi = 0;
+const unstable = [];
+for (const [k, gd] of groups) {
+  gi++;
+  console.log(`\n  group ${gi} (${gd.length} artifact${gd.length > 1 ? 's' : ''}): ${gd.map(x => x.f).join(', ')}`);
+  if (gd.length < 2) { console.log('    only one artifact — nothing to compare'); continue; }
+  const garms = [...new Set(gd.flatMap(x => x.d.arms))].filter(a => a !== 'shipped').sort();
+  let compared = 0;
+  for (const arm of garms) {
+    const rows = gd.map(x => (x.d.paired_vs_shipped[arm] || {}).mean_weekly).filter(r => r && r.ci95);
+    if (rows.length < 2) continue;
+    compared++;
+    let pos = 0, neg = 0;
+    for (const r of rows) {
+      if (!(r.ci95[0] > 0 || r.ci95[1] < 0)) continue;
+      if (r.mean > 0) pos++; else if (r.mean < 0) neg++;
+    }
+    if (pos && neg) { unstable.push(arm + ' (group ' + gi + ')'); console.log(`    *** ${arm}: significant BOTH ways ***`); }
+  }
+  console.log(`    arms carried by >=2 artifacts in this group: ${compared}`);
+}
+console.log('\nUNSTABLE within a comparable group:', unstable.length ? unstable.join(', ') : 'none');
 
 // ── C2: synthetic controls for the DETECTOR, not for the answer ────────────
 function flags(a, b) {          // a, b: [mean, lo, hi]
@@ -102,6 +102,23 @@ if (!posCase || negCase) {
   process.exit(2);
 }
 console.log('C2 ok — detector flags an opposite-sign pair and not a same-sign pair.');
+
+// ── C3: the comparability gate must actually separate a known-incomparable pair
+{
+  const a = docs.find(x => x.f === 'archetype_rooms.json');
+  const b = docs.find(x => x.f === 'archetype_rooms_wirefloor.json');
+  if (!a || !b) {
+    console.error('\nCONTROL C3 FAILED — the known-incomparable pair is not present to test the gate');
+    process.exit(2);
+  }
+  if (keyOf(a.d) === keyOf(b.d)) {
+    console.error('\nCONTROL C3 FAILED — archetype_rooms.json and archetype_rooms_wirefloor.json '
+      + 'landed in the SAME group. They differ on rooms (40 vs 120), wire_floor (null vs set) '
+      + 'and opp_keeper_teams (4 vs 3). A gate that pools them is the v1 bug.');
+    process.exit(2);
+  }
+  console.log('C3 ok — the known-incomparable pair is separated by the config gate.');
+}
 
 // ── the headline this tool exists to print ─────────────────────────────────
 const ma = docs.map(x => ({ f: x.f, r: (x.d.paired_vs_shipped.market_adp || {}).mean_weekly }))
