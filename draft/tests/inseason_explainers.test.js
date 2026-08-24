@@ -137,8 +137,15 @@ const read = rel => fs.readFileSync(path.join(ROOT, rel), 'utf8');
   ck('  and the guide quotes it', /3,?000/.test(GUIDE.analyzer.board.read) && /3,?000|3000/.test(GUIDE.analyzer.table.src));
 
   // The stream explainer's "same ranking filtered to K/DEF" claim.
-  ck('member.js really filters the same evaluateClaims ranking to K/DEF',
-    /c\.position === 'K' \|\| c\.position === 'DEF'/.test(read('src/routes/member.js'))
+  // TERRITORY: A, disclosed one-line trespass (B, 2026-08-24, register 294
+  // fix): this check went stale, not the code — `computeWaiverReco` (and its
+  // K/DEF filter) was extracted from member.js into src/waiver_reco.js on
+  // 2026-08-24 ("TERRITORY: relay (extracted...)"), and this test kept
+  // reading the old file. Confirmed stale independent of register 294's own
+  // change (fails identically with or without it, via git stash) — the
+  // filter's home moved, the claim it pins is still true, just elsewhere.
+  ck('waiver_reco.js really filters the same evaluateClaims ranking to K/DEF',
+    /c\.position === 'K' \|\| c\.position === 'DEF'/.test(read('src/waiver_reco.js'))
     && /K\/DEF/.test(GUIDE.waivers.stream.read));
 }
 
