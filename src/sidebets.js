@@ -886,6 +886,64 @@ function betYear(b) {
 }
 
 /** One party's dollar delta on a bet: +winnings or −stake. 0 unless settled. */
+/**
+ * LIFETIME HEAD-TO-HEAD (redesign catalog item 6, 2026-08-24): the record
+ * between two owners across every SETTLED two-party bet they were both in —
+ * "you're 3–1 lifetime vs Richard" on the card, from data nobody typed.
+ * Pushes count as games played, never as wins; net is from a's side.
+ */
+function pairRecord(bets, aId, bId) {
+  const a = Number(aId), b2 = Number(bId);
+  let aWins = 0, bWins = 0, pushes = 0, aNet = 0;
+  for (const bet of bets || []) {
+    if (bet.status !== STATUS.SETTLED) continue;
+    const ids = (bet.parties || []).map(p => Number(p.owner_id));
+    if (ids.length !== 2 || !ids.includes(a) || !ids.includes(b2)) continue;
+    if (bet.push) { pushes++; continue; }
+    aNet += partyDelta(bet, a);
+    if ((bet.winner_ids || []).map(Number).includes(a)) aWins++; else bWins++;
+  }
+  return { games: aWins + bWins + pushes, aWins, bWins, pushes, aNet: r2(aNet) };
+}
+
+/**
+ * RUN IT BACK (redesign catalog item 4): one tap re-proposes a finished
+ * two-party prop — same words, same stake, same opponent, roles set by who
+ * tapped. The new bet is a first-class proposal (expiry clock, accept flow).
+ *
+ * WEEK-BOUND CONDITIONS ARE DROPPED, DELIBERATELY: a condition naming week 4
+ * re-run in week 9 would grade on a week that already happened — silently
+ * wrong in exactly the way the engine exists to prevent. The words survive in
+ * `terms`; the audit says what was dropped and why, and the bet settles by
+ * hand like any handshake unless conditions are re-added fresh.
+ */
+async function rerun(id, owner_id) {
+  const bet = await get(id);
+  if (!bet) return null;
+  if (![STATUS.SETTLED, STATUS.DECLINED, STATUS.VOID].includes(bet.status)) {
+    return { refused: 'not_finished' };
+  }
+  if (!isParty(bet, owner_id)) return { refused: 'not_yours' };
+  if (bet.format !== 'prop' || (bet.parties || []).length !== 2) {
+    return { refused: 'not_two_party_prop' };
+  }
+  const other = bet.parties.find(p => Number(p.owner_id) !== Number(owner_id));
+  const weekBound = (bet.conditions || []).some(c => c.when === 'week' && c.week);
+  const next = await propose({
+    proposer_id: owner_id, party_ids: [other.owner_id],
+    terms: bet.terms, stake: bet.stake, resolves: bet.resolves,
+    conditions: weekBound ? [] : (bet.conditions || []),
+    logic: bet.logic, kind: bet.kind,
+  });
+  next.rerun_of = bet.id;
+  next.audit.push({ at: now(), by: Number(owner_id),
+    what: 'Run it back — same bet, fresh offer' + (weekBound
+      ? ' (week-bound conditions dropped: their week has passed — settles by hand unless re-added)'
+      : '') });
+  await store.set(KEY(next.id), next);
+  return next;
+}
+
 function partyDelta(b, owner_id) {
   if (b.status !== STATUS.SETTLED || b.push) return 0;
   const won = (b.winner_ids || []).includes(Number(owner_id));
@@ -1104,6 +1162,7 @@ async function counter(id, owner_id, by_name, { stake = null, terms = null } = {
 module.exports = {
   STATUS, MAX_OPEN_SLOTS,
   all, get, propose, accept, take, decline, settle, reopen, remove, edit, counter,
+  pairRecord, rerun,
   declareResult, confirmResult, disputeResult,
   startPoolDraft, poolDraftPick, snakeTurn,
   setPosition, markLeg, isParty, offerBuyout, acceptBuyout, clearBuyout, resend,
