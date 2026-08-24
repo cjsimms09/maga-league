@@ -2384,6 +2384,26 @@ router.post('/votes/:id/ballot', aw(async (req, res) => {
 // "no": not-voted and voted-no read differently on the roll call and in the
 // cast count the threshold sentence quotes. Closed measures refuse: the
 // record of a decided vote is a record.
+// WITHDRAW A MEASURE (redesign catalog 10): the proposer pulls their own
+// question off the ballot — but only while the league has not engaged.
+// Once any OTHER owner has cast, the measure belongs to the electorate and
+// the record stands; the proposer's own ballot never blocks their own
+// withdrawal. Withdrawn measures leave both lists (status 'withdrawn') —
+// nobody engaged, so there is nothing to memorialize; the doc survives.
+router.post('/votes/:id/withdraw', aw(async (req, res) => {
+  const vote = await getDoc(`vote:${req.params.id}`, null);
+  if (vote && vote.status === 'open' && Number(vote.proposer_id) === Number(req.owner.id)) {
+    const bKeys = await H.store.listKeys(`ballot:${vote.id}:`);
+    const others = bKeys.filter(k => Number(k.split(':')[2]) !== Number(req.owner.id));
+    if (!others.length) {
+      vote.status = 'withdrawn';
+      vote.withdrawn_at = now();
+      await setDoc(`vote:${vote.id}`, vote);
+    }
+  }
+  res.redirect('/votes');
+}));
+
 router.post('/votes/:id/rescind', aw(async (req, res) => {
   const vote = await getDoc(`vote:${req.params.id}`, null);
   if (vote && vote.status === 'open') {

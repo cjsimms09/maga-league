@@ -75,6 +75,16 @@
           <button class="btn small ghost" type="submit" title="Withdraw your ballot — back to not-voted">↩ Withdraw my vote</button>
         </form>
       <% } %>
+      <%# WITHDRAW THE MEASURE (catalog 10) — proposer only, and only before
+          anyone ELSE has weighed in; once the league engages, the record
+          stands and the button disappears rather than refusing. %>
+      <% if (v.proposer_id === owner.id
+             && !v.ballots.some(b => b.owner_id !== owner.id)) { %>
+        <form class="asis" method="post" action="/votes/<%= v.id %>/withdraw"
+              onsubmit="return confirm('Pull this measure off the ballot? It disappears — you can always propose it again.')">
+          <button class="btn small ghost" type="submit" title="Take your question off the ballot — nobody has voted on it yet">🗑 Withdraw the measure</button>
+        </form>
+      <% } %>
     </div>
     <details class="ledger-history" <%= v.comments.length ? '' : '' %>>
       <summary>💬 <%= v.comments.length %> comment<%= v.comments.length === 1 ? '' : 's' %> — talk your talk</summary>

@@ -191,8 +191,29 @@ const unresolvedKeepers = keepers.filter(k => k.unresolved);
 /* ── ROSTER SHAPE vs THE RULED TARGET ─────────────────────────────────────── */
 const roster = mine.map(r => byId.get(String(r.player_id))).filter(Boolean);
 const shape = {}; POS.forEach(q => { shape[q] = roster.filter(p => p.position === q).length; });
-/* Cory's ruling, 2026-08-19: match the top-3 finishers. */
-const TARGET = { QB: 1.56, RB: 4.78, WR: 5.00, TE: 1.67, K: 1.00, DEF: 1.00 };
+/* ⚠️ READ FROM `league_config.ruled_roster_target`, NOT TYPED. This file
+ * carried the six numbers as a local literal, which is exactly what
+ * `ruled_target_is_one_definition.test.js` exists to forbid — and that guard
+ * has been RED because of this file since I added it (A, 2026-08-24).
+ *
+ * The guard's own header says why it is not pedantry: register 70's five-arm
+ * shape ranking measured against RB 4.44 — a DIFFERENT quantity from a
+ * different study — instead of Cory's ruled 4.78, and "the verdict FLIPPED
+ * when corrected... Cory nearly ruled on the wrong comparison." A second copy
+ * of a ruled number is a second thing that can drift from the ruling.
+ *
+ * Same accessor as the two approved consumers (mlv_seat_plan.js,
+ * need_weight_rerun.js), REFUSING rather than falling back — a default target
+ * would be the invented constant all over again. */
+const TARGET = (() => {
+  const t = require(path.join(ROOT, 'draft', 'config', 'league_config.json'))
+    .ruled_roster_target;
+  if (!t || !t.targets) {
+    throw new Error('league_config.ruled_roster_target missing — refusing to '
+      + 'invent a roster target (register 70: the wrong target flipped a verdict)');
+  }
+  return t.targets;
+})();
 const shapeGap = {}; POS.forEach(q => { shapeGap[q] = +(shape[q] - TARGET[q]).toFixed(2); });
 
 const starters = (fz.league && (fz.league.roster_slots || fz.league.starters)) || {};
