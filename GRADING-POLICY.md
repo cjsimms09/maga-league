@@ -128,7 +128,14 @@ prices worst; grade every one of them against its null.
 
 * `draft/backtest/start_sit_vs_random.py` — start/sit. Wired into
   `weekly-grade.yml`; controls gate the exit code; artifact committed.
-* `draft/backtest/waiver_vs_random.py` — waiver claims. Same shape.
+* `draft/backtest/waiver_vs_random.py` — waiver claims (the ADD). Same shape.
+* `draft/backtest/drop_vs_random.py` — **the DROP, added 2026-08-24.** The
+  other half of the same transaction: 1,026 cuts were captured and none were
+  graded, which is how the wire came to recommend dropping Ja'Marr Chase with
+  nothing measuring the advice (register 277/288). 676 graded, 0.8001 against
+  a null of [0.4782, 0.5218]. **Its direction is INVERTED — for a drop, less
+  rest-of-season value is the good outcome — and the known-positive control
+  (cut the least-scoring man, reads 0.955) is what pins the sign.**
 * `draft/backtest/draft_pick_vs_random.py` — the draft pick itself. **This is
   the replacement yardstick for the retired engine-minus-owner comparison** in
   `engine_seat_replay.json` / `replay_league_table.json`, whose estimand reads

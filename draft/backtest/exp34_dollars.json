@@ -140,17 +140,17 @@
     },
     {
       "band": "moderate",
-      "n": 2,
-      "n_deviations": 2,
-      "sum_dollars": -150.0,
-      "mean_dollars": -75.0
+      "n": 1,
+      "n_deviations": 1,
+      "sum_dollars": -100.0,
+      "mean_dollars": -100.0
     },
     {
       "band": "large",
-      "n": 3,
-      "n_deviations": 3,
-      "sum_dollars": -250.0,
-      "mean_dollars": -83.33
+      "n": 4,
+      "n_deviations": 4,
+      "sum_dollars": -300.0,
+      "mean_dollars": -75.0
     }
   ],
   "traces": {
@@ -754,10 +754,10 @@
     }
   },
   "correlation_arm": {
-    "diff_mean": 0.139,
+    "diff_mean": 0.142,
     "diff_ci": [
-      0.052,
-      0.223
+      0.055,
+      0.226
     ],
     "verdict": "beat",
     "n_picks": 26

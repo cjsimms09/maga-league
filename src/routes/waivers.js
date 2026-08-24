@@ -26,7 +26,11 @@
 'use strict';
 const path = require('path');
 const V = require(path.join(__dirname, '..', '..', 'public', 'js', 'draft', 'valuation.js'));
-const LO = require(path.join(__dirname, '..', '..', 'src', 'routes', 'lineup.js'));
+// STATIC on purpose (2026-08-23): a path.join require of a SIBLING module is
+// invisible to esbuild, so production lacked the file on disk and this line
+// was the next 500 behind the valuation.js one Cory hit live. A static
+// relative require is traced and bundled like every other src module.
+const LO = require('./lineup.js');
 
 // The dollar value of ONE marginal projected point added to my starting lineup,
 // via the SAME model the lineup tool uses: it nudges P(win) (worth matchupValue)
@@ -241,7 +245,14 @@ function round2(x) { return Math.round(Number(x || 0) * 100) / 100; }
  */
 function waiverInputsFromBundle(bundle, playersDb, artifact, myRosterId) {
   const byId = {};
-  ((artifact && artifact.players) || []).forEach(p => { byId[String(p.player_id)] = p; });
+  // register 277: KEEPERS TOO. `kept_players` is DISJOINT from `players` on the
+  // post-keeper-lock board -- 0 of 23 kept ids appear in the 680-row pool -- so
+  // indexing `players` alone prices every keeper at proj_mean null / vorp 0.
+  // On Cory's live roster that made Ja'Marr Chase (real proj 271.8) the CHEAPEST
+  // man he owns, and the wire's BEST CLAIM was "drop Ja'Marr Chase".
+  ((artifact && artifact.players) || [])
+    .concat((artifact && artifact.kept_players) || [])
+    .forEach(p => { byId[String(p.player_id)] = p; });
   // positional replacement from the artifact (full-pool), for players it never ranked
   const replByPos = {};
   ((artifact && artifact.players) || []).forEach(p => {

@@ -85,18 +85,37 @@
             is what stops that being an argument.
           </p>
         </div>
-        <div class="ef-row">
-          <div class="field" style="flex:1 1 100%">Your teams
-            <span class="muted" id="pick-count"></span>
-            <div class="sb-people" id="pool-picks">
-              <% for (const o of owners) { %>
-                <label class="sb-person">
-                  <input type="checkbox" name="picks" value="<%= o.id %>"> <%= o.name %><%= o.id === owner.id ? ' (you)' : '' %>
-                </label>
-              <% } %>
+        <%# RECORD MODE (Cory, 08-23: "we shouldn't have to draft on the site..
+            we picked them. Should've been able to just select the teams each
+            of us picked"). No toggle: filled = recorded, empty = the live
+            snake draft opens once they accept. "League teams" said outright —
+            "teams" alone collides with NFL franchises everywhere else. %>
+        <details class="rule-box" style="margin-top:.6rem">
+          <summary style="cursor:pointer"><b>⚡ Already split the teams?</b>
+            <span class="muted" style="font-size:.78rem">record your done deal — or leave empty to draft live on the site after they accept</span></summary>
+          <div class="ef-row" style="margin-top:.5rem">
+            <div class="field" style="flex:1 1 46%">Your league teams
+              <span class="muted" id="pick-count"></span>
+              <div class="sb-people" id="pool-picks">
+                <% for (const o of owners) { %>
+                  <label class="sb-person">
+                    <input type="checkbox" name="picks" value="<%= o.id %>"> <%= o.name %><%= o.id === owner.id ? ' (you)' : '' %>
+                  </label>
+                <% } %>
+              </div>
+            </div>
+            <div class="field" style="flex:1 1 46%">Their league teams
+              <div class="sb-people" id="pool-picks-theirs">
+                <% for (const o of owners) { %>
+                  <label class="sb-person">
+                    <input type="checkbox" name="picks_theirs" value="<%= o.id %>"> <%= o.name %><%= o.id === owner.id ? ' (you)' : '' %>
+                  </label>
+                <% } %>
+              </div>
             </div>
           </div>
-        </div>
+          <p class="muted" style="font-size:.74rem;margin:.35rem 0 0">Both sides need the same count, no team on both — accepting confirms the split.</p>
+        </details>
       </div>
 
       <%# MATCHUP %>

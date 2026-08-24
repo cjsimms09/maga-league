@@ -37,6 +37,18 @@ choose between.
 One arm per signal, at one sensible weight. Vegas · usage (`tgt_share`) · air
 yards/EPA (`ay_share`, `wopr`, `rec_epa`) · Kalshi · pace · props.
 
+**Added 08-24 on Cory's mandate** (*"looking at everything, rookie, age,
+opportunity, pace of play.. looking for patterns or correlations in undervalued
+players"* → "Do it"), each filed with the full three-part standard and nulls:
+**age curve** (P325, weekly, `player_bio_capital.json`) · **year-2 leap** (P326,
+season-grain steal screen, gradeable now from committed history) ·
+**opportunity DELTA** (P327, trailing share change — the level is the existing
+usage axis; the delta is the role-just-changed window, and a TRUE feeds the
+auto-captured Tuesday waiver advice). Pace was already on the list above; its
+draft-grain null (`pace_of_play_2026-08-16.md`) is on record and does not
+answer the weekly question. **Every one of these carries a correlation gate
+against the existing arms so an old axis cannot be re-sold under a new name.**
+
 **Why first:** an axis that carries nothing alone almost never earns its place in a
 blend, and single arms are interpretable — when the champion changes you can say *why*
 in one sentence. **The current arm set is five variants of ONE axis; Tier 1 alone is

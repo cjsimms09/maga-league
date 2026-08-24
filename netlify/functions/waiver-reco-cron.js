@@ -1,0 +1,164 @@
+// TERRITORY: relay
+/* THE TUESDAY-NIGHT WAIVER AUTO-CAPTURE — the tool's advice goes on the
+ * record whether or not anybody taps a button.
+ *
+ * WHY IT EXISTS. Cory, 2026-08-24, looking at the waiver page's "Log this
+ * claim" card: "I shouldn't have to manually log claims and you should be
+ * logging and grading ALL recommendations everywhere even if I don't do
+ * them." He is right, and the plumbing already agreed with him: waiver_claim
+ * has been a registered, resolvable, gradeable ledger kind all season
+ * (claims-cron resolves, grade-cron grades) — but the ONLY emitters were the
+ * manual buttons on the page. An untapped button meant an unrecorded week,
+ * and an unrecorded week is a recommendation the season can never grade.
+ *
+ * WHAT IT WRITES. One waiver_claim row per week: the tool's TOP claim for
+ * the commissioner's roster, computed by the SAME src/waiver_reco.js call
+ * the /waivers page renders from — the ledger row is definitionally what the
+ * page showed, not a re-derivation that can drift. What Cory actually DID is
+ * never captured here: that is readable from Sleeper's own transaction log
+ * afterwards, which is exactly why the recommendation is the only thing that
+ * needs a live snapshot (the page's own footer has said so all along).
+ *
+ * TUESDAY EVENING ET (Wednesday 00:10 UTC), and that is the whole design:
+ * after MNF ends the week, before waivers clear Wednesday ~3am ET. A
+ * recommendation captured after claims process is not advice, it is
+ * hindsight.
+ *
+ * IT WRITES NOTHING IT CANNOT JUSTIFY. Preseason -> clean skip (the
+ * claims-cron reasoning: a job red by design until September is a job nobody
+ * reads). No mapped commissioner roster -> skip, named in the response. No
+ * claim clearing net_value > 0 -> the WEEK MARKER records "the tool said
+ * hold" and no row is fabricated. The marker also makes re-runs idempotent:
+ * one row per week, ever, no matter how often the function fires.
+ */
+const store = require('../../src/store');
+const predledger = require('../../src/predledger');
+const { computeWaiverReco, buildAutoWaiverEntry, buildAutoStreamEntry } = require('../../src/waiver_reco');
+
+/* Pure, exported for the unit test: the season/week/owner gate. Returns
+ * { skip: '<reason>' } or { season, week, ownerId, myRid }. */
+function autoCaptureContext(sData, cfg, owners) {
+  const season = String((sData && sData.state && sData.state.season) || '');
+  const week = Number(sData && sData.week);
+  if (!season || !week) return { skip: 'no live week yet' };
+  if ((sData.season_type || 'regular') !== 'regular') return { skip: 'preseason' };
+  const commish = (owners || []).find(o => o.is_commissioner);
+  if (!commish) return { skip: 'no commissioner owner' };
+  const map = (cfg && cfg.sleeper_map) || {};
+  const myRid = Object.keys(map).find(rid => Number(map[rid]) === Number(commish.id));
+  if (!myRid) return { skip: 'commissioner not mapped to a Sleeper roster' };
+  return { season, week, ownerId: commish.id, myRid };
+}
+
+exports.autoCaptureContext = autoCaptureContext;
+
+/* Pure, exported for the unit test: shape the Tuesday wire email's payload
+ * from the reco, and decide whether it is worth an inbox at all. Actionable =
+ * a positive claim, a block-watch row, or a hard-OUT on the roster — a week
+ * with none of those sends nothing (the Sunday-alert noise lesson: fifteen
+ * "nothing to do" emails teach you to stop opening the one that matters). */
+function wirePayload(reco, week, ridName) {
+  const top = (reco && reco.claims && reco.claims[0]) || null;
+  const bw = ((reco && reco.blockWatch) || []).map(b => ({ ...b,
+    denies_names: (b.denies || []).map(ridName) }));
+  const inj = (reco && reco.myInjured) || [];
+  const p = {
+    week,
+    topClaim: top && top.net_value > 0
+      ? { name: top.name, position: top.position, net_value: top.net_value,
+          dollars: top.dollars, drop: reco.drop || null }
+      : null,
+    stream: ((reco && reco.streamClaims) || [])[0] || null,
+    blockWatch: bw,
+    myInjured: inj,
+  };
+  p.actionable = !!(p.topClaim || bw.length || inj.some(x => x.out));
+  return p;
+}
+exports.wirePayload = wirePayload;
+
+exports.handler = async (event) => {
+  store.initBlobs(event);
+  const qs = (event && event.queryStringParameters) || {};
+  const isManual = qs.key !== undefined;
+  if (isManual && process.env.WAIVER_RECO_CRON_KEY && qs.key !== process.env.WAIVER_RECO_CRON_KEY) {
+    return { statusCode: 403, body: JSON.stringify({ ok: false, error: 'bad key' }) };
+  }
+  try {
+    const sleeper = require('../../src/sleeper');
+    const cfg = (await store.get('config')) || {};
+    const owners = (await store.get('owners')) || [];
+    const sData = await sleeper.bundle(cfg.sleeper_league_id);
+    const ctx = autoCaptureContext(sData, cfg, owners);
+    if (ctx.skip) {
+      return { statusCode: 200, body: JSON.stringify({ ok: true, skipped: ctx.skip }) };
+    }
+
+    // One capture per week, ever — the marker is the idempotence mechanism
+    // (rmarkKey pattern from claims-cron), and for a "hold" week it IS the
+    // record.
+    const markKey = `waiverauto:${ctx.season}:${ctx.week}`;
+    if (await store.get(markKey)) {
+      return { statusCode: 200, body: JSON.stringify({ ok: true, skipped: 'already captured', week: ctx.week }) };
+    }
+
+    const playersDb = await sleeper.players();
+    let artifact = {};
+    try {
+      artifact = JSON.parse(require('fs').readFileSync(
+        require('path').join(__dirname, '..', '..', 'public', 'draft_data.json'), 'utf8'));
+    } catch (e) { artifact = {}; }
+
+    const reco = computeWaiverReco(sData, playersDb, artifact, ctx.myRid, owners.length);
+    // Both advice surfaces this page carries, one decision moment: the top
+    // priority claim (waiver_claim) and the K/DEF stream (stream_call —
+    // register 287's stream twin). Either can honestly be absent.
+    const entries = [
+      buildAutoWaiverEntry(reco, ctx.season, ctx.week, ctx.ownerId),
+      buildAutoStreamEntry(reco, ctx.season, ctx.week, ctx.ownerId),
+    ].filter(Boolean);
+    let captured = 0, note = null;
+    if (!entries.length) {
+      await store.set(markKey, { none: true, live: reco.live,
+        blockWatch: (reco && reco.blockWatch) || [], at: new Date().toISOString() });
+      note = reco.live ? 'tool says hold — recorded as the week marker' : 'reco not live';
+    } else {
+      for (const entry of entries) await predledger.append(store, entry);
+      // blockWatch rides on the marker: P331 grades whether flagged players
+      // actually get claimed by the owners they were flagged for, and that
+      // grade needs the Tuesday-night snapshot, not a re-derivation.
+      await store.set(markKey, { keys: entries.map(e => e.payload.key),
+        blockWatch: reco.blockWatch || [], at: new Date().toISOString() });
+      captured = entries.length;
+    }
+
+    /* THE TUESDAY WIRE ALERT (task 36, Cory's "fastest on news" item): the
+     * same computation this run just logged goes to the commissioner's inbox
+     * before waivers clear overnight. Once per week, stamped on success only
+     * so a failed send retries next invocation; a non-actionable week sends
+     * nothing (see wirePayload). */
+    let emailed = 0, emailNote = null;
+    try {
+      const notify = require('../../src/notify');
+      const ridName = rid => {
+        const oid = Number((cfg.sleeper_map || {})[String(rid)]);
+        return ((owners || []).find(o => Number(o.id) === oid) || {}).name || `team ${rid}`;
+      };
+      const payload = wirePayload(reco, ctx.week, ridName);
+      const wireStamp = `tuesdaywire:${ctx.season}:${ctx.week}`;
+      if (!payload.actionable) emailNote = 'nothing worth an inbox this week';
+      else if (await store.get(wireStamp)) emailNote = 'already sent this week';
+      else {
+        const r = await notify.tuesdayWire(owners, payload);
+        if (r && r.sent) { emailed = 1; await store.set(wireStamp, { at: new Date().toISOString() }); }
+        else emailNote = (r && (r.reason || r.error)) || 'send skipped';
+      }
+    } catch (e) { emailNote = String(e && e.message || e); }
+
+    return { statusCode: 200, body: JSON.stringify({ ok: true, week: ctx.week,
+      captured, ...(note ? { note } : { keys: entries.map(e => e.payload.key) }),
+      emailed, ...(emailNote ? { emailNote } : {}) }) };
+  } catch (e) {
+    return { statusCode: 500, body: JSON.stringify({ ok: false, error: String(e && e.message || e) }) };
+  }
+};

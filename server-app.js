@@ -69,6 +69,11 @@ function createApp() {
           : null;
         res.locals.owner = req.owner;
         res.locals.money = helpers.money;
+        // venmo.js's one link builder, exposed to templates so every pay
+        // button can prefill amount+note (redesign catalog item 8) instead of
+        // each view hand-building a bare profile URL — the exact drift
+        // venmo.js's header says it exists to prevent.
+        res.locals.venmoLink = (owner, opts) => require('./src/venmo').link(owner, opts);
         res.locals.alerts = req.owner ? helpers.activeAlerts(world.alerts) : [];
         res.locals.currentPath = req.path;
         res.locals.quip = helpers.pickRandom(helpers.QUIPS);

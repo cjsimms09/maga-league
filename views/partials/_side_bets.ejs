@@ -30,6 +30,52 @@
     about has already started. Nobody's money moved.</span>
   </div>
 <% } %>
+<% if (typeof stale_terms !== 'undefined' && stale_terms) { %>
+  <div class="alert-banner alert-warning" style="margin-bottom:1rem">
+    <span class="tag">✎</span><span><b>That offer changed while you were looking at it.</b>
+    Nothing was accepted — read the current terms below (marked ✎ edited) and
+    accept those if you still want it.</span>
+  </div>
+<% } %>
+<% if (typeof edited !== 'undefined' && edited) { %>
+  <div class="alert-banner alert-info" style="margin-bottom:1rem">
+    <span class="tag">✎</span><span>Offer updated — the card now shows the new terms,
+    and the old ones stay one tap away on it.</span>
+  </div>
+<% } %>
+<% if (typeof countered !== 'undefined' && countered) { %>
+  <div class="alert-banner alert-info" style="margin-bottom:1rem">
+    <span class="tag">↩</span><span>Counter sent — their original offer is closed and
+    yours is in front of them now.</span>
+  </div>
+<% } %>
+
+<%# ── THE OFFER SHEET (commissioner-only; Cory's 08-24 mandate) — the +EV
+    bets worth ORIGINATING this week, priced by the same arithmetic the edge
+    advisor uses on incoming bets (src/betoffers.js → betedge.priceCondition).
+    Absent when the model sees nothing ≥55% — an honest quiet week, and absent
+    for everyone but the commissioner (analysis is his; ACCESS-RULE.md). %>
+<% const _os = (typeof offerSheet !== 'undefined' && offerSheet && owner.is_commissioner) ? offerSheet : []; %>
+<% if (_os.length) { %>
+<div class="card" style="margin-bottom:1.2rem; border-left:3px solid var(--gold)">
+  <h2>📤 Offers Worth Sending <span class="sub">even-money bets the model prices in your favor — P333 grades this sheet all season</span></h2>
+  <div class="body">
+    <% for (const of_ of _os.slice(0, 3)) { %>
+      <div style="padding:.45rem 0;border-bottom:1px solid var(--line,#e5e7eb)">
+        <b><%= of_.terms %></b>
+        <div class="muted" style="font-size:.78rem;margin-top:.15rem">
+          model: <b><%= Math.round(of_.p * 100) %>%</b> your way · worth ~<b>$<%= of_.edge_per_10.toFixed(2) %></b> per $10 staked · <%= of_.line %>
+        </div>
+      </div>
+    <% } %>
+    <p class="muted" style="margin:.6rem 0 0;font-size:.74rem">
+      Model prices, not gospel — the 55% bar exists because 52% is noise. Every week's
+      sheet is snapshotted and graded at season end: if the ≥55% offers don't win ≥55%,
+      the sheet retires. Send one via <b>Start a bet → Season finish</b> below.
+    </p>
+  </div>
+</div>
+<% } %>
 <%
   const myId = owner.id;
   const inIt = b => (b.parties || []).some(p => p.owner_id === myId);
@@ -190,7 +236,16 @@ function betCard(b, opts) {
     </div>
 
     <%# WHAT'S THE BET — one plain-English line, always first. %>
-    <div class="bc-what"><%= b.terms %></div>
+    <div class="bc-what"><%= b.terms %><% if ((b.terms_version || 1) > 1 && b.edits && b.edits.length) { %>
+      <details style="display:inline-block;font-size:.74rem;margin-left:.4rem;vertical-align:middle">
+        <summary class="muted" style="cursor:pointer;display:inline">✎ edited</summary>
+        <span class="muted">was: $<%= b.edits[b.edits.length - 1].stake %> — <%= b.edits[b.edits.length - 1].terms %></span>
+      </details>
+    <% } %><% if (b.countered_from) { %>
+      <span class="muted" style="font-size:.72rem;margin-left:.4rem">↩ counter-offer — replaces an earlier one</span>
+    <% } %><% if (b.countered_to) { %>
+      <span class="muted" style="font-size:.72rem;margin-left:.4rem">↩ answered with a counter — see the new offer</span>
+    <% } %></div>
     <% if (sentence(b) || (b.format === 'prop' && b.conditions.length > 1)) { %>
       <div class="bc-rule">📐 <%= sentence(b) || b.terms %><% if (b.format === 'prop' && b.conditions.length > 1) { %>
         <span class="muted">(<%= b.logic === 'any' ? 'any one of them' : 'all of them' %>, for <%= betNames(b.for_id) %>)</span><% } %></div>
@@ -449,11 +504,17 @@ function betCard(b, opts) {
       <% if (opts.withAccept && needsAccept(b)) { %>
         <form method="post" action="/sidebets/<%= b.id %>/accept" class="accept-form grow"
               data-handshake="<%= esc(b.terms) %>"
+              data-terms-version="<%= b.terms_version || 1 %>"
               data-stake="<%= money(b.stake) %>"
               data-with="<%= esc(b.parties.filter(p => p.owner_id !== owner.id).map(p => betNames(p.owner_id)).join(', ')) %>">
-          <% if (b.format === 'pool') { %>
+          <% if (b.format === 'pool' && b.pool && b.pool.recorded) { %>
+            <p class="muted" style="margin:.1rem 0 .2rem; font-size:.74rem">The split is already recorded —
+              your teams: <b><%= (b.parties.find(p => p.owner_id === owner.id) || {}).picks.map(betNames).join(', ') || '—' %></b>.
+              Accepting confirms it.</p>
+          <% } else if (b.format === 'pool') { %>
             <p class="muted" style="margin:.1rem 0 .2rem; font-size:.74rem">Accepting opens the franchise draft — you pick your teams there, turn by turn.</p>
           <% } %>
+          <input type="hidden" name="terms_version" value="<%= b.terms_version || 1 %>">
           <% if (!deadlines[b.id] || deadlines[b.id].open) { %>
             <button class="btn small gold" type="submit">Accept — it's on</button>
           <% } else { %>
@@ -463,6 +524,22 @@ function betCard(b, opts) {
         <form class="asis" method="post" action="/sidebets/<%= b.id %>/decline">
           <button class="btn small ghost" type="submit">Decline</button>
         </form>
+        <%# COUNTER (catalog item 3) — answer with your own price instead of a
+            flat yes/no. Two-party props only; the server refuses the rest. %>
+        <% if (b.format === 'prop' && (b.parties || []).length === 2 && b.proposer_id !== owner.id) { %>
+          <details class="sb-counter" style="flex-basis:100%">
+            <summary class="btn small ghost" style="display:inline-block;cursor:pointer">↩ Counter</summary>
+            <form method="post" action="/sidebets/<%= b.id %>/counter"
+                  style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin-top:.5rem">
+              <label style="font-size:.76rem">$ <input type="number" name="stake" min="1" step="1"
+                     value="<%= b.stake %>" style="width:5.5rem"></label>
+              <input type="text" name="terms" maxlength="400" value="<%= b.terms %>"
+                     style="flex:1 1 12rem;font-size:.82rem">
+              <button class="btn small navy" type="submit">Send counter</button>
+              <span class="muted" style="flex-basis:100%;font-size:.72rem">This declines their offer and sends yours back — they accept, decline, or counter again.</span>
+            </form>
+          </details>
+        <% } %>
       <% } %>
       <% if (opts.withTake && b.status === 'open' && !inIt(b)) { %>
         <form method="post" action="/sidebets/<%= b.id %>/take" class="take-form grow"
@@ -516,6 +593,19 @@ function betCard(b, opts) {
           </form>
         <% } %>
         <% if (b.status === 'proposed') { %>
+          <%# TRUE EDIT (Cory, 08-23): change the offer in place while nobody
+              has accepted. SB.edit versions the terms; an accept of the old
+              version refuses, so nobody can be bound to words they never saw. %>
+          <details class="asis" style="display:inline-block">
+            <summary class="btn small ghost" style="list-style:none;cursor:pointer">✎ Edit</summary>
+            <form method="post" action="/sidebets/<%= b.id %>/edit"
+                  style="display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;margin-top:.4rem">
+              <label class="muted" style="font-size:.76rem">$
+                <input name="stake" type="number" min="1" step="1" value="<%= b.stake %>" style="width:5.5rem"></label>
+              <input name="terms" value="<%= esc(b.terms) %>" maxlength="1200" style="flex:1 1 14rem">
+              <button class="btn small gold" type="submit">Save changes</button>
+            </form>
+          </details>
           <form class="asis" method="post" action="/sidebets/<%= b.id %>/delete"
                 onsubmit="return confirm('Pull this bet back? Nobody will be able to accept it.')">
             <button class="btn small ghost" type="submit">Rescind</button>
@@ -586,10 +676,14 @@ function betCard(b, opts) {
           <%# You owe: the winner's Venmo with the amount ready — pay and mark
               sent in the same breath. Loud when there's no handle on file. %>
           <% if (r.net < 0) { const cred = owners.find(o => o.name === r.name);
-               const h = cred && cred.venmo ? String(cred.venmo).replace(/^@/, '') : null; %>
-            <% if (h) { %>
-              <a class="btn small gold" href="https://venmo.com/u/<%= h %>" target="_blank" rel="noopener"
-                 title="Pay <%= r.name %> the <%= money(Math.abs(r.net)) %> you owe">💸 Venmo <%= r.name %> <%= money(Math.abs(r.net)) %></a>
+               // venmoLink prefills the pay screen with the amount and a note
+               // naming the bet, so the tap is the whole payment — catalog
+               // item 8. Falls back loud when no handle is on file.
+               const vUrl = cred ? venmoLink(cred, { amount: Math.abs(r.net),
+                 note: 'MFGA side bet — ' + (r.legs[0] ? r.legs[0].bet.terms.slice(0, 60) : 'settle up') }) : null; %>
+            <% if (vUrl) { %>
+              <a class="btn small gold" href="<%= vUrl %>" target="_blank" rel="noopener"
+                 title="Pay <%= r.name %> the <%= money(Math.abs(r.net)) %> you owe — amount and note prefilled">💸 Venmo <%= r.name %> <%= money(Math.abs(r.net)) %></a>
             <% } else { %>
               <span class="owe-novenmo">no Venmo on file for <%= r.name %></span>
             <% } %>
@@ -801,7 +895,16 @@ function betCard(b, opts) {
 
 <% if (done.length || dead.length) { %>
 <details class="card entry-card">
-  <summary>📜 Settled &amp; declined <span class="sub"><%= done.length %> settled, <%= dead.length %> never happened</span></summary>
+  <%# THE SEASON BOOK LINE (redesign spec, The Book): the one number a bettor
+      wants over the settled pile — am I up or down? ledgerFor already keeps
+      the running total; this just says it where the settled bets live. %>
+  <% const _net = sbLedger ? Math.round(sbLedger.net || 0) : 0; %>
+  <summary>📜 Settled &amp; declined <span class="sub"><%= done.length %> settled, <%= dead.length %> never happened</span>
+    <% if (done.length) { %>
+      <span class="<%= _net >= 0 ? 'money-up' : 'money-down' %>" style="font-weight:800;margin-left:.4rem">
+        your book: <%= _net >= 0 ? '+$' + _net : '−$' + Math.abs(_net) %></span>
+    <% } %>
+  </summary>
   <div class="body">
     <% for (const b of done) { betCard(b, {}); } %>
     <% for (const b of dead) { betCard(b, {}); } %>

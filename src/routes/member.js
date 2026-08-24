@@ -288,7 +288,11 @@ router.get('/api/sunday-alert', aw(async (req, res) => {
 
   const r = await notify.sundayAlert(world.owners, alert).catch(e => ({ error: String((e && e.message) || e) }));
   const sent = (r && !r.skipped && !r.error) ? 1 : 0;
-  if (sent) await setDoc(stampKey, { at: new Date().toISOString(), calls: alert.calls.length, dead: alert.dead.length });
+  if (sent) await setDoc(stampKey, { at: new Date().toISOString(), calls: alert.calls.length, dead: alert.dead.length,
+    // The exact recommendation the email showed, kept so the one-tap WHY
+    // (/lineup/why) can attach what Cory was actually looking at when he
+    // decided — not a re-derivation that may have moved by Tuesday.
+    todo: (alert.lineupKnown ? (alert.changes || []) : (alert.calls || [])).slice(0, 4) });
   res.json({ ok: true, sent, quiet: false, emailConfigured, week: weekNo,
     hasCalls: alert.hasCalls, dead: alert.dead.length,
     changes: alert.changes.length, lineupKnown: alert.lineupKnown,
@@ -550,6 +554,30 @@ router.get('/', aw(async (req, res) => {
   // this same helper now (helpers.js, Cory 2026-08-22) so there is one
   // definition of "an open vote you haven't cast", not two that can drift.
   const unvoted = await H.votesAwaiting(owners, world.config, req.owner.id);
+  /* NEEDS YOU — the one aggregation on the site (owner-site redesign spec,
+   * rule 5: a badge means "you must act"). Everything below already existed
+   * somewhere two taps deep; this surfaces it in one card. */
+  const needsYou = [];
+  try {
+    const _nameOf = id => (H.ownerById(owners, id) || {}).name || 'Someone';
+    for (const bb of await SB.all()) {
+      const mine = (bb.parties || []).find(pp => pp.owner_id === req.owner.id);
+      if (!mine) continue;
+      if (bb.status === SB.STATUS.PROPOSED && !mine.accepted) {
+        const from = (bb.parties || []).find(pp => pp.accepted);
+        needsYou.push({ icon: '🤝', href: '/bank?section=sidebets',
+          text: `${_nameOf(from && from.owner_id)} sent you a $${bb.stake} bet`, cue: 'accept or decline →' });
+      }
+      if (bb.status === SB.STATUS.AWAITING_CONFIRM && bb.declared && bb.declared.by !== req.owner.id) {
+        needsYou.push({ icon: '⚖️', href: '/bank?section=sidebets',
+          text: `${_nameOf(bb.declared.by)} declared a result on your $${bb.stake} bet`, cue: 'confirm or dispute →' });
+      }
+    }
+  } catch (e) { /* the card degrades to fewer rows, never breaks the page */ }
+  if (unvoted && unvoted.length) {
+    needsYou.push({ icon: '🗳', href: '/votes',
+      text: `${unvoted.length} open ballot${unvoted.length === 1 ? '' : 's'} waiting on your vote`, cue: 'cast it →' });
+  }
 
   // THE DRAFT-DAY ANNOUNCEMENT — derived from config (date/time/place) so it's
   // one source of truth for the front-page banner AND the pinned site-wide alert.
@@ -644,7 +672,14 @@ router.get('/', aw(async (req, res) => {
         if (Array.isArray(res.locals.alerts)) {
           res.locals.alerts = res.locals.alerts.filter(a => !isKeeperAlert(a));
         }
-      } else if (!pinned) {
+      } else if (!pinned && !keeperInfo.passed) {
+        // The !passed guard matters: keeperInfo.message is built whether or not
+        // the deadline is in the past, and on a store with no pinned row (fresh
+        // seed, or a wiped alerts doc) this branch used to CREATE an active
+        // "KEEPER DEADLINE" alert days after the deadline — it then showed on
+        // every non-dashboard page until the next home visit deactivated it
+        // (found on the 08-24 phone walkthrough: Aug 21 banner still up on
+        // /votes on Aug 24).
         const created = { id: 'keeperdeadline', message: keeperInfo.message, level: 'urgent', active: true, created_at: now() };
         await mutateDoc('alerts', [], as => {
           if (as.find(isKeeperAlert)) return undefined;
@@ -865,6 +900,10 @@ router.get('/', aw(async (req, res) => {
   // with a box to reply — is the difference between a chat and a ghost town.
   const chatLatest = (await H.chatFeed(owners, CHAT_ON_HOME));
   const myBalance = bal[req.owner.id] ? bal[req.owner.id].balance : 0;
+  if (Number(myBalance) < 0) {
+    needsYou.push({ icon: '💸', href: '/bank',
+      text: `You owe $${Math.abs(Math.round(myBalance))}`, cue: 'square up →' });
+  }
   // Which teams have side-bet money riding on them, so the standings can say so.
   const betMoney = SB.moneyOnTeams(await SB.all(), req.owner.id,
     id => (H.ownerById(owners, id) || {}).name || '?');
@@ -921,7 +960,7 @@ router.get('/', aw(async (req, res) => {
     // check the scores screen while games are actually live.
     gameNight: WW.primetimeWindow(),
     season, payouts: H.payoutTable(season), buyins, weekly, awards, standings, draft,
-    unvoted, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance, draftInfo, keeperInfo, weekHero,
+    unvoted, needsYou, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance, draftInfo, keeperInfo, weekHero,
     liveStale: await liveFreshness(),
     // The money scoreboard: banked dollars + rank this season, from the ledger.
     moneyBoard: L.moneyStandings(world.ledger, owners, season), meId: req.owner.id,
@@ -1327,6 +1366,16 @@ router.get('/bank', aw(async (req, res) => {
     owners.map(o => ({ owner_id: o.id, name: o.name, net: bal[o.id] ? bal[o.id].balance : 0 })),
     id => { const o = H.ownerById(owners, id); const h = o && V.handle(o); return h ? { handle: h, url: `https://venmo.com/u/${h}` } : null; },
     bankId != null ? bankId : null);
+  // Prefill each Square Up button with ITS transfer's amount and a note
+  // (catalog item 8): the callback above only sees an owner id, but the
+  // amount belongs to the transfer, so it attaches here — V.link is the one
+  // builder (venmo.js), the same one the side-bet owe rows use.
+  for (const t of (settlement && settlement.transfers) || []) {
+    if (t.venmo && t.venmo.handle) {
+      t.venmo.url = V.link({ venmo: t.venmo.handle },
+        { amount: t.amount, note: `MFGA league settle-up — ${t.from} to ${t.to}` });
+    }
+  }
 
   // Whose ledger sits at the top. Yours by default; clicking a name in the
   // league ledger below swaps it, which is how you get from "who owes what" to
@@ -1407,6 +1456,7 @@ router.get('/bank', aw(async (req, res) => {
   // and the bracket itself is the honest source by then.
   const poolAdvice = {};
   const betEdges = {};
+  let offerSheet = [];
   if (req.owner.is_commissioner) {
     const PA = require('./pooladvisor');
     const CH = require('./champodds');
@@ -1427,6 +1477,18 @@ router.get('/bank', aw(async (req, res) => {
         // honest, free-text bets say "can't price" rather than guessing).
         const ectx = BE.contextFromRows(rows, Math.max(0, pwStart - week), { weekNow: week });
         if (ectx) {
+          // THE OFFER SHEET (Cory's 08-24 mandate): the +EV bets worth
+          // ORIGINATING, priced through the same priceCondition as the
+          // reactive advisor. Snapshotted once per week (register 290: an
+          // instruction nobody scores is where defects live — P333 grades
+          // whether the sheet's ≥55% offers actually win ≥55%).
+          try {
+            offerSheet = require('../betoffers').suggestOffers(ectx, req.owner.id, owners);
+            const okey = `betoffers:${String(season.year || season)}:${week}`;
+            if (offerSheet.length && !(await getDoc(okey, null))) {
+              await setDoc(okey, { at: now(), week, offers: offerSheet });
+            }
+          } catch (e) { offerSheet = []; }
           for (const b of bets) {
             const actionable = b.status === SB.STATUS.OPEN ? !SB.isParty(b, req.owner.id)
               : [SB.STATUS.PROPOSED, SB.STATUS.LOCKED].includes(b.status) && SB.isParty(b, req.owner.id);
@@ -1480,7 +1542,7 @@ router.get('/bank', aw(async (req, res) => {
   } catch (e) { career = null; /* reference numbers are a bonus, never break the page */ }
 
   res.render('bank', {
-    poolAdvice, betEdges, career,
+    poolAdvice, betEdges, offerSheet, career,
     // Propose-from-anywhere: a ?betvs=<id> link (matchup, standings, franchise)
     // pre-selects that opponent in the bet builder.
     prefillParty: Number(req.query.betvs) || null,
@@ -1489,6 +1551,7 @@ router.get('/bank', aw(async (req, res) => {
     section, bets, tallies, owners, betNames, sbLedger, sbOwed, sbOwedMine, verdicts, liveOrder,
     sbGrid, sbView, sbDrill,
     deadlines, late: req.query.late === '1',
+    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1',
     betFail: betFailMessage(req.query.betfail),
     currentWeek: (await sleeper.bundle(world.config.sleeper_league_id) || {}).week || 1,
     BL, payDirectory: owners.filter(o => o.venmo || o.paypal || o.cashapp || o.zelle),
@@ -1687,6 +1750,12 @@ function betFailMessage(code) {
   if (c === 'stake-zero') return 'A stake has to be more than $0.';
   if (c === 'nobody') return "Nobody's on the other side. Name at least one opponent, or post it to the board with open slots so someone can take it.";
   if (c.startsWith('rejected:')) return 'The bet was refused: ' + c.slice(9) + '. Nothing was written — fix it and send again.';
+  // Counter-offer refusals (SB.counter) — each names what to do instead.
+  if (c === 'not_counterable') return 'That offer is no longer open, so there is nothing to counter.';
+  if (c === 'own_offer') return "It's your own offer — use ✎ Edit on it instead of countering yourself.";
+  if (c === 'not_two_party_prop') return 'Counters only work on two-person bets — for pools and group bets, decline and propose fresh.';
+  if (c === 'already_accepted') return "You already accepted this one — that's a handshake, not a negotiation.";
+  if (c === 'no_change') return "Your counter matched their offer exactly — that's an accept. Tap Accept instead.";
   return 'That bet was not created (' + c + '). Nothing was written — fix it and send again.';
 }
 
@@ -1727,13 +1796,26 @@ router.post('/sidebets', aw(async (req, res) => {
       // picks at propose time — the alternating draft opens on accept. So the
       // teams-in-play are all active owners, and the proposer's picks are ignored.
       const poolTeams = format === 'pool' ? owners.map(o => o.id) : [];
+      // RECORD MODE: filled checkboxes = the split already happened offline.
+      // Empty = the live snake draft opens on accept, exactly as before.
+      const recMine = format === 'pool' ? picksFrom(req.body) : [];
+      const recTheirs = format === 'pool'
+        ? [].concat(req.body.picks_theirs || []).map(Number).filter(Boolean) : [];
+      const recording = !!(recMine.length || recTheirs.length);
+      if (recording) {
+        const need = Number(req.body.picks_required) || recMine.length;
+        if (ids.length !== 1) throw new Error('record-one-opponent');
+        if (recMine.some(t => recTheirs.includes(t))) throw new Error('record-overlap');
+        if (recMine.length !== need || recTheirs.length !== need) throw new Error('record-count');
+      }
       const poolWins = format === 'pool'
         ? (String(req.body.pool_outcome || '').trim() || 'holds the eventual league champion')
         : '';
       const bet = await SB.propose({
         proposer_id: req.owner.id, party_ids: ids, terms, stake,
         position: String(req.body.position || '').trim(),
-        picks: format === 'pool' ? [] : picksFrom(req.body),
+        picks: format === 'pool' ? recMine : picksFrom(req.body),
+        party_picks: recording ? { [ids[0]]: recTheirs } : null,
         resolves: String(req.body.resolves || '').trim(),
         format, conditions, logic: req.body.logic, kind: String(req.body.kind || ''),
         // Ordered: the first rule that separates the field wins, the rest are
@@ -1804,13 +1886,45 @@ async function tooLate(bet, req) {
   // Anybody scoring anywhere means the week is under way. Not just this
   // matchup — a bet between two people whose players all play Sunday is still
   // a bet on a week that started on Thursday.
-  const anyScore = (sData && Array.isArray(sData.matchups))
+  /* PRESEASON POINTS ARE NOISE, NOT KICKOFF — found live 2026-08-23, the
+   * day after the draft (Cory: bets on week 1 closed "because week 1 has
+   * started"). The weekend's preseason games put real player points into
+   * Sleeper's matchup rows, and points-on-the-board was read as the week
+   * being under way. A week can only be under way in the REGULAR season —
+   * Sleeper's own state says which it is. */
+  const inRegularSeason = !!(sData && sData.season_type === 'regular');
+  const anyScore = inRegularSeason && (sData && Array.isArray(sData.matchups))
     && sData.matchups.some(m => (m.points || 0) > 0);
   if (anyScore && !(bet.created_at && new Date(bet.created_at) > BL.kickoffOf(earliest, world.config.season_start))) {
     return `Week ${earliest} is under way — there are points on the board. This one had to be accepted before anybody scored.`;
   }
   return null;
 }
+
+router.post('/sidebets/:id/edit', aw(async (req, res) => {
+  // TRUE EDIT (Cory's ruling, 2026-08-23) — proposer only, unaccepted only;
+  // SB.edit enforces both and versions the terms so a stale accept refuses.
+  const out = await SB.edit(req.params.id, req.owner.id, {
+    stake: req.body.stake, terms: req.body.terms,
+  });
+  if (out && out.refused) {
+    return res.redirect('/bank?section=sidebets&betfail=' + out.refused + '#bet-' + req.params.id);
+  }
+  return res.redirect('/bank?section=sidebets&edited=1#bet-' + req.params.id);
+}));
+
+router.post('/sidebets/:id/counter', aw(async (req, res) => {
+  // COUNTER-OFFER (catalog item 3) — decline + re-propose with roles swapped,
+  // linked both ways; SB.counter enforces every guardrail and names refusals.
+  const out = await SB.counter(req.params.id, req.owner.id, req.owner.name, {
+    stake: req.body.stake, terms: req.body.terms,
+  });
+  if (!out || out.refused) {
+    return res.redirect('/bank?section=sidebets&betfail=' + ((out && out.refused) || 'gone')
+      + '#bet-' + req.params.id);
+  }
+  return res.redirect('/bank?section=sidebets&countered=1#bet-' + out.next.id);
+}));
 
 router.post('/sidebets/:id/accept', aw(async (req, res) => {
   const bet = await SB.get(req.params.id);
@@ -1822,10 +1936,17 @@ router.post('/sidebets/:id/accept', aw(async (req, res) => {
   const accepted = await SB.accept(req.params.id, req.owner.id, req.owner.name, {
     position: String(req.body.position || '').trim(),
     picks: picksFrom(req.body),
+    expected_version: req.body.terms_version,
   });
+  if (accepted && accepted.stale_terms) {
+    // The proposer edited while this page was open — show the CURRENT terms
+    // and let them accept those, never the ones that no longer exist.
+    return res.redirect('/bank?section=sidebets&stale_terms=1#bet-' + req.params.id);
+  }
   // A pool bet is a DRAFT: the moment both are in, open the franchise draft with
   // the order computed from the prior season's finish (higher finisher first).
   if (accepted && accepted.format === 'pool' && accepted.status === SB.STATUS.LOCKED
+      && !(accepted.pool && accepted.pool.recorded)
       && !accepted.draft && accepted.parties.length >= 2) {
     const owners = H.activeOwners(req.world.owners);
     const [aId, bId] = accepted.parties.map(p => p.owner_id);
@@ -2237,7 +2358,7 @@ router.get('/team', aw(async (req, res) => {
   // This week's game, so the page answers "who am I playing" before it answers
   // "who is on my bench" — and so a bet against that opponent is one tap away.
   const matchup = sleeper.myMatchup(sData, world.config.sleeper_map || {}, viewOwner.id, owners);
-  const betWindow = BL.matchupWindow(matchup);
+  const betWindow = BL.matchupWindow(matchup, new Date(), { seasonStart: world.config.season_start, seasonType: sData && sData.season_type });
   const nameOf = id => (H.ownerById(owners, id) || {}).name || '?';
   const allBets = await SB.all();
   // Bets your opponent has put in front of you for this week.
@@ -2269,6 +2390,7 @@ router.get('/team', aw(async (req, res) => {
 
   res.render('team', { viewOwner, owners, roster, matchup, betWindow, trend,
     matchupPending, aboutMe, late: req.query.late === '1',
+    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1',
     // Roster is the default — it is what this page has always been, and it is
     // the half that works without a live matchup.
     section: req.query.section === 'week' ? 'week' : 'roster',
@@ -2400,7 +2522,7 @@ router.get('/matchup', aw(async (req, res) => {
   if (!opp && oppParam && oppParam !== me.id) opp = H.ownerById(owners, oppParam) || null;
 
   const weekNo = (liveMatchup && liveMatchup.week) || (sData && sData.week) || 1;
-  const betWindow = BL.matchupWindow(liveMatchup);
+  const betWindow = BL.matchupWindow(liveMatchup, new Date(), { seasonStart: world.config.season_start, seasonType: sData && sData.season_type });
 
   // ── WEEK NAVIGATION (member-site pass, 2026-08-16) ────────────────────────
   // "Matchup tracking, this week and other weeks" — ?week=N opens any past
@@ -2634,7 +2756,8 @@ router.get('/matchup', aw(async (req, res) => {
     injuryFlag: MU.injuryFlag,
     goatId: MK.goatOwnerId(sData, world.config.sleeper_map || {}),
     configured: !!world.config.sleeper_league_id,
-    late: req.query.late === '1', sent: req.query.sent === '1',
+    late: req.query.late === '1',
+    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1', sent: req.query.sent === '1',
     betFail: betFailMessage(req.query.betfail),
     nameOf,
   });
@@ -2660,7 +2783,8 @@ async function pickemContext(world, me, { wantBoards = true } = {}) {
 
   const sData = await sleeper.bundle(leagueId);
   const weekNo = (sData && sData.week) || 1;
-  const anyScore = PE.anyScoreOnBoard(sData);
+  // Same preseason gate as the bet clock: preseason points must not lock picks.
+  const anyScore = !!(sData && sData.season_type === 'regular') && PE.anyScoreOnBoard(sData);
   const locked = PE.isLocked({ week: weekNo, seasonStart, anyScore });
   const lockAt = PE.lockAt(weekNo, seasonStart);
 
@@ -2753,6 +2877,7 @@ router.get('/pickem', aw(async (req, res) => {
   res.render('pickem', {
     me: req.owner, ...c,
     saved: req.query.saved === '1', late: req.query.late === '1',
+    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1',
   });
 }));
 
@@ -3369,13 +3494,24 @@ router.get('/waivers', requireCommissioner, aw(async (req, res) => {
   const W = require('./waivers');
 
   let claims = [], drop = null, perPoint = 0, weekNo = null, err = null, live = false;
-  let streamClaims = [], currentKD = [];
+  let streamClaims = [], currentKD = [], blockWatch = [];
   try {
     const sData = await sleeper.bundle(world.config.sleeper_league_id);
     if (sData && Array.isArray(sData.rosters) && sData.rosters.length) {
       weekNo = sData.week || (sData.state && sData.state.week) || null;
       const map = world.config.sleeper_map || {};
       const myRid = Object.keys(map).find(rid => Number(map[rid]) === Number(me.id));
+      /* Found live, day after the 2026 draft (Cory: "waiver tool isn't
+       * working"): sleeper_map seeds {} and nothing forces the one-time
+       * mapping, so this page rendered its dormant shell with NO claims and
+       * NO error — a silent failure on the first day the map ever mattered.
+       * Say the cause and the fix instead. */
+      if (!myRid) {
+        err = 'No Sleeper team is mapped to your login yet, so the wire cannot '
+          + 'be priced against YOUR roster. One-time fix: Admin → Sleeper tab → '
+          + 'map each Sleeper team to its owner → Save. Everything here lights '
+          + 'up on the next page load.';
+      }
       const playersDb = await sleeper.players();
       let artifact = {};
       try {
@@ -3392,46 +3528,30 @@ router.get('/waivers', requireCommissioner, aw(async (req, res) => {
           process.env.DRAFT_DATA_PATH
             || path.join(__dirname, '..', '..', 'public', 'draft_data.json'), 'utf8'));
       } catch (e) { artifact = {}; }
-      const inputs = W.waiverInputsFromBundle(sData, playersDb, artifact, myRid);
-      if (inputs && inputs.myRoster.length) {
-        live = true;
-        const band = LO.weeklyHighBand();
-        // The league's own slot template, not a default — a wrong template
-        // prices every claim against a lineup we do not play.
-        const template = (sData.league && sData.league.roster_positions) || null;
-        const league = { teams: (sData.league && sData.league.total_rosters) || owners.length,
-                         starters: template ? LO.slotsFromTemplate(template) : LO.DEFAULT_SLOTS };
-        // Rank by what reaches the field, and only look at the top of the wire —
-        // a full FA pool is thousands of names and the tail is all zeros.
-        const typical = LO.typicalTeamScore();
-        const res2 = W.evaluateClaims(inputs.freeAgents, inputs.myRoster, league, {
-          band, lineupMean: typical.median, lineupSd: typical.sd, oppMean: typical.median,
-          leagueRosters: Object.fromEntries((sData.rosters || [])
-            .filter(r => String(r.roster_id) !== String(myRid))
-            .map(r => [r.roster_id, (r.players || []).map(pid => {
-              const info = (playersDb && playersDb.players && playersDb.players[pid]) || {};
-              return { player_id: pid, position: info.pos, proj_mean: null };
-            }).filter(p => p.position)])),
-        });
-        drop = res2.drop; perPoint = res2.dollars_per_point;
-        claims = res2.claims.filter(c => c.net_value > 0).slice(0, 8);
-        // STREAMING (K/DEF), same underlying valuation, different decision shape.
-        // A stream is a FREE weekly swap, not a priority-costly claim — the
-        // counterfactual is "kept who I have", not "held priority". Uses the SAME
-        // tested net_value ranking as the claims above (no new scoring logic,
-        // that gate stays closed this close to the draft) with the limitation
-        // stated honestly on the page: season-value, not matchup-tuned.
-        streamClaims = res2.claims.filter(c => (c.position === 'K' || c.position === 'DEF')
-          && c.net_value > 0).slice(0, 2);
-        currentKD = (inputs.myRoster || [])
-          .filter(p => p.position === 'K' || p.position === 'DEF')
-          .map(p => ({ player_id: p.player_id, name: p.name, position: p.position }));
-      }
+      /* THE COMPUTATION MOVED to src/waiver_reco.js (2026-08-24) so the page
+       * and the Tuesday-night auto-capture cron (waiver-reco-cron) share ONE
+       * recommendation — the graded ledger row is definitionally what this
+       * page shows, because both call the same function on the same inputs.
+       * Cory: "you should be logging and grading ALL recommendations
+       * everywhere even if I don't do them." */
+      const reco = require('../waiver_reco').computeWaiverReco(
+        sData, playersDb, artifact, myRid, owners.length);
+      live = reco.live;
+      drop = reco.drop; perPoint = reco.perPoint;
+      claims = reco.claims; streamClaims = reco.streamClaims;
+      currentKD = reco.currentKD;
+      // BLOCK WATCH rows carry roster ids; name them here (map: rid → owner)
+      // so the card says WHO a claim denies, not a number.
+      const ridName = rid => {
+        const oid = Number((world.config.sleeper_map || {})[String(rid)]);
+        return (H.ownerById(owners, oid) || {}).name || `team ${rid}`;
+      };
+      blockWatch = (reco.blockWatch || []).map(bw => ({ ...bw, denies_names: bw.denies.map(ridName) }));
     }
   } catch (e) { err = String((e && e.message) || e); }
 
   res.render('waivers', {
-    me, season, weekNo, live, err, claims, drop, perPoint, streamClaims, currentKD,
+    me, season, weekNo, live, err, claims, drop, perPoint, streamClaims, currentKD, blockWatch,
     liveStale: await liveFreshness(),
     captureError: req.query.captureError === '1',
     // The explainer contract (what/read/do/src per panel) — view-model only.
@@ -3919,6 +4039,101 @@ router.post('/lineup/log', requireCommissioner, aw(async (req, res) => {
 // Sleeper afterwards, the final played lineup can differ, and the resolution
 // grades what was set at the decision moment, which is the decision-time
 // record this whole ledger exists to keep.
+// ── ONE-TAP WHY FROM THE SUNDAY ALERT (A's ranked item 3, 2026-08-24:
+// "Capture WHY, weekly, at the moment of the call... One tap, at decision
+// time — not a text box on Tuesday.") The email's reason chips link here.
+//
+// GET with a side effect, deliberately and guardedly: a tap in a mail client
+// is a GET, and requireCommissioner means only Cory's logged-in browser can
+// record — a mail client prefetching links carries no cookie and bounces off
+// the login wall writing nothing. One record per week (marker), so a re-tap
+// says "already noted" instead of stacking rows. The recommendation attached
+// is the exact snapshot the email showed (stored on the send stamp), not a
+// re-derivation that may have moved since.
+router.get('/lineup/why', requireCommissioner, aw(async (req, res) => {
+  const season = String(H.currentSeason(req.world.seasons).year || new Date().getUTCFullYear());
+  const week = parseInt(req.query.week, 10) || null;
+  const REASONS = ['doing it', 'injury news', "don't buy the projection", 'riding my guy'];
+  const reason = REASONS.includes(String(req.query.reason)) ? String(req.query.reason) : 'unstated';
+  const page = (title, sub) => res.send(
+    `<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1">`
+    + `<body style="font-family:system-ui;max-width:26rem;margin:3rem auto;padding:0 1rem;text-align:center">`
+    + `<div style="font-size:2.2rem">📝</div><h2 style="margin:.4rem 0">${title}</h2>`
+    + `<p style="color:#3c4a60">${sub}</p>`
+    + `<a href="/lineup" style="display:inline-block;margin-top:.6rem;background:#1b2c4d;color:#fff;`
+    + `text-decoration:none;font-weight:800;padding:.7rem 1.2rem;border-radius:8px">Open the optimizer</a></body>`);
+  if (!week) return page('Missing the week', 'This link came without a week number — open the optimizer instead.');
+  const markKey = `sundaywhy:${season}:${week}`;
+  const already = await getDoc(markKey, null);
+  if (already) {
+    return page('Already on the record',
+      `Week ${week} is noted as “${already.reason}”. One call per week — the season grades what's written.`);
+  }
+  const stamp = await getDoc(`sunday-alert-sent:${season}:${week}`, null);
+  const todo = (stamp && stamp.todo) || [];
+  try {
+    const predledger = require('../predledger');
+    await predledger.append(store, {
+      kind: 'inseason_override',
+      method: 'sunday-why-v1',
+      season,
+      payload: {
+        key: decisionKey('override:sunday', season, week, req.owner.id),
+        owner_id: req.owner.id,
+        week,
+        // What the email actually showed at decision time.
+        recommended: todo,
+        counterfactual: todo,
+        // The final lineup is knowable only after kickoff; the resolver's
+        // fill-actual-from-Sleeper extension is routed to A (register 290's
+        // owner). Until then this row is a captured WHY, honestly pending.
+        actual: null,
+        reason,
+        followed: reason === 'doing it',
+      },
+    });
+    await setDoc(markKey, { reason, at: now() });
+  } catch (e) {
+    return page('That didn’t save', 'The tap reached the site but the record failed — try once more, or log it on the optimizer page.');
+  }
+  return page(reason === 'doing it' ? 'Noted — you’re on the tool' : 'Noted — you went your own way',
+    `Week ${week}: “${reason}”. That's the whole tap — the season grades it from here.`);
+}));
+
+// ── RECO-CAPTURE HEALTH (A's ranked item 1, 2026-08-24: "a cron that has
+// never emitted a row hasn't been tested, only scheduled. A green run and an
+// empty store look identical. Week 1 must produce a real graded row, checked
+// by hand.") This is the hand-check surface: the week markers each auto-
+// capture cron writes, plus the actual latest ledger row per auto method —
+// so "marker exists but no row" and "no marker at all" are both visible in
+// one commissioner-gated read of the LIVE store.
+router.get('/admin/api/reco-capture-health', requireCommissioner, aw(async (req, res) => {
+  const season = String(req.query.season || H.currentSeason(req.world.seasons).year || new Date().getUTCFullYear());
+  const markers = {};
+  for (const fam of ['waiverauto', 'lineupauto']) {
+    markers[fam] = {};
+    try {
+      const keys = await store.listKeys(`${fam}:${season}:`);
+      for (const k of keys.sort()) markers[fam][k.split(':').pop()] = await store.get(k);
+    } catch (e) { markers[fam] = { error: String(e && e.message || e) }; }
+  }
+  const AUTO_METHODS = ['waiver-auto-v1', 'stream-auto-v1', 'lineup-auto-v1', 'sunday-why-v1'];
+  const latest = Object.fromEntries(AUTO_METHODS.map(m => [m, null]));
+  let ledgerRows = 0;
+  try {
+    const keys = (await store.listKeys(`pred:${season}:`)).sort();
+    ledgerRows = keys.length;
+    for (const k of keys) {
+      const e = await store.get(k);
+      if (e && AUTO_METHODS.includes(e.method)) {
+        latest[e.method] = { key: e.payload && e.payload.key, week: e.payload && e.payload.week, at: e.at || e.created_at || null };
+      }
+    }
+  } catch (e) { /* reported via ledgerRows staying 0 */ }
+  res.json({ ok: true, season, ledger_rows: ledgerRows, markers, latest_auto_row: latest,
+    read_me: 'A week with a marker but no matching row means the cron ran and emitted nothing — read the marker (none:true is an honest hold week, anything else is a defect).' });
+}));
+
 router.post('/lineup/override', requireCommissioner, aw(async (req, res) => {
   const season = String(H.currentSeason(req.world.seasons).year || new Date().getUTCFullYear());
   const predledger = require('../predledger');
@@ -3997,3 +4212,9 @@ router.get('/rules', aw(async (req, res) => {
 }));
 
 module.exports = router;
+// The lineup auto-capture cron (netlify/functions/lineup-reco-cron.js) runs
+// the SAME optimizer call the /lineup page renders from, so the graded row is
+// definitionally what the page showed — register 287, the volunteered-data
+// gap. Attached to the router object rather than moved: 100+ lines of
+// battle-tested computation stay where their history is.
+module.exports.liveOptimizeFor = liveOptimizeFor;

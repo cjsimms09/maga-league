@@ -3,17 +3,18 @@
 **Relay, 2026-08-18. One screen. This is a TRIAGE, not a ruling — A can overrule
 any line of it, and the register remains the record.**
 
+> **⏰ THE DEADLINE IN THIS TITLE HAS PASSED** — the draft completed 2026-08-22
+> 23:00 UTC. Kept as the record of what the triage said at the time; what
+> actually happened is `draft/audit/draft_autopsy_2026-08-23.md`.
+
 Cory, twice this week: *"too much finding and not enough fixing and following
-up."* The register has **189 open rows** (re-verified 08-20 by D at merge
-time, `register_recheck_check.js` run directly — not copied from either side
-of this merge: 121 and 130 were each briefly true, neither is now). **The
-count keeps moving because the register keeps working** — the guard test
-refuses a stale write-up, which is what forced this line three times in two
-days (51 → 97 → 121/130 → 189). **Do not quote this without re-running
-`register_recheck_check.js`.** The "Thirty carry a recheck date on or before
-08-22" figure below is from 08-18, not re-derived. Most are owned by A. This
-is not a decision list, it is a backlog wearing one, and reading it four
-days out costs more than it returns.
+up."* The register has **255 open rows** (re-verified 2026-08-23 by A,
+`register_recheck_check.js` run directly against the post-merge register; 189
+was true on 08-20 and is not now). **The count keeps moving because the
+register keeps working** — the guard refuses a stale write-up, which has now
+forced this line four times in five days (51 → 97 → 121/130 → 189 → 255).
+**Do not quote it without re-running `register_recheck_check.js`.** Most are
+owned by A.
 
 So every open row was put to a single question — **can this change a number on
 Cory's screen on 22 August?** — and the answer is *no* for most of them. What

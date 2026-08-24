@@ -64,6 +64,12 @@ const ROOT = path.join(__dirname, '..', '..');
 
 /* ── the pure row arithmetic (no I/O, no engine) — unit-tested by hand ────── */
 
+/* A rec entry the engine actually put a number on. The engine has its own
+ * `scoreable` for this and it is NOT exported, so it is restated here rather
+ * than reached for — reaching for it is a ReferenceError this file would only
+ * discover on a row that has a recommendation, i.e. not on any keeper row. */
+const scoreable = r => Boolean(r) && r.score != null;
+
 /** Slim a rec entry to the fields a graded row needs. */
 function slim(rec) {
   if (!rec || !rec.player) return null;
@@ -88,6 +94,15 @@ function shapeRow(pickRow, recs, reason, seatInfo) {
   const si = seatInfo || { seat: pickRow.team_slot != null ? pickRow.team_slot : null,
     source: 'pick log' };
   const row = {
+    /* 1 = captured during the 2026 draft, ONE ordering reported (register 273).
+     * 2 = both orderings present. A grader must branch on this rather than
+     * assume the columns exist: the 2026 capture is append-only and is NOT
+     * backfilled, so `actual_rank_by_score` is genuinely absent there, and an
+     * `undefined` read as a rank silently becomes a wrong grade. The 2026 rows
+     * ARE recomputable — computeShadow reproduces all 150 recommendations
+     * identically against today's code — so the columns can be derived when
+     * needed; they are just not in the captured file. */
+    shadow_schema: 2,
     pick_no: pickRow.pick,
     seat: si.seat,
     seat_source: si.seat == null ? null : si.source,
@@ -104,6 +119,15 @@ function shapeRow(pickRow, recs, reason, seatInfo) {
     composite_gap: null,
     composite_gap_reason: null,
     actual_rank_in_tool: null,
+    /* register 273 — the display ordering and the score ordering are not the
+     * same ordering, and this row used to report one of each without saying so.
+     * Present on EVERY row, null when there is nothing to rank, so a consumer
+     * cannot silently get the old shape back on a keeper or a refused row. */
+    actual_rank_by_score: null,
+    rank_disagreement: null,
+    actual_was_demoted: null,
+    demoted_count: null,
+    rank_orderings_note: null,
   };
   if (!recs || !recs.length) {
     row.tool_recommendation_reason = reason
@@ -122,6 +146,41 @@ function shapeRow(pickRow, recs, reason, seatInfo) {
     return row;
   }
   row.actual_rank_in_tool = idx + 1;
+
+  /* ── THE SECOND ORDERING, WHICH THIS ROW USED TO HIDE (register 273) ─────
+   *
+   * `recs` is the DISPLAY order: score-sorted, then `demoteFlaggedOnesies()`
+   * sinks rail-flagged K/DEF beneath everyone so the board never tops out on a
+   * kicker. That demotion is deliberate and right. But `composite_gap` below
+   * is computed from `score`, which is PRE-demotion, while
+   * `actual_rank_in_tool` above is the index in the POST-demotion list — and
+   * the two were emitted side by side with nothing saying they live in
+   * different spaces.
+   *
+   * MEASURED on Cory's 2026 draft: pick 108 (Houston DEF) recorded
+   * `actual_rank_in_tool: 439` and `composite_gap: 0.146` for the same pick.
+   * Both correct; 437 places apart. His DEF actually held the SECOND-BEST
+   * SCORE on a 596-player board and was displayed beneath players scoring
+   * -345. Across his twelve picks the two rankings agree exactly at five and
+   * disagree by -69, -43 and +437 at the rest.
+   *
+   * So a grade built on either number alone is measuring something the other
+   * does not mean. Both are recorded now, plus whether THIS player was one of
+   * the demoted, so a 2027 grade can state which ordering it grades in
+   * instead of picking one by accident. */
+  const byScore = recs.filter(r => scoreable(r))
+    .slice().sort((a, b) => b.score - a.score);
+  const sIdx = byScore.findIndex(r => r && r.player
+    && String(r.player.player_id) === pid);
+  row.actual_rank_by_score = sIdx >= 0 ? sIdx + 1 : null;
+  row.rank_disagreement = sIdx >= 0 ? (idx - sIdx) : null;
+  row.actual_was_demoted = Boolean(recs[idx] && recs[idx].demoted);
+  row.demoted_count = recs.filter(r => r && r.demoted).length;
+  row.rank_orderings_note = 'actual_rank_in_tool is the DISPLAY order '
+    + '(post demoteFlaggedOnesies); actual_rank_by_score is pure score order; '
+    + 'composite_gap is measured in SCORE space. Never pair the first with the '
+    + 'last without saying so — register 273.';
+
   const top = recs[0].score, act = recs[idx].score;
   if (top == null || act == null) {
     row.composite_gap_reason = 'engine refused to score '

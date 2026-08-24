@@ -56,6 +56,36 @@
   # the one job whose SCHEDULE is part of its correctness.
   schedule = "0 13 * * 0"
 
+[functions."waiver-reco-cron"]
+  # The waiver tool's recommendation, computed at run time by the SAME
+  # src/waiver_reco.js the /waivers page renders from: the shared LO/W modules
+  # read the committed history, config and board from disk (findFile), so the
+  # bundle must carry them — same production-only ENOENT class as the app
+  # function's own list above.
+  included_files = ["draft/data/**", "draft/config/**", "public/draft_data.json"]
+  # Wednesday 00:10 UTC = Tuesday evening ET — after MNF ends the week, before
+  # waivers clear Wednesday ~3am ET. Cory, 2026-08-24: "you should be logging
+  # and grading ALL recommendations everywhere even if I don't do them" — this
+  # emits the tool's top claim as a waiver_claim ledger row automatically; the
+  # manual page buttons remain only for recording HIS decision and reason.
+  # A recommendation captured after claims process is hindsight, so like
+  # claims-cron this is a job whose SCHEDULE is part of its correctness.
+  # EMIT ONLY: resolution stays in claims-cron, grading in grade-cron.
+  schedule = "10 0 * * 3"
+
+[functions."lineup-reco-cron"]
+  # register 287's lineup twin: the optimizer's start/sit advice, emitted by
+  # the SAME liveOptimizeFor() the /lineup page renders from. The shared
+  # LO modules read the committed history/config from disk — same
+  # production-only ENOENT class as the app function's list below.
+  included_files = ["draft/data/**", "draft/config/**", "public/draft_data.json"]
+  # Sunday 12:50 UTC (~8:50am ET) — before the 1pm slate and ten minutes
+  # ahead of claims-cron, on weekly-proj-snapshot's decision-time reasoning:
+  # the lineup a person would have set is the pre-slate one, not Tuesday's
+  # hindsight. EMIT ONLY: resolution stays in claims-cron, grading in
+  # grade-cron.
+  schedule = "50 12 * * 0"
+
 [functions."player-projection-cron"]
   # Thursday 10:00 UTC — BEFORE Thursday Night Football (earliest kickoff of an
   # NFL week is ~00:20 UTC Friday). Emits per-player point forecasts for the
@@ -68,6 +98,21 @@
   #
   # EMIT ONLY. Resolution stays in claims-cron (Sunday), grading in grade-cron
   # (Tuesday): three jobs, so no run settles or grades a row it just wrote.
+  # ⚠️ included_files ADDED 2026-08-24 (A) — THIS FUNCTION HAD NONE AND
+  # READS REPO DATA AT RUN TIME. esbuild bundles the JS, not the data, so
+  # without these globs it ENOENTs in production while running perfectly
+  # on a dev server that has the whole repo on disk. Caught by
+  # draft/tests/cron_bundles_cover_their_reads.test.js on its first run:
+  # bundling_guard.test.js only ever read the APP function's own list, so every
+  # scheduled function was outside the one guard for this class. Same globs the
+  # reco crons use.
+  #
+  # ⚠️ AND DO NOT WRITE THE APP FUNCTION'S TOML HEADER LITERALLY IN A COMMENT
+  # HERE. Two guards locate that block by SPLITTING THIS FILE on that exact
+  # token, so a comment quoting it is matched instead of the real block and
+  # they silently read the wrong function's globs. The first draft of this
+  # comment did precisely that and turned 6/6 and 7/7 into 3/6 and 6/7.
+  included_files = ["draft/data/**", "draft/config/**", "public/draft_data.json"]
   schedule = "0 10 * * 4"
 
 [functions."analyzer-cron"]
@@ -91,6 +136,21 @@
   # reports the pending count by name; at season-final it resolves the two
   # kinds once, deduped on forecast_key, this run's own emissions excluded —
   # a job must never settle a forecast it just made.
+  # ⚠️ included_files ADDED 2026-08-24 (A) — THIS FUNCTION HAD NONE AND
+  # READS REPO DATA AT RUN TIME. esbuild bundles the JS, not the data, so
+  # without these globs it ENOENTs in production while running perfectly
+  # on a dev server that has the whole repo on disk. Caught by
+  # draft/tests/cron_bundles_cover_their_reads.test.js on its first run:
+  # bundling_guard.test.js only ever read the APP function's own list, so every
+  # scheduled function was outside the one guard for this class. Same globs the
+  # reco crons use.
+  #
+  # ⚠️ AND DO NOT WRITE THE APP FUNCTION'S TOML HEADER LITERALLY IN A COMMENT
+  # HERE. Two guards locate that block by SPLITTING THIS FILE on that exact
+  # token, so a comment quoting it is matched instead of the real block and
+  # they silently read the wrong function's globs. The first draft of this
+  # comment did precisely that and turned 6/6 and 7/7 into 3/6 and 6/7.
+  included_files = ["draft/data/**", "draft/config/**", "public/draft_data.json"]
   schedule = "5 13 * * 0"
 
 [functions."app"]
@@ -107,8 +167,17 @@
   # server because that has the full repo on disk — the gap is production-only.
   # Proven by simulating a bundle of included_files alone: build() throws ENOENT
   # on league_history.json. draft_data.json is the 2026 board (player id->name).
+  # public/js/draft/** — found LIVE on 2026-08-23, first real in-season page
+  # load (Cory: "waiver tool isn't working"): src/routes/waivers.js,
+  # src/slotpicker.js and the survival reader all require these shared browser
+  # modules via path.join at runtime. esbuild cannot trace a dynamic require,
+  # so in production the files were simply absent — /waivers 500'd naming
+  # valuation.js, and /admin/slot-picker's catch turned the same absence into
+  # a message blaming keepers.js. Dev servers never see it: the full repo is
+  # on disk. Same production-only class as the /history ENOENT above.
   included_files = ["views/**", "STATUS.md", "DECISIONS-NEEDED.md", "TASK-AUDIT.md",
     "draft/data/**", "draft/config/**", "public/draft_data.json",
+    "public/js/draft/**",
     "docs/MOCK-DRAFT-REHEARSAL.md"]
 
 # The web-app manifest needs its own content type — Netlify serves unknown
