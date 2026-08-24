@@ -166,7 +166,7 @@
 %>
 <nav class="navbar" aria-label="Main">
   <% for (const n of _primary) { %>
-    <a href="<%= n.href %>" class="<%= n.commish ? 'commish ' : '' %><%= _isActive(n) ? 'active' : '' %>"<%= n.commish ? ' title="Commissioner only"' : '' %>><%= n.label %><% if (n.badge) { %><span class="nav-badge"><%= n.badge %></span><% } %></a>
+    <a href="<%= n.href %>" class="<%= n.commish ? 'commish ' : '' %><%= _isActive(n) ? 'active' : '' %>"<%- n.commish ? ' title="Commissioner only"' : '' %>><%= n.label %><% if (n.badge) { %><span class="nav-badge"><%= n.badge %></span><% } %></a>
   <% } %>
   <%# Desktop adopts the phone's primary+More split (nav-consolidation map,
       ROUTES.md 08-18, A-approved 08-18) — same _primary/_more arrays, no new
@@ -179,7 +179,7 @@
             (e.g. '🎯 Lineup Optimizer'); the base items don't, matching the
             desktop bar's pre-existing look — same n.label rendered bare as the
             old flat .navbar loop always did, just fewer of them at a time. %>
-        <a href="<%= n.href %>" class="<%= n.commish ? 'commish ' : '' %><%= _isActive(n) ? 'active' : '' %>"<%= n.commish ? ' title="Commissioner only"' : '' %>><%= n.label %><% if (n.badge) { %><span class="nav-badge"><%= n.badge %></span><% } %></a>
+        <a href="<%= n.href %>" class="<%= n.commish ? 'commish ' : '' %><%= _isActive(n) ? 'active' : '' %>"<%- n.commish ? ' title="Commissioner only"' : '' %>><%= n.label %><% if (n.badge) { %><span class="nav-badge"><%= n.badge %></span><% } %></a>
       <% } %>
     </div>
   </details>

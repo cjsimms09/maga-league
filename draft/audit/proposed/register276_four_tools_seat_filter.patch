@@ -1,0 +1,68 @@
+diff --git a/draft/tools/bench_floor_test.js b/draft/tools/bench_floor_test.js
+index 6fb3ab7e..2680333f 100644
+--- a/draft/tools/bench_floor_test.js
++++ b/draft/tools/bench_floor_test.js
+@@ -8,7 +8,11 @@ global.window=global;
+ ['survival','composite','engine','needrule'].forEach(m=>require(path.join(ROOT,'public/js/draft',m+'.js')));
+ const LC=require(path.join(ROOT,'draft/tools/live_context.js'));
+ const E=global.DraftEngine;
+-const B=LC.loadBoard(), ALL=B.players, K=B.kept_players, MY=B.pick_order.my_picks.slice();
++/* register 276: MY SEAT ONLY. `kept_players` carries all ten teams' keepers
++ * since the 08-22 board rebuild (`4750fbce`); the bare read made `roster`
++ * 23 players -- QB1 RB12 TE1 WR9 -- against 12 remaining picks. */
++const B=LC.loadBoard(), ALL=B.players,
++  K=B.kept_players.filter(k=>Number(k.team_slot)===B.league.my_draft_slot), MY=B.pick_order.my_picks.slice();
+ const adpOf=p=>p.adp==null?9999:+p.adp;
+ const bestAdp=pool=>pool.reduce((b,p)=>(!b||adpOf(p)<adpOf(b))?p:b,null);
+ const q=(a,f)=>{const t=a.slice().sort((x,y)=>x-y);const i=(t.length-1)*f;const lo=Math.floor(i),hi=Math.ceil(i);return lo===hi?t[lo]:t[lo]+(t[hi]-t[lo])*(i-lo);};
+diff --git a/draft/tools/position_share.js b/draft/tools/position_share.js
+index 21bd24a6..90c71349 100644
+--- a/draft/tools/position_share.js
++++ b/draft/tools/position_share.js
+@@ -8,7 +8,11 @@ global.window=global;
+ ['survival','composite','engine','needrule'].forEach(m=>require(path.join(ROOT,'public/js/draft',m+'.js')));
+ const LC=require(path.join(ROOT,'draft/tools/live_context.js'));
+ const E=global.DraftEngine;
+-const b=LC.loadBoard(), ALL=b.players, K=b.kept_players, MY=b.pick_order.my_picks.slice();
++/* register 276: MY SEAT ONLY. `kept_players` carries all ten teams' keepers
++ * since the 08-22 board rebuild (`4750fbce`); the bare read made `roster`
++ * 23 players -- QB1 RB12 TE1 WR9 -- against 12 remaining picks. */
++const b=LC.loadBoard(), ALL=b.players,
++  K=b.kept_players.filter(k=>Number(k.team_slot)===b.league.my_draft_slot), MY=b.pick_order.my_picks.slice();
+ const drafted=new Set(); K.forEach(k=>drafted.add(String(k.player_id)));
+ const roster=K.map(k=>Object.assign({},k,{is_keeper:true}));
+ function opp(pool){let best=null;for(const p of pool){const a=p.adp==null?9999:+p.adp;if(!best||a<best._a){best=p;best._a=a;}}return best;}
+diff --git a/draft/tools/replacement_ladder.js b/draft/tools/replacement_ladder.js
+index a004c5be..ee20e84e 100644
+--- a/draft/tools/replacement_ladder.js
++++ b/draft/tools/replacement_ladder.js
+@@ -15,7 +15,11 @@ global.window=global;
+ ['survival','composite','engine','needrule'].forEach(m=>require(path.join(ROOT,'public/js/draft',m+'.js')));
+ const LC=require(path.join(ROOT,'draft/tools/live_context.js'));
+ const E=global.DraftEngine;
+-const B=LC.loadBoard(), ALL=B.players, K=B.kept_players, MY=B.pick_order.my_picks.slice();
++/* register 276: MY SEAT ONLY. `kept_players` carries all ten teams' keepers
++ * since the 08-22 board rebuild (`4750fbce`); the bare read made `roster`
++ * 23 players -- QB1 RB12 TE1 WR9 -- against 12 remaining picks. */
++const B=LC.loadBoard(), ALL=B.players,
++  K=B.kept_players.filter(k=>Number(k.team_slot)===B.league.my_draft_slot), MY=B.pick_order.my_picks.slice();
+ const adpOf=p=>p.adp==null?9999:+p.adp;
+ const bestAdp=pool=>pool.reduce((b,p)=>(!b||adpOf(p)<adpOf(b))?p:b,null);
+ const med=a=>{const t=a.slice().sort((x,y)=>x-y);return t.length?t[Math.floor(t.length/2)]:null;};
+diff --git a/draft/tools/vona_vs_market.js b/draft/tools/vona_vs_market.js
+index 8de7f229..a37d318e 100644
+--- a/draft/tools/vona_vs_market.js
++++ b/draft/tools/vona_vs_market.js
+@@ -9,7 +9,11 @@ global.window=global;
+ ['survival','composite','engine','needrule'].forEach(m=>require(path.join(ROOT,'public/js/draft',m+'.js')));
+ const LC=require(path.join(ROOT,'draft/tools/live_context.js'));
+ const E=global.DraftEngine;
+-const B=LC.loadBoard(), ALL=B.players, K=B.kept_players, MY=B.pick_order.my_picks.slice();
++/* register 276: MY SEAT ONLY. `kept_players` carries all ten teams' keepers
++ * since the 08-22 board rebuild (`4750fbce`); the bare read made `roster`
++ * 23 players -- QB1 RB12 TE1 WR9 -- against 12 remaining picks. */
++const B=LC.loadBoard(), ALL=B.players,
++  K=B.kept_players.filter(k=>Number(k.team_slot)===B.league.my_draft_slot), MY=B.pick_order.my_picks.slice();
+ const adpOf=p=>p.adp==null?9999:+p.adp;
+ const bestAdp=pool=>pool.reduce((b,p)=>(!b||adpOf(p)<adpOf(b))?p:b,null);
+ const med=a=>{const t=a.slice().sort((x,y)=>x-y);return t[Math.floor(t.length/2)];};

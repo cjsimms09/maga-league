@@ -141,7 +141,7 @@ async function propose({
   position = '', picks = [], resolves = '', week = null,
   format = 'prop', conditions = [], logic = 'all', pool_rules = [], picks_required = 0,
   open_slots = 0, kind = '',
-  pool_teams = [], pool_wins = '',
+  pool_teams = [], pool_wins = '', party_picks = null,
 }) {
   const others = [...new Set(party_ids.map(Number))].filter(id => id && id !== Number(proposer_id));
   const slots = Math.min(Math.max(Number(open_slots) || 0, 0), MAX_OPEN_SLOTS);
@@ -174,6 +174,7 @@ async function propose({
     // nothing is picked until both sides are in — a pool bet is a draft, not a form.
     pool: format === 'pool'
       ? { team_pool: [...new Set((pool_teams || []).map(Number))].filter(Boolean),
+          recorded: !!(party_picks && Object.keys(party_picks).length),
           wins: String(pool_wins || 'holds the league champion').slice(0, 200) }
       : null,
     draft: null,
@@ -185,7 +186,13 @@ async function propose({
     status: slots ? STATUS.OPEN : STATUS.PROPOSED,
     parties: [
       mkParty(proposer_id, true, { position, picks }),
-      ...others.map(id => mkParty(id, false)),
+      /* RECORD MODE (Cory, 08-23, the Richard bet: "we shouldn't have to
+       * draft on the site.. we picked them"): when the split already
+       * happened offline, the proposer records BOTH sides' picks and
+       * accepting confirms the done deal — pool.recorded makes the accept
+       * path skip startPoolDraft. Route-validated disjoint + counted. */
+      ...others.map(id => mkParty(id, false,
+        party_picks && party_picks[id] ? { picks: party_picks[id] } : {})),
     ],
     winner_ids: [],
     legs: [],
@@ -773,8 +780,12 @@ function moneyOnTeams(bets, viewer_id, nameOf) {
       // Everyone in the pool is rooting for their own picks.
       for (const p of b.parties || []) {
         for (const teamId of p.picks || []) {
+          /* Item 21 (Cory: "the way the bet is listed says bet per team? What
+           * does that mean"): the full stake is NOT riding on each team — one
+           * winner-take-all pot, decided by whoever holds the champion. Say
+           * that, never a dollar figure per team. */
           bump(teamId, p.owner_id, b.stake,
-            `${nameOf(p.owner_id)} has ${b.stake} on them — ${b.terms.slice(0, 60)}`);
+            `one of ${nameOf(p.owner_id)}'s picks in a $${b.stake} winner-take-all pool — ${b.terms.slice(0, 60)}`);
         }
       }
       continue;

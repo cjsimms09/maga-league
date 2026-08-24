@@ -470,7 +470,11 @@ function betCard(b, opts) {
               data-terms-version="<%= b.terms_version || 1 %>"
               data-stake="<%= money(b.stake) %>"
               data-with="<%= esc(b.parties.filter(p => p.owner_id !== owner.id).map(p => betNames(p.owner_id)).join(', ')) %>">
-          <% if (b.format === 'pool') { %>
+          <% if (b.format === 'pool' && b.pool && b.pool.recorded) { %>
+            <p class="muted" style="margin:.1rem 0 .2rem; font-size:.74rem">The split is already recorded —
+              your teams: <b><%= (b.parties.find(p => p.owner_id === owner.id) || {}).picks.map(betNames).join(', ') || '—' %></b>.
+              Accepting confirms it.</p>
+          <% } else if (b.format === 'pool') { %>
             <p class="muted" style="margin:.1rem 0 .2rem; font-size:.74rem">Accepting opens the franchise draft — you pick your teams there, turn by turn.</p>
           <% } %>
           <input type="hidden" name="terms_version" value="<%= b.terms_version || 1 %>">
@@ -834,7 +838,16 @@ function betCard(b, opts) {
 
 <% if (done.length || dead.length) { %>
 <details class="card entry-card">
-  <summary>📜 Settled &amp; declined <span class="sub"><%= done.length %> settled, <%= dead.length %> never happened</span></summary>
+  <%# THE SEASON BOOK LINE (redesign spec, The Book): the one number a bettor
+      wants over the settled pile — am I up or down? ledgerFor already keeps
+      the running total; this just says it where the settled bets live. %>
+  <% const _net = sbLedger ? Math.round(sbLedger.net || 0) : 0; %>
+  <summary>📜 Settled &amp; declined <span class="sub"><%= done.length %> settled, <%= dead.length %> never happened</span>
+    <% if (done.length) { %>
+      <span class="<%= _net >= 0 ? 'money-up' : 'money-down' %>" style="font-weight:800;margin-left:.4rem">
+        your book: <%= _net >= 0 ? '+$' + _net : '−$' + Math.abs(_net) %></span>
+    <% } %>
+  </summary>
   <div class="body">
     <% for (const b of done) { betCard(b, {}); } %>
     <% for (const b of dead) { betCard(b, {}); } %>

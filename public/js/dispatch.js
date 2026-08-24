@@ -1,25 +1,21 @@
-/* THE DISPATCH — progressive enhancement for the transient popups.
+/* THE DISPATCH — progressive enhancement for the transient league notices.
  *
- * No-JS: the dispatch region renders as a plain dismissible stack at the top of
- * the page; each ✕ is a real form POST that marks it seen and reloads.
- *
- * With JS: the same region becomes a centered overlay that dims the page, and
- * each ✕ dismisses via fetch and removes just that card — no reload. When the
- * last card clears, the overlay goes with it. Nothing is ever left "sitting on
- * the page": dismissal is server-side either way, so it stays gone.
+ * These render as an inline dismissible stack at the top of the home feed on
+ * every viewport. They used to become a page-blocking modal overlay when JS
+ * was live; that ambushed the whole home page on load (the exact "too busy"
+ * complaint, worst on a phone), so the overlay treatment is gone — JS now
+ * only upgrades dismissal: each ✕ marks the card seen via fetch and removes
+ * just that card, no reload. Dismissal is server-side either way, so a
+ * dismissed dispatch stays gone.
  */
 (function () {
   'use strict';
   var region = document.getElementById('dispatch-region');
   if (!region) return;
 
-  region.classList.add('js'); // opt into overlay styling only when JS is live
-  document.documentElement.classList.add('dispatch-open');
-
   function remaining() { return region.querySelectorAll('.dispatch-card').length; }
   function closeRegion() {
     region.classList.add('closing');
-    document.documentElement.classList.remove('dispatch-open');
     setTimeout(function () { if (region.parentNode) region.parentNode.removeChild(region); }, 200);
   }
   function dropCard(card) {

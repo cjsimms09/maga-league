@@ -99,5 +99,60 @@ ck('KNOWN-NEGATIVE: and the wire then offers up the STAR — the exact inversion
   brokenDrop && brokenDrop.player && String(brokenDrop.player.player_id) === '9',
   brokenDrop && brokenDrop.player);
 
+/* ── THE LINEUP BASELINE, WHICH I FIRST REPORTED AS STILL BROKEN ──────────
+ *
+ * `lineupPoints` scores each man as `proj_mean || 0`, and register 277 flagged
+ * that as a SECOND, untraced consequence: every "+N pts to your starting
+ * lineup" figure computed against a lineup missing Cory's three best players.
+ * I repeated that to him as still-open after applying the pricing fix.
+ *
+ * MEASURED ON HIS REAL FIFTEEN, IT IS NOT: the fallback only fires when
+ * proj_mean is null, and after the pricing fix it never is.
+ *
+ *     before the fix   3 unpriced   starting lineup 1463.1
+ *     after            0 unpriced   starting lineup 1736.1
+ *
+ * A 273-point baseline error, gone with the same two lines. The `|| 0` remains
+ * a LATENT trap for any player the artifact genuinely cannot price — a deep
+ * free agent — where it still silently contributes zero instead of saying so.
+ * That is a real but separate exposure and is filed rather than fixed here.
+ *
+ * This block pins the part that is fixed: a priced keeper must actually reach
+ * the starting lineup and carry his real points into the total. */
+{
+  const LO = require(path.join(__dirname, '..', '..', 'src', 'routes', 'lineup.js'));
+  const starters = { QB: 1, RB: 2, WR: 2, FLEX: 1 };
+  const lineupTotal = (rs) => {
+    const pts = {}, ps = {};
+    rs.forEach(p => { if (!p || !p.position) return;
+      pts[String(p.player_id)] = Number(p.proj_mean || 0);
+      ps[String(p.player_id)] = p.position; });
+    const best = LO.bestLineup(pts, ps, Object.keys(pts), starters);
+    return (best.starters || []).reduce((s, st) => s + Number(st.points || 0), 0);
+  };
+  const priced = lineupTotal(roster);
+  const unpricedTotal = lineupTotal(brokenInputs.myRoster || []);
+  ck('the priced lineup is worth MORE than the one where the keeper reads zero '
+    + '— the baseline error is real and this is its direction',
+    priced > unpricedTotal, { priced, unpricedTotal });
+  ck('and the gap is the keeper\'s own projection, not a rounding wobble',
+    (priced - unpricedTotal) > 100, Math.round((priced - unpricedTotal) * 10) / 10);
+  const inLineup = (() => {
+    const pts = {}, ps = {};
+    roster.forEach(p => { pts[String(p.player_id)] = Number(p.proj_mean || 0);
+      ps[String(p.player_id)] = p.position; });
+    const best = LO.bestLineup(pts, ps, Object.keys(pts), starters);
+    /* `bestLineup` returns entries keyed `pid`, NOT `player_id`. Reading
+     * `s.player_id` here gave undefined for every starter, so this assertion
+     * failed against working code — and the same slip made an earlier probe
+     * print "undefined" for all eight of Cory's starters while their POINTS
+     * were correct, which is why the 1463 -> 1736 measurement still stood. */
+    return (best.starters || []).some(s => String(s.pid) === '9');
+  })();
+  ck('THE KEEPER ACTUALLY STARTS once he is priced — a zero-valued star gets '
+    + 'benched behind worse real players, which is what made the baseline wrong',
+    inLineup, inLineup);
+}
+
 console.log('\n%d passed, %d failed', pass, fail);
 process.exitCode = fail ? 1 : 0;

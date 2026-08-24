@@ -668,7 +668,14 @@ router.get('/', aw(async (req, res) => {
         if (Array.isArray(res.locals.alerts)) {
           res.locals.alerts = res.locals.alerts.filter(a => !isKeeperAlert(a));
         }
-      } else if (!pinned) {
+      } else if (!pinned && !keeperInfo.passed) {
+        // The !passed guard matters: keeperInfo.message is built whether or not
+        // the deadline is in the past, and on a store with no pinned row (fresh
+        // seed, or a wiped alerts doc) this branch used to CREATE an active
+        // "KEEPER DEADLINE" alert days after the deadline — it then showed on
+        // every non-dashboard page until the next home visit deactivated it
+        // (found on the 08-24 phone walkthrough: Aug 21 banner still up on
+        // /votes on Aug 24).
         const created = { id: 'keeperdeadline', message: keeperInfo.message, level: 'urgent', active: true, created_at: now() };
         await mutateDoc('alerts', [], as => {
           if (as.find(isKeeperAlert)) return undefined;
@@ -1756,13 +1763,26 @@ router.post('/sidebets', aw(async (req, res) => {
       // picks at propose time — the alternating draft opens on accept. So the
       // teams-in-play are all active owners, and the proposer's picks are ignored.
       const poolTeams = format === 'pool' ? owners.map(o => o.id) : [];
+      // RECORD MODE: filled checkboxes = the split already happened offline.
+      // Empty = the live snake draft opens on accept, exactly as before.
+      const recMine = format === 'pool' ? picksFrom(req.body) : [];
+      const recTheirs = format === 'pool'
+        ? [].concat(req.body.picks_theirs || []).map(Number).filter(Boolean) : [];
+      const recording = !!(recMine.length || recTheirs.length);
+      if (recording) {
+        const need = Number(req.body.picks_required) || recMine.length;
+        if (ids.length !== 1) throw new Error('record-one-opponent');
+        if (recMine.some(t => recTheirs.includes(t))) throw new Error('record-overlap');
+        if (recMine.length !== need || recTheirs.length !== need) throw new Error('record-count');
+      }
       const poolWins = format === 'pool'
         ? (String(req.body.pool_outcome || '').trim() || 'holds the eventual league champion')
         : '';
       const bet = await SB.propose({
         proposer_id: req.owner.id, party_ids: ids, terms, stake,
         position: String(req.body.position || '').trim(),
-        picks: format === 'pool' ? [] : picksFrom(req.body),
+        picks: format === 'pool' ? recMine : picksFrom(req.body),
+        party_picks: recording ? { [ids[0]]: recTheirs } : null,
         resolves: String(req.body.resolves || '').trim(),
         format, conditions, logic: req.body.logic, kind: String(req.body.kind || ''),
         // Ordered: the first rule that separates the field wins, the rest are
@@ -1880,6 +1900,7 @@ router.post('/sidebets/:id/accept', aw(async (req, res) => {
   // A pool bet is a DRAFT: the moment both are in, open the franchise draft with
   // the order computed from the prior season's finish (higher finisher first).
   if (accepted && accepted.format === 'pool' && accepted.status === SB.STATUS.LOCKED
+      && !(accepted.pool && accepted.pool.recorded)
       && !accepted.draft && accepted.parties.length >= 2) {
     const owners = H.activeOwners(req.world.owners);
     const [aId, bId] = accepted.parties.map(p => p.owner_id);
@@ -2291,7 +2312,7 @@ router.get('/team', aw(async (req, res) => {
   // This week's game, so the page answers "who am I playing" before it answers
   // "who is on my bench" — and so a bet against that opponent is one tap away.
   const matchup = sleeper.myMatchup(sData, world.config.sleeper_map || {}, viewOwner.id, owners);
-  const betWindow = BL.matchupWindow(matchup);
+  const betWindow = BL.matchupWindow(matchup, new Date(), { seasonStart: world.config.season_start, seasonType: sData && sData.season_type });
   const nameOf = id => (H.ownerById(owners, id) || {}).name || '?';
   const allBets = await SB.all();
   // Bets your opponent has put in front of you for this week.
@@ -2455,7 +2476,7 @@ router.get('/matchup', aw(async (req, res) => {
   if (!opp && oppParam && oppParam !== me.id) opp = H.ownerById(owners, oppParam) || null;
 
   const weekNo = (liveMatchup && liveMatchup.week) || (sData && sData.week) || 1;
-  const betWindow = BL.matchupWindow(liveMatchup);
+  const betWindow = BL.matchupWindow(liveMatchup, new Date(), { seasonStart: world.config.season_start, seasonType: sData && sData.season_type });
 
   // ── WEEK NAVIGATION (member-site pass, 2026-08-16) ────────────────────────
   // "Matchup tracking, this week and other weeks" — ?week=N opens any past
@@ -3461,41 +3482,18 @@ router.get('/waivers', requireCommissioner, aw(async (req, res) => {
           process.env.DRAFT_DATA_PATH
             || path.join(__dirname, '..', '..', 'public', 'draft_data.json'), 'utf8'));
       } catch (e) { artifact = {}; }
-      const inputs = W.waiverInputsFromBundle(sData, playersDb, artifact, myRid);
-      if (inputs && inputs.myRoster.length) {
-        live = true;
-        const band = LO.weeklyHighBand();
-        // The league's own slot template, not a default — a wrong template
-        // prices every claim against a lineup we do not play.
-        const template = (sData.league && sData.league.roster_positions) || null;
-        const league = { teams: (sData.league && sData.league.total_rosters) || owners.length,
-                         starters: template ? LO.slotsFromTemplate(template) : LO.DEFAULT_SLOTS };
-        // Rank by what reaches the field, and only look at the top of the wire —
-        // a full FA pool is thousands of names and the tail is all zeros.
-        const typical = LO.typicalTeamScore();
-        const res2 = W.evaluateClaims(inputs.freeAgents, inputs.myRoster, league, {
-          band, lineupMean: typical.median, lineupSd: typical.sd, oppMean: typical.median,
-          leagueRosters: Object.fromEntries((sData.rosters || [])
-            .filter(r => String(r.roster_id) !== String(myRid))
-            .map(r => [r.roster_id, (r.players || []).map(pid => {
-              const info = (playersDb && playersDb.players && playersDb.players[pid]) || {};
-              return { player_id: pid, position: info.pos, proj_mean: null };
-            }).filter(p => p.position)])),
-        });
-        drop = res2.drop; perPoint = res2.dollars_per_point;
-        claims = res2.claims.filter(c => c.net_value > 0).slice(0, 8);
-        // STREAMING (K/DEF), same underlying valuation, different decision shape.
-        // A stream is a FREE weekly swap, not a priority-costly claim — the
-        // counterfactual is "kept who I have", not "held priority". Uses the SAME
-        // tested net_value ranking as the claims above (no new scoring logic,
-        // that gate stays closed this close to the draft) with the limitation
-        // stated honestly on the page: season-value, not matchup-tuned.
-        streamClaims = res2.claims.filter(c => (c.position === 'K' || c.position === 'DEF')
-          && c.net_value > 0).slice(0, 2);
-        currentKD = (inputs.myRoster || [])
-          .filter(p => p.position === 'K' || p.position === 'DEF')
-          .map(p => ({ player_id: p.player_id, name: p.name, position: p.position }));
-      }
+      /* THE COMPUTATION MOVED to src/waiver_reco.js (2026-08-24) so the page
+       * and the Tuesday-night auto-capture cron (waiver-reco-cron) share ONE
+       * recommendation — the graded ledger row is definitionally what this
+       * page shows, because both call the same function on the same inputs.
+       * Cory: "you should be logging and grading ALL recommendations
+       * everywhere even if I don't do them." */
+      const reco = require('../waiver_reco').computeWaiverReco(
+        sData, playersDb, artifact, myRid, owners.length);
+      live = reco.live;
+      drop = reco.drop; perPoint = reco.perPoint;
+      claims = reco.claims; streamClaims = reco.streamClaims;
+      currentKD = reco.currentKD;
     }
   } catch (e) { err = String((e && e.message) || e); }
 
@@ -4066,3 +4064,9 @@ router.get('/rules', aw(async (req, res) => {
 }));
 
 module.exports = router;
+// The lineup auto-capture cron (netlify/functions/lineup-reco-cron.js) runs
+// the SAME optimizer call the /lineup page renders from, so the graded row is
+// definitionally what the page showed — register 287, the volunteered-data
+// gap. Attached to the router object rather than moved: 100+ lines of
+// battle-tested computation stay where their history is.
+module.exports.liveOptimizeFor = liveOptimizeFor;
