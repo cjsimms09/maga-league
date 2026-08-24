@@ -36,9 +36,18 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS ' + n)) : (fail++, cons
 const league = DATA.league;
 const TEAMS = league.teams;
 const ROUNDS = league.rounds;
-const KEEPERS = (DATA.kept_players || []).length
+/* ⚠️ FILTERED TO MY SEAT — THE SAME CORRECTION apply_slot_load_path.test.js
+ * ALREADY CARRIES, MISSED HERE (A, 2026-08-24, register 300). Post-lock
+ * (08-23) `kept_players` holds the WHOLE league's 23, and `rebuild(slot)`
+ * below re-stamps every one of them onto a SINGLE seat — so it forfeited 23 of
+ * 15 rounds and `truth` collapsed to [] at all ten seats. The question this
+ * file asks is "if I sat at seat N, which picks would be mine", so the input
+ * is one manager's keeper set, and it always was. */
+const MY_SLOT = Number(league.my_draft_slot);
+const ALL_KEEPERS = (DATA.kept_players || []).length
   ? DATA.kept_players
   : ((DATA.pick_order || {}).forfeited || []);
+const KEEPERS = ALL_KEEPERS.filter(k => Number(k.team_slot) === MY_SLOT);
 const KCOUNT = (league.keeper_rules || {}).count || 0;
 
 function rebuild(slot) {
@@ -72,12 +81,28 @@ ck('the shipped board is the FULL board — teams x rounds, nothing deleted',
 ck('it declares its numbering rather than leaving it to be inferred',
   (DATA.pick_order || {}).numbering === 'sleeper_uncompressed',
   String((DATA.pick_order || {}).numbering));
-ck('keeper-occupied slots are FLAGGED, and there are exactly as many as forfeits',
-  boardRows.filter(p => p.keeper_slot).length === KCOUNT,
-  `${boardRows.filter(p => p.keeper_slot).length} flagged vs ${KCOUNT} forfeits`);
-ck('and they all sit at ONE seat — the slate is mine only, not the league\'s',
-  new Set(boardRows.filter(p => p.keeper_slot).map(p => Number(p.slot))).size === 1,
-  JSON.stringify([...new Set(boardRows.filter(p => p.keeper_slot).map(p => p.slot))]));
+/* ⚠️ THIS FILE PREDICTED ITS OWN EXPIRY AND NOBODY ACTED ON IT. The comment
+ * above still says the flags "are MINE ALONE ... and will be wrong at all ten
+ * the moment the slate lands on 20 August". The slate landed. Both assertions
+ * below asserted the pre-slate world and went red, which is Rule 3g's failure
+ * written into a test: a finding with a date, and no mechanism to chase it.
+ * Restated for the world that actually exists — league-wide flags, MY seat
+ * carrying exactly KCOUNT of them. */
+const flagged = boardRows.filter(p => p.keeper_slot);
+const flaggedMine = flagged.filter(p => Number(p.slot) === MY_SLOT);
+ck('keeper-occupied slots are FLAGGED, and MY seat carries exactly as many as '
+  + 'I forfeit', flaggedMine.length === KCOUNT,
+`${flaggedMine.length} flagged at seat ${MY_SLOT} vs ${KCOUNT} forfeits `
+  + `(${flagged.length} league-wide)`);
+ck('and they now span the LEAGUE, not one seat — the confirmed slate landed, '
+  + 'and no seat is charged more than the keeper cap',
+(() => {
+  const bySlot = {};
+  flagged.forEach(p => { bySlot[p.slot] = (bySlot[p.slot] || 0) + 1; });
+  const slots = Object.keys(bySlot);
+  return slots.length > 1 && slots.every(s => bySlot[s] <= KCOUNT);
+})(),
+JSON.stringify([...new Set(flagged.map(p => p.slot))]));
 ck('every seat now has the same number of ROWS, which is why a naive filter '
   + 'looks right', (() => {
     const c = {};

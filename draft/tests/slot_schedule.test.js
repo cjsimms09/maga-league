@@ -62,10 +62,24 @@ const OUT = execFileSync('node', [TOOL], { encoding: 'utf8', maxBuffer: 8 * 1024
   ck('CONTROL — the two really differ, which is the only reason confusing them '
     + 'has a cost', PO.my_picks.length !== PO.my_picks_before_keepers.length,
   { owns: PO.my_picks.length, before: PO.my_picks_before_keepers.length });
-  ck('the difference is exactly the forfeited rounds, by count',
-    PO.my_picks_before_keepers.length - PO.my_picks.length === (PO.forfeited || []).length,
+  /* ⚠️ THIS COMPARED MY LOST PICKS AGAINST THE LEAGUE'S FORFEITURES, and went
+   * red the day the slate went league-wide (A, 2026-08-24, register 300).
+   * `pick_order.forfeited` used to carry Cory's three; POST-LOCK (08-23) it
+   * carries all 23, across 9 team slots — a deliberate product change, and
+   * `app.js:2022` says so in as many words. So 15 − 12 = 3 was being asserted
+   * equal to 23. The suite's INTENT was always "my" forfeitures; the filter was
+   * simply not needed while the artifact only held mine. */
+  const MY_SLOT = (D.league || {}).my_draft_slot;
+  const MY_FORFEITS = (PO.forfeited || [])
+    .filter(f => MY_SLOT != null && String(f.team_slot) === String(MY_SLOT));
+  ck('CONTROL — the forfeited list really is LEAGUE-WIDE now, so filtering to '
+    + 'my slot is load-bearing rather than decorative',
+  (PO.forfeited || []).length > MY_FORFEITS.length && MY_FORFEITS.length > 0,
+  { league_wide: (PO.forfeited || []).length, mine: MY_FORFEITS.length, my_slot: MY_SLOT });
+  ck('the difference is exactly the forfeited rounds AT MY SLOT, by count',
+    PO.my_picks_before_keepers.length - PO.my_picks.length === MY_FORFEITS.length,
     { delta: PO.my_picks_before_keepers.length - PO.my_picks.length,
-      forfeited: (PO.forfeited || []).length });
+      mine: MY_FORFEITS.length, league_wide: (PO.forfeited || []).length });
   ck('and picks 8, 13 and 28 are in the BEFORE list and NOT in the owned list — '
     + 'these are the three the plan used to spend',
   [8, 13, 28].every(p => PO.my_picks_before_keepers.includes(p) && !PO.my_picks.includes(p)),
@@ -144,10 +158,18 @@ const OUT = execFileSync('node', [TOOL], { encoding: 'utf8', maxBuffer: 8 * 1024
    * the right pick set. What the fix ESTABLISHED, and what cannot drift with a
    * projection, is that every slot lands on a pick Cory actually owns. */
   const OWNED = (D.pick_order || {}).my_picks || [];
-  const FORFEIT = ((D.pick_order || {}).forfeited || []).map(f => f.cost_round);
+  /* Same league-wide correction as section 1: filter to MY slot before counting.
+   * The bare `.map(f => f.cost_round)` returned 23 rounds belonging to nine
+   * other managers, so `FORFEIT.length === 3` failed on a post-lock board. */
+  const _MY_SLOT = (D.league || {}).my_draft_slot;
+  const FORFEIT = ((D.pick_order || {}).forfeited || [])
+    .filter(f => _MY_SLOT != null && String(f.team_slot) === String(_MY_SLOT))
+    .map(f => f.cost_round);
   const placed = [qb, te].filter(x => x != null);
-  ck('CONTROL — the board really does list forfeited rounds, so the check below '
-    + 'is comparing against something', FORFEIT.length === 3, FORFEIT);
+  ck('CONTROL — the board lists MY forfeited rounds (filtered out of the '
+    + 'league-wide slate), so the check below is comparing against something',
+  FORFEIT.length === 3, { mine: FORFEIT,
+    league_wide: ((D.pick_order || {}).forfeited || []).length, my_slot: _MY_SLOT });
   ck('THE PROPERTY THE FIX ESTABLISHED: every placed slot is a pick Cory OWNS, '
     + 'never one of the three forfeited for his keepers',
     placed.every(x => OWNED.indexOf(x) >= 0), { placed: placed, owned: OWNED });
