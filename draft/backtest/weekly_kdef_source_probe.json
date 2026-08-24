@@ -1,0 +1,49 @@
+{
+ "_territory": "TERRITORY: C \u2014 written by weekly_kdef_source_probe.py",
+ "_question": "source_boards shows FantasyPros K=0 DEF=0 -- is Sleeper our only weekly K/DEF projection source?",
+ "_note": "A census probe, not a parser (rule 11, same discipline as discovery_ceiling_sources.py): the position-field convention each candidate uses is unverified until this run's own sample_hits confirms it, so nothing is assumed from a field-name guess.",
+ "season": 2025,
+ "week": 1,
+ "rule_3e_control": {
+  "ok": true,
+  "hits": [
+   {
+    "path": "$.players[0]",
+    "projection_path": "$.players[0].stats",
+    "position": "DEF",
+    "projection_value": 7.4,
+    "row": {
+     "player_id": "DAL",
+     "position": "DEF",
+     "stats": {
+      "points": 7.4
+     }
+    }
+   }
+  ]
+ },
+ "records": [
+  {
+   "source": "nfl_com_weekly_projected",
+   "url": "https://api.fantasy.nfl.com/v2/players/weekstats?season=2025&week=1&statType=weekProjectedStats",
+   "bytes": 112321,
+   "kdef_rows_found": 0,
+   "sample_hits": [],
+   "verdict": "NULL \u2014 no row matched a known K/DEF spelling with a projection value."
+  },
+  {
+   "source": "espn_kona_player_info",
+   "url": "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/2025/segments/0/leagues/1?view=kona_player_info",
+   "error": "HTTPError: HTTP Error 401: ",
+   "verdict": "UNREACHABLE \u2014 no evidence either way, do not read as a null."
+  }
+ ],
+ "summary": {
+  "headline": "NO CANDIDATE PUBLISHED A RECOGNIZABLE K/DEF WEEKLY PROJECTION.",
+  "endpoints_probed": 2,
+  "endpoints_unreachable": [
+   "espn_kona_player_info"
+  ],
+  "reminder": "Unreachable is NOT a null. A source in endpoints_unreachable is unanswered, not exhausted."
+ }
+}
