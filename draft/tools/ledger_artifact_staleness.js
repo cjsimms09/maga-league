@@ -80,13 +80,33 @@ function resolveArtifact(rel) {
   return null;
 }
 
+/* TIER 1 vs TIER 2 — the precision fix, added after measuring my own tool.
+ *
+ * v2 flagged 5 of 102 open rows and ALL FIVE were false positives: arms whose
+ * artifact carries a PRIOR feasibility verdict while the prediction itself
+ * awaits 2026 weeks that do not exist yet (P56, P77, P78, P79, P129). Precision
+ * 0/5 is not a triage tool, it is noise with a non-zero exit code.
+ *
+ * What separates the one REAL instance is that P151's artifact is PURPOSE-BUILT
+ * for it -- `p151_target_share_trend.json` carries the prediction's own id, and
+ * none of the five false positives do. So:
+ *   TIER 1  artifact named for THIS prediction and answered -> gates the exit
+ *   TIER 2  any named artifact answered -> printed as context, never gates
+ * Recall is preserved (tier 2 still prints) and the exit code stops crying wolf.
+ */
+function isPurposeBuilt(id, relPath) {
+  const num = id.replace(/^P/i, '');
+  const base = path.basename(relPath).toLowerCase();
+  return new RegExp(`(^|[^0-9a-z])p${num}([^0-9]|$)`).test(base);
+}
+
 const ledger = fs.readFileSync(path.join(ROOT, 'PREDICTION-LEDGER.md'), 'utf8');
 const rows = ledger.split('\n').filter(l => /^\| P\d+ \|/.test(l));
 const PATH_RE = /`([A-Za-z0-9_./-]+\.(?:json|py|js))`/g;
 
 let namedPaths = 0;
 const unresolved = new Set();
-const open = [], flagged = [];
+const open = [], tier1 = [], tier2 = [];
 for (const line of rows) {
   const cells = line.split(/(?<!\\)\|/);
   const id = cells[1].trim();
@@ -101,7 +121,8 @@ for (const line of rows) {
     if (!abs) { unresolved.add(p); continue; }
     let doc; try { doc = JSON.parse(fs.readFileSync(abs, 'utf8')); } catch { continue; }
     const why = looksAnswered(doc);
-    if (why) flagged.push({ id, artifact: p, why });
+    if (!why) continue;
+    (isPurposeBuilt(id, p) ? tier1 : tier2).push({ id, artifact: p, why });
   }
 }
 
@@ -121,15 +142,16 @@ for (const line of rows) {
     if (!abs) continue;
     let doc; try { doc = JSON.parse(fs.readFileSync(abs, 'utf8')); } catch { continue; }
     const why = looksAnswered(doc);
-    if (why) { hit = `${p} -> ${why}`; break; }
+    if (why && isPurposeBuilt('P151', p)) { hit = `${p} -> ${why}`; break; }
   }
   if (!hit) {
-    console.error('CONTROL C4 FAILED — the sweep cannot detect P151, the real case '
-      + 'it was built from. Paths named: ' + JSON.stringify(paths)
+    console.error('CONTROL C4 FAILED — P151 does not land in TIER 1. It is the one '
+      + 'real instance and its artifact IS purpose-built, so a miss here means the '
+      + 'tier rule is wrong. Paths named: ' + JSON.stringify(paths)
       + '. A clean run means nothing while this fails.');
     process.exit(2);
   }
-  console.log('C4 ok — the real historical case is detected: ' + hit);
+  console.log('C4 ok — the real historical case lands in TIER 1: ' + hit);
 }
 
 console.log(`C1 — artifact paths named across the ledger: ${namedPaths}`);
@@ -138,13 +160,16 @@ if (namedPaths < 20) {
     + 'regex is broken and a clean sweep would mean nothing'); process.exit(2);
 }
 console.log(`\nOPEN rows: ${open.length}`);
-console.log(`OPEN rows whose OWN named artifact already looks answered: ${flagged.length}`);
-for (const f of flagged) console.log(`  ${f.id.padEnd(7)} ${f.artifact.padEnd(52)} ${f.why}`);
-if (!flagged.length) console.log('  (none — every open row\'s artifacts look unanswered)');
+console.log(`\nTIER 1 — open rows whose PURPOSE-BUILT artifact is answered: ${tier1.length}`);
+for (const f of tier1) console.log(`  ${f.id.padEnd(7)} ${f.artifact.padEnd(52)} ${f.why}`);
+if (!tier1.length) console.log('  (none — no open row has an answered artifact named for it)');
+console.log(`\nTIER 2 — context only, NEVER gates: ${tier2.length}`);
+console.log('  (an arm can legitimately carry a PRIOR verdict while its prediction awaits live weeks)');
+for (const f of tier2) console.log(`  ${f.id.padEnd(7)} ${f.artifact.padEnd(52)} ${f.why}`);
 if (unresolved.size) {
   console.log(`\nartifact paths NAMED but not found on disk: ${unresolved.size}`);
   [...unresolved].slice(0, 8).forEach(u => console.log('  ' + u));
 }
 console.log('\nThis does NOT grade anything. It says: read these artifacts before '
   + 'dispatching these rows as work.');
-process.exitCode = flagged.length ? 1 : 0;
+process.exitCode = tier1.length ? 1 : 0;
