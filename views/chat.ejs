@@ -10,26 +10,60 @@
     <% if (!feed.length) { %>
       <p class="muted" style="text-align:center">Dead silence. Someone say something inflammatory.</p>
     <% } %>
-    <% for (const m of feed) { const mine = m.owner_id === owner.id; %>
+    <% for (const m of feed) { const mine = m.owner_id === owner.id;
+         const mid = (m.key || '').slice(5);
+         const editable = mine && Date.now() - Date.parse(m.created_at || 0) < editWindowMs; %>
       <div class="chat-msg <%= mine ? 'mine' : '' %>">
         <div class="chat-avatar"><%= m.name[0] %></div>
         <div class="chat-bubble">
           <div class="chat-meta">
             <b><%= m.name %></b>
             <span><%= (m.created_at || '').slice(5, 10).replace('-', '/') %> <%= (m.created_at || '').slice(11, 16) %></span>
-            <% if (owner.is_commissioner) { %>
+            <% if (m.edited_at) { %><span class="muted" title="edited within the 5-minute window">(edited)</span><% } %>
+            <a href="/chat?reply=<%= mid %>#composer" class="muted" style="text-decoration:none" title="Reply to this">↩</a>
+            <% if (editable) { %>
+              <%# YOUR OWN MESSAGE, FIVE-MINUTE WINDOW (catalog 12): fix the
+                  typo or take it back; after that it is the record. %>
+              <details class="asis" style="display:inline-block">
+                <summary style="list-style:none;cursor:pointer" class="muted" title="Edit (5-minute window)">✎</summary>
+                <form method="post" action="/chat/<%= mid %>/edit" style="display:flex;gap:.3rem;margin-top:.3rem">
+                  <input type="text" name="text" maxlength="500" value="<%= m.text %>" required style="flex:1 1 10rem">
+                  <button class="btn small gold" type="submit">Save</button>
+                </form>
+              </details>
+              <form class="asis" method="post" action="/chat/<%= mid %>/delete"
+                    onsubmit="return confirm('Take this message back? Gone for good.')">
+                <button class="chat-del" title="Delete (5-minute window)">✕</button>
+              </form>
+            <% } %>
+            <% if (owner.is_commissioner && !editable) { %>
               <form class="asis" method="post" action="/admin/chat/<%= encodeURIComponent(m.key) %>/delete"><button class="chat-del" title="Delete">✕</button></form>
             <% } %>
           </div>
+          <% if (m.reply) { %>
+            <div class="muted" style="border-left:3px solid var(--line);padding:.15rem .5rem;margin:.2rem 0;font-size:.82rem">
+              ↩ <b><%= m.reply.name %></b>: <%= m.reply.text %><%= (m.reply.text || '').length >= 90 ? '…' : '' %>
+            </div>
+          <% } %>
           <div><%= m.text %></div>
         </div>
       </div>
     <% } %>
     <div id="end"></div>
   </div>
-  <div style="padding:.8rem 1rem; border-top:1px solid var(--line)">
+  <div id="composer" style="padding:.8rem 1rem; border-top:1px solid var(--line)">
+    <% if (typeof replyTo !== 'undefined' && replyTo) { %>
+      <p class="muted" style="margin:0 0 .4rem;font-size:.8rem">
+        ↩ Replying to <b><%= replyTo.name %></b>: <%= (replyTo.text || '').slice(0, 90) %>
+        <a href="/chat#composer" style="margin-left:.4rem">cancel</a></p>
+    <% } %>
     <form method="post" action="/chat" class="inline-form">
-      <div><input type="text" name="text" maxlength="500" required autocomplete="off" placeholder="Say it to their face, <%= owner.name %>"></div>
+      <% if (typeof replyTo !== 'undefined' && replyTo) { %>
+        <input type="hidden" name="reply_key" value="<%= (replyTo.key || '').slice(5) %>">
+      <% } %>
+      <div><input type="text" name="text" maxlength="500" required autocomplete="off"
+        <%= (typeof replyTo !== 'undefined' && replyTo) ? 'autofocus' : '' %>
+        placeholder="Say it to their face, <%= owner.name %>"></div>
       <div class="fit"><button class="btn" type="submit">Send</button></div>
     </form>
   </div>
