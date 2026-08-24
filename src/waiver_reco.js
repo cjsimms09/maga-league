@@ -17,6 +17,76 @@
 const W = require('./routes/waivers');
 const LO = require('./routes/lineup');
 
+/* ── ONE DECISION MAY BE PRESENTED ONCE PER SEAT IT COULD FILL ──────────────
+ *
+ * REGISTER 294 (🔴🔴, found by E 2026-08-24): the waiver page showed Cory eight
+ * claims and all eight were kickers, six of them below replacement, while the
+ * tight-end upgrade — the largest positional hole on any roster in this league
+ * — sat at rank 34 and never rendered.
+ *
+ * THE ARITHMETIC WAS NEVER WRONG. `net_value` is lineup points gained; he
+ * drafted no kicker, so every free kicker fills a slot currently scoring zero
+ * and books its ENTIRE season projection as the gain. Thirty-three consecutive
+ * kickers outranked the first non-kicker, correctly. The ranking was useless
+ * anyway, because HE CAN START ONE KICKER: the page presented one decision
+ * eight times and pushed the second decision off the bottom.
+ *
+ * ⚠️ AND THE FIX THE REGISTER RECOMMENDED — exclude K and DEF — DOES NOT FIX
+ * THE CLASS, IT MOVES IT. That output is printed at the bottom of E's own probe
+ * and reads EIGHT TIGHT ENDS: Strange · Johnson · Hockenson · Schultz ·
+ * Freiermuth · Sadiq · Dulcich · Okonkwo. Cory holds one weak TE, so every TE
+ * on the wire is a real upgrade over the same starter — one decision, presented
+ * eight times, at a different position. Excluding two positions treats the
+ * symptom of the roster he happens to hold today; the defect is structural.
+ *
+ * SO THE BAR IS STRUCTURAL: a position may occupy at most as many rows as it
+ * has STARTABLE SEATS — `starters[pos]`, plus the FLEX seat for the positions
+ * eligible to fill it. QB 1 · RB 3 · WR 3 · TE 2 · K 1 · DEF 1. That bound is a
+ * property of the league's slot template, so it holds for whatever roster he
+ * holds in whatever week, and it fires for ANY position that goes empty rather
+ * than only the one that is empty today.
+ *
+ * WHAT IT DOES NOT DO, deliberately: it does not reorder, reweight or suppress
+ * a position. The kicker is still #1 — with an empty K slot that is the single
+ * largest lineup gain available and it would be dishonest to hide it. What
+ * stops is the SEVEN RESTATEMENTS of it. Feed this an unbounded cap and it
+ * returns today's list byte-for-byte; that is its control, and it is asserted
+ * in `draft/tests/waiver_claims_are_distinct_decisions.test.js`.
+ */
+const FLEX_ELIGIBLE = new Set(['RB', 'WR', 'TE']);
+
+function startableSlotCaps(starters) {
+  const s = starters || {};
+  const flex = Number(s.FLEX || 0);
+  const caps = {};
+  Object.keys(s).forEach(pos => {
+    if (pos === 'FLEX') return;
+    /* Floor of 1: a position the template does not seat at all (a league with
+     * no kicker slot) still gets to show its best claim rather than vanishing
+     * — a cap of zero would be a suppression, and this is not one. */
+    caps[pos] = Math.max(1, Number(s[pos] || 0) + (FLEX_ELIGIBLE.has(pos) ? flex : 0));
+  });
+  return caps;
+}
+
+function capPerPosition(claims, starters, limit) {
+  const caps = startableSlotCaps(starters);
+  const used = {};
+  const out = [];
+  for (const c of claims || []) {
+    const pos = c.position;
+    /* An UNKNOWN position defaults to 1 rather than to unlimited. The failure
+     * mode being fixed here is a flood; defaulting the unknown case to
+     * unlimited would let a position the template does not name reproduce it. */
+    const cap = caps[pos] == null ? 1 : caps[pos];
+    if ((used[pos] || 0) >= cap) continue;
+    used[pos] = (used[pos] || 0) + 1;
+    out.push(c);
+    if (out.length >= limit) break;
+  }
+  return out;
+}
+
 /**
  * @param sData       sleeper.bundle() result
  * @param playersDb   sleeper.players() result
@@ -55,7 +125,12 @@ function computeWaiverReco(sData, playersDb, artifact, myRid, ownersCount) {
   });
   out.drop = res.drop;
   out.perPoint = res.dollars_per_point;
-  out.claims = res.claims.filter(c => c.net_value > 0).slice(0, 8);
+  /* Register 294. Was `.slice(0, 8)` on the raw ranking, which rendered eight
+   * kickers. `league.starters` is the league's own template read above, not a
+   * default — capping against a template we do not play would bound the list at
+   * the wrong number. */
+  out.claims = capPerPosition(res.claims.filter(c => c.net_value > 0),
+    league.starters, 8);
   // STREAMING (K/DEF), same underlying valuation, different decision shape. A
   // stream is a FREE weekly swap, not a priority-costly claim — the
   // counterfactual is "kept who I have", not "held priority". Same tested
@@ -229,4 +304,5 @@ function buildAutoLineupEntry(live, band, season, week, ownerId) {
 }
 
 module.exports = { computeWaiverReco, buildAutoWaiverEntry,
-                   buildAutoStreamEntry, buildAutoLineupEntry };
+                   buildAutoStreamEntry, buildAutoLineupEntry,
+                   capPerPosition, startableSlotCaps };
