@@ -108,8 +108,83 @@ and loses entirely on **conversion** — 0.740/0.771 against 0.828/0.834 — val
 acquired that never reaches a starting slot. **That is Cory's "roster still not
 normal", in points, and it is worth more than the whole acquisition edge.**
 
-**The mechanism is register 60, which has been open without a cost:** `need` is
-the only roster-aware term and it ships at weight **0**, so nothing penalises a
+**⭐ MEASURED ACROSS ALL SIX ARMS 2026-08-24 — AND THE CONVERSION FIX DID NOT
+MOVE THE PLACE.** `draft/backtest/seat_rank_by_arm_lab.json`, five controls
+green including the one that licenses the rest: the shipped arm recomputed
+there reproduces the committed replay per seat and lands on **7.80**, the
+published number, so the harness is the same one and not a second that agrees
+by luck. Mean rank — **shipped 7.80 · `need1` 7.13 · slot-aware 7.00 · auto
+7.73 · `bye1` and `slot_s0` inert at 7.80 (30/30 seats unchanged, corroborating
+the conversion lab across two labs sharing only `draft_replay_2025`)**.
+**PAIRED against shipped on the same 30 seat-years, which is the only reading
+this file's own rule permits — `need1` +0.667 places, 95% CI [−0.13, +1.47],
+t 1.63, sign p 0.119; slot-aware +0.800, CI [−0.08, +1.68], sign p 0.096. EVERY
+CI SPANS ZERO.** A sign test sits beside the t because a rank is ORDINAL and
+the t treats *10th→9th* and *2nd→1st* as one quantity; they agree, so the
+conclusion does not rest on that assumption. **NO WEIGHT SETTING IS
+DISTINGUISHABLE FROM WHAT SHIPS ON FINISHING POSITION, and all six sit BELOW
+the 30% chance rate on top-3 (10%–17%).** **So conversion was NOT the binding
+constraint on where the tool finishes, and the sentence directly above —
+*"worth more than the whole acquisition edge"* — is true of points and false of
+PLACE.** The next lever is not a weight: six configurations land in the same
+spot, so top-3 has to come from better projections or a different selection
+rule, not from reweighting the same score. ⚠️ **Every recorded arm still
+carries the superseded ceiling weight against the shipped 0.0, so no row is the
+exact live engine.** Register 317.
+
+**⚠️⚠️ CORRECTED 2026-08-24 — EVERY FIGURE IN THE PARAGRAPH ABOVE WAS MEASURED
+AT ~~`need: 0`~~, AND CORY SWITCHED `need` TO 1.0 THE NEXT DAY.**
+`engine_seat_replay.json` stamps its own `engine_meta.weights_values` as
+~~`{value 1, tier 0, need 0, risk 0, ceiling 0.45, keeper 1, bye 0, stack 1}`~~;
+`engine.js:826` ships `need 1.0, ceiling 0.0`, ruled 08-20. So *8th of 10*,
+*0.740/0.771*, *beats 0 of 10 owners* and *SEVEN quarterbacks* describe a
+configuration that has not shipped since. **THIS IS REGISTER 5h FOR THE FOURTH
+TIME AND THE SECOND IN THIS FILE — the paragraph three screens up documents the
+pattern in its own words and this one is a fresh instance of it.**
+**MEASURED, on the arm that was already sitting on disk unread
+(`engine_seat_choices_need1.json`): `need: 1.0` KILLS THE PILEUP. Seats with 3+
+QB fall 8/30 → 2/30, the seven-QB seat falls to ONE, max on any seat 7 → 3.**
+⚠️ **2024 gets worse (1.20 → 1.80) — `need` helps where the defect was and
+hurts where it was not.** ~~⚠️ **AND THAT IS QB COUNTS, NOT CONVERSION: the need1
+arm cannot be scored from these artifacts** (83.1% actuals coverage, and the
+missing 17% is exactly the players it drafted that need0 did not — a
+selection-biased subset)**. So the
+honest headline is that the conversion defect's named mechanism is measurably
+smaller under the shipped weights and the defect itself is UNMEASURED there.
+Re-running the replay at the shipped constant is the highest-value measurement
+available for 2027.**~~
+
+⚠️⚠️ **CORRECTED WITHIN THE HOUR — "CANNOT BE SCORED" WAS FALSE AND I ASSERTED
+IT WITHOUT GREPPING FOR THE TOOL THAT REMOVES THE LIMIT.** I measured coverage
+against `engine_seat_replay.json`, found 83.1%, and wrote down a limit of the
+ARTIFACT as though it were a limit of the QUESTION.
+`draft/backtest/conversion_by_arm_lab.py` scores every arm off the season
+bundles instead — full coverage — **and it had already been run on 08-19, as
+the grade for P127.** **RE-RUN TODAY, three controls green: `need: 1.0` DOES
+NOT MERELY SHRINK THE CONVERSION GAP, IT CLOSES IT AND PASSES THE OWNERS IN TWO
+OF THREE SEASONS — 0.876 / 0.849 / 0.829 against 0.828 / 0.826 / 0.834, a gap
+of +0.049 / +0.023 / −0.004 where the shipped arm read −0.087 / −0.011 /
+−0.062.** **SO THE LOOP WORKED AND I MISREAD IT AS BROKEN:** the gap was
+measured, an arm that closes it was graded, Cory ruled A13 on that evidence on
+08-20, and the weight shipped. **Only the prose decayed — which is register 5h,
+exactly what it says on the tin, and nothing more.** Register 317. **THE REAL
+REMAINING GAP IS SEAT RANK, which is the question Cory actually asked:
+`seat_rank_lab.json` carries NO arm dimension and `seat_rank_lab.py` takes only
+`--json`, so *8th of 10* is the need0 rank and the need1 rank has never been
+computed.** ⚠️ **And every recorded arm still carries the superseded ~~`ceiling: 0.45`~~
+while the shipped constant is 0.0, so no artifact yet describes the exact live
+config.** **The mechanism BEHIND the gap, however, is
+now established far more strongly than the audit showed: across 30 seat-years
+QB count vs conversion is r = −0.832 (t = −7.95), monotone at every step
+(QB 1 → 0.824 · 2 → 0.817 · 3 → 0.757 · 4 → 0.679 · 5 → 0.650 · 7 → 0.515),
+with roster size ruled out (r = −0.105) and 10.5% of all roster points stranded
+in QB2+. The audit argued it from three season means and called a
+non-monotone sequence "monotonic"; the seat-level distribution carries it.**
+
+~~**The mechanism is register 60, which has been open without a cost:** `need` is
+the only roster-aware term and it ships at weight **0**~~ — **⚠️ `need` HAS
+SHIPPED AT 1.0 SINCE 2026-08-20; this clause was already false when written
+above.** so nothing penalises a
 pileup and whatever prices best gets taken repeatedly — **one 2023 seat drafted
 SEVEN quarterbacks** in a 1-QB league; the live 2026 board takes ~~**RB10**~~
 **RB7** instead. **⚠️ CORRECTED 2026-08-19 — RB10 CAME OFF AN EIGHTEEN-PICK

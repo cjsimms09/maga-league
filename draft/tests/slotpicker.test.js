@@ -92,8 +92,16 @@ check('access: a missing owner is DENIED', requireCory(null) === false);
   const ART = require('../../public/draft_data.json');
   const lg = ART.league;
   const kc = (lg.keeper_rules || {}).count || 0;
+  /* ⚠️ MY forfeitures, mirroring the fix in src/slotpicker.js:81 (A,
+   * 2026-08-24, register 303). Post-lock `forfeited` is the league's 23, and
+   * SP.myPicks re-stamps every entry onto the seat under test — 23 keepers
+   * charged to one seat forfeits all 15 rounds, my_picks comes back empty, and
+   * the fail-loud throw fires with the misleading message "keepers.js
+   * unavailable". This fixture must pass what the production caller passes, or
+   * it grades a different function than the one that ships. */
   const opts = { draftType: lg.draft_type, keeperRules: lg.keeper_rules,
-                 keepers: (ART.pick_order || {}).forfeited || [] };
+                 keepers: ((ART.pick_order || {}).forfeited || [])
+                   .filter(f => Number(f.team_slot) === Number(lg.my_draft_slot)) };
 
   // KNOWN-CORRECT CASE (requirement 2): the shipped artifact's own my_picks,
   // established by the pipeline independently of this module.

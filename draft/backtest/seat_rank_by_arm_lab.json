@@ -1,0 +1,468 @@
+{
+ "_territory": "TERRITORY: A \u2014 draft/backtest/seat_rank_by_arm_lab.json",
+ "_question": "Cory: rerun our model to see how we would've drafted compared to other owners. Need to strive for top 3!",
+ "_register": 317,
+ "_limit": "every recorded arm carries ceiling 0.45; the shipped constant is ceiling 0.0 since 2026-08-20 (engine.js:826). This isolates `need`; it is not the live configuration.",
+ "_report_only": "grades several arms, selects none (no_fit_guard)",
+ "chance_top3_rate": 0.3,
+ "controls": {
+  "shipped_reproduces_committed_replay": {
+   "ok": true,
+   "seat_years_checked": 30,
+   "worst_abs_diff": 0.0,
+   "why": "the shipped arm recomputed here must equal the published engine_seat_replay.json tool_total per seat; without this, a rank difference between arms could be a harness difference"
+  },
+  "slot_s0_reproduces_shipped": {
+   "ok": true,
+   "why": "slot_s0 is the shipped configuration re-run under the slot-aware harness and must land in the same place"
+  },
+  "rank_ceiling_is_1": {
+   "got": 1,
+   "ok": true
+  },
+  "rank_floor_is_10": {
+   "got": 10,
+   "ok": true
+  },
+  "need1_differs_from_shipped": {
+   "ok": true,
+   "seat_years_differing": 28,
+   "why": "identical totals would mean need is inert in this harness and every rank below would be the same number twice"
+  }
+ },
+ "paired_vs_shipped": {
+  "need1": {
+   "n": 30,
+   "mean_places_gained": 0.667,
+   "se": 0.408,
+   "ci95": [
+    -0.133,
+    1.466
+   ],
+   "t": 1.63,
+   "sign_test_p_two_sided": 0.1185,
+   "seats_improved": 11,
+   "seats_worsened": 4,
+   "seats_unchanged": 15
+  },
+  "slot_s1": {
+   "n": 30,
+   "mean_places_gained": 0.8,
+   "se": 0.448,
+   "ci95": [
+    -0.079,
+    1.679
+   ],
+   "t": 1.78,
+   "sign_test_p_two_sided": 0.0963,
+   "seats_improved": 13,
+   "seats_worsened": 5,
+   "seats_unchanged": 12
+  },
+  "auto": {
+   "n": 30,
+   "mean_places_gained": 0.067,
+   "se": 0.455,
+   "ci95": [
+    -0.825,
+    0.958
+   ],
+   "t": 0.15,
+   "sign_test_p_two_sided": 0.6291,
+   "seats_improved": 10,
+   "seats_worsened": 7,
+   "seats_unchanged": 13
+  },
+  "bye1": {
+   "n": 30,
+   "mean_places_gained": 0.0,
+   "se": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ],
+   "t": null,
+   "sign_test_p_two_sided": null,
+   "seats_improved": 0,
+   "seats_worsened": 0,
+   "seats_unchanged": 30
+  },
+  "slot_s0": {
+   "n": 30,
+   "mean_places_gained": 0.0,
+   "se": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ],
+   "t": null,
+   "sign_test_p_two_sided": null,
+   "seats_improved": 0,
+   "seats_worsened": 0,
+   "seats_unchanged": 30
+  }
+ },
+ "controls_all_passed": true,
+ "arms": {
+  "shipped": {
+   "per_season": {
+    "2023": {
+     "ranks_by_seat": {
+      "1": 9,
+      "2": 3,
+      "3": 9,
+      "4": 10,
+      "5": 8,
+      "6": 9,
+      "7": 7,
+      "8": 9,
+      "9": 3,
+      "10": 6
+     },
+     "mean_rank": 7.3,
+     "top3": 2,
+     "last": 1
+    },
+    "2024": {
+     "ranks_by_seat": {
+      "1": 10,
+      "2": 10,
+      "3": 10,
+      "4": 10,
+      "5": 10,
+      "6": 10,
+      "7": 10,
+      "8": 10,
+      "9": 10,
+      "10": 10
+     },
+     "mean_rank": 10.0,
+     "top3": 0,
+     "last": 10
+    },
+    "2025": {
+     "ranks_by_seat": {
+      "1": 5,
+      "2": 10,
+      "3": 5,
+      "4": 7,
+      "5": 7,
+      "6": 5,
+      "7": 3,
+      "8": 4,
+      "9": 8,
+      "10": 7
+     },
+     "mean_rank": 6.1,
+     "top3": 1,
+     "last": 1
+    }
+   },
+   "mean_rank": 7.8,
+   "top3_rate": 0.1,
+   "seat_years": 30,
+   "wins": 0,
+   "last_place": 12
+  },
+  "need1": {
+   "per_season": {
+    "2023": {
+     "ranks_by_seat": {
+      "1": 8,
+      "2": 3,
+      "3": 7,
+      "4": 9,
+      "5": 8,
+      "6": 7,
+      "7": 3,
+      "8": 7,
+      "9": 6,
+      "10": 8
+     },
+     "mean_rank": 6.6,
+     "top3": 2,
+     "last": 0
+    },
+    "2024": {
+     "ranks_by_seat": {
+      "1": 10,
+      "2": 10,
+      "3": 10,
+      "4": 10,
+      "5": 10,
+      "6": 2,
+      "7": 10,
+      "8": 10,
+      "9": 10,
+      "10": 10
+     },
+     "mean_rank": 9.2,
+     "top3": 1,
+     "last": 9
+    },
+    "2025": {
+     "ranks_by_seat": {
+      "1": 9,
+      "2": 9,
+      "3": 5,
+      "4": 8,
+      "5": 3,
+      "6": 5,
+      "7": 3,
+      "8": 4,
+      "9": 4,
+      "10": 6
+     },
+     "mean_rank": 5.6,
+     "top3": 2,
+     "last": 0
+    }
+   },
+   "mean_rank": 7.13,
+   "top3_rate": 0.167,
+   "seat_years": 30,
+   "wins": 0,
+   "last_place": 9
+  },
+  "slot_s1": {
+   "per_season": {
+    "2023": {
+     "ranks_by_seat": {
+      "1": 7,
+      "2": 3,
+      "3": 7,
+      "4": 7,
+      "5": 10,
+      "6": 9,
+      "7": 6,
+      "8": 8,
+      "9": 6,
+      "10": 7
+     },
+     "mean_rank": 7.0,
+     "top3": 1,
+     "last": 1
+    },
+    "2024": {
+     "ranks_by_seat": {
+      "1": 2,
+      "2": 10,
+      "3": 10,
+      "4": 10,
+      "5": 6,
+      "6": 5,
+      "7": 10,
+      "8": 10,
+      "9": 10,
+      "10": 10
+     },
+     "mean_rank": 8.3,
+     "top3": 1,
+     "last": 7
+    },
+    "2025": {
+     "ranks_by_seat": {
+      "1": 9,
+      "2": 10,
+      "3": 5,
+      "4": 5,
+      "5": 4,
+      "6": 5,
+      "7": 2,
+      "8": 7,
+      "9": 4,
+      "10": 6
+     },
+     "mean_rank": 5.7,
+     "top3": 1,
+     "last": 1
+    }
+   },
+   "mean_rank": 7.0,
+   "top3_rate": 0.1,
+   "seat_years": 30,
+   "wins": 0,
+   "last_place": 9
+  },
+  "auto": {
+   "per_season": {
+    "2023": {
+     "ranks_by_seat": {
+      "1": 9,
+      "2": 9,
+      "3": 7,
+      "4": 9,
+      "5": 10,
+      "6": 9,
+      "7": 3,
+      "8": 8,
+      "9": 6,
+      "10": 10
+     },
+     "mean_rank": 8.0,
+     "top3": 1,
+     "last": 2
+    },
+    "2024": {
+     "ranks_by_seat": {
+      "1": 10,
+      "2": 9,
+      "3": 10,
+      "4": 10,
+      "5": 10,
+      "6": 4,
+      "7": 10,
+      "8": 10,
+      "9": 10,
+      "10": 10
+     },
+     "mean_rank": 9.3,
+     "top3": 0,
+     "last": 8
+    },
+    "2025": {
+     "ranks_by_seat": {
+      "1": 9,
+      "2": 9,
+      "3": 8,
+      "4": 7,
+      "5": 4,
+      "6": 5,
+      "7": 4,
+      "8": 4,
+      "9": 4,
+      "10": 5
+     },
+     "mean_rank": 5.9,
+     "top3": 0,
+     "last": 0
+    }
+   },
+   "mean_rank": 7.73,
+   "top3_rate": 0.033,
+   "seat_years": 30,
+   "wins": 0,
+   "last_place": 10
+  },
+  "bye1": {
+   "per_season": {
+    "2023": {
+     "ranks_by_seat": {
+      "1": 9,
+      "2": 3,
+      "3": 9,
+      "4": 10,
+      "5": 8,
+      "6": 9,
+      "7": 7,
+      "8": 9,
+      "9": 3,
+      "10": 6
+     },
+     "mean_rank": 7.3,
+     "top3": 2,
+     "last": 1
+    },
+    "2024": {
+     "ranks_by_seat": {
+      "1": 10,
+      "2": 10,
+      "3": 10,
+      "4": 10,
+      "5": 10,
+      "6": 10,
+      "7": 10,
+      "8": 10,
+      "9": 10,
+      "10": 10
+     },
+     "mean_rank": 10.0,
+     "top3": 0,
+     "last": 10
+    },
+    "2025": {
+     "ranks_by_seat": {
+      "1": 5,
+      "2": 10,
+      "3": 5,
+      "4": 7,
+      "5": 7,
+      "6": 5,
+      "7": 3,
+      "8": 4,
+      "9": 8,
+      "10": 7
+     },
+     "mean_rank": 6.1,
+     "top3": 1,
+     "last": 1
+    }
+   },
+   "mean_rank": 7.8,
+   "top3_rate": 0.1,
+   "seat_years": 30,
+   "wins": 0,
+   "last_place": 12
+  },
+  "slot_s0": {
+   "per_season": {
+    "2023": {
+     "ranks_by_seat": {
+      "1": 9,
+      "2": 3,
+      "3": 9,
+      "4": 10,
+      "5": 8,
+      "6": 9,
+      "7": 7,
+      "8": 9,
+      "9": 3,
+      "10": 6
+     },
+     "mean_rank": 7.3,
+     "top3": 2,
+     "last": 1
+    },
+    "2024": {
+     "ranks_by_seat": {
+      "1": 10,
+      "2": 10,
+      "3": 10,
+      "4": 10,
+      "5": 10,
+      "6": 10,
+      "7": 10,
+      "8": 10,
+      "9": 10,
+      "10": 10
+     },
+     "mean_rank": 10.0,
+     "top3": 0,
+     "last": 10
+    },
+    "2025": {
+     "ranks_by_seat": {
+      "1": 5,
+      "2": 10,
+      "3": 5,
+      "4": 7,
+      "5": 7,
+      "6": 5,
+      "7": 3,
+      "8": 4,
+      "9": 8,
+      "10": 7
+     },
+     "mean_rank": 6.1,
+     "top3": 1,
+     "last": 1
+    }
+   },
+   "mean_rank": 7.8,
+   "top3_rate": 0.1,
+   "seat_years": 30,
+   "wins": 0,
+   "last_place": 12
+  }
+ }
+}

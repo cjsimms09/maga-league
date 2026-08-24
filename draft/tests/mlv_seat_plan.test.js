@@ -42,8 +42,18 @@ function ck(name, cond, detail) {
 }
 
 /* regenerate, so the test grades the CODE and not a stale artifact */
-execFileSync('node', [path.join(ROOT, 'draft', 'tools', 'mlv_seat_plan.js')], { cwd: ROOT });
-const PLAN = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'mlv_plan.json'), 'utf8'));
+/* ⚠️ REGENERATE INTO A SCRATCH FILE, NOT OVER THE SERVED ARTIFACT (register
+ * 315). The regeneration itself is right and stays — this suite must grade the
+ * CODE, not a stale artifact. What changed is where the tool writes: `public/`
+ * is a served path, so re-running the tool over it left a modified served file
+ * in the working tree every time anyone ran this suite, and a served file in a
+ * commit is a Netlify build under a 3/day cap. */
+const PLAN_OUT = path.join(require('os').tmpdir(),
+  'mlv_plan.test.' + process.pid + '.json');
+execFileSync('node', [path.join(ROOT, 'draft', 'tools', 'mlv_seat_plan.js')],
+  { cwd: ROOT, env: Object.assign({}, process.env, { MLV_PLAN_OUT: PLAN_OUT }) });
+const PLAN = JSON.parse(fs.readFileSync(PLAN_OUT, 'utf8'));
+try { fs.unlinkSync(PLAN_OUT); } catch (e) { /* best effort */ }
 const BOARD = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
 
 // ── 1. the plan covers his real schedule, not an invented one ───────────────

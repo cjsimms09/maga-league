@@ -19,7 +19,10 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS  ' + n))
 const board = JSON.parse(fs.readFileSync(
   path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
 const players = board.players;
-const keepers = board.kept_players;
+/* ⚠️ FILTERED TO CORY'S SEAT (A, 2026-08-24, register 303). Post-lock
+ * `kept_players` is the league's 23, not his three. */
+const keepers = (board.kept_players || [])
+  .filter(k => Number(k.team_slot) === Number((board.league || {}).my_draft_slot));
 
 function fakeStorage() {
   const m = {};

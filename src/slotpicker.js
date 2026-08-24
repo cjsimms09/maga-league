@@ -78,7 +78,30 @@ function analyze(opts) {
   const pickOpts = {
     draftType: o.draftType || league.draft_type || 'snake',
     keeperRules: league.keeper_rules || null,
-    keepers: (art.pick_order || {}).forfeited || [],
+    /* ⚠️ MY forfeitures, not the league's — and this one was a LIVE 500
+     * (A, 2026-08-24, register 303's root reaching production).
+     *
+     * This read `(art.pick_order || {}).forfeited` whole. Pre-lock that was
+     * Cory's three; post-lock (08-23) it is the league's TWENTY-THREE. myPicks()
+     * below re-stamps every entry onto the seat being evaluated
+     * (`team_slot: slot`), so twenty-three keepers were charged to one seat, all
+     * fifteen rounds were forfeited, `my_picks` came back EMPTY, and the
+     * fail-loud throw at slotpicker.js:64 fired — "keepers.js unavailable —
+     * refusing to invent pick numbers".
+     *
+     * THE THROW'S MESSAGE IS MISLEADING AND THAT COST ME TIME: keepers.js loads
+     * perfectly. The module is not unavailable; the pick list is empty for a
+     * completely different reason. `/admin/slot-picker` and its state.json
+     * returned 500 in production on that path.
+     *
+     * The seat filter is what the surrounding code already assumes. When Cory
+     * has no forfeiture rows of his own — which is the normal case for a picker
+     * whose whole job is choosing a seat he does not hold yet — the empty list
+     * falls through to myPicks()'s count-based synthesis, which is the correct
+     * behaviour and was already written for exactly this. */
+    keepers: ((art.pick_order || {}).forfeited || [])
+      .filter(f => league.my_draft_slot == null
+        || Number(f.team_slot) === Number(league.my_draft_slot)),
   };
   const ownerName = o.ownerName || (id => 'Owner ' + id);
   const myOwnerId = o.myOwnerId;
