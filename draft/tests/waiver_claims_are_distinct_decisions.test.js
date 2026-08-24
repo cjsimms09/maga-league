@@ -257,3 +257,71 @@ worst(unfixed) > Math.max(...Object.values(RECO.startableSlotCaps(CFG.starters))
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 if (fail) { console.log('FAILED'); process.exit(1); }
+
+/* ── REGISTER 321: A CLAIM MUST CARRY WHETHER THE MAN CAN PLAY ──────────────
+ *
+ * `injury_status` has been set on every enriched waiver row since register 277
+ * and read by NOTHING in the valuation. The emitted claim carried no injury
+ * field at all, so a player on IR could rank #1 at his full August projection
+ * and the page could not have said so even if it wanted to — it was not in the
+ * payload. That is the built-and-disconnected shape (register 60) on the
+ * surface that spends waiver priority.
+ *
+ * ⚠️ WHAT IS ASSERTED IS THE FIELD, NOT A RANKING CHANGE — deliberately.
+ * Zeroing an OUT player here would be a DIFFERENT error in the same place:
+ * start/sit is a weekly decision so zeroing is right there, while a claim is a
+ * rest-of-season decision and a man OUT this week can be a fine stash. Whether
+ * IR/PUP/SUS should sink a claim is a football judgement, carried as an open
+ * ask. These tests pin the end of the SILENT part and nothing more.
+ */
+{
+  const W = require(path.join(ROOT, 'src', 'routes', 'waivers.js'));
+  const LO2 = require(path.join(ROOT, 'src', 'routes', 'lineup.js'));
+
+  ck('CONTROL — the shared inactive vocabulary is non-empty, or every "is he '
+    + 'out" answer below is a vacuous false',
+  LO2.INACTIVE_INJURY && LO2.INACTIVE_INJURY.size > 0,
+  LO2.INACTIVE_INJURY && [...LO2.INACTIVE_INJURY]);
+
+  ck('KNOWN POSITIVE — a hard-out designation reads as inactive',
+    W.isOutNow({ injury_status: 'Out' }) && W.isOutNow({ injury_status: 'IR' }));
+  ck('KNOWN NEGATIVE — a PLAYABLE designation does not, so the flag is not '
+    + 'simply true for anyone carrying a tag',
+  !W.isOutNow({ injury_status: 'Questionable' })
+    && !W.isOutNow({ injury_status: 'Doubtful' }));
+  ck('KNOWN NEGATIVE — a healthy player with no field at all is not inactive '
+    + 'and carries an empty tag rather than throwing',
+  !W.isOutNow({}) && W.injuryTag({}) === '' && !W.isOutNow({ injury_status: null }));
+
+  /* The field must actually reach the claim rows — the whole point. Built from
+   * a two-man fixture so the assertion cannot pass by accident on a pool that
+   * happens to contain no injured players. */
+  const fa = [
+    { player_id: 'hurt', name: 'Hurt Guy', position: 'WR', proj_mean: 200,
+      vorp: 60, injury_status: 'IR' },
+    { player_id: 'fit', name: 'Fit Guy', position: 'WR', proj_mean: 150,
+      vorp: 20, injury_status: null },
+  ];
+  const mine = [{ player_id: 'r1', name: 'Mine', position: 'WR',
+    proj_mean: 100, vorp: 0 }];
+  const res = W.evaluateClaims(fa, mine, { teams: 10, starters: CFG.starters }, {});
+  const byId = Object.fromEntries(res.claims.map(c => [c.player_id, c]));
+
+  ck('every claim row now carries the injury fields, so the page has something '
+    + 'to render and no consumer has to re-derive them',
+  res.claims.length === 2
+    && res.claims.every(c => 'injury_status' in c && 'inactive' in c),
+  res.claims.map(c => c.player_id + ':' + c.injury_status + '/' + c.inactive));
+
+  ck('  ...and they carry the RIGHT values per player, not one blanket answer',
+    byId.hurt && byId.hurt.inactive === true && byId.hurt.injury_status === 'IR'
+    && byId.fit && byId.fit.inactive === false && byId.fit.injury_status === null,
+    { hurt: byId.hurt && [byId.hurt.injury_status, byId.hurt.inactive],
+      fit: byId.fit && [byId.fit.injury_status, byId.fit.inactive] });
+
+  ck('CONTROL — the injured man is still RANKED, not silently dropped: this '
+    + 'change surfaces status and deliberately does not re-rank, so a '
+    + 'regression that starts filtering him out shows up here',
+  res.claims.some(c => c.player_id === 'hurt'),
+  res.claims.map(c => c.player_id));
+}

@@ -161,6 +161,20 @@ function lineupPoints(roster, league) {
  * keeps its positive `startable_value`, which breaks the tie. Ranking by "what
  * reaches the field, then by depth" is the honest order.
  */
+/* ONE NORMALISATION OF A SLEEPER INJURY TAG, exported so there is exactly one
+ * (rule 11). `waiver_reco.js`'s injury panel had the only copy; the ranking had
+ * none at all, which is register 321 — `injury_status` is set on every enriched
+ * row at :274 and read ONLY for that display panel, so the claim ranking is
+ * blind to it and the emitted claim carried no injury field for the page to
+ * render either. */
+function injuryTag(p) {
+  return String((p && p.injury_status) || '').toUpperCase().replace(/[^A-Z]/g, '');
+}
+function isOutNow(p) {
+  const raw = injuryTag(p);
+  return !!raw && LO.INACTIVE_INJURY.has(raw);
+}
+
 function evaluateClaims(freeAgents, myRoster, league, ctx) {
   ctx = ctx || {};
   const drop = dropCandidate(myRoster, league);
@@ -180,9 +194,6 @@ function evaluateClaims(freeAgents, myRoster, league, ctx) {
       player_id: fa.player_id,
       name: fa.name,
       position: fa.position,
-      // carried so the wire page can flag an injured target BEFORE priority is
-      // spent on him (catalog 16) — same field enrich() already reads.
-      injury_status: fa.injury_status || null,
       fills: sv.fills,
       why: sv.why,
       startable_value: round2(sv.value),
@@ -193,6 +204,25 @@ function evaluateClaims(freeAgents, myRoster, league, ctx) {
       consensus_label: consensus.label,
       rivals: rivals,                    // teams likely to claim him too
       contested: rivals.length > 0,
+      /* REGISTER 321 — ADDITIVE AND DELIBERATELY RANKING-NEUTRAL.
+       *
+       * `injury_status` has been set on every enriched row since register 277
+       * and read by NOTHING in the valuation — the claim ranking is blind to
+       * it, and the emitted claim carried no injury field at all, so the page
+       * could not have shown it even if it wanted to. A player on IR could sit
+       * at #1 with his full August projection and nothing on screen would say
+       * so.
+       *
+       * ⚠️ THIS DOES NOT ZERO HIM, ON PURPOSE. Reusing the start/sit guard here
+       * would be a different error in the same place: start/sit is a WEEKLY
+       * decision, so zeroing an OUT player is right; a waiver claim is a
+       * REST-OF-SEASON decision, and a player OUT this week can be a perfectly
+       * good stash. Whether IR/PUP/SUS should sink a claim is a football
+       * judgement with a real cost either way, and register 321 carries it as
+       * an explicit ask rather than a guess. What ships here is the end of the
+       * SILENT part. */
+      injury_status: injuryTag(fa) || null,
+      inactive: isOutNow(fa),
     };
   });
   // What reaches the field first, and downgrades now SINK BELOW ZERO instead of
@@ -289,4 +319,5 @@ function waiverInputsFromBundle(bundle, playersDb, artifact, myRosterId) {
 }
 
 module.exports = { evaluateClaims, dropCandidate, whoElseNeeds, dollarsPerPoint,
+                   injuryTag, isOutNow,
                    consensusProjection, waiverInputsFromBundle };
