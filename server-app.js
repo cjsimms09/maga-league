@@ -79,6 +79,10 @@ function createApp() {
         // the same player. cell: { inj, onBye, empty }.
         res.locals.injuryFlag = require('./src/matchup').injuryFlag;
         // one timestamp voice sitewide (catalog 18) — see helpers.timeago.
+        // (main's own version landed first, already deployed and wired
+        // sitewide; my own src/human_time.js was a redundant parallel build
+        // of the same catalog item — dropped in favor of this one, same
+        // resolution as register 294's capPerPosition earlier this session.)
         res.locals.timeago = helpers.timeago;
         res.locals.alerts = req.owner ? helpers.activeAlerts(world.alerts) : [];
         res.locals.currentPath = req.path;
