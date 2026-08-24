@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 291,
+ "next_numeric_id": 292,
  "history": [
   {
    "id": 47,
@@ -700,6 +700,11 @@
   {
    "id": 290,
    "claimed_at": "2026-08-24"
+  },
+  {
+   "id": 291,
+   "claimed_at": "2026-08-24",
+   "note": "A: the drop-grader row renumbered 288 -> 291 at merge. main printed its own 288 (E's seat-replay-blind-to-ceiling-arms row) while this branch was in flight. Register 186 protocol, main-printed canonical. My 289 (keepers ungraded) and 290 (sweep the tool's INSTRUCTIONS, not its decisions) are untouched — main printed neither. BOTH sides of the hunk kept; verified by count that 287-291 hold exactly one row each and that both findings survive by their own text."
   }
  ]
 }

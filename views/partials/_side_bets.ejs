@@ -623,10 +623,14 @@ function betCard(b, opts) {
           <%# You owe: the winner's Venmo with the amount ready — pay and mark
               sent in the same breath. Loud when there's no handle on file. %>
           <% if (r.net < 0) { const cred = owners.find(o => o.name === r.name);
-               const h = cred && cred.venmo ? String(cred.venmo).replace(/^@/, '') : null; %>
-            <% if (h) { %>
-              <a class="btn small gold" href="https://venmo.com/u/<%= h %>" target="_blank" rel="noopener"
-                 title="Pay <%= r.name %> the <%= money(Math.abs(r.net)) %> you owe">💸 Venmo <%= r.name %> <%= money(Math.abs(r.net)) %></a>
+               // venmoLink prefills the pay screen with the amount and a note
+               // naming the bet, so the tap is the whole payment — catalog
+               // item 8. Falls back loud when no handle is on file.
+               const vUrl = cred ? venmoLink(cred, { amount: Math.abs(r.net),
+                 note: 'MFGA side bet — ' + (r.legs[0] ? r.legs[0].bet.terms.slice(0, 60) : 'settle up') }) : null; %>
+            <% if (vUrl) { %>
+              <a class="btn small gold" href="<%= vUrl %>" target="_blank" rel="noopener"
+                 title="Pay <%= r.name %> the <%= money(Math.abs(r.net)) %> you owe — amount and note prefilled">💸 Venmo <%= r.name %> <%= money(Math.abs(r.net)) %></a>
             <% } else { %>
               <span class="owe-novenmo">no Venmo on file for <%= r.name %></span>
             <% } %>

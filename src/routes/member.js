@@ -1362,6 +1362,16 @@ router.get('/bank', aw(async (req, res) => {
     owners.map(o => ({ owner_id: o.id, name: o.name, net: bal[o.id] ? bal[o.id].balance : 0 })),
     id => { const o = H.ownerById(owners, id); const h = o && V.handle(o); return h ? { handle: h, url: `https://venmo.com/u/${h}` } : null; },
     bankId != null ? bankId : null);
+  // Prefill each Square Up button with ITS transfer's amount and a note
+  // (catalog item 8): the callback above only sees an owner id, but the
+  // amount belongs to the transfer, so it attaches here — V.link is the one
+  // builder (venmo.js), the same one the side-bet owe rows use.
+  for (const t of (settlement && settlement.transfers) || []) {
+    if (t.venmo && t.venmo.handle) {
+      t.venmo.url = V.link({ venmo: t.venmo.handle },
+        { amount: t.amount, note: `MFGA league settle-up — ${t.from} to ${t.to}` });
+    }
+  }
 
   // Whose ledger sits at the top. Yours by default; clicking a name in the
   // league ledger below swaps it, which is how you get from "who owes what" to

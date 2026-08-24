@@ -88,7 +88,7 @@ and they cost rounds 1, 2 and 3:
 **Available to grade: 43 decisions** (2024: 23, 2025: 20; 2023 had no keepers),
 plus 2026's 23 once the season is played. Thin but real, and the null is
 constructible in the obvious way — a random legal keeper set from the roster he
-actually held at that cost. **Filed as register 280 with the design; not built
+actually held at that cost. **Filed as register 289 with the design; not built
 today because I would rather it get the same control discipline the drop
 grader got than be rushed in behind it.**
 
@@ -149,7 +149,7 @@ general form: **the drop was ungraded because it is an OUTPUT the tool produces
 that nobody listed as a decision.** The right sweep is not "what other decisions
 exist" but **"what does the war room / wire / board TELL Cory to do, and is
 each of those outputs scored?"** Register 277 was a recommendation nobody
-graded; there may be others. Filed as register 281.
+graded; there may be others. Filed as register 290.
 
 **Does it invalidate something we already trust?** No result changes, but one
 framing does: *"the loop is closed"* was true of three decision types and was
@@ -158,5 +158,5 @@ authority on what is actually wired, and this file is the authority on what is
 not.
 
 **Is it routed to the lane that can actually act?** The drop grader is mine (A)
-and is built and wired. Keepers (280) and the recommendation sweep (281) are
+and is built and wired. Keepers (289) and the recommendation sweep (290) are
 mine. The projection programme is the relay's and already has its own dates.
