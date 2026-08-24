@@ -125,8 +125,18 @@ ck('CONTROL — the cliff exists at all on the live board, so the order-sensitiv
   typeof cliff === 'number', { cliff });
 
 if (typeof cliff === 'number') {
-  const kept = new Set((BOARD.kept_player_ids || []).map(String));
-  const roster = (BOARD.kept_players || [])
+  /* ⚠️ THIS FILE NEEDS BOTH FORMS OF THE KEEPER SLATE AND THEY ARE NOT
+   * INTERCHANGEABLE (A, 2026-08-24, register 303). `kept` is an AVAILABILITY
+   * exclusion — all 23 league keepers are off the board and none of them can be
+   * drafted by anyone, so league-wide is CORRECT there and must stay. `roster`
+   * is MY roster and must be Cory's three; it read the whole slate, so MLV was
+   * handed a 23-man roster that fills every starter seat. Getting these two
+   * confused in the other direction is the mistake I made in
+   * withheld_slate_exposure earlier today, so both are labelled here. */
+  const kept = new Set((BOARD.kept_player_ids || []).map(String));   // availability: all 23, correct
+  const MY_SLOT_K = Number((BOARD.league || {}).my_draft_slot);
+  const roster = (BOARD.kept_players || [])                          // MY roster: three
+    .filter(k => Number(k.team_slot) === MY_SLOT_K)
     .map(k => pool.find(p => String(p.player_id) === String(k.player_id)) || k)
     .filter(k => k.position);
   const mine = new Set(roster.map(k => String(k.player_id)));
@@ -163,7 +173,11 @@ if (typeof cliff === 'number') {
   const early = PLAN.picks.find(p => p.mlv_has_an_opinion);
   const gone0 = new Set(byAdp.slice(0, liveBefore(early.pick)).map(p => String(p.player_id)));
   const av0 = pool.filter(p => !gone0.has(String(p.player_id)) && !kept.has(String(p.player_id)));
+  /* MY roster again — see the labelled pair above. Unfiltered, this arm handed
+   * MLV twenty-three players and then asserted "slots are open", which is false
+   * by construction with a full lineup; the known-negative could not hold. */
   const r0 = (BOARD.kept_players || [])
+    .filter(k => Number(k.team_slot) === MY_SLOT_K)
     .map(k => pool.find(p => String(p.player_id) === String(k.player_id)) || k)
     .filter(k => k.position);
   const a0 = first(MLV.recommend(av0, r0, { league, topN: 3 }));
