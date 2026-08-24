@@ -1,0 +1,68 @@
+name: Keeper-futures weekly refresh (ROUTES "the keeper-futures file")
+
+# TERRITORY: C — dispatches draft/backtest/keeper_futures.py.
+#
+# ROUTES.md TO: C, 08-20 package / 08-24 fresh-ranked queue item (5). The
+# real premise correction (found 08-21, before anything was built, twice)
+# is in the module's own docstring: keeper cost is NOT a fixed per-player
+# fact ("top_picks_flat" is positional, VORP-ranked within whichever players
+# the same owner also chooses to keep), so this re-runs the real optimizer
+# (draft/keepers.py:optimize_keeper_count, unmodified) against the CURRENT
+# real rosters every week rather than storing an invented flat field.
+#
+# OVERWRITTEN, NOT APPENDED — unlike the wire snapshot, this is a current
+# best-estimate ("if 2027 keepers were chosen today"), not a historical
+# event log, so each week's run replaces the prior file.
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '0 13 * * 3'   # Wednesdays 13:00 UTC — after the other Wednesday captures (weekly-snap-counts 11:00, player-bio-capital-refresh 12:00)
+
+permissions:
+  contents: write
+
+concurrency:
+  group: keeper-futures-refresh
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Install
+        run: pip install -r draft/requirements.txt pytest
+
+      - name: The pure join/optimizer-call logic is tested before any real fetch runs
+        run: python3 -m pytest draft/tests/test_keeper_futures.py -q
+
+      - name: Build the keeper-futures seed against real current rosters
+        run: python3 draft/backtest/keeper_futures.py
+
+      - name: Commit the refreshed store
+        run: |
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "::warning::Dispatched from '$GITHUB_REF_NAME', not main. The"
+            echo "::warning::result is in this run's log and is deliberately"
+            echo "::warning::NOT committed. Re-dispatch from main."
+            echo "_Dispatched from \`$GITHUB_REF_NAME\` — result NOT committed._" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/data/keeper_futures_2026.json
+          if ! git diff --cached --quiet; then
+            git commit -m "keeper_futures: weekly refresh (ROUTES keeper-futures file) [skip deploy]"
+            for i in 1 2 3; do
+              git fetch origin main || true
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              if git push origin HEAD:main; then exit 0; fi
+              sleep $((i * 5))
+            done
+            echo "::error::RESULT NOT PUSHED"
+            exit 1
+          fi
+          echo "no change — store already reflects this run's inputs"

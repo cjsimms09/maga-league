@@ -116,6 +116,12 @@ MANIFEST = {
         "extract_timestamp": _flat_field("captured_at"),
         "cadence_days": 7,
     },
+    "keeper_futures": {
+        "workflow": "keeper-futures-refresh.yml",
+        "glob": "draft/data/keeper_futures_2026.json",
+        "extract_timestamp": _no_timestamp_control_only,
+        "cadence_days": 7,
+    },
 }
 
 GRACE_MULTIPLIER = 2  # a single missed run must not false-positive
