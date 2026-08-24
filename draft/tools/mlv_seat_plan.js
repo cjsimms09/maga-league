@@ -281,7 +281,22 @@ const doc = {
   final_shape: shape,
   vs_top3_finishers: vsTarget,
 };
-fs.writeFileSync(path.join(ROOT, 'public', 'mlv_plan.json'), JSON.stringify(doc, null, 1));
+/* ⚠️ THE OUTPUT PATH IS OVERRIDABLE, AND THE REASON IS A DEPLOY (A, 2026-08-24,
+ * register 315). `public/` is a SERVED path in netlify-ignore.sh, so this file
+ * landing in a commit IS a Netlify build — and Cory capped builds at ~3/day the
+ * same hour. mlv_seat_plan.test.js deliberately re-runs this tool ("regenerate,
+ * so the test grades the CODE and not a stale artifact", which is the RIGHT
+ * design and must not change), so simply running the suite left a modified
+ * served artifact in the tree three times in one session. Twice it blocked a
+ * rebase; once I nearly committed it.
+ *
+ * A `require.main === module` guard — my first idea, and it is in register 315's
+ * action where it is WRONG — would have broken the test's whole point, because
+ * the tool is being executed on purpose rather than imported by accident. An
+ * output override keeps the test grading live code while keeping its writes out
+ * of the working tree. */
+const OUT = process.env.MLV_PLAN_OUT || path.join(ROOT, 'public', 'mlv_plan.json');
+fs.writeFileSync(OUT, JSON.stringify(doc, null, 1));
 
 console.log('\n  WHAT MLV WOULD DRAFT YOU — K and DEF capped at 1 (your rule)\n');
 console.log('  keepers: ' + keepers.map(k => k.name + ' (' + k.position + ')').join(', '));
