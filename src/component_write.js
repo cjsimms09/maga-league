@@ -69,7 +69,32 @@ function loadRealized() {
   if (fs.existsSync(wk)) {
     try {
       const d = JSON.parse(fs.readFileSync(wk, 'utf8'));
+      const keys = Object.keys(d || {});
       Object.keys(d || {}).forEach(k => { if (Array.isArray(d[k])) data[k] = d[k]; });
+      /* ⚠️ A WELL-FORMED FILE OF THE WRONG SHAPE IS WORSE THAN NO FILE, and the
+       * catch below does not cover it — it guards unreadable JSON only.
+       *
+       * Register 154 (corrected by A, 2026-08-24) proposes writing this file as
+       * `{week: {player_id: points}}`. That parses perfectly and contains no
+       * arrays, so the loop above assigns NOTHING and this returns `{}` — which
+       * every caller reads as "the season is quiet". That is precisely the
+       * confusion the comment below calls the most expensive one this artifact
+       * can produce, arriving through the one door that comment does not watch.
+       *
+       * The shape this function actually wants is COMPONENT-KEYED ARRAYS
+       * (`projection`, `consensus`, `weekly_claims`, …). So: a file that exists
+       * and carries keys but not one array is a WRITER MISMATCH, and it is
+       * reported exactly as loudly as a corrupt one.
+       *
+       * Deliberately not fired on an EMPTY object: `{}` is a legitimate "written
+       * but nothing yet", and the runner already reports absence honestly. The
+       * failure being caught is a file full of data in a shape nobody reads. */
+      if (keys.length && !Object.keys(data).length) {
+        return { __error: 'weekly_realized.json has ' + keys.length + ' key(s) and '
+          + 'NOT ONE ARRAY among them (saw: ' + keys.slice(0, 6).join(', ')
+          + ') — this reader wants COMPONENT-KEYED ARRAYS, so a box-score-shaped '
+          + 'file would be silently read as "no data". Register 154.' };
+      }
     } catch (e) {
       /* ⚠️ LOUD. An unreadable input that silently becomes "no data" would report
        * a BROKEN FEED as a QUIET SEASON, which is the single most expensive
