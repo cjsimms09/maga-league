@@ -313,7 +313,14 @@
           <td class="muted"><%= r.team %></td>
           <td class="num"><%= r.wkPts == null ? '—' : r.wkPts.toFixed(1) %></td>
           <td class="num"><b><%= r.seasonPts == null ? '—' : r.seasonPts.toFixed(1) %></b></td>
-          <td><% if (r.inj) { %><span class="badge owes"><%= r.inj %></span><% } else { %><span class="muted">healthy</span><% } %></td>
+          <td><%
+            /* the SAME leveled ladder the matchup card uses (catalog 16): red
+               for cannot-score, amber for questionable, bye called out — not a
+               flat badge that renders IR and Questionable identically. */
+            const _f = injuryFlag({ inj: r.inj,
+              onBye: r.bye != null && weekNo != null && Number(r.bye) === Number(weekNo) }, weekNo); %>
+            <% if (_f.level) { %><span class="mu-flag <%= _f.level === 'bye' ? 'bye' : _f.level === 'out' ? 'out' : 'q' %>"><%= _f.text %></span>
+            <% } else { %><span class="muted">healthy</span><% } %></td>
         </tr>
       <% } %>
       <%# An empty roster has more than one cause, and this used to assert the
