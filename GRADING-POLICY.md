@@ -42,7 +42,8 @@ you have a weather report.
 |---|---|---|
 | start / sit | a random legal lineup from the roster held that week | **built** — `start_sit_vs_random.py` |
 | waiver claim | a random AVAILABLE player at the same position, same week | **built** — `waiver_vs_random.py` (755 claims, **0.7117** vs null [0.479, 0.521]) |
-| draft pick | a random AVAILABLE player at that pick | **built** — `draft_pick_vs_random.py` (345 picks, **0.8554** vs null [0.4695, 0.5305]) |
+| draft pick | a random AVAILABLE player at that pick | **built** — `draft_pick_vs_random.py` (345 picks, **0.8554** vs null [0.4695, 0.5305]). **⚠️ This null has almost no RESOLUTION: picks score ~0.85 at EVERY round from 1 to 15, because the pool is 570 players of whom 38% scored under 20 points all season. It is a floor test. Rounds 1-3 vs 13-15 resolves at z=2.15 and nothing finer does — the owner spread [0.808, 0.890] is a selected maximum over 45 pairs and is NOT a finding.** |
+| keeper | ① a random AVAILABLE player at the slot it consumed ② **the real picks made at that round** | **built** — `keeper_vs_random.py` (73 keepers, two panels, four controls). ① 0.9082 vs [0.4338, 0.5662] — passes, and near-vacuous for the reason in the row above. ② **+0.025, z=1.16, NOT RESOLVED: we cannot show that keeping beats drafting at the slot it costs.** ②'s own controls: split-halves z=1.08 (must not resolve), keepers vs R13-15 z=3.11 (must resolve). |
 | trade | a random swap of comparable roster slots | proposed |
 | a projection | the same players/weeks scored by a published source | `PROJECTION-PROGRAM-2027` |
 
@@ -146,6 +147,26 @@ prices worst; grade every one of them against its null.
   Retiring that number needs the engine run through the same counterfactual and
   its picks scored against this same null.** What it establishes today is the
   yardstick and that the yardstick works.
+* `draft/backtest/keeper_vs_random.py` — **the KEEPER, added 2026-08-24
+  (register 289).** The highest-stakes single decision Cory makes and the last
+  named gap in `LEARNING-COVERAGE.md`. **It ships TWO panels because the first
+  one turned out to be near-vacuous, and that is the lesson worth keeping:**
+  against a random available name the keepers read **0.9082** vs a null of
+  [0.4338, 0.5662] — which looks decisive until you look at the distribution it
+  came from (Rule 3i) and find that **real draft picks score 0.8554 on the same
+  null and are flat at ~0.85 from round 1 to round 15.** So panel 2 grades the
+  keeper against **what a real pick at that round actually returned**, built by
+  calling `draft_pick_vs_random.run()` itself so both sides share one pool
+  reconstruction and one percentile. **+0.025, z=1.16 — NOT RESOLVED; +22.8
+  season points (≈1.3/wk) as a point estimate with nothing behind it. We cannot
+  show that keeping beats drafting at the slot it costs.**
+  **A contrast needs its OWN controls**, because a comparison with no power and
+  a comparison that correctly finds nothing print the same "NOT RESOLVED":
+  split-halves of the R1-3 picks must NOT resolve (z=1.08 ✓) and keepers vs
+  R13-15 picks MUST resolve (z=3.11 ✓). All four controls gate the exit code,
+  and the gate was **broken deliberately in both directions and confirmed to
+  fire and name the right control** (Rule 3e — a gate that has never returned a
+  positive has not been tested).
 * `draft/tests/test_start_sit_determinism.py` — reproducibility guard.
 * `draft/tools/skill_luck_r.py` — **retained as a descriptive instrument only.**
   Not required of any arm; never run on standings as a certification; never

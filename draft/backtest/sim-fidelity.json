@@ -41,76 +41,76 @@
   }
  },
  "sim_independent": {
-  "run_share": 0.394,
-  "runs_per_draft": 19.04,
-  "mean_run_len": 3.1,
+  "run_share": 0.371,
+  "runs_per_draft": 18.08,
+  "mean_run_len": 3.08,
   "timing": {
    "q1": {
-    "QB": 0.151,
-    "RB": 0.293,
-    "WR": 0.364,
-    "TE": 0.125
+    "QB": 0.164,
+    "RB": 0.269,
+    "WR": 0.351,
+    "TE": 0.135
    },
    "q2": {
-    "QB": 0.147,
-    "RB": 0.292,
-    "WR": 0.364,
-    "TE": 0.128
+    "QB": 0.165,
+    "RB": 0.272,
+    "WR": 0.344,
+    "TE": 0.139
    },
    "q3": {
-    "QB": 0.151,
-    "RB": 0.29,
-    "WR": 0.36,
-    "TE": 0.124
+    "QB": 0.165,
+    "RB": 0.269,
+    "WR": 0.343,
+    "TE": 0.132
    },
    "q4": {
-    "QB": 0.147,
-    "RB": 0.289,
-    "WR": 0.364,
-    "TE": 0.122
+    "QB": 0.163,
+    "RB": 0.274,
+    "WR": 0.342,
+    "TE": 0.133
    },
    "q5": {
-    "QB": 0.158,
-    "RB": 0.286,
-    "WR": 0.356,
-    "TE": 0.126
+    "QB": 0.165,
+    "RB": 0.268,
+    "WR": 0.338,
+    "TE": 0.139
    }
   }
  },
  "sim_fitted": {
-  "run_share": 0.458,
-  "runs_per_draft": 21.29,
-  "mean_run_len": 3.23,
+  "run_share": 0.448,
+  "runs_per_draft": 21.08,
+  "mean_run_len": 3.19,
   "timing": {
    "q1": {
-    "QB": 0.151,
-    "RB": 0.293,
-    "WR": 0.364,
-    "TE": 0.124
+    "QB": 0.165,
+    "RB": 0.269,
+    "WR": 0.351,
+    "TE": 0.135
    },
    "q2": {
-    "QB": 0.144,
-    "RB": 0.293,
-    "WR": 0.364,
-    "TE": 0.129
+    "QB": 0.165,
+    "RB": 0.275,
+    "WR": 0.342,
+    "TE": 0.14
    },
    "q3": {
-    "QB": 0.151,
-    "RB": 0.292,
-    "WR": 0.361,
-    "TE": 0.121
+    "QB": 0.165,
+    "RB": 0.268,
+    "WR": 0.342,
+    "TE": 0.133
    },
    "q4": {
-    "QB": 0.143,
-    "RB": 0.293,
-    "WR": 0.364,
-    "TE": 0.125
+    "QB": 0.164,
+    "RB": 0.274,
+    "WR": 0.342,
+    "TE": 0.133
    },
    "q5": {
-    "QB": 0.16,
-    "RB": 0.286,
-    "WR": 0.354,
-    "TE": 0.128
+    "QB": 0.167,
+    "RB": 0.267,
+    "WR": 0.339,
+    "TE": 0.139
    }
   }
  },
@@ -118,123 +118,123 @@
  "fit_grid": [
   {
    "cascade": 0.0,
-   "run_share": 0.394,
-   "runs_per_draft": 19.04,
-   "err": 0.069
+   "run_share": 0.371,
+   "runs_per_draft": 18.08,
+   "err": 0.092
   },
   {
    "cascade": 1.0,
-   "run_share": 0.413,
-   "runs_per_draft": 19.67,
-   "err": 0.05
+   "run_share": 0.392,
+   "runs_per_draft": 18.75,
+   "err": 0.071
   },
   {
    "cascade": 2.0,
-   "run_share": 0.426,
-   "runs_per_draft": 20.08,
-   "err": 0.037
+   "run_share": 0.406,
+   "runs_per_draft": 19.33,
+   "err": 0.057
   },
   {
    "cascade": 4.0,
-   "run_share": 0.458,
-   "runs_per_draft": 21.29,
-   "err": 0.005
+   "run_share": 0.448,
+   "runs_per_draft": 21.08,
+   "err": 0.015
   },
   {
    "cascade": 8.0,
-   "run_share": 0.486,
-   "runs_per_draft": 22.04,
-   "err": 0.023
+   "run_share": 0.487,
+   "runs_per_draft": 22.38,
+   "err": 0.024
   },
   {
    "cascade": 16.0,
-   "run_share": 0.554,
-   "runs_per_draft": 24.25,
-   "err": 0.091
+   "run_share": 0.523,
+   "runs_per_draft": 23.5,
+   "err": 0.06
   }
  ],
  "checks": [
   {
    "stat": "run_share",
    "real": 0.463,
-   "sim": 0.458,
+   "sim": 0.448,
    "tolerance": 0.05,
    "reproduces": true
   },
   {
    "stat": "runs_per_draft",
    "real": 19.33,
-   "sim": 21.29,
+   "sim": 21.08,
    "tolerance": 1.5,
    "reproduces": false
   },
   {
    "stat": "mean_run_len",
    "real": 3.15,
-   "sim": 3.23,
+   "sim": 3.19,
    "tolerance": 0.5,
    "reproduces": true
   },
   {
    "stat": "timing_q1_RB",
    "real": 0.316,
-   "sim": 0.293,
+   "sim": 0.269,
    "tolerance": 0.15,
    "reproduces": true
   },
   {
    "stat": "timing_q1_WR",
    "real": 0.468,
-   "sim": 0.364,
+   "sim": 0.351,
    "tolerance": 0.15,
    "reproduces": true
   },
   {
    "stat": "timing_q1_QB",
    "real": 0.089,
-   "sim": 0.151,
+   "sim": 0.165,
    "tolerance": 0.15,
    "reproduces": true
   },
   {
    "stat": "timing_q3_RB",
    "real": 0.329,
-   "sim": 0.292,
+   "sim": 0.268,
    "tolerance": 0.15,
    "reproduces": true
   },
   {
    "stat": "timing_q3_WR",
    "real": 0.316,
-   "sim": 0.361,
+   "sim": 0.342,
    "tolerance": 0.15,
    "reproduces": true
   },
   {
    "stat": "timing_q3_QB",
    "real": 0.127,
-   "sim": 0.151,
+   "sim": 0.165,
    "tolerance": 0.15,
    "reproduces": true
   },
   {
    "stat": "timing_q5_RB",
    "real": 0.25,
-   "sim": 0.286,
+   "sim": 0.267,
    "tolerance": 0.15,
    "reproduces": true
   },
   {
    "stat": "timing_q5_WR",
    "real": 0.325,
-   "sim": 0.354,
+   "sim": 0.339,
    "tolerance": 0.15,
    "reproduces": true
   },
   {
    "stat": "timing_q5_QB",
    "real": 0.1,
-   "sim": 0.16,
+   "sim": 0.167,
    "tolerance": 0.15,
    "reproduces": true
   }

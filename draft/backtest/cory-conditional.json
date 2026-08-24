@@ -67,12 +67,12 @@
   },
   {
    "archetype": "late_qb",
-   "mean_edge": -5.75,
+   "mean_edge": -11.75,
    "ci95": [
-    -16.88,
-    6.12
+    -27.38,
+    4.38
    ],
-   "mean_divergence": 3.1,
+   "mean_divergence": 2.5,
    "verdict": "parked: CI includes $0"
   }
  ],

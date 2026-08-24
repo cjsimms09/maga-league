@@ -108,13 +108,44 @@ to decide. **Register 298 carries the reconciliation.**
   leakage at all — but no historical bye-week store exists for 2023-25, so the
   size of *that* recoverable slice is not measured here.
 
-## 7. Ask
+## 7. ⚠️ CORRECTION, same day — my first ask was wrong
 
-**ASK (A / relay, for the in-season programme):** treat availability as the first
-requirement of any start/sit surface, not a later refinement.
-**EVIDENCE:** §2-3, 390 team-weeks, all ten seats, mechanism attributed at 83%.
-**RECOMMENDATION:** capture a weekly availability feed (inactives + byes) before
-any ranking work ships; a bye-week store alone is cheap and leak-free.
+**I filed §7 asking A to build an availability feed. It exists.** Checked after
+filing, which is the wrong order and is why this section is here rather than
+only in the register.
+
+The live start/sit surface already models availability, traced end to end:
+
+- `lineup.js:474` `isInactive` covers the injury vocabulary
+  (OUT/IR/PUP/SUS/NA/DNR/COV/RES/DNP) **and** bye week
+- `member.js:3400` applies `LO.activeProjection` to every roster row **before**
+  the solver
+- `LO.optimize` has **exactly one call site** (`member.js:3450`), and it receives
+  the guarded rows
+
+I went looking for register 60's *built-and-disconnected* shape. It is not there.
+
+`src/nfl_byes.json` is **complete for 2026** — 32 of 32 teams, weeks 5-14, and
+the only board team absent from it is `FA`, which correctly has no bye. And the
+missing *historical* store is a deliberate decision with a reason stated in the
+file itself: *"a WRONG bye false-zeros a playing player (worse than a dormant
+guard). Add a season only from an authoritative source."* That is sound.
+
+**What survives is still the finding** — the measurement is untouched, and so is
+the constraint that any *new* start/sit arm must model availability before
+ranking. What changes is the audience: it is a bar for future arms, **not an
+exposure on the live surface, which already clears it.**
+
+And it reframes the headline: **−14.91 is the measured cost of the shortcut the
+live tool already declined** — a better thing to be able to say than what I
+first filed.
+
+## 8. Ask (revised)
+
+**ASK (A):** none. **The earlier recommendation is withdrawn** — see §7.
+**WHAT REPLACES IT:** treat §2-3 as the bar any *new* start/sit arm is measured
+against. A proposal that ranks without modelling availability is not a partial
+win; it is −14.91 points a week worse than doing nothing.
 **DEFAULT if silent:** the finding stands on the register and the next start/sit
 proposal is measured against −14.91 rather than against zero.
 
