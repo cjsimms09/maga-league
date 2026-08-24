@@ -35,8 +35,16 @@ model better for inseason tools.. find me edge."* (Same day as the weekly-predic
    09-01 decides the fork; Sunday alert + WHY capture live) · ③ Tuesday wire
    speed (alert + block watch live; C's closing-line + priority-order captures
    feed it) · ④ opponent modeling (E's P284 family; trade advisor next) ·
-   ⑤ side-bet EV (offer sheet live). Work that serves none of these five needs a
-   reason in its commit message.
+   ⑤ side-bet EV (offer sheet live). Model/measurement work that serves none of
+   these five needs a reason in its commit message.
+5. **⚠️ AMENDED SAME DAY, CORY VERBATIM: "no, dont stop doing things that make
+   site better for owners.... thats importnat to."** The first cut of this
+   section read the ruling as edge-programs-only and he corrected it within the
+   hour. **Owner experience is a STANDING SIXTH PROGRAM, not a casualty of the
+   refocus:** the redesign catalog, B's slices, the walkthrough loop, and the
+   Book's quality-of-life work continue at full priority alongside the edge
+   hunt. The constraint in item 4 applies to model/measurement work, not to the
+   site.
 
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock **Aug 21 6:00 PM CDT (Cory ruled 08-18)**, draft Aug 22
 
