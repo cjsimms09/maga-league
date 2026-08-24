@@ -1592,7 +1592,7 @@ router.get('/bank', aw(async (req, res) => {
     section, bets, tallies, owners, betNames, sbLedger, sbOwed, sbOwedMine, verdicts, liveOrder, h2h,
     sbGrid, sbView, sbDrill,
     deadlines, late: req.query.late === '1',
-    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1', rerun: req.query.rerun === '1',
+    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1', rerun: req.query.rerun === '1', nudged: req.query.nudged === '1',
     betFail: betFailMessage(req.query.betfail),
     currentWeek: (await sleeper.bundle(world.config.sleeper_league_id) || {}).week || 1,
     BL, payDirectory: owners.filter(o => o.venmo || o.paypal || o.cashapp || o.zelle),
@@ -2193,6 +2193,34 @@ router.post('/profile/contact', aw(async (req, res) => {
 
 // ---------- buying out of a live bet ----------
 // Re-offer a proposal whose ten days ran out. Proposer only.
+// THE NUDGE (redesign catalog 5): the proposer pokes whoever is sitting on
+// their offer — as a PUBLIC 🔔 in the Locker Room, which is exactly the
+// pressure this league runs on, lands in everyone's chat badge, and needs no
+// email plumbing. Once per bet per 24 hours; the audit trail records each.
+router.post('/sidebets/:id/nudge', aw(async (req, res) => {
+  const bet = await SB.get(req.params.id);
+  const dayMs = 24 * 60 * 60 * 1000;
+  if (bet && bet.status === 'proposed'
+      && Number(bet.proposer_id) === Number(req.owner.id)
+      && !(bet.nudged_at && Date.now() - Date.parse(bet.nudged_at) < dayMs)) {
+    const waitingOn = (bet.parties || [])
+      .filter(p => !p.accepted && Number(p.owner_id) !== Number(req.owner.id))
+      .map(p => (H.ownerById(req.world.owners, p.owner_id) || {}).name || '?');
+    if (waitingOn.length) {
+      await setDoc(`chat:${newId()}`, { owner_id: req.owner.id,
+        text: `🔔 ${req.owner.name} is waiting on ${waitingOn.join(' and ')}: `
+          + `"${String(bet.terms || '').slice(0, 120)}" — $${bet.stake} on the table. `
+          + `Answer it in The Book.`,
+        created_at: now() });
+      bet.nudged_at = now();
+      bet.audit.push({ at: now(), by: req.owner.id,
+        what: `Nudged ${waitingOn.join(' and ')} in the Locker Room` });
+      await H.store.set(`sidebet:${bet.id}`, bet);
+    }
+  }
+  res.redirect('/bank?section=sidebets&nudged=1#bet-' + req.params.id);
+}));
+
 router.post('/sidebets/:id/resend', aw(async (req, res) => {
   await SB.resend(req.params.id, req.owner.id, req.owner.name);
   res.redirect('/bank?section=sidebets');
@@ -2463,7 +2491,7 @@ router.get('/team', aw(async (req, res) => {
 
   res.render('team', { viewOwner, owners, roster, matchup, betWindow, trend,
     matchupPending, aboutMe, late: req.query.late === '1',
-    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1', rerun: req.query.rerun === '1',
+    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1', rerun: req.query.rerun === '1', nudged: req.query.nudged === '1',
     // Roster is the default — it is what this page has always been, and it is
     // the half that works without a live matchup.
     section: req.query.section === 'week' ? 'week' : 'roster',
@@ -2830,7 +2858,7 @@ router.get('/matchup', aw(async (req, res) => {
     goatId: MK.goatOwnerId(sData, world.config.sleeper_map || {}),
     configured: !!world.config.sleeper_league_id,
     late: req.query.late === '1',
-    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1', rerun: req.query.rerun === '1', sent: req.query.sent === '1',
+    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1', rerun: req.query.rerun === '1', nudged: req.query.nudged === '1', sent: req.query.sent === '1',
     betFail: betFailMessage(req.query.betfail),
     nameOf,
   });
@@ -2950,7 +2978,7 @@ router.get('/pickem', aw(async (req, res) => {
   res.render('pickem', {
     me: req.owner, ...c,
     saved: req.query.saved === '1', late: req.query.late === '1',
-    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1', rerun: req.query.rerun === '1',
+    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1', rerun: req.query.rerun === '1', nudged: req.query.nudged === '1',
   });
 }));
 
