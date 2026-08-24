@@ -108,6 +108,30 @@ and loses entirely on **conversion** — 0.740/0.771 against 0.828/0.834 — val
 acquired that never reaches a starting slot. **That is Cory's "roster still not
 normal", in points, and it is worth more than the whole acquisition edge.**
 
+**⭐ MEASURED ACROSS ALL SIX ARMS 2026-08-24 — AND THE CONVERSION FIX DID NOT
+MOVE THE PLACE.** `draft/backtest/seat_rank_by_arm_lab.json`, five controls
+green including the one that licenses the rest: the shipped arm recomputed
+there reproduces the committed replay per seat and lands on **7.80**, the
+published number, so the harness is the same one and not a second that agrees
+by luck. Mean rank — **shipped 7.80 · `need1` 7.13 · slot-aware 7.00 · auto
+7.73 · `bye1` and `slot_s0` inert at 7.80 (30/30 seats unchanged, corroborating
+the conversion lab across two labs sharing only `draft_replay_2025`)**.
+**PAIRED against shipped on the same 30 seat-years, which is the only reading
+this file's own rule permits — `need1` +0.667 places, 95% CI [−0.13, +1.47],
+t 1.63, sign p 0.119; slot-aware +0.800, CI [−0.08, +1.68], sign p 0.096. EVERY
+CI SPANS ZERO.** A sign test sits beside the t because a rank is ORDINAL and
+the t treats *10th→9th* and *2nd→1st* as one quantity; they agree, so the
+conclusion does not rest on that assumption. **NO WEIGHT SETTING IS
+DISTINGUISHABLE FROM WHAT SHIPS ON FINISHING POSITION, and all six sit BELOW
+the 30% chance rate on top-3 (10%–17%).** **So conversion was NOT the binding
+constraint on where the tool finishes, and the sentence directly above —
+*"worth more than the whole acquisition edge"* — is true of points and false of
+PLACE.** The next lever is not a weight: six configurations land in the same
+spot, so top-3 has to come from better projections or a different selection
+rule, not from reweighting the same score. ⚠️ **Every recorded arm still
+carries the superseded ceiling weight against the shipped 0.0, so no row is the
+exact live engine.** Register 317.
+
 **⚠️⚠️ CORRECTED 2026-08-24 — EVERY FIGURE IN THE PARAGRAPH ABOVE WAS MEASURED
 AT ~~`need: 0`~~, AND CORY SWITCHED `need` TO 1.0 THE NEXT DAY.**
 `engine_seat_replay.json` stamps its own `engine_meta.weights_values` as
