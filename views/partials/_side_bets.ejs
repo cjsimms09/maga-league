@@ -49,6 +49,12 @@
     yours is in front of them now.</span>
   </div>
 <% } %>
+<% if (typeof nudged !== 'undefined' && nudged) { %>
+  <div class="alert-banner alert-info" style="margin-bottom:1rem">
+    <span class="tag">🔔</span><span>Called out in the Locker Room — the whole league
+    just saw who's sitting on your offer.</span>
+  </div>
+<% } %>
 <% if (typeof rerun !== 'undefined' && rerun) { %>
   <div class="alert-banner alert-info" style="margin-bottom:1rem">
     <span class="tag">🔁</span><span>It's back on the table — same bet, fresh offer,
@@ -638,6 +644,18 @@ function betCard(b, opts) {
                 onsubmit="return confirm('Pull this bet back? Nobody will be able to accept it.')">
             <button class="btn small ghost" type="submit">Rescind</button>
           </form>
+          <%# THE NUDGE (catalog 5) — poke whoever's sitting on it, publicly,
+              in the Locker Room. Once per day per bet; the cooldown shows. %>
+          <% const _nAge = b.nudged_at ? Date.now() - Date.parse(b.nudged_at) : null;
+             const _nHours = _nAge != null ? Math.floor(_nAge / 3600000) : null; %>
+          <% if (_nAge == null || _nAge >= 24 * 3600000) { %>
+            <form class="asis" method="post" action="/sidebets/<%= b.id %>/nudge">
+              <button class="btn small ghost" type="submit"
+                      title="Call them out in the Locker Room — public, once a day">🔔 Nudge</button>
+            </form>
+          <% } else { %>
+            <span class="muted" style="font-size:.72rem" title="one nudge per day per bet">🔔 nudged <%= _nHours < 1 ? 'just now' : _nHours + 'h ago' %></span>
+          <% } %>
         <% } %>
       <% } %>
     </div>

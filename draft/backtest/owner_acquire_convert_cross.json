@@ -1,0 +1,92 @@
+{
+  "_territory": "TERRITORY: D",
+  "_note": "P340 -- acquisition (draft_pick_vs_random) crossed with conversion (start_sit_vs_random). No new estimator; both inputs are existing Getty Test 3 scores. Written by owner_acquire_convert_cross.py.",
+  "n_owners": 10,
+  "spearman_acquisition_vs_points_left": 0.4061,
+  "primary_bar": "abs(rho) < 0.5 -> skills are separable",
+  "separable_by_the_bar_alone": true,
+  "verdict": "COULD NOT TELL -- rho is within noise of the 0.5 bar at n=10",
+  "trade_targets": [
+    "MarianSaar",
+    "Schmelley",
+    "coryjsimms"
+  ],
+  "controls": {
+    "C1_owner_sets_match": true,
+    "C2_spearman_monotone_check": true,
+    "C3_quadrant_can_be_empty": true
+  },
+  "power_limit": "n=10; a Spearman CI here is roughly 1.2 wide, so this cannot distinguish a moderate correlation from zero. A boundary result is 'could not tell', not separability.",
+  "table": [
+    {
+      "owner": "Schmelley",
+      "acquisition_pct": 0.8896,
+      "pts_left_per_week": 17.6,
+      "conversion_pct": 0.8332,
+      "trade_target": true
+    },
+    {
+      "owner": "MarianSaar",
+      "acquisition_pct": 0.8774,
+      "pts_left_per_week": 19.31,
+      "conversion_pct": 0.7853,
+      "trade_target": true
+    },
+    {
+      "owner": "coryjsimms",
+      "acquisition_pct": 0.8692,
+      "pts_left_per_week": 17.33,
+      "conversion_pct": 0.8542,
+      "trade_target": true
+    },
+    {
+      "owner": "Richard2121",
+      "acquisition_pct": 0.8687,
+      "pts_left_per_week": 14.34,
+      "conversion_pct": 0.8421,
+      "trade_target": false
+    },
+    {
+      "owner": "mhagen",
+      "acquisition_pct": 0.8608,
+      "pts_left_per_week": 14.09,
+      "conversion_pct": 0.8884,
+      "trade_target": false
+    },
+    {
+      "owner": "ds7mmet",
+      "acquisition_pct": 0.8479,
+      "pts_left_per_week": 19.67,
+      "conversion_pct": 0.8089,
+      "trade_target": false
+    },
+    {
+      "owner": "Sadbru",
+      "acquisition_pct": 0.8473,
+      "pts_left_per_week": 14.57,
+      "conversion_pct": 0.848,
+      "trade_target": false
+    },
+    {
+      "owner": "Jreis",
+      "acquisition_pct": 0.8448,
+      "pts_left_per_week": 12.06,
+      "conversion_pct": 0.9069,
+      "trade_target": false
+    },
+    {
+      "owner": "B8T3S",
+      "acquisition_pct": 0.8443,
+      "pts_left_per_week": 15.24,
+      "conversion_pct": 0.8261,
+      "trade_target": false
+    },
+    {
+      "owner": "cashworth",
+      "acquisition_pct": 0.8077,
+      "pts_left_per_week": 14.92,
+      "conversion_pct": 0.8854,
+      "trade_target": false
+    }
+  ]
+}

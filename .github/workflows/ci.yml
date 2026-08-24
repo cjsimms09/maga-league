@@ -50,8 +50,35 @@ on:
 # NOT CHANGED IN DRAFT WEEK, DELIBERATELY. The fix is a merge cadence — or a
 # scheduled run of `main` — not a YAML edit three days out, and a wrong comment
 # in the file every lane reads is worse than the behaviour it describes.
+# ⚠️ EVERY MAIN COMMIT GETS ITS OWN GROUP, AND THE REASON IS MEASURED
+# (A, 2026-08-24, register 309).
+#
+# This read `group: ci-${{ github.ref }}` for every ref. On a branch that is
+# right: a new push should cancel the stale run, which `cancel-in-progress`
+# does. On MAIN it was quietly catastrophic. `cancel-in-progress: false` does
+# NOT mean "run everything" — it means QUEUE, and GitHub keeps only ONE pending
+# run per group: a newer run entering the group CANCELS the one still waiting.
+#
+# With lanes pushing to main every couple of minutes and a job that takes ~14,
+# almost every run was superseded before it ever started. MEASURED over 91
+# distinct main runs across a 20-hour window (08-23 20:18 -> 08-24 16:21):
+#
+#     73 of 91 CANCELLED — never executed at all         80%
+#     16 produced a verdict                              18%
+#      0 of those 16 were green                           (register 300)
+#
+# So main was not merely red for a week; FOUR IN FIVE COMMITS TO MAIN WERE
+# NEVER TESTED. The register-300 ratchet immediately below is worth very little
+# if the step it guards runs on one commit in five, which is how this was
+# found: my own ratchet commit's run was cancelled 96 seconds after it started
+# queueing.
+#
+# Making the group unique per COMMIT on main removes the supersede entirely —
+# every commit that lands gets its own verdict. Branches keep the old,
+# correct behaviour. The cost is Actions minutes, and this repo is PUBLIC, so
+# they are free (the same argument the lane-branches note above already made).
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.ref }}${{ github.ref == 'refs/heads/main' && format('-{0}', github.sha) || '' }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:

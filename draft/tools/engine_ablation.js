@@ -375,12 +375,31 @@ function loadRoom() {
   const myEntry = (KEEPER_FILE.teams || []).find(t => t.draft_slot === MY_SLOT);
   {
     const a = new Set((myEntry ? myEntry.keepers : []).map(k => String(k.player_id)));
-    const b = new Set(board.kept_players.map(k => String(k.player_id)));
+    /* ⚠️ FILTERED TO CORY'S SEAT — see archetype_rooms.js for the full
+     * note (A, 2026-08-24). keepers.json is per-team and this compared
+     * his three against the league's twenty-three, so the refusal below
+     * could never stop firing. */
+    const b = new Set((board.kept_players || [])
+      .filter(k => Number(k.team_slot) === Number(MY_SLOT))
+      .map(k => String(k.player_id)));
     if (a.size !== b.size || [...a].some(id => !b.has(id))) {
       throw new Error('keeper sources disagree: config/keepers.json vs board kept_players');
     }
   }
-  const byId = new Map(ALL.map(p => [String(p.player_id), p]));
+  /* ⚠️ IDENTITY MAP, SO IT SPANS BOTH POOLS — `ALL` stays the DRAFTABLE pool
+   * (A, 2026-08-24, register 300/301). `ALL` is `board.players`, which
+   * post-lock excludes the 23 keepers, so this map could not resolve ANY of
+   * them and the designated-slate loop below threw "designated keeper not on
+   * board: Ashton Jeanty" — another manager's keeper, correctly listed in
+   * keepers.json and correctly absent from the draftable board. Register
+   * 277's lookup shape.
+ *
+   * AUDITED BEFORE WIDENING, because conflating availability with identity is
+   * exactly the mistake I made in withheld_slate_exposure earlier today:
+   * every use of `byId` in this file is a `.get()` for resolution, never an
+   * iteration over the draftable pool. Widening it changes no simulation. */
+  const byId = new Map(ALL.concat(board.kept_players || [])
+    .map(p => [String(p.player_id), p]));
   const OPP_KEEPERS = new Map();
   (KEEPER_FILE.teams || []).forEach(t => {
     if (t.draft_slot === MY_SLOT) return;

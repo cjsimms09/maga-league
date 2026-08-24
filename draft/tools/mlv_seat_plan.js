@@ -120,7 +120,17 @@ function liveBefore(pick) {
 
 /* Cory's keepers, as the board records them — the plan starts from his real roster */
 const keptIds = new Set((BOARD.kept_player_ids || []).map(String));
-const keepers = (BOARD.kept_players || []).map(k => {
+/* ⚠️ FILTERED TO CORY'S SEAT (A, 2026-08-24, register 300/303). This read
+ * `kept_players` whole, and the comment above already says whose roster it
+ * is meant to be. Pre-lock that WAS his three; post-lock (08-23) the board
+ * carries the league's 23, so the plan started from a 23-man roster
+ * belonging to ten managers — which fills every starter seat, zeroes `need`
+ * for everybody and collapses the keeper term. Same correction as
+ * draft_ready.js, archetype_rooms.js and the shared test fixture. */
+const MY_SLOT_FOR_KEEPERS = Number((BOARD.league || {}).my_draft_slot);
+const keepers = (BOARD.kept_players || [])
+  .filter(k => Number(k.team_slot) === MY_SLOT_FOR_KEEPERS)
+  .map(k => {
   const onBoard = pool.find(p => String(p.player_id) === String(k.player_id));
   return onBoard || { player_id: k.player_id, name: k.name, position: k.position,
     proj_mean: k.proj_mean || k.proj || 0 };
