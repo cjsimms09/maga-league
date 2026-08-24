@@ -133,6 +133,21 @@ function createApp() {
               helpers.activeOwners(world.owners), world.config, req.owner.id);
           } catch (e) { /* badge is cosmetic */ }
         }
+        // Money you owe (redesign rule 5: "a badge means you must act" names
+        // this explicitly, alongside bets waiting and open ballots — and
+        // catalog item 19 folds it into the same running total). The
+        // dashboard's NEEDS YOU card already surfaces this per-page (member.js);
+        // this is the SAME ledger.balances() read, exposed sitewide so the
+        // Finances tab carries the cue on every page, not just home.
+        res.locals.duesOwed = 0;
+        if (req.owner) {
+          try {
+            const L = require('./src/ledger');
+            const bal = L.balances(world.ledger, world.owners);
+            const my = bal[req.owner.id] ? bal[req.owner.id].balance : 0;
+            if (Number(my) < 0) res.locals.duesOwed = Math.abs(Math.round(my));
+          } catch (e) { /* badge is cosmetic */ }
+        }
         if (res.locals.votesWaiting && req.path !== '/votes') {
           res.locals.alerts = [{
             level: 'info',
