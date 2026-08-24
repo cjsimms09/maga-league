@@ -17,10 +17,15 @@ result away or never ran at all).
 
 SCOPE: every C-owned SCHEDULED (not dispatch-only) data capture, read from
 the manifest below. Deliberately excludes `mutation-manifest.yml` (test
-integrity, not a data capture) and `kalshi-capture.yml`/
-`bdl-schedule-capture.yml` (dispatch-only, no `schedule:` trigger --
-verified directly against every workflow file before writing this list,
-not assumed).
+integrity, not a data capture), `bdl-schedule-capture.yml` (TERRITORY: C
+but genuinely dispatch-only -- a schedule capture, not a weekly-changing
+one), and `kalshi-capture.yml` (TERRITORY: A, not this lane's to watch --
+⚠️ CORRECTED 2026-08-24, this line used to also call it "dispatch-only,
+no schedule: trigger," which is WRONG: it runs daily, `cron: '0 11 * * *'`,
+checked directly against the workflow file while auditing the weekly-arm
+data-readiness table. The real exclusion reason was always ownership, not
+cadence -- verified directly against every workflow file before writing
+this list, not assumed).
 
 STALENESS RULE: a store is STALE if its own `captured_at`/`scraped_at`
 field (never a filesystem mtime, which reflects the last git checkout, not
