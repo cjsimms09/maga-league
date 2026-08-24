@@ -1,0 +1,50 @@
+diff --git a/src/waiver_reco.js b/src/waiver_reco.js
+index 0e0dd9be..ee521363 100644
+--- a/src/waiver_reco.js
++++ b/src/waiver_reco.js
+@@ -55,14 +55,42 @@ function computeWaiverReco(sData, playersDb, artifact, myRid, ownersCount) {
+   });
+   out.drop = res.drop;
+   out.perPoint = res.dollars_per_point;
+-  out.claims = res.claims.filter(c => c.net_value > 0).slice(0, 8);
++  /* ── K AND DEF ARE OUT OF THE CLAIMS BLOCK — register 294 ────────────────
++   * `evaluateClaims` sorts on `net_value`, which is lineup points gained. A
++   * position with an EMPTY starting slot books the candidate's WHOLE season
++   * projection as the gain, so every free player at that position outranks
++   * every real upgrade. Measured on Cory's post-draft roster, which carries no
++   * kicker: 33 consecutive kickers before the first non-kicker, the weakest of
++   * them 87.8 points BELOW replacement, and the tight-end upgrade — the largest
++   * positional hole on any roster in this league — at rank 34. All eight
++   * rendered claims were kickers.
++   *
++   * The arithmetic is right; the ranking is not a ranking. He can start ONE
++   * kicker, so the block presented one decision eight times.
++   *
++   * This is a FILTER, not a change to the valuation: K and DEF already have
++   * their own block immediately below (`streamClaims`), which is where a
++   * free weekly swap belongs, and the top two were rendering TWICE on one page.
++   *
++   * ⚠️ IT MOVES WHAT THE TUESDAY CRON GRADES. `waiver_reco`'s ledger row logs
++   * `claims[0]` as the tool's headline advice; with onesies excluded that
++   * headline becomes the best real claim instead of the best kicker. That is
++   * the intended behaviour and it is named here rather than discovered in a
++   * grade — a kicker stream is not a priority-costly claim, which is the whole
++   * reason `streamClaims` exists as a separate decision shape.
++   *
++   * The cap is per-BLOCK, not per-position. The general form — cap claims at
++   * the number of OPEN slots at each position — is register 294's REC and is
++   * deliberately not built here: it needs open-slot counts this function does
++   * not currently compute, and the onesie split fixes the live case today. */
++  const ONESIE = c => c.position === 'K' || c.position === 'DEF';
++  out.claims = res.claims.filter(c => c.net_value > 0 && !ONESIE(c)).slice(0, 8);
+   // STREAMING (K/DEF), same underlying valuation, different decision shape. A
+   // stream is a FREE weekly swap, not a priority-costly claim — the
+   // counterfactual is "kept who I have", not "held priority". Same tested
+   // net_value ranking; limitation (season-value, not matchup-tuned) is stated
+   // on the page.
+-  out.streamClaims = res.claims.filter(c => (c.position === 'K' || c.position === 'DEF')
+-    && c.net_value > 0).slice(0, 2);
++  out.streamClaims = res.claims.filter(c => ONESIE(c) && c.net_value > 0).slice(0, 2);
+   out.currentKD = (inputs.myRoster || [])
+     .filter(p => p.position === 'K' || p.position === 'DEF')
+     .map(p => ({ player_id: p.player_id, name: p.name, position: p.position }));
