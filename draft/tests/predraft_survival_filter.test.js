@@ -103,10 +103,39 @@ const unconditional = () => ({ currentPick: 0, runMultipliers: {},
   pickBoard: (D.pick_order || {}).picks || null });
 
 // ── 1. THE MEASUREMENT THAT MOTIVATES THE FIX ───────────────────────────
-const nacua = D.players.find(p => p.name === 'Puka Nacua');
-ck('CONTROL — Nacua is really on the board with a tight ADP spread',
-  !!nacua && nacua.adjusted_adp != null && nacua.adp_sd != null,
-  nacua && { adp: nacua.adjusted_adp, sd: nacua.adp_sd });
+/* ⚠️ THIS USED TO BE `D.players.find(p => p.name === 'Puka Nacua')` AND IT
+ * WENT INERT ON 2026-08-21 WHEN HE WAS KEPT (A, 08-24, register 300/301).
+ * `build.py` moves keepers into `kept_players`, so the find returned undefined,
+ * the CONTROL failed, and the very next line threw — the suite stopped running
+ * at all rather than reporting anything. It had been red for days looking like
+ * a finding.
+ *
+ * The property under test never depended on Nacua. It is: A PLAYER THE BOARD'S
+ * OWN survival() SAYS IS ALREADY GONE MUST NOT BE OFFERED AS A PICK. Nacua was
+ * the instance that exposed it (adjusted_adp 3.0, adp_sd 0.4, P(survives to 33)
+ * = 0.000%, and the unfiltered board ranked him top-3 anyway), and he stays in
+ * the comments as the motivation. The FIXTURE now derives its own probe from
+ * whoever is actually on the board, so it survives any keeper slate — including
+ * next year's, when a different name will be off the board.
+ *
+ * The control is a REAL precondition, not a formality: if no player on the
+ * board is doomed by the engine's own math, this suite has nothing to test and
+ * must say so loudly rather than pass vacuously. */
+const _cands = D.players
+  .filter(p => p.adjusted_adp != null && p.adp_sd != null && p.position && p.proj_mean != null)
+  .sort((a, b) => a.adjusted_adp - b.adjusted_adp);
+const doomed = _cands.find(p => E.survival(p, MY[0], { currentPick: 0, runMultipliers: {},
+  pickBoard: (D.pick_order || {}).picks || null }) < E.CFG.SURVIVOR_CUTOFF) || null;
+ck('CONTROL — some player on the board is genuinely doomed before my first '
+  + 'pick, so there is a case to test (Nacua was this in 2026; he is a keeper now)',
+  !!doomed && doomed.adjusted_adp != null && doomed.adp_sd != null,
+  doomed ? { who: doomed.name, adp: doomed.adjusted_adp, sd: doomed.adp_sd }
+        : { candidates: _cands.length, note: 'nobody is below SURVIVOR_CUTOFF' });
+if (!doomed) {
+  console.log('FAIL  ⛔ REFUSING to run the arms below: with no doomed player '
+    + 'the fail-arm and pass-arm would both trivially "pass" on an empty case.');
+  process.exit(1);
+}
 {
   /* UNCONDITIONAL, matching preDraftPool's own construction. Pre-draft, zero
    * picks have landed, so "survives to pick 33" is measured FROM THE START —
@@ -116,7 +145,7 @@ ck('CONTROL — Nacua is really on the board with a tight ADP spread',
    * survival_fallen_uniform.test.js) — before that fix this call only looked
    * right because the far-tail guard fired for players with F ≥ 0.999 while
    * every other player was declared certain to survive. */
-  const s = E.survival(nacua, FIRST, unconditional());
+  const s = E.survival(doomed, FIRST, unconditional());
   ck('his measured survival to my first pick is negligible — not a close call',
     s < E.CFG.SURVIVOR_CUTOFF, s);
 }
@@ -129,13 +158,42 @@ ck('CONTROL — Nacua is really on the board with a tight ADP spread',
 // a 600-player list (everyone is, unfiltered) — he is a TOP-TIER candidate,
 // i.e. the unfiltered scorer treats "still there" as fact rather than as the
 // near-impossibility its own survival() function says it is.
+/* ⚠️ THIS ARM'S PREMISE EXPIRED WITH THE KEEPER LOCK, AND FORCING IT GREEN
+ * WOULD HAVE BEEN THE WRONG REPAIR (A, 2026-08-24, register 300).
+ *
+ * The defect needs a player who is BOTH certain to be gone AND good enough
+ * that the unfiltered scorer wants him. Nacua was exactly that. On the
+ * post-lock board that population is essentially empty: MEASURED, 1 player of
+ * 680 sits below SURVIVOR_CUTOFF (0.5%) and he ranks 7th with a NEGATIVE
+ * score, because the 23 elite players who used to occupy "doomed but worth
+ * taking" are now in `kept_players`.
+ *
+ * So the arm becomes CONDITIONAL ON A MEASURED PRECONDITION rather than
+ * unconditional — but a test that skips when it cannot reproduce is one step
+ * from a test that always skips, so THE SKIP MUST BE EARNED: when the defect
+ * does not reproduce, this asserts the REASON (a doomed population too small
+ * and too weak to reach the top 3). If a doomed player ever does reach the
+ * top 3 again and the flag fails to remove him, this goes red as it always
+ * did. The load-bearing arm is section 3 below, which is unconditional. */
 {
   const out = E.onTheClock(ctxAt(FIRST, { preDraftPrep: false }), { avoid: [], target: [] });
   const scored = (out || {}).scored || [];
-  const rank = scored.findIndex(e => e.player && e.player.name === 'Puka Nacua');
-  ck('FAIL ARM — without the flag, the unfiltered board still ranks a '
-    + '0.000%-survival player inside the top 3, reproducing the defect',
-  rank !== -1 && rank < 3, { rank: rank, score: rank >= 0 && scored[rank].score });
+  const isDoomed = e => e.player && E.survival(e.player, FIRST, unconditional()) < E.CFG.SURVIVOR_CUTOFF;
+  const inTop3 = scored.slice(0, 3).filter(isDoomed);
+  const anywhere = scored.filter(isDoomed);
+  if (inTop3.length) {
+    ck('FAIL ARM — without the flag, the unfiltered board offers a player its '
+      + 'OWN survival() says is already gone, inside the top 3', true,
+    inTop3.map(e => ({ who: e.player.name, score: +e.score.toFixed(2) })));
+  } else {
+    ck('FAIL ARM NOT REPRODUCIBLE ON THIS BOARD, and the reason is asserted '
+      + 'rather than assumed: too few doomed players, none good enough for the '
+      + 'top 3 (the keeper lock took the elite ones off the board)',
+    anywhere.length <= 3 && scored.slice(0, 3).every(e => !isDoomed(e)),
+    { doomed_anywhere: anywhere.length, of: scored.length,
+      best_doomed_rank: anywhere.length ? scored.indexOf(anywhere[0]) : null,
+      cutoff: E.CFG.SURVIVOR_CUTOFF });
+  }
 }
 
 // ── 3. WITH preDraftPrep, HE IS EXCLUDED FROM CONSIDERATION ──────────────
@@ -143,9 +201,10 @@ ck('CONTROL — Nacua is really on the board with a tight ADP spread',
   const out = E.onTheClock(ctxAt(FIRST, { preDraftPrep: true }), { avoid: [], target: [] });
   const scored = (out || {}).scored || [];
   ck('the recommendation list is non-empty', scored.length > 0, scored.length);
-  ck('Puka Nacua no longer appears ANYWHERE in the scored list — not '
-    + 'demoted, excluded, because the board itself should not have offered him',
-  !scored.some(e => e.player && e.player.name === 'Puka Nacua'),
+  ck(doomed.name + ' (the doomed player derived above) no longer appears '
+    + 'ANYWHERE in the scored list — not demoted, EXCLUDED, because the board '
+    + 'itself should not have offered him',
+  !scored.some(e => e.player && e.player.name === doomed.name),
   scored.slice(0, 3).map(e => e.player && e.player.name));
   ck('the top recommendation is someone the model believes is REALLY there '
     + '(survival >= the cutoff)',
@@ -187,7 +246,7 @@ ck('CONTROL — Nacua is really on the board with a tight ADP spread',
   console.log('\n      RESOLVED pick-' + FIRST + ' headline with the fix applied: '
     + (top && top.player && top.player.name) + ' (' + (top && top.player && top.player.position) + ')');
   ck('CONTROL — it is not the phantom-available player the bug produced',
-    top && top.player && top.player.name !== 'Puka Nacua');
+    top && top.player && top.player.name !== doomed.name);
 }
 
 console.log('\n' + pass + '/' + (pass + fail) + ' checks passed');
