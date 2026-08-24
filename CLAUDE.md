@@ -147,8 +147,9 @@ exactly what it says on the tin, and nothing more.** Register 317. **THE REAL
 REMAINING GAP IS SEAT RANK, which is the question Cory actually asked:
 `seat_rank_lab.json` carries NO arm dimension and `seat_rank_lab.py` takes only
 `--json`, so *8th of 10* is the need0 rank and the need1 rank has never been
-computed.** ⚠️ **And every recorded arm still carries `ceiling: 0.45` while the
-shipped constant is 0.0, so no artifact yet describes the exact live config.** **The mechanism BEHIND the gap, however, is
+computed.** ⚠️ **And every recorded arm still carries the superseded ~~`ceiling: 0.45`~~
+while the shipped constant is 0.0, so no artifact yet describes the exact live
+config.** **The mechanism BEHIND the gap, however, is
 now established far more strongly than the audit showed: across 30 seat-years
 QB count vs conversion is r = −0.832 (t = −7.95), monotone at every step
 (QB 1 → 0.824 · 2 → 0.817 · 3 → 0.757 · 4 → 0.679 · 5 → 0.650 · 7 → 0.515),
