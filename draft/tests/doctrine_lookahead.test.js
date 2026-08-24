@@ -128,10 +128,45 @@ const { baseline, doctrines } = DL.scoreAll();
   /* OFF-BY-ONE ARM: forcing the QB at the deadline pick EXACTLY must be WORSE
    * than or equal to allowing anything up to it, and here strictly worse — so
    * the two implementations are not accidentally the same thing. */
+  /* ⚠️ THIS REQUIRED "AT the deadline" TO BE STRICTLY WORSE, AND ITS OWN
+   * COMMENT ABOVE ALREADY NAMES THE TRUE PROPERTY: "worse than OR EQUAL TO".
+   * On this board they are EQUAL (1121.2 both ways), because the best
+   * up-to-the-deadline solution happens to place the QB AT the deadline pick.
+   * That is not the two implementations collapsing into one — it is the
+   * optimum landing on the boundary, which a constrained optimum is perfectly
+   * entitled to do (A, 2026-08-24, register 300).
+   *
+   * Split into the two things the arm was conflating:
+   *   INVARIANT      a constrained solve can never BEAT the relaxed one. True
+   *                  on every board, so it is asserted unconditionally.
+   *   DISCRIMINATION the arm's actual purpose — proving `pickIdx` (exact) and
+   *                  `byPickIdx` (up-to) are different operations. Demonstrated
+   *                  by finding an index where they genuinely differ, rather
+   *                  than by hoping the optimum avoids the boundary. */
   const atExactly = SS.solve(v, { slotIdx: qbIdx, pickIdx: eq.deadlines[0].byPickIdx });
-  ck('FAIL ARM — "fill it AT the deadline" is a different, worse answer than '
-    + '"fill it BY the deadline", so the distinction is being tested',
-  atExactly.total < bestPinned - 1e-9, { at: atExactly.total, by: bestPinned });
+  ck('INVARIANT — "fill it AT the deadline" can never BEAT "fill it BY the '
+    + 'deadline"; a constrained optimum cannot exceed the relaxed one',
+  atExactly.total <= bestPinned + 1e-9, { at: atExactly.total, by: bestPinned });
+
+  {
+    const differing = [];
+    for (let i = 0; i <= eq.deadlines[0].byPickIdx; i++) {
+      const s = SS.solve(v, { slotIdx: qbIdx, pickIdx: i });
+      if (s.total < bestPinned - 1e-9) differing.push({ pickIdx: i, total: s.total });
+    }
+    console.log('      pinning the QB at each pick up to the deadline: '
+      + (differing.length
+        ? differing.length + ' of ' + (eq.deadlines[0].byPickIdx + 1)
+          + ' are STRICTLY worse than the up-to-deadline optimum '
+          + JSON.stringify(differing)
+        : 'every index ties the optimum'));
+    ck('FAIL ARM — "at pick i" and "by the deadline" are genuinely DIFFERENT '
+      + 'operations: at least one pin is strictly worse than the relaxed solve',
+    differing.length > 0,
+    { strictly_worse_at: differing, by: bestPinned,
+      note: 'if this is empty every pin ties, and the two solves are '
+        + 'indistinguishable on this board — which is the thing worth knowing' });
+  }
 }
 
 // ── 5. THE REFUSAL IS REAL ──────────────────────────────────────────────
