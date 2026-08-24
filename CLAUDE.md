@@ -108,8 +108,38 @@ and loses entirely on **conversion** — 0.740/0.771 against 0.828/0.834 — val
 acquired that never reaches a starting slot. **That is Cory's "roster still not
 normal", in points, and it is worth more than the whole acquisition edge.**
 
-**The mechanism is register 60, which has been open without a cost:** `need` is
-the only roster-aware term and it ships at weight **0**, so nothing penalises a
+**⚠️⚠️ CORRECTED 2026-08-24 — EVERY FIGURE IN THE PARAGRAPH ABOVE WAS MEASURED
+AT ~~`need: 0`~~, AND CORY SWITCHED `need` TO 1.0 THE NEXT DAY.**
+`engine_seat_replay.json` stamps its own `engine_meta.weights_values` as
+~~`{value 1, tier 0, need 0, risk 0, ceiling 0.45, keeper 1, bye 0, stack 1}`~~;
+`engine.js:826` ships `need 1.0, ceiling 0.0`, ruled 08-20. So *8th of 10*,
+*0.740/0.771*, *beats 0 of 10 owners* and *SEVEN quarterbacks* describe a
+configuration that has not shipped since. **THIS IS REGISTER 5h FOR THE FOURTH
+TIME AND THE SECOND IN THIS FILE — the paragraph three screens up documents the
+pattern in its own words and this one is a fresh instance of it.**
+**MEASURED, on the arm that was already sitting on disk unread
+(`engine_seat_choices_need1.json`): `need: 1.0` KILLS THE PILEUP. Seats with 3+
+QB fall 8/30 → 2/30, the seven-QB seat falls to ONE, max on any seat 7 → 3.**
+⚠️ **2024 gets worse (1.20 → 1.80) — `need` helps where the defect was and
+hurts where it was not.** ⚠️ **AND THAT IS QB COUNTS, NOT CONVERSION: the need1
+arm cannot be scored from these artifacts (83.1% actuals coverage, and the
+missing 17% is exactly the players it drafted that need0 did not — a
+selection-biased subset), and it still carries the PRE-RULING ceiling weight rather than the shipped 0.0.** **So the
+honest headline is that the conversion defect's named mechanism is measurably
+smaller under the shipped weights and the defect itself is UNMEASURED there.
+Re-running the replay at the shipped constant is the highest-value measurement
+available for 2027.** Register 317. **The mechanism BEHIND the gap, however, is
+now established far more strongly than the audit showed: across 30 seat-years
+QB count vs conversion is r = −0.832 (t = −7.95), monotone at every step
+(QB 1 → 0.824 · 2 → 0.817 · 3 → 0.757 · 4 → 0.679 · 5 → 0.650 · 7 → 0.515),
+with roster size ruled out (r = −0.105) and 10.5% of all roster points stranded
+in QB2+. The audit argued it from three season means and called a
+non-monotone sequence "monotonic"; the seat-level distribution carries it.**
+
+~~**The mechanism is register 60, which has been open without a cost:** `need` is
+the only roster-aware term and it ships at weight **0**~~ — **⚠️ `need` HAS
+SHIPPED AT 1.0 SINCE 2026-08-20; this clause was already false when written
+above.** so nothing penalises a
 pileup and whatever prices best gets taken repeatedly — **one 2023 seat drafted
 SEVEN quarterbacks** in a 1-QB league; the live 2026 board takes ~~**RB10**~~
 **RB7** instead. **⚠️ CORRECTED 2026-08-19 — RB10 CAME OFF AN EIGHTEEN-PICK
