@@ -35,10 +35,13 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS  ' + n))
   const rc = await login(rich.username);
   const cc = await login(cory.username);
   const others = owners.filter(o => ![rich.id, cory.id].includes(o.id)).map(o => o.id);
+  // A NONCE IN THE TERMS — the store persists across runs, so a finder that
+  // matches on shape alone finds LAST run's bets (this test's own first red).
+  const nonce = 'run' + Date.now();
   const base = `ticket=pool&format=pool&stake=50&party=${cory.id}&picks_required=2`
-    + `&terms=${encodeURIComponent('Pool: our picks, winner take all')}`;
+    + `&terms=${encodeURIComponent('Pool ' + nonce + ': our picks, winner take all')}`;
   const found = async () => (await SB.all()).find(x => x.format === 'pool'
-    && x.proposer_id === rich.id && (x.parties || []).some(p => p.owner_id === cory.id));
+    && (x.terms || '').includes(nonce));
 
   // CONTROL — a team on both sides is refused and nothing is written.
   let r = await post('/sidebets', rc, base + `&picks=${others[0]}&picks=${others[1]}&picks_theirs=${others[1]}&picks_theirs=${others[2]}`);
@@ -65,8 +68,9 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS  ' + n))
 
   // CONTROL — the legacy path is untouched: empty picks still opens the draft.
   await post('/sidebets', cc, `ticket=pool&format=pool&stake=10&party=${rich.id}&picks_required=2`
-    + `&terms=${encodeURIComponent('Live-draft pool, legacy path')}`);
-  const legacy = (await SB.all()).find(x => x.format === 'pool' && x.proposer_id === cory.id && x.status === 'proposed');
+    + `&terms=${encodeURIComponent('Live-draft pool ' + nonce + ', legacy path')}`);
+  const legacy = (await SB.all()).find(x => x.format === 'pool'
+    && (x.terms || '').includes(nonce) && (x.terms || '').includes('legacy'));
   ck('legacy pool: not marked recorded', legacy && legacy.pool && !legacy.pool.recorded);
   await post(`/sidebets/${legacy.id}/accept`, rc, 'terms_version=1');
   const legacyLocked = await SB.get(legacy.id);
