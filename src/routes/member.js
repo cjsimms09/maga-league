@@ -2521,6 +2521,12 @@ router.get('/team', aw(async (req, res) => {
     // the half that works without a live matchup.
     section: req.query.section === 'week' ? 'week' : 'roster',
     weekNo: (matchup && matchup.week) || (sData && sData.week) || 1,
+    // Catalog item 16 ("injury chips on every player name, site-wide, one
+    // component"): the SAME classifier matchup.ejs already uses, not a
+    // second ladder — this page's own ad-hoc Status column (raw r.inj text,
+    // "healthy" for a bye-week player) was exactly the drift that comment
+    // warns about.
+    injuryFlag: MU.injuryFlag,
     configured: !!world.config.sleeper_league_id });
 }));
 
