@@ -1,0 +1,39 @@
+--- a/draft/tools/archetype_policy.js
++++ b/draft/tools/archetype_policy.js
+@@ -399,6 +399,36 @@
+       return cand[Math.min(cand.length - 1, Math.floor(draw * cand.length))] || recs[0];
+     },
+   },
++  /* THE RATE-MATCHED NULL (P324). `random_top25` answered "is ADP better than
++   * noise?" but deviates on ~8.4 picks/room against market_adp's ~6.2, so its
++   * deficit mixes "our ordering carries information" with "deviating from
++   * recs[0] costs something per se". This arm removes that: it acts on EXACTLY
++   * the picks market_adp acts on, and when it acts it never returns recs[0].
++   *
++   * ⚠️ THE MATCH IS CLOSE, NOT EXACT, AND THE REASON MATTERS. Once either arm
++   * deviates its room diverges from the other's, so at later picks each arm
++   * evaluates "would market_adp deviate here?" against its OWN recs. Measured
++   * at 40 rooms: 6.4 vs market_adp's 6.2 on one seed block and 6.1 vs 6.8 on
++   * the other — opposite directions, so no systematic bias, and both far
++   * closer than random_top25's 8.4/8.5. Do not describe this as matched "by
++   * construction"; it is matched at the first deviation and drifts after. */
++  random_rate_matched: {
++    doc: 'CONSTRUCTED NULL, deviation-rate matched to market_adp: random among '
++      + 'the same top-25 EXCLUDING recs[0], on exactly the picks where '
++      + 'market_adp deviates — isolates ordering quality from deviation cost',
++    choose(recs, state) {
++      const owned = legalityOwns(recs); if (owned) return owned;
++      // Act only where market_adp acts. Computed here rather than threaded in,
++      // so the two arms cannot drift apart in separate runs.
++      const adpPick = rerank(recs, adpOf, -1);
++      if (!adpPick || adpPick === recs[0]) return recs[0];
++      const cand = candidates(recs)
++        .filter(r => !ONESIE[r.player.position] && r !== recs[0]);
++      if (!cand.length) return recs[0];
++      const draw = mulberry32(requirePickSeed(state))();
++      return cand[Math.min(cand.length - 1, Math.floor(draw * cand.length))] || recs[0];
++    },
++  },
+   market_adp: {
+     doc: 'lowest ADP among engine top candidates (follow-the-market arm)',
+     choose(recs) {
