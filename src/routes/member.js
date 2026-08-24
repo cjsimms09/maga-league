@@ -828,7 +828,7 @@ router.get('/', aw(async (req, res) => {
       if (weekHero.lineupWarn) {
         const w = weekHero.lineupWarn;
         needsYou.unshift({ icon: '🚨',
-          href: 'https://sleeper.com/leagues/' + (world.config.sleeper_league_id || '') + '/team',
+          href: res.locals.sleeperLink('team') || '#',
           text: 'Lineup problem: ' + w.items.map(i => i.text).join(', ')
             + (w.count > w.items.length ? ' +' + (w.count - w.items.length) + ' more' : ''),
           cue: 'fix on Sleeper →' });

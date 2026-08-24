@@ -84,6 +84,15 @@ function createApp() {
         // of the same catalog item — dropped in favor of this one, same
         // resolution as register 294's capPerPosition earlier this session.)
         res.locals.timeago = helpers.timeago;
+        // Catalog item 14 ("open in Sleeper everywhere an action lives there
+        // — our site is the brain, Sleeper is the hands"): the ONE verified
+        // URL construction (already live on the lineup-problem NEEDS YOU row,
+        // member.js) exposed site-wide so the next surface reuses it instead
+        // of guessing a path. Returns null when unconfigured, so a template
+        // can hide the button rather than link to a broken league.
+        res.locals.sleeperLink = suffix => world.config.sleeper_league_id
+          ? 'https://sleeper.com/leagues/' + world.config.sleeper_league_id + (suffix ? '/' + suffix : '')
+          : null;
         res.locals.alerts = req.owner ? helpers.activeAlerts(world.alerts) : [];
         res.locals.currentPath = req.path;
         res.locals.quip = helpers.pickRandom(helpers.QUIPS);
