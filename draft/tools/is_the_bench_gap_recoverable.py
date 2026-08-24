@@ -155,6 +155,44 @@ def main():
           % -statistics.mean(B))
     print("  even when availability is handed to it for free.")
 
+    # ── AVAILABILITY CORRUPTS A TRAILING AVERAGE TWICE ───────────────────────
+    # The 83% above is the rule STARTING an unavailable player. There is a
+    # second, quieter effect: a player's season-to-date mean is computed over
+    # every logged week INCLUDING the ones he scored 0 (bye, inactive), so it
+    # understates what he is worth WHEN HE PLAYS -- and therefore misprices every
+    # available player too, not only the unavailable ones.
+    #
+    # CONTROL: excluding zero weeks can only RAISE a mean, so the bias must move
+    # DOWN. If it moves up the arithmetic is wrong and the number is void.
+    ra, rn = [], []
+    for s2 in seasons:
+        wks = sorted(int(x) for x in s2["weeks"] if int(x) <= REG)
+        t1, g1 = collections.defaultdict(float), collections.Counter()
+        t2, g2 = collections.defaultdict(float), collections.Counter()
+        for w in wks:
+            for t in s2["weeks"][str(w)]:
+                pts = {str(k): float(v or 0.0) for k, v in (t.get("players_points") or {}).items()}
+                st = [str(x) for x in (t.get("starters") or [])]
+                act = sum(pts.get(p, 0.0) for p in st)
+                if w != wks[0]:
+                    ra.append(act - sum((t1[p] / g1[p]) if g1[p] else 0.0 for p in st))
+                    rn.append(act - sum((t2[p] / g2[p]) if g2[p] else 0.0 for p in st))
+            for t in s2["weeks"][str(w)]:
+                for p, v in (t.get("players_points") or {}).items():
+                    v = float(v or 0.0); p = str(p)
+                    t1[p] += v; g1[p] += 1
+                    if v > 0:
+                        t2[p] += v; g2[p] += 1
+    ma, mn = statistics.mean(ra), statistics.mean(rn)
+    print("\n  THE SECOND AVAILABILITY EFFECT — a trailing mean misprices the AVAILABLE too")
+    print("    PPG over ALL logged weeks   : projection bias %+6.2f pts/team-week" % ma)
+    print("    PPG over SCORING weeks only : projection bias %+6.2f pts/team-week" % mn)
+    ok("K4", mn < ma, "excluding zero weeks lowers the bias, as arithmetic requires")
+    print("    zero weeks account for %.2f of the %.2f — %.0f%% of the whole bias."
+          % (ma - mn, ma, 100 * (ma - mn) / ma))
+    print("    So availability corrupts a trailing average TWICE: it starts the")
+    print("    unavailable, AND it underprices everyone who does play.")
+
     print("\n  PER OWNER (all seasons) — the rule hurts every seat, so this is not one owner")
     for rid in sorted(per_owner, key=lambda k: -statistics.mean(per_owner[k])):
         nm = (owners.get(str(rid)) or {}).get("display_name", str(rid))
