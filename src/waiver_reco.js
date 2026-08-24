@@ -112,4 +112,71 @@ function buildAutoWaiverEntry(reco, season, week, ownerId) {
   };
 }
 
-module.exports = { computeWaiverReco, buildAutoWaiverEntry };
+/**
+ * The stream twin (register 287 ①): the K/DEF stream advice this module
+ * already computes (streamClaims) becomes a stream_call row, shaped exactly
+ * like the manual /stream/log capture. The counterfactual is a REAL
+ * alternative — the K/DEF already rostered at the claimed position, who
+ * would have started absent the stream; with none rostered it records the
+ * resolver's own empty-slot note shape, which grades as 0 by construction.
+ */
+function buildAutoStreamEntry(reco, season, week, ownerId) {
+  if (!reco || !reco.live || !reco.streamClaims || !reco.streamClaims.length) return null;
+  const top = reco.streamClaims[0];
+  if (!top || !(top.net_value > 0) || top.player_id == null) return null;
+  const held = (reco.currentKD || []).find(p => p.position === top.position) || null;
+  return {
+    kind: 'stream_call',
+    method: 'stream-auto-v1',
+    season: String(season),
+    payload: {
+      key: `stream_auto|${season}|w${week}|${ownerId}|${top.player_id}`,
+      owner_id: Number(ownerId),
+      week: Number(week),
+      chosen: { player_id: String(top.player_id), name: top.name || null,
+                position: top.position || null, net_value: top.net_value },
+      counterfactual: held
+        ? { player_id: String(held.player_id), name: held.name || null,
+            position: held.position || null }
+        : { note: 'no current ' + (top.position || 'K/DEF') + ' on roster' },
+      dollars: top.dollars != null ? top.dollars : null,
+      auto: true,
+    },
+  };
+}
+
+/**
+ * The lineup twin (register 287 ①): the optimizer's Sunday-morning start/sit
+ * advice as a lineup_call row, shaped exactly like the /lineup/log form —
+ * recommended = the tool's lineup, counterfactual = the start-your-studs
+ * naive lineup, both as {id,name,pos,proj} arrays the resolver sums over the
+ * week's real points. `live` is liveOptimizeFor()'s result; `band` its
+ * weekly-high band (opp_mean mirrors the form's Math.round(band.median)).
+ * Unlike waivers there is no "hold" week: whenever the optimizer is live its
+ * lineup IS the advice, so an edge of zero still emits — "tool agrees with
+ * the studs" is a gradeable claim, not an absence.
+ */
+function buildAutoLineupEntry(live, band, season, week, ownerId) {
+  if (!live || !Array.isArray(live.lineup) || !live.lineup.length
+      || !Array.isArray(live.naive) || !live.naive.length) return null;
+  const side = arr => arr.map(s => ({ id: s.pid, name: s.name, pos: s.pos, proj: s.proj }));
+  return {
+    kind: 'lineup_call',
+    method: 'lineup-auto-v1',
+    season: String(season),
+    payload: {
+      key: `lineup_auto|${season}|w${week}|${ownerId}`,
+      owner_id: Number(ownerId),
+      week: Number(week),
+      recommended: side(live.lineup),
+      counterfactual: side(live.naive),
+      dollars: live.edge != null ? Number(live.edge) : null,
+      confidence: String(live.confidence || '').slice(0, 600),
+      opp_mean: band && band.median != null ? Math.round(band.median) : null,
+      auto: true,
+    },
+  };
+}
+
+module.exports = { computeWaiverReco, buildAutoWaiverEntry,
+                   buildAutoStreamEntry, buildAutoLineupEntry };

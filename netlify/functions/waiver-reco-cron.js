@@ -33,7 +33,7 @@
  */
 const store = require('../../src/store');
 const predledger = require('../../src/predledger');
-const { computeWaiverReco, buildAutoWaiverEntry } = require('../../src/waiver_reco');
+const { computeWaiverReco, buildAutoWaiverEntry, buildAutoStreamEntry } = require('../../src/waiver_reco');
 
 /* Pure, exported for the unit test: the season/week/owner gate. Returns
  * { skip: '<reason>' } or { season, week, ownerId, myRid }. */
@@ -85,16 +85,22 @@ exports.handler = async (event) => {
     } catch (e) { artifact = {}; }
 
     const reco = computeWaiverReco(sData, playersDb, artifact, ctx.myRid, owners.length);
-    const entry = buildAutoWaiverEntry(reco, ctx.season, ctx.week, ctx.ownerId);
-    if (!entry) {
+    // Both advice surfaces this page carries, one decision moment: the top
+    // priority claim (waiver_claim) and the K/DEF stream (stream_call —
+    // register 287's stream twin). Either can honestly be absent.
+    const entries = [
+      buildAutoWaiverEntry(reco, ctx.season, ctx.week, ctx.ownerId),
+      buildAutoStreamEntry(reco, ctx.season, ctx.week, ctx.ownerId),
+    ].filter(Boolean);
+    if (!entries.length) {
       await store.set(markKey, { none: true, live: reco.live, at: new Date().toISOString() });
       return { statusCode: 200, body: JSON.stringify({ ok: true, week: ctx.week,
         captured: 0, note: reco.live ? 'tool says hold — recorded as the week marker' : 'reco not live' }) };
     }
-    await predledger.append(store, entry);
-    await store.set(markKey, { key: entry.payload.key, at: new Date().toISOString() });
+    for (const entry of entries) await predledger.append(store, entry);
+    await store.set(markKey, { keys: entries.map(e => e.payload.key), at: new Date().toISOString() });
     return { statusCode: 200, body: JSON.stringify({ ok: true, week: ctx.week,
-      captured: 1, key: entry.payload.key }) };
+      captured: entries.length, keys: entries.map(e => e.payload.key) }) };
   } catch (e) {
     return { statusCode: 500, body: JSON.stringify({ ok: false, error: String(e && e.message || e) }) };
   }
