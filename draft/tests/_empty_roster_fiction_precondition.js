@@ -26,7 +26,17 @@
  *   TOP recommendation at pick 113, and moved scores by up to 7.39 at pick 33.
  *   The `keeper` term (weight 1.0) reads ctx.roster and was never zero, so the
  *   fiction was distorting results BEFORE register 160, not because of it.
- *   With `need` now at 1.0 it moves the pick-33 top-1 as well.
+ *   ~~With `need` now at 1.0 it moves the pick-33 top-1 as well.~~
+ *
+ *   ⚠️ RE-MEASURED 2026-08-24 AND THAT LAST SENTENCE NO LONGER HOLDS. On this
+ *   board, with Cory's real THREE keepers, `roster: []` moves the top-1 at
+ *   ZERO of his twelve picks — measured with a determinism control, not
+ *   inferred. It moves the top recommendation's SCORE by up to 16.31 points,
+ *   which is 8x deviation.js's MATERIAL bar of 2.0, so the guard is still
+ *   warranted; the evidence is the score, not the name. Two things moved since
+ *   08-20: Cory ruled `ceiling` back to 0.0, and several board rebuilds landed.
+ *   Left struck through rather than deleted because a measurement that decayed
+ *   is worth seeing decay — this is register 5h's class, in a test fixture.
  *
  *   AN OPPONENT'S ROSTER — narrow, and NOT where you would guess. Measured over
  *   the top 200 available at each of Cory's twelve picks (2400 observations),
@@ -84,13 +94,42 @@ function realRoster(opts) {
       + '). Refusing to fall back to roster: [] — that is the fiction register 160 '
       + 'made illegal, and a suite running on it would report a false green.');
   }
-  const kept = (art.kept_players || []).map(k => ({
+  /* ⚠️ FILTERED TO CORY'S SEAT — AND THE FILE THAT EXISTS TO END THE
+   * EMPTY-ROSTER FICTION HAD SHIPPED A DIFFERENT ONE (A, 2026-08-24,
+   * register 300 sweep).
+   *
+   * This returned `art.kept_players` whole. Pre-lock that WAS Cory's three.
+   * Post-lock (08-23) the artifact carries the WHOLE LEAGUE'S 23, so the one
+   * shared derivation of "Cory's real roster" — the function written so five
+   * suites could not diverge — has been handing every caller a 23-man roster
+   * belonging to ten different managers. Its own error message says it
+   * "needs Cory's real keepers".
+   *
+   * IT IS NOT COSMETIC, AND IT IS THE SAME FAILURE THE HEADER MEASURES ABOVE
+   * FOR `roster: []`. `need` ships at weight 1.0 and reads ctx.roster; a
+   * 23-man roster fills every starter seat, so need contributes nothing for
+   * anybody. `keeper` also ships at 1.0 and is MARGINAL against the roster
+   * held, so holding 23 collapses it too. MEASURED on the live board with a
+   * determinism control: THE TOP-1 RECOMMENDATION CHANGES AT 5 OF CORY'S 12
+   * PICKS (88, 108, 128, 133, 148) — the 23-man fixture reaches for Bowers and
+   * Brandon Aubrey where his real roster takes Rice and Lamar Jackson.
+   *
+   * The suites using this were PASSING. A wrong fixture does not go red; it
+   * quietly answers a different question, which is why this sweep looked for
+   * it rather than waiting for a failure. */
+  const mySlot = String((art.league || {}).my_draft_slot);
+  const all = (art.kept_players || []);
+  const rows = opts.allSeats ? all
+    : all.filter(k => mySlot !== 'undefined' && String(k.team_slot) === mySlot);
+  const kept = rows.map(k => ({
     player_id: k.player_id, name: k.name, position: k.position,
     proj_mean: k.proj_mean, vorp: k.vorp, is_keeper: true,
   }));
   if (!kept.length && !opts.allowEmpty) {
-    throw new Error('ROSTER FIXTURE: the board carries no kept_players. This suite '
-      + "needs Cory's real keepers and will not substitute roster: [].");
+    throw new Error('ROSTER FIXTURE: the board carries no kept_players at seat '
+      + mySlot + ' (' + all.length + ' league-wide). This suite needs Cory\'s '
+      + 'real keepers and will not substitute roster: []. Pass '
+      + '{ allSeats: true } only if you genuinely want every manager\'s keepers.');
   }
   return kept;
 }

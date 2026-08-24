@@ -131,8 +131,40 @@ const E = require('../../public/js/draft/engine.js');
   const tName = truth && truth[0] && truth[0].player.name;
   ck('CONTROL: both arms actually produced a recommendation',
     !!fName && !!tName, { fiction: fName, truth: tName });
-  ck('THE FICTION CHANGES THE ANSWER at pick 33 — this is why the guard throws',
-    fName !== tName, { 'roster: []': fName, 'real keepers': tName });
+  /* ⚠️ THIS ASSERTED "THE FICTION CHANGES THE TOP-1 AT PICK 33" AND ON TODAY'S
+   * BOARD IT NO LONGER DOES — at ANY of Cory's twelve picks (A, 2026-08-24,
+   * register 300 sweep). Two things had to be untangled before touching it.
+   *
+   * FIRST, IT WAS MEASURING THE WRONG ROSTER. `realRoster()` was returning all
+   * 23 league keepers rather than Cory's three (fixed in
+   * _empty_roster_fiction_precondition.js, same date), so the "truth" arm was
+   * a 23-man roster that fills every starter seat.
+   *
+   * SECOND, ON THE CORRECT 3-MAN ROSTER THE TOP-1 CLAIM DOES NOT REPRODUCE.
+   * Measured across all twelve picks with a determinism control: 0 of 12 flip.
+   * The file header still says "with need now at 1.0 it moves the pick-33
+   * top-1 as well", which was true when written on 08-20 and is not true on
+   * this board — a weight ruling and several rebuilds have landed since.
+   *
+   * THE GUARD IS STILL WARRANTED, AND THE HONEST FORM OF THE CLAIM IS THE
+   * SCORE, NOT THE NAME: the fiction moves the top recommendation's score by
+   * up to 16.31 points across those twelve picks, against deviation.js's
+   * MATERIAL bar of 2.0. A pick that survives a 16-point swing survived it by
+   * luck of what else was on the board, not because the fixture was sound.
+   * So this now asserts the material property, measured where the original
+   * asserted a narrower one that happened to hold on one board on one day.
+   * The top-1 outcome is REPORTED rather than asserted, so if it starts
+   * flipping again nobody has to rediscover that it once did. */
+  ck('THE FICTION MATERIALLY CHANGES THE SCORE — this is why the guard throws',
+    Math.abs((fiction[0] || {}).score - (truth[0] || {}).score) > 2.0,
+    { 'roster: []': fName, 'real keepers': tName,
+      score_gap: +Math.abs((fiction[0] || {}).score - (truth[0] || {}).score).toFixed(2),
+      material_bar: 2.0 });
+  console.log('      NOTE — top-1 identity at pick 33 under both arms: '
+    + (fName === tName ? 'UNCHANGED (' + fName + '). It flipped when this file was '
+      + 'written on 08-20; on this board it does not, so the SCORE gap is the '
+      + 'load-bearing evidence, not the name.'
+      : 'CHANGED: ' + fName + ' -> ' + tName));
 
   const byId = {};
   truth.forEach(r => { byId[String(r.player.player_id)] = r.score; });
