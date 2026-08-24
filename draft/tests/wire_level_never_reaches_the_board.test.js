@@ -106,8 +106,18 @@ ck('...and it ships its own provenance, so nobody has to trust the number '
 {
   const RP = ART.replacement.replacement_points;
   const board = ART.players;
-  const keepers = ART.kept_players.map(k => Object.assign({}, k, { is_keeper: true,
-    vorp: Math.round((k.proj_mean - RP[k.position]) * 100) / 100 }));
+  /* ⚠️ FILTERED TO CORY'S SEAT (A, 2026-08-24, register 303). Post-lock
+   * `kept_players` is the whole league's 23, and these rows go to
+   * `ctx.currentKeepers`, which composite.js folds into INCUMBENTS —
+   * the men competing for MY keeper slots. Its own comment says "with
+   * three valued keepers the bar is ranked[2]". Twenty-three inflates
+   * that bar and collapses every candidate's keeper value, and `keeper`
+   * ships at weight 1.0. */
+  const _mySlot = String((ART.league || {}).my_draft_slot);
+  const keepers = ART.kept_players
+    .filter(k => String(k.team_slot) === _mySlot)
+    .map(k => Object.assign({}, k, { is_keeper: true,
+      vorp: Math.round((k.proj_mean - RP[k.position]) * 100) / 100 }));
   const burrow = board.find(p => p.name === 'Joe Burrow');
   const byAdp = board.slice().sort((a, b) => (a.adjusted_adp || 9999) - (b.adjusted_adp || 9999));
   const PB = ART.pick_order.picks, MY = ART.pick_order.my_picks;
