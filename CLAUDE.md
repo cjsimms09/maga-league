@@ -237,7 +237,16 @@ will. It remains a descriptive tool; never quote R\* without its band.
 15.90/wk; Cory 17.33 ± 1.68 vs the best owner's 12.06 ± 1.43) — and never read
 adjacent ranks as findings; they sit inside one SE.**
 Structural changes to the grading process go to the OpenAI auditor first;
-routine rows and grades do not. `ADAPTATION-POLICY.md` bottom three sections.
+routine rows and grades do not. **HOW we grade is `GRADING-POLICY.md` (root,
+one screen, the decision-null standard Cory ruled 08-21); HOW a row is FILED
+is `draft/ADAPTATION-POLICY.md` — note the `draft/`, and its §214 records that
+GRADING-POLICY supersedes its skill-design mechanics.** ⚠️ **This line used to
+say `ADAPTATION-POLICY.md` with no path, and I read that as a missing file and
+wrote "DOES NOT EXIST" into this paragraph before checking the repo — it is
+13KB and it is one directory down.** Corrected the same hour. Worth leaving on
+the record because it is the third time in two days that a bare `ls` in the
+wrong directory produced a confident absence (the pick log, register 130, this)
+— **an absence is a claim, and Rule 3i says grep before asserting one.**
 
 **⚙️ HOW THE FOUR OF US WORK — `OPERATING-MODEL.md`, one screen.** **RULE 1c added 08-20 (Cory's order, after six research artifacts sat invisible on a branch while ROUTES rows pointed at them): the relay's research artifacts — preregs, program/policy docs, audit briefs, ledger rows, report-only instruments — publish STRAIGHT TO `main` like mailboxes, via `draft/tools/relay_publish.sh`. Every pointer in ROUTES now resolves on `main`; if one does not, that is a defect, file it.** A is the
 gatekeeper and the only one who merges to `main`; B, C and the relay feed A.
