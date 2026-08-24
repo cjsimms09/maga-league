@@ -52,6 +52,31 @@ function autoCaptureContext(sData, cfg, owners) {
 
 exports.autoCaptureContext = autoCaptureContext;
 
+/* Pure, exported for the unit test: shape the Tuesday wire email's payload
+ * from the reco, and decide whether it is worth an inbox at all. Actionable =
+ * a positive claim, a block-watch row, or a hard-OUT on the roster — a week
+ * with none of those sends nothing (the Sunday-alert noise lesson: fifteen
+ * "nothing to do" emails teach you to stop opening the one that matters). */
+function wirePayload(reco, week, ridName) {
+  const top = (reco && reco.claims && reco.claims[0]) || null;
+  const bw = ((reco && reco.blockWatch) || []).map(b => ({ ...b,
+    denies_names: (b.denies || []).map(ridName) }));
+  const inj = (reco && reco.myInjured) || [];
+  const p = {
+    week,
+    topClaim: top && top.net_value > 0
+      ? { name: top.name, position: top.position, net_value: top.net_value,
+          dollars: top.dollars, drop: reco.drop || null }
+      : null,
+    stream: ((reco && reco.streamClaims) || [])[0] || null,
+    blockWatch: bw,
+    myInjured: inj,
+  };
+  p.actionable = !!(p.topClaim || bw.length || inj.some(x => x.out));
+  return p;
+}
+exports.wirePayload = wirePayload;
+
 exports.handler = async (event) => {
   store.initBlobs(event);
   const qs = (event && event.queryStringParameters) || {};
@@ -92,20 +117,47 @@ exports.handler = async (event) => {
       buildAutoWaiverEntry(reco, ctx.season, ctx.week, ctx.ownerId),
       buildAutoStreamEntry(reco, ctx.season, ctx.week, ctx.ownerId),
     ].filter(Boolean);
+    let captured = 0, note = null;
     if (!entries.length) {
       await store.set(markKey, { none: true, live: reco.live,
         blockWatch: (reco && reco.blockWatch) || [], at: new Date().toISOString() });
-      return { statusCode: 200, body: JSON.stringify({ ok: true, week: ctx.week,
-        captured: 0, note: reco.live ? 'tool says hold — recorded as the week marker' : 'reco not live' }) };
+      note = reco.live ? 'tool says hold — recorded as the week marker' : 'reco not live';
+    } else {
+      for (const entry of entries) await predledger.append(store, entry);
+      // blockWatch rides on the marker: P331 grades whether flagged players
+      // actually get claimed by the owners they were flagged for, and that
+      // grade needs the Tuesday-night snapshot, not a re-derivation.
+      await store.set(markKey, { keys: entries.map(e => e.payload.key),
+        blockWatch: reco.blockWatch || [], at: new Date().toISOString() });
+      captured = entries.length;
     }
-    for (const entry of entries) await predledger.append(store, entry);
-    // blockWatch rides on the marker: P331 grades whether flagged players
-    // actually get claimed by the owners they were flagged for, and that grade
-    // needs the Tuesday-night snapshot, not a Tuesday-morning re-derivation.
-    await store.set(markKey, { keys: entries.map(e => e.payload.key),
-      blockWatch: reco.blockWatch || [], at: new Date().toISOString() });
+
+    /* THE TUESDAY WIRE ALERT (task 36, Cory's "fastest on news" item): the
+     * same computation this run just logged goes to the commissioner's inbox
+     * before waivers clear overnight. Once per week, stamped on success only
+     * so a failed send retries next invocation; a non-actionable week sends
+     * nothing (see wirePayload). */
+    let emailed = 0, emailNote = null;
+    try {
+      const notify = require('../../src/notify');
+      const ridName = rid => {
+        const oid = Number((cfg.sleeper_map || {})[String(rid)]);
+        return ((owners || []).find(o => Number(o.id) === oid) || {}).name || `team ${rid}`;
+      };
+      const payload = wirePayload(reco, ctx.week, ridName);
+      const wireStamp = `tuesdaywire:${ctx.season}:${ctx.week}`;
+      if (!payload.actionable) emailNote = 'nothing worth an inbox this week';
+      else if (await store.get(wireStamp)) emailNote = 'already sent this week';
+      else {
+        const r = await notify.tuesdayWire(owners, payload);
+        if (r && r.sent) { emailed = 1; await store.set(wireStamp, { at: new Date().toISOString() }); }
+        else emailNote = (r && (r.reason || r.error)) || 'send skipped';
+      }
+    } catch (e) { emailNote = String(e && e.message || e); }
+
     return { statusCode: 200, body: JSON.stringify({ ok: true, week: ctx.week,
-      captured: entries.length, keys: entries.map(e => e.payload.key) }) };
+      captured, ...(note ? { note } : { keys: entries.map(e => e.payload.key) }),
+      emailed, ...(emailNote ? { emailNote } : {}) }) };
   } catch (e) {
     return { statusCode: 500, body: JSON.stringify({ ok: false, error: String(e && e.message || e) }) };
   }

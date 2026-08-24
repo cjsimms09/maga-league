@@ -67,6 +67,17 @@ function computeWaiverReco(sData, playersDb, artifact, myRid, ownersCount) {
     .filter(p => p.position === 'K' || p.position === 'DEF')
     .map(p => ({ player_id: p.player_id, name: p.name, position: p.position }));
 
+  // INJURY NEWS ON MY ROSTER (the Tuesday wire alert's third panel): players
+  // carrying a designation, split hard-out vs questionable using the SAME
+  // tables lineup/matchup use (LO.INACTIVE_INJURY) — a third injury vocabulary
+  // is how two surfaces come to disagree about the same player.
+  out.myInjured = (inputs.myRoster || []).map(p => {
+    const raw = String(p.injury_status || '').toUpperCase().replace(/[^A-Z]/g, '');
+    if (!raw) return null;
+    return { player_id: p.player_id, name: p.name, position: p.position,
+      tag: raw, out: LO.INACTIVE_INJURY.has(raw) };
+  }).filter(Boolean);
+
   /* BLOCK WATCH (Cory's 08-24 mandate, the adversarial-waivers item): the
    * best available player at each position an EAGER opponent has a hole at —
    * the claim whose value is partly that it denies THEM. Rolling priority

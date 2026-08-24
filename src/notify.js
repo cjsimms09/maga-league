@@ -348,6 +348,62 @@ async function sundayAlert(owners, alert) {
   });
 }
 
+/* THE TUESDAY WIRE ALERT (Cory's 08-24 "fastest on news" mandate; task 36) —
+ * sent by waiver-reco-cron at its own decision moment (Tuesday evening ET,
+ * after MNF, before waivers clear Wednesday ~3am), from the SAME computation
+ * it just logged to the ledger. Commissioner-only by the sendMail default,
+ * same as the Sunday alert; the CALLER decides actionability, this only
+ * renders what it is handed.
+ *
+ * payload: { week, topClaim: {name, position, net_value, dollars, drop},
+ *            stream: {name, position} | null,
+ *            blockWatch: [{name, position, denies_names, my_net_value}],
+ *            myInjured: [{name, position, tag, out}] }
+ */
+async function tuesdayWire(owners, payload) {
+  const list = Array.isArray(owners) ? owners : (owners ? [owners] : []);
+  const owner = list.find(o => o && o.is_commissioner && o.active);
+  if (!owner) return { skipped: true, reason: 'not-commissioner' };
+  if (!owner.email) return { skipped: true, reason: 'commissioner-has-no-email' };
+  if (!payload) return { skipped: true, reason: 'no-payload' };
+  const wk = payload.week != null ? `Week ${payload.week}` : 'This week';
+  let body = '';
+  const t = payload.topClaim;
+  if (t) {
+    body += `<div style="font-weight:800;font-size:16px">📋 Best claim: ${t.name} (${t.position})`
+          + (t.drop && t.drop.name ? ` — drop ${t.drop.name}` : '') + `</div>`
+          + `<div style="color:#3c4a60;margin:4px 0 12px"><b style="color:#0d7a44">+${Number(t.net_value).toFixed(1)} pts</b> to your starting lineup`
+          + (t.dollars != null ? ` · ~$${Math.round(t.dollars)}` : '')
+          + ` — worth your priority spot? That call is yours; the number is real.</div>`;
+  }
+  if (payload.stream) {
+    body += `<div style="margin:0 0 12px">🔁 Stream: <b>${payload.stream.name}</b> (${payload.stream.position}) — a free swap, no priority spent.</div>`;
+  }
+  const inj = payload.myInjured || [];
+  if (inj.length) {
+    body += `<div style="font-weight:800">🏥 Your roster's injury news</div><div style="margin:4px 0 12px">`
+          + inj.map(p => `<b>${p.name}</b> (${p.position}) — ${p.out ? '<b style="color:#d4242f">' + p.tag + '</b>' : p.tag}`).join('<br>')
+          + `</div>`;
+  }
+  const bw = payload.blockWatch || [];
+  if (bw.length) {
+    body += `<div style="font-weight:800">🛡 Block watch</div><div style="margin:4px 0 12px;color:#3c4a60">`
+          + bw.map(b => `<b>${b.name}</b> (${b.position}) fills a hole for <b>${(b.denies_names || []).join(', ')}</b>`
+              + (b.my_net_value != null && b.my_net_value > 0 ? ` — and worth +${Math.round(b.my_net_value)} to you` : ' — a pure block')).join('<br>')
+          + `</div>`;
+  }
+  body += `<div style="color:#3c4a60;font-size:13px">Waivers clear overnight — this is the last look before they do. The tool's advice above is already on the record and gets graded whatever you decide.</div>`;
+  return sendMail({
+    to: [owner.email],
+    subject: t
+      ? `📋 ${wk} wire: ${t.name} +${Number(t.net_value).toFixed(1)} pts before waivers clear`
+      : inj.some(p => p.out)
+        ? `🏥 ${wk} wire: injury news on your roster before waivers clear`
+        : `🛡 ${wk} wire: block-watch notes before waivers clear`,
+    html: wrap(`${wk} — the wire, tonight`, body, { path: '/waivers', label: 'Open the wire' }),
+  });
+}
+
 // WHAT REPLACED THE FOUR REMOVED NOTIFICATIONS, checked rather than assumed
 // before they were deleted:
 //   • sideBetProposed → server-app.js puts a banner at the top of EVERY page —
@@ -362,4 +418,4 @@ async function sundayAlert(owners, alert) {
 //                    pays you, nothing tells you until you look. Accepted
 //                    deliberately — it is not one of the three.
 module.exports = { configured, mayEmail, sendMail, MEMBER_KINDS,
-                   draftTurn, passwordReset, sundayAlert, weeklyRecap, SITE };
+                   draftTurn, passwordReset, sundayAlert, tuesdayWire, weeklyRecap, SITE };
