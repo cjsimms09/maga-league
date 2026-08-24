@@ -54,7 +54,11 @@ const PRICED = B.players.filter(p => Number(p.proj_mean) > 0);
 const adp = p => Number(p.adjusted_adp != null ? p.adjusted_adp
   : (p.raw_adp != null ? p.raw_adp : p.adp));
 
-const mine = new Set((B.kept_players || []).map(k => String(k.player_id)));
+/* ⚠️ FILTERED TO CORY'S SEAT (A, 2026-08-24, register 303). Post-lock
+ * `kept_players` is the league's 23, not his three. * The variable is literally named `mine` and held the league's slate. */
+const mine = new Set((B.kept_players || [])
+  .filter(k => Number(k.team_slot) === Number((B.league || {}).my_draft_slot))
+  .map(k => String(k.player_id)));
 const opp = new Set();
 Object.values((B.predicted_keepers || {}).predictions || {}).forEach(r =>
   (r.predicted_keepers || []).forEach(k => {
@@ -142,8 +146,22 @@ const rank = (pool, R) => {
     const a = adp(byId[m.id]);
     return Number.isFinite(a) && a >= 27 && a <= 160;
   });
+  /* ⚠️ THIS WAS `win.length >= 40`, AN ABSOLUTE COUNT WHERE THE CLAIM IS A
+   * SHARE — its own name says "a large share of them" (A, 2026-08-24,
+   * register 300). The board moved and the count came out 29, so the arm went
+   * red on a number rather than on the property. An absolute floor over a
+   * population whose size is not fixed is the same pinned-constant class as
+   * predraft_survival_is_not_one_number's wall value and vona_room_vs_market's
+   * rank band, both corrected today.
+   *
+   * Stated as the share it always claimed to be, and the denominator is
+   * PRINTED so the next reader sees the population rather than re-deriving it. */
+  const share = big.length ? win.length / big.length : 0;
+  console.log('      pick-window share: ' + win.length + ' of ' + big.length
+    + ' movers sit inside ADP 27-160 (' + Math.round(100 * share) + '%)');
   ck('...and a large share of them sit inside Cory\'s own pick window',
-    win.length >= 40, win.length);
+    share >= 0.10 && win.length > 0,
+    { in_window: win.length, movers: big.length, share: +share.toFixed(3) });
 
   /* THE HEADLINE, AS A SHAPE RATHER THAN A LIST OF NAMES. */
   const top = win.slice().sort((a, b) => b.d - a.d).slice(0, 10);

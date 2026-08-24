@@ -41,7 +41,12 @@ const art = JSON.parse(fs.readFileSync(BOARD, 'utf8'));
 const board = art.players, league = art.league;
 const RP = art.replacement.replacement_points;
 
-const keepers = art.kept_players.map(k => Object.assign({}, k, { is_keeper: true,
+/* ⚠️ FILTERED TO CORY'S SEAT (A, 2026-08-24, register 303). Post-lock
+ * `kept_players` is the league's 23, not his three. */
+const _mySlotKB = Number((art.league || {}).my_draft_slot);
+const keepers = art.kept_players
+  .filter(k => Number(k.team_slot) === _mySlotKB)
+  .map(k => Object.assign({}, k, { is_keeper: true,
   vorp: Math.round((k.proj_mean - RP[k.position]) * 100) / 100 }));
 // the exact shape recordManualPick and the Sleeper poll build
 const stub = n => ({ player_id: 'stub:' + n, name: 'Off-board Guy ' + n,
@@ -146,7 +151,16 @@ const stubAsZero = n => Object.assign(stub(n), { vorp: 0 });
    * source, 05:33Z rebuild) — so simulating "E18 without E17" requires
    * stripping it explicitly, which is exactly what makes this a fixture of
    * the counterfactual rather than a description of the artifact. */
-  const unseeded = art.kept_players.map(k => {
+  /* ⚠️ SECOND unfiltered derivation in this same file (A, 2026-08-24,
+   * register 303). The one at the top was filtered and this counterfactual
+   * roster was missed — which is why a per-file fix is not enough and why
+   * that row asks for a GUARD rather than a sweep. The arm asserts "all
+   * three keeper slots are open while he holds three keepers"; handed the
+   * league's 23 there are no free slots at all and the counterfactual
+   * cannot be constructed. */
+  const unseeded = art.kept_players
+    .filter(k => Number(k.team_slot) === _mySlotKB)
+    .map(k => {
     const o = Object.assign({}, k, { is_keeper: true }); delete o.vorp; return o;
   });
   const c = mk(33, unseeded);
@@ -154,7 +168,12 @@ const stubAsZero = n => Object.assign(stub(n), { vorp: 0 });
   const k = C.keeperOptionValue(cand, c);
   ck('E18 WITHOUT E17 would say all three keeper slots are open while he holds '
     + 'three keepers — so E17 is load-bearing, not redundant',
-  k.slots_free === art.kept_players.length, { slots_free: k.slots_free });
+  /* THIRD reference in this file to the unfiltered slate — the assertion's
+   * own words are "all three keeper slots", and `art.kept_players.length`
+   * is twenty-three. Compared against the roster actually handed in. */
+  k.slots_free === unseeded.length,
+  { slots_free: k.slots_free, my_keepers: unseeded.length,
+    league_wide: art.kept_players.length });
   const cs = mk(33, keepers);
   const ks = C.keeperOptionValue(cs.board.find(p => p.vorp > 0), cs);
   ck('and with both fixes the slots are correctly full and a real keeper is named',
