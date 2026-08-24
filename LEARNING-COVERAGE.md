@@ -14,11 +14,11 @@ off `league_history.json` and the shipped graders, not asserted.
 
 | decision | captured | graded vs a null | n | result |
 |---|---|---|---|---|
-| **Draft pick** | ✅ | ✅ `draft_pick_vs_random.py` | 345 | 0.8554 vs null [0.470, 0.531] |
+| **Draft pick** | ✅ | ✅ `draft_pick_vs_random.py` | 345 | 0.8554 vs null [0.470, 0.531] — **⚠️ flat at ~0.85 from round 1 to round 15; a floor test, not a resolution instrument (§2)** |
 | **Start / sit** | ✅ | ✅ `start_sit_vs_random.py` | 530 owner-weeks | 0.8497 vs [0.475, 0.525] |
 | **Waiver / FA add** | ✅ | ✅ `waiver_vs_random.py` | 756 claims | 0.7116 vs [0.479, 0.521] |
 | **The DROP** | ✅ | ✅ **NEW 08-24** `drop_vs_random.py` | **676** | **0.8001 vs [0.478, 0.522]** |
-| **Keeper choice** | ✅ | ❌ **NOT GRADED** | 43 gradeable | — |
+| **Keeper choice** | ✅ | ✅ **NEW 08-24** `keeper_vs_random.py` | **73** (not 43 — see §2) | vs a random name **0.9082** vs [0.434, 0.566] — **passes and is near-vacuous**; vs a REAL PICK at that round **+0.025, z=1.16, NOT RESOLVED** |
 | **Trade** | ✅ | ❌ — and correctly so | **6 in 3 seasons** | no power, ever |
 | **Projection quality** | ✅ | ◐ separate programme | — | `PROJECTION-PROGRAM-2027.md`, first grade 09-15 |
 
@@ -68,7 +68,63 @@ identical to the decimal (rule 3: fix the seed *and* the iteration order).
 
 ---
 
-## 2 · THE KEEPER DECISION IS GRADED NOWHERE, AND IT IS THE HIGHEST-STAKES ONE HE MAKES
+## 2 · ~~THE KEEPER DECISION IS GRADED NOWHERE~~ — BUILT 08-24, AND IT FOUND SOMETHING WORSE THAN A GAP
+
+**✅ BUILT the same day this section was written: `draft/backtest/keeper_vs_random.py`,
+wired into `weekly-grade.yml`, four controls gating.** Three things in the text
+below were wrong or incomplete and are corrected in place rather than deleted,
+because two of them are the interesting part:
+
+**① The count was 43 and it is 73. "2023 had no keepers" was false.** I read
+`drafts[0]` and stopped. **2023 has TWO draft objects** — a 150-pick main draft
+(0 keepers) and a **separate 30-pick keeper draft (30 keepers)**. 30+23+20 = 73.
+The first draft object in a season is not the only one. This is Rule 3i in its
+plainest form: an absence asserted without iterating the collection.
+
+**② The null I proposed here — "a random legal keeper set from the roster he
+actually held" — is not the one that shipped, and the shipped one is better.**
+The decision is not *which of my men do I keep*; it is *is this man worth the
+pick he costs*. So the null is **the players available at the slot the keeper
+consumed** — the same pool `draft_pick_vs_random.py` builds — which puts keeping
+and drafting on one yardstick.
+
+**③ And that null, on its own, is nearly vacuous — which indicts the SHIPPED
+PICK GRADER too, not just this one.** The keepers score **0.9082** against
+[0.4338, 0.5662] and it reads as a large result. It is not. **Real draft picks
+score 0.8554 on the same null, and they are FLAT at ~0.85 from round 1 to round
+15.** The pool is 570 players of whom **38% scored under 20 points all season**,
+so "beat a random name in the points store" is a floor test essentially every
+drafted player passes. Rounds 1-3 vs 13-15 resolves at z=2.15 and nothing finer
+does; the by-owner spread [0.808, 0.890] is a **selected maximum over 45 pairs**
+and is not a finding.
+
+**So the grader ships a SECOND panel, and it is the one to read: the keeper
+against what a REAL PICK at that round actually returned.** +0.025 percentile,
+z=1.16, **NOT RESOLVED**. In the unit that pays: **+22.8 season points, ≈1.3 a
+week** — a point estimate with nothing behind it. **We cannot show that keeping
+beats drafting at the slot it costs.** Not "keepers are worthless"; we cannot
+tell, at n=73, and saying which of those two it is matters.
+
+**Rule 3f, applied to the contrast itself:** a comparison with no power and a
+comparison that correctly finds nothing print the same words. So panel 2 has its
+own two controls — split-halves of the R1-3 picks must NOT resolve (z=1.08 ✓),
+keepers vs R13-15 picks MUST resolve (z=3.11 ✓) — and the exit gate was broken
+deliberately in both directions and confirmed to fire and name the right control.
+
+**⚠️ THE FOLLOW-UP THIS OWES (Rule 3g).** *Does it imply another failure?* Yes —
+`draft_pick_vs_random.py`'s docstring promises **"TWO NULLS, REPORTED
+SEPARATELY"** including a SAME-POSITION null, and **the code computes only one**;
+`SAME-POS` appears at lines 32-34 and nowhere else, and the artifact has a single
+`mean_percentile`. The missing null is precisely the one that would add
+resolution. *Does it invalidate something we trust?* It weakens the pick
+grader's standing as "the replacement yardstick" for the retired
+engine-minus-owner headline — a yardstick that cannot separate round 1 from
+round 6 cannot separate a good drafter from a bad one. *Routed?* A (mine).
+**Filed as its own register row; not folded into 289 silently.**
+
+---
+
+### The original text of this section, kept for the record
 
 `draft_pick_vs_random.py:27` states it plainly: **"KEEPER PICKS ARE EXCLUDED.
 A keeper is not a choice made at that pick."** That is correct for grading the
@@ -85,12 +141,15 @@ and they cost rounds 1, 2 and 3:
 | Derrick Henry | RB | 259.15 | 111.35 | round 1 |
 | Kenneth Walker | RB | 233.82 | 86.02 | round 3 |
 
-**Available to grade: 43 decisions** (2024: 23, 2025: 20; 2023 had no keepers),
-plus 2026's 23 once the season is played. Thin but real, and the null is
-constructible in the obvious way — a random legal keeper set from the roster he
-actually held at that cost. **Filed as register 289 with the design; not built
+~~**Available to grade: 43 decisions** (2024: 23, 2025: 20; 2023 had no
+keepers), plus 2026's 23 once the season is played. Thin but real, and the null
+is constructible in the obvious way — a random legal keeper set from the roster
+he actually held at that cost.~~ **← BOTH THE COUNT AND THE NULL ARE WRONG; see
+① and ② above. The real n is 73 and the shipped null is the board at the slot
+the keeper consumed.** **Filed as register 289 with the design; not built
 today because I would rather it get the same control discipline the drop
-grader got than be rushed in behind it.**
+grader got than be rushed in behind it.** — *and it did get it: built the same
+day, four controls, gate proven to fire.*
 
 ---
 
@@ -158,5 +217,7 @@ authority on what is actually wired, and this file is the authority on what is
 not.
 
 **Is it routed to the lane that can actually act?** The drop grader is mine (A)
-and is built and wired. Keepers (289) and the recommendation sweep (290) are
+and is built and wired. ~~Keepers (289)~~ **the keeper grader is built and wired
+too (08-24), and it opened a new row of its own: the pick grader's missing
+same-position null.** The recommendation sweep (290) is
 mine. The projection programme is the relay's and already has its own dates.
