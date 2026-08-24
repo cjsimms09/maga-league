@@ -74,8 +74,13 @@ const src = helperSrc + '\n' + APP.slice(a, b);
 const D = JSON.parse(fs.readFileSync(
   path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
 const board = D.players.filter(p => p.position && p.proj_mean != null).slice(0, 400);
-const roster = (D.kept_players || []).map(k => ({
-  player_id: k.player_id, name: k.name, position: k.position, proj_mean: k.proj_mean }));
+/* ⚠️ FILTERED TO CORY'S SEAT (A, 2026-08-24, register 303). Post-lock
+ * `kept_players` carries all 23 league keepers; this is used as MY roster. */
+const _mySlot = String((D.league || {}).my_draft_slot);
+const roster = (D.kept_players || [])
+  .filter(k => String(k.team_slot) === _mySlot)
+  .map(k => ({
+    player_id: k.player_id, name: k.name, position: k.position, proj_mean: k.proj_mean }));
 
 /* Each stub records the pool it was handed, so check 2 can prove they matched
  * rather than assume it. */

@@ -92,23 +92,69 @@ mean(lastQ) > mean(firstQ) + 0.05,
  * this arm names. If the wall ever stops appearing, the survival maths changed
  * underneath this file and its premise needs re-reading.
  */
+/* ⚠️ "CERTAIN DEPARTURE" WAS DEFINED IN BOARD-SLOT UNITS AND HAD TO BE IN
+ * SELECTION UNITS (A, 2026-08-24, register 300). This read
+ * `adjusted_adp <= my[0] - 5` — 28 — which was right while a board slot and a
+ * selection were the same thing. Post-lock they are not: 23 of the 32 slots
+ * before pick 33 are keeper-occupied, so pick 33 is SELECTION #10. Measured on
+ * this board, `adjusted_adp <= 28` sweeps in 27 players of whom most survive at
+ * 100%, because only ten men actually come off the board first. That is the
+ * exact scale confusion `survival.js`'s liveIndexOf exists to fix, reappearing
+ * in a fixture.
+ *
+ * Defined by the ENGINE'S OWN survival instead of by an ADP proxy, so the set
+ * cannot drift out of unit again. It is small — 3 on this board, against 27
+ * before — and that is the honest number: with only ten selections before his
+ * first pick, very few men are genuinely certain to be gone. The control
+ * reports the count rather than demanding ten, because demanding ten would
+ * assert a board property that the keeper lock removed. */
+const _unc = { currentPick: 0, runMultipliers: {},
+  pickBoard: (board.pick_order || {}).picks || null };
 const elite = board.players
-  .filter(p => p.adjusted_adp != null && p.adjusted_adp <= my[0] - 5)
+  .filter(p => p.adjusted_adp != null && E.survival(p, my[0], _unc) < 0.05)
   .sort((a, b) => a.adjusted_adp - b.adjusted_adp);
 
-ck('CONTROL: there are players far enough ahead of his first pick to be certain '
-  + 'departures — without them the arm below is vacuous',
-elite.length >= 10, elite.length);
+ck('CONTROL: at least one player is a CERTAIN departure by the engine\'s own '
+  + 'survival, or the arm below has nothing to measure',
+elite.length >= 1,
+{ certain_departures: elite.length, who: elite.map(p => p.name),
+  pick: my[0], note: 'defined by survival < 5%, not by an ADP threshold — see above' });
 
 const eAnchored = elite.map(p => (E.scorePlayer(p, mkCtx(false)) || {}).survival_to_next);
 const eFixed = elite.map(p => (E.scorePlayer(p, mkCtx(true)) || {}).survival_to_next);
 const worstAnchored = Math.min.apply(null, eAnchored.filter(v => v != null));
 const worstFixed = Math.max.apply(null, eFixed.filter(v => v != null));
 
-ck('FAIL ARM — the anchored (pre-fix) question still parks every certain '
-  + 'departure above 50%, which is the nonsense Cory reported',
-worstAnchored > 0.5,
-{ lowestAnchoredElite: +worstAnchored.toFixed(4), n: elite.length });
+/* ⚠️ THE ARM WAS PINNED TO THE WALL'S VALUE (0.674) AND THE WALL MOVED
+ * (A, 2026-08-24). It required every certain departure to read above 50%; on
+ * this board they read 43.97%. THE DEFECT STILL REPRODUCES PERFECTLY — all
+ * three read the IDENTICAL 43.97%, which is precisely the "one number for
+ * everyone" nonsense this file exists to catch. Only the constant moved,
+ * because the gap between pick 33 and pick 48 is a different number of
+ * SELECTIONS than it was of board slots.
+ *
+ * This file's own comment already said which of the two is the property:
+ * "What separates them is the WALL VALUE... If the wall ever stops appearing,
+ * the survival maths changed underneath this file and its premise needs
+ * re-reading." The wall did not stop appearing. So the arm now asserts THE
+ * WALL, not the number — that every certain departure shares one anchored
+ * value, and that the value is absurd for men who are certainly gone — and
+ * PRINTS the value so its drift is visible instead of silently breaking the
+ * next time the board moves. */
+const eAnchoredVals = eAnchored.filter(v => v != null);
+const anchoredSpread = Math.max.apply(null, eAnchoredVals) - Math.min.apply(null, eAnchoredVals);
+console.log('      WALL VALUE on this board: ' + (100 * worstAnchored).toFixed(2)
+  + '% (was 0.674 when this file was written; the gap to my next pick is a '
+  + 'different number of SELECTIONS than of board slots now)');
+ck('FAIL ARM — the anchored (pre-fix) question parks EVERY certain departure on '
+  + 'one and the same number: the wall Cory reported',
+anchoredSpread < 0.001 && eAnchoredVals.length === elite.length,
+{ spread: +anchoredSpread.toFixed(6), wall: +worstAnchored.toFixed(4), n: elite.length });
+
+ck('...and that wall is absurd for men the model itself says are certainly '
+  + 'gone — an order of magnitude above the honest answer',
+worstAnchored > 0.20 && worstAnchored > 10 * Math.max(worstFixed, 0.001),
+{ wall: +worstAnchored.toFixed(4), fixed: +worstFixed.toFixed(4) });
 
 ck('and the fix answers it: the same players read near zero, because they will '
   + 'not be there',

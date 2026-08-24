@@ -188,7 +188,16 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
    * `vorp === round(proj_mean − replacement_points[pos], 2)` holds for every
    * board row, so this is the artifact's own formula, not an invented number. */
   const RP = ((D.replacement || {}).replacement_points) || {};
-  const keepers = (D.kept_players || []).map(k => {
+  /* ⚠️ FILTERED TO CORY'S SEAT (A, 2026-08-24, register 303). Post-lock
+   * `kept_players` is the whole league's 23, and these rows go to
+   * `ctx.currentKeepers`, which composite.js folds into INCUMBENTS —
+   * the men competing for MY keeper slots. Its own comment says "with
+   * three valued keepers the bar is ranked[2]". Twenty-three inflates
+   * that bar and collapses every candidate's keeper value, and `keeper`
+   * ships at weight 1.0. */
+  const _mySlot = String((D.league || {}).my_draft_slot);
+  const keepers = (D.kept_players || [])
+    .filter(k => String(k.team_slot) === _mySlot).map(k => {
     if (k.vorp != null || k.proj_mean == null || RP[k.position] == null) return k;
     return Object.assign({}, k, {
       replacement: RP[k.position],
