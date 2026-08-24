@@ -49,6 +49,33 @@
     yours is in front of them now.</span>
   </div>
 <% } %>
+
+<%# ── THE OFFER SHEET (commissioner-only; Cory's 08-24 mandate) — the +EV
+    bets worth ORIGINATING this week, priced by the same arithmetic the edge
+    advisor uses on incoming bets (src/betoffers.js → betedge.priceCondition).
+    Absent when the model sees nothing ≥55% — an honest quiet week, and absent
+    for everyone but the commissioner (analysis is his; ACCESS-RULE.md). %>
+<% const _os = (typeof offerSheet !== 'undefined' && offerSheet && owner.is_commissioner) ? offerSheet : []; %>
+<% if (_os.length) { %>
+<div class="card" style="margin-bottom:1.2rem; border-left:3px solid var(--gold)">
+  <h2>📤 Offers Worth Sending <span class="sub">even-money bets the model prices in your favor — P333 grades this sheet all season</span></h2>
+  <div class="body">
+    <% for (const of_ of _os.slice(0, 3)) { %>
+      <div style="padding:.45rem 0;border-bottom:1px solid var(--line,#e5e7eb)">
+        <b><%= of_.terms %></b>
+        <div class="muted" style="font-size:.78rem;margin-top:.15rem">
+          model: <b><%= Math.round(of_.p * 100) %>%</b> your way · worth ~<b>$<%= of_.edge_per_10.toFixed(2) %></b> per $10 staked · <%= of_.line %>
+        </div>
+      </div>
+    <% } %>
+    <p class="muted" style="margin:.6rem 0 0;font-size:.74rem">
+      Model prices, not gospel — the 55% bar exists because 52% is noise. Every week's
+      sheet is snapshotted and graded at season end: if the ≥55% offers don't win ≥55%,
+      the sheet retires. Send one via <b>Start a bet → Season finish</b> below.
+    </p>
+  </div>
+</div>
+<% } %>
 <%
   const myId = owner.id;
   const inIt = b => (b.parties || []).some(p => p.owner_id === myId);

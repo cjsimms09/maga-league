@@ -1456,6 +1456,7 @@ router.get('/bank', aw(async (req, res) => {
   // and the bracket itself is the honest source by then.
   const poolAdvice = {};
   const betEdges = {};
+  let offerSheet = [];
   if (req.owner.is_commissioner) {
     const PA = require('./pooladvisor');
     const CH = require('./champodds');
@@ -1476,6 +1477,18 @@ router.get('/bank', aw(async (req, res) => {
         // honest, free-text bets say "can't price" rather than guessing).
         const ectx = BE.contextFromRows(rows, Math.max(0, pwStart - week), { weekNow: week });
         if (ectx) {
+          // THE OFFER SHEET (Cory's 08-24 mandate): the +EV bets worth
+          // ORIGINATING, priced through the same priceCondition as the
+          // reactive advisor. Snapshotted once per week (register 290: an
+          // instruction nobody scores is where defects live — P333 grades
+          // whether the sheet's ≥55% offers actually win ≥55%).
+          try {
+            offerSheet = require('../betoffers').suggestOffers(ectx, req.owner.id, owners);
+            const okey = `betoffers:${String(season.year || season)}:${week}`;
+            if (offerSheet.length && !(await getDoc(okey, null))) {
+              await setDoc(okey, { at: now(), week, offers: offerSheet });
+            }
+          } catch (e) { offerSheet = []; }
           for (const b of bets) {
             const actionable = b.status === SB.STATUS.OPEN ? !SB.isParty(b, req.owner.id)
               : [SB.STATUS.PROPOSED, SB.STATUS.LOCKED].includes(b.status) && SB.isParty(b, req.owner.id);
@@ -1529,7 +1542,7 @@ router.get('/bank', aw(async (req, res) => {
   } catch (e) { career = null; /* reference numbers are a bonus, never break the page */ }
 
   res.render('bank', {
-    poolAdvice, betEdges, career,
+    poolAdvice, betEdges, offerSheet, career,
     // Propose-from-anywhere: a ?betvs=<id> link (matchup, standings, franchise)
     // pre-selects that opponent in the bet builder.
     prefillParty: Number(req.query.betvs) || null,
