@@ -21,9 +21,9 @@ construction (n=seasons); where it spans zero the correlation arm carries it._
 
 ## AGREEMENT with the correlation (ranking) arm
 
-- correlation arm: diff 0.155 CI [0.056, 0.255] -> beat (n=34)
+- correlation arm: diff 0.051 CI [-0.06, 0.15] -> inconclusive (n=34)
 - dollar arm: adp-earns-more
-- **THE INTERESTING RESULT: ranks better but earns same-or-less — the edge is in evaluating players, not in constructing rosters that fit this payout structure. Points at the PORTFOLIO DOCTRINE, not the projections.**
+- **ranks_better=False, dollar_verdict=adp-earns-more**
 
 ## Per season
 
