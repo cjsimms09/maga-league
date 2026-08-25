@@ -1,0 +1,317 @@
+diff --git a/draft/tests/mailbox_deletion_guard.test.js b/draft/tests/mailbox_deletion_guard.test.js
+index 9b730391..95cf911b 100644
+--- a/draft/tests/mailbox_deletion_guard.test.js
++++ b/draft/tests/mailbox_deletion_guard.test.js
+@@ -31,6 +31,28 @@ ck('plain tick passes', check(row(' ', 'SAME HEADLINE TEXT ALL ALONG'), row('x',
+   ck('table-row removal flags', check(t, '').lost.length === 1);
+ }
+ 
++{ // duplicate ids are REAL (b460ba7 carried two 316s and two 317s at once),
++  // and a Map keyed on the id keeps one of them. Deleting the other was
++  // invisible: 9,511 characters, guard green.
++  const dup = '| 317 | THE CONVERSION GAP MEASURED AT NEED ZERO, first copy with its own distinct evidence body |\n'
++            + '| 317 | THE CONVERSION GAP MEASURED AT NEED ZERO, second copy whose tail says something else entirely |\n';
++  const one = '| 317 | THE CONVERSION GAP MEASURED AT NEED ZERO, first copy with its own distinct evidence body |\n';
++  ck('duplicate-id row deletion flags', check(dup, one).lost.length === 1, JSON.stringify(check(dup, one)));
++}
++{ // MODE 1b synthetic: the row survives, its content does not.
++  const full = '| 137 | the ask, the evidence and the recommendation all spelled out at length so the window has something to bite on here |\n';
++  const gut  = '| 137 | TODO |\n';
++  ck('cell clobber inside a surviving row flags', check(full, gut).clobbered.length === 1);
++  /* An append still moves the words on either side of the seam, so the
++   * windows straddling it read as absent — that slop is why the guard counts
++   * only rows over CLOBBER_MIN_ROW_CHARS. The contract is that an append
++   * never produces a COUNTED loss, not that it produces no signal at all. */
++  const appended = full.replace(' |\n', ' and one more clause appended by its own author later |\n');
++  ck('append-only correction stays under the row floor',
++    check(full, appended).clobbered.every(c => c.chars < 200),
++    JSON.stringify(check(full, appended).clobbered.map(c => c.chars)));
++}
++
+ // ── real history (the reason this guard exists) ──
+ function guardExit(from, to) {
+   try {
+@@ -48,7 +70,30 @@ if (hasHist) {
+   // to publish one prereg — the artifact-file class row-guarding cannot see.
+   ck('KNOWN-POSITIVE: the fd33cd15 artifact-emptying fires', guardExit('fd33cd15~1', 'fd33cd15') === 1);
+   ck('known-negative: the 88KB restore passes', guardExit('029478a5~1', '029478a5') === 0);
+-  ck('known-negative: E reconciliation merge passes', guardExit('712f1e6ca~1', '712f1e6ca') === 0);
++  /* WAS a known-negative. It is not one. Re-graded 2026-08-25 (D, register
++   * 325) when MODE 1b fired on it and the claim was checked instead of the
++   * detector being blunted to fit: 712f1e6ca deleted 900 characters out of
++   * the keeper-lock row — Cory's verbatim 08-21 ruling ("Locks once deadline
++   * passes."), the two-switch fix that shipped the same hour, and the control
++   * run that turns 10 of 13 red — and `git grep` finds that text in ONE file
++   * at 712f1e6ca~1 and NO file at 712f1e6ca. It came back at 7efb89a4, a
++   * later merge that happened to carry the older copy. Recovered by luck, not
++   * by detection, which is the whole argument for this mode. It fires on
++   * BOTH new paths — the row-deletion one (the old fingerprint escape wrote
++   * this off) and MODE 1b — so raising CLOBBER_MIN_CHARS alone does not make
++   * it green; the other two known-positives below are the MODE-1b-specific
++   * ones and they do go green when the mode is disabled. */
++  ck('KNOWN-POSITIVE: the E reconciliation merge dropped 900 chars and fires',
++    guardExit('712f1e6ca~1', '712f1e6ca') === 1);
++  /* MODE 1b: the clobber class. 9112aa42's own message says "keep both" and
++   * it kept one — A's post-draft triage left twenty rows, 7,365 characters,
++   * and the guard was green. */
++  ck('KNOWN-POSITIVE: the 9112aa42 triage clobber fires', guardExit('9112aa42~1', '9112aa42') === 1);
++  ck('KNOWN-POSITIVE: register 269 losing its sweep result fires', guardExit('4c695541~1', '4c695541') === 1);
++  /* The legitimate operations MODE 1b must stay silent on — measured, not
++   * assumed: a 41-row recheck-date roll (every row loses ~100 chars of window
++   * slop and none loses content) and the 88KB restore. */
++  ck('known-negative: a 41-row date roll passes', guardExit('f6abd8fd~1', 'f6abd8fd') === 0);
+   ck('known-negative: B closing rewrite passes', guardExit('24d18dbe4~1', '24d18dbe4') === 0);
+ }
+ console.log(`\n${pass} passed, ${fail} failed`);
+diff --git a/draft/tools/mailbox_deletion_guard.js b/draft/tools/mailbox_deletion_guard.js
+index 131d4cec..796106bb 100644
+--- a/draft/tools/mailbox_deletion_guard.js
++++ b/draft/tools/mailbox_deletion_guard.js
+@@ -44,17 +44,24 @@ function gitShow(rev, file, cwd) {
+  * row vanishing loses it. Table rows: the id cell — ids are unique (CI
+  * elsewhere enforces that), so id-survival is row-survival. */
+ function keysOf(text) {
+-  const keys = new Map(); // key -> {line, fp} (fp = content fingerprint)
++  /* key -> ARRAY of {line, fp, body}. An array, not a single entry, because
++   * ids are NOT unique in practice: b460ba7 carried two rows keyed 316 and
++   * two keyed 317 at once (E's union-resolve of a rebase), and a Map that
++   * keeps the last one is blind to a deletion under a duplicated id. Control
++   * in the suite: delete one of two id-137 rows -- 4,519 characters -- and
++   * the pre-fix guard exits 0. */
++  const keys = new Map();
+   if (text == null) return keys;
++  const push = (k, v) => { const a = keys.get(k); if (a) a.push(v); else keys.set(k, [v]); };
+   for (const line of text.split('\n')) {
+     let m = line.match(/^- \[[ x]\] (\d{4}-\d\d-\d\d [^·]*· *[^·]+·)(.{0,40})/);
+     if (m) {
+-      keys.set('cb:' + m[1].trim() + m[2],
+-        { line: line.slice(0, 120), fp: fingerprint(line) });
++      push('cb:' + m[1].trim() + m[2],
++        { line: line.slice(0, 120), fp: fingerprint(line), body: line });
+       continue;
+     }
+     m = line.match(/^\| ([A-Za-z]?\d+[a-z]?) \|(.*)/);
+-    if (m) keys.set('row:' + m[1], { line: line.slice(0, 120), fp: fingerprint(m[2]) });
++    if (m) push('row:' + m[1], { line: line.slice(0, 120), fp: fingerprint(m[2]), body: m[2] });
+   }
+   return keys;
+ }
+@@ -69,10 +76,108 @@ function fingerprint(s) {
+   return t.length > 50 ? t.slice(10, 50) : t;
+ }
+ 
++/* ── MODE 1b: CONTENT CLOBBER INSIDE A SURVIVING ROW ──────────────────────
++ * Row-survival was never the same thing as content-survival, and the gap is
++ * not theoretical: `9112aa42` ("Merge: the relay and I triaged the same 19
++ * rows concurrently — keep both") deleted A's 2026-08-23 post-draft triage
++ * from TWENTY register rows — 7,365 characters still absent from main — and
++ * this guard exited 0, because every row key survived. `4c695541` lost a
++ * further 1,641 characters out of register 269 the same way.
++ *
++ * The first fix tried here was a length threshold, and it was MEASURED and
++ * rejected: of the twenty rows that lost A's annotation, FOUR ended up
++ * LONGER than they started (82, 59, 4j, 256 — the relay's re-date text was
++ * bigger than A's paragraph), so no length rule can see them. What sees all
++ * of them is content survival.
++ *
++ * Rule: word-diff each surviving row; a removed run of >= MIN_WORDS words
++ * whose text appears NOWHERE in the after-file is a vanished passage. Text
++ * that moved to another row, another cell or another line is found and is
++ * not flagged. Sweep over 300 first-parent commits of main: 19 commits
++ * carry a vanished passage; 4 carry >= 1,000 characters. */
++const MIN_WORDS = 12;
++
++/* WHERE THE BAR SITS, and why it is not zero. Measured over 300 first-parent
++ * commits of main: the shipped guard goes red on 4; firing on ANY vanished
++ * passage goes red on 20 (6.7%), of which exactly TWO are the cross-author
++ * clobbers this mode exists for and FOURTEEN are one author rewriting a
++ * sentence in their own row ("Correcting myself: ...", "WITHDRAW my ...").
++ * A gate that is wrong 14 times out of 16 gets ignored, so the bar is set
++ * where the real ones sit and the fourteen do not — and everything under the
++ * bar is still PRINTED, because silence is the failure mode this file was
++ * written for. A row-count criterion was tried and dropped: two rows losing
++ * 474 characters between them is 029478a5, the 88KB RESTORE commit, and
++ * gating that is the guard calling a rescue a robbery. One number, in
++ * characters. Move it with MAILBOX_CLOBBER_CHARS; do not move it without
++ * re-running the sweep. */
++const CLOBBER_MIN_CHARS = Number(process.env.MAILBOX_CLOBBER_CHARS || 1000);
++/* A per-ROW floor as well, because the window has slop: any edit makes the
++ * MIN_WORDS windows straddling it unfindable, so a row that merely had its
++ * `recheck 08-24` moved reads as ~100 lost characters. Across the 41 rows of
++ * one date roll (f6abd8fd, my own) that summed to 4,004 and would have gated
++ * a commit that lost nothing. Real clobbers concentrate: the twenty rows of
++ * 9112aa42 average 368 characters each and the worst is 754. Rows under the
++ * floor are printed and not counted. */
++const CLOBBER_MIN_ROW = Number(process.env.MAILBOX_CLOBBER_ROW_CHARS || 200);
++
++function norm(s) { return String(s == null ? '' : s).replace(/\s+/g, ' ').trim(); }
++
++/* An id-provenance note — *(renumbered from 133 to 137 at merge …)*,
++ * *(claimed 157 — next_register_id.js said 156 …)* — is bookkeeping ABOUT
++ * the id, and a reconciliation merge rewrites it by design: the row gets a
++ * new note describing its new number. Stripping it from both sides is what
++ * takes 712f1e6ca (the pinned known-negative) from 17 spurious rows to zero
++ * without touching a single finding's text. */
++const PROVENANCE = /\*\(\s*(?:renumbered|claimed|re-?numbered)[\s\S]{0,400}?\)\*/gi;
++/* And the id NUMBERS themselves. A renumbering merge rewrites every
++ * cross-reference it moves — 712f1e6ca turned "register 134's 'nothing is
++ * distinguishable' verdict" into "register 132's ...", same sentence, same
++ * finding, one digit apart — so comparing the digits makes a bookkeeping
++ * edit look like a deleted paragraph. This guard protects FINDINGS, not id
++ * numbers; `next_register_id.js` and the id-uniqueness tests protect those. */
++const IDREF = /\b(?:registers?|id|row|P)\s*#?\s*\d+[a-z]?\b/gi;
++function stripProvenance(s) {
++  return String(s == null ? '' : s).replace(PROVENANCE, ' ').replace(IDREF, 'ID#');
++}
++
++/* The whole rule, and it needs no diff: slide a MIN_WORDS window over the
++ * row as it was, and keep the maximal runs of windows that appear NOWHERE in
++ * the file as it now is. Text that moved to another row, another cell or
++ * another line is found and is not flagged; only text that left the file is.
++ *
++ * The first version of this ran an LCS against the row's paired successor.
++ * That was 48x slower (22.0 s against the shipped guard's 0.46 s on a single
++ * commit — too slow to gate a push) AND wrong on reconciliation merges,
++ * where ids move in bulk and "the row keyed 138 after" is a different
++ * finding from "the row keyed 138 before" (17 spurious rows on 712f1e6ca).
++ * Comparing against the FILE instead of against a paired row deletes both
++ * problems: no pairing, no anchors, no quadratic scan. */
++function vanished(beforeBody, afterFileNorm) {
++  const bw = norm(stripProvenance(beforeBody)).split(' ');
++  const out = [];
++  if (bw.length < MIN_WORDS) return out;
++  const absent = [];
++  for (let k = 0; k + MIN_WORDS <= bw.length; k++) {
++    absent.push(!afterFileNorm.includes(bw.slice(k, k + MIN_WORDS).join(' ')));
++  }
++  let k = 0;
++  while (k < absent.length) {
++    if (!absent[k]) { k++; continue; }
++    let j = k;
++    while (j < absent.length && absent[j]) j++;
++    out.push(bw.slice(k, j - 1 + MIN_WORDS).join(' '));
++    k = j;
++  }
++  return out;
++}
++
+ function check(before, after) {
+   const b = keysOf(before), a = keysOf(after);
+-  const afterNorm = String(after || '').replace(/\s+/g, ' ');
+-  const lost = [], renumbered = [];
++  /* Provenance stripped HERE TOO, or the seam left by removing a note from a
++   * row makes text that plainly survives look absent: five rows on 712f1e6ca
++   * read as 1,956 lost characters until this line matched vanished()'s. */
++  const afterNorm = ' ' + norm(stripProvenance(after)) + ' ';
++  const lost = [], renumbered = [], clobbered = [];
+   /* A row closed WITH a rewritten headline (B, 24d18dbe: "- [ ] E → B TWO
+    * FINDABILITY FIXES" became "- [x] E → B BOTH ALREADY FIXED") breaks both
+    * the key and the content fingerprint, but is a legitimate tick. Pair each
+@@ -84,23 +189,48 @@ function check(before, after) {
+   for (const k of a.keys()) {
+     if (k.startsWith('cb:') && !b.has(k)) {
+       const p = k.slice(0, k.lastIndexOf('·') + 1);
+-      spareAfter.set(p, (spareAfter.get(p) || 0) + 1);
++      spareAfter.set(p, (spareAfter.get(p) || 0) + (a.get(k) || []).length);
+     }
+   }
+-  for (const [k, v] of b) {
+-    if (a.has(k)) continue;
+-    if (v.fp && v.fp.length >= 20 && afterNorm.includes(v.fp)) {
+-      renumbered.push(v); // content survives under another id/key — not a loss
+-      continue;
++  for (const [k, arr] of b) {
++    const after_ = a.get(k) || [];
++    /* Occurrence-count drop under one key is a deletion even though the key
++     * survives — the duplicate-id case. Surplus copies flag one by one. */
++    const n = Math.max(0, arr.length - after_.length);
++    for (let idx = 0; idx < arr.length; idx++) {
++      const v = arr[idx];
++      const stillHere = idx < after_.length;
++      if (stillHere) continue;
++      /* Was the fingerprint escape: a 40-char slice from near the START of
++       * the row, found anywhere in the after-file, wrote the deletion off as
++       * a renumber. Two rows that share a headline share that slice — so
++       * deleting one of the two REAL, DIFFERENT id-317 rows that b460ba7 put
++       * on main (9,511 characters) was written off as "content survives",
++       * and both the shipped guard and the first draft of this fix exited 0
++       * on it. The whole body has to survive, not its first fifty
++       * characters. */
++      if (!vanished(v.body, afterNorm).length) { renumbered.push(v); continue; }
++      if (k.startsWith('cb:')) {
++        const p = k.slice(0, k.lastIndexOf('·') + 1);
++        const sp = spareAfter.get(p) || 0;
++        if (sp > 0) { spareAfter.set(p, sp - 1); renumbered.push(v); continue; }
++      }
++      lost.push({ key: k, line: v.line });
+     }
+-    if (k.startsWith('cb:')) {
+-      const p = k.slice(0, k.lastIndexOf('·') + 1);
+-      const n = spareAfter.get(p) || 0;
+-      if (n > 0) { spareAfter.set(p, n - 1); renumbered.push(v); continue; }
++    /* MODE 1b, only for the copies that DID survive. Keyed pairing is used
++     * ONLY to decide which before-rows are eligible; the loss test itself is
++     * against the whole after-file, so a renumber cannot masquerade as one. */
++    for (let idx = 0; idx < Math.min(arr.length, after_.length); idx++) {
++      const bx = arr[idx];
++      if (norm(bx.body) === norm(after_[idx].body)) continue;
++      const gone = vanished(bx.body, afterNorm);
++      if (gone.length) {
++        clobbered.push({ key: k, line: bx.line,
++          chars: gone.reduce((t, s) => t + s.length, 0), segments: gone });
++      }
+     }
+-    lost.push({ key: k, line: v.line });
+   }
+-  return { lost, renumbered };
++  return { lost, renumbered, clobbered };
+ }
+ 
+ /* ── MODE 2: ARTIFACT FILES (added after fd33cd15 EMPTIED 15 preregs/audits
+@@ -155,10 +285,23 @@ function main() {
+ 
+   let total = 0;
+   for (const f of MAILBOXES) {
+-    const { lost, renumbered } = check(gitShow(from, f, cwd), gitShow(to, f, cwd));
++    const { lost, renumbered, clobbered } = check(gitShow(from, f, cwd), gitShow(to, f, cwd));
+     if (renumbered.length) {
+       console.log(`${f}: ${renumbered.length} row(s) renumbered/rekeyed, content survives — fine.`);
+     }
++    if (clobbered.length) {
++      const counted = clobbered.filter(c => c.chars >= CLOBBER_MIN_ROW);
++      const chars = counted.reduce((t, c) => t + c.chars, 0);
++      const gates = chars >= CLOBBER_MIN_CHARS;
++      console.log(`\n${f}: ${clobbered.length} SURVIVING row(s) lost content ${from}..${to} ` +
++        `(${counted.length} over the ${CLOBBER_MIN_ROW}-char row floor, ${chars} chars, found nowhere in the file)` +
++        `${gates ? ':' : ' — under the bar, reported not gated:'}`);
++      for (const c of counted.length ? counted : clobbered) {
++        console.log(`  - ${c.line}`);
++        console.log(`      ${c.chars} chars gone, e.g. "${c.segments[0].slice(0, 140)}…"`);
++      }
++      if (gates) total += counted.length;
++    }
+     if (!lost.length) continue;
+     total += lost.length;
+     console.log(`\n${f}: ${lost.length} row(s) present at ${from} and GONE at ${to}:`);
+@@ -170,13 +313,13 @@ function main() {
+     console.log(`\nARTIFACT FILES emptied or removed ${from}..${to} (the fd33cd15 class):`);
+     for (const l of losses) console.log(`  - ${l.path}  (${l.was} bytes -> ${l.now})`);
+   }
+-  if (!total) { console.log(`mailbox guard: no rows or artifacts lost ${from}..${to}.`); return 0; }
++  if (!total) { console.log(`mailbox guard: no rows, row content or artifacts lost ${from}..${to}.`); return 0; }
+   if (acknowledged) {
+     console.log(`\n${total} deletion(s), acknowledged by [mailbox-prune] in the commit message. Passing.`);
+     return 0;
+   }
+   console.log(
+-    `\n⛔ ${total} mailbox row(s) and/or artifact file(s) SILENTLY LOST. A mailbox push is append-and-tick-only ` +
++    `\n⛔ ${total} mailbox row(s), row content block(s) and/or artifact file(s) SILENTLY LOST. A mailbox push is append-and-tick-only ` +
+     `for rows you do not own (register 190 — the first clobber deleted three rows within ` +
+     `an hour of the push grant). If the deletion is deliberate, say so: put [mailbox-prune] ` +
+     `in the commit message. Otherwise restore the rows: git show ${from}:<file> has them.`);
+@@ -184,4 +327,4 @@ function main() {
+ }
+ 
+ if (require.main === module) process.exit(main());
+-module.exports = { keysOf, check, MAILBOXES };
++module.exports = { keysOf, check, vanished, MAILBOXES, MIN_WORDS };
