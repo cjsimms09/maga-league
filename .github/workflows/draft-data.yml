@@ -459,12 +459,31 @@ jobs:
         # investigated by hand many hours later. The gate's DECISION was correct
         # (don't ship a broken board); its SILENCE was the actual defect.
         #
-        # `if: failure()` — runs ONLY when the acceptance gate above just failed,
-        # and does not change whether the job ends up red (it still does; see the
-        # unconditioned steps below, which stay skipped exactly as before). Opens
-        # (or updates, if already open — one tracking issue, not one per night) a
-        # labeled GitHub issue with the exact failing test names, so a human is
-        # notified same-day instead of by accident.
+        # `if: failure()` — ⚠️ AND THAT IS *ANY* FAILURE IN THE JOB, NOT JUST THE
+        # GATE'S, WHICH IS THE DEFECT FIXED HERE (A, 2026-08-25, register 319).
+        #
+        # The comment above said "runs ONLY when the acceptance gate above just
+        # failed". It does not. When the job dies EARLIER — as it did on runs 111,
+        # 112 and 113, at step 10, `gen_keepers_json` — the gate never runs,
+        # /tmp/board_gate_output.txt is never created, and this step still fired
+        # and posted, verbatim:
+        #
+        #   "The nightly board rebuild ran at ... and refused to publish"
+        #   Failing tests: see run log, no FAILED lines parsed
+        #
+        # Both halves false. No board was built, so none was refused, and there
+        # were no failing tests because the suite never ran. `grep` printed
+        # "No such file or directory" into the log and the notice went out anyway.
+        #
+        # THAT IS WHY SIX DAYS OF FAILURES READ AS ONE UNDIFFERENTIATED RED. The
+        # alarm fired every night with the same contentless body, so the ONE thing
+        # that would have located the fault — that the failure moved from the gate
+        # to the keeper step on 08-23 — was the one thing it could not say. A
+        # notification that cannot distinguish two different faults trains its
+        # reader to stop opening it.
+        #
+        # So the notice now says which of the two actually happened, and the
+        # pre-gate case names the step that failed rather than guessing.
         if: failure() && github.event.inputs.snapshot != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -472,16 +491,33 @@ jobs:
           LABEL="board-rebuild-broken"
           gh label create "$LABEL" --color B60205 --description "Nightly board rebuild refused to publish" 2>/dev/null || true
           EXISTING=$(gh issue list --label "$LABEL" --state open --json number --jq '.[0].number' 2>/dev/null || echo "")
-          FAILING=$(grep -oE "^FAILED [A-Za-z0-9_./:-]+" /tmp/board_gate_output.txt | sed 's/^FAILED //' | sort -u || true)
           RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           BODY_FILE=$(mktemp)
-          {
-            printf 'The nightly board rebuild ran at %s and refused to publish — the previously published board is still live, untouched.\n\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            printf '**Failing tests:**\n\x60\x60\x60\n'
-            printf '%s\n' "${FAILING:-see run log, no FAILED lines parsed}"
-            printf '\x60\x60\x60\n\nRun: %s\n\n' "$RUN_URL"
-            printf 'This issue stays open until a rebuild passes clean; it will auto-close then, not before.\n'
-          } > "$BODY_FILE"
+          if [ -f /tmp/board_gate_output.txt ]; then
+            # THE GATE RAN AND REFUSED. This is the case the step was written for.
+            FAILING=$(grep -oE "^FAILED [A-Za-z0-9_./:-]+" /tmp/board_gate_output.txt | sed 's/^FAILED //' | sort -u || true)
+            {
+              printf 'The board rebuild ran at %s, BUILT a candidate board, and the acceptance gate REFUSED to publish it — the previously published board is still live, untouched.\n\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+              printf '**Failing tests:**\n\x60\x60\x60\n'
+              printf '%s\n' "${FAILING:-the gate ran but printed no FAILED lines — read the run log, this is itself odd}"
+              printf '\x60\x60\x60\n\nRun: %s\n\n' "$RUN_URL"
+              printf 'This issue stays open until a rebuild passes clean; it will auto-close then, not before.\n'
+            } > "$BODY_FILE"
+          else
+            # THE JOB DIED BEFORE THE GATE. No board was built. Name the step.
+            STEP=$(gh run view "${{ github.run_id }}" --json jobs \
+                     --jq '.jobs[].steps[] | select(.conclusion=="failure") | .name' 2>/dev/null \
+                   | paste -sd '; ' - || true)
+            {
+              printf 'The board rebuild FAILED BEFORE THE ACCEPTANCE GATE at %s. **No candidate board was built, so none was refused** — the previously published board is still live and is now another day staler.\n\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+              printf '**Failing step:**\n\x60\x60\x60\n'
+              printf '%s\n' "${STEP:-could not read the step name from the API — open the run}"
+              printf '\x60\x60\x60\n\n'
+              printf 'This is a DIFFERENT fault from a refused publish: the suite never ran, so there are no failing tests to list. If this body used to say "refused to publish" with an empty test list, that was this same case reported wrongly (register 319).\n\n'
+              printf 'Run: %s\n\n' "$RUN_URL"
+              printf 'This issue stays open until a rebuild passes clean; it will auto-close then, not before.\n'
+            } > "$BODY_FILE"
+          fi
           if [ -n "$EXISTING" ]; then
             gh issue comment "$EXISTING" --body-file "$BODY_FILE"
           else
