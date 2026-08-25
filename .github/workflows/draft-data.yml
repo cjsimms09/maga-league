@@ -1037,6 +1037,48 @@ jobs:
           SITE: ${{ vars.SITE_URL || 'https://makefbgreatagain.netlify.app' }}
         run: |
           WANT="$(git rev-parse HEAD)"
+
+          # ⚠️ ASK THE DEPLOY GATE WHETHER A BUILD WAS EVEN EXPECTED, BEFORE
+          # DEMANDING ONE. Register 347.
+          #
+          # This step used to poll for ten minutes and fail the job whenever a
+          # served file moved. It knew nothing about `netlify-ignore.sh`, which
+          # is the thing that actually decides whether Netlify builds — and that
+          # gate has THREE reasons to skip, the third added after this step was
+          # written: **an 8-hour minimum window between deploys, from Cory's
+          # 2-3x/day ruling of 2026-08-24.**
+          #
+          # MEASURED on run 120: the board published correctly, the gate said
+          #   "range touches 11 served file(s), but the last deploy was 4h ago
+          #    and the window is 8h — SKIPPING. Nothing is lost: this change
+          #    ships with the next build."
+          # ...and this step then failed the job, logged "the deploy did not
+          # land", and commented on the board-rebuild-broken issue. **Every
+          # rebuild inside an 8-hour window was a guaranteed false red.**
+          #
+          # That is worse than noise: a red here is indistinguishable from a
+          # REAL deploy failure, which is the one thing this step exists to
+          # catch — and register 217 already records a false red from this same
+          # verifier costing a lane an urgent escalation the night before the
+          # draft.
+          #
+          # The gate is the single source of truth (register 313's ruling
+          # applied to deploys). The live stamp names the last successfully
+          # deployed commit, which is exactly the CACHED_COMMIT_REF the gate
+          # needs, so the range it evaluates here is the range Netlify saw.
+          LIVE="$(curl -fsS --max-time 20 "$SITE/build-stamp.json" 2>/dev/null \
+                  | python3 -c 'import json,sys; print(json.load(sys.stdin).get("commit",""))' 2>/dev/null || echo '')"
+          if [ -z "$LIVE" ]; then
+            echo "::warning::could not read the live build-stamp — verifying without the gate's opinion"
+          elif CACHED_COMMIT_REF="$LIVE" COMMIT_REF="$WANT" BRANCH=main \
+                 bash netlify-ignore.sh; then
+            # exit 0 from the gate means SKIP: Netlify was never going to build.
+            echo "deploy DELIBERATELY DEFERRED by the cadence gate — not a failure."
+            echo "  live is ${LIVE:0:12}, main is ${WANT:0:12}; this board ships with the next build."
+            echo "  site-check.yml owns the separate 'prod is N commits behind' alarm."
+            exit 0
+          fi
+
           echo "polling $SITE/build-stamp.json for ${WANT:0:12} (Netlify builds usually land in 1-3 min)"
           deadline=$(( $(date +%s) + 600 ))
           while [ "$(date +%s)" -lt "$deadline" ]; do
@@ -1049,5 +1091,5 @@ jobs:
             echo "  live stamp: ${GOT:0:12} — waiting"
             sleep 30
           done
-          echo "::error::the board was pushed 10 minutes ago and the live site still reports '${GOT:-nothing}' — the deploy did not land. Check Netlify build minutes/status BEFORE trusting the live board."
+          echo "::error::the board was pushed 10 minutes ago, the deploy gate said BUILD, and the live site still reports '${GOT:-nothing}' — the deploy did not land. Check Netlify build minutes/status BEFORE trusting the live board."
           exit 1
