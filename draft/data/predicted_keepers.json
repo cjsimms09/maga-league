@@ -2,9 +2,9 @@
   "provenance": "predicted (flat-cost surplus) + Cory intel",
   "note": "PREDICTED slates for MOCK/REHEARSAL ONLY \u2014 never applied to the live board (Cory, 2026-08-11: a prediction rendered indistinguishably from a fact IS a fact as far as behaviour is concerned). Real designations are read from live Sleeper by the nightly draft-data rebuild; there is no keeper-watch process. Assumes keeper-eligibility (max_years=3 not verifiable for opponents).",
   "round_cost_vorp": [
-    69.95,
-    50.73,
-    36.43
+    67.6,
+    49.1,
+    35.7
   ],
   "predictions": {
     "coryjsimms": {
@@ -16,7 +16,7 @@
           "position": "WR",
           "vorp": 121.8,
           "cost_round": 1,
-          "surplus": 51.8,
+          "surplus": 54.2,
           "confidence": "high"
         },
         {
@@ -25,7 +25,7 @@
           "position": "RB",
           "vorp": 109.1,
           "cost_round": 2,
-          "surplus": 58.4,
+          "surplus": 60.0,
           "confidence": "high"
         },
         {
@@ -34,7 +34,7 @@
           "position": "RB",
           "vorp": 83.8,
           "cost_round": 3,
-          "surplus": 47.4,
+          "surplus": 48.1,
           "confidence": "high"
         }
       ],
@@ -56,7 +56,7 @@
           "position": "RB",
           "vorp": 95.1,
           "cost_round": 1,
-          "surplus": 25.1,
+          "surplus": 27.5,
           "confidence": "high"
         },
         {
@@ -65,16 +65,16 @@
           "position": "RB",
           "vorp": 92.4,
           "cost_round": 2,
-          "surplus": 41.7,
+          "surplus": 43.3,
           "confidence": "high"
         },
         {
           "player_id": "7588",
           "name": "Javonte Williams",
           "position": "RB",
-          "vorp": 68.7,
+          "vorp": 67.6,
           "cost_round": 3,
-          "surplus": 32.3,
+          "surplus": 31.9,
           "confidence": "high"
         }
       ],
@@ -90,29 +90,29 @@
           "position": "RB",
           "vorp": 104.5,
           "cost_round": 1,
-          "surplus": 34.5,
+          "surplus": 36.9,
           "confidence": "high"
         },
         {
           "player_id": "5850",
           "name": "Josh Jacobs",
           "position": "RB",
-          "vorp": 77.6,
+          "vorp": 76.1,
           "cost_round": 2,
-          "surplus": 26.9,
+          "surplus": 27.0,
           "confidence": "high"
         },
         {
           "player_id": "10229",
           "name": "Rashee Rice",
           "position": "WR",
-          "vorp": 70.0,
+          "vorp": 74.5,
           "cost_round": 3,
-          "surplus": 33.6,
+          "surplus": 38.8,
           "confidence": "high"
         }
       ],
-      "next_best": "Cam Skattebo",
+      "next_best": "A.J. Brown",
       "source": "model"
     },
     "B8T3S": {
@@ -124,7 +124,7 @@
           "position": "RB",
           "vorp": 177.9,
           "cost_round": 1,
-          "surplus": 108.0,
+          "surplus": 110.3,
           "confidence": "high"
         },
         {
@@ -133,7 +133,7 @@
           "position": "RB",
           "vorp": 131.6,
           "cost_round": 2,
-          "surplus": 80.9,
+          "surplus": 82.5,
           "confidence": "high"
         },
         {
@@ -142,7 +142,7 @@
           "position": "WR",
           "vorp": 79.0,
           "cost_round": 3,
-          "surplus": 42.6,
+          "surplus": 43.3,
           "confidence": "high"
         }
       ],
@@ -156,7 +156,7 @@
           "player_id": "11604",
           "name": "Brock Bowers",
           "position": "TE",
-          "vorp": 60.0,
+          "vorp": 59.7,
           "cost_round": 3,
           "surplus": null,
           "confidence": "high",
@@ -168,7 +168,7 @@
           "position": "WR",
           "vorp": 111.9,
           "cost_round": 1,
-          "surplus": 42.0,
+          "surplus": 44.3,
           "confidence": "high"
         },
         {
@@ -177,11 +177,11 @@
           "position": "RB",
           "vorp": 103.3,
           "cost_round": 2,
-          "surplus": 52.6,
+          "surplus": 54.2,
           "confidence": "high"
         }
       ],
-      "next_best": "Travis Etienne",
+      "next_best": "Brock Bowers",
       "source": "model + intel override"
     },
     "mhagen": {
@@ -193,7 +193,7 @@
           "position": "QB",
           "vorp": 266.3,
           "cost_round": 1,
-          "surplus": 196.4,
+          "surplus": 198.7,
           "confidence": "high"
         },
         {
@@ -202,7 +202,7 @@
           "position": "RB",
           "vorp": 136.9,
           "cost_round": 2,
-          "surplus": 86.2,
+          "surplus": 87.8,
           "confidence": "high"
         },
         {
@@ -211,7 +211,7 @@
           "position": "WR",
           "vorp": 102.6,
           "cost_round": 3,
-          "surplus": 66.2,
+          "surplus": 66.9,
           "confidence": "high"
         }
       ],
@@ -222,20 +222,20 @@
       "roster_id": "8",
       "predicted_keepers": [
         {
-          "player_id": null,
+          "player_id": "7569",
           "name": "Nico Collins",
-          "position": null,
-          "vorp": null,
+          "position": "WR",
+          "vorp": 68.4,
           "cost_round": 2,
           "surplus": null,
           "confidence": "certain",
           "override": "Cory intel"
         },
         {
-          "player_id": null,
+          "player_id": "8130",
           "name": "Trey McBride",
-          "position": null,
-          "vorp": null,
+          "position": "TE",
+          "vorp": 58.4,
           "cost_round": 3,
           "surplus": null,
           "confidence": "certain",
@@ -247,12 +247,12 @@
           "position": "RB",
           "vorp": 171.1,
           "cost_round": 1,
-          "surplus": 101.1,
+          "surplus": 103.5,
           "confidence": "certain",
           "override": "Cory intel (confirms model)"
         }
       ],
-      "next_best": "Quinshon Judkins",
+      "next_best": "DeVonta Smith",
       "source": "model + intel override"
     },
     "Schmelley": {
@@ -264,7 +264,7 @@
           "position": "WR",
           "vorp": 136.7,
           "cost_round": 1,
-          "surplus": 66.7,
+          "surplus": 69.1,
           "confidence": "high"
         },
         {
@@ -273,7 +273,7 @@
           "position": "RB",
           "vorp": 90.9,
           "cost_round": 2,
-          "surplus": 40.2,
+          "surplus": 41.8,
           "confidence": "high"
         },
         {
@@ -282,7 +282,7 @@
           "position": "RB",
           "vorp": 77.4,
           "cost_round": 3,
-          "surplus": 41.0,
+          "surplus": 41.7,
           "confidence": "high"
         }
       ],
@@ -298,25 +298,25 @@
           "position": "WR",
           "vorp": 74.8,
           "cost_round": 1,
-          "surplus": 4.8,
+          "surplus": 7.2,
           "confidence": "low"
         },
         {
           "player_id": "8150",
           "name": "Kyren Williams",
           "position": "RB",
-          "vorp": 73.2,
+          "vorp": 66.3,
           "cost_round": 2,
-          "surplus": 22.5,
+          "surplus": 17.2,
           "confidence": "medium"
         },
         {
           "player_id": "9997",
           "name": "Zay Flowers",
           "position": "WR",
-          "vorp": 53.1,
+          "vorp": 55.5,
           "cost_round": 3,
-          "surplus": 16.7,
+          "surplus": 19.8,
           "confidence": "medium"
         }
       ],

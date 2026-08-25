@@ -87,6 +87,33 @@ jobs:
       # so 18 is a fact and not a threshold. 2026 is deliberately NOT required
       # to have weeks — before week 1 it correctly has zero, and demanding
       # otherwise would red this job every preseason Tuesday.
+      # ── SOUNDNESS, BEFORE THE COMMIT ────────────────────────────────────
+      #
+      # ⚠️ ADDED 2026-08-25 (register 333), and the reason is worth the space.
+      # `test_every_gate_can_fail` counts scheduled workflows that COMMIT DATA
+      # with nothing verifying it, and this one made the count go 11 -> 12 the
+      # day it landed. My own regression.
+      #
+      # The step below already checked the export -- but AFTER the commit, and
+      # only for shape it knew to look for. The house bar, which
+      # `standing-check.yml` sets and that test measures against, is: BEFORE YOU
+      # COMMIT, RUN SOMETHING THAT CAN SAY NO.
+      #
+      # This store is the ONLY input to all five decision graders, and until
+      # today nothing validated it at all -- a dozen studies read it and assert
+      # things about their own slice, but no check asked whether the store is
+      # SOUND. An export that fetched badly and wrote a plausible file would
+      # have been committed and graded on, green, every Tuesday of the season.
+      #
+      # The validator carries its own known-positive arms (`--self-check`), so
+      # its silence here means something: it has been shown to refuse a
+      # truncated store, a missing team, a collapsed owner join, a player on two
+      # rosters, a season with no weeks, a future timestamp and null player ids.
+      - name: Is the store SOUND — run something that can say no, before committing
+        run: |
+          python3 draft/tools/validate_league_history.py --self-check
+          python3 draft/tools/validate_league_history.py
+
       - name: Did the export actually land, or did it just run?
         run: |
           python3 - <<'PY'

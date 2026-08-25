@@ -33,6 +33,7 @@ Run: python -m pytest draft/tests/test_data_assumptions.py -q
 from __future__ import annotations
 
 import json
+import pytest
 import re
 from collections import Counter
 from pathlib import Path
@@ -146,18 +147,111 @@ def test_series_freeze_keys():
 # ── 7. keeper arithmetic tells one story ──────────────────────────────────
 
 def test_keeper_arithmetic_is_one_story():
+    """⚠️ MADE PHASE-AWARE (A, 2026-08-25). `kept_player_ids` IS NOT ALWAYS MINE.
+
+    This asserted `my_count == len(board["kept_player_ids"])` and
+    `cfg_ids == sorted(board["kept_player_ids"])` — both true only while the
+    keeper slate is PREDICTED. `draft/keeper_slate.py:85-90` documents the design
+    and measured it:
+
+        slate 'predicted'   kept_player_ids = 3       (MINE ONLY)
+        slate 'confirmed'   kept_player_ids = 17
+
+    That withholding is Cory's own ruling of 2026-08-11 and is correct: the board
+    is built on NO opponent keepers until the slate confirms. At the 2026-08-23
+    lock it confirmed, `kept_player_ids` became the league's 23, and these two
+    assertions started reporting a designed transition as a disagreement
+    (`assert 3 == 23`). Nothing was wrong with the board.
+
+    Fourth no-expiry phase pin found this week, after the keeper guard (register
+    319), the keeper-pool ruling (283) and the v6 market arm. So this reads the
+    slate and asserts what is true in EACH phase rather than flipping a constant.
+
+    The arithmetic this test is named for — my keepers, my forfeited slots, my
+    first pick — is still exact, but it is MINE and now has to say so.
+
+    ⚠️ AND I GOT THAT WRONG ON THE FIRST PASS, WHICH IS WHY IT IS WRITTEN DOWN.
+    The sentence here originally read "…is unchanged and still exact; only the
+    identity of `kept_player_ids` depends on the phase". That was asserted
+    without checking and the very next assertion disproved it: `keeper_slot` is
+    flagged on EVERY team's keeper pick, so the count went 3 -> 23 alongside
+    `kept_player_ids`. Measured: 23 flagged slots league-wide, distributed
+    2/3/2/3/3/3/3/3/1 across seats 1-9, of which seat 8 — mine — holds exactly 3
+    (overall 8, 13, 28). The widening reaches further than one field, and a
+    confident sentence about blast radius is worth no more than the grep behind
+    it."""
     board = _load("public/draft_data.json")
     keepers = _load("draft/config/keepers.json")
     my_id = board["league"]["my_manager_id"]
     mine = [t for t in keepers["teams"] if t.get("owner_id") == my_id]
     my_count = len(mine[0]["keepers"]) if mine else 0
-    assert my_count == len(board["kept_player_ids"]), (
-        "keepers.json and the board disagree on MY keeper count")
-    slots = [p for p in board["pick_order"]["picks"] if p.get("keeper_slot")]
-    assert len(slots) == my_count, "pick_order keeper slots != my keeper count"
+    cfg_ids = sorted(str(k["player_id"]) for k in (mine[0]["keepers"] if mine else []))
+    board_ids = sorted(str(x) for x in board["kept_player_ids"])
+    confirmed = bool((board.get("keeper_slate") or {}).get("confirmed"))
+
+    if confirmed:
+        # THE LEAGUE'S. Mine must be a SUBSET — anything else means my own
+        # designations went missing from a slate that claims to hold everyone's.
+        assert set(cfg_ids) <= set(board_ids), (
+            "the slate is CONFIRMED, so kept_player_ids holds the league's "
+            f"keepers — but mine are not all in it: missing "
+            f"{sorted(set(cfg_ids) - set(board_ids))}")
+        assert len(board_ids) >= my_count, (
+            f"confirmed slate holds {len(board_ids)} ids, fewer than my own "
+            f"{my_count}")
+    else:
+        # MINE ONLY, by Cory's 2026-08-11 withholding ruling.
+        assert my_count == len(board_ids), (
+            "the slate is PREDICTED, so kept_player_ids must be MINE ALONE — "
+            "keepers.json and the board disagree on my keeper count")
+        assert cfg_ids == board_ids
+
+    # UNCHANGED AND PHASE-INDEPENDENT: my forfeited slots and my first pick.
+    # These are the arithmetic the test is named for and they never depended on
+    # what the rest of the league kept.
+    # MY slots, by seat. `keeper_slot` flags every team's keeper pick — the
+    # board is the whole draft, not my column of it — so this must filter to
+    # my_draft_slot or it counts the league's 23 against my 3.
+    my_slot = int(board["league"]["my_draft_slot"])
+    slots = [p for p in board["pick_order"]["picks"]
+             if p.get("keeper_slot") and int(p.get("slot", -1)) == my_slot]
+    assert len(slots) == my_count, (
+        f"pick_order flags {len(slots)} keeper slot(s) at my seat ({my_slot}) "
+        f"but keepers.json says I kept {my_count}")
+    # ...and league-wide the flags must account for every kept player, which is
+    # the other half of the same arithmetic and was never checked here.
+    all_slots = [p for p in board["pick_order"]["picks"] if p.get("keeper_slot")]
+    assert len(all_slots) == len(board_ids), (
+        f"{len(all_slots)} keeper slots flagged league-wide against "
+        f"{len(board_ids)} kept player id(s) — a forfeited pick with no keeper "
+        "behind it, or a keeper who forfeited nothing")
     ac = board["keeper_slate"]["arithmetic_check"]
     assert ac["holds"] is True and ac["my_first_pick"] == ac["expected"], (
         "the board's own first-pick arithmetic check fails")
-    # my keepers' ids agree across config and board
-    cfg_ids = sorted(str(k["player_id"]) for k in (mine[0]["keepers"] if mine else []))
-    assert cfg_ids == sorted(board["kept_player_ids"])
+
+
+def test_the_slate_phase_ACTUALLY_CHANGES_what_kept_player_ids_holds():
+    """RULE 3e for the branch above. Both arms could be satisfied by a board
+    where the two sets happen to coincide, and then the phase logic would be
+    decorative. On a CONFIRMED slate with more than one designating team, the
+    league's ids must be STRICTLY more than mine — otherwise the confirmation
+    did not actually widen anything and the branch is untested."""
+    board = _load("public/draft_data.json")
+    slate = board.get("keeper_slate") or {}
+    if not slate.get("confirmed"):
+        pytest.skip("slate is not confirmed; the widening has not happened yet")
+    if int(slate.get("teams_designated") or 0) <= 1:
+        pytest.skip("only one team designated; mine and the league's coincide")
+
+    keepers = _load("draft/config/keepers.json")
+    my_id = board["league"]["my_manager_id"]
+    mine = [t for t in keepers["teams"] if t.get("owner_id") == my_id]
+    cfg_ids = {str(k["player_id"]) for k in (mine[0]["keepers"] if mine else [])}
+    board_ids = {str(x) for x in board["kept_player_ids"]}
+
+    assert board_ids > cfg_ids, (
+        f"{slate.get('teams_designated')} teams designated and the slate is "
+        f"CONFIRMED, but kept_player_ids ({len(board_ids)}) is not strictly "
+        f"larger than my own ({len(cfg_ids)}) — either the confirmation did not "
+        "widen the slate, in which case the phase branch above is untested, or "
+        "opponent designations are being dropped")

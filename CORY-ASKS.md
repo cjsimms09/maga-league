@@ -417,3 +417,14 @@ and fantasy-points markets. Its known problem is thinness, not access: every tic
 sampled in mid-August returned **zero open markets**. **Re-probing after the season
 opens is the test.**
 
+
+- [ ] **2026-08-25 · A · THE PRE-DRAFT FREEZE — your "only irreversible item" — was never re-taken after the keeper lock. It is usable but degraded, and I need your call on what it is now worth.** Register 328.
+  **WHAT YOU SAID (2026-08-14):** *"This is the ONLY irreversible item. Every other defect can be fixed in September. This data cannot be captured in September. If draft night passes without it, 2026 produces zero learning signal and 2027 starts exactly where 2026 started."*
+  **WHAT ACTUALLY HAPPENED — and it is not as bad as that sentence, so I am not going to tell you it is.** The freeze EXISTS: `draft/data/pre_draft_freeze_2026.json`, taken **08-17**, 682 availability rows across your 12 picks, sha-stamped and intact. Draft night did not pass without it.
+  **WHAT IS WRONG WITH IT.** It was taken five days early, so it records `keepers_on_board_at_freeze: 3` and `opponent_keepers_applied: 0` — **your three keepers and nobody else's.** The board you actually drafted from carried **23**. So the frozen "who will still be available at pick 48" curves describe a pool twenty players deeper than the real one.
+  **THE ALARM TOLD US, FROM 08-21, AND NOBODY ACTED.** It has been escalating *"THE KEEPER LOCK HAS PASSED AND THE FREEZE IS STILL PROVISIONAL... re-take it now"* since the lock. The re-take had to land between the lock (Fri 18:00) and the draft (Sat 23:00). It did not, and that window is shut.
+  **WHAT IS ACTUALLY LOST:** the *diff* between a 3-keeper freeze and a 23-keeper one, which was the keeper-scarcity evidence. That specific measurement is gone. **WHAT IS NOT LOST:** the availability question itself — *did the board say a player would be gone by my pick, and was he* — is still gradeable, against curves whose keeper assumption was wrong by twenty players.
+  ⚠️ **I AM NOT RE-TAKING IT NOW.** A freeze taken today would be an artifact labelled PRE-DRAFT containing POST-DRAFT state — a fixture that reads as a measurement. That is worse than the gap.
+  **YOUR CALL:** ① the freeze STANDS as 2026's grading baseline, with the 3-vs-23 caveat stated wherever a number from it is quoted; or ② 2026's availability signal is written off and we build 2027's capture to fire on the lock rather than on a person remembering.
+  **DEFAULT if you say nothing:** ①. I attach the caveat and get on with it.
+  **SEPARATELY, MINE, NOT YOURS:** the alarm currently has no idea the draft happened, so it demands an impossible action on every run and **blocks every board publish for the rest of the season**. I am fixing that so it records a terminal loss instead of escalating forever — that is a mechanism fix and does not depend on your answer.

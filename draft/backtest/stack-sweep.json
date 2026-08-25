@@ -6,56 +6,56 @@
  "leaderboard": [
   {
    "dose": 0.5,
-   "edge": -15.0,
+   "edge": 366.04,
    "ci95": [
-    -33.54,
-    1.67
+    306.25,
+    428.33
    ],
-   "max_same_team": 23.0,
-   "verdict": "parked: CI includes $0"
+   "max_same_team": 3.34,
+   "verdict": "WINNER \u2014 dose pays"
   },
   {
    "dose": 1.0,
-   "edge": -24.17,
+   "edge": 499.38,
    "ci95": [
-    -45.83,
-    -4.79
+    437.08,
+    567.71
    ],
-   "max_same_team": 23.0,
-   "verdict": "HARMFUL \u2014 CI excludes 0 below"
+   "max_same_team": 4.84,
+   "verdict": "WINNER \u2014 dose pays"
   },
   {
    "dose": 1.5,
-   "edge": -47.5,
+   "edge": 492.29,
    "ci95": [
-    -75.62,
-    -22.5
+    428.96,
+    553.75
    ],
-   "max_same_team": 23.0,
-   "verdict": "HARMFUL \u2014 CI excludes 0 below"
+   "max_same_team": 5.68,
+   "verdict": "WINNER \u2014 dose pays"
   },
   {
    "dose": 2.0,
-   "edge": -46.04,
+   "edge": 599.38,
    "ci95": [
-    -72.5,
-    -21.67
+    527.71,
+    667.08
    ],
-   "max_same_team": 23.0,
-   "verdict": "HARMFUL \u2014 CI excludes 0 below"
+   "max_same_team": 5.86,
+   "verdict": "WINNER \u2014 dose pays"
   },
   {
    "dose": 3.0,
-   "edge": -44.38,
+   "edge": 606.67,
    "ci95": [
-    -71.04,
-    -19.17
+    534.58,
+    675.62
    ],
-   "max_same_team": 23.0,
-   "verdict": "HARMFUL \u2014 CI excludes 0 below"
+   "max_same_team": 6.54,
+   "verdict": "WINNER \u2014 dose pays"
   }
  ],
- "where_it_stops_paying": null,
+ "where_it_stops_paying": 3.0,
  "caveats": [
   "v1 money proxy + a modeled within-team correlation (rho=0.35) \u2014 the sweep prices a benefit it actually simulates",
   "paired rooms + paired weekly luck; predicted opponent slates",

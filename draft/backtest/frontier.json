@@ -3,89 +3,89 @@
  "rooms": 150,
  "seed": 20260808,
  "control": {
-  "weekly_mean": 158.4,
-  "weekly_sd": 94.8
+  "weekly_mean": 83.4,
+  "weekly_sd": 54.5
  },
  "leaderboard": [
   {
-   "candidate": "late_l1.0",
-   "mean_edge": -12.5,
+   "candidate": "flat_l0.25",
+   "mean_edge": 586.83,
    "ci95": [
-    -30.67,
-    2.83
+    530.5,
+    642.17
    ],
-   "weekly_mean": 158.4,
-   "weekly_sd": 94.8,
-   "verdict": "parked: CI includes $0"
+   "weekly_mean": 114.6,
+   "weekly_sd": 69.4,
+   "verdict": "WINNER \u2014 install via the gates (slider change, cited)"
   },
   {
-   "candidate": "flat_l0.25",
-   "mean_edge": -18.5,
+   "candidate": "late_l1.0",
+   "mean_edge": 469.67,
    "ci95": [
-    -38.67,
-    2.17
+    413.33,
+    522.33
    ],
-   "weekly_mean": 158.0,
-   "weekly_sd": 94.8,
-   "verdict": "parked: CI includes $0"
+   "weekly_mean": 110.9,
+   "weekly_sd": 68.1,
+   "verdict": "WINNER \u2014 install via the gates (slider change, cited)"
   },
   {
    "candidate": "early_l1.0",
-   "mean_edge": -22.33,
+   "mean_edge": 318.5,
    "ci95": [
-    -41.67,
-    -2.5
+    267.5,
+    372.33
    ],
-   "weekly_mean": 158.3,
-   "weekly_sd": 94.8,
-   "verdict": "LOSER \u2014 significantly worse than the control"
+   "weekly_mean": 102.9,
+   "weekly_sd": 68.2,
+   "verdict": "WINNER \u2014 install via the gates (slider change, cited)"
   },
   {
    "candidate": "flat_l0.5",
-   "mean_edge": -181.17,
+   "mean_edge": 201.17,
    "ci95": [
-    -216.67,
-    -146.67
+    161.67,
+    244.83
    ],
-   "weekly_mean": 142.4,
-   "weekly_sd": 94.0,
-   "verdict": "LOSER \u2014 significantly worse than the control"
-  },
-  {
-   "candidate": "flat_l3.0",
-   "mean_edge": -199.33,
-   "ci95": [
-    -230.67,
-    -169.5
-   ],
-   "weekly_mean": 140.5,
-   "weekly_sd": 93.9,
-   "verdict": "LOSER \u2014 significantly worse than the control"
-  },
-  {
-   "candidate": "flat_l2.0",
-   "mean_edge": -206.5,
-   "ci95": [
-    -239.67,
-    -172.5
-   ],
-   "weekly_mean": 140.5,
-   "weekly_sd": 93.9,
-   "verdict": "LOSER \u2014 significantly worse than the control"
+   "weekly_mean": 97.6,
+   "weekly_sd": 68.2,
+   "verdict": "WINNER \u2014 install via the gates (slider change, cited)"
   },
   {
    "candidate": "flat_l1.0",
-   "mean_edge": -216.5,
+   "mean_edge": 111.33,
    "ci95": [
-    -254.33,
-    -182.5
+    77.83,
+    147.17
    ],
-   "weekly_mean": 140.5,
-   "weekly_sd": 93.9,
-   "verdict": "LOSER \u2014 significantly worse than the control"
+   "weekly_mean": 91.5,
+   "weekly_sd": 67.9,
+   "verdict": "WINNER \u2014 install via the gates (slider change, cited)"
+  },
+  {
+   "candidate": "flat_l2.0",
+   "mean_edge": 29.17,
+   "ci95": [
+    -0.67,
+    59.17
+   ],
+   "weekly_mean": 83.5,
+   "weekly_sd": 66.1,
+   "verdict": "parked: CI includes $0"
+  },
+  {
+   "candidate": "flat_l3.0",
+   "mean_edge": -23.0,
+   "ci95": [
+    -49.83,
+    0.83
+   ],
+   "weekly_mean": 77.2,
+   "weekly_sd": 69.1,
+   "verdict": "parked: CI includes $0"
   }
  ],
- "h1_high_variance_corner": false,
+ "h1_high_variance_corner": true,
  "caveats": [
   "v1 money proxy (proj-normal weeks, weekly-high+RS; playoff $ excluded)",
   "predicted opponent slates; paired rooms + paired weekly luck",

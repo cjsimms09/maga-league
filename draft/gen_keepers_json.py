@@ -49,6 +49,11 @@ import re
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 import sys
 sys.path.insert(0, os.path.join(ROOT, "draft"))
+# draft_has_started MOVED to config_schema (A, 2026-08-25): standing_check needs
+# the same predicate, and two copies of "has the draft happened" is how the
+# ninth caller gets written without one. Same reason as live_context.myKeepers.
+from config_schema import draft_has_started  # noqa: E402,F401
+
 MY_OWNER = "434915673219526656"
 _LEAGUE_ID = "1374848328470102016"
 
@@ -213,39 +218,6 @@ def build(cfg, art, hist, rosters=None):
     }
 
 
-def draft_has_started(cfg, now=None):
-    """Has this league's draft begun?
-
-    Read off `league_config.draft.start_date`/`start_time`/`tz` — a value Cory
-    RULED on 2026-08-18 and which `preserve_local_rulings` keeps across every
-    nightly rebuild, so it is durable in exactly the way a hardcoded date is not.
-
-    Returns None when the config does not say, and every caller below treats
-    None as "do not know" rather than as "no" — an absent answer must not
-    silently disable a guard.
-    """
-    d = (cfg.get("draft") or {})
-    date = d.get("start_date")
-    if not date:
-        return None
-    tzoff = {"CDT": -5, "CST": -6, "EDT": -4, "EST": -5,
-             "PDT": -7, "PST": -8, "UTC": 0}.get(str(d.get("tz") or "").upper())
-    hh, mm = 23, 59                       # unknown time -> end of the draft day,
-    t = str(d.get("start_time") or "")    # so we never call it started too early
-    m = re.match(r"(\d{1,2}):(\d{2})\s*([AP]M)?", t.strip(), re.I)
-    if m:
-        hh, mm = int(m.group(1)), int(m.group(2))
-        ap = (m.group(3) or "").upper()
-        if ap == "PM" and hh != 12:
-            hh += 12
-        elif ap == "AM" and hh == 12:
-            hh = 0
-    if tzoff is None:
-        return None
-    start = (datetime.datetime.fromisoformat(date)
-             .replace(hour=hh, minute=mm, tzinfo=datetime.timezone.utc)
-             - datetime.timedelta(hours=tzoff))
-    return (now or datetime.datetime.now(datetime.timezone.utc)) >= start
 
 
 def main(cfg=None, art=None, hist=None, rosters=None, dest=None, now=None):
