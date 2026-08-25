@@ -333,7 +333,14 @@ function runRoom(seed, armName) {
       t.roster.forEach(p => { posCounts[p.position] = (posCounts[p.position] || 0) + 1; });
       const chosen = AP.choosePick(armName, recs,
         { round, picksLeft: MY_PICKS.length - myPickIndex, posCounts,
-          planSlot: PLAN_SLOT[overall] || null, classOf: UC.classify });
+          planSlot: PLAN_SLOT[overall] || null, classOf: UC.classify,
+          /* P322: a deterministic per-pick stream for the constructed-null arm,
+           * derived PURELY from the room seed and the pick number. It draws
+           * NOTHING from `rng` on purpose — consuming from the shared stream
+           * would shift every later opponent pick and silently unpair this arm
+           * from the control, which is the failure the paired design exists to
+           * avoid. */
+          pickSeed: (seed * 2654435761 + overall) >>> 0 });
       if (chosen !== recs[0]) overlayDiverged++;
       const p = chosen.player;
       // The upside class of BOTH the taken player and the engine's own top

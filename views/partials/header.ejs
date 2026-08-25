@@ -98,6 +98,11 @@
   const _unread = typeof chatUnread !== 'undefined' ? chatUnread : 0;
   const _bets = typeof betsWaiting !== 'undefined' ? betsWaiting : 0;
   const _votes = typeof votesWaiting !== 'undefined' ? votesWaiting : 0;
+  // Money you owe (redesign rule 5, catalog item 19): one more actionable
+  // thing, folded into the same tab's badge as bets waiting rather than a
+  // second red dot on the same destination — the count is items needing
+  // action, not a dollar figure, matching every other badge on this bar.
+  const _owed = (typeof duesOwed !== 'undefined' && duesOwed) ? 1 : 0;
   // MEMBER-SITE PASS (2026-08-16): the phone tab bar is the season's shape now
   // — Office / Matchup / Scores / Finances / Locker. "Scores" (the whole
   // slate) replaces "Team" in the five: on a Sunday the league lives on the
@@ -130,7 +135,7 @@
     // the page it's most related to instead (Races/Pick'em on /scoreboard,
     // Watch on /matchup) so the top bar carries five destinations, not eight.
     { href: '/team',    label: 'My Team',       short: 'Team',    icon: '🏈', primary: true },
-    { href: '/bank',    label: 'League Finances', short: 'Finances', icon: '💰',  primary: true, badge: _bets },
+    { href: '/bank',    label: 'League Finances', short: 'Finances', icon: '💰',  primary: true, badge: _bets + _owed },
     { href: '/chat',    label: 'Locker Room',   short: 'Locker',  icon: '💬',  primary: true, badge: _unread },
     { href: '/draft',   label: 'Draft Spot',     short: 'Draft',   icon: '🎯',  match: '/draft' },
     { href: '/votes',   label: 'Voting Booth',  short: 'Votes',   icon: '🗳',  match: '/votes', badge: _votes },

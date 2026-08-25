@@ -125,7 +125,31 @@ def load_world():
                    # exact question ("is upside worth paying for?") this proxy
                    # was being asked, biased by the proxy itself.
                    "weekly_sd": k.get("weekly_sd") or 8.0}
-                  for k in board.get("kept_players", [])]
+                  # ⚠️ MY SEAT ONLY (A, 2026-08-25, register 329). This read
+                  # `kept_players` WHOLE, and the variable is called my_keepers
+                  # for a reason: line 207 seeds seat 0's roster from it. Until
+                  # the 2026-08-23 lock the board carried Cory's three; after it,
+                  # the league's twenty-three. So seat 0 started every simulated
+                  # room holding a 23-man roster belonging to ten managers.
+                  #
+                  # THAT DID NOT PRODUCE A WRONG NUMBER — IT DISABLED A GUARD,
+                  # which is worse. `test_the_control_NOW_fields_a_legal_lineup`
+                  # restores the original VORP-greedy defect and requires the
+                  # resulting lineups to be MOSTLY ILLEGAL (rate > 0.5); with a
+                  # near-full roster handed to it before a single pick, the
+                  # broken chooser fielded legally every time and the fail arm
+                  # measured 0.0. A gate tested against only one of its two
+                  # outcomes is not tested at all — that file's own words.
+                  #
+                  # SAFE FOR AVAILABILITY, MEASURED RATHER THAN ASSUMED: `pool`
+                  # is built from `board["players"]`, which post-lock is DISJOINT
+                  # from `kept_players` (0 of the 23 appear among the 597 priced
+                  # rows). So `kept_ids` was already a no-op for them and
+                  # narrowing this list cannot return anyone to the draftable
+                  # board.
+                  for k in board.get("kept_players", [])
+                  if int(k.get("team_slot", -1))
+                  == int((board.get("league") or {}).get("my_draft_slot", -2))]
     # Opponent predicted keepers, resolved onto the pool where possible.
     by_id = {p["player_id"]: p for p in pool}
     opp_keepers = {}

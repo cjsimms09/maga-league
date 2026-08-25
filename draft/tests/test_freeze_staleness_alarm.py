@@ -93,21 +93,68 @@ def _board(lock_passed):
 
 # ── CONTROL: the real artifacts are what the arms below imitate ─────────────
 
-def test_control_the_real_freeze_is_intact_and_the_check_is_quiet_today():
+def test_control_the_real_freeze_reports_the_state_THIS_WORLD_IS_IN():
+    """⚠️ THIS ASSERTED `quiet` AND IT FIRED FOR REAL (register 328).
+
+    Its own message said "if this fires, read it — it is the alarm doing its job,
+    not a broken test", and that is exactly what happened: the keeper lock passed
+    on 2026-08-21, the freeze was never re-taken, and the check escalated. Nobody
+    acted, the draft ran on 08-22, and the re-take window shut.
+
+    So this no longer pins one state. It asserts the state THIS WORLD IS
+    ACTUALLY IN, derived the same way the check derives it, and every branch is
+    named — because a control that only knows one world stops being a control the
+    moment the world moves.
+
+    ⚠️ AND `LOST` IS NOT A PASS. It records an irreversible loss that already
+    happened. It is asserted here so the loss stays VISIBLE and cannot be
+    quietly reverted to `quiet`, which would read as healthy."""
     row = SC.check_pre_draft_freeze()
-    assert row["state"] == "quiet", (
-        f"the real freeze is not quiet today: {row['detail']}. If this fires, "
-        "read it — it is the alarm doing its job, not a broken test."
-    )
-
-
-def test_control_the_real_board_still_reports_the_lock_as_not_passed():
-    """If this flips, the ESCALATE arm below is live for real."""
     slate = json.loads(BOARD.read_text()).get("keeper_slate") or {}
-    assert slate.get("keeper_lock_passed") is False, (
-        "the live board now says the keeper lock HAS passed — the freeze must "
-        "be re-taken and this test is telling you so"
-    )
+    locked = bool(slate.get("keeper_lock_passed"))
+    started = SC._draft_has_started()
+    doc = json.loads(FREEZE.read_text())
+    confirmed = doc.get("status") == "CONFIRMED"
+
+    if not locked or confirmed:
+        assert row["state"] == "quiet", (
+            f"lock passed={locked}, freeze confirmed={confirmed} — nothing is "
+            f"owed, so this must be quiet: {row['detail']}")
+    elif started:
+        assert row["state"] == "LOST", (
+            "the lock passed, the freeze is still not CONFIRMED, and the draft "
+            f"has run — the window is shut, so this must report the terminal "
+            f"loss rather than {row['state']}: {row['detail']}")
+        assert "cannot be reconstructed" in row["detail"], (
+            "a LOST row must say WHAT was lost, or it is just a mute")
+    else:
+        assert row["state"] == "ESCALATE", (
+            "the lock has passed, the freeze is provisional and the draft is "
+            f"still ahead — RE-TAKE IT, that is what this is for: {row['detail']}")
+
+
+def test_control_the_LIVE_BOARD_and_the_CHECK_agree_about_the_lock():
+    """This asserted `keeper_lock_passed is False` — a pin on the pre-lock world
+    that flipped on 2026-08-21 and then reported the flip as a failure.
+
+    What is worth controlling is not WHICH side of the lock we are on but that
+    the board and the check read it the SAME way. A disagreement there means the
+    alarm is judging a different world from the one Cory drafts in, and that is
+    the failure this file cannot afford."""
+    slate = json.loads(BOARD.read_text()).get("keeper_slate") or {}
+    locked = bool(slate.get("keeper_lock_passed"))
+    row = SC.check_pre_draft_freeze()
+    if not locked:
+        assert row["state"] in ("quiet", "BLIND"), (
+            f"the board says the lock has NOT passed, but the check reports "
+            f"{row['state']}: {row['detail']}")
+    else:
+        doc = json.loads(FREEZE.read_text())
+        if doc.get("status") != "CONFIRMED":
+            assert row["state"] in ("ESCALATE", "LOST"), (
+                f"the lock HAS passed and the freeze is {doc.get('status')}, so "
+                f"the check owes an escalation or a terminal loss, not "
+                f"{row['state']}")
 
 
 # ── THE ALARM FIRES. BREAK-FIRST. ──────────────────────────────────────────
@@ -149,9 +196,19 @@ def test_THE_PRODUCER_CAN_ACTUALLY_EMIT_CONFIRMED():
     from freeze_pre_draft import _slate_status
 
     live = json.loads(BOARD.read_text())["keeper_slate"]
-    assert _slate_status(live)[0] == "PROVISIONAL", (
-        "the live slate is not provisional any more — the freeze is due a re-take"
-    )
+
+    # ⚠️ THIS USED TO REQUIRE THE LIVE SLATE TO BE PROVISIONAL FIRST, and that
+    # requirement expired at the 2026-08-21 keeper lock (register 328). The
+    # question — "is CONFIRMED reachable at all?" — does not depend on which side
+    # of the lock today happens to fall on, and tying it to one side meant the
+    # test broke on exactly the transition it was written to survive.
+    #
+    # BOTH DIRECTIONS ARE NOW ASSERTED, which is strictly more than before: a
+    # producer stuck at CONFIRMED would have passed the old version.
+    provisional = dict(live, keeper_lock_passed=False)
+    assert _slate_status(provisional)[0] == "PROVISIONAL", (
+        "an unlocked slate does not read PROVISIONAL — the producer cannot "
+        "express the state the alarm exists to catch")
 
     locked = dict(live, keeper_lock_passed=True, safe_to_treat_as_truth=True,
                   mismatches=[], teams_designated=live.get("teams_expected"))
@@ -181,17 +238,40 @@ def test_each_confirmation_condition_is_independently_load_bearing(broken, why):
     assert _slate_status(dict(good, **broken))[0] == "PROVISIONAL", why
 
 
-def test_the_provisional_reason_says_WHICH_condition_failed():
+def test_the_slate_status_reason_is_SPECIFIC_whichever_way_it_lands():
     """"Provisional" alone tells January nothing about what it was provisional
-    ABOUT, which is the difference between a caveat and a label."""
+    ABOUT, which is the difference between a caveat and a label. THAT is what
+    this test is for, and it survives.
+
+    ⚠️ WHAT DID NOT SURVIVE was pinning WHICH condition. It asserted
+    `"keeper lock has not passed" in reason` — true until the lock passed on
+    2026-08-21, after which the live slate returns CONFIRMED and the assertion
+    reported a normal transition as a failure. The specificity requirement is
+    the invariant; the particular condition was incidental to the date it was
+    written on."""
     sys.path.insert(0, str(ROOT / "draft"))
     from freeze_pre_draft import _slate_status
 
     live = json.loads(BOARD.read_text())["keeper_slate"]
-    reason = _slate_status(live)[1]
-    assert "keeper lock has not passed" in reason, reason
-    # The slate's OWN words, so the two cannot drift apart.
-    assert (live.get("reason") or "")[:20] in reason, reason
+    status, reason = _slate_status(live)[:2]
+    assert reason and len(reason) > 40, (
+        f"{status} with a reason of {len(reason or '')} chars — a label, not an "
+        "explanation")
+    # Whichever way it lands, the reason must NAME the conditions it turned on.
+    named = [w for w in ("keeper lock", "designat", "placement", "truth")
+             if w in reason]
+    assert len(named) >= 2, (
+        f"the {status} reason names {named} — it has to say which conditions "
+        f"decided it, or January cannot tell a caveat from a label: {reason}")
+
+    if status == "PROVISIONAL":
+        # The slate's OWN words, so the two cannot drift apart. Scoped to this
+        # branch deliberately: on the PROVISIONAL path the slate's `reason` is
+        # the explanation of the failure and must be carried through verbatim.
+        # On the CONFIRMED path the producer composes its own summary from the
+        # conditions that HELD, which is a different sentence by design and does
+        # not quote the slate.
+        assert (live.get("reason") or "")[:20] in reason, reason
 
 
 def test_drift_alone_never_escalates(tmp_path, monkeypatch):

@@ -1,44 +1,44 @@
 "player","team","pass_att","pass_comp","pass_yds","pass_tds","pass_int","rush_att","rush_yds","rush_tds","fumbles_lost","site_pts","src_id","data_src","pos","id","source","position_asked","rec","rec_yds","rec_tds","fg","fg_att","xp","dst_sacks","dst_int","dst_fum_rec","dst_fum_force","dst_td","dst_safety","dst_pts_allowed","dst_yds_allowed","bye","fg_pct","xp_att","dst_pass_yds_g","dst_rush_yds_g","dst_ret_tds"
-"Josh Allen","BUF",491.9,333.4,3816.8,27.4,11.2,118.1,586,11.8,4.1,372.5,"17298","FantasyPros","QB","13589","FantasyPros","QB",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Josh Allen","BUF",491.9,333.4,3817.1,27.4,11.2,118.1,586,11.8,4.1,372.5,"17298","FantasyPros","QB","13589","FantasyPros","QB",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Lamar Jackson","BAL",448.9,291.9,3652.5,28.3,9.6,118.4,639.7,3.2,4.2,324.9,"17233","FantasyPros","QB","13593","FantasyPros","QB",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"Drake Maye","NE",499.5,343.3,4027,28,10.4,99.3,493,3.7,5.6,323,"23046","FantasyPros","QB","16580","FantasyPros","QB",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Drake Maye","NE",499.5,343,4026.7,28,10.4,99.3,493,3.7,5.6,322.9,"23046","FantasyPros","QB","16580","FantasyPros","QB",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Jayden Daniels","WAS",492.8,322.3,3681.6,23.8,11,130,685.3,4.7,2.8,322.5,"22902","FantasyPros","QB","16581","FantasyPros","QB",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Jalen Hurts","PHI",488,317.2,3569.9,24.2,7.4,111.8,461.3,8.4,4,320.5,"19275","FantasyPros","QB","14783","FantasyPros","QB",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Joe Burrow","CIN",591,395.4,4175,33.3,11.6,48.2,178.6,1.4,1.9,310.9,"19196","FantasyPros","QB","14777","FantasyPros","QB",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Jaxson Dart","NYG",510,324.7,3591.5,22.3,11.1,100.9,549.1,6.5,2.9,309.9,"23160","FantasyPros","QB","17032","FantasyPros","QB",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"Brock Purdy","SF",547.5,369.6,4156.9,27.7,14.3,70.5,304.1,3.8,4.3,307.5,"19797","FantasyPros","QB","15698","FantasyPros","QB",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Brock Purdy","SF",547.5,369.6,4157.9,27.7,14.3,70.5,304.1,3.8,4.3,307.5,"19797","FantasyPros","QB","15698","FantasyPros","QB",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Trevor Lawrence","JAC",546,336.1,3908.5,27,13,72.5,321.9,4.9,3.4,306.2,"19780","FantasyPros","QB","15237","FantasyPros","QB",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Dak Prescott","DAL",581.4,384.1,4291.9,30.9,11.3,49.1,173.4,1.7,2.8,306.2,"15600","FantasyPros","QB","12620","FantasyPros","QB",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Jahmyr Gibbs","DET",NA,NA,NA,NA,NA,274.4,1381.2,13.8,1.1,337.2,"22968","FantasyPros","RB","16162","FantasyPros","RB",71.3,580.6,4.1,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Bijan Robinson","ATL",NA,NA,NA,NA,NA,289.5,1426.1,9.5,1.8,329.9,"23133","FantasyPros","RB","16161","FantasyPros","RB",79.3,735.9,3.5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"Christian McCaffrey","SF",NA,NA,NA,NA,NA,269.4,1093.6,8.7,1.1,295.6,"16393","FantasyPros","RB","13130","FantasyPros","RB",78.4,694,4.6,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Christian McCaffrey","SF",NA,NA,NA,NA,NA,269.4,1093.6,8.7,1.1,295.5,"16393","FantasyPros","RB","13130","FantasyPros","RB",78.4,693,4.6,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Jonathan Taylor","IND",NA,NA,NA,NA,NA,326.6,1504.6,12.9,1.7,288.7,"19217","FantasyPros","RB","14802","FantasyPros","RB",42.9,341.5,1.5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Derrick Henry","BAL",NA,NA,NA,NA,NA,314,1568.5,13.4,1.7,264.6,"15514","FantasyPros","RB","12626","FantasyPros","RB",18.1,175.1,0.7,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"De'Von Achane","MIA",NA,NA,NA,NA,NA,238.3,1199.8,6,1,259.7,"23136","FantasyPros","RB","16167","FantasyPros","RB",65.3,491.1,4,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"James Cook III","BUF",NA,NA,NA,NA,NA,287.7,1404.7,10.3,2.4,253.9,"22958","FantasyPros","RB","15715","FantasyPros","RB",33.3,283.7,1.9,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"Ashton Jeanty","LV",NA,NA,NA,NA,NA,281,1105.2,8,1.1,247.3,"25989","FantasyPros","RB","17042","FantasyPros","RB",58.7,414.6,3.3,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"De'Von Achane","MIA",NA,NA,NA,NA,NA,238.3,1199.8,6,1,259.7,"23136","FantasyPros","RB","16167","FantasyPros","RB",65.3,490.7,4,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"James Cook III","BUF",NA,NA,NA,NA,NA,287.7,1405.1,10.3,2.4,253.9,"22958","FantasyPros","RB","15715","FantasyPros","RB",33.3,283.7,1.9,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Chase Brown","CIN",NA,NA,NA,NA,NA,238.5,1036.8,7.8,1.1,246.6,"25324","FantasyPros","RB","16181","FantasyPros","RB",63.8,427.6,4,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Saquon Barkley","PHI",NA,NA,NA,NA,NA,295.8,1299.1,8.2,1,243.8,"17240","FantasyPros","RB","13604","FantasyPros","RB",41.7,330.4,2.1,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"Puka Nacua","LAR",NA,NA,NA,NA,NA,13.6,95.6,1.4,1,294.5,"23180","FantasyPros","WR","16211","FantasyPros","WR",122.6,1617.5,9.2,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Kenneth Walker III","KC",NA,NA,NA,NA,NA,262.5,1191.4,8.7,0.9,235.1,"23021","FantasyPros","RB","15711","FantasyPros","RB",45.8,352.8,1.2,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Puka Nacua","LAR",NA,NA,NA,NA,NA,13.6,95.6,1.4,1,294.4,"23180","FantasyPros","WR","16211","FantasyPros","WR",122.6,1617.1,9.2,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Ja'Marr Chase","CIN",NA,NA,NA,NA,NA,3,17,0,1,275.4,"19788","FantasyPros","WR","15281","FantasyPros","WR",121.2,1511.6,10.6,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"Jaxon Smith-Njigba","SEA",NA,NA,NA,NA,NA,5.5,30.4,0.1,1.1,270.7,"23070","FantasyPros","WR","16185","FantasyPros","WR",110.9,1569.4,9.5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Jaxon Smith-Njigba","SEA",NA,NA,NA,NA,NA,5.5,30.4,0.1,1.1,270.7,"23070","FantasyPros","WR","16185","FantasyPros","WR",110.9,1569.7,9.5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Amon-Ra St. Brown","DET",NA,NA,NA,NA,NA,3.1,11.8,0,0.4,261.1,"19799","FantasyPros","WR","15287","FantasyPros","WR",117.4,1390.2,10.5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Drake London","ATL",NA,NA,NA,NA,NA,0,0,0,1,236.2,"23163","FantasyPros","WR","15751","FantasyPros","WR",101.7,1327.6,9.1,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"Rashee Rice","KC",NA,NA,NA,NA,NA,5.4,25.6,0.9,0.6,224.5,"23113","FantasyPros","WR","16194","FantasyPros","WR",99.1,1100.6,9.7,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Rashee Rice","KC",NA,NA,NA,NA,NA,5.4,25.6,0.9,0.6,224.5,"23113","FantasyPros","WR","16194","FantasyPros","WR",99.1,1101,9.7,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "CeeDee Lamb","DAL",NA,NA,NA,NA,NA,2.4,12.6,0,0.3,224.3,"19202","FantasyPros","WR","14832","FantasyPros","WR",97.5,1295.8,7.5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Justin Jefferson","MIN",NA,NA,NA,NA,NA,1.3,5.5,0,0.3,223.2,"19236","FantasyPros","WR","14836","FantasyPros","WR",98.6,1310.9,7.1,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"Chris Olave","NO",NA,NA,NA,NA,NA,0.3,0,0,0.3,213.9,"20111","FantasyPros","WR","15754","FantasyPros","WR",95.4,1195.2,7.9,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"A.J. Brown","NE",NA,NA,NA,NA,NA,0,0,0,0.3,211.3,"18218","FantasyPros","WR","14104","FantasyPros","WR",87.7,1221.4,7.7,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"Trey McBride","ARI",NA,NA,NA,NA,NA,NA,NA,NA,0.2,199.8,"22936","FantasyPros","TE","15794","FantasyPros","TE",108.9,1051.1,6.8,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"Brock Bowers","LV",NA,NA,NA,NA,NA,NA,NA,NA,0.2,195.8,"22955","FantasyPros","TE","16641","FantasyPros","TE",96.6,1026.9,7.5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Chris Olave","NO",NA,NA,NA,NA,NA,0.3,0,0,0.3,213.9,"20111","FantasyPros","WR","15754","FantasyPros","WR",95.4,1195.5,7.9,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"A.J. Brown","NE",NA,NA,NA,NA,NA,0,0,0,0.3,211.3,"18218","FantasyPros","WR","14104","FantasyPros","WR",87.7,1221.7,7.7,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Trey McBride","ARI",NA,NA,NA,NA,NA,NA,NA,NA,0.2,199.8,"22936","FantasyPros","TE","15794","FantasyPros","TE",108.9,1050.8,6.8,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Brock Bowers","LV",NA,NA,NA,NA,NA,NA,NA,NA,0.2,195.5,"22955","FantasyPros","TE","16641","FantasyPros","TE",97,1022.9,7.5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Colston Loveland","CHI",NA,NA,NA,NA,NA,NA,NA,NA,0.2,171.9,"26006","FantasyPros","TE","17104","FantasyPros","TE",79.1,927.5,6.7,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Tyler Warren","IND",NA,NA,NA,NA,NA,NA,NA,NA,0.3,159.7,"26434","FantasyPros","TE","17102","FantasyPros","TE",79,878.1,5.5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Kyle Pitts Sr.","ATL",NA,NA,NA,NA,NA,NA,NA,NA,0.1,155.9,"20164","FantasyPros","TE","15329","FantasyPros","TE",79.5,880.9,4.7,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"Harold Fannin Jr.","CLE",NA,NA,NA,NA,NA,NA,NA,NA,0.8,151.8,"27050","FantasyPros","TE","17103","FantasyPros","TE",78.7,816.7,5.4,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Harold Fannin Jr.","CLE",NA,NA,NA,NA,NA,NA,NA,NA,0.8,152.3,"27050","FantasyPros","TE","17103","FantasyPros","TE",79.7,816.7,5.4,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Tucker Kraft","GB",NA,NA,NA,NA,NA,NA,NA,NA,0.2,147.7,"25298","FantasyPros","TE","16222","FantasyPros","TE",61.5,785.8,6.5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"George Kittle","SF",NA,NA,NA,NA,NA,NA,NA,NA,0.2,147.1,"16499","FantasyPros","TE","13299","FantasyPros","TE",67.9,771.4,6.1,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Dallas Goedert","PHI",NA,NA,NA,NA,NA,NA,NA,NA,0.2,146.7,"17270","FantasyPros","TE","13674","FantasyPros","TE",65.5,688.9,7.6,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Sam LaPorta","DET",NA,NA,NA,NA,NA,NA,NA,NA,0.2,145.3,"22978","FantasyPros","TE","16214","FantasyPros","TE",68.4,787.5,5.5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"Travis Kelce","KC",NA,NA,NA,NA,NA,NA,NA,NA,0.3,144.6,"11594","FantasyPros","TE","11244","FantasyPros","TE",74.9,785.4,4.8,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Brandon Aubrey","DAL",NA,NA,NA,NA,NA,NA,NA,NA,NA,153,"26068","FantasyPros","K","16414","FantasyPros","K",NA,NA,NA,35.2,39.5,47.6,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Jason Myers","SEA",NA,NA,NA,NA,NA,NA,NA,NA,NA,150.4,"14003","FantasyPros","K","12437","FantasyPros","K",NA,NA,NA,34.7,40,46.3,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Ka'imi Fairbairn","HOU",NA,NA,NA,NA,NA,NA,NA,NA,NA,144.1,"15756","FantasyPros","K","12860","FantasyPros","K",NA,NA,NA,36.3,40.5,35.2,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
@@ -50,14 +50,14 @@
 "Chase McLaughlin","TB",NA,NA,NA,NA,NA,NA,NA,NA,NA,132.9,"19058","FantasyPros","K","14717","FantasyPros","K",NA,NA,NA,31.5,36.5,38.3,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Eddy Pineiro","SF",NA,NA,NA,NA,NA,NA,NA,NA,NA,132.6,"17575","FantasyPros","K","13719","FantasyPros","K",NA,NA,NA,31,34.7,39.5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Houston Texans",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,120.4,"8120","FantasyPros","DST","0532","FantasyPros","DST",NA,NA,NA,NA,NA,NA,49.5,14.4,11.6,18.3,2.8,1,322.1,5053.9,NA,NA,NA,NA,NA,NA
-"Denver Broncos",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,118.3,"8090","FantasyPros","DST","0511","FantasyPros","DST",NA,NA,NA,NA,NA,NA,59.8,13.3,8.3,12.3,2.4,0.5,319.3,4842.5,NA,NA,NA,NA,NA,NA
+"Denver Broncos",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,118.3,"8090","FantasyPros","DST","0511","FantasyPros","DST",NA,NA,NA,NA,NA,NA,59.8,13.3,8.3,12.3,2.4,0.5,318.9,4840.5,NA,NA,NA,NA,NA,NA
 "Minnesota Vikings",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,112.8,"8170","FantasyPros","DST","0524","FantasyPros","DST",NA,NA,NA,NA,NA,NA,49.3,12.6,12.1,18.1,2.4,0,360.8,5300.6,NA,NA,NA,NA,NA,NA
 "Pittsburgh Steelers",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,111.9,"8240","FantasyPros","DST","0510","FantasyPros","DST",NA,NA,NA,NA,NA,NA,46,13.2,12.5,18.7,2.4,0,347.4,5440.8,NA,NA,NA,NA,NA,NA
-"Seattle Seahawks",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,110.9,"8260","FantasyPros","DST","0515","FantasyPros","DST",NA,NA,NA,NA,NA,NA,46.5,13.6,8.4,13.5,3.2,0.5,314.4,5108.1,NA,NA,NA,NA,NA,NA
-"Los Angeles Chargers",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,108.6,"8250","FantasyPros","DST","0514","FantasyPros","DST",NA,NA,NA,NA,NA,NA,48.8,15.3,8.7,12.6,2,0,366.9,5473.9,NA,NA,NA,NA,NA,NA
-"Los Angeles Rams",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,107.3,"8280","FantasyPros","DST","0528","FantasyPros","DST",NA,NA,NA,NA,NA,NA,46.5,13.4,9.5,14.5,2.3,0.5,347.2,5237.9,NA,NA,NA,NA,NA,NA
+"Seattle Seahawks",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,110.9,"8260","FantasyPros","DST","0515","FantasyPros","DST",NA,NA,NA,NA,NA,NA,46.5,13.6,8.4,13.5,3.2,0.5,314,5106.1,NA,NA,NA,NA,NA,NA
+"Los Angeles Chargers",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,108.6,"8250","FantasyPros","DST","0514","FantasyPros","DST",NA,NA,NA,NA,NA,NA,48.9,15.3,8.7,12.6,2,0,366.2,5470.9,NA,NA,NA,NA,NA,NA
+"Los Angeles Rams",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,107.3,"8280","FantasyPros","DST","0528","FantasyPros","DST",NA,NA,NA,NA,NA,NA,46.5,13.4,9.5,14.5,2.3,0.5,347.2,5237.4,NA,NA,NA,NA,NA,NA
 "Detroit Lions",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,106.8,"8100","FantasyPros","DST","0522","FantasyPros","DST",NA,NA,NA,NA,NA,NA,48,13.4,9,13.9,2.2,0.5,374.9,5456.5,NA,NA,NA,NA,NA,NA
-"Buffalo Bills",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,106.6,"8030","FantasyPros","DST","0501","FantasyPros","DST",NA,NA,NA,NA,NA,NA,42.7,14.6,9.6,12.7,2.4,0.5,393,5726.1,NA,NA,NA,NA,NA,NA
+"Buffalo Bills",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,106.6,"8030","FantasyPros","DST","0501","FantasyPros","DST",NA,NA,NA,NA,NA,NA,42.7,14.6,9.6,12.7,2.4,0.5,392.7,5724.6,NA,NA,NA,NA,NA,NA
 "Philadelphia Eagles",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,102.6,"8230","FantasyPros","DST","0518","FantasyPros","DST",NA,NA,NA,NA,NA,NA,42.5,13,10,14.4,2.4,0,323.6,5266,NA,NA,NA,NA,NA,NA
 "Josh Allen","BUF",479,326,3787,26,9,113,567,12,NA,422.1,"16228","FFToday","QB","13589","FFToday","QB",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,7,NA,NA,NA,NA,NA
 "Drake Maye","NE",505,348,4140,29,9,96,433,3,NA,384.3,"19046","FFToday","QB","16580","FFToday","QB",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,11,NA,NA,NA,NA,NA
@@ -447,46 +447,46 @@ NA,"Carolina Panthers",NA,NA,NA,NA,NA,NA,NA,NA,NA,77,"9028","FFToday","DST","052
 NA,"New York Jets",NA,NA,NA,NA,NA,NA,NA,NA,NA,75,"9004","FFToday","DST","0505","FFToday","DST",NA,NA,NA,NA,NA,NA,37,8,7,NA,0,1,435,NA,13,NA,NA,246.6,137.9,1
 NA,"Las Vegas Raiders",NA,NA,NA,NA,NA,NA,NA,NA,NA,75,"9011","FFToday","DST","0513","FFToday","DST",NA,NA,NA,NA,NA,NA,37,9,6,NA,1,1,431,NA,13,NA,NA,229.1,124.7,0
 NA,"Miami Dolphins",NA,NA,NA,NA,NA,NA,NA,NA,NA,71,"9002","FFToday","DST","0503","FFToday","DST",NA,NA,NA,NA,NA,NA,37,9,8,NA,0,0,417,NA,6,NA,NA,240,136.1,0
-"Josh Allen","BUF",491.9,333.4,3816.8,27.4,11.2,118.1,586,11.8,4.1,372.5,"17298","FantasyPros","QB","13589","Walterfootball","QB",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Josh Allen","BUF",491.9,333.4,3817.1,27.4,11.2,118.1,586,11.8,4.1,372.5,"17298","FantasyPros","QB","13589","Walterfootball","QB",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Lamar Jackson","BAL",448.9,291.9,3652.5,28.3,9.6,118.4,639.7,3.2,4.2,324.9,"17233","FantasyPros","QB","13593","Walterfootball","QB",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"Drake Maye","NE",499.5,343.3,4027,28,10.4,99.3,493,3.7,5.6,323,"23046","FantasyPros","QB","16580","Walterfootball","QB",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Drake Maye","NE",499.5,343,4026.7,28,10.4,99.3,493,3.7,5.6,322.9,"23046","FantasyPros","QB","16580","Walterfootball","QB",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Jayden Daniels","WAS",492.8,322.3,3681.6,23.8,11,130,685.3,4.7,2.8,322.5,"22902","FantasyPros","QB","16581","Walterfootball","QB",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Jalen Hurts","PHI",488,317.2,3569.9,24.2,7.4,111.8,461.3,8.4,4,320.5,"19275","FantasyPros","QB","14783","Walterfootball","QB",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Joe Burrow","CIN",591,395.4,4175,33.3,11.6,48.2,178.6,1.4,1.9,310.9,"19196","FantasyPros","QB","14777","Walterfootball","QB",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Jaxson Dart","NYG",510,324.7,3591.5,22.3,11.1,100.9,549.1,6.5,2.9,309.9,"23160","FantasyPros","QB","17032","Walterfootball","QB",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"Brock Purdy","SF",547.5,369.6,4156.9,27.7,14.3,70.5,304.1,3.8,4.3,307.5,"19797","FantasyPros","QB","15698","Walterfootball","QB",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Brock Purdy","SF",547.5,369.6,4157.9,27.7,14.3,70.5,304.1,3.8,4.3,307.5,"19797","FantasyPros","QB","15698","Walterfootball","QB",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Trevor Lawrence","JAC",546,336.1,3908.5,27,13,72.5,321.9,4.9,3.4,306.2,"19780","FantasyPros","QB","15237","Walterfootball","QB",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Dak Prescott","DAL",581.4,384.1,4291.9,30.9,11.3,49.1,173.4,1.7,2.8,306.2,"15600","FantasyPros","QB","12620","Walterfootball","QB",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Jahmyr Gibbs","DET",NA,NA,NA,NA,NA,274.4,1381.2,13.8,1.1,337.2,"22968","FantasyPros","RB","16162","Walterfootball","RB",71.3,580.6,4.1,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Bijan Robinson","ATL",NA,NA,NA,NA,NA,289.5,1426.1,9.5,1.8,329.9,"23133","FantasyPros","RB","16161","Walterfootball","RB",79.3,735.9,3.5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"Christian McCaffrey","SF",NA,NA,NA,NA,NA,269.4,1093.6,8.7,1.1,295.6,"16393","FantasyPros","RB","13130","Walterfootball","RB",78.4,694,4.6,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Christian McCaffrey","SF",NA,NA,NA,NA,NA,269.4,1093.6,8.7,1.1,295.5,"16393","FantasyPros","RB","13130","Walterfootball","RB",78.4,693,4.6,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Jonathan Taylor","IND",NA,NA,NA,NA,NA,326.6,1504.6,12.9,1.7,288.7,"19217","FantasyPros","RB","14802","Walterfootball","RB",42.9,341.5,1.5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Derrick Henry","BAL",NA,NA,NA,NA,NA,314,1568.5,13.4,1.7,264.6,"15514","FantasyPros","RB","12626","Walterfootball","RB",18.1,175.1,0.7,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"De'Von Achane","MIA",NA,NA,NA,NA,NA,238.3,1199.8,6,1,259.7,"23136","FantasyPros","RB","16167","Walterfootball","RB",65.3,491.1,4,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"James Cook III","BUF",NA,NA,NA,NA,NA,287.7,1404.7,10.3,2.4,253.9,"22958","FantasyPros","RB","15715","Walterfootball","RB",33.3,283.7,1.9,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"Ashton Jeanty","LV",NA,NA,NA,NA,NA,281,1105.2,8,1.1,247.3,"25989","FantasyPros","RB","17042","Walterfootball","RB",58.7,414.6,3.3,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"De'Von Achane","MIA",NA,NA,NA,NA,NA,238.3,1199.8,6,1,259.7,"23136","FantasyPros","RB","16167","Walterfootball","RB",65.3,490.7,4,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"James Cook III","BUF",NA,NA,NA,NA,NA,287.7,1405.1,10.3,2.4,253.9,"22958","FantasyPros","RB","15715","Walterfootball","RB",33.3,283.7,1.9,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Chase Brown","CIN",NA,NA,NA,NA,NA,238.5,1036.8,7.8,1.1,246.6,"25324","FantasyPros","RB","16181","Walterfootball","RB",63.8,427.6,4,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Saquon Barkley","PHI",NA,NA,NA,NA,NA,295.8,1299.1,8.2,1,243.8,"17240","FantasyPros","RB","13604","Walterfootball","RB",41.7,330.4,2.1,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"Puka Nacua","LAR",NA,NA,NA,NA,NA,13.6,95.6,1.4,1,294.5,"23180","FantasyPros","WR","16211","Walterfootball","WR",122.6,1617.5,9.2,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Kenneth Walker III","KC",NA,NA,NA,NA,NA,262.5,1191.4,8.7,0.9,235.1,"23021","FantasyPros","RB","15711","Walterfootball","RB",45.8,352.8,1.2,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Puka Nacua","LAR",NA,NA,NA,NA,NA,13.6,95.6,1.4,1,294.4,"23180","FantasyPros","WR","16211","Walterfootball","WR",122.6,1617.1,9.2,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Ja'Marr Chase","CIN",NA,NA,NA,NA,NA,3,17,0,1,275.4,"19788","FantasyPros","WR","15281","Walterfootball","WR",121.2,1511.6,10.6,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"Jaxon Smith-Njigba","SEA",NA,NA,NA,NA,NA,5.5,30.4,0.1,1.1,270.7,"23070","FantasyPros","WR","16185","Walterfootball","WR",110.9,1569.4,9.5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Jaxon Smith-Njigba","SEA",NA,NA,NA,NA,NA,5.5,30.4,0.1,1.1,270.7,"23070","FantasyPros","WR","16185","Walterfootball","WR",110.9,1569.7,9.5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Amon-Ra St. Brown","DET",NA,NA,NA,NA,NA,3.1,11.8,0,0.4,261.1,"19799","FantasyPros","WR","15287","Walterfootball","WR",117.4,1390.2,10.5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Drake London","ATL",NA,NA,NA,NA,NA,0,0,0,1,236.2,"23163","FantasyPros","WR","15751","Walterfootball","WR",101.7,1327.6,9.1,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"Rashee Rice","KC",NA,NA,NA,NA,NA,5.4,25.6,0.9,0.6,224.5,"23113","FantasyPros","WR","16194","Walterfootball","WR",99.1,1100.6,9.7,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Rashee Rice","KC",NA,NA,NA,NA,NA,5.4,25.6,0.9,0.6,224.5,"23113","FantasyPros","WR","16194","Walterfootball","WR",99.1,1101,9.7,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "CeeDee Lamb","DAL",NA,NA,NA,NA,NA,2.4,12.6,0,0.3,224.3,"19202","FantasyPros","WR","14832","Walterfootball","WR",97.5,1295.8,7.5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Justin Jefferson","MIN",NA,NA,NA,NA,NA,1.3,5.5,0,0.3,223.2,"19236","FantasyPros","WR","14836","Walterfootball","WR",98.6,1310.9,7.1,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"Chris Olave","NO",NA,NA,NA,NA,NA,0.3,0,0,0.3,213.9,"20111","FantasyPros","WR","15754","Walterfootball","WR",95.4,1195.2,7.9,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"A.J. Brown","NE",NA,NA,NA,NA,NA,0,0,0,0.3,211.3,"18218","FantasyPros","WR","14104","Walterfootball","WR",87.7,1221.4,7.7,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"Trey McBride","ARI",NA,NA,NA,NA,NA,NA,NA,NA,0.2,199.8,"22936","FantasyPros","TE","15794","Walterfootball","TE",108.9,1051.1,6.8,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"Brock Bowers","LV",NA,NA,NA,NA,NA,NA,NA,NA,0.2,195.8,"22955","FantasyPros","TE","16641","Walterfootball","TE",96.6,1026.9,7.5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Chris Olave","NO",NA,NA,NA,NA,NA,0.3,0,0,0.3,213.9,"20111","FantasyPros","WR","15754","Walterfootball","WR",95.4,1195.5,7.9,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"A.J. Brown","NE",NA,NA,NA,NA,NA,0,0,0,0.3,211.3,"18218","FantasyPros","WR","14104","Walterfootball","WR",87.7,1221.7,7.7,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Trey McBride","ARI",NA,NA,NA,NA,NA,NA,NA,NA,0.2,199.8,"22936","FantasyPros","TE","15794","Walterfootball","TE",108.9,1050.8,6.8,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Brock Bowers","LV",NA,NA,NA,NA,NA,NA,NA,NA,0.2,195.5,"22955","FantasyPros","TE","16641","Walterfootball","TE",97,1022.9,7.5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Colston Loveland","CHI",NA,NA,NA,NA,NA,NA,NA,NA,0.2,171.9,"26006","FantasyPros","TE","17104","Walterfootball","TE",79.1,927.5,6.7,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Tyler Warren","IND",NA,NA,NA,NA,NA,NA,NA,NA,0.3,159.7,"26434","FantasyPros","TE","17102","Walterfootball","TE",79,878.1,5.5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Kyle Pitts Sr.","ATL",NA,NA,NA,NA,NA,NA,NA,NA,0.1,155.9,"20164","FantasyPros","TE","15329","Walterfootball","TE",79.5,880.9,4.7,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"Harold Fannin Jr.","CLE",NA,NA,NA,NA,NA,NA,NA,NA,0.8,151.8,"27050","FantasyPros","TE","17103","Walterfootball","TE",78.7,816.7,5.4,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Harold Fannin Jr.","CLE",NA,NA,NA,NA,NA,NA,NA,NA,0.8,152.3,"27050","FantasyPros","TE","17103","Walterfootball","TE",79.7,816.7,5.4,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Tucker Kraft","GB",NA,NA,NA,NA,NA,NA,NA,NA,0.2,147.7,"25298","FantasyPros","TE","16222","Walterfootball","TE",61.5,785.8,6.5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"George Kittle","SF",NA,NA,NA,NA,NA,NA,NA,NA,0.2,147.1,"16499","FantasyPros","TE","13299","Walterfootball","TE",67.9,771.4,6.1,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Dallas Goedert","PHI",NA,NA,NA,NA,NA,NA,NA,NA,0.2,146.7,"17270","FantasyPros","TE","13674","Walterfootball","TE",65.5,688.9,7.6,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Sam LaPorta","DET",NA,NA,NA,NA,NA,NA,NA,NA,0.2,145.3,"22978","FantasyPros","TE","16214","Walterfootball","TE",68.4,787.5,5.5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"Travis Kelce","KC",NA,NA,NA,NA,NA,NA,NA,NA,0.3,144.6,"11594","FantasyPros","TE","11244","Walterfootball","TE",74.9,785.4,4.8,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Brandon Aubrey","DAL",NA,NA,NA,NA,NA,NA,NA,NA,NA,153,"26068","FantasyPros","K","16414","Walterfootball","K",NA,NA,NA,35.2,39.5,47.6,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Jason Myers","SEA",NA,NA,NA,NA,NA,NA,NA,NA,NA,150.4,"14003","FantasyPros","K","12437","Walterfootball","K",NA,NA,NA,34.7,40,46.3,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Ka'imi Fairbairn","HOU",NA,NA,NA,NA,NA,NA,NA,NA,NA,144.1,"15756","FantasyPros","K","12860","Walterfootball","K",NA,NA,NA,36.3,40.5,35.2,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA

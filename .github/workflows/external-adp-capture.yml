@@ -438,7 +438,38 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Commit the day's snapshot
-        if: steps.cap.outcome == 'success'
+        # ⚠️ `always() &&` IS LOAD-BEARING AND WAS MISSING (A, 2026-08-25).
+        #
+        # A plain `if:` gets an implicit `success()` ANDed by GitHub, so this
+        # step is skipped the moment ANY earlier step fails — even though its own
+        # condition, "the capture worked", is true.
+        #
+        # MEASURED on run 19 (32723706707, 2026-08-24), from the step
+        # conclusions rather than the log:
+        #     4  Capture today's board                SUCCESS   (617 rows)
+        #     5  Report coverage ...                  FAILURE
+        #     6  Commit the day's snapshot            SKIPPED
+        #
+        # So the COVERAGE REPORT killed the COMMIT. The board was fetched
+        # successfully and the snapshot was thrown away because a REPORT ABOUT
+        # THE GAP failed.
+        #
+        # AND IT IS SELF-PERPETUATING, which is why seven days are gone rather
+        # than one: a gap makes the report fail, the failed report skips the
+        # commit, and the skipped commit guarantees the gap is still there
+        # tomorrow. `external_adp_series.json` last landed 2026-08-17; every run
+        # since has fetched a real board and discarded it.
+        #
+        # THIS FILE ALREADY KNOWS THIS LESSON TWICE. The comments below record
+        # fixing exactly this shape for the PIN ("THE PIN MUST NOT BE ABLE TO
+        # KILL THE SNAPSHOT") and for the GAP ALARM ("PRESERVE BEFORE YOU ALARM.
+        # ... the snapshot is committed and pushed, and THEN the run goes red").
+        # The same defect walked back in through the coverage reporter, which
+        # sits between the capture and the commit.
+        #
+        # NO ALARM IS WEAKENED. Step 5 still fails, the gap escalation still
+        # fails, and the job still goes red — the snapshot just survives it.
+        if: always() && steps.cap.outcome == 'success'
         run: |
           # PIN THE BOARD (C). The oracle-capture series gets a TOOL ARM from 2026
           # onward and only if the board the tool used is recoverable. Git already

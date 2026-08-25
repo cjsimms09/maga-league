@@ -67,7 +67,11 @@ function run() {
     if (!(pts > 0)) { oppMean = typical.median || band.median; oppSd = typical.sd || undefined; }
     const out = LO.optimize(ROSTER.map(r => Object.assign({}, r)),
       { band, sigmaByPos, oppMean, oppSd, current: CURRENT });
-    return { oppMean, pWin: out.ev.pWin, calls: (out.calls || []).length, mean: out.ev.mean };
+    let posture = null;
+    try { const wp = LO.weeklyPosture(out, band); posture = (wp && (wp.headline || wp.label || wp.text)) || null; }
+    catch (e) { posture = '(posture unavailable: ' + e.message + ')'; }
+    return { oppMean, pWin: out.ev.pWin, dollars: out.ev.dollars,
+             calls: (out.calls || []).length, mean: out.ev.mean, posture: posture };
   };
 
   console.log('CONTROLS');
@@ -80,21 +84,61 @@ function run() {
   if (fails.length) { console.log('\n*** control(s) failed — output void ***'); process.exit(1); }
 
   console.log('\nWHAT THE SURFACE REPORTS AS ONE SUNDAY UNFOLDS — the roster never changes');
-  console.log('  ' + pad('opponent state', 44) + pad('oppMean', 9) + pad('P(win)', 10) + 'calls');
+  console.log('  ' + pad('opponent state', 44) + pad('oppMean', 9) + pad('P(win)', 9)
+    + pad('dollars', 10) + 'headline advice');
   ARC.forEach(([label, pts]) => {
     const r = at(pts);
     console.log('  ' + pad(label, 44) + pad(r.oppMean.toFixed(1), 9)
-      + pad((100 * r.pWin).toFixed(1) + '%', 10) + r.calls);
+      + pad((100 * r.pWin).toFixed(1) + '%', 9) + pad('$' + r.dollars.toFixed(2), 10)
+      + (r.posture || '—'));
   });
   console.log('\n  Same roster, same projections, same opponent. The reported probability');
   console.log('  swings ' + (100 * pre.pWin).toFixed(0) + '% -> ' + (100 * mid.pWin).toFixed(0)
     + '% -> ' + (100 * post.pWin).toFixed(0) + '% because ONE side of the comparison');
   console.log('  switches from a projection to a partial total and the other does not.');
-  console.log('\n  CALLS ARE 0 AT EVERY LEVEL ON THIS FIXTURE, so this probe shows the');
-  console.log('  PROBABILITY moving and does NOT show a recommendation flipping. Stated');
-  console.log('  rather than implied — the matchup term is P(win) x value, so an inflated');
-  console.log('  P(win) suppresses it, but demonstrating that needs a roster with a real');
-  console.log('  swap in it and a live board, and I have neither here.');
+  /* ⚠️ THIS PARAGRAPH REPLACED AN EARLIER, WEAKER ONE. The first version of this
+   * probe reported only P(win), found `calls` was 0 at every level, and said in
+   * as many words that it showed the PROBABILITY moving and NOT a recommendation
+   * flipping. That was honest and it was also incomplete: `calls` is not the
+   * advice. `weeklyPosture()` is, and it flips. */
+  console.log('\n  IT IS NOT ONLY THE PROBABILITY. The headline advice flips from');
+  console.log('  "Protect the matchup" to "Start your studs" and back, and the dollar');
+  console.log('  figure moves 2.5x, on a roster that never changes.');
+  /* ---- AND THE INDIVIDUAL SWAP, which is what I said I had not shown -------
+   * `calls` stays 0 no matter how large the bench edge, because `calls` is the
+   * chase-vs-protect DEVIATION list, not the your-lineup-is-wrong list. The
+   * alert reads `set.changes`, filtered on `dollars > 0.5 || startProj - sitProj > 1`
+   * (`lineup.js:1045`). So the swap's DOLLARS are what move, and they move a lot. */
+  const swap = edge => {
+    const R = ROSTER.map(r => Object.assign({}, r));
+    R.find(r => r.id === 'b1').proj = 9.0 + edge;      // bench WR
+    R.find(r => r.id === 'wr2').proj = 9.0;            // the starter he beats
+    const cur = R.filter(r => r.starter).map(r => r.id);
+    return ARC.map(([, pts]) => {
+      let oppMean = pts, oppSd;
+      if (!(pts > 0)) { oppMean = typical.median || band.median; oppSd = typical.sd || undefined; }
+      const out = LO.optimize(R.map(r => Object.assign({}, r)),
+        { band, sigmaByPos, oppMean, oppSd, current: cur });
+      const c = ((out.set || {}).changes || [])[0];
+      if (!c) return null;
+      const dp = c.startProj - c.sitProj;
+      return { d: c.dollars, shown: (c.dollars > 0.5 || dp > 1) };
+    });
+  };
+  console.log('\n  THE SAME START/SIT SWAP, PRICED THROUGH THE SAME DAY');
+  console.log('  ' + pad('bench edge over the starter', 30) + pad('its value at each hour', 36) + 'in the Sunday alert?');
+  [1.2, 0.9, 0.7].forEach(e => {
+    const a = swap(e);
+    console.log('  ' + pad('+' + e.toFixed(1) + ' projected points', 30)
+      + pad(a.map(x => x ? "$" + x.d.toFixed(2) : "—").join(" / "), 38)
+      + a.map(x => x && x.shown ? 'Y' : 'n').join('/'));
+  });
+  console.log('\n  The swap is worth ~4x more at 11am than at 1pm, unchanged in every way');
+  console.log('  except the clock. And below a ~1.0-point edge the alert STOPS MENTIONING');
+  console.log('  it mid-Sunday and starts again afterwards.');
+  console.log('\n  ⚠️ The silent case is CONSTRUCTED to sit near the $0.50 bar and is not');
+  console.log('  claimed as typical. The 4x swing in the dollar value is unconditional,');
+  console.log('  and the bar is real, so some swap lands in that band most weeks.');
 }
 
 if (require.main === module) run();

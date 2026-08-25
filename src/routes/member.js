@@ -828,7 +828,7 @@ router.get('/', aw(async (req, res) => {
       if (weekHero.lineupWarn) {
         const w = weekHero.lineupWarn;
         needsYou.unshift({ icon: '🚨',
-          href: 'https://sleeper.com/leagues/' + (world.config.sleeper_league_id || '') + '/team',
+          href: res.locals.sleeperLink('team') || '#',
           text: 'Lineup problem: ' + w.items.map(i => i.text).join(', ')
             + (w.count > w.items.length ? ' +' + (w.count - w.items.length) + ' more' : ''),
           cue: 'fix on Sleeper →' });
@@ -1593,6 +1593,18 @@ router.get('/bank', aw(async (req, res) => {
     sbGrid, sbView, sbDrill,
     deadlines, late: req.query.late === '1',
     stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1', rerun: req.query.rerun === '1', nudged: req.query.nudged === '1',
+    // Catalog item 17 ("confirmation toasts that say the thing — 'Bet sent
+    // to Rich · $25' not 'Saved.'"): set only by the propose route's own
+    // success path (never guessed here) — same discipline as matchup.ejs's
+    // sibling banner, which learned the hard way that confirming a bet that
+    // never happened is worse than confirming nothing.
+    // Named justSent, not sent: `_side_bets.ejs` already declares its OWN
+    // `const sent` (the "Bets You've Sent" array) in this same template
+    // scope, and EJS compiles a whole file into one function body, so a
+    // same-named local here would throw a TDZ ReferenceError the moment
+    // this flag's `typeof` check runs above that declaration. Found by the
+    // test actually rendering the page, not by the file compiling clean.
+    justSent: req.query.sent === '1', sentTo: req.query.sent_to || '', sentAmt: req.query.sent_amt || '',
     betFail: betFailMessage(req.query.betfail),
     currentWeek: (await sleeper.bundle(world.config.sleeper_league_id) || {}).week || 1,
     BL, payDirectory: owners.filter(o => o.venmo || o.paypal || o.cashapp || o.zelle),
@@ -1832,6 +1844,11 @@ router.post('/sidebets', aw(async (req, res) => {
     : !(ids.length || openSlots) ? 'nobody'
     : null;
   let failed = why;
+  // Catalog item 17 ("confirmation toasts that say the thing"): who the bet
+  // went to and for how much, set only on a REAL success — same discipline as
+  // the matchup redirect below, which learned this the hard way (see its own
+  // comment: a confirmation for a bet that never happened is worse than none).
+  let sentInfo = null;
   if (!why) {
     try {
       // A pool bet is a DRAFT: every league franchise is in play and NOBODY
@@ -1873,6 +1890,7 @@ router.post('/sidebets', aw(async (req, res) => {
       // removing rather than assumed: server-app.js already banners "N side bets
       // waiting on you" at the top of EVERY page plus a nav badge, which is
       // louder than the email was.
+      sentInfo = { to: targets.map(o => o.name), stake: bet.stake };
     } catch (e) {
       // Carry the reason, don't swallow it. Truncated and query-escaped; the
       // page renders it as text, never as markup.
@@ -1886,11 +1904,18 @@ router.post('/sidebets', aw(async (req, res) => {
     // whether or not a bet existed — a confirmation for something that never
     // happened, which is worse than saying nothing at all.
     const opp = req.body.party ? '&opp=' + Number(req.body.party) : '';
+    const amt = sentInfo ? '&sent_amt=' + encodeURIComponent(sentInfo.stake) : '';
     return res.redirect(failed
       ? '/matchup?betfail=' + encodeURIComponent(failed) + opp
-      : '/matchup?sent=1' + opp);
+      : '/matchup?sent=1' + opp + amt);
   }
-  res.redirect('/bank?section=sidebets' + (failed ? '&betfail=' + encodeURIComponent(failed) : ''));
+  if (failed) return res.redirect('/bank?section=sidebets&betfail=' + encodeURIComponent(failed));
+  // Catalog item 17: "Bet sent to Rich · $25" not "Saved." — every POST
+  // already knows what it did; this is the door most bets leave through
+  // (matchup's own ?sent=1 above already said this, /bank never did).
+  const sentTo = sentInfo ? encodeURIComponent(sentInfo.to.join(', ')) : '';
+  const sentAmt = sentInfo ? encodeURIComponent(sentInfo.stake) : '';
+  res.redirect(`/bank?section=sidebets&sent=1&sent_to=${sentTo}&sent_amt=${sentAmt}`);
 }));
 
 /**
@@ -2496,6 +2521,12 @@ router.get('/team', aw(async (req, res) => {
     // the half that works without a live matchup.
     section: req.query.section === 'week' ? 'week' : 'roster',
     weekNo: (matchup && matchup.week) || (sData && sData.week) || 1,
+    // Catalog item 16 ("injury chips on every player name, site-wide, one
+    // component"): the SAME classifier matchup.ejs already uses, not a
+    // second ladder — this page's own ad-hoc Status column (raw r.inj text,
+    // "healthy" for a bye-week player) was exactly the drift that comment
+    // warns about.
+    injuryFlag: MU.injuryFlag,
     configured: !!world.config.sleeper_league_id });
 }));
 
@@ -2859,6 +2890,9 @@ router.get('/matchup', aw(async (req, res) => {
     configured: !!world.config.sleeper_league_id,
     late: req.query.late === '1',
     stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1', rerun: req.query.rerun === '1', nudged: req.query.nudged === '1', sent: req.query.sent === '1',
+    // Catalog item 17: the confirmation names how much too, not just who
+    // (opp, above) — set only by the propose route's own success path.
+    sentAmt: req.query.sent_amt || '',
     betFail: betFailMessage(req.query.betfail),
     nameOf,
   });

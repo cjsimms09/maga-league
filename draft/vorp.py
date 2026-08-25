@@ -51,15 +51,39 @@ CONVERGE_EPS = 0.01   # replacement points move less than this -> stable
 ONESIE_POSITIONS = ("K", "DEF")
 
 
-def replacement_levels(players: list[dict], cfg: dict) -> tuple[dict, dict]:
+def replacement_levels(players: list[dict], cfg: dict,
+                       *, full_pool: list[dict] | None = None) -> tuple[dict, dict]:
     """Compute replacement projection per position.
 
     Returns (replacement_points, diagnostics) where diagnostics records how many
     starters each position ended up with, including its share of FLEX.
+
+    ⚠️ `full_pool` EXISTS BECAUSE KEEPERS ARE NOT DRAFTABLE BUT DO START.
+    Register 283: at the 2026 keeper lock `build.py` stopped putting the 23 kept
+    players in `players`, and `starter_counts` stayed at its LEAGUE-WIDE values
+    (RB 20 · WR 30 · TE 10 · QB 10). Replacement is *the Nth-best projection*, so
+    dropping 12 RBs and 9 WRs from the list while still reading off rank 20 and
+    rank 30 walked the marker 12 and 9 places deeper: RB replacement 147.8 where
+    it should be 181.1, WR 142.9 against 170.3, TE 138.0 against 141.7. `vorp` is
+    `proj_mean - replacement`, so understating it OVERSTATES every VORP at that
+    position IN PROPORTION TO KEEPERS LOST THERE — a CROSS-position error, not a
+    constant, on a board `overall_rank` sorts by.
+
+    So the RANKING pool and the PRICED pool are now separate arguments: rank over
+    everyone who starts, price only what can be drafted. `full_pool` defaults to
+    `players`, so every caller that does not pass it is byte-for-byte unchanged.
+
+    WHY NOT REDUCE THE COUNTS INSTEAD. The obvious alternative — keep ranking the
+    draftable pool and subtract kept-at-position from `counts` — gives the
+    IDENTICAL answer today and is WRONG IN GENERAL. It is only equivalent while
+    every keeper outranks his position's replacement (23 of 23 do on this board).
+    Keep one late-round flier ranked below replacement and the count-subtraction
+    lands a rank short; ranking the full pool cannot.
     """
     teams = cfg["teams"]
+    ranking_pool = players if full_pool is None else full_pool
     by_pos: dict[str, list[dict]] = {}
-    for p in players:
+    for p in ranking_pool:
         by_pos.setdefault(p["position"], []).append(p)
     for pos in by_pos:
         by_pos[pos].sort(key=lambda p: p.get("proj_mean", 0), reverse=True)
@@ -123,8 +147,10 @@ def _replacement_from_counts(by_pos: dict, counts: dict) -> dict:
     return out
 
 
-def apply_vorp(players: list[dict], cfg: dict) -> tuple[list[dict], dict]:
-    replacement, diag = replacement_levels(players, cfg)
+def apply_vorp(players: list[dict], cfg: dict,
+               *, full_pool: list[dict] | None = None) -> tuple[list[dict], dict]:
+    """`full_pool` ranks; `players` gets priced. See replacement_levels — register 283."""
+    replacement, diag = replacement_levels(players, cfg, full_pool=full_pool)
     for p in players:
         base = replacement.get(p["position"], 0.0)
         p["replacement"] = round(base, 2)

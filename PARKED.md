@@ -1,4 +1,33 @@
-# PARKED — the lane belongs to the mock blockers
+# PARKED — ⚠️ THE LOT WAS EMPTIED 2026-08-24
+
+**Cory, verbatim: "We need to release everything that was parked for post draft!!
+This is why I hate standing dates like this.."** The draft happened 08-22. Every
+item below is hereby DISPOSED — released with an owner, marked superseded by what
+actually shipped, or honestly tagged [2027]. Nothing in this file waits on a
+standing date any more; the queue table's dispositions are the record.
+
+## THE RELEASE MANIFEST (relay, 2026-08-24)
+
+| # | item | disposition |
+|---|---|---|
+| 1 | D11 diagnostic batch | **[2027]** — draft-model science; folds into `DRAFT-2027-PROGRAM.md` §7's evidence base. D11 stays HELD. |
+| 2 | In-season instrumentation | **SUPERSEDED — BUILT BEYOND THE SPEC.** The capture program shipped 08-23/24: all four ledger kinds live, auto-captured (register 287), probed weekly. Nothing left to release. |
+| 3 | Deviation budget display | **[2027]** war-room surface; joins the §7 board spec. |
+| 4 | Anchor Doctrine §4 (default-to-market fallback) | **PARTIALLY ANSWERED by P102's grade (08-24): FP anchors the room, evidence-backed.** Remainder [2027]. |
+| 5 | Consensus §2 dispersion badge + §3 format check | **[2027]** war-room. |
+| 6 | Experiments 33-38 | **RELEASED → D, due with the 09-03 arm slate:** each either folds into the blend program as a preregistered arm or retires by name — no experiment stays "registered, gated, not running" past that date. |
+| 7 | Exp 31 delta board render | **[2027]** — waits on a board rebuild that now only happens for 2027. |
+| 8 | Rehearsal keeper mode · mock sampling · sync diagnosis · session plumbing | **RETIRED — mock-era; the mocks are over.** Anything still useful re-files against 2027 mocks when they exist. |
+| 9 | Site optimization Phase 2 | **RELEASED AND LARGELY DELIVERED:** the redesign program (catalog 19/19 shipped 08-23/24) IS phase 2; the remaining big slices are B's live dispatch (audit 08-27). |
+| 10 | THE LEARNING ENGINE ①②③ | **RELEASED → the in-season program, TODAY:** ① tier-moving weekly re-grading = grade-cron + ADAPTATION-POLICY promotion (live; QUICK-KILL gap is register 199, A). ② residual-driven hypothesis generation = NEW, routed to D behind the 09-15 first grades. ③ blocked as flagged: **the Learning Constitution still does not exist in the repo** — Cory, that taxonomy needs a ruling or ③ stays unbuildable, now said in the open instead of a footnote. |
+| ⑭ | Command center | **RELEASED → B assessment at the 08-27 audit:** much of it shipped since filing (/admin/loop, model scoreboard, capture-health); B lists the daylight, builds only that. |
+| ⑮ | Organism test | **RELEASED → the in-season program** — its three links are exactly the capture→grade→adapt chain now running; the standard it names becomes the chain's acceptance test (D, with the arm slate). |
+| ⑯ | Portfolio doctrine | **RELEASED → D with the blend program** — it is the Tier-2 stacker's philosophy; BLEND-SEARCH-DESIGN already encodes most of it. |
+
+**The old standing rule below is DEAD** (it gated on "until mock #2 runs clean",
+a condition that expired weeks ago). Kept for history:
+
+# PARKED (historical) — the lane belongs to the mock blockers
 
 **Standing rule (Cory, 2026-08-08):** *from now until mock #2 runs clean, the
 blockers own the lane exclusively. Legality strip, need bug, path labels,

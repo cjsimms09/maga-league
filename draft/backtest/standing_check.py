@@ -22,6 +22,10 @@ THE OUTPUT IS ONE LINE MOST OF THE TIME. That is the correct output.
     quiet     looked, nothing crossed
     ESCALATE  something crossed, or an archive stopped updating
     BLIND     COULD NOT LOOK
+    LOST      an irreversible capture window closed unactioned. NOT quiet
+              (that reads as healthy and erases the record) and NOT
+              ESCALATE (nothing can clear it). It states what was lost
+              and keeps stating it.
 
 BLIND IS NOT QUIET. An archive this process cannot read reports BLIND and
 escalates, because "I could not look" rendered as "nothing yet" is precisely the
@@ -188,6 +192,23 @@ def _apply_parking(row):
         row["detail"] = (f"PARKED until {until} AND THAT DATE HAS PASSED — {why}. "
                          f"Still blind because: {row['detail']}")
     return row
+
+
+def _draft_has_started():
+    """Has this league's draft run? Derived from the committed `draft` ruling in
+    league_config, never from a literal here — see the note at its one caller.
+
+    Returns False (not None) when the config cannot be read or parsed, because
+    every caller must treat "I do not know" as "not started" and keep its
+    escalation armed. The underlying predicate distinguishes the two; this
+    collapses them in the safe direction, once, where it is visible."""
+    try:
+        sys.path.insert(0, str(ROOT / "draft"))
+        from config_schema import draft_has_started  # noqa: PLC0415
+        cfg = json.loads((ROOT / "draft" / "config" / "league_config.json").read_text())
+        return bool(draft_has_started(cfg))
+    except Exception:                                          # noqa: BLE001
+        return False
 
 
 def _date_today() -> str:
@@ -530,6 +551,55 @@ def check_pre_draft_freeze():
 
     locked = bool(slate.get("keeper_lock_passed"))
     if locked and status != "CONFIRMED":
+        # ⚠️ THE ESCALATION BELOW HAS A REMEDY ONLY WHILE THE DRAFT IS AHEAD OF
+        # US, AND UNTIL 2026-08-25 IT DID NOT KNOW THAT (register 328).
+        #
+        # "Re-take it now" is the right instruction between the lock and the
+        # draft. After the draft it is an IMPOSSIBLE one: the freeze captures a
+        # pre-decision board, and there is no longer a pre-decision board to
+        # capture. Left as it was, this row escalates on every run for the rest
+        # of the season, and because the acceptance gate blocks on it, IT BLOCKS
+        # EVERY BOARD PUBLISH FOR THE REST OF THE SEASON — demanding an action
+        # nobody can take.
+        #
+        # That is the same defect class this file's own docstring is written
+        # against, with one turn: not "the condition ended" but THE REMEDY
+        # BECAME IMPOSSIBLE. A check that asks for the impossible is a check
+        # that gets muted, which is the failure mode the whole file exists to
+        # prevent.
+        #
+        # SO THE ROW GOES TERMINAL, NOT QUIET. `quiet` is explicitly the worst
+        # possible output here (line 99) — it is indistinguishable from healthy,
+        # and it would erase the only standing record that an irreversible
+        # window closed unactioned. `LOST` says what happened, says it is not
+        # actionable, and keeps saying it.
+        #
+        # NOT PARKED EITHER: PARKED rows go quiet until a DATE and then escalate
+        # again, which is right for temporary blindness and wrong here. There is
+        # no future date on which re-taking becomes possible.
+        #
+        # THE TRIGGER IS DERIVED, exactly as the lock's is. `draft_has_started`
+        # reads `league_config.draft` — Cory's ruling of 2026-08-18, kept across
+        # every rebuild by `preserve_local_rulings` and guarded by
+        # `test_config_local_rulings_survive.py`. That is the single committed
+        # definition of when the draft is, not a literal typed here, so this
+        # does not become the "second definition" the docstring above warns
+        # about. It returns None when the config cannot be read, and None is
+        # treated as NOT started — an unreadable config leaves the escalation
+        # armed rather than silently retiring it.
+        if _draft_has_started():
+            return _row("pre_draft_freeze", "LOST",
+                        f"THE RE-TAKE WINDOW CLOSED UNACTIONED. The freeze is "
+                        f"{status}: built on PREDICTED opponent keepers "
+                        f"({doc.get('keepers_on_board_at_freeze')} on the board "
+                        f"at freeze, {doc.get('opponent_keepers_applied')} "
+                        f"opponents'), and the draft has since run against the "
+                        f"confirmed slate. The keeper-scarcity diff — the whole "
+                        f"reason for a second run — cannot be reconstructed: it "
+                        f"needed a capture between the lock and the draft. "
+                        f"TERMINAL, not actionable; register 328 carries what "
+                        f"the freeze is still good for and Cory's ruling on it. "
+                        f"This row will not clear and is not meant to.")
         return _row("pre_draft_freeze", "ESCALATE",
                     f"THE KEEPER LOCK HAS PASSED AND THE FREEZE IS STILL {status}. "
                     "It was built on PREDICTED opponent keepers. Re-take it now: "
