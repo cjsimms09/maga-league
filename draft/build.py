@@ -381,6 +381,57 @@ def _keeper_lock_deadline(cfg: dict) -> dict | None:
     return d or None
 
 
+def _draft_holding_keeper_placements(drafts, season=None):
+    """WHICH draft carries this season's keeper PLACEMENTS.
+
+    ⚠️ THIS USED TO BE AN INLINE FILTER ON `status in ("pre_draft", "drafting",
+    "paused")` — AND A COMPLETED DRAFT IS NONE OF THOSE (A, 2026-08-25,
+    register 335).
+
+    Keeper placements are `is_keeper` picks on the draft. Before the draft they
+    live on the upcoming one; the filter named exactly those states and was
+    right for that window. **The moment the draft finished it matched nothing,
+    `placements` stayed None, and `assess_slate` took its `not placed` branch —
+    status `predicted`, confirmed False — so `build.py`'s withholding rule
+    withheld EVERY keeper and the board came out with 700 players and an empty
+    keeper slate.** That is what the acceptance gate has been correctly refusing
+    since the draft.
+
+    IT IS NOT THAT THE MACHINERY WAS MISSING. `assess_slate` already handles this
+    case and resolves it correctly: placements from 9 teams, the lock passed, no
+    unplaced designator and no mismatch gives CONFIRMED, with the tenth team
+    resolved to kept-none by the deadline. It never got the chance, because the
+    draft holding those placements was filtered out for having finished.
+
+    Post-draft Sleeper also stops reporting roster DESIGNATIONS (register 319),
+    so the draft is not merely one source of keeper truth any more — it is the
+    only one. That is why this falls back rather than failing.
+
+    ORDER IS DELIBERATE: an in-progress draft still wins. On draft night the live
+    draft is the truth and a previous season's completed one must never outrank
+    it. Only when nothing is in progress do we look at a completed draft, and
+    then the season is matched where the payload states one, so a 2025 draft
+    cannot answer a 2026 question.
+    """
+    live = next((d for d in drafts
+                 if d.get("status") in ("pre_draft", "drafting", "paused")), None)
+    if live:
+        return live
+    done = [d for d in drafts if d.get("status") == "complete"]
+    if season is not None:
+        same = [d for d in done if str(d.get("season") or "") == str(season)]
+        if same:
+            done = same
+        elif any(d.get("season") for d in done):
+            # Every completed draft names a season and none is ours: answering
+            # from another year's keepers is worse than answering nothing.
+            return None
+    # Most recent first where the payload orders them; Sleeper returns newest
+    # first, and `next` on an unordered list is still one completed draft for
+    # this league rather than a guess across seasons.
+    return done[0] if done else None
+
+
 def _assess_keeper_slate(cfg: dict, offline: bool) -> dict:
     """SLATE RAILS (keeper_slate.py): stamp an honest CONFIRMED/PREDICTED status so the
     board can never present a wrong/incomplete slate as truth. Sleeper is the source:
@@ -405,7 +456,7 @@ def _assess_keeper_slate(cfg: dict, offline: bool) -> dict:
         # placements: the upcoming draft's keeper picks (is_keeper). None until placed.
         placements = None
         drafts = si.fetch_drafts(lid) or []
-        upcoming = next((d for d in drafts if d.get("status") in ("pre_draft", "drafting", "paused")), None)
+        upcoming = _draft_holding_keeper_placements(drafts, cfg.get("season"))
         if upcoming and upcoming.get("draft_id"):
             picks = si.fetch_draft_picks(upcoming["draft_id"]) or []
             kp = {}
