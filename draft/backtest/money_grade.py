@@ -30,7 +30,10 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
+if str(HERE.parent) not in sys.path:
+    sys.path.insert(0, str(HERE.parent))
 import grade_proxy as GP   # noqa: E402 — the ONE continuous-proxy definition (E1)
+import season_played as SP  # noqa: E402 — the ONE "has this season been played"
 HIST = HERE.parent / "data" / "league_history.json"
 PAYOUTS = HERE.parent / "config" / "payouts.json"
 
@@ -128,13 +131,22 @@ def playoff_weeks(season: dict) -> list[int]:
 # --- weekly-high --------------------------------------------------------------
 
 def weekly_high_winners(field: dict[int, dict[int, float]], weeks: list[int]) -> dict[int, list[int]]:
-    """{week: [roster_id(s) posting the week's top score]}. Ties split the prize."""
+    """{week: [roster_id(s) posting the week's top score]}. Ties split the prize.
+
+    A week whose top score is zero pays NOBODY. Splitting a $100 prize ten ways
+    across a week nobody played is still $100 leaving the pot, and on the
+    unplayed 2026 schedule that came to $1,500 across fifteen weeks. Register
+    338 — `season_played.week_has_a_single_high` carries the measurement, and
+    zero real weeks in 2023-2025 have a top score at or below zero.
+    """
     out: dict[int, list[int]] = {}
     for w in weeks:
         scores = field.get(w) or {}
         if not scores:
             continue
         top = max(scores.values())
+        if top <= 0:
+            continue
         out[w] = sorted(rid for rid, pts in scores.items() if pts == top)
     return out
 
@@ -148,6 +160,14 @@ def weekly_high_threshold_distribution(history: dict, seasons: list[str]) -> dic
     seasons this is n=45 RS weeks, min ~122, median ~148, max ~171 — so a
     replayed roster's week-k score competes against a realistic winning bar, not
     a single number that flatters or punishes every week the same.
+
+    ⚠️ A WEEK WHOSE WINNING SCORE IS ZERO IS NOT A SAMPLE OF ANYTHING. The guard
+    below was `if scores`, and the store publishes the whole season as a schedule
+    of 0.0s the moment it exists — so on 2026-08-25 fifteen zeroes joined the
+    distribution and dragged the derived spike-week bar from ~148.5 to **137.88**,
+    below the floor `test_bbm_translate` pins it at. That bar is the ceiling
+    signal a board column is built on, so this is not only a money number.
+    Register 341, same cause as 338/339/340.
     """
     samples: list[float] = []
     for season in seasons:
@@ -157,7 +177,7 @@ def weekly_high_threshold_distribution(history: dict, seasons: list[str]) -> dic
         field = field_weekly_scores(s)
         for w in regular_season_weeks(s):
             scores = field.get(w) or {}
-            if scores:
+            if scores and max(scores.values()) > 0:
                 samples.append(round(max(scores.values()), 2))
     samples.sort()
     n = len(samples)
@@ -402,6 +422,20 @@ def grade_actual(history: dict, payouts: dict, season) -> dict:
     if s is None:
         raise KeyError(f"no season {season} in history")
     pay = season_pay(payouts, season)
+    #: A SEASON NOBODY HAS PLAYED DISTRIBUTES NOTHING. The store carries the
+    #: current season as an eighteen-week schedule of 0.0s from the moment it is
+    #: created, and grading it paid out $1,875 of a pot that does not exist yet
+    #: — standings included, because a 0-0 field still sorts into an order.
+    #: Returned in the normal shape with an `unplayed` flag rather than raised,
+    #: so a caller looping over every season gets zeros, not an exception.
+    #: Register 338.
+    if not SP.has_been_played(s):
+        rosters = sorted({r for wk in field_weekly_scores(s).values() for r in wk})
+        return {"season": str(season), "pay": pay, "standings": [],
+                "placements": {}, "unplayed": True, "distributed": 0.0,
+                "per_roster": {rid: {"weekly_high": 0.0, "regular_season": 0.0,
+                                     "playoff": 0.0, "total": 0.0}
+                               for rid in rosters}}
     field = field_weekly_scores(s)
     matchups = weekly_matchups(s)
     rs_weeks = regular_season_weeks(s)

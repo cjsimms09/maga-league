@@ -104,9 +104,41 @@ function run() {
   console.log('\n  IT IS NOT ONLY THE PROBABILITY. The headline advice flips from');
   console.log('  "Protect the matchup" to "Start your studs" and back, and the dollar');
   console.log('  figure moves 2.5x, on a roster that never changes.');
-  console.log('\n  `calls` is 0 at every level on this fixture, so no individual start/sit');
-  console.log('  swap is demonstrated here — that would need a roster with a real swap in');
-  console.log('  it. The POSTURE and the DOLLARS are the advice, and both move.');
+  /* ---- AND THE INDIVIDUAL SWAP, which is what I said I had not shown -------
+   * `calls` stays 0 no matter how large the bench edge, because `calls` is the
+   * chase-vs-protect DEVIATION list, not the your-lineup-is-wrong list. The
+   * alert reads `set.changes`, filtered on `dollars > 0.5 || startProj - sitProj > 1`
+   * (`lineup.js:1045`). So the swap's DOLLARS are what move, and they move a lot. */
+  const swap = edge => {
+    const R = ROSTER.map(r => Object.assign({}, r));
+    R.find(r => r.id === 'b1').proj = 9.0 + edge;      // bench WR
+    R.find(r => r.id === 'wr2').proj = 9.0;            // the starter he beats
+    const cur = R.filter(r => r.starter).map(r => r.id);
+    return ARC.map(([, pts]) => {
+      let oppMean = pts, oppSd;
+      if (!(pts > 0)) { oppMean = typical.median || band.median; oppSd = typical.sd || undefined; }
+      const out = LO.optimize(R.map(r => Object.assign({}, r)),
+        { band, sigmaByPos, oppMean, oppSd, current: cur });
+      const c = ((out.set || {}).changes || [])[0];
+      if (!c) return null;
+      const dp = c.startProj - c.sitProj;
+      return { d: c.dollars, shown: (c.dollars > 0.5 || dp > 1) };
+    });
+  };
+  console.log('\n  THE SAME START/SIT SWAP, PRICED THROUGH THE SAME DAY');
+  console.log('  ' + pad('bench edge over the starter', 30) + pad('its value at each hour', 36) + 'in the Sunday alert?');
+  [1.2, 0.9, 0.7].forEach(e => {
+    const a = swap(e);
+    console.log('  ' + pad('+' + e.toFixed(1) + ' projected points', 30)
+      + pad(a.map(x => x ? "$" + x.d.toFixed(2) : "—").join(" / "), 38)
+      + a.map(x => x && x.shown ? 'Y' : 'n').join('/'));
+  });
+  console.log('\n  The swap is worth ~4x more at 11am than at 1pm, unchanged in every way');
+  console.log('  except the clock. And below a ~1.0-point edge the alert STOPS MENTIONING');
+  console.log('  it mid-Sunday and starts again afterwards.');
+  console.log('\n  ⚠️ The silent case is CONSTRUCTED to sit near the $0.50 bar and is not');
+  console.log('  claimed as typical. The 4x swing in the dollar value is unconditional,');
+  console.log('  and the bar is real, so some swap lands in that band most weeks.');
 }
 
 if (require.main === module) run();

@@ -9,19 +9,65 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backtest"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import owner_persistence as OP  # noqa: E402
+import season_played as SP      # noqa: E402
 
 HIST = str(Path(__file__).resolve().parents[1] / "data" / "league_history.json")
 
 
-def test_load_drops_a_season_with_no_data_rather_than_counting_it_as_zero():
-    """2026 exists in the archive with an empty draft and no transactions. Counting it
-    as a season of zero activity would put a fabricated point into every variance."""
+def test_load_drops_an_UNPLAYED_season_rather_than_counting_it_as_a_season():
+    """Counting a season nobody has played would put a fabricated point into every
+    variance.
+
+    ⚠️ THIS TEST USED TO SAY *"2026 exists in the archive with an empty draft and
+    no transactions"* and assert `set(seasons) == {2023, 2024, 2025}`. On
+    2026-08-25 that premise expired: 2026 acquired a completed draft and FOUR
+    transactions, and `load`'s `if picks or txns` admitted it as a full season
+    alongside three seasons of 348-373. **The guard was written for a season with
+    NO data; the hazard is a season with NOT ENOUGH YET.**
+
+    It cost all three findings, not the one the loop reported first —
+    `waiver_share` ICC 0.718 -> 0.342, straight through the 0.70 bar this file
+    pins two tests later. Register 339.
+
+    So the assertion is now about the RULE, and it is written to keep working in
+    September when 2026 becomes a real season and 2027 becomes the empty one.
+    """
+    doc = json.loads(Path(HIST).read_text())
     seasons = OP.load(HIST)
-    assert "2026" not in seasons, sorted(seasons)
-    assert set(seasons) == {"2023", "2024", "2025"}, sorted(seasons)
+    unplayed = {str(s.get("season")) for s in (doc.get("seasons") or [])
+                if not SP.has_been_played(s)}
+    assert not (set(seasons) & unplayed), (
+        "the persistence runner is scoring %s, which nobody has played a game in"
+        % sorted(set(seasons) & unplayed))
+    assert set(seasons) >= {"2023", "2024", "2025"}, sorted(seasons)
+    # the guard must not be so wide it drops a real season
+    assert all(SP.has_been_played(s) for s in (doc.get("seasons") or [])
+               if str(s.get("season")) in seasons)
+
+
+def test_the_UNPLAYED_SEASON_IS_STILL_IN_THE_ARCHIVE_or_the_test_above_checks_nothing():
+    """CONTROL (Rule 3f). The assertion above is an exclusion, and an exclusion
+    passes trivially once there is nothing left to exclude. This says so out loud
+    rather than letting the guard quietly retire itself.
+
+    It SKIPS rather than fails once every stored season has been played — that is
+    a legitimate state, just not one in which the test above proves anything."""
+    doc = json.loads(Path(HIST).read_text())
+    unplayed = [str(s.get("season")) for s in (doc.get("seasons") or [])
+                if not SP.has_been_played(s)]
+    if not unplayed:
+        pytest.skip("every stored season has been played — nothing to exclude")
+    assert len(unplayed) == 1, unplayed
+    raw = next(s for s in doc["seasons"] if str(s.get("season")) == unplayed[0])
+    # and it is the shape that caused the damage: real rows, no football
+    picks = [p for dr in (raw.get("drafts") or []) for p in (dr.get("picks") or [])]
+    assert picks, "the unplayed season has no picks — a different case than 339"
 
 
 def test_the_replication_control_the_ledger_can_be_checked_against():
@@ -46,7 +92,14 @@ def test_the_replication_control_the_ledger_can_be_checked_against():
 
 
 def test_failed_waiver_claims_are_a_QUARTER_of_the_archive():
-    """The reason `completed_only` exists as a parameter at all."""
+    """The reason `completed_only` exists as a parameter at all.
+
+    The 1091 is 373 + 370 + 348 across the three PLAYED seasons. It briefly read
+    1095 on 2026-08-25 when `load` admitted the unplayed 2026 and its four
+    post-draft transactions; the count is left at the measured value rather than
+    widened, because a total that grows by four every time an archive is
+    re-exported is not pinning anything. Register 339.
+    """
     seasons = OP.load(HIST)
     txns = [x for d in seasons.values() for x in d["transactions"]]
     failed = [x for x in txns if x.get("status") == "failed"]

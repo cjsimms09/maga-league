@@ -44,21 +44,49 @@ import collections
 import datetime
 import json
 import statistics
+import sys
 from pathlib import Path
 
+_DRAFT = Path(__file__).resolve().parent.parent
+if str(_DRAFT) not in sys.path:
+    sys.path.insert(0, str(_DRAFT))
+
 import persistence as P
+import season_played as SP   # the ONE "has this season been played" (register 339)
 
 HISTORY = "draft/data/league_history.json"
 IN_SEASON_METRICS = ("txn_count", "waiver_share", "median_hour")
 
 
 def load(path=HISTORY) -> dict:
-    """{season: {"picks": [...], "transactions": [...]}} — seasons with no data omitted.
+    """{season: {"picks": [...], "transactions": [...]}} — UNPLAYED seasons omitted.
 
     Transactions arrive as a DICT keyed by week in this archive and as a list in
-    others, so both are accepted. A season whose transactions are an empty dict is
-    dropped rather than counted as a season with zero activity: absent is not zero,
-    and 2026 has not been played.
+    others, so both are accepted.
+
+    ⚠️ THIS GUARD USED TO READ `if picks or txns`, WITH THE REASON WRITTEN BESIDE
+    IT: *"absent is not zero, and 2026 has not been played."* The reason was right
+    and the test was for the wrong thing. **The hazard is not a season with NO
+    data, it is a season with NOT ENOUGH YET** — and on 2026-08-25 the 2026 season
+    acquired a completed draft and FOUR transactions, three days old, against
+    348-373 in each real season. `picks or txns` admitted it as a full season.
+
+    MEASURED, and it is not a rounding difference — **all three in-season metrics
+    collapse**, not just the one the test happened to report first:
+
+        txn_count      ICC 0.662 p 0.0020  ->  0.388 p 0.172
+        waiver_share   ICC 0.718 p 0.0005  ->  0.342 p 0.265
+        median_hour    ICC 0.627 p 0.0090  ->  0.277 p 0.481
+
+    **C-003 — that in-season manager behaviour is persistent — is destroyed
+    entirely by four transactions in a season nobody has played a game in**, and
+    `waiver_share`'s headline ICC halves through the 0.70 bar it is pinned at.
+
+    So the gate is `season_played.has_been_played`: no games, no in-season
+    behaviour to measure. Deliberately the same one definition the money paths
+    use (register 338) rather than a second threshold chosen here — a private
+    "how many transactions is enough" constant is a number somebody would have to
+    defend, and it would need defending again every August. Register 339.
     """
     doc = json.loads(Path(path).read_text())
     out = {}
@@ -72,7 +100,7 @@ def load(path=HISTORY) -> dict:
         elif isinstance(raw, list):
             txns = list(raw)
         txns = [x for x in txns if isinstance(x, dict)]
-        if picks or txns:
+        if (picks or txns) and SP.has_been_played(s):
             out[str(s.get("season"))] = {"picks": picks, "transactions": txns}
     return out
 
