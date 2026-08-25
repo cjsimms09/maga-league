@@ -26,53 +26,53 @@
    "verdict": "parked: CI includes $0"
   },
   {
-   "archetype": "elite_te",
-   "mean_edge": -14.5,
+   "archetype": "late_qb",
+   "mean_edge": -7.0,
    "ci95": [
-    -39.38,
-    10.62
+    -31.12,
+    14.5
    ],
-   "mean_divergence": 3.0,
+   "mean_divergence": 5.5,
+   "verdict": "parked: CI includes $0"
+  },
+  {
+   "archetype": "elite_te",
+   "mean_edge": -8.12,
+   "ci95": [
+    -32.38,
+    14.25
+   ],
+   "mean_divergence": 3.3,
    "verdict": "parked: CI includes $0"
   },
   {
    "archetype": "zero_rb",
-   "mean_edge": -19.62,
+   "mean_edge": -14.12,
    "ci95": [
-    -36.88,
-    -1.88
+    -37.25,
+    8.25
    ],
-   "mean_divergence": 2.3,
-   "verdict": "LOSER \u2014 significantly worse than the control"
+   "mean_divergence": 2.8,
+   "verdict": "parked: CI includes $0"
   },
   {
    "archetype": "hero_rb",
-   "mean_edge": -19.62,
+   "mean_edge": -14.12,
    "ci95": [
-    -37.62,
-    -3.0
+    -38.0,
+    7.25
    ],
-   "mean_divergence": 2.3,
-   "verdict": "LOSER \u2014 significantly worse than the control"
+   "mean_divergence": 2.8,
+   "verdict": "parked: CI includes $0"
   },
   {
    "archetype": "wr_anchor",
-   "mean_edge": -30.5,
+   "mean_edge": -27.62,
    "ci95": [
-    -56.62,
-    -6.75
+    -50.0,
+    -6.12
    ],
-   "mean_divergence": 2.6,
-   "verdict": "LOSER \u2014 significantly worse than the control"
-  },
-  {
-   "archetype": "late_qb",
-   "mean_edge": -30.88,
-   "ci95": [
-    -59.38,
-    -1.25
-   ],
-   "mean_divergence": 5.3,
+   "mean_divergence": 3.6,
    "verdict": "LOSER \u2014 significantly worse than the control"
   }
  ],
