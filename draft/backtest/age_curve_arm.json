@@ -1,0 +1,104 @@
+{
+  "_territory": "TERRITORY: D",
+  "_note": "P325 age-curve arm. Correlation gate AMENDED before this file existed \u2014 see P325's row. Written by age_curve_arm.py.",
+  "controls": {
+    "C1_identity": {
+      "passed": true,
+      "worst_rate": 1.0,
+      "requirement": ">=0.95 of the population carries an age on every fold",
+      "by_season": {
+        "2022": {
+          "population": 406,
+          "aged": 406,
+          "rate": 1.0
+        },
+        "2023": {
+          "population": 403,
+          "aged": 403,
+          "rate": 1.0
+        },
+        "2024": {
+          "population": 382,
+          "aged": 382,
+          "rate": 1.0
+        },
+        "2025": {
+          "population": 378,
+          "aged": 378,
+          "rate": 1.0
+        }
+      }
+    },
+    "C2_synthetic_recovery": {
+      "passed": true,
+      "injected": "+3.0 pts to every age-27/28 player-week",
+      "mean_fitted_effect_at_27_28": 2.005,
+      "delta_mae_recovered": 0.1233,
+      "requirement": "fitted effect at 27-28 > 1.0 AND delta_mae > 0.10"
+    },
+    "C3_shuffle_null": {
+      "passed": true,
+      "folds_clearing_bar_on_shuffled_ages": 0,
+      "requirement": "shuffled ages must clear the bar in <3 of 4 folds",
+      "per_fold_delta": [
+        0.0022,
+        0.0152,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  "folds": [
+    {
+      "season": 2022,
+      "n": 3528,
+      "alpha": 0.25,
+      "mae_baseline": 4.544,
+      "mae_arm": 4.536,
+      "delta_mae": 0.008,
+      "buckets_fitted": 38
+    },
+    {
+      "season": 2023,
+      "n": 3509,
+      "alpha": 1.0,
+      "mae_baseline": 4.5139,
+      "mae_arm": 4.4768,
+      "delta_mae": 0.0371,
+      "buckets_fitted": 37
+    },
+    {
+      "season": 2024,
+      "n": 3586,
+      "alpha": 0.25,
+      "mae_baseline": 4.5447,
+      "mae_arm": 4.5378,
+      "delta_mae": 0.0068,
+      "buckets_fitted": 36
+    },
+    {
+      "season": 2025,
+      "n": 3777,
+      "alpha": 0.5,
+      "mae_baseline": 4.5175,
+      "mae_arm": 4.4946,
+      "delta_mae": 0.0229,
+      "buckets_fitted": 37
+    }
+  ],
+  "pooled": {
+    "mae_baseline": 4.53,
+    "mae_arm": 4.5113,
+    "delta_mae": 0.0187,
+    "folds_clearing_bar": 0,
+    "folds_total": 4
+  },
+  "correlation_gate": {
+    "vs_baseline": 0.9794,
+    "vs_usage_feature": 0.546,
+    "usage_pairs": 3081,
+    "gate": 0.98,
+    "_amended": "usage FEATURE series, not the mis-cited P286 arm \u2014 see P325"
+  },
+  "clears": false
+}
