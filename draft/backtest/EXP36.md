@@ -45,7 +45,8 @@ _cell = efficiency [shrink] (n); `·` = no players; `thin` = below floor -> shri
 
 ## Caveats
 
-- [2025] NOT recovered: pbp disagreed with the library on 2024
+- pbp unavailable for [2025, 2026] (NameError)
+- 2026: realized weekly unavailable; season SKIPPED
 - 2025: realized weekly unavailable; season SKIPPED
 
 ## What this feeds
