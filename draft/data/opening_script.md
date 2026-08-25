@@ -5,7 +5,7 @@ _board `2026-08-22T03:43:05Z` · slot **8** (site-claimed — Sleeper draft orde
 My live picks: **33, 48, 53, 68, 73, 88…**
 
 ## PRIMARY — the effective board (designations are facts, predictions fill the rest)
-_9 teams designated on Sleeper (their real slates supersede intel wholesale), 0 still run on predicted slates. Supersessions: Sadbru: freed Kyren Williams, Zay Flowers (predicted kept — actually in the pool); cashworth: freed Javonte Williams (predicted kept — actually in the pool); Jreis: freed Josh Jacobs, Rashee Rice (predicted kept — actually in the pool) · designated id 5859 (prediction missed); MarianSaar: freed Brock Bowers (predicted kept — actually in the pool) · designated id 6794 (prediction missed); Richard2121: designated id 7569, id 8130 (prediction missed)._
+_9 teams designated on Sleeper (their real slates supersede intel wholesale), 0 still run on predicted slates. Supersessions: Sadbru: freed Kyren Williams, Zay Flowers (predicted kept — actually in the pool); cashworth: freed Javonte Williams (predicted kept — actually in the pool); Jreis: freed Josh Jacobs, Rashee Rice (predicted kept — actually in the pool) · designated id 5859 (prediction missed); MarianSaar: freed Brock Bowers (predicted kept — actually in the pool) · designated id 6794 (prediction missed)._
 
 ### Pick 33
 - **TARGET**: Davante Adams (WR, VORP 42.0, 66% survives)

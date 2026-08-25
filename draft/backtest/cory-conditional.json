@@ -57,10 +57,10 @@
   },
   {
    "archetype": "wr_anchor",
-   "mean_edge": -27.12,
+   "mean_edge": -30.5,
    "ci95": [
-    -51.88,
-    -4.5
+    -56.62,
+    -6.75
    ],
    "mean_divergence": 2.6,
    "verdict": "LOSER \u2014 significantly worse than the control"

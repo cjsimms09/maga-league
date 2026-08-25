@@ -6,7 +6,7 @@
    "board_content_hash": "f23a55c92333",
    "my_slot": 8,
    "my_keepers_hash": "a6963871266e",
-   "predicted_slates_hash": "5e1ed4d368f3",
+   "predicted_slates_hash": "3bebe3befdfa",
    "designated_slates_hash": "788763091852"
   },
   "slot_provenance": "site-claimed \u2014 Sleeper draft order pending (regenerates on assignment)",
@@ -50,14 +50,6 @@
      ],
      "kept_unpredicted": [
       "id 6794"
-     ]
-    },
-    {
-     "handle": "Richard2121",
-     "freed": [],
-     "kept_unpredicted": [
-      "id 7569",
-      "id 8130"
      ]
     }
    ]
