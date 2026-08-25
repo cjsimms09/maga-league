@@ -23,15 +23,22 @@ this repo the whole time. `nflverse_variance.py` was written to measure this and
 was never run and never consumed — a module with no caller, which is the same
 "computed and thrown away" family the capture registry exists for.
 
-THE SCORING-TABLE GUARD IS NOT OPTIONAL AND IT FIRED HERE. The stores carry a
-`scoring_fingerprint` per week, and 2021-2022 were scored under a DIFFERENT
-table than 2023-2025. Pooling them would produce per-player totals that never
-existed under either table, and — in `nflverse_weekly_store`'s own words —
-"NOTHING IN THE ARITHMETIC WOULD COMPLAIN". So this module REFUSES a mixed
-population rather than averaging across a rule change. That costs two seasons
-and is the correct price.
+THE SCORING-TABLE GUARD IS NOT OPTIONAL, AND IT NO LONGER FIRES. The stores
+carry a `scoring_fingerprint` per week, and this module REFUSES a mixed
+population rather than averaging across a rule change — because pooling would
+produce per-player totals that never existed under either table, and, in
+`nflverse_weekly_store`'s own words, "NOTHING IN THE ARITHMETIC WOULD COMPLAIN".
 
-WHAT WAS MEASURED (2023-2025, one table, n~200 per transition):
+The guard is unchanged and still correct. What changed is the DATA: 2021-2022
+were never scored under a different table. Register 27b measured the split as a
+float32-vs-float64 SERIALISATION artifact — 44 identical keys, three values
+differing only in rendering, max distortion <5e-6 points on a season total — and
+once the store was normalised all five seasons carry one fingerprint
+(`220bf4c671786351`). `seasons_refused_different_scoring_table` is now `[]`.
+Costing two seasons was the correct price for a rule change that had not
+happened.
+
+WHAT WAS MEASURED (2021-2025, one table, n~200 per transition):
 
   * WITHIN-BAND SPREAD, so it is not the mean in disguise: inside a fixed mean
     band, cv spans 1.6x-1.9x from p10 to p90. A `mean x constant` field has NO
@@ -58,8 +65,12 @@ that difference the expensive way. Wiring it is a separate, preregistered
 decision, and not before the 2026-08-22 draft.
 
 THREE LIMITS, STATED HERE RATHER THAN DISCOVERED LATER:
-  1. Only two transitions survive the fingerprint guard. Two is enough to
-     refuse a null twice and not enough to call the coefficient precise.
+  1. FOUR transitions now survive the fingerprint guard (2021->22, 2022->23,
+     2023->24, 2024->25), not two — register 27b removed the refusal, and the
+     artifact is the authority: `persistence_cv` carries four rows, every one
+     `status: signal`, rho 0.3931 to 0.6348 against null bands of about
+     +/-0.13. This limit was written when two survived; it is kept, weakened,
+     because four still is not many.
   2. This is REALIZED volatility. Using it prospectively is licensed by the
      persistence above and by nothing else — which is exactly why the
      persistence, not the level, is the headline.
