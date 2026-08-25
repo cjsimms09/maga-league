@@ -9,7 +9,11 @@ no code changes, so suite output would be evidence about nothing in this diff.
 **What came back:** n/a (document only).
 
 **What it proves:** only that a concrete, internally consistent taxonomy now
-exists in writing, agreed by the league owner in principle, pending this audit.
+exists in writing, pending this audit. *(Scoped down 2026-08-25 at the
+reviewer's required action ①: this line originally added "agreed by the league
+owner in principle" — an approval claim this diff carries no artifact for. The
+owner directed the audit process; his approval of the content is ratification
+checklist item ③ and does not exist yet.)*
 
 **What it does NOT prove:**
 * that the tier boundaries are drawn in the right places — that is exactly the
