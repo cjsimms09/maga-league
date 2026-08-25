@@ -101,5 +101,31 @@ def test_the_counters_match_the_REAL_archives_not_a_fixture():
     ser = root / "draft/data/oracle_capture_series.json"
     assert ser.exists(), "the counter's source file must exist or the trigger is dead"
     now = L.counters(hist, json.loads(ser.read_text()))
-    assert now["owner_seasons"] == 30, now      # 3 DRAFTED seasons x 10 owners
+
+    # ⚠️ THIS READ `== 30` WITH THE REASON "3 DRAFTED seasons x 10 owners", AND
+    # THE COUNTER'S OWN COMMENT NAMED THE HAZARD IT WAS GUARDING: *"2026 has a
+    # draft record and ZERO picks, so counting bare seasons read 40 ... three
+    # short of firing a persistence test on a season with no drafting behaviour
+    # in it."* On 2026-08-25 the 2026 draft completed, 150 picks landed in the
+    # store, and the guard's condition expired — the counter reads 40 again, and
+    # this time it is RIGHT.
+    #
+    # AND THE DISTINCTION IS THE POINT. Registers 339 and 340 exclude 2026 from
+    # every IN-SEASON instrument, because no game has been played. C-001 is
+    # DRAFT-side, and the draft has been played. **The draft happened; the season
+    # has not.** A single "is 2026 real yet" flag would necessarily get one of
+    # those two wrong, which is why the gate is per-question and not global.
+    # Register 341.
+    drafted = [s for s in hist["seasons"]
+               if any((d.get("picks") or []) for d in (s.get("drafts") or []))]
+    expected = sum(len(s.get("owners") or {}) for s in drafted)
+    assert now["owner_seasons"] == expected, (now, expected)
+    assert now["owner_seasons"] >= 30, now       # never fewer than the three real ones
+    # the guard the counter's comment exists for: a season with NO picks must not
+    # be counted, or the trigger fires early on behaviour that does not exist
+    bare = {"seasons": hist["seasons"] + [{"owners": {str(i): {} for i in range(10)},
+                                           "drafts": [{"picks": []}]}]}
+    assert L.counters(bare, None)["owner_seasons"] == expected, (
+        "a season with a draft record and no picks was counted as drafting "
+        "behaviour — the trigger will fire early")
     assert now["oracle_capture_qb_slots"] == 5, now

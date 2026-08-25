@@ -160,6 +160,14 @@ def weekly_high_threshold_distribution(history: dict, seasons: list[str]) -> dic
     seasons this is n=45 RS weeks, min ~122, median ~148, max ~171 — so a
     replayed roster's week-k score competes against a realistic winning bar, not
     a single number that flatters or punishes every week the same.
+
+    ⚠️ A WEEK WHOSE WINNING SCORE IS ZERO IS NOT A SAMPLE OF ANYTHING. The guard
+    below was `if scores`, and the store publishes the whole season as a schedule
+    of 0.0s the moment it exists — so on 2026-08-25 fifteen zeroes joined the
+    distribution and dragged the derived spike-week bar from ~148.5 to **137.88**,
+    below the floor `test_bbm_translate` pins it at. That bar is the ceiling
+    signal a board column is built on, so this is not only a money number.
+    Register 341, same cause as 338/339/340.
     """
     samples: list[float] = []
     for season in seasons:
@@ -169,7 +177,7 @@ def weekly_high_threshold_distribution(history: dict, seasons: list[str]) -> dic
         field = field_weekly_scores(s)
         for w in regular_season_weeks(s):
             scores = field.get(w) or {}
-            if scores:
+            if scores and max(scores.values()) > 0:
                 samples.append(round(max(scores.values()), 2))
     samples.sort()
     n = len(samples)

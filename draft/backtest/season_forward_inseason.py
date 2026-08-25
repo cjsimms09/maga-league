@@ -189,7 +189,19 @@ def write_live(season=2026, n_worlds=N_WORLDS):
     s = MG.season_of(history, season)
     if s is None:
         raise SystemExit(f"season {season} not in league history yet")
-    weeks = sorted(MG.field_weekly_scores(s))
+    #: ⚠️ REALIZED MEANS FOOTBALL WAS PLAYED, NOT THAT THE WEEK IS IN THE STORE.
+    #: This read `sorted(MG.field_weekly_scores(s))`, and the store publishes the
+    #: whole season as a schedule of 0.0s the moment it exists — so on 2026-08-25
+    #: all eighteen weeks were "realized", `done` was non-empty, and THIS REFUSAL
+    #: STOPPED REFUSING. Running the fail-arm test then wrote a real
+    #: `public/season_forward_live.json` saying every seat has `p_playoffs: 1.0`
+    #: and `posture: "comfortable"` at `as_of_week: 15`, with p5 == p95 == E_total
+    #: because every simulated world is identical when every score is zero.
+    #: `src/routes/member.js` serves that file, and `src/playoffOdds.js` states
+    #: the contract this guard is supposed to keep: *"does not exist until week 1
+    #: has a realized result (write_live() refuses...)"*. Register 341.
+    weeks = sorted(w for w, sc in MG.field_weekly_scores(s).items()
+                   if any(float(v) for v in sc.values()))
     rs = MG.regular_season_weeks(s)
     done = [w for w in rs if w in weeks]
     if not done:
