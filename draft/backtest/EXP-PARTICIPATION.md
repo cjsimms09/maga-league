@@ -1,6 +1,6 @@
 # ALL-TERMS PARTICIPATION TEST — which of the 8 adjusters earn dollars?
 
-_400 paired rooms · core = mask + value anchor ($1329) · full = core + all adjusters @ default ($1274) · n=400; min reliably detectable ~$25; |edge|<that with CI spanning 0 = underpowered, not zero._
+_400 paired rooms · core = mask + value anchor ($850) · full = core + all adjusters @ default ($709) · n=400; min reliably detectable ~$25; |edge|<that with CI spanning 0 = underpowered, not zero._
 
 **Keeper scoped out:** KOV is a cross-season option value; a single-season money grade cannot price it BY CONSTRUCTION — bounded elsewhere, not proxied here.
 
@@ -10,12 +10,12 @@ _(core+term) − core, paired. The decision-relevant question: what to turn ON b
 
 | term added | $ vs core | 95% CI | reading |
 |---|---|---|---|
-| need | +0.0 | [0.0, 0.0] | decoration (≤$25; CI tight around 0) |
-| tier | -42.2 | [-53.94, -30.31] | HURTS (-42, CI excludes 0) |
-| risk | -8.1 | [-17.75, 1.69] | decoration (≤$25; CI tight around 0) |
-| ceiling | -33.4 | [-46.12, -20.5] | HURTS (-33, CI excludes 0) |
-| bye | -15.7 | [-25.75, -5.56] | HURTS (-16, CI excludes 0) |
-| stack | -15.0 | [-22.88, -7.44] | INSTRUMENT-LIMITED — grade_room has no within-team weekly correlation — the stack mechanism is absent, so this arm can't reward it. Sound instrument = exp6/stack_sweep (WINNER +$196 @ dose 0.5). |
+| need | -18.1 | [-31.75, -4.81] | HURTS (-18, CI excludes 0) |
+| tier | -68.4 | [-88.44, -50.31] | HURTS (-68, CI excludes 0) |
+| risk | -107.8 | [-128.19, -87.56] | HURTS (-108, CI excludes 0) |
+| ceiling | -12.3 | [-32.06, 6.75] | decoration (≤$25; CI tight around 0) |
+| bye | -17.4 | [-34.94, -0.38] | HURTS (-17, CI excludes 0) |
+| stack | -3.6 | [-17.56, 9.75] | INSTRUMENT-LIMITED — grade_room has no within-team weekly correlation — the stack mechanism is absent, so this arm can't reward it. Sound instrument = exp6/stack_sweep (WINNER +$196 @ dose 0.5). |
 
 ## ABLATION — full − term-off (confounded: 'full' carries the harmful tilts)
 
@@ -23,14 +23,14 @@ _Kept for comparison. Where a term hurts here but is ~0 in build-up, the ablatio
 
 | term | full − off | 95% CI | reading |
 |---|---|---|---|
-| value | +58.8 | [46.44, 72.25] | EARNS (+59, CI excludes 0) |
-| need | -0.0 | [-0.75, 0.75] | decoration (≤$25; CI tight around 0) |
-| tier | -37.4 | [-47.94, -26.69] | HURTS (-37, CI excludes 0) |
-| risk | +14.8 | [3.06, 26.25] | EARNS (+15, CI excludes 0) |
-| ceiling | -36.1 | [-47.06, -24.88] | HURTS (-36, CI excludes 0) |
-| bye | -8.8 | [-16.0, -1.62] | HURTS (-9, CI excludes 0) |
-| stack | -0.0 | [-0.0, -0.0] | decoration (≤$25; CI tight around 0) |
-| **all adjusters together** | -55.0 | [-66.94, -42.94] | separable |
+| value | +495.5 | [461.56, 529.81] | EARNS (+496, CI excludes 0) |
+| need | +57.9 | [35.25, 82.12] | EARNS (+58, CI excludes 0) |
+| tier | -77.5 | [-99.81, -56.5] | HURTS (-78, CI excludes 0) |
+| risk | -15.3 | [-40.5, 9.0] | decoration (≤$25; CI tight around 0) |
+| ceiling | +277.6 | [250.19, 305.31] | EARNS (+278, CI excludes 0) |
+| bye | +0.8 | [-17.19, 18.5] | decoration (≤$25; CI tight around 0) |
+| stack | -10.2 | [-24.56, 3.31] | decoration (≤$25; CI tight around 0) |
+| **all adjusters together** | -140.8 | [-163.56, -119.69] | separable |
 
 ## Weight curves vs the CLEAN core (95% CI) — the value-relative trade-offs
 
@@ -41,31 +41,31 @@ _value MAGNITUDE is ill-posed in isolation (with no competing term any w>0 gives
 | w | edge $ | 95% CI |
 |---|---|---|
 | 0.0 | +0.0 | [0.0, 0.0] |
-| 0.5 | +0.0 | [0.0, 0.0] |
-| 1.0 | +0.0 | [0.0, 0.0] |
-| 1.5 | +0.0 | [0.0, 0.0] |
-| 2.0 | +0.0 | [0.0, 0.0] |
-| 3.0 | +0.0 | [0.0, 0.0] |
+| 0.5 | -7.9 | [-18.12, 2.0] |
+| 1.0 | -18.1 | [-31.75, -4.81] |
+| 1.5 | -21.0 | [-34.94, -7.56] |
+| 2.0 | -21.7 | [-35.81, -8.19] |
+| 3.0 | -21.7 | [-35.81, -8.19] |
 
 ### Ceiling weight (vs the value anchor) — how hard to lean on upside
 
 | w | edge $ | 95% CI |
 |---|---|---|
 | 0.0 | +0.0 | [0.0, 0.0] |
-| 0.5 | -33.1 | [-44.88, -21.31] |
-| 1.0 | -37.6 | [-48.88, -25.38] |
-| 1.5 | -53.6 | [-66.94, -40.0] |
-| 2.0 | -54.2 | [-66.75, -41.25] |
-| 3.0 | -62.1 | [-75.38, -49.0] |
+| 0.5 | -4.1 | [-21.5, 13.56] |
+| 1.0 | -39.3 | [-58.69, -19.56] |
+| 1.5 | -49.4 | [-68.56, -30.25] |
+| 2.0 | -101.2 | [-123.5, -80.31] |
+| 3.0 | -202.9 | [-230.38, -176.88] |
 
 ## Ceiling by payout component (does shape pay in weekly-high?)
 
 | component | edge $ | 95% CI |
 |---|---|---|
-| weekly-high (37.5% of pot) | -17.8 | [-25.5, -9.75] |
-| regular-season | -6.2 | [-10.0, -2.81] |
+| weekly-high (37.5% of pot) | +13.8 | [7.0, 20.5] |
+| regular-season | -11.2 | [-18.75, -4.06] |
 
-**Verdict:** Core (mask + value anchor) = $1329. Adding to the core: EARNS nothing; HURTS tier, ceiling, bye; decoration need, risk; stack INSTRUMENT-LIMITED (defer to exp6/stack_sweep, WINNER +$196). Ceiling shows NO clean weekly-high gain on the core (wk-high -18 CI[-25.5, -9.75], RS -6 CI[-10.0, -2.81]) — my prereg guess did NOT survive de-confounding. Value anchor is decisive (removing it from full costs +59 CI[46.44, 72.25]).
+**Verdict:** Core (mask + value anchor) = $850. Adding to the core: EARNS nothing; HURTS need, tier, risk, bye; decoration ceiling; stack INSTRUMENT-LIMITED (defer to exp6/stack_sweep, WINNER +$196). Ceiling's gain IS via weekly-high (+14 CI[7.0, 20.5]), ~0 on RS (-11 CI[-18.75, -4.06]) — the shape mechanism. Value anchor is decisive (removing it from full costs +496 CI[461.56, 529.81]).
 
 **Stack reconciliation (instrument limit):** stack reads −$63 HERE but that is an instrument artifact — grade_room draws weekly scores independently (no within-team correlation), so this harness can't reward a stack. exp6/stack_sweep models rho=0.35 and found stack a WINNER (+$196 @ dose 0.5, CI[131,268]). stack_sweep is authoritative for stack; the exp6 'dose pays' verdict STANDS, not retired.
 

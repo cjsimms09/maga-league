@@ -3,7 +3,7 @@
   "generated_from": "opening_script.py \u2014 derives from board + REAL designations (supersede) + predicted slates (fill); regenerate on any input change",
   "fingerprint": {
    "board_built_at": "2026-08-22T03:43:05Z",
-   "board_content_hash": "3c600139e93e",
+   "board_content_hash": "f23a55c92333",
    "my_slot": 8,
    "my_keepers_hash": "a6963871266e",
    "predicted_slates_hash": "5e1ed4d368f3",
