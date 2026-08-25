@@ -143,10 +143,53 @@ def test_4_keepers_null_with_reason_selections_recommended(log):
     for s in selections:
         assert s["tool_recommendation"] is not None, s["pick_no"]
         assert len(s["top3"]) == 3
-        assert s["seat"] is not None            # freeze snake-geometry fallback
-        assert "freeze" in s["seat_source"]     # (the 2025 stream has no slots)
+        assert s["seat"] is not None
+        assert s["seat_source"], s["pick_no"]
         if s["actual_rank_in_tool"] == 1:
             assert s["composite_gap"] == 0
+
+
+# ── 4b. THE TWO SEAT ROUTES MUST AGREE, WHICHEVER ONE RUNS ──────────────────
+def test_4b_BOTH_SEAT_ROUTES_AGREE_rather_than_pinning_whichever_one_runs(log,
+                                                                          tmp_path):
+    """Register 337. The test above used to assert `"freeze" in seat_source`, with
+    the reason written beside it: *"(the 2025 stream has no slots)"*. That was true
+    of the store as it stood — `history_export.py` was dropping `draft_slot` — and
+    it stopped being true when the export started keeping it. The 2025 picks now
+    carry a seat, `fromLog` is true, and the shadow takes the BETTER route: the
+    provider's own slot instead of the freeze's snake geometry. **The test refused
+    the upgrade, pinning a fallback as if it were the only path.**
+
+    What the pin was actually worth protecting is that the seat is RIGHT. So both
+    routes are run — the second with `draft_slot` stripped, which is the only way
+    to reach the geometry branch now — and required to agree. MEASURED at the time
+    of writing: 0 disagreements across all 24 rows.
+    """
+    picks, s2r = _real_picks()
+    L.sync(picks, slot_to_roster=s2r)
+    served = {r["pick_no"]: r["seat"] for r in _shadow_rows_at(log)}
+    sources = {r["seat_source"] for r in _shadow_rows_at(log)}
+    assert sources == {"pick log (sleeper slot mapping)"}, sources
+
+    alt = tmp_path / "geometry.jsonl"
+    old, L.LOG = L.LOG, alt
+    try:
+        L.sync([{k: v for k, v in p.items() if k != "draft_slot"} for p in picks],
+               slot_to_roster=None)
+        geo_rows = _shadow_rows_at(alt)
+    finally:
+        L.LOG = old
+
+    geo_sources = {r["seat_source"] for r in geo_rows}
+    assert geo_sources == {"pre_draft_freeze pick_order (snake geometry)"}, (
+        "stripping draft_slot did not reach the fallback — this test is no longer "
+        "comparing two routes, it is running the same one twice: %s" % geo_sources)
+    disagree = [(r["pick_no"], served[r["pick_no"]], r["seat"]) for r in geo_rows
+                if r["pick_no"] in served and served[r["pick_no"]] != r["seat"]]
+    assert not disagree, (
+        "the provider's slot and the freeze's snake geometry name different seats: "
+        "%s" % disagree)
+    assert len(geo_rows) == len(served) and served, (len(geo_rows), len(served))
 
 
 # ── 5. THE GONE-SET IS HONEST ───────────────────────────────────────────────
