@@ -16,13 +16,24 @@ Pre-registration: top-decile improves as weight falls below 0.35; flat => not th
 | 0.35 ← shipped | 764 | 0.395 | 0.608 | 52.97 |
 | 0.5 | 764 | 0.355 | 0.584 | 55.84 |
 | 0.7 | 764 | 0.329 | 0.534 | 60.31 |
-| 1.0 | 764 | 0.289 | 0.254 | 67.7 |
+| 1.0 | 764 | 0.289 | 0.249 | 67.7 |
 
 - naive baseline top-decile (reference, no regression): **0.566**
 - **CONFIRMS the pre-registration: top-decile peaks BELOW the shipped 0.35 (peak at 0.0). Over-regression is a real lever — but installing a new value is a separate gated SHIP decision, not done here.**
 - peak weight 0.0 (top-decile 0.513) vs shipped 0.395
 
 ## Per season
+
+### 2026 — peak 1.0, naive td 0.0
+| w | top-decile | rank-corr |  |
+|---|---|---|---|
+| 0.0 | 0.0 | 0.088 |  |
+| 0.1 | 0.1 | 0.087 |  |
+| 0.2 | 0.1 | 0.09 |  |
+| 0.35 | 0.1 | 0.095 | ← shipped |
+| 0.5 | 0.1 | 0.095 |  |
+| 0.7 | 0.1 | 0.11 |  |
+| 1.0 | 0.2 | 0.206 |  |
 
 ### 2025 — peak 0.1, naive td 0.471
 | w | top-decile | rank-corr |  |
@@ -31,20 +42,20 @@ Pre-registration: top-decile improves as weight falls below 0.35; flat => not th
 | 0.1 | 0.588 | 0.62 |  |
 | 0.2 | 0.529 | 0.612 |  |
 | 0.35 | 0.529 | 0.606 | ← shipped |
-| 0.5 | 0.529 | 0.583 |  |
+| 0.5 | 0.529 | 0.582 |  |
 | 0.7 | 0.529 | 0.55 |  |
-| 1.0 | 0.353 | 0.24 |  |
+| 1.0 | 0.294 | 0.257 |  |
 
 ### 2024 — peak 0.0, naive td 0.587
 | w | top-decile | rank-corr |  |
 |---|---|---|---|
 | 0.0 | 0.543 | 0.618 |  |
-| 0.1 | 0.543 | 0.611 |  |
+| 0.1 | 0.543 | 0.61 |  |
 | 0.2 | 0.522 | 0.601 |  |
 | 0.35 | 0.413 | 0.581 | ← shipped |
 | 0.5 | 0.391 | 0.554 |  |
-| 0.7 | 0.391 | 0.509 |  |
-| 1.0 | 0.304 | 0.199 |  |
+| 0.7 | 0.391 | 0.508 |  |
+| 1.0 | 0.326 | 0.199 |  |
 
 ### 2023 — peak 0.0, naive td 0.565
 | w | top-decile | rank-corr |  |
@@ -53,12 +64,13 @@ Pre-registration: top-decile improves as weight falls below 0.35; flat => not th
 | 0.1 | 0.478 | 0.64 |  |
 | 0.2 | 0.457 | 0.63 |  |
 | 0.35 | 0.413 | 0.608 | ← shipped |
-| 0.5 | 0.391 | 0.579 |  |
-| 0.7 | 0.391 | 0.528 |  |
-| 1.0 | 0.326 | 0.216 |  |
+| 0.5 | 0.391 | 0.578 |  |
+| 0.7 | 0.391 | 0.527 |  |
+| 1.0 | 0.326 | 0.215 |  |
 
 ## Caveats
 
+- 2026: realized from harvest (nflverse unavailable)
 - 2025: realized from harvest (nflverse unavailable)
 
 _NOTHING installs here. A weight change is a separate SHIP decision gated on null + leave-one-season-out CV, cited and reversible._
