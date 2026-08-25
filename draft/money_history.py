@@ -23,6 +23,9 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+if str(HERE) not in sys.path:
+    sys.path.insert(0, str(HERE))
+import season_played as SP   # noqa: E402 — the ONE "has this season been played"
 HISTORY = HERE / "data" / "league_history.json"
 PAYOUTS = HERE / "config" / "payouts.json"
 MY_OWNER = "434915673219526656"   # Cory — highlighted in the dollar standings
@@ -54,7 +57,12 @@ def _owner_name(season, roster_id):
 def analyse():
     seasons, pay = _load()
     weekly_high_amt = (pay.get("weekly_high") or {}).get("amount", 100)
-    graded = {sk: s for sk, s in seasons.items() if (s.get("weeks") or {})}
+    #: NOT `if s.get("weeks")`. A published schedule has eighteen weeks and no
+    #: football in them, and grading one paid Cory $1,500 of weekly high for a
+    #: season that had not started — every week won on a ten-way 0.0 tie that
+    #: `max` breaks toward roster 1. `season_played` carries the measurement.
+    #: Register 338.
+    graded = SP.played_seasons(seasons)
     if not graded:
         return {"error": "no weekly scores harvested yet — run the CI history export "
                 "(draft-data.yml, export_history=true) first", "seasons_total": len(seasons)}

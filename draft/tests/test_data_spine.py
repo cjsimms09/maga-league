@@ -22,8 +22,19 @@ sys.path.insert(0, str(DRAFT / "backtest"))
 
 import money_history as MH  # noqa: E402
 import money_grade as MG    # noqa: E402
+import season_played as SP  # noqa: E402
 
-SEASONS = ["2023", "2024", "2025"]
+#: DERIVED, NOT TYPED. This was `["2023", "2024", "2025"]`, and that literal is
+#: the only reason the four money reconciliations went red on 2026-08-25 —
+#: BY ACCIDENT, not by design. The Money Board and the Lab grader are meant to
+#: be an independent cross-check of each other, and on the unplayed 2026 season
+#: they AGREED: both handed out $1,875 that does not exist. The test caught it
+#: solely because one side's season list stopped short of the other's.
+#: **A cross-surface reconciliation is blind to any defect both surfaces share.**
+#: So the list is derived from the store, which means next September this pair
+#: covers 2026 the moment football starts instead of the year after somebody
+#: remembers to edit it. Register 338.
+SEASONS = sorted(SP.played_seasons(MG.load_history().get("seasons") or []))
 
 
 def _grade_career_by_owner():
