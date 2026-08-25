@@ -102,5 +102,75 @@ for (let s = 0; s < N; s++) {
 check('it never draws a kicker — it must reorder the SAME slate market_adp does',
   kickers === 0, kickers + '/' + N + ' picks were onesies');
 
+
+/* ── THE RATE-MATCHED NULL (P324) ─────────────────────────────────────────────
+ * `random_top25` answers "is ADP better than noise?", but it deviates from the
+ * engine on ~8.4 picks a room against market_adp's ~6.2 — so its deficit mixes
+ * "our ordering carries information" with "deviating costs something per se".
+ * `random_rate_matched` removes the second by acting on EXACTLY the picks
+ * market_adp acts on, and never taking recs[0] when it acts.
+ *
+ * Both halves of that sentence are load-bearing and both are testable, so both
+ * are tested — on a case where market_adp AGREES with the engine (the arm must
+ * stay silent) and one where it disagrees (the arm must act, and never land on
+ * the engine's favourite). An arm that only ever gets the second case checked
+ * would pass while deviating everywhere. */
+
+function ladder(adpOf_) {
+  const r = [];
+  for (let i = 0; i < 25; i++) {
+    r.push({ player: { player_id: 'p' + i, name: 'P' + i,
+                       position: i % 3 ? 'RB' : 'WR', raw_adp: adpOf_(i) },
+             score: 100 - i });
+  }
+  return r;
+}
+
+/* market_adp AGREES with the engine: P0 is both top-scored and lowest ADP. */
+const agree = ladder(i => i);
+check('CONTROL: market_adp takes P0 when it agrees with the engine',
+  AP.choosePick('market_adp', agree, { round: 1, picksLeft: 12, posCounts: {} })
+    .player.name === 'P0');
+
+let actedWhenItShouldNot = 0;
+for (let s = 0; s < 300; s++) {
+  if (AP.choosePick('random_rate_matched', agree, state(s)).player.name !== 'P0') {
+    actedWhenItShouldNot++;
+  }
+}
+check('rate-matched stays SILENT wherever market_adp does not deviate',
+  actedWhenItShouldNot === 0,
+  'deviated ' + actedWhenItShouldNot + '/300 times where market_adp took the '
+  + 'engine\'s own pick — the rate match is the whole arm, and this breaks it');
+
+/* market_adp DISAGREES: P24 has the lowest ADP. */
+const disagree = ladder(i => 100 - i);
+check('CONTROL: market_adp takes P24 when it disagrees',
+  AP.choosePick('market_adp', disagree, { round: 1, picksLeft: 12, posCounts: {} })
+    .player.name === 'P24');
+
+let tookTop = 0;
+const rmSeen = new Set();
+for (let s = 0; s < 300; s++) {
+  const nm = AP.choosePick('random_rate_matched', disagree, state(s)).player.name;
+  rmSeen.add(nm);
+  if (nm === 'P0') tookTop++;
+}
+check('when it DOES act, rate-matched never returns the engine\'s favourite',
+  tookTop === 0,
+  'took recs[0] ' + tookTop + '/300 — that would re-introduce exactly the '
+  + 'deviation-rate gap this arm exists to close');
+check('and it spreads over the whole non-recs[0] slate',
+  rmSeen.size === 24, 'only ' + rmSeen.size + '/24 distinct');
+
+check('rate-matched is deterministic on a seed',
+  AP.choosePick('random_rate_matched', disagree, state(7))
+  === AP.choosePick('random_rate_matched', disagree, state(7)));
+
+let rmRefused = false;
+try { AP.choosePick('random_rate_matched', disagree, { round: 1, picksLeft: 12, posCounts: {} }); }
+catch (e) { rmRefused = /pickSeed/.test(e.message); }
+check('rate-matched refuses a missing pickSeed too', rmRefused);
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);
