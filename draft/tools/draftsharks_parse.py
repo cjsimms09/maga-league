@@ -366,8 +366,35 @@ def build_board_index():
             "full_name": p.get("name"),
             "position": p.get("position"),
             "team": p.get("team"),
+            # ⚠️ NOT `overall_rank` ALONE (A, 2026-08-25, register 332).
+            #
+            # `overall_rank` is a rank WITHIN THE DRAFTABLE POOL, so post-keeper-
+            # lock all 23 kept players carry None while all 680 draftables carry
+            # a number. The collision tie-breaker below filters to candidates
+            # `c.get("rank") is not None`, so every keeper was silently dropped
+            # from disambiguation one layer BELOW the fix that put them in the
+            # index at all.
+            #
+            # That is what broke the Bijan/Brian resolution the comment down
+            # there says was verified: it WAS, pre-lock, when Bijan sat in
+            # `players` at rank 2. The lock nulled his rank, `ranked_pool` lost
+            # him, and both Draft Sharks Robinson rows resolved to Brian.
+            #
+            # `proj_mean` exists for keepers and draftables alike, so the
+            # prominence proxy is derived from it below and this stays a rank
+            # comparable to Draft Sharks' own.
             "search_rank": p.get("overall_rank"),
+            "proj_mean": p.get("proj_mean"),
         }
+
+    # A PROMINENCE RANK EVERY CANDIDATE HAS, keepers included. Derived over the
+    # SAME combined pool the index is built from, so a keeper and a draftable
+    # are ranked on one scale rather than one of them being unranked.
+    _ranked = sorted((q for q in sleeper_players.values()
+                      if q.get("proj_mean") is not None),
+                     key=lambda q: -(q.get("proj_mean") or 0))
+    for _i, _q in enumerate(_ranked, 1):
+        _q["full_pool_rank"] = _i
     index = ADP.build_index(sleeper_players)
 
     by_first_initial = collections.defaultdict(list)
@@ -377,7 +404,9 @@ def build_board_index():
             by_first_initial[k].append({
                 "id": pid, "name": p["full_name"], "has_suffix": _has_suffix(p["full_name"] or ""),
                 "pos": ADP._norm_pos(p["position"]), "team": ADP._norm_team(p["team"]),
-                "rank": p.get("search_rank")})
+                # full_pool_rank first: it is defined for keepers too. Falls back
+                # to overall_rank only where proj_mean is absent entirely.
+                "rank": p.get("full_pool_rank", p.get("search_rank"))})
     index["by_first_initial"] = dict(by_first_initial)
 
     by_last_name = collections.defaultdict(list)
@@ -387,7 +416,9 @@ def build_board_index():
             by_last_name[parts[-1]].append({
                 "id": pid, "name": p["full_name"],
                 "pos": ADP._norm_pos(p["position"]), "team": ADP._norm_team(p["team"]),
-                "rank": p.get("search_rank")})
+                # full_pool_rank first: it is defined for keepers too. Falls back
+                # to overall_rank only where proj_mean is absent entirely.
+                "rank": p.get("full_pool_rank", p.get("search_rank"))})
     index["by_last_name"] = dict(by_last_name)
     return index, ADP
 
