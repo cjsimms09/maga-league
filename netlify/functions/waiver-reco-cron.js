@@ -57,7 +57,7 @@ exports.autoCaptureContext = autoCaptureContext;
  * a positive claim, a block-watch row, or a hard-OUT on the roster — a week
  * with none of those sends nothing (the Sunday-alert noise lesson: fifteen
  * "nothing to do" emails teach you to stop opening the one that matters). */
-function wirePayload(reco, week, ridName) {
+function wirePayload(reco, week, ridName, leagueId) {
   const top = (reco && reco.claims && reco.claims[0]) || null;
   const bw = ((reco && reco.blockWatch) || []).map(b => ({ ...b,
     denies_names: (b.denies || []).map(ridName) }));
@@ -71,6 +71,11 @@ function wirePayload(reco, week, ridName) {
     stream: ((reco && reco.streamClaims) || [])[0] || null,
     blockWatch: bw,
     myInjured: inj,
+    // Catalog item 14 ("IR moves... end at the transaction, which happens
+    // in Sleeper"): the injury section names who's hurt; this is what lets
+    // notify.js turn that into an actual "open in Sleeper" link, same URL
+    // construction as server-app.js's res.locals.sleeperLink('team').
+    leagueId: leagueId || null,
   };
   p.actionable = !!(p.topClaim || bw.length || inj.some(x => x.out));
   return p;
@@ -144,7 +149,7 @@ exports.runCapture = async () => {
         const oid = Number((cfg.sleeper_map || {})[String(rid)]);
         return ((owners || []).find(o => Number(o.id) === oid) || {}).name || `team ${rid}`;
       };
-      const payload = wirePayload(reco, ctx.week, ridName);
+      const payload = wirePayload(reco, ctx.week, ridName, cfg.sleeper_league_id);
       const wireStamp = `tuesdaywire:${ctx.season}:${ctx.week}`;
       if (!payload.actionable) emailNote = 'nothing worth an inbox this week';
       else if (await store.get(wireStamp)) emailNote = 'already sent this week';

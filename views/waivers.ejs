@@ -118,6 +118,15 @@
         <h2>🔼 What the wire would add
           <span class="sub"><%= claims.length %> claim<%= claims.length === 1 ? '' : 's' %> that reach your lineup<% if (drop) { %> · you would drop <b><%= drop.name %></b><% } %></span></h2>
         <div class="body">
+          <%# Catalog item 14: this tool is the brain, the actual claim happens
+              in Sleeper — one button, not a treasure hunt. Reuses the SAME
+              verified link the lineup-problem NEEDS YOU row already uses
+              (member.js) rather than guessing an unverified sub-path. %>
+          <% if (claims.length && typeof sleeperLink === 'function' && sleeperLink('team')) { %>
+            <p style="margin:0 0 .6rem">
+              <a class="btn small navy" href="<%= sleeperLink('team') %>" target="_blank" rel="noopener">Open in Sleeper to claim →</a>
+            </p>
+          <% } %>
           <%- include('partials/_wr_explain', { ex: G.claims }) %>
           <% claims.forEach((c, i) => { %>
             <div class="lo-call">

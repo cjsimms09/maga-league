@@ -384,6 +384,14 @@ async function tuesdayWire(owners, payload) {
     body += `<div style="font-weight:800">🏥 Your roster's injury news</div><div style="margin:4px 0 12px">`
           + inj.map(p => `<b>${p.name}</b> (${p.position}) — ${p.out ? '<b style="color:#d4242f">' + p.tag + '</b>' : p.tag}`).join('<br>')
           + `</div>`;
+    // Catalog item 14: a hard-OUT is an IR-move candidate, and the move
+    // happens in Sleeper, not here. Same URL construction as server-app.js's
+    // res.locals.sleeperLink('team') — one verified path, reused, not guessed
+    // a second time. Only for a real hard-out, not every questionable tag.
+    if (payload.leagueId && inj.some(p => p.out)) {
+      body += `<div style="margin:0 0 12px"><a href="https://sleeper.com/leagues/${payload.leagueId}/team" `
+            + `style="color:#0d47a1;font-weight:700">Open in Sleeper to make the roster move →</a></div>`;
+    }
   }
   const bw = payload.blockWatch || [];
   if (bw.length) {

@@ -304,23 +304,25 @@
   <h2>Roster <span class="sub">points are half-PPR · Wk <%= roster.lastWeek %> = most recent completed week</span></h2>
   <div class="body tight scroll-x">
     <table class="roll">
-      <tr><th></th><th>Player</th><th>Pos</th><th>Team</th><th class="num">Wk <%= roster.lastWeek %></th><th class="num">Season</th><th>Status</th></tr>
-      <% for (const r of roster.rows) { const kc = r.team === 'KC'; %>
+      <tr><th></th><th>Player</th><th>Pos</th><th>Team</th><th class="num">Wk <%= roster.lastWeek %></th><th class="num">Season</th></tr>
+      <%# Catalog item 16 ("injury chips on every player name, site-wide, one
+          component"): the SAME injuryFlag() classifier matchup.ejs uses, not
+          a second reading — the old Status column showed raw r.inj text and
+          called a bye-week player "healthy", which is a different (wrong)
+          answer to the same question the chip already answers correctly.
+          One flag beside the name replaces it; nothing shows the status twice. %>
+      <% for (const r of roster.rows) { const kc = r.team === 'KC';
+           const f = (typeof injuryFlag === 'function')
+             ? injuryFlag({ onBye: r.bye != null && r.bye === weekNo, inj: r.inj })
+             : { level: '', text: '' };
+           const flagCls = f.level === 'bye' ? 'bye' : f.level === 'out' ? 'out' : 'q'; %>
         <tr class="<%= r.starter ? '' : 'muted-row' %><%= kc ? ' kc-row' : '' %>">
           <td><%= r.starter ? '🟢' : '' %></td>
-          <td><b><%= r.name %></b><% if (r.rank && r.rank <= 50) { %> <span class="badge gold" title="Sleeper overall rank">#<%= r.rank %></span><% } %><% if (kc) { %> <img class="kc-logo" src="/icons/kc.svg" alt="KC" title="Kansas City Chiefs"><% } %></td>
+          <td><b><%= r.name %></b><% if (f.level) { %> <span class="mu-flag <%= flagCls %>"><%= f.text %></span><% } %><% if (r.rank && r.rank <= 50) { %> <span class="badge gold" title="Sleeper overall rank">#<%= r.rank %></span><% } %><% if (kc) { %> <img class="kc-logo" src="/icons/kc.svg" alt="KC" title="Kansas City Chiefs"><% } %></td>
           <td><%= r.pos %></td>
           <td class="muted"><%= r.team %></td>
           <td class="num"><%= r.wkPts == null ? '—' : r.wkPts.toFixed(1) %></td>
           <td class="num"><b><%= r.seasonPts == null ? '—' : r.seasonPts.toFixed(1) %></b></td>
-          <td><%
-            /* the SAME leveled ladder the matchup card uses (catalog 16): red
-               for cannot-score, amber for questionable, bye called out — not a
-               flat badge that renders IR and Questionable identically. */
-            const _f = injuryFlag({ inj: r.inj,
-              onBye: r.bye != null && weekNo != null && Number(r.bye) === Number(weekNo) }, weekNo); %>
-            <% if (_f.level) { %><span class="mu-flag <%= _f.level === 'bye' ? 'bye' : _f.level === 'out' ? 'out' : 'q' %>"><%= _f.text %></span>
-            <% } else { %><span class="muted">healthy</span><% } %></td>
         </tr>
       <% } %>
       <%# An empty roster has more than one cause, and this used to assert the

@@ -337,6 +337,19 @@
   color: var(--wr-warn); margin-top: .3rem;
 }
 .bc-clock.dead { color: var(--wr-muted); font-weight: 600; }
+/* Head-to-head (Little Things Catalog item 6): the trash-talk stat, a click-in
+   like the score bug's "working" — the record is the answer, the game list is
+   the detail one tap behind it. */
+.bc-h2h { margin-top: var(--wr-s2); font-size: var(--wr-fs-sub); }
+.bc-h2h > summary { cursor: pointer; color: var(--wr-muted); font-weight: 600; }
+.bc-h2h > summary b { color: var(--wr-ink); }
+.bc-h2h-list { list-style: none; margin: .3rem 0 0; padding: 0; }
+.bc-h2h-list li {
+  display: flex; justify-content: space-between; gap: .5rem;
+  padding: .2rem 0; border-top: 1px solid var(--wr-line);
+  font-size: var(--wr-fs-micro);
+}
+.bc-h2h-terms { color: var(--wr-muted); }
 /* The score bug: the engine's current read on a live bet — headline always
    visible, the working one tap deeper. Never a settle switch: the buttons it
    carries only DECLARE, and a human on the other side still confirms. */
