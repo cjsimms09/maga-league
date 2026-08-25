@@ -43,7 +43,9 @@ Anything that still cannot be represented is recorded in `_problems` WITH A
 REASON and printed. A count of discards tells you something went missing; it
 does not tell you what or why, and it cannot be acted on. Reasons can.
 """
+import datetime
 import json, os
+import re
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 import sys
 sys.path.insert(0, os.path.join(ROOT, "draft"))
@@ -211,20 +213,107 @@ def build(cfg, art, hist, rosters=None):
     }
 
 
-def main():
-    cfg = json.load(open(os.path.join(ROOT, "draft", "config", "league_config.json")))
-    art = json.load(open(os.path.join(ROOT, "public", "draft_data.json")))
-    hist = json.load(open(os.path.join(ROOT, "draft", "data", "league_history.json")))
-    out = build(cfg, art, hist)
-    open(os.path.join(ROOT, "draft", "config", "keepers.json"), "w").write(
-        json.dumps(out, indent=2) + "\n")
+def draft_has_started(cfg, now=None):
+    """Has this league's draft begun?
+
+    Read off `league_config.draft.start_date`/`start_time`/`tz` — a value Cory
+    RULED on 2026-08-18 and which `preserve_local_rulings` keeps across every
+    nightly rebuild, so it is durable in exactly the way a hardcoded date is not.
+
+    Returns None when the config does not say, and every caller below treats
+    None as "do not know" rather than as "no" — an absent answer must not
+    silently disable a guard.
+    """
+    d = (cfg.get("draft") or {})
+    date = d.get("start_date")
+    if not date:
+        return None
+    tzoff = {"CDT": -5, "CST": -6, "EDT": -4, "EST": -5,
+             "PDT": -7, "PST": -8, "UTC": 0}.get(str(d.get("tz") or "").upper())
+    hh, mm = 23, 59                       # unknown time -> end of the draft day,
+    t = str(d.get("start_time") or "")    # so we never call it started too early
+    m = re.match(r"(\d{1,2}):(\d{2})\s*([AP]M)?", t.strip(), re.I)
+    if m:
+        hh, mm = int(m.group(1)), int(m.group(2))
+        ap = (m.group(3) or "").upper()
+        if ap == "PM" and hh != 12:
+            hh += 12
+        elif ap == "AM" and hh == 12:
+            hh = 0
+    if tzoff is None:
+        return None
+    start = (datetime.datetime.fromisoformat(date)
+             .replace(hour=hh, minute=mm, tzinfo=datetime.timezone.utc)
+             - datetime.timedelta(hours=tzoff))
+    return (now or datetime.datetime.now(datetime.timezone.utc)) >= start
+
+
+def main(cfg=None, art=None, hist=None, rosters=None, dest=None, now=None):
+    """Every input is injectable for the same reason `_assert_accounting` was
+    extracted: the control flow below decides whether the real keepers.json is
+    overwritten, and until 2026-08-25 the only way to exercise it was to run the
+    whole generator against live Sleeper. The arms that matter most — post-draft
+    zero, and a stale fallback disagreeing with the board — are exactly the ones
+    that cannot be reached from a test machine that cannot reach Sleeper."""
+    if cfg is None:
+        cfg = json.load(open(os.path.join(ROOT, "draft", "config", "league_config.json")))
+    if art is None:
+        art = json.load(open(os.path.join(ROOT, "public", "draft_data.json")))
+    if hist is None:
+        hist = json.load(open(os.path.join(ROOT, "draft", "data", "league_history.json")))
+    out = build(cfg, art, hist, rosters)
+
+    if dest is None:
+        dest = os.path.join(ROOT, "draft", "config", "keepers.json")
+    for p in out["_problems"]:
+        print("  PROBLEM [%s] %s" % (p["kind"], p["reason"]))
+
+    # ⚠️ ONCE THE DRAFT HAS RUN, ZERO DESIGNATIONS IS THE TRUTH, NOT A BROKEN READ.
+    #
+    # Sleeper consumes keeper designations when the draft starts, so from that
+    # moment `designations()` legitimately returns nothing. The refusal below was
+    # written for the PRE-draft window, where zero can only mean the read broke —
+    # and it was given no expiry. **That is what has blocked every scheduled board
+    # publish since 2026-08-22** (register 319): runs 111, 112 and 113 all died
+    # here, and with them the history export, the board build, the acceptance
+    # gate, the commit and the deploy — a whole cascade, from a guard doing
+    # exactly what it was told.
+    #
+    # It is the same shape as `build.py:1963` ruling the keeper-pool effect
+    # immaterial "at about 1.8 points": a judgement correct under a condition
+    # that nobody attached an expiry to, still being applied after the condition
+    # ended. Both are register 283's family.
+    #
+    # AND IT MUST NOT REGENERATE THE FILE EITHER. Post-draft `keepers.json` is a
+    # RECORD of what was kept. Rewriting it from a source that no longer carries
+    # designations would replace that record with an empty one — precisely the
+    # damage the refusal exists to prevent, arriving through the door it does not
+    # watch. So: leave the file alone, say why, exit 0.
+    started = draft_has_started(cfg, now=now)
+    if started and out["_designating_teams"] == 0:
+        print("draft started (%s %s %s) and Sleeper reports no live keeper "
+              "designations, which is expected once designations are consumed. "
+              "LEAVING keepers.json UNTOUCHED — post-draft it is a record of what "
+              "was kept, not something to regenerate from an empty source."
+              % ((cfg.get("draft") or {}).get("start_date"),
+                 (cfg.get("draft") or {}).get("start_time"),
+                 (cfg.get("draft") or {}).get("tz")))
+        return
+
+    # ⚠️ ASSERT BEFORE WRITE. This ran AFTER the write until 2026-08-25, so the
+    # guard whose own message reads "a keeper file with no teams silently returns
+    # every kept player to the draftable pool. Refusing." had already written
+    # that exact file to disk before refusing. On a CI runner the workspace is
+    # thrown away and no harm reaches the repo; run by hand it destroys the real
+    # keepers.json and exits 1, which is how a probe clobbered it on 08-25.
+    # A refusal that fires after the damage is a report, not a guard.
+    _assert_accounting(out, art)
+
+    open(dest, "w").write(json.dumps(out, indent=2) + "\n")
     print("wrote keepers.json: %d designating team(s), %d keeper(s), "
           "%d provisional slot(s)"
           % (out["_designating_teams"], out["_total_keepers"],
              out["_provisional_slots"]))
-    for p in out["_problems"]:
-        print("  PROBLEM [%s] %s" % (p["kind"], p["reason"]))
-    _assert_accounting(out, art)
 
 
 def _assert_accounting(out, art):
@@ -270,10 +359,53 @@ def _assert_accounting(out, art):
             "keeper_slate says %d team(s) had designated. A keeper file with no "
             "teams silently returns every kept player to the draftable pool. "
             "Refusing." % expected)
+    # ⚠️ A DISAGREEMENT FROM THE STALE FALLBACK IS NOT A RACE, AND THIS FILE'S
+    # OWN DOCSTRING ALREADY SAYS SO — `designations()` describes seeing "2
+    # designating teams against 4" and calls the disagreement "structural rather
+    # than a timing race". It was diagnosed and then left as a print.
+    #
+    # Measured again 2026-08-25, unchanged: with Sleeper unreachable the history
+    # fallback reports 2 designating teams against the board's 9, writes that
+    # over the real keepers.json, and EXITS 0. In CI a Sleeper outage would
+    # therefore rebuild the board on a 2-team keeper slate — seven teams' keepers
+    # silently returned to the draftable pool — on a GREEN run. draft-data.yml's
+    # own comment states the intended trade exactly: "A board that fails to
+    # rebuild is VISIBLE (built_at goes stale and the staleness alarm fires); a
+    # board that rebuilds wrong is not."
+    #
+    # SPLIT BY SOURCE, because the benign-race argument holds only for live
+    # Sleeper. Read live, a difference can be a team designating between the two
+    # reads — warn. Read from the fallback, the file is of unknown age and cannot
+    # be newer than the board it disagrees with — refuse.
     if expected is not None and out["_designating_teams"] != expected:
-        print("  ! designating teams: %d here vs %d on the last board — expected "
-              "if a team designated between the two reads, worth a look if not"
-              % (out["_designating_teams"], expected))
+        # THE HAZARD IS A CACHE OF UNKNOWN AGE, so name it exactly rather than
+        # by exclusion. `designations()` tags exactly three sources: "sleeper"
+        # (live), "injected" (a caller supplied the rosters and knows what it
+        # has), and "history (sleeper unreachable)".
+        #
+        # Two wrong versions of this line, both caught by running it:
+        #   `"sleeper" not in source` — the fallback label literally CONTAINS the
+        #     word sleeper, so the stale read tested as live and sailed straight
+        #     through the guard written to stop it.
+        #   `source != "sleeper"` — swept in "injected" too, which refuses on
+        #     every offline replay and broke four existing tests, one of which
+        #     (test_keeper_path_silence) exists specifically to pin that a
+        #     different nonzero count only WARNS.
+        from_fallback = str(out.get("_designations_source") or "").startswith("history")
+        msg = ("designating teams: %d here vs %d on the last board"
+               % (out["_designating_teams"], expected))
+        if from_fallback:
+            raise SystemExit(
+                "gen_keepers_json: %s, and this read came from the STALE FALLBACK "
+                "(%s) rather than live Sleeper. A cached file cannot be newer than "
+                "the board it disagrees with, so this is not a race — it is the "
+                "structural disagreement this file's own docstring describes. "
+                "Writing it would return %d team(s)' keepers to the draftable pool "
+                "on a green run. Refusing."
+                % (msg, out.get("_designations_source"),
+                   abs(expected - out["_designating_teams"])))
+        print("  ! %s — expected if a team designated between the two reads, "
+              "worth a look if not" % msg)
 
 
 if __name__ == "__main__":
