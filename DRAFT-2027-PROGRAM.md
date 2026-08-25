@@ -1,5 +1,9 @@
 # DRAFT 2027 — what to fix, ranked by what we measured
 
+> **READ `DRAFT-2026-LESSONS.md` FIRST** — Cory's ordered memory of the 2026
+> draft (strategy truths with their numbers, the night's operational failures,
+> and how we fooled ourselves). This file is the build plan; that one is why.
+
 **Session D, 2026-08-23.** Cory: *"look at everything from draft — its
 recommendations, how we chose picks, our calculations — and try to be 10x better
 next year. Goal is to draft me the best possible roster."*
