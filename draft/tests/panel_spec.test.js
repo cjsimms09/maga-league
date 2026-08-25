@@ -125,11 +125,37 @@ ck('and it does not describe dead code — every panel found is really called',
 // not true when they were typed.
 {
   const rec = SPEC.PANELS.find(p => p.fn === 'renderRecommendations');
-  const actual = (function () {
-    const i = SRC.indexOf('  function renderRecommendations(');
-    if (i < 0) return 0;
+  const linesOf = (fn) => {
+    const i = SRC.indexOf('  function ' + fn + '(');
+    if (i < 0) return null;
     return SRC.slice(i, SRC.indexOf('\n  }', i)).split('\n').length;
-  })();
+  };
+  const actual = linesOf('renderRecommendations');
+
+  /* ⚠️ THIS USED TO CHECK ONE PANEL, AND TWO BIGGER DRIFTS HID BEHIND IT.
+   *
+   * The assertion below was `renderRecommendations` alone. Measured 2026-08-24
+   * when it finally went red at +30: THREE panels were out of tolerance, and
+   * the largest by far was invisible — `renderSeatPlan` claimed 121 lines and
+   * was 252, having MORE THAN DOUBLED with nothing watching. `renderThreats`
+   * was +37.
+   *
+   * The section header above says these claims "must be true now, not true
+   * when they were typed". That is a property of EVERY claim in the spec, so
+   * it is now checked against every one of them. Fourteen panels carry a line
+   * claim; one was checked. */
+  const claimed = SPEC.PANELS.filter(p => p.lines);
+  const drifted = claimed.map(p => ({ fn: p.fn, claimed: p.lines, actual: linesOf(p.fn) }))
+    .filter(r => r.actual == null || Math.abs(r.actual - r.claimed) > 25);
+
+  ck('CONTROL — the spec carries enough line claims for this to be a real '
+    + 'sweep rather than a one-panel check wearing a plural', claimed.length >= 10,
+  { claims: claimed.length });
+
+  ck('EVERY line claim in the spec is still true, not just the headline panel '
+    + '— one-panel coverage is how renderSeatPlan drifted 121 -> 252 unseen',
+  drifted.length === 0, drifted);
+
   ck('the "377 lines" claim about renderRecommendations is still true',
     rec && Math.abs(rec.lines - actual) <= 25, { claimed: rec && rec.lines, actual: actual });
   ck('and it really is the biggest panel, which is what makes it A\'s problem '

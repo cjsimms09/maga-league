@@ -18,7 +18,7 @@
         <div class="chat-bubble">
           <div class="chat-meta">
             <b><%= m.name %></b>
-            <span><%= (m.created_at || '').slice(5, 10).replace('-', '/') %> <%= (m.created_at || '').slice(11, 16) %></span>
+            <span title="<%= m.created_at %>"><%= timeago(m.created_at) %></span>
             <% if (m.edited_at) { %><span class="muted" title="edited within the 5-minute window">(edited)</span><% } %>
             <a href="/chat?reply=<%= mid %>#composer" class="muted" style="text-decoration:none" title="Reply to this">↩</a>
             <% if (editable) { %>

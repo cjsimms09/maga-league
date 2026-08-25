@@ -257,3 +257,122 @@ worst(unfixed) > Math.max(...Object.values(RECO.startableSlotCaps(CFG.starters))
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 if (fail) { console.log('FAILED'); process.exit(1); }
+
+/* ── REGISTER 321: A CLAIM MUST CARRY WHETHER THE MAN CAN PLAY ──────────────
+ *
+ * `injury_status` has been set on every enriched waiver row since register 277
+ * and read by NOTHING in the valuation. The emitted claim carried no injury
+ * field at all, so a player on IR could rank #1 at his full August projection
+ * and the page could not have said so even if it wanted to — it was not in the
+ * payload. That is the built-and-disconnected shape (register 60) on the
+ * surface that spends waiver priority.
+ *
+ * ⚠️ WHAT IS ASSERTED IS THE FIELD, NOT A RANKING CHANGE — deliberately.
+ * Zeroing an OUT player here would be a DIFFERENT error in the same place:
+ * start/sit is a weekly decision so zeroing is right there, while a claim is a
+ * rest-of-season decision and a man OUT this week can be a fine stash. Whether
+ * IR/PUP/SUS should sink a claim is a football judgement, carried as an open
+ * ask. These tests pin the end of the SILENT part and nothing more.
+ */
+{
+  const W = require(path.join(ROOT, 'src', 'routes', 'waivers.js'));
+  const LO2 = require(path.join(ROOT, 'src', 'routes', 'lineup.js'));
+
+  ck('CONTROL — the shared inactive vocabulary is non-empty, or every "is he '
+    + 'out" answer below is a vacuous false',
+  LO2.INACTIVE_INJURY && LO2.INACTIVE_INJURY.size > 0,
+  LO2.INACTIVE_INJURY && [...LO2.INACTIVE_INJURY]);
+
+  ck('KNOWN POSITIVE — a hard-out designation reads as inactive',
+    W.isOutNow({ injury_status: 'Out' }) && W.isOutNow({ injury_status: 'IR' }));
+  ck('KNOWN NEGATIVE — a PLAYABLE designation does not, so the flag is not '
+    + 'simply true for anyone carrying a tag',
+  !W.isOutNow({ injury_status: 'Questionable' })
+    && !W.isOutNow({ injury_status: 'Doubtful' }));
+  ck('KNOWN NEGATIVE — a healthy player with no field at all is not inactive '
+    + 'and carries an empty tag rather than throwing',
+  !W.isOutNow({}) && W.injuryTag({}) === '' && !W.isOutNow({ injury_status: null }));
+
+  /* The field must actually reach the claim rows — the whole point. Built from
+   * a two-man fixture so the assertion cannot pass by accident on a pool that
+   * happens to contain no injured players. */
+  const fa = [
+    { player_id: 'hurt', name: 'Hurt Guy', position: 'WR', proj_mean: 200,
+      vorp: 60, injury_status: 'IR' },
+    { player_id: 'fit', name: 'Fit Guy', position: 'WR', proj_mean: 150,
+      vorp: 20, injury_status: null },
+  ];
+  const mine = [{ player_id: 'r1', name: 'Mine', position: 'WR',
+    proj_mean: 100, vorp: 0 }];
+  const res = W.evaluateClaims(fa, mine, { teams: 10, starters: CFG.starters }, {});
+  const byId = Object.fromEntries(res.claims.map(c => [c.player_id, c]));
+
+  ck('every claim row now carries the injury fields, so the page has something '
+    + 'to render and no consumer has to re-derive them',
+  res.claims.length === 2
+    && res.claims.every(c => 'injury_status' in c && 'inactive' in c),
+  res.claims.map(c => c.player_id + ':' + c.injury_status + '/' + c.inactive));
+
+  ck('  ...and they carry the RIGHT values per player, not one blanket answer',
+    byId.hurt && byId.hurt.inactive === true && byId.hurt.injury_status === 'IR'
+    && byId.fit && byId.fit.inactive === false && byId.fit.injury_status === null,
+    { hurt: byId.hurt && [byId.hurt.injury_status, byId.hurt.inactive],
+      fit: byId.fit && [byId.fit.injury_status, byId.fit.inactive] });
+
+  ck('CONTROL — the injured man is still RANKED, not silently dropped: this '
+    + 'change surfaces status and deliberately does not re-rank, so a '
+    + 'regression that starts filtering him out shows up here',
+  res.claims.some(c => c.player_id === 'hurt'),
+  res.claims.map(c => c.player_id));
+}
+
+/* ── THE DROP SIDE (register 321), AND A CORRECTION TO MY OWN CLAIM ──────────
+ *
+ * Filing 321 I wrote that the drop side "has a clear right answer, unlike the
+ * claim side" — an IR player being exactly the body you want to cut. On
+ * reflection that is WRONG, and it is wrong for the reason register 320 gives:
+ * whether to drop an injured man depends on WHEN HE RETURNS, which is
+ * rest-of-season information the tool does not have. Season-ending IR on a
+ * bench scrub is an obvious cut; short-term IR on a stud is the worst move
+ * available. Same missing input, so the drop side is no clearer than the claim
+ * side and gets the same treatment: surface it, do not re-rank it.
+ *
+ * WHAT IS ASSERTED HERE IS THE CURRENT STATE, LABELLED AS SUCH. If someone
+ * later teaches dropCandidate about availability, the witness below goes red —
+ * and that is correct. It should be a deliberate edit with a football reason,
+ * not a silent drift.
+ */
+{
+  const W2 = require(path.join(ROOT, 'src', 'routes', 'waivers.js'));
+  const lg = { teams: 10, starters: CFG.starters };
+  const mine = [
+    { player_id: 'ok', name: 'Healthy Bench', position: 'WR', proj_mean: 80, vorp: -20 },
+    { player_id: 'ir', name: 'Hurt Bench', position: 'WR', proj_mean: 190, vorp: 50,
+      injury_status: 'IR' },
+    { player_id: 'st', name: 'Starter', position: 'RB', proj_mean: 200, vorp: 60 },
+  ];
+  const out = W2.evaluateClaims(
+    [{ player_id: 'fa', name: 'FA', position: 'WR', proj_mean: 150, vorp: 20 }],
+    mine, lg, {});
+
+  ck('CONTROL — the fixture really does contain a hard-out player, or the '
+    + 'witness below is vacuous', W2.isOutNow(mine[1]));
+
+  ck('the drop payload carries the injury fields, so a page can say "you are '
+    + 'being told to cut a healthy man" instead of showing a bare name',
+  out.drop && 'injury_status' in out.drop && 'inactive' in out.drop, out.drop);
+
+  ck('and the TOP-LEVEL drop and the CLAIM-EMBEDDED drop are the same shape — '
+    + 'they were built inline in two places with the same three fields, which '
+    + 'is how one object comes to have two shapes (rule 11)',
+  JSON.stringify(Object.keys(out.drop))
+    === JSON.stringify(Object.keys(out.claims[0].drop)),
+  { top: Object.keys(out.drop), embedded: Object.keys(out.claims[0].drop) });
+
+  ck('WITNESS, not a goal — dropCandidate is TODAY blind to availability: it '
+    + 'picks the healthy bench body (value -20) and leaves the IR man (value '
+    + '+50) because his frozen projection scores higher. If this goes red, '
+    + 'someone taught it about availability and should say so on register 321.',
+  out.drop.player_id === 'ok' && out.drop.inactive === false,
+  { chose: out.drop.player_id, inactive: out.drop.inactive });
+}

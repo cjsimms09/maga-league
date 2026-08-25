@@ -1,0 +1,151 @@
+name: League history export (the graders' input, on its own legs)
+
+# TERRITORY: A — dispatches draft/history_export.py.
+#
+# ── WHY THIS IS ITS OWN WORKFLOW (registers 318 and 319) ────────────────────
+#
+# `draft/data/league_history.json` is the input to ALL FIVE decision graders —
+# start_sit, waiver, drop, keeper and draft_pick vs_random. Nothing else feeds
+# them. If it stops refreshing, every one of them runs GREEN every Tuesday of
+# the season, republishes the same 2023-25 numbers, and never sees a single
+# 2026 decision. A grader reporting an unchanged historical figure all season is
+# indistinguishable from one that is working.
+#
+# It used to be exported by ONE step inside `draft-data.yml`, the draft-board
+# build, and that arrangement failed twice over:
+#
+#   REGISTER 318 — the step was gated on `github.event.inputs.export_history ==
+#   'true'`. On a `schedule` trigger `github.event.inputs` does not exist, so
+#   that is `null == 'true'`, false on every cron. Only a human ticking a box
+#   ever refreshed it. Committed `built_at` was 16.7 days stale when found.
+#
+#   REGISTER 319 — and fixing that condition was NOT ENOUGH, which is the point
+#   of this file. The step sits at position 11 of 23 with no `if: always()`, so
+#   it is skipped whenever anything before it fails — and `draft-data.yml` has
+#   failed on EVERY scheduled run since 2026-08-19. Worse, the commit step is
+#   at position 22, so even a step that ran would not have landed.
+#
+# ── THE REASON IT CANNOT LIVE THERE, STATED AS A RULE ───────────────────────
+#
+# The board build legitimately fails after a draft. Its keeper refresh reads
+# live designations, and a completed draft consumes them: run 110 (14h BEFORE
+# the 08-22 draft) passed that step, run 111 (9.5h AFTER) failed it, with the
+# draft the only event in between. Its acceptance gate pins a pre-draft world.
+# Those are a DRAFT tool's concerns and it is reasonable for them to stop the
+# board from publishing.
+#
+# None of them have anything to do with exporting league history. Holding an
+# IN-SEASON input hostage to a PRE-SEASON gate is the actual defect, and
+# re-pointing one `if:` would have left the hostage relationship in place to
+# fail again the next time the board build breaks for a good reason.
+#
+# TUESDAY 11:00 UTC — after own-weekly-grade (Tue 06:00) and before
+# weekly-grade (Tue 13:30), the run the five graders execute in, so they read a
+# history refreshed the same morning. Weekly, not nightly: this is a full
+# multi-season Sleeper re-fetch and the export is idempotent for completed
+# seasons.
+#
+# Egress: Sleeper. Reachable from CI, proxy-DENIED in the dev sandbox, so this
+# can only be proven by a real run — `built_at` moving off 2026-08-08 is the
+# check, and capture_cron_health.py's `league_history` entry is what will say
+# so without anyone having to remember to look.
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '0 11 * * 2'   # Tuesdays 11:00 UTC
+
+permissions:
+  contents: write
+
+concurrency:
+  group: league-history-export
+  cancel-in-progress: false   # QUEUE, never drop — register 309
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Install
+        run: pip install -r draft/requirements.txt
+
+      - name: Export
+        working-directory: draft
+        run: python history_export.py "1374848328470102016"
+
+      # ⭐ RULE 3e — A GREEN RUN IS NOT PROOF OF A LANDED EXPORT, which is the
+      # exact confusion register 155 was filed about and register 319 found
+      # again. `history_export.py` records an empty season as a gap rather than
+      # dropping it (its own design rule: "fail loudly, never silently"), so a
+      # file can be written, be valid, and still have lost a season.
+      #
+      # These assert against KNOWN values, not against "looks reasonable":
+      # 2023-25 are completed seasons whose week counts can never change again,
+      # so 18 is a fact and not a threshold. 2026 is deliberately NOT required
+      # to have weeks — before week 1 it correctly has zero, and demanding
+      # otherwise would red this job every preseason Tuesday.
+      - name: Did the export actually land, or did it just run?
+        run: |
+          python3 - <<'PY'
+          import json, sys, datetime
+          d = json.load(open('draft/data/league_history.json'))
+          seasons = {str(s.get('season')): s for s in d.get('seasons') or []}
+          fail = []
+
+          for yr in ('2023', '2024', '2025'):
+              s = seasons.get(yr)
+              if not s:
+                  fail.append(f'{yr} MISSING from the export entirely')
+                  continue
+              n = len(s.get('weeks') or {})
+              if n != 18:
+                  fail.append(f'{yr} has {n} weeks, not the 18 a completed season has')
+
+          if '2026' not in seasons:
+              fail.append('2026 season entry missing — the graders need the row to '
+                          'exist even while it is empty')
+
+          built = d.get('built_at')
+          if not built:
+              fail.append('no built_at stamp — staleness becomes unmeasurable')
+          else:
+              age = (datetime.datetime.now(datetime.timezone.utc)
+                     - datetime.datetime.fromisoformat(built)).total_seconds() / 3600
+              # The stamp must be from THIS run. An unchanged stamp means the
+              # export did not write, and that is precisely the failure mode
+              # this whole workflow exists to end.
+              if age > 6:
+                  fail.append(f'built_at is {age:.1f}h old — this run did not '
+                              f'rewrite it, so nothing was actually exported')
+
+          print(f'seasons: {sorted(seasons)}')
+          print(f'built_at: {built}')
+          print('weeks: ' + ', '.join(
+              f'{y}={len(seasons[y].get("weeks") or {})}' for y in sorted(seasons)))
+          if fail:
+              print('\nEXPORT DID NOT LAND:')
+              for f in fail:
+                  print('  - ' + f)
+              sys.exit(1)
+          print('\nexport landed: three completed seasons intact, 2026 row present, '
+                'stamp is from this run')
+          PY
+
+      - name: Commit if it changed
+        run: |
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/data/league_history.json
+          if git diff --cached --quiet; then
+            echo "league_history.json unchanged — nothing to commit (the export is "
+            echo "idempotent for completed seasons, so this is normal out of season)"
+          else
+            # [skip deploy] — draft/data is not a served path, so this must never
+            # spend one of Cory's three daily Netlify builds (his 08-24 cadence
+            # ruling).
+            git commit -m "league_history: weekly export for the decision graders [skip deploy]"
+            git push
+          fi

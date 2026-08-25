@@ -179,6 +179,42 @@ jobs:
         working-directory: .
         run: python draft/gen_keepers_json.py
       - name: Export league history
+        # ⚠️ THIS STEP NEVER RAN ON A SCHEDULE (A, 2026-08-24, register below).
+        # The condition was `github.event.inputs.export_history == 'true'` alone,
+        # and on a `schedule` trigger `github.event.inputs` does not exist — the
+        # comparison is null == 'true', which is false on every scheduled run.
+        # So league_history.json was refreshed ONLY when a human dispatched the
+        # workflow with the box ticked. Its committed `built_at` was 16 days
+        # stale when this was found.
+        #
+        # WHY THAT MATTERS MORE THAN A STALE FILE: league_history.json is what
+        # ALL FIVE decision graders read (start/sit, waiver, drop, keeper, draft
+        # pick — draft/backtest/*_vs_random.py). Left alone, they would have run
+        # green every Tuesday of the season and graded 2023-25 forever, never
+        # seeing a single 2026 decision. A grader that reports the same
+        # historical number all season is indistinguishable from one that is
+        # working, which is the whole failure this project calls "a grade that
+        # moved nothing".
+        #
+        # FIXED, THEN SUPERSEDED THE SAME DAY BY A BETTER FIX — and the second
+        # half is the one worth reading. My first change made this step also run
+        # on the Tuesday 11:00 cron. That was correct and INERT: this step sits
+        # at position 11 of 23 with no `if: always()`, so it is skipped whenever
+        # anything earlier fails, and this workflow has failed on EVERY
+        # scheduled run since 2026-08-19 (register 319). The commit step is at
+        # position 22, so even a step that ran would not have landed.
+        #
+        # The real defect was the hostage relationship, not the condition. The
+        # board build legitimately fails after a draft — the keeper refresh two
+        # steps up reads live designations and a completed draft consumes them
+        # (run 110, 14h pre-draft, passed it; run 111, 9.5h post-draft, failed
+        # it) — and none of that has anything to do with exporting history.
+        #
+        # So the scheduled export now lives in `league-history-export.yml`, on
+        # its own legs, with its own landed-not-just-ran assertions. This step
+        # stays DISPATCH-ONLY on purpose: it is the "rebuild everything by hand"
+        # path, and giving it the same Tuesday 11:00 cron would put two writers
+        # on one file at the same minute.
         if: github.event.inputs.export_history == 'true'
         working-directory: draft
         run: python history_export.py "${{ github.event.inputs.league_id || '1374848328470102016' }}"

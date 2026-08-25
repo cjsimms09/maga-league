@@ -68,14 +68,29 @@ published as deltas in `components.weighted`. Measured share of what separates t
 top five candidates, over Cory's twelve picks, with his real keepers and the
 roster accumulating as the model picks:
 
-| term | share of movement (2026-08-20, ceiling OFF) | with ceiling at 0.45 |
-|---|---|---|
-| **`need`** | **58.5%** | 53.5% |
-| `value` (VONA) | 24.4% | 32.5% |
-| **`onesie`** | **9.7%** | *below 0.05% — see below* |
-| `stack` | 7.5% | 3.4% |
-| `ceiling` | **0% — ruled off** | 10.7% |
-| `keeper` | below 0.05% | below 0.05% |
+| term | share of movement (2026-08-24, ceiling OFF) | ~~08-20, pre-correction~~ | with ceiling at 0.45 |
+|---|---|---|---|
+| **`need`** | **70.7%** | ~~58.5%~~ | 53.5% |
+| `value` (VONA) | 18.7% | ~~24.4%~~ | 32.5% |
+| **`onesie`** | **6.8%** | ~~9.7%~~ | *below 0.05% — see below* |
+| `stack` | 3.8% | ~~7.5%~~ | 3.4% |
+| `ceiling` | **0% — ruled off** | 0% | 10.7% |
+| `keeper` | below 0.05% | below 0.05% | below 0.05% |
+
+**⚠️ RE-MEASURED 2026-08-24, AND THE OLD COLUMN IS STRUCK RATHER THAN DELETED
+BECAUSE THE REASON IT MOVED IS THE POINT.** The weights did not change — both
+columns are `need 1.0, ceiling 0.0`. Two other things did. **(1) The keeper lock
+went LEAGUE-WIDE on 08-23**, so `kept_players` became the whole league's 23
+rather than Cory's 3. **(2) The derivation was CORRECTED for that on 08-24
+(register 303):** those rows feed `ctx.currentKeepers`, which `composite.js`
+folds into the incumbents competing for MY keeper slots — *"with three valued
+keepers the bar is ranked[2]"* — so twenty-three inflated the bar and collapsed
+every candidate's keeper value while `keeper` ships at weight 1.0.
+
+**So the 08-20 column was measured on a population that was correct then and
+became wrong; this one is measured on Cory's real three.** The shift is not
+drift in the model — it is the removal of a defect from the measurement, and
+`need` at 70.7% of movement is the honest figure for the engine that ships.
 
 **⚠️ CEILING IS RULED OFF, 2026-08-20 (Cory: "switch it off, its so
 arbitrary.. doesnt make sense").** This is NOT a reversal of his 08-17 ruling.

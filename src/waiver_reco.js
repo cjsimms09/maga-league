@@ -162,11 +162,15 @@ function computeWaiverReco(sData, playersDb, artifact, myRid, ownersCount) {
   // carrying a designation, split hard-out vs questionable using the SAME
   // tables lineup/matchup use (LO.INACTIVE_INJURY) — a third injury vocabulary
   // is how two surfaces come to disagree about the same player.
+  // Register 321: this WAS the only place that normalised an injury tag, and it
+  // normalised it for a DISPLAY panel while the ranking beside it stayed blind.
+  // Now both read the one exported derivation (rule 11), so the panel and the
+  // claim rows cannot come to disagree about the same player.
   out.myInjured = (inputs.myRoster || []).map(p => {
-    const raw = String(p.injury_status || '').toUpperCase().replace(/[^A-Z]/g, '');
+    const raw = W.injuryTag(p);
     if (!raw) return null;
     return { player_id: p.player_id, name: p.name, position: p.position,
-      tag: raw, out: LO.INACTIVE_INJURY.has(raw) };
+      tag: raw, out: W.isOutNow(p) };
   }).filter(Boolean);
 
   /* BLOCK WATCH (Cory's 08-24 mandate, the adversarial-waivers item): the

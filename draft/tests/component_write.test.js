@@ -76,5 +76,64 @@ check('CONTROL: the self-check passes again once the real path is restored',
 check('feed_error is null when there is simply no feed yet (absent != broken)',
   doc.feed_error === null);
 
+/* ── A WELL-FORMED FILE OF THE WRONG SHAPE (register 154, A 2026-08-24) ──────
+ *
+ * The check above covers an UNREADABLE feed. It does not cover the more likely
+ * accident: a file that parses perfectly and is shaped for a different reader.
+ *
+ * Register 154 — open, owner C, deadline before week 1 — specifies writing
+ * `weekly_realized.json` as `{week: {player_id: points}}`. That contains no
+ * arrays, so `loadRealized`'s filter assigns nothing and returns `{}`, which
+ * every caller reads as "the season is quiet". A present, correct-looking,
+ * fully-populated file reporting as no-data is strictly worse than the absent
+ * file the runner already reports honestly.
+ *
+ * These write a REAL temp file at the real path rather than stubbing `fs`,
+ * because the defect lives in the read path and a stub would prove the stub.
+ * The path is asserted absent first and restored after — this file must never
+ * leave an artifact behind (register 315: a suite that writes a committed
+ * artifact can spend a deploy). */
+{
+  const fsx = require('fs');
+  const pathx = require('path');
+  const WK = pathx.join(__dirname, '..', '..', 'draft', 'data', 'weekly_realized.json');
+  const modPath = require.resolve(pathx.join(__dirname, '..', '..', 'src', 'component_write.js'));
+
+  check('CONTROL: weekly_realized.json is absent before these cases, so each one '
+    + 'is genuinely creating the state it tests', !fsx.existsSync(WK));
+
+  const feedErrorFor = (obj) => {
+    fsx.writeFileSync(WK, JSON.stringify(obj));
+    try {
+      delete require.cache[modPath];
+      return require(modPath).write(null).feed_error;
+    } finally {
+      if (fsx.existsSync(WK)) fsx.unlinkSync(WK);
+      delete require.cache[modPath];
+    }
+  };
+
+  try {
+    const wrong = feedErrorFor({ '1': { '4034': 21.5 }, '2': { '4034': 9.1 } });
+    check('KNOWN POSITIVE: the box-score shape register 154 proposes IS rejected '
+      + 'rather than read as an empty season', !!wrong && /NOT ONE ARRAY/.test(wrong));
+
+    const right = feedErrorFor({
+      projection: [{ player_id: '4034', week: 1, actual: 21.5, proj: 18 }] });
+    check('KNOWN NEGATIVE: the component-keyed array shape this reader wants is '
+      + 'accepted, so the guard is not simply rejecting everything', right === null);
+
+    check('KNOWN NEGATIVE: an EMPTY object is legitimate "written, nothing yet" '
+      + 'and must not trip the guard — the runner already reports absence honestly',
+    feedErrorFor({}) === null);
+  } finally {
+    if (fsx.existsSync(WK)) fsx.unlinkSync(WK);
+    delete require.cache[modPath];
+  }
+
+  check('CONTROL: weekly_realized.json is absent again afterwards — this suite '
+    + 'leaves no artifact behind (register 315)', !fsx.existsSync(WK));
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

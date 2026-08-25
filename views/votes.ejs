@@ -91,7 +91,7 @@
       <div style="padding:.7rem 1rem">
         <% for (const c of v.comments) { %>
           <p style="margin:.35rem 0"><b style="color:var(--gold-bright)"><%= c.name %></b>
-            <span class="muted" style="font-size:.7rem"><%= (c.created_at || '').slice(0, 10) %></span><br><%= c.text %></p>
+            <span class="muted" style="font-size:.7rem" title="<%= c.created_at %>"><%= timeago(c.created_at) %></span><br><%= c.text %></p>
         <% } %>
         <% if (!v.comments.length) { %><p class="muted" style="margin:.3rem 0">No takes yet. Cowards.</p><% } %>
         <form method="post" action="/votes/<%= v.id %>/comment" class="inline-form" style="margin-top:.5rem">
@@ -135,7 +135,7 @@
       <div style="padding:.7rem 1rem">
         <% for (const c of v.comments) { %>
           <p style="margin:.35rem 0"><b style="color:var(--gold-bright)"><%= c.name %></b>
-            <span class="muted" style="font-size:.7rem"><%= (c.created_at || '').slice(0, 10) %></span><br><%= c.text %></p>
+            <span class="muted" style="font-size:.7rem" title="<%= c.created_at %>"><%= timeago(c.created_at) %></span><br><%= c.text %></p>
         <% } %>
         <% if (!v.comments.length) { %><p class="muted" style="margin:.3rem 0">No takes yet. Cowards.</p><% } %>
         <form method="post" action="/votes/<%= v.id %>/comment" class="inline-form" style="margin-top:.5rem">
