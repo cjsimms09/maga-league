@@ -1937,7 +1937,12 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
         print(f"  my picks: {order.my_picks[:8]}{' ...' if len(order.my_picks) > 8 else ''}")
 
     available = keepers_mod.adjusted_adp(players, order, cfg, kept_ids)
-    available, vorp_diag = vorp_mod.apply_vorp(available, cfg)
+    # Register 283: RANK over everyone who starts, PRICE only what can be drafted.
+    # Kept players are out of `available` by design -- they cannot be drafted --
+    # but they occupy starting slots all season, so leaving them out of the
+    # RANKING walks replacement 23 places deeper into the pool.
+    available, vorp_diag = vorp_mod.apply_vorp(available, cfg,
+                                               full_pool=available + kept_players)
     available = vorp_mod.assign_tiers(available)
 
     # E's sweep-16 finding, ruled at the SOURCE (A, 08-18): kept_players are a
