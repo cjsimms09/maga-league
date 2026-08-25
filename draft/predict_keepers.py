@@ -123,8 +123,42 @@ def main():
             existing["confidence"] = ov["confidence"]
             existing["override"] = ov["source"] + " (confirms model)"
         else:
-            # find the player's value if on the board
-            hit = next((p for p in board.get("players", []) if p.get("name") == ov["player"]), None)
+            # ⚠️ IDENTITY LOOKUP — SEARCH THE KEPT PLAYERS TOO (A, 2026-08-25,
+            # register 331). This read `board["players"]` alone. Post-keeper-lock
+            # that list is DISJOINT from `kept_players`, so an override naming a
+            # player who is actually kept found nothing, and `(hit or {}).get(...)`
+            # wrote `player_id: None, position: None, vorp: None` WITHOUT
+            # COMPLAINING.
+            #
+            # THE MECHANISM IS ANTI-CORRELATED WITH BEING RIGHT, which is what
+            # makes it worth this comment. An intel override exists to say "this
+            # opponent WILL keep this player". The more certain that is, the more
+            # likely he really is kept — and therefore the more likely he is
+            # absent from `players` and the lookup fails. Measured on the live
+            # slate: Nico Collins and Trey McBride, both `confidence: certain`,
+            # both Cory's own intel, both CORRECT (team_slot 7 kept exactly
+            # them), both written out with a null id.
+            #
+            # Two nulls also COLLIDE: `str(None)` is `'None'`, so two different
+            # players became one entry in every id-keyed set downstream, and
+            # `opp_keepers` in cory_conditional drops them entirely because
+            # `'None'` never appears in the pool index (part of register 329's
+            # 24-resolve-to-6).
+            #
+            # This is an IDENTITY question — "who is Nico Collins" — not an
+            # availability one, so it reads both lists. Availability is decided
+            # elsewhere and is not affected.
+            hit = next((p for p in list(board.get("players") or [])
+                        + list(board.get("kept_players") or [])
+                        if p.get("name") == ov["player"]), None)
+            if hit is None:
+                # LOUD. A silent null here is an intel override that exists in the
+                # file and reaches nothing — the highest-confidence input we have,
+                # discarded without a word.
+                print("  ! INTEL OVERRIDE UNRESOLVED: %r for %s is on neither "
+                      "players nor kept_players — writing it with a null id would "
+                      "make it unusable downstream and collide with any other "
+                      "unresolved override" % (ov["player"], ov["owner"]))
             v = round((hit or {}).get("vorp", 0), 1) if hit else None
             pred["predicted_keepers"].insert(0, {
                 "player_id": (hit or {}).get("player_id"), "name": ov["player"],
