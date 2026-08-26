@@ -194,16 +194,63 @@ const PRICED = B.players.filter(p => Number.isFinite(+p.proj_mean) && +p.proj_me
    * So the threshold moves to where the mechanism actually sits, and the arm
    * keeps its job: it must still be far below the QB number, or the QB finding
    * below would be an artifact of comparing two arbitrary orderings. */
-  ck('CONTROL: within a position the two currencies still agree far more than '
-    + 'across positions — the QB number below is a real signal, not an artifact',
-  within < 0.30 && within < qbCross - 0.15,
-  { within_position: +(within * 100).toFixed(1), qb_cross: +(qbCross * 100).toFixed(1),
-    note: 'was <15% before Cory\'s 08-19 DS band ruling made ceilings per-player' });
+  /* ⚠️⚠️ RE-BASED 2026-08-26, AND THE HEADLINE OF THIS BLOCK IS NOW WRONG IN A
+   * WAY RE-THRESHOLDING WOULD HIDE. Every arm here was pinned to an absolute
+   * rate — `within < 0.30`, `within < qbCross - 0.15`, `qbCross > 0.40` — and
+   * the 2026-08-23 keeper lock changed the POPULATION they are measured over:
+   * ADP<=160 lost 23 elite players, twelve of them running backs, so the RB
+   * distribution inside the window is a different distribution.
+   *
+   * MEASURED ON BOTH POPULATIONS, so the conclusion is not an artifact of which
+   * one you look at (rule 3i — the second row is the pre-lock population,
+   * reconstructed by putting `kept_players` back):
+   *
+   *                within                    QB cross              non-QB cross
+   *        RB-RB  WR-WR  TE-TE  QB-QB   QB-RB  QB-WR  QB-TE   RB-WR  RB-TE  WR-TE
+   * post    25.2   27.3   15.2   40.7    39.2   50.7   58.1    45.5   65.5   48.8
+   * pre     34.8   29.4   15.8   45.0    50.6   55.8   57.8    42.6   52.9   44.0
+   *
+   * THE QB-SPECIFIC FRAMING IS DEAD, IN BOTH POPULATIONS. The WORST pair on the
+   * live board is RB-TE at 65.5%, against the mildest QB pair at 39.2%; pre-lock
+   * it is QB-TE 57.8 against RB-TE 52.9 — a two-point gap, not a scoping. The
+   * arm two checks down already retired the scoping CLAIM in words on 08-20;
+   * the assertions kept encoding it, and `qbCross > 0.40` then failed by
+   * EIGHT TENTHS OF A POINT when the lock took twelve RBs out of the window.
+   *
+   * So every arm here is restated against the WITHIN-POSITION rate, which is the
+   * natural null this block always had sitting beside it: within a position the
+   * replacement level is a constant shift and only the boom term can reorder
+   * anybody, so it is the floor that a cross-position rate has to beat to mean
+   * anything. No absolute constant survives a population change; a comparison
+   * against a baseline drawn from the same board does. Register 353. */
+  const crossRates = { 'QB-RB': disagree('QB', 'RB'), 'QB-WR': disagree('QB', 'WR'),
+    'QB-TE': disagree('QB', 'TE'), 'RB-WR': disagree('RB', 'WR'),
+    'RB-TE': disagree('RB', 'TE'), 'WR-TE': disagree('WR', 'TE') };
+  const crossMin = Math.min.apply(null, Object.values(crossRates));
+  const crossMax = Math.max.apply(null, Object.values(crossRates));
+  const worstPair = Object.keys(crossRates).find(k => crossRates[k] === crossMax);
+  console.log('      inversion matrix — within: RB-RB '
+    + (100 * disagree('RB', 'RB')).toFixed(1) + ' WR-WR ' + (100 * within).toFixed(1)
+    + '  |  cross: ' + Object.keys(crossRates)
+      .map(k => k + ' ' + (100 * crossRates[k]).toFixed(1)).join(' ')
+    + '   (worst pair: ' + worstPair + ')');
 
-  ck('DEFECT: any comparison involving a QB is near a coin flip (>40% inverted)',
-    qbCross > 0.40, { qb_rb: +(disagree('QB', 'RB') * 100).toFixed(1),
+  ck('CONTROL: within a position the two currencies agree more than across ANY '
+    + 'pair of positions — the cross-position finding below is a real signal '
+    + 'and not two arbitrary orderings compared',
+  within < crossMin,
+  { within_position: +(within * 100).toFixed(1),
+    lowest_cross: +(crossMin * 100).toFixed(1),
+    note: 'stated against the within-position baseline, not an absolute rate — '
+      + 'the absolute one was pinned to the pre-keeper-lock population' });
+
+  ck('DEFECT: every comparison involving a QB inverts more often than the '
+    + 'within-position baseline — the two currencies disagree about a QB far '
+    + 'more than the boom term alone can explain',
+    qbCross > within, { qb_rb: +(disagree('QB', 'RB') * 100).toFixed(1),
       qb_wr: +(disagree('QB', 'WR') * 100).toFixed(1),
-      qb_te: +(disagree('QB', 'TE') * 100).toFixed(1) });
+      qb_te: +(disagree('QB', 'TE') * 100).toFixed(1),
+      within_position_baseline: +(within * 100).toFixed(1) });
 
   /* ⚠️ THIS ARM USED TO ASSERT `nonQbCross < qbCross - 0.10` AND THE SCOPING
    * CLAIM IT ENCODED IS DEAD. It read "cross-position WITHOUT a QB is far
@@ -224,12 +271,20 @@ const PRICED = B.players.filter(p => Number.isFinite(+p.proj_mean) && +p.proj_me
    * the QB defect is real on its own terms. The scoping claim is retired
    * rather than re-thresholded, because re-thresholding it would preserve a
    * sentence that is simply no longer the case. */
-  ck('DEFECT (scoping RETIRED, register 200): the QB inversion stands on its '
-    + 'own — but cross-position without a QB is NO LONGER milder, so a '
-    + 'QB-only fix would leave most of the damage in place',
-  qbCross > 0.40,
+  /* ⚠️ AND THE ASSERTION NOW MATCHES THE RETIREMENT. This arm's prose retired
+   * the scoping claim on 08-20 while its condition still read `qbCross > 0.40`
+   * — the same absolute pin as the arm above, testing the same quantity twice
+   * and saying nothing about the retirement. It now asserts the retirement
+   * DIRECTLY, in the direction the board actually shows: the worst non-QB pair
+   * is at least as bad as the mildest QB pair, and at least one cross-position
+   * pair is past a coin flip outright. Both hold pre-lock and post-lock. */
+  ck('DEFECT (scoping RETIRED, register 200): cross-position WITHOUT a QB is no '
+    + 'longer milder — it is now the WORST pair on the board — so a QB-only fix '
+    + 'would leave most of the damage in place',
+  nonQbCross >= qbCross && crossMax > 0.50,
   { worst_non_qb_cross: +(nonQbCross * 100).toFixed(1),
     mildest_qb_cross: +(qbCross * 100).toFixed(1),
+    worst_pair_overall: worstPair + ' at ' + (100 * crossMax).toFixed(1),
     retired_claim: 'non-QB cross was "far milder"; pre-DS it was, now it is not' });
 }
 
@@ -424,10 +479,52 @@ const PRICED = B.players.filter(p => Number.isFinite(+p.proj_mean) && +p.proj_me
    * touch grew when DS ceilings landed. The arm's job is to show this block is
    * not simply rejecting every fix, so it asserts the DIRECTION and reports
    * the size, rather than a magnitude that was never derived from anything. */
-  ck('CONTROL: the re-pricing DOES help where the defect is loudest — QB pairs '
-    + 'in aggregate improve, so this block is not simply rejecting everything',
-  ovrQb.pct < rawQb.pct,
-  { raw: +(rawQb.pct * 100).toFixed(1), over_replacement: +(ovrQb.pct * 100).toFixed(1) });
+  /* ⚠️ THIS CONTROL ASKED THE FIX TO WORK SOMEWHERE, AND THE FIX STOPPED WORKING
+   * ANYWHERE. Its stated job is anti-vacuity — "this block is not simply
+   * rejecting everything" — but it discharged that job by requiring the REAL
+   * re-pricing to improve QB pairs, so the day re-pricing stopped helping there
+   * too (raw 47.7% -> over-replacement 53.6%) the control failed while reporting
+   * nothing about the instrument.
+   *
+   * Those are two different claims and only one of them is a control. That the
+   * INSTRUMENT can report an improvement is a property of the instrument and is
+   * checkable on inputs with known answers; that the FIX improves anything is a
+   * finding, and today's finding is that it does not, on any of the three
+   * subsets. Re-pricing being worse everywhere STRENGTHENS this block's refusal,
+   * so encoding it as a failure had the sign backwards. Register 353. */
+  ck('CONTROL (known-negative): ranking by vorp itself inverts against vorp 0% '
+    + 'of the time — the instrument can report a perfect ordering',
+    vsVorp(p => (p.vorp || 0), (x, y) => !noQb(x, y)).pct === 0,
+    vsVorp(p => (p.vorp || 0), (x, y) => !noQb(x, y)));
+  /* The negated ranking inverts EVERY pair the instrument can rule on. It is not
+   * 100% of `n`, and the residue is not slack: `vsVorp` counts a pair in `n` but
+   * never in `d` when either ordering is a tie (`if (s1 && s2 ...)`), and eight
+   * QB-involving pairs on this board carry identical vorp. So the exact
+   * statement is d === n - ties, with the ties COUNTED rather than absorbed into
+   * a tolerance — a tolerance here would be a pinned constant hiding a real
+   * property of the board. */
+  const negated = vsVorp(p => -(p.vorp || 0), (x, y) => !noQb(x, y));
+  let qbTies = 0;
+  for (let i = 0; i < POOL.length; i++) {
+    for (let j = i + 1; j < POOL.length; j++) {
+      const x = POOL[i], y = POOL[j];
+      if (x.position === y.position || noQb(x, y)) continue;
+      if ((x.vorp || 0) === (y.vorp || 0)) qbTies++;
+    }
+  }
+  ck('CONTROL (known-positive): ranking by NEGATED vorp inverts every pair the '
+    + 'instrument can rule on — so a real improvement or a real regression '
+    + 'would both be visible, and "no improvement" below is a measurement '
+    + 'rather than a dead probe',
+    Math.round(negated.pct * negated.n) === negated.n - qbTies,
+    { inverted: Math.round(negated.pct * negated.n), pairs: negated.n,
+      vorp_ties: qbTies });
+  ck('⛔ AND RE-PRICING NO LONGER HELPS EVEN WHERE IT ONCE DID: QB pairs in '
+    + 'aggregate get WORSE too, so the refusal below is not scoped — it is '
+    + 'total, on every subset this block measures',
+  ovrQb.pct > rawQb.pct,
+  { raw: +(rawQb.pct * 100).toFixed(1), over_replacement: +(ovrQb.pct * 100).toFixed(1),
+    was: 'improved 51.2 -> 47.4 on 2026-08-20; it now regresses' });
 
   const rawNear = vsVorp(D, near), ovrNear = vsVorp(OVR, near);
   ck('⛔ but on pairs within 20 ADP — the only ones he actually weighs against '

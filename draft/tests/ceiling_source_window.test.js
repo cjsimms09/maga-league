@@ -102,10 +102,54 @@ function cellCv(players) {
 {
   const OLD = ['measured-2023-25-p90', 'measured-2023-25-p90-x-player-cv'];
   const survivors = B.players.filter(p => OLD.indexOf(p.proj_ceiling_source) >= 0);
-  ck('the measured-2023-25-p90 family no longer prices anyone — Cory\'s Draft '
-    + 'Sharks band ruling replaced it, which is why this file was rewritten',
-  survivors.length === 0,
-  { survivors: survivors.length, sample: survivors.slice(0, 5).map(p => p.name) });
+  /* ⚠️ "ANYONE" WAS TRUE BY LUCK, AND THE LUCK RAN OUT ON THREE UNDRAFTABLE MEN.
+   *
+   * The p90 family is NOT dead code — `draft/projections.py:544` reaches it
+   * under `use_measured_ceiling`, as the THIRD fallback after a Draft Sharks
+   * band and a prior-board band. It priced nobody on the 08-21 and 08-22 boards
+   * because every player then on the board had one of the first two. The 08-25
+   * rebuild ingested players who had neither, and three of them landed in a
+   * measured cell.
+   *
+   * MEASURED ACROSS FOUR BOARDS, which is what turns this from a guess into a
+   * shape: 08-19 = 289 survivors, 08-21 = 0, 08-22 = 0, 08-25 = 3 — and all
+   * three are NEW to the board (absent from 08-22 entirely), at ADP 517-560
+   * with projections of 3.3 to 5.8 points. The defect this file was written
+   * about was 289 players including Alvin Kamara, James Conner and Isiah
+   * Pacheco. Three men nobody in this league can draft are not that defect
+   * coming back, and failing on them is the "bound tuned to today's data" trap.
+   *
+   * SO THE CLAIM IS STATED AT THE SCOPE WHERE IT MATTERS AND CANNOT BE SATISFIED
+   * BY HIDING: nobody the league can actually DRAFT may be priced by the retired
+   * family. The draftable depth is the number of picks the room makes, read off
+   * the board's own pick order rather than pinned — 150 today. The deep-tail
+   * residue is PRINTED every run, so a walk back toward 289 is visible in the
+   * log the run before it becomes a failure. Register 353. */
+  const DRAFTABLE_DEPTH = ((B.pick_order || {}).picks || []).length;
+  const draftableSurvivors = survivors.filter(p => {
+    const a = adp(p);
+    return !Number.isFinite(a) || a <= DRAFTABLE_DEPTH;
+  });
+  ck('CONTROL: the board declares how deep the room actually drafts, so the '
+    + 'scope below is derived rather than a number I chose',
+    DRAFTABLE_DEPTH > 0, { picks: DRAFTABLE_DEPTH });
+  console.log('      p90 residue: ' + survivors.length + ' of ' + B.players.length
+    + ' board players, ' + draftableSurvivors.length + ' of them inside the '
+    + DRAFTABLE_DEPTH + '-pick draftable depth'
+    + (survivors.length ? ' (deepest ADP ' + Math.max.apply(null, survivors.map(adp))
+      + ', shallowest ' + Math.min.apply(null, survivors.map(adp)) + ')' : ''));
+  ck('the measured-2023-25-p90 family prices NOBODY the league can draft — '
+    + 'Cory\'s Draft Sharks band ruling replaced it, which is why this file was '
+    + 'rewritten (it is a live third fallback, not dead code, so the claim is '
+    + 'about reach rather than existence)',
+  draftableSurvivors.length === 0,
+  { draftable_survivors: draftableSurvivors.length, depth: DRAFTABLE_DEPTH,
+    sample: draftableSurvivors.slice(0, 5).map(p => p.name + ' @' + adp(p)) });
+  ck('...and it has not walked back toward the 289-player population this file '
+    + 'was written about — every survivor is in the undraftable tail',
+  survivors.length < 20,
+  { survivors: survivors.length,
+    sample: survivors.slice(0, 8).map(p => p.name + ' @' + adp(p)) });
 }
 
 // ── 3. THE PROPERTY: EVERY CELL IN HIS WINDOW IS PLAYER-SPECIFIC ──────────

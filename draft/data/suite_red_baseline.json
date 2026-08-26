@@ -7,8 +7,8 @@
   "REMOVING a name is the goal, and suite_baseline_check.js tells you when a listed suite has started passing so the ratchet can be tightened.",
   "This file never makes CI pass. The JS suite step still exits non-zero while anything is failing -- see ci.yml. A permanently green build with 32 broken suites is the decay this whole exercise was about."
  ],
- "_baseline_taken": "2026-08-24, after register 300 phase (1): 49 failing / 16 inert -> 32 failing / 1 inert, of 437 suites.",
- "count": 17,
+ "_baseline_taken": "2026-08-26",
+ "count": 12,
  "suites": [
   "barbell_policy",
   "draft_alert_lifecycle",
@@ -16,17 +16,12 @@
   "draft_turn_email",
   "engine_ablation",
   "floor_is_a_cohort_not_a_forecast",
-  "keeper_option_floor",
   "member_copy",
   "member_email_policy",
   "pickem_surface",
   "roster_room_audit",
   "seat_plan_contract",
-  "sidebet_lifecycle_gate",
-  "source_rerank_is_real",
-  "ui_fidelity_verdict",
-  "vona_wire_bench",
-  "withheld_slate_exposure"
+  "sidebet_lifecycle_gate"
  ],
  "_ratchet_log": [
   "2026-08-24: -inseason_explainers, fixed by B and taken in the warroom-shell-rebuild merge. It checked member.js for the K/DEF claims filter and failed regardless of B’s change -- the filter had already moved to src/waiver_reco.js in an earlier same-day extraction that never updated the test. B confirmed the staleness via git stash before touching it and DISCLOSED the one-line TERRITORY: A trespass rather than quietly fixing it. Re-verified green on the rebased tree (this entry was lost once to a rebase and re-applied).",
@@ -36,6 +31,19 @@
   "2026-08-24: -panel_spec. It was red on a DOC-ACCURACY claim, not a code defect: the spec said renderRecommendations was 392 lines and it is 422. The section header states the standard -- these claims \"must be true now, not true when they were typed\" -- so the fix is to make the claims true, and all 14 were re-derived from app.js rather than typed. THE REAL FIND WAS THE COVERAGE: the test checked ONE panel, and sweeping all 14 showed THREE out of tolerance with the largest invisible -- renderSeatPlan claimed 121 and was 252, MORE THAN DOUBLED with nothing watching; renderThreats +37. The check now covers every claim, and its fail arm was proven by planting the exact renderSeatPlan drift that hid (exit 1 with the poison, 0 restored).",
   "2026-08-24: -2 (slotpicker, every_route_renders). BOTH were fixed EARLIER TODAY and the baseline was not tightened behind them, which is the exact rot red_baseline_is_honest.test.js exists to catch in the other direction. slotpicker was a LIVE PRODUCTION 500 on /admin/slot-picker: src/slotpicker.js read the league-wide forfeited list (23 keepers) as one seat's, so myPicks() forfeited 23 of 15 rounds, my_picks came back empty and the fail-loud throw fired -- with a message pointing at keepers.js, which loaded fine. every_route_renders was red FOR that 500 and went green with it. Both verified green immediately before this edit, not remembered.",
   "2026-08-24: -ruled_target_is_one_definition. It was failing because TWO tools I added THIS SESSION (rail_late_rounds_sweep.js, draft_autopsy.js) each hardcoded Cory's ruled roster target instead of reading league_config.ruled_roster_target. The guard that forbids that had been red since, and my own baseline had just enshrined my regression as 'known'. Both now read the config and REFUSE rather than defaulting; the printed copy in the sweep's output is derived too, because a second copy in a display string drifts as silently as one in a constant.",
-  "2026-08-24: -7 (archetype_rooms, live_context, mlv_seat_plan, seat_plan_knows_the_seat_is_filled, keeper_bar_ignores_what_it_cannot_value, draft_session, keeper_lock_reorders_the_board). All the same root as register 303 -- the 08-23 keeper slate went league-wide and these read `kept_players` whole where they meant Cory's three. keeper_bar needed the fix in THREE places in one file, which is why 303's action asks for a guard rather than a sweep."
+  "2026-08-24: -7 (archetype_rooms, live_context, mlv_seat_plan, seat_plan_knows_the_seat_is_filled, keeper_bar_ignores_what_it_cannot_value, draft_session, keeper_lock_reorders_the_board). All the same root as register 303 -- the 08-23 keeper slate went league-wide and these read `kept_players` whole where they meant Cory's three. keeper_bar needed the fix in THREE places in one file, which is why 303's action asks for a guard rather than a sweep.",
+  {
+   "date": "2026-08-26",
+   "by": "A",
+   "removed": [
+    "keeper_option_floor",
+    "source_rerank_is_real",
+    "ui_fidelity_verdict",
+    "vona_wire_bench",
+    "withheld_slate_exposure"
+   ],
+   "why": "Tightened after fixing them. withheld_slate_exposure (register 350), source_rerank_is_real and vona_wire_bench (register 351 ③④); keeper_option_floor and ui_fidelity_verdict were already passing and had simply never been removed. 24 suites red at the start of this session, 13 now.",
+   "note": "register_recheck_check is DELIBERATELY NOT ADDED. It is red because 80-odd register rows are past their own recheck dates, which is the debt it exists to make visible; putting it in the baseline would mute the one alarm in this repo whose whole job is to refuse to be ignored."
+  }
  ]
 }
