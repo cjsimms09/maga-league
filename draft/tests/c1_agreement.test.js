@@ -38,7 +38,48 @@ const league = art.league;
 // pool by the pipeline. This is subset-independent BY CONSTRUCTION, and that is
 // the property the whole contract rests on, so assert it explicitly.
 const withRep = art.players.filter(p => p.proj_mean != null && p.replacement != null);
+
+/* ⚠️ REPLACEMENT LEVEL IS DEFINED OVER THE ROSTERABLE POPULATION, NOT THE
+ * DRAFTABLE POOL, and those stopped being the same set on 2026-08-23.
+ *
+ * `art.players` is what is still AVAILABLE — the league-wide keeper lock removed
+ * 23 players from it. But replacement is a scarcity statistic: "the projection of
+ * the last starter at this position once flex is allocated". A kept player is
+ * still occupying one of those starting slots in somebody's lineup, so he counts
+ * toward the rank whether or not anyone can draft him. `vorp.py` prices it over
+ * the full population and publishes the answer onto every player; only the
+ * DERIVATION checks in this file rebuilt it, and they rebuilt it from the
+ * post-lock board.
+ *
+ * MEASURED 2026-08-26, against the pipeline's own six published numbers:
+ *
+ *     pos   n    pipeline   board-only #n   board+keepers #n
+ *     TE    10   141.7      138             141.7
+ *     RB    24   181.1      137.6           181.1
+ *     WR    26   170.3      151.6           170.3
+ *     QB    10   350.8      347.8           350.8
+ *     DEF   10   100.5      100.5           100.5
+ *     K     10   125.9      125.9           125.9
+ *
+ * SIX OF SIX EXACT, first try — including DEF and K, where the two populations
+ * coincide because no defense or kicker is kept. Those two are the control: a
+ * join that merely shifted every rank would have moved them too.
+ *
+ * Keepers carry `proj_mean` but NOT `replacement` (they are a different field
+ * set — register E17), which is why `withRep` cannot simply be widened: the
+ * PUBLISHED side of every comparison still comes from `art.players`, and only
+ * the population a rank is counted over changes. Register 353 sweep. */
+const POPULATION = art.players.filter(p => p.proj_mean != null)
+  .concat((art.kept_players || []).filter(p => p.proj_mean != null));
+
 if (withRep.length) {
+  ck('CONTROL: the rosterable population is strictly larger than the draftable '
+     + 'board — if the keeper lock is ever undone these are the same set and the '
+     + 'distinction below stops being load-bearing, which should be visible',
+     POPULATION.length > art.players.filter(p => p.proj_mean != null).length,
+     'population ' + POPULATION.length + ' vs board '
+     + art.players.filter(p => p.proj_mean != null).length
+     + ' (keepers ' + (art.kept_players || []).length + ')');
   /* THE GAP THIS SUITE HAD UNTIL 2026-08-10 (found by rule 10).
    *
    * Everything below compared a SUBSET's levels against `full` — but `full` is
@@ -84,7 +125,7 @@ if (withRep.length) {
    * RB agreeing by luck is the trap — a spot-check on RB alone would have cleared it.
    */
   {
-    const stripped = withRep.map(p => { const q = Object.assign({}, p); delete q.replacement; return q; });
+    const stripped = POPULATION.map(p => { const q = Object.assign({}, p); delete q.replacement; return q; });
     const derived = V.replacementLevels(stripped, league);
     const pipe = {};
     withRep.forEach(p => { if (pipe[p.position] == null) pipe[p.position] = p.replacement; });
@@ -139,7 +180,7 @@ if (withRep.length) {
          { allocated: total, expected: teams * (nonFlex + flex), alloc: alloc });
 
       Object.keys(alloc).forEach(pos => {
-        const xs = withRep.filter(p => p.position === pos)
+        const xs = POPULATION.filter(p => p.position === pos)
           .sort((a, b) => (b.proj_mean || 0) - (a.proj_mean || 0));
         const n = alloc[pos];
         const at = xs[n - 1];
@@ -153,7 +194,7 @@ if (withRep.length) {
       /* KNOWN NEGATIVE, kept from the old check and generalised: the answer
        * must not be the FLEX-BLIND one. Dedicated starters only, no flex. */
       ['WR', 'RB'].forEach(pos => {
-        const xs = withRep.filter(p => p.position === pos)
+        const xs = POPULATION.filter(p => p.position === pos)
           .sort((a, b) => (b.proj_mean || 0) - (a.proj_mean || 0));
         const blind = (league.starters || {})[pos] * league.teams;
         if (alloc[pos] === blind || !xs[blind - 1]) return;   // no flex went here

@@ -68,8 +68,21 @@ const drafts = (HIST.seasons || []).map(s => {
   return { season: String(s.season), n: picks.length, r4_start: r4[0],
     keepers: picks.filter(p => p.is_keeper).length };
 }).filter(Boolean);
-ck('CONTROL — there are completed Sleeper drafts to check against',
-  drafts.length === 3, drafts);
+/* ⚠️ WAS `=== 3`, AND CORY'S OWN DRAFT BROKE IT. The 2026 draft completed
+ * 2026-08-22 and became a fourth completed draft in this league's history, so a
+ * control asserting "there are drafts to check against" started failing because
+ * there were MORE of them. That is the pinned-count class again — the claim is
+ * a FLOOR ("enough seasons that the invariance below is not one case"), and it
+ * was written as an equality against the population that happened to exist.
+ *
+ * A floor is also the right shape for what follows: every arm below is an
+ * invariance across seasons, so more seasons strictly strengthens them — 2026
+ * arrives with 23 keepers against 2023's zero, which is exactly the spread the
+ * FAIL ARM two checks down is looking for. The count is printed rather than
+ * asserted so a COLLAPSE is still visible. Register 353. */
+ck('CONTROL — there are completed Sleeper drafts to check against ('
+  + drafts.length + ': ' + drafts.map(d => d.season).join(', ') + ')',
+  drafts.length >= 3, drafts);
 ck('SLEEPER DOES NOT COMPRESS — every completed draft is rounds x teams, '
   + 'whatever the keeper count',
   drafts.every(d => d.n === (+L.rounds) * (+L.teams)),

@@ -68,6 +68,22 @@ const badgesAt = (pick, roster) => {
     .map(x => ({ who: x.p.name, beats: x.k.displaced, by: Math.round(x.k.value) }));
 };
 
+/* THE PICK EVERY KEEPER-BAR ARM RUNS AT: the earliest overall pick where at least one
+ * available player reaches the full keeper path. DERIVED, not hardcoded — a
+ * hardcoded 33 is what expired — see the note in section 5 for the measurement.
+ * If no pick anywhere reaches it, the control below fails rather than the arms
+ * passing vacuously (rule 3e). */
+const REACHABLE_PICK = (() => {
+  for (let pk = 1; pk <= 150; pk++) {
+    const c = mk(pk, keepers);
+    if (c.board.some(p => C.keeperOptionValue(p, c).slots_free !== undefined)) return pk;
+  }
+  return null;
+})();
+ck('CONTROL: there is some pick at which the keeper-option branch is reachable, '
+  + 'so the two arms below exercise it rather than passing on an early return',
+  REACHABLE_PICK != null, { reachable_at: REACHABLE_PICK });
+
 // ─────────── 1. the stub really is valueless, and really does reach the roster
 ck('the stub shape carries no vorp — the premise', stub(1).vorp === undefined);
 {
@@ -112,8 +128,8 @@ const stubAsZero = n => Object.assign(stub(n), { vorp: 0 });
  * Mason really is the weakest of three candidates. Only the unknown row goes. */
 {
   const mason = board.find(p => p.name === 'Jordan Mason');
-  const cm = mk(33, keepers.slice(0, 2).concat([Object.assign({}, mason)]));
-  const probe = cm.board.find(p => p.vorp > 0);
+  const cm = mk(REACHABLE_PICK, keepers.slice(0, 2).concat([Object.assign({}, mason)]));
+  const probe = cm.board.find(p => C.keeperOptionValue(p, cm).slots_free !== undefined);
   const km = C.keeperOptionValue(probe, cm);
   /* RE-AIMED 2026-08-18: with the bar floored, today's board prices no
    * candidate above the badge line at pick 33 (honest max ~2 vs the badge's
@@ -140,6 +156,35 @@ const stubAsZero = n => Object.assign(stub(n), { vorp: 0 });
   { identical: same, of: art.pick_order.my_picks.length });
   ck('and his slate today fires no badge at all',
     art.pick_order.my_picks.every(pk => badgesAt(pk, keepers).length === 0));
+
+  /* ⚠️ AND THE REASON IS STRONGER THAN "NO BADGE" — THE BRANCH IS UNREACHABLE
+   * FROM HIS FIRST PICK ONWARD, which is worth reporting rather than leaving as
+   * the silent condition that made arms 6 and 7 go red.
+   *
+   * `keeperOptionValue` returns early at `raw.value <= 0` (line ~230) with
+   * `bar: 0, displaced: null` and NO `slots_free` key at all. Measured
+   * 2026-08-26 across all 673 board players at each of Cory's twelve picks:
+   * ZERO reach the full path, at every pick. The distribution is a smooth
+   * continuum, not a constant — at pick 33 it runs from 0.000 (Houston Texans)
+   * down to −147.9, with 672 of 673 strictly negative — so this is the football
+   * answer, not a collapsed computation: the bar is his third keeper (Kenneth
+   * Walker, vorp 52.7) and nothing available in round 4 or later beats that
+   * after the keep-probability discount.
+   *
+   * The branch IS live earlier — 3 candidates at overall pick 1, tapering to 0
+   * by pick ~50 — which is why arms 6 and 7 below now run at a pick DERIVED as
+   * reachable instead of hardcoded to 33. */
+  const unreachable = art.pick_order.my_picks.filter(pk => {
+    const c = mk(pk, keepers);
+    return c.board.every(p => C.keeperOptionValue(p, c).slots_free === undefined);
+  });
+  console.log('      keeper-option branch reachable at 0 of ' + art.pick_order.my_picks.length
+    + " of Cory's picks (unreachable at: " + unreachable.join(', ') + ')');
+  ck('REPORTED: the badge cannot fire at any pick he owns because the option '
+    + 'value is non-positive for every available player — a stronger statement '
+    + 'than "no badge fired", and the one that explains it',
+    unreachable.length === art.pick_order.my_picks.length,
+    { unreachable_at: unreachable, of: art.pick_order.my_picks });
 }
 
 // ─────────── 6. E17 AND E18 ARE INDEPENDENT — neither subsumes the other
@@ -163,8 +208,8 @@ const stubAsZero = n => Object.assign(stub(n), { vorp: 0 });
     .map(k => {
     const o = Object.assign({}, k, { is_keeper: true }); delete o.vorp; return o;
   });
-  const c = mk(33, unseeded);
-  const cand = c.board.find(p => p.vorp > 0);
+  const c = mk(REACHABLE_PICK, unseeded);
+  const cand = c.board.find(p => C.keeperOptionValue(p, c).slots_free !== undefined);
   const k = C.keeperOptionValue(cand, c);
   ck('E18 WITHOUT E17 would say all three keeper slots are open while he holds '
     + 'three keepers — so E17 is load-bearing, not redundant',
@@ -174,8 +219,9 @@ const stubAsZero = n => Object.assign(stub(n), { vorp: 0 });
   k.slots_free === unseeded.length,
   { slots_free: k.slots_free, my_keepers: unseeded.length,
     league_wide: art.kept_players.length });
-  const cs = mk(33, keepers);
-  const ks = C.keeperOptionValue(cs.board.find(p => p.vorp > 0), cs);
+  const cs = mk(REACHABLE_PICK, keepers);
+  const ks = C.keeperOptionValue(
+    cs.board.find(p => C.keeperOptionValue(p, cs).slots_free !== undefined), cs);
   ck('and with both fixes the slots are correctly full and a real keeper is named',
     ks.slots_free === 0 && art.kept_players.some(x => x.name === ks.displaced),
     { slots_free: ks.slots_free, displaced: ks.displaced });
@@ -183,8 +229,9 @@ const stubAsZero = n => Object.assign(stub(n), { vorp: 0 });
 
 // ─────────── 7. slots_free reflects the drop
 {
-  const c = mk(33, keepers.slice(0, 1).concat([stub(1), stub(2)]));
-  const k = C.keeperOptionValue(c.board.find(p => p.vorp > 0), c);
+  const c = mk(REACHABLE_PICK, keepers.slice(0, 1).concat([stub(1), stub(2)]));
+  const k = C.keeperOptionValue(
+    c.board.find(p => C.keeperOptionValue(p, c).slots_free !== undefined), c);
   ck('two valueless rows do not consume keeper slots — slots_free counts only '
     + 'candidates we can value', k.slots_free === C.keeperSlots(c) - 1,
   { slots_free: k.slots_free, slots: C.keeperSlots(c) });
