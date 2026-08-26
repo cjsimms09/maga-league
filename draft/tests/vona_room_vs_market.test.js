@@ -41,9 +41,28 @@ const ck = (n, c, d) => {
 /* COMPLETE DRAFTS ONLY. A 30-pick fragment has no QB4 and would silently
  * shorten every column it appears in. */
 const DRAFTS = [];
+const MATCHED = [];          // drafts from the SAME season as the board's ADP
+/* THE MATCHED-YEAR DRAFT MUST NOT JOIN THE POOL, and on 2026-08-26 it did.
+ *
+ * This file's central stated limitation — asserted further down against its own
+ * write-up — is the YEAR CONFOUND: "2023-25 drafts against 2026 ADP, no matched
+ * historical series". The 2026 draft landed in `league_history`, `DRAFTS` took
+ * every complete draft it found, and the sample silently went 3 -> 4.
+ *
+ * That is worse than it looks. The 2026 draft is the ONE case that is NOT
+ * confounded — same season as the ADP it is measured against — so pooling it
+ * mixes a confounded comparison with an unconfounded one and the result
+ * describes neither. Register 351.
+ *
+ * Split, not relaxed: the pooled arm keeps the three historical drafts it was
+ * written about, and the matched year is held out and NAMED, because it is the
+ * better measurement this study has been waiting for, not a row to drop. */
+const ADP_SEASON = String(((B.league || {}).season) || '');
 (H.seasons || []).forEach(s => (s.drafts || []).forEach(d => {
   const pk = (d.picks || []).filter(x => x && x.pick_no != null && x.player_id != null);
-  if (pk.length >= 150) DRAFTS.push(pk);
+  if (pk.length < 150) return;
+  if (ADP_SEASON && String(s.season) === ADP_SEASON) MATCHED.push(pk);
+  else DRAFTS.push(pk);
 }));
 
 /* ⚠️ THE MARKET LADDER WAS BUILT FROM `B.players` ALONE, WHICH EXCLUDES THE 23
@@ -80,8 +99,12 @@ const gaps = (pos, slot) => DRAFTS.map(pk => {
 
 // ── 0. THE SAMPLE IS WHAT THE WRITE-UP SAYS IT IS ───────────────────────
 {
-  ck('three complete drafts, which is the sample every claim below rests on',
-    DRAFTS.length === 3, DRAFTS.length);
+  ck('three complete HISTORICAL drafts, which is the sample every claim below '
+    + 'rests on — the matched-year draft is held out, not counted here',
+    DRAFTS.length === 3, { historical: DRAFTS.length, matched_year: MATCHED.length });
+  ck('CONTROL — the matched-year draft is SEEN and set aside rather than silently '
+    + 'absent, because it is the un-confounded measurement this study still owes',
+    ADP_SEASON !== '', { adp_season: ADP_SEASON, matched_drafts: MATCHED.length });
   ck('and the board carries market ADP at all four positions',
     ['QB', 'RB', 'WR', 'TE'].every(p => marketSlots(p).length >= 6));
   ck('CONTROL — the position record resolves the historical ids, or every row '
