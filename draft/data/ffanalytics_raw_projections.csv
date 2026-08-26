@@ -19,7 +19,7 @@
 "Chase Brown","CIN",NA,NA,NA,NA,NA,238.5,1036.8,7.8,1.1,246.6,"25324","FantasyPros","RB","16181","FantasyPros","RB",63.8,427.6,4,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Saquon Barkley","PHI",NA,NA,NA,NA,NA,295.8,1299.1,8.2,1,243.8,"17240","FantasyPros","RB","13604","FantasyPros","RB",41.7,330.4,2.1,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Kenneth Walker III","KC",NA,NA,NA,NA,NA,262.5,1191.4,8.7,0.9,235.1,"23021","FantasyPros","RB","15711","FantasyPros","RB",45.8,352.8,1.2,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"Puka Nacua","LAR",NA,NA,NA,NA,NA,13.6,95.6,1.4,1,294.4,"23180","FantasyPros","WR","16211","FantasyPros","WR",122.6,1617.1,9.2,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Puka Nacua","LAR",NA,NA,NA,NA,NA,13.6,85,1.4,1,281.3,"23180","FantasyPros","WR","16211","FantasyPros","WR",117,1539,9,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Ja'Marr Chase","CIN",NA,NA,NA,NA,NA,3,17,0,1,275.4,"19788","FantasyPros","WR","15281","FantasyPros","WR",121.2,1511.6,10.6,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Jaxon Smith-Njigba","SEA",NA,NA,NA,NA,NA,5.5,30.4,0.1,1.1,270.7,"23070","FantasyPros","WR","16185","FantasyPros","WR",110.9,1569.7,9.5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Amon-Ra St. Brown","DET",NA,NA,NA,NA,NA,3.1,11.8,0,0.4,261.1,"19799","FantasyPros","WR","15287","FantasyPros","WR",117.4,1390.2,10.5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
@@ -28,7 +28,7 @@
 "CeeDee Lamb","DAL",NA,NA,NA,NA,NA,2.4,12.6,0,0.3,224.3,"19202","FantasyPros","WR","14832","FantasyPros","WR",97.5,1295.8,7.5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Justin Jefferson","MIN",NA,NA,NA,NA,NA,1.3,5.5,0,0.3,223.2,"19236","FantasyPros","WR","14836","FantasyPros","WR",98.6,1310.9,7.1,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Chris Olave","NO",NA,NA,NA,NA,NA,0.3,0,0,0.3,213.9,"20111","FantasyPros","WR","15754","FantasyPros","WR",95.4,1195.5,7.9,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"A.J. Brown","NE",NA,NA,NA,NA,NA,0,0,0,0.3,211.3,"18218","FantasyPros","WR","14104","FantasyPros","WR",87.7,1221.7,7.7,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"A.J. Brown","NE",NA,NA,NA,NA,NA,0,0,0,0.3,212.3,"18218","FantasyPros","WR","14104","FantasyPros","WR",87.7,1231.4,7.7,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Trey McBride","ARI",NA,NA,NA,NA,NA,NA,NA,NA,0.2,199.8,"22936","FantasyPros","TE","15794","FantasyPros","TE",108.9,1050.8,6.8,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Brock Bowers","LV",NA,NA,NA,NA,NA,NA,NA,NA,0.2,195.5,"22955","FantasyPros","TE","16641","FantasyPros","TE",97,1022.9,7.5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Colston Loveland","CHI",NA,NA,NA,NA,NA,NA,NA,NA,0.2,171.9,"26006","FantasyPros","TE","17104","FantasyPros","TE",79.1,927.5,6.7,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
@@ -467,7 +467,7 @@ NA,"Miami Dolphins",NA,NA,NA,NA,NA,NA,NA,NA,NA,71,"9002","FFToday","DST","0503",
 "Chase Brown","CIN",NA,NA,NA,NA,NA,238.5,1036.8,7.8,1.1,246.6,"25324","FantasyPros","RB","16181","Walterfootball","RB",63.8,427.6,4,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Saquon Barkley","PHI",NA,NA,NA,NA,NA,295.8,1299.1,8.2,1,243.8,"17240","FantasyPros","RB","13604","Walterfootball","RB",41.7,330.4,2.1,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Kenneth Walker III","KC",NA,NA,NA,NA,NA,262.5,1191.4,8.7,0.9,235.1,"23021","FantasyPros","RB","15711","Walterfootball","RB",45.8,352.8,1.2,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"Puka Nacua","LAR",NA,NA,NA,NA,NA,13.6,95.6,1.4,1,294.4,"23180","FantasyPros","WR","16211","Walterfootball","WR",122.6,1617.1,9.2,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"Puka Nacua","LAR",NA,NA,NA,NA,NA,13.6,85,1.4,1,281.3,"23180","FantasyPros","WR","16211","Walterfootball","WR",117,1539,9,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Ja'Marr Chase","CIN",NA,NA,NA,NA,NA,3,17,0,1,275.4,"19788","FantasyPros","WR","15281","Walterfootball","WR",121.2,1511.6,10.6,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Jaxon Smith-Njigba","SEA",NA,NA,NA,NA,NA,5.5,30.4,0.1,1.1,270.7,"23070","FantasyPros","WR","16185","Walterfootball","WR",110.9,1569.7,9.5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Amon-Ra St. Brown","DET",NA,NA,NA,NA,NA,3.1,11.8,0,0.4,261.1,"19799","FantasyPros","WR","15287","Walterfootball","WR",117.4,1390.2,10.5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
@@ -476,7 +476,7 @@ NA,"Miami Dolphins",NA,NA,NA,NA,NA,NA,NA,NA,NA,71,"9002","FFToday","DST","0503",
 "CeeDee Lamb","DAL",NA,NA,NA,NA,NA,2.4,12.6,0,0.3,224.3,"19202","FantasyPros","WR","14832","Walterfootball","WR",97.5,1295.8,7.5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Justin Jefferson","MIN",NA,NA,NA,NA,NA,1.3,5.5,0,0.3,223.2,"19236","FantasyPros","WR","14836","Walterfootball","WR",98.6,1310.9,7.1,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Chris Olave","NO",NA,NA,NA,NA,NA,0.3,0,0,0.3,213.9,"20111","FantasyPros","WR","15754","Walterfootball","WR",95.4,1195.5,7.9,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"A.J. Brown","NE",NA,NA,NA,NA,NA,0,0,0,0.3,211.3,"18218","FantasyPros","WR","14104","Walterfootball","WR",87.7,1221.7,7.7,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"A.J. Brown","NE",NA,NA,NA,NA,NA,0,0,0,0.3,212.3,"18218","FantasyPros","WR","14104","Walterfootball","WR",87.7,1231.4,7.7,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Trey McBride","ARI",NA,NA,NA,NA,NA,NA,NA,NA,0.2,199.8,"22936","FantasyPros","TE","15794","Walterfootball","TE",108.9,1050.8,6.8,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Brock Bowers","LV",NA,NA,NA,NA,NA,NA,NA,NA,0.2,195.5,"22955","FantasyPros","TE","16641","Walterfootball","TE",97,1022.9,7.5,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
 "Colston Loveland","CHI",NA,NA,NA,NA,NA,NA,NA,NA,0.2,171.9,"26006","FantasyPros","TE","17104","Walterfootball","TE",79.1,927.5,6.7,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA

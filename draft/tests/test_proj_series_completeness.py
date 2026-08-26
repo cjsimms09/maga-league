@@ -158,6 +158,25 @@ KNOWN_GAPS = {
         "costing a day of a series whose own docstring says it cannot be "
         "backfilled. Register 170."
     ),
+    "2026-08-23": (
+        "THE SAME DEFECT AS 08-20, NOW UNDERSTOOD AS A RATCHET — register 343. "
+        "Two draft-data runs on this date, zero successes; the capture ran and "
+        "was discarded with the refused board. What 170 did not say is that the "
+        "gap FEEDS the next refusal: the day becomes an interior hole in the "
+        "span, this very test fails on it, and the gate refuses again — so a "
+        "refused board manufactures the reason for the next refusal, one "
+        "permanent hole per day. MEASURED: 08-22 1 success (captured), 08-23 0 "
+        "of 2, 08-24 0 of 1, 08-25 0 of 5. Fixed at the cause by a rescue step "
+        "in draft-data.yml that commits these series even when the board is "
+        "refused; these two days were already gone when it landed."
+    ),
+    "2026-08-24": (
+        "Second day of the register 343 ratchet — one run, refused, capture "
+        "discarded. Recorded rather than forgiven: exp33 says this series "
+        "cannot be backfilled, so 2026-08-23 and 2026-08-24 are two days the "
+        "January 2027 experiment will not have, and the cost is stated here "
+        "rather than absorbed."
+    ),
 }
 
 

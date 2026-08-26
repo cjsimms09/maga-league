@@ -88,14 +88,58 @@ SOURCES.forEach(k => {
 
 /* THE NAMED EXAMPLE I QUOTED. Not pinned to an exact rank, which would break on
  * every board rebuild and teach the next reader to delete the test. Pinned to
- * the CLAIM: Sleeper rates Bowers materially higher than the blend does. */
+ * the CLAIM: Sleeper rates Bowers materially higher than the blend does.
+ *
+ * ⚠️ AND THE RANK STOPPED BEING ABLE TO EXPRESS THAT CLAIM ON 2026-08-23, which
+ * this arm reported as `{sleeper: 1, blend: 1}` — a FAILURE that reads like the
+ * claim was wrong. It was not. Bowers is now `overall_rank` 1 on BOTH boards, so
+ * `sleeper < blend` is unsatisfiable at the floor of the scale.
+ *
+ * WHY, MEASURED rather than assumed: `overall_rank` is computed over the
+ * DRAFTABLE pool, and the league-wide keeper lock took 23 players out of it —
+ * SIXTEEN of whom out-VORP Bowers on the blend (Gibbs 146.8, Bijan 140.1, Nacua
+ * 116.4, McCaffrey 105.9, Chase 101.5, Taylor 100.6, ... down to Jeanty 58.3
+ * against Bowers' 56.0). Remove all sixteen and the best remaining player is
+ * Bowers, on every source view at once. The pin did not decay; the population it
+ * ranked over got smaller by exactly the players above him.
+ *
+ * SO THE CLAIM IS RE-PINNED ON A SCALE THAT IS NOT SATURATED, and stated as the
+ * two things it always meant: rank never WORSE, and the source's own valuation
+ * strictly HIGHER. `vorp` is what `overall_rank` is derived from, so this is the
+ * same claim measured one step upstream — not a weaker substitute. Sleeper has
+ * him at 70.0 against the blend's 56.0 today.
+ *
+ * Register 351 ④. */
 const bowersBlend = rankOf(blend.players, 'Brock Bowers');
 const bowersSleeper = boards.sleeper ? rankOf(boards.sleeper.players, 'Brock Bowers') : null;
-ck('THE EXAMPLE I GAVE CORY, PINNED — Sleeper ranks Brock Bowers higher than '
-   + 'the blend does. I quoted "TE Bowers #7 on Sleeper, outside the top 8 on '
-   + 'blend" in conversation with nothing checking it.',
-  bowersSleeper != null && bowersBlend != null && bowersSleeper < bowersBlend,
-  { sleeper: bowersSleeper, blend: bowersBlend });
+const valOf = (players, name) => {
+  const p = players.find(x => x.name === name);
+  return p && p.vorp != null ? Number(p.vorp) : null;
+};
+const bowersVblend = valOf(blend.players, 'Brock Bowers');
+const bowersVsleeper = boards.sleeper ? valOf(boards.sleeper.players, 'Brock Bowers') : null;
+
+/* CONTROL (rule 3e): the rank comparison must still be CAPABLE of a strict
+ * result somewhere on the board, or "never worse" below is a tautology dressed
+ * as a measurement. Derived, not a hand-picked name. */
+const blendRankById = new Map(blend.players.map(p => [String(p.player_id), p.overall_rank]));
+const strictlyBetterOnSleeper = boards.sleeper ? boards.sleeper.players.filter(p => {
+  const q = blendRankById.get(String(p.player_id));
+  return q != null && p.overall_rank != null && p.overall_rank < q;
+}).length : 0;
+ck('CONTROL: the rank comparison below CAN come out strict — Sleeper ranks many '
+   + 'players strictly better than the blend, so Bowers sitting at the floor is '
+   + 'a fact about Bowers and not a broken comparison',
+  strictlyBetterOnSleeper >= 50, { strictlyBetterOnSleeper });
+
+ck('THE EXAMPLE I GAVE CORY, PINNED — Sleeper rates Brock Bowers above the '
+   + 'blend. I quoted "TE Bowers #7 on Sleeper, outside the top 8 on blend" in '
+   + 'conversation with nothing checking it. Rank never worse, valuation '
+   + 'strictly higher (rank alone saturates at 1 post-keeper-lock).',
+  bowersSleeper != null && bowersBlend != null && bowersSleeper <= bowersBlend
+    && bowersVsleeper != null && bowersVblend != null && bowersVsleeper > bowersVblend,
+  { rank: { sleeper: bowersSleeper, blend: bowersBlend },
+    vorp: { sleeper: bowersVsleeper, blend: bowersVblend } });
 
 /* ── 2. K/DEF-ABSENT SOURCES MUST NOT CORRUPT THE RECOMMEND PATH ───────────*/
 const MLV = require(path.join(ROOT, 'public', 'js', 'draft', 'mlv.js'));

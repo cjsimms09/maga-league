@@ -1,14 +1,16 @@
-# THE LEARNING CONSTITUTION — ⚠️ PROPOSED, NOT RATIFIED
+# THE LEARNING CONSTITUTION — ✅ RATIFIED
 
-**Status: PROPOSED 2026-08-24.** This taxonomy was proposed to Cory on
-2026-08-24 and he directed the audit path: *"Agreed with your write up, but
-let's send to open AI auditor first and act on their suggestions."* **That
-sentence directs a process; it is not approval of this document's content —
-nothing here evidences Cory's agreement until checklist item ③ below is
-checked, in a commit he can be quoted on.** (Wording scoped down 2026-08-25 at
-the independent reviewer's required action ①.) Ratification requires: ① the
-independent reviewer's suggestions acted on, ② Cory's final word. Until both,
-nothing cites this file as authority.
+**Status: RATIFIED 2026-08-25.** Proposed to Cory 2026-08-24; he directed the
+audit path (*"Agreed with your write up, but let's send to open AI auditor
+first and act on their suggestions"*), the independent review returned
+ACCEPT_WITH_REQUIREMENT (run 32799001640), both required actions were applied
+with every finding given a visible disposition (table below), the applied
+changes — including the strict effect-based Tier-0 rule — were put back in
+front of Cory with the trade-off stated plainly, and **he ratified, verbatim:
+"1 yes"** (2026-08-25, answering "1. The Learning Constitution — your final
+word... say 'ratified' and it flips"). **This commit is the approval artifact
+the reviewer required.** This document is now citable as authority; it amends
+only through its own Tier-2 path.
 
 This is the missing document the Learning Engine spec (PARKED.md item 10, filed
 2026-08-08) depends on: its item ③ says *"the Annual stays the ONLY path from
@@ -119,6 +121,7 @@ Reviewed at commit `7da1ac08` against base `4313a3db` (workflow
       verdict ACCEPT_WITH_REQUIREMENT
 - [x] Reviewer suggestions acted on, each with a visible disposition — the
       table above, 2026-08-25
-- [ ] Cory's final word
-- [ ] Status line above flips to RATIFIED; the Learning Engine's item ③
-      becomes buildable and PARKED.md's flag closes
+- [x] Cory's final word — 2026-08-25, "1 yes", given after the reviewer's
+      required changes and the Tier-0 strictness trade-off were laid out
+- [x] Status line above flips to RATIFIED; the Learning Engine's item ③
+      becomes buildable and PARKED.md's flag closes — this commit

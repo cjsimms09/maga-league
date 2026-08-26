@@ -3,10 +3,10 @@
  "_what": "Does every artifact the war room reads still agree with the live board about the same players?",
  "_why_content_not_timestamps": "register 143: the stale artifact and the fresh board agreed on their provenance stamps and disagreed on their numbers. A timestamp check is exactly what failed.",
  "board": {
-  "built_at": "2026-08-22T03:43:05Z",
-  "post_processed_at": "2026-08-22T03:51:29Z",
+  "built_at": "2026-08-26T04:02:06Z",
+  "post_processed_at": "2026-08-26T04:10:06Z",
   "post_processed_by": "draft/tools/attach_draftsharks.py",
-  "players": 680
+  "players": 705
  },
  "tolerance_points": 0.5,
  "watched": [
@@ -95,7 +95,7 @@
    "draft_critical": false,
    "why": "MEASURED, not assumed: its player values live in projected_standings[].starters and it is read by views/admin/league-analysis.ejs — a SEPARATE standings page, not the war room. Stale here cannot change a pick. Regenerating it needs Sleeper, which is 403 from the build sandbox and reachable from CI.",
    "status": "CONSISTENT",
-   "checked": 66,
+   "checked": 67,
    "mismatched": 0,
    "compared_against": "proj_mean",
    "examples": []

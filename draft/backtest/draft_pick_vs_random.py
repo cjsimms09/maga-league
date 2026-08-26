@@ -53,16 +53,78 @@ N_DRAWS = 400
 SEED    = 20260821
 
 
+def _store_path(season_year):
+    """The one place this module names the weekly store, so `season_totals` and
+    the skip-reason below cannot drift apart about which file they mean."""
+    return ROOT / "draft" / "backtest" / ("nflverse_weekly_points_%s.json" % season_year)
+
+
+def skip_reason(season_year):
+    """WHY a season could not be valued — printed, so the line is true.
+
+    `no_store` used to be the only reason and the report said so. Register 349
+    gave `season_totals` two more (a schedule of zeroes, a store that marks
+    itself incomplete), and a report that still said "for want of a store" would
+    be stating the one cause that had NOT happened.
+    """
+    f = _store_path(season_year)
+    if not f.exists():
+        return "no weekly-points store"
+    doc = json.loads(f.read_text())
+    cov = (doc.get("coverage") or {}).get(str(season_year)) or {}
+    if cov.get("complete") is False:
+        miss = cov.get("missing")
+        return ("store marks the season INCOMPLETE"
+                + (" (missing weeks %s)" % miss if miss else ""))
+    return "store present but NOTHING SCORED — a schedule, not a season"
+
+
 def season_totals(season_year):
     """player_id -> total fantasy points that season, from the nflverse store so
-    the pool covers EVERY player, not only the ones somebody rostered."""
-    f = ROOT / "draft" / "backtest" / ("nflverse_weekly_points_%s.json" % season_year)
+    the pool covers EVERY player, not only the ones somebody rostered.
+
+    Returns None when the season cannot be VALUED, which is not the same as the
+    file being absent. Register 349.
+
+    ⚠️ THIS FUNCTION WAS PROTECTED BY AN ACCIDENT AND THE ACCIDENT HAS AN EXPIRY
+    DATE. Register 340 ① recorded it: on 2026-08-25 this study was the only one
+    of the three decision-null graders that stayed clean through the unplayed
+    season, and it stayed clean solely because `nflverse_weekly_points_2026.json`
+    DOES NOT EXIST — `f.exists()` was False and the season was skipped. That is
+    a different store from `league_history`, which is why the zero-schedule never
+    reached here. **The moment C captures 2026 weekly points, the guard is gone.**
+
+    Two ways it goes wrong then, and the old `if not tot` caught neither:
+
+      * A SCHEDULE OF ZEROES. If the store is created before games are played,
+        `tot` is a dict of 0.0 — non-empty, so truthy. Every 2026 pick would be
+        valued at nothing, every alternative too, and every percentile would land
+        at ~0.5 by construction: the exact shape that broke `start_sit` (340) and
+        collapsed its oracle control to 0.873.
+      * A PARTIAL SEASON. Week 1 captured, weeks 2-18 empty. `tot` is real and
+        non-zero, so no zero-check can see it — but this study values a pick by
+        SEASON total, and pooling a one-week 2026 with three seventeen-week
+        seasons compares picks against incomparable denominators.
+
+    So the store's OWN statement is used for the second, rather than a threshold
+    invented here: every committed store carries `coverage.<year>.complete`, and
+    all five say True (verified before relying on it). A store without the key
+    falls back to the zero-check alone rather than being refused, because a
+    missing field is not evidence of an incomplete season.
+    """
+    f = _store_path(season_year)
     if not f.exists():
         return None
+    doc = json.loads(f.read_text())
     tot = {}
-    for wk in (json.loads(f.read_text()).get("weeks") or []):
+    for wk in (doc.get("weeks") or []):
         for pid, v in (wk.get("points") or {}).items():
             tot[pid] = tot.get(pid, 0.0) + float(v)
+    if not any(tot.values()):
+        return None                     # a schedule, not a season
+    cov = (doc.get("coverage") or {}).get(str(season_year)) or {}
+    if cov and cov.get("complete") is False:
+        return None                     # the store says so itself
     return tot
 
 
@@ -76,7 +138,7 @@ def run():
         year = season["season"]
         tot = season_totals(year)
         if not tot:
-            no_store.append(year); continue
+            no_store.append("%s (%s)" % (year, skip_reason(year))); continue
         owners = {}
         for rid, o in (season.get("owners") or {}).items():
             try: rid_i = int(rid)

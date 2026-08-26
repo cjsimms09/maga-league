@@ -166,3 +166,34 @@ def test_alert_thresholds_are_the_ones_cory_asked_for():
     assert D.alert_level(0.94) == 'warn'
     assert D.alert_level(0.95) == 'critical'
     assert D.alert_level(0.99) == 'critical'
+
+
+def test_STALE_CODE_AND_A_STALE_BOARD_ARE_DIFFERENT_MESSAGES():
+    """Register 348. `assess` returned one message for both, so on 2026-08-25 —
+    when the ONLY undeployed draft-path file was the nightly board — the alarm
+    printed "Rehearsing a mock against this is rehearsing the wrong code". No
+    code was stale. Under Cory's 8h deploy cadence that sentence would print
+    most days, and an alarm that is wrong most days is one nobody reads.
+
+    THE LEVEL IS DELIBERATELY UNCHANGED and this pins that too: downgrading an
+    alarm because it fires often is how a real alarm gets muted.
+    """
+    board_only = D.assess(["public/draft_data.json"], "dep", "head", 3)
+    assert board_only["level"] == "red", "the board case must NOT be downgraded"
+    assert board_only["code"] == []
+    assert board_only["data"] == ["public/draft_data.json"]
+    assert "OLDER BOARD" in board_only["message"]
+    assert "wrong code" not in board_only["message"], (
+        "the board case still claims code is stale")
+
+    stranded = D.assess(["public/js/draft/app.js", "public/draft_data.json"],
+                         "dep", "head", 3)
+    assert stranded["level"] == "red"
+    assert stranded["code"] == ["public/js/draft/app.js"]
+    assert "wrong code" in stranded["message"], (
+        "a genuinely stranded war-room file lost its emergency wording")
+
+    # BACKWARD COMPATIBILITY: `draft` still carries both, because site-check
+    # prints `v['draft'] + v['served']` and every other guard reads that key.
+    assert set(stranded["draft"]) == {"public/js/draft/app.js",
+                                      "public/draft_data.json"}

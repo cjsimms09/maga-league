@@ -270,11 +270,25 @@ let SYNTH;   // §1's synthetic dedup repro; §3's control reads it too
   /* The floor is a floor, not a promise to fabricate: a board holding two
    * clusters renders two. So a shortfall is only a failure if the board HAD
    * more to offer. */
+  /* ⚠️ "WHAT THE BOARD HAD TO OFFER" WAS COUNTED IN CLUSTER KEYS, AND A ROW IS A
+   * POSITION. The check twenty lines above this one enforces exactly that —
+   * "every pick offers DISTINCT positions — one row per direction, never the
+   * same direction twice with different men" — and when that dedupe shipped,
+   * this comparison was left counting `pos:cliff`/`pos:value` keys, of which one
+   * position can produce two. So a pool holding QB and TE in both flavours reads
+   * as FOUR available directions while the panel can honestly render two.
+   *
+   * MEASURED 2026-08-26, which is what makes this a counting error and not a
+   * panel gap: at picks 73, 88 and 93 the pool holds 4 cluster keys and exactly
+   * 2 distinct positions, and the panel renders 2. At pick 33 it holds 4 keys
+   * and 4 positions and the panel renders 3 (the cap). Nowhere on this board
+   * does the panel render fewer rows than it has positions to render.
+   *
+   * Counted in positions, which is the unit the promise is made in. Register 353. */
   const realShort = short.filter(c => {
     const pool = pathsAt(c.pick).scored.slice(0, E.CFG.PATHS_POOL);
-    const keys = new Set(pool.map(e => e.player.position
-      + (((e.components || {}).tier_urgency || 0) >= E.CFG.PATHS_CLIFF_URGENCY ? ':cliff' : ':value')));
-    return keys.size > c.n;
+    const positions = new Set(pool.map(e => e.player.position));
+    return positions.size > c.n;
   });
   /* ⚠️ THE TERMINAL PICK IS EXCLUDED, FOR THE REASON THE CHECK TWENTY LINES UP
    * ALREADY STATES — and it was an inconsistency between two checks of the same
@@ -302,9 +316,23 @@ let SYNTH;   // §1's synthetic dedup repro; §3's control reads it too
     + 'many — the floor never has to invent one (terminal pick excluded: no next '
     + 'pick, so there is no direction to price)',
     realShortNonTerminal.length === 0, realShortNonTerminal);
-  ck('CONTROL — the only pick excluded above is the terminal one, and the '
-    + 'exclusion is load-bearing rather than decorative on this board',
-    realShort.every(c => c.pick === TERMINAL) && realShort.length > 0,
+  /* ⚠️ THIS REQUIRED `realShort.length > 0` — i.e. it required the board to be
+   * SHORT SOMEWHERE, so that the terminal carve-out was demonstrably doing work.
+   * That was a fair thing to want and the wrong way to want it: it makes a green
+   * board fail. Once `realShort` is counted in positions (above) nothing on this
+   * board is short at all, including 148 — the panel renders every direction it
+   * has, everywhere.
+   *
+   * What must hold is the narrowness: IF anything is short, it is only the
+   * terminal pick. Whether the carve-out is currently exercised is REPORTED, so
+   * a reader still sees it — that was the real content of the old conjunct, and
+   * it is a fact about today's board rather than a requirement on it. */
+  console.log('      terminal carve-out '
+    + (realShort.length ? 'IS exercised (' + realShort.length + ' short pick(s))'
+      : 'is NOT exercised today — nothing is short, including the terminal pick'));
+  ck('CONTROL — the exclusion is NARROW: if any pick comes up short it is only '
+    + 'the terminal one, never an ordinary pick quietly rescued by the carve-out',
+    realShort.every(c => c.pick === TERMINAL),
     { realShort: realShort, terminal: TERMINAL });
   ck('the cap still binds — this widened the floor, not the ceiling',
     counts.every(c => c.n <= E.CFG.PATHS_MAX), counts.filter(c => c.n > E.CFG.PATHS_MAX));
