@@ -305,10 +305,24 @@ const PRICED = B.players.filter(p => Number.isFinite(+p.proj_mean) && +p.proj_me
   const byAdp = pool.slice().sort((x, y) => adpOf(x) - adpOf(y));
   /* Keepers are REMOVED from `players`, so an id join returns nothing. That is
    * the same mistake that made my first 4x measurement worthless — `roster: []`
-   * — so it is spelled out rather than left to a silent empty array. */
-  const roster = B.kept_players || [];
-  ck('the keeper roster is non-empty — the input that made the first version of '
-    + 'this measurement meaningless', roster.length >= 3, roster.length);
+   * — so it is spelled out rather than left to a silent empty array.
+   *
+   * ⚠️ AND FILTERED TO CORY'S SEAT, exactly as §4 above already is — this block
+   * was missed when register 303 fixed that one, and its own header sentence
+   * ("off his real keeper roster") went on describing the pre-lock world. Post
+   * 2026-08-23 `kept_players` is the league's 23 across 9 seats (12 RB / 9 WR /
+   * 1 TE / 1 QB); Cory's are three (WR/RB/RB). `E.recommend` and `computePaths`
+   * both read `roster`, so the measurement below was taken against a roster that
+   * cannot exist — and the non-empty control passed all the harder for it, which
+   * is what let it sit. Register 351 ⑤ sweep. */
+  const _mySlot = String((B.league || {}).my_draft_slot);
+  const roster = (B.kept_players || []).filter(k => String(k.team_slot) === _mySlot);
+  ck('the keeper roster is non-empty AND is Cory\'s seat only — a league-wide '
+    + 'roster passes "non-empty" more easily while being the wrong input, which '
+    + 'is precisely how this went unnoticed',
+    roster.length >= 3 && roster.length < (B.kept_players || []).length
+      && roster.every(k => String(k.team_slot) === _mySlot),
+    { mine: roster.length, leagueWide: (B.kept_players || []).length, seat: _mySlot });
 
   const mine = ((B.pick_order || {}).my_picks || []).slice(0, 4);
   ck('Cory has real picks to measure at', mine.length === 4, mine);

@@ -96,11 +96,46 @@ ck('VONA_WIRE_BENCH is true — Cory\'s 2026-08-16 ruling, pinned',
 
 // ── 4. THE WIRE ARTIFACT ITSELF IS REAL AND REGENERATABLE ──────────────────
 {
+  /* WHEN THIS GOES RED, READ THIS BEFORE INVESTIGATING — it has now cost two
+   * separate investigations of the same benign mechanism.
+   *
+   * `wire_level.js` resolves its 2023-25 wire adds through
+   * `draft/data/player_positions.json`, which `build.py` maintains as a UNION
+   * THAT MAY ONLY GROW ("written BEFORE the activity filter so the wire sample
+   * cannot shrink", build.py ~1232). So EVERY board build can add an id, and the
+   * measured sample grows underneath this committed snapshot. That is the
+   * design working, not decay: each new id is a real wire add the measurement
+   * was previously DROPPING.
+   *
+   * Measured 2026-08-26 (register 351 ③): exactly one id — 4080, a 2023 week-2
+   * WR add worth 0.0 — gained a position record between the 08-17 and 08-25
+   * builds. WR n 114 -> 115, and the pooled median stepped from the even-n
+   * midpoint of (10.60, 11.10) = 10.85 to the odd-n order statistic 10.60. QB,
+   * RB and TE did not move by a cent. Reproduced exactly by re-running the walk
+   * against the 08-17 position record: scored 423, WR n 114, median 10.85 — the
+   * committed artifact's own four numbers, first try.
+   *
+   * THE REMEDY IS ONE COMMAND, and it is not "widen the tolerance":
+   *     node draft/tools/emit_wire_level.js
+   * The board's own copy follows on the next rebuild; until then
+   * `wire_level_never_reaches_the_board.test.js` prints a NOTE saying so rather
+   * than failing, because a board built before a regeneration is stale, not
+   * wrong. Widening this check instead would hide the one case that IS a defect:
+   * a number moving with the SAMPLE SIZE UNCHANGED, which no growth can explain.
+   */
   const WL = require(path.join(__dirname, '..', 'tools', 'wire_level.js'));
-  const fresh = WL.levels().per_week;
+  const freshAll = WL.levels();
+  const fresh = freshAll.per_week;
   ck('draft/data/wire_level.json matches a fresh run of wire_level.js right now — '
     + 'not a stale snapshot drifting from its own source',
-    JSON.stringify(fresh) === JSON.stringify(WIRE), { committed: WIRE, fresh });
+    JSON.stringify(fresh) === JSON.stringify(WIRE),
+    { committed: WIRE, fresh,
+      committed_n: JSON.parse(fs.readFileSync(
+        path.join(__dirname, '..', 'data', 'wire_level.json'), 'utf8')).n,
+      fresh_n: freshAll.n,
+      likely_cause: 'position record grew (see the comment above); remedy is '
+        + '`node draft/tools/emit_wire_level.js`. If the n values are IDENTICAL '
+        + 'on both sides this is NOT that, and is a real change in the walk.' });
 }
 
 console.log('\n' + pass + '/' + (pass + fail) + ' checks passed');
