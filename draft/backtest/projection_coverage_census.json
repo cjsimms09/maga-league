@@ -3,8 +3,8 @@
  "_question": "which players can a three-way weekly grade actually compare?",
  "_limit": "SEASON projections used as the pre-season proxy for the WEEKLY universes. Re-test at week 1 from real weekly snapshots.",
  "measured_from": {
-  "fantasypros": "2026-08-25",
-  "sleeper": "2026-08-25"
+  "fantasypros": "2026-08-26",
+  "sleeper": "2026-08-26"
  },
  "universes": {
   "fantasypros": 411,

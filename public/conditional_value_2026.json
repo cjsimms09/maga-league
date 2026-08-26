@@ -2,7 +2,7 @@
  "_territory": "TERRITORY: A \u2014 produced by draft/backtest/conditional_value.py; DISPLAY-WIRED to the war room per Cory's ruling 2026-08-17 ('Yes!') \u2014 chips + drill-down read this, printed separately; the SCORING side stays gated: engine/composite/vorp/build never read it and the composite never contains these numbers",
  "rebuild_with": "python3 draft/backtest/conditional_value.py",
  "input_fingerprint": {
-  "board": "3cfc0af6c29d",
+  "board": "cb878b703bb0",
   "keepers": "f31ff7fde5cf",
   "wire": "08700aea8f79",
   "component_2021": "27b467b7ecd2",
