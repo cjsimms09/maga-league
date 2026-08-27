@@ -224,9 +224,36 @@ def test_seat_plan_roster_is_the_planned_fifteen(dists):
     # the day the inputs change rather than on the day something breaks.
     sup = prov["superseded_bench_seats"]
     assert sup, "no seat was demoted at all — the labelling path never ran"
+    # ⚠️ THIS IS RED ON PURPOSE AS OF 2026-08-27 AND THE THRESHOLD IS NOT BEING
+    # RAISED TO SILENCE IT (registers 363, 378). Read this before re-deriving it:
+    #
+    #   · It fails at SEVEN of twelve. Measured on both artifacts, the number of
+    #     seats where the engine's pick is absent from that seat's own shortlist
+    #     is SEVEN BEFORE register 363 AND SEVEN AFTER — 5 superseded + 2 seats
+    #     whose plan_player was silently not in its own list, versus 7 + 0. The
+    #     fix relabelled two; it created none. This guard was passing because
+    #     two of the seven were labelled as though they agreed.
+    #
+    #   · So the count is honest and the PREMISE is what moved. This assertion
+    #     reads a demotion as "the plan disagrees with itself", which was true
+    #     when emit_seat_plan demoted bench seats only. Its own header now rules
+    #     that the realized wire WINS and the shortlist stands, so a demoted
+    #     seat is a RESOLVED disagreement carrying its reason — not a screen
+    #     contradicting itself. Register 363 extended that resolution to starter
+    #     seats, which is what took the count past six.
+    #
+    #   · What the number now measures is how often two valuations of the same
+    #     seat disagree: 7 of 12. That is a model signal worth surfacing, and
+    #     hiding it behind a bumped threshold is how a count goes invisible.
+    #
+    # The threshold is NOT re-specified here because the underlying question —
+    # is the SHORTLIST wrong, or the engine pick — is routed to E under register
+    # 378 with a recheck of 09-03. Whoever rules it owns this line.
     assert len(sup) <= 6, (
-        "more than half the seats are demoted; that is not a plan with "
-        "footnotes, it is a plan that disagrees with itself: %r" % (sup,))
+        "SEVEN of twelve seats are demoted, and this is the known-red case: the "
+        "count was seven before register 363 too (5 superseded + 2 unlabelled), "
+        "so the fix revealed it rather than caused it. Do NOT raise the "
+        "threshold — see the comment above and register 378. Seats: %r" % (sup,))
     for s in sup:
         # the whole point of a demotion is that it still NAMES somebody
         assert s.get("name"), s
