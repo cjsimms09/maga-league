@@ -7,14 +7,14 @@ by hand, so it cannot quietly stop being true.
 Two questions, measured:
 **is anyone answering**, and **is any finished work invisible from `main`**.
 
-_Last measured: 2026-08-26 14:03 UTC_
+_Last measured: 2026-08-27 01:29 UTC_
 
 ```
 ============================================================================
 ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
-  893 items · 319 open · 261 of those carry a DEFAULT (silence resolves them)
-  39 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
+  894 items · 313 open · 255 of those carry a DEFAULT (silence resolves them)
+  58 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
   of 58 open item(s) with no default: 3 SAY they ask for nothing · 0 are BROADCASTS (same
   header in 3+ inboxes — a rule, not four decisions) · 55 declare NEITHER, so nobody
   can tell whether a decision is owed. That last number is the real state of the inbox.
@@ -23,21 +23,21 @@ ROUTES RESPONSE CHECK — is anyone answering?
   rewording is precisely what stops it matching.
 
   waiting on:
-      10     6d oldest   B
-       9     7d oldest   D
-       7     7d oldest   E
-       5     7d oldest   A
-       3     6d oldest   C
-       2     3d oldest   Cory
-       1     3d oldest   A/Cory
-       1     5d oldest   C/A
+      15     8d oldest   A
+      10     8d oldest   E
+      10     7d oldest   B
+       9     8d oldest   D
+       3     4d oldest   Cory
+       3     7d oldest   C
+       2     3d oldest   relay
+       2     3d oldest   A/relay
 
   the five oldest:
-    7d  2026-08-19 · E → A · 🔴 **REPLY TO `ROSTER-CONSTRUCTION-CALL.md`: RELAXING TE'S CAP TO AN ALREAD
-    7d  2026-08-19 · C → D · 🎯 **CORY RULED ON THE ROSTER-CONSTRUCTION TARGET — verbatim: "We should be
-    7d  2026-08-19 · C → E · 🎯 **CORY RULED ON THE ROSTER-CONSTRUCTION TARGET — verbatim: "We should be
-    6d  2026-08-20 · relay → A · 🔬 **AUDIT-PACKAGE ADDENDUM: question 2 (the friction constant) now has
-    6d  2026-08-20 · relay → A · 🚂 **FULL STEAM — **CORY, VERBATIM (08-20): "everyones full task list s
+    8d  2026-08-19 · E → A · 🔴 **REPLY TO `ROSTER-CONSTRUCTION-CALL.md`: RELAXING TE'S CAP TO AN ALREAD
+    8d  2026-08-19 · C → D · 🎯 **CORY RULED ON THE ROSTER-CONSTRUCTION TARGET — verbatim: "We should be
+    8d  2026-08-19 · C → E · 🎯 **CORY RULED ON THE ROSTER-CONSTRUCTION TARGET — verbatim: "We should be
+    7d  2026-08-20 · relay → A · 🔬 **AUDIT-PACKAGE ADDENDUM: question 2 (the friction constant) now has
+    7d  2026-08-20 · relay → A · 🚂 **FULL STEAM — **CORY, VERBATIM (08-20): "everyones full task list s
 
   DOES THE LOOP VISIBLY CLOSE? — ticked share by sender→recipient
   (a low rate is a QUESTION: real backlog, or answered and never ticked?)
@@ -49,14 +49,14 @@ ROUTES RESPONSE CHECK — is anyone answering?
     D → A                     83 items    53% ticked    7 open with NO default
     relay → A                116 items    56% ticked   14 open with NO default
     relay → C                 28 items    57% ticked    3 open with NO default
-    B → A                     62 items    60% ticked    7 open with NO default
     D → C                      5 items    60% ticked    0 open with NO default
+    B → A                     62 items    61% ticked    7 open with NO default
     A → A                     72 items    65% ticked    1 open with NO default
     relay → B                 21 items    76% ticked    4 open with NO default
     A → D                     14 items    86% ticked    0 open with NO default
-    A → B                     74 items    86% ticked    1 open with NO default
     relay/PM → E              10 items    90% ticked    0 open with NO default
     A → C                     35 items    91% ticked    0 open with NO default
+    A → B                     74 items    93% ticked    1 open with NO default
     C → A                    134 items    96% ticked    0 open with NO default
     session E (red team) → A  13 items   100% ticked    0 open with NO default
     this session → A           6 items   100% ticked    0 open with NO default
@@ -69,9 +69,9 @@ ROUTES RESPONSE CHECK — is anyone answering?
     C → C                     13 items   100% ticked    0 open with NO default
     relay/PM → D               7 items   100% ticked    0 open with NO default
 
-  baseline 0  ->  now 39
+  baseline 0  ->  now 58
 
-  ❌ THE BACKLOG GREW BY 39. Answer them, add a DEFAULT so silence resolves them, or SEND BACK.
+  ❌ THE BACKLOG GREW BY 58. Answer them, add a DEFAULT so silence resolves them, or SEND BACK.
      A ratchet that only reports is the thing that failed here already.
 ============================================================================
 ```
@@ -80,13 +80,13 @@ ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
 LANE STATUS — work that exists but `main` cannot see
 ============================================================================
-  ⚠️  150 commits    37h old  claude/data-stewardship-setup-bo5h9j
-  ⚠️   52 commits    18h old  claude/external-ingest-program-1xfinj
-  ⚠️   48 commits    21h old  claude/red-team-fantasy-football-97otna
-  ⚠️   13 commits    37h old  claude/warroom-shell-rebuild-0817
-        1 commits    21h old  claude/derived-values-bbm-tier-xxto5m
+  ⚠️  150 commits    48h old  claude/data-stewardship-setup-bo5h9j
+       53 commits     4h old  claude/external-ingest-program-1xfinj
+  ⚠️   48 commits    32h old  claude/red-team-fantasy-football-97otna
+        1 commits    32h old  claude/derived-values-bbm-tier-xxto5m
+        1 commits     0h old  claude/warroom-shell-rebuild-0817
 
-  ⚠️  4 branch(es) look STRANDED — 3+ commits, 12h+ old, unmerged.
+  ⚠️  2 branch(es) look STRANDED — 3+ commits, 12h+ old, unmerged.
      ROUTES.md cannot show you these: it lists what a lane WROTE DOWN,
      and an unrouted branch is indistinguishable from an idle lane.
 
