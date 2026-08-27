@@ -8,13 +8,12 @@
   "This file never makes CI pass. The JS suite step still exits non-zero while anything is failing -- see ci.yml. A permanently green build with 32 broken suites is the decay this whole exercise was about."
  ],
  "_baseline_taken": "2026-08-26",
- "count": 11,
+ "count": 10,
  "suites": [
   "barbell_policy",
   "draft_alert_lifecycle",
   "draft_turn_email",
   "engine_ablation",
-  "floor_is_a_cohort_not_a_forecast",
   "member_copy",
   "member_email_policy",
   "pickem_surface",
@@ -51,6 +50,14 @@
     "draft_shape"
    ],
    "why": "Fixed, register 360 — a second unswept instance of the keeper-lock roster defect plus two pinned counts Cory's own completed draft broke. 44/44."
+  },
+  {
+   "date": "2026-08-27",
+   "by": "A",
+   "removed": [
+    "floor_is_a_cohort_not_a_forecast"
+   ],
+   "why": "Fixed, register 362 — three controls failing while printing SKIPPED (guarded !COHORT || property, so they fire only when it exists), plus a keeper-lock identity lookup. B routed it 08-19. 22/22."
   }
  ]
 }
