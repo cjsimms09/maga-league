@@ -121,3 +121,30 @@ If the pricing step cannot be built without a free parameter tuned on
 2023-25 outcomes, the arm is not Tier-1 and this prereg is withdrawn rather
 than amended — a pricing model fitted on the same seasons it is graded on has
 no null that means anything.
+
+
+---
+
+## ADDENDUM — 2026-08-27, folds hydrated, nothing graded
+
+The pricing step §9 warned might need a tuned free parameter **does not**:
+`draft/tools/props_season_projection.py` already carries `line_to_points` and
+`_any_td_rate`, both derived from the frozen scoring table alone. No parameter
+is fitted on 2023-25 outcomes, so the abandon condition in §9 is not triggered
+and this prereg stands as written.
+
+`draft/tools/hydrate_weekly_props_from_historical.py` wrote **54 week-snapshots,
+22,757 priced player-weeks**, into **`draft/data/props_backtest/`** — not
+`draft/data/props/`, which is the live 2026 capture path. Directory separation
+is a stronger form of §8 than the provenance field alone: a field says "this is
+hydrated", a separate directory means a live reader never sees a fold. The
+field is stamped anyway.
+
+Coverage re-measured **through the arm's own loader** rather than asserted:
+**3,727 of 3,775 offensive started slots, 98.7%**. That is marginally higher
+than §2's 98.4% because `props_season_projection.normalize_name` resolves a few
+names the coverage probe's own normalizer did not. Both numbers are
+reproducible; §2's is the probe's and this one is the shipped join's.
+
+**Nothing has been graded.** §7 fixes the first fold read at **2026-09-06** and
+that has not moved.
