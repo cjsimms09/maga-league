@@ -1,7 +1,7 @@
 {
  "_territory": "relay probe; C consumes; results are the free-odds census",
  "_ask": "Cory 2026-08-21: Explore free Vegas odds we can get",
- "captured_at": "2026-08-21T00:33:19.483802Z",
+ "captured_at": "2026-08-27T22:27:14.081454Z",
  "sources": {
   "espn": {
    "status": 403,
@@ -10,7 +10,7 @@
   },
   "bovada": {
    "status": 200,
-   "bytes": 626088,
+   "bytes": 625969,
    "known_positive": [
     {
      "game": "New England Patriots @ Seattle Seahawks",
@@ -20,7 +20,7 @@
     {
      "game": "New England Patriots @ Seattle Seahawks",
      "market": "Point Spread",
-     "handicap": "2.0"
+     "handicap": "3.5"
     },
     {
      "game": "New England Patriots @ Seattle Seahawks",
@@ -34,10 +34,10 @@
   },
   "bovada_event_props": {
    "status": 200,
-   "bytes": 626088,
-   "event_link": "/football/nfl/new-england-patriots-seattle-seahawks-202609092015",
+   "bytes": 625969,
+   "event_link": "/football/nfl/new-england-patriots-seattle-seahawks-202609092020",
    "event_status": 200,
-   "event_bytes": 39616,
+   "event_bytes": 39618,
    "prop_markets": 0,
    "anytime_td_mentions": 0,
    "known_positive": [],
@@ -45,7 +45,7 @@
   },
   "bovada_census": {
    "status": 200,
-   "bytes": 626088,
+   "bytes": 625969,
    "display_groups": {
     "Game Lines": 16,
     "Alternate Lines": 16,
@@ -87,7 +87,7 @@
   },
   "polymarket": {
    "status": 200,
-   "bytes": 831816,
+   "bytes": 834402,
    "events": 20,
    "known_positive": [
     {
