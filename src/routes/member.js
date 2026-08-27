@@ -3606,6 +3606,14 @@ async function liveOptimizeFor(world, owners, me) {
     // Flag it so the view shows a calm "projections pending" state instead of a
     // 0%-to-win doom read off an all-zero board.
     live.projPending = projSource === 'none' || Number(live.ev.mean || 0) < 1;
+    // Register 324, E's follow-up: holding the pre-kick estimate stops the
+    // headline from FLIPPING, but the page still asserts it with the same
+    // confidence whether it was computed five minutes ago or five days ago —
+    // "the page does not know it is gone" (the live opponent number). Say so:
+    // once any score is on the board this week, the call on screen was set
+    // pre-kick and has not moved since, which is a fact worth one line rather
+    // than a silent held number that could pass for fresh.
+    live.midGame = PE.anyScoreOnBoard(sData);
   }
   const weekNo = (matchup && matchup.week) || (sData && sData.week) || 1;
   return { live, roster, matchup, projSource, band, weekNo };

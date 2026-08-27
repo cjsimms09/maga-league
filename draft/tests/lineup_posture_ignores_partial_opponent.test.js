@@ -87,7 +87,12 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS  ' + n))
             settings: { wins: 1, losses: 1, fpts: 100 } },
         ],
         matchups: [
-          { roster_id: 1, matchup_id: 1, points: 40, starters },
+          // My own points track the same live/not-live state as the
+          // opponent's -- otherwise the fixture claims MY score is live
+          // while the opponent's is still pre-kick, which anyScoreOnBoard()
+          // (a league-wide check) would treat as "already underway" even at
+          // the intended pre-kick moment.
+          { roster_id: 1, matchup_id: 1, points: oppPoints > 0 ? 40 : 0, starters },
           { roster_id: 2, matchup_id: 1, points: oppPoints, starters: [] },
         ],
         week: 3,
@@ -116,6 +121,7 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS  ' + n))
   const cookie = (loginRes.headers['set-cookie'] || []).map(c => c.split(';')[0]).join('; ');
 
   const oppModelledText = html => (html.match(/typical team score \((\d+)\)/) || [])[1];
+  const GAMES_UNDERWAY = /Games are underway.*has not moved since/;
 
   // ── 1. PRE-KICK: opponent has zero points, tool models a typical team. ──
   await seedWeek(0);
@@ -123,6 +129,8 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS  ' + n))
   ck('pre-kick: page renders clean', preKick.status === 200);
   const preKickOppMean = oppModelledText(preKick.body);
   ck('pre-kick: opponent is modelled as a typical team (not yet known)', !!preKickOppMean, preKick.body.slice(0, 0));
+  ck('pre-kick: no "games are underway" caveat yet — nothing has started',
+    !GAMES_UNDERWAY.test(preKick.body));
 
   // ── 2. MID-GAME: opponent has a PARTIAL live score (one early score). ──
   await seedWeek(6);
@@ -132,6 +140,11 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS  ' + n))
     !!midGameOppMean, midGame.body.match(/Opponent[^<]*/));
   ck('mid-game: the modelled number did not move — this is the register-324 regression check',
     midGameOppMean === preKickOppMean, { preKick: preKickOppMean, midGame: midGameOppMean });
+  // E's follow-up on 324: holding the number stops the flip but says nothing
+  // about it being held -- a frozen number can pass for a fresh one. Now it
+  // says so, once anything on the week's board has a point.
+  ck('mid-game: the page now SAYS the call was set pre-kick and has not moved',
+    GAMES_UNDERWAY.test(midGame.body), midGame.body.match(/Games are underway[^<]*/));
 
   // ── 3. FULL FINAL: every game is over, opponent's real total posted. ────
   await seedWeek(118);
@@ -139,6 +152,8 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS  ' + n))
   const finalOppMean = oppModelledText(final.body);
   ck('full-final: STILL held at the pre-kick estimate (a "known" score is never actionable here)',
     finalOppMean === preKickOppMean, { preKick: preKickOppMean, final: finalOppMean });
+  ck('full-final: the caveat is still shown (the board still carries points from this week)',
+    GAMES_UNDERWAY.test(final.body));
 
   srv.close();
   console.log(`\n${pass}/${pass + fail} lineup-posture-ignores-partial-opponent checks passed`);
