@@ -7,16 +7,16 @@ by hand, so it cannot quietly stop being true.
 Two questions, measured:
 **is anyone answering**, and **is any finished work invisible from `main`**.
 
-_Last measured: 2026-08-27 01:35 UTC_
+_Last measured: 2026-08-27 01:39 UTC_
 
 ```
 ============================================================================
 ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
-  897 items · 316 open · 256 of those carry a DEFAULT (silence resolves them)
-  60 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
-  of 60 open item(s) with no default: 4 SAY they ask for nothing · 0 are BROADCASTS (same
-  header in 3+ inboxes — a rule, not four decisions) · 56 declare NEITHER, so nobody
+  898 items · 317 open · 256 of those carry a DEFAULT (silence resolves them)
+  61 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
+  of 61 open item(s) with no default: 4 SAY they ask for nothing · 0 are BROADCASTS (same
+  header in 3+ inboxes — a rule, not four decisions) · 57 declare NEITHER, so nobody
   can tell whether a decision is owed. That last number is the real state of the inbox.
   NEITHER IS SUBTRACTED: "no ask" is a loophole anyone can type, so the baseline stays
   comparable and the split prints beside it. Only the broadcast half is unfakeable —
@@ -27,9 +27,9 @@ ROUTES RESPONSE CHECK — is anyone answering?
       10     8d oldest   E
       10     7d oldest   B
        9     8d oldest   D
+       3     7d oldest   A/B
        3     4d oldest   Cory
        3     7d oldest   C
-       2     7d oldest   A/B
        2     3d oldest   relay
 
   the five oldest:
@@ -42,7 +42,7 @@ ROUTES RESPONSE CHECK — is anyone answering?
   DOES THE LOOP VISIBLY CLOSE? — ticked share by sender→recipient
   (a low rate is a QUESTION: real backlog, or answered and never ticked?)
     relay → E                 15 items    13% ticked    1 open with NO default
-    E → A                     79 items    14% ticked   11 open with NO default
+    E → A                     80 items    14% ticked   12 open with NO default
     E → B                     14 items    14% ticked    1 open with NO default
     relay → D                 19 items    26% ticked    4 open with NO default
     A → E                     15 items    40% ticked    0 open with NO default
@@ -69,9 +69,9 @@ ROUTES RESPONSE CHECK — is anyone answering?
     C → C                     13 items   100% ticked    0 open with NO default
     relay/PM → D               7 items   100% ticked    0 open with NO default
 
-  baseline 0  ->  now 60
+  baseline 0  ->  now 61
 
-  ❌ THE BACKLOG GREW BY 60. Answer them, add a DEFAULT so silence resolves them, or SEND BACK.
+  ❌ THE BACKLOG GREW BY 61. Answer them, add a DEFAULT so silence resolves them, or SEND BACK.
      A ratchet that only reports is the thing that failed here already.
 ============================================================================
 ```
