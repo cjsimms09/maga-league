@@ -7,15 +7,15 @@ by hand, so it cannot quietly stop being true.
 Two questions, measured:
 **is anyone answering**, and **is any finished work invisible from `main`**.
 
-_Last measured: 2026-08-27 01:30 UTC_
+_Last measured: 2026-08-27 01:35 UTC_
 
 ```
 ============================================================================
 ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
-  895 items · 314 open · 255 of those carry a DEFAULT (silence resolves them)
-  59 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
-  of 59 open item(s) with no default: 3 SAY they ask for nothing · 0 are BROADCASTS (same
+  897 items · 316 open · 256 of those carry a DEFAULT (silence resolves them)
+  60 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
+  of 60 open item(s) with no default: 4 SAY they ask for nothing · 0 are BROADCASTS (same
   header in 3+ inboxes — a rule, not four decisions) · 56 declare NEITHER, so nobody
   can tell whether a decision is owed. That last number is the real state of the inbox.
   NEITHER IS SUBTRACTED: "no ask" is a loophole anyone can type, so the baseline stays
@@ -29,8 +29,8 @@ ROUTES RESPONSE CHECK — is anyone answering?
        9     8d oldest   D
        3     4d oldest   Cory
        3     7d oldest   C
+       2     7d oldest   A/B
        2     3d oldest   relay
-       2     3d oldest   A/relay
 
   the five oldest:
     8d  2026-08-19 · E → A · 🔴 **REPLY TO `ROSTER-CONSTRUCTION-CALL.md`: RELAXING TE'S CAP TO AN ALREAD
@@ -42,7 +42,7 @@ ROUTES RESPONSE CHECK — is anyone answering?
   DOES THE LOOP VISIBLY CLOSE? — ticked share by sender→recipient
   (a low rate is a QUESTION: real backlog, or answered and never ticked?)
     relay → E                 15 items    13% ticked    1 open with NO default
-    E → A                     78 items    14% ticked   10 open with NO default
+    E → A                     79 items    14% ticked   11 open with NO default
     E → B                     14 items    14% ticked    1 open with NO default
     relay → D                 19 items    26% ticked    4 open with NO default
     A → E                     15 items    40% ticked    0 open with NO default
@@ -50,7 +50,7 @@ ROUTES RESPONSE CHECK — is anyone answering?
     relay → A                116 items    56% ticked   14 open with NO default
     relay → C                 28 items    57% ticked    3 open with NO default
     D → C                      5 items    60% ticked    0 open with NO default
-    B → A                     62 items    61% ticked    7 open with NO default
+    B → A                     63 items    60% ticked    7 open with NO default
     A → A                     72 items    65% ticked    1 open with NO default
     relay → B                 21 items    76% ticked    4 open with NO default
     A → D                     14 items    86% ticked    0 open with NO default
@@ -69,9 +69,9 @@ ROUTES RESPONSE CHECK — is anyone answering?
     C → C                     13 items   100% ticked    0 open with NO default
     relay/PM → D               7 items   100% ticked    0 open with NO default
 
-  baseline 0  ->  now 59
+  baseline 0  ->  now 60
 
-  ❌ THE BACKLOG GREW BY 59. Answer them, add a DEFAULT so silence resolves them, or SEND BACK.
+  ❌ THE BACKLOG GREW BY 60. Answer them, add a DEFAULT so silence resolves them, or SEND BACK.
      A ratchet that only reports is the thing that failed here already.
 ============================================================================
 ```
@@ -83,8 +83,8 @@ LANE STATUS — work that exists but `main` cannot see
   ⚠️  150 commits    48h old  claude/data-stewardship-setup-bo5h9j
        53 commits     4h old  claude/external-ingest-program-1xfinj
   ⚠️   48 commits    32h old  claude/red-team-fantasy-football-97otna
+        2 commits     0h old  claude/warroom-shell-rebuild-0817
         1 commits    32h old  claude/derived-values-bbm-tier-xxto5m
-        1 commits     0h old  claude/warroom-shell-rebuild-0817
 
   ⚠️  2 branch(es) look STRANDED — 3+ commits, 12h+ old, unmerged.
      ROUTES.md cannot show you these: it lists what a lane WROTE DOWN,
