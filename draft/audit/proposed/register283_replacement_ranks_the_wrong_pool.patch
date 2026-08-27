@@ -1,3 +1,11 @@
+# ⛔ APPLIED — DO NOT RUN THIS PATCH. It is kept as the record of what was
+# proposed and why, not as something to apply. `git apply` on it now FAILS,
+# because the change is already on `main`:
+#   register 283 -> 5b676028 'rank replacement over everyone who starts'
+#   register 294 -> 6d2497f5 + 0bbca2b0 (and B shipped a BETTER fix than this
+#                  file proposed — see the .md)
+# Verified applied by E, 2026-08-24, by reading the live constants off the
+# shipped board rather than off a commit message.
 diff --git a/draft/build.py b/draft/build.py
 index b4f05908..4b4aa097 100644
 --- a/draft/build.py

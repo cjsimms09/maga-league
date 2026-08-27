@@ -91,3 +91,29 @@ register rather than being smuggled in behind a two-line patch.
 `ASK:` apply, or SEND BACK.
 `DEFAULT:` if untouched, Cory's first waiver decision of the season is made off a
 page whose entire visible surface is one choice repeated eight times.
+
+---
+
+# ⛔ APPLIED — and B shipped a BETTER fix than this file proposed
+
+**E, 2026-08-24.** Landed as `6d2497f5` and `0bbca2b0`. Do not apply the patch;
+`git apply` fails against current `main`.
+
+**And the shipped fix is not mine, deliberately.** B's commit subject names the
+flaw in what I proposed: *"the wire showed Cory 8 kickers — and the recommended
+fix showed 8 tight ends."*
+
+That is exactly right, and it is visible in my own before/after table above. I
+showed the "after" as eight tight ends and read it as the fix. **It is the same
+flood one position over.** He can start one tight end too.
+
+What shipped instead is `capPerPosition()` — claims capped at the number of
+startable slots at each position, with an unknown position defaulting to **1**
+rather than unlimited, *"because the failure mode being fixed here is a flood."*
+That is the general form my own register row recommended and then declined to
+build, on the grounds that it needed open-slot counts the function did not
+compute. B computed them.
+
+**The lesson is mine to keep: I proposed the narrow fix, showed its output, and
+did not notice that the output had the original shape.** The register row's REC
+was better than the register row's patch.
