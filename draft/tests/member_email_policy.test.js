@@ -174,9 +174,41 @@ global.fetch = async (url, opts) => {
    * without appearing here, so pinning it exactly means a new member email is a
    * deliberate, visible act rather than an addition nobody reviewed. */
   {
+    /* ⚠️ `tuesdayWire` ADMITTED 2026-08-27 — DELIBERATELY, AND ONLY AFTER PROVING
+     * IT CANNOT REACH A MEMBER. This guard fired exactly as designed: the
+     * in-season capture rail added a Tuesday waiver-wire sender and the policy
+     * surface had not been reviewed. That matters more than usual here, because
+     * this file's own header names **"not waiver reminders"** among the things
+     * Cory's 2026-08-11 ruling forbids reaching a member's inbox.
+     *
+     * IT IS COMMISSIONER-ONLY TWO WAYS OVER, checked rather than assumed:
+     *   1. `notify.js:363` filters its recipient list to
+     *      `o.is_commissioner && o.active` and returns `{skipped:
+     *      'not-commissioner'}` otherwise — it cannot address a member at all.
+     *   2. its kind is not in `MEMBER_KINDS` (`password-reset`, `weekly-recap`,
+     *      `draft-turn` — exactly Cory's three), so `sendMail` routes it to the
+     *      commissioner even if (1) were removed.
+     *
+     * So the forbidden thing is a waiver reminder reaching an OWNER, and this is
+     * a report to the commissioner. Listing it without that check would be the
+     * "quiet it by adding it to the list" move this repo refuses elsewhere,
+     * which is why the arm below asserts the containment rather than trusting
+     * this comment. Register 367. */
     const ALLOWED = ['configured', 'mayEmail', 'sendMail', 'MEMBER_KINDS',
-                     'draftTurn', 'passwordReset', 'sundayAlert', 'weeklyRecap', 'SITE'];
+                     'draftTurn', 'passwordReset', 'sundayAlert', 'weeklyRecap',
+                     'tuesdayWire', 'SITE'];
     const actual = Object.keys(notify).sort();
+    /* THE ADMISSION'S OWN GUARD. If `tuesdayWire` ever stops filtering to the
+     * commissioner, or its kind is ever added to MEMBER_KINDS, this goes red —
+     * so the allow-list entry above cannot outlive the reason it was granted. */
+    ck('CONTROL: tuesdayWire cannot address a member — it refuses a non-commissioner '
+      + 'list outright, and its kind is not a MEMBER_KIND',
+      typeof notify.tuesdayWire === 'function'
+        && !notify.MEMBER_KINDS.has('tuesday-wire')
+        && /is_commissioner/.test(
+          fs.readFileSync(path.join(ROOT, 'src', 'notify.js'), 'utf8')
+            .split('function tuesdayWire')[1].slice(0, 400)),
+      { member_kinds: [...notify.MEMBER_KINDS] });
     ck('notify.js exports exactly the permitted surface',
       JSON.stringify(actual) === JSON.stringify(ALLOWED.slice().sort()),
       { expected: ALLOWED.slice().sort(), got: actual,
