@@ -2,9 +2,9 @@
   "provenance": "predicted (flat-cost surplus) + Cory intel",
   "note": "PREDICTED slates for MOCK/REHEARSAL ONLY \u2014 never applied to the live board (Cory, 2026-08-11: a prediction rendered indistinguishably from a fact IS a fact as far as behaviour is concerned). Real designations are read from live Sleeper by the nightly draft-data rebuild; there is no keeper-watch process. Assumes keeper-eligibility (max_years=3 not verifiable for opponents).",
   "round_cost_vorp": [
-    67.6,
-    49.1,
-    35.7
+    43.12,
+    24.7,
+    14.95
   ],
   "predictions": {
     "coryjsimms": {
@@ -16,7 +16,7 @@
           "position": "WR",
           "vorp": 121.8,
           "cost_round": 1,
-          "surplus": 54.2,
+          "surplus": 78.7,
           "confidence": "high"
         },
         {
@@ -25,7 +25,7 @@
           "position": "RB",
           "vorp": 109.1,
           "cost_round": 2,
-          "surplus": 60.0,
+          "surplus": 84.4,
           "confidence": "high"
         },
         {
@@ -34,7 +34,7 @@
           "position": "RB",
           "vorp": 83.8,
           "cost_round": 3,
-          "surplus": 48.1,
+          "surplus": 68.8,
           "confidence": "high"
         }
       ],
@@ -44,41 +44,41 @@
     "ds7mmet": {
       "roster_id": "2",
       "predicted_keepers": [],
-      "next_best": "Bucky Irving",
+      "next_best": "Lamar Jackson",
       "source": "model"
     },
     "cashworth": {
       "roster_id": "3",
       "predicted_keepers": [
         {
-          "player_id": "12527",
-          "name": "Ashton Jeanty",
-          "position": "RB",
-          "vorp": 95.1,
-          "cost_round": 1,
-          "surplus": 27.5,
-          "confidence": "high"
-        },
-        {
           "player_id": "9224",
           "name": "Chase Brown",
           "position": "RB",
           "vorp": 92.4,
+          "cost_round": 1,
+          "surplus": 49.3,
+          "confidence": "high"
+        },
+        {
+          "player_id": "12527",
+          "name": "Ashton Jeanty",
+          "position": "RB",
+          "vorp": 89.3,
           "cost_round": 2,
-          "surplus": 43.3,
+          "surplus": 64.6,
           "confidence": "high"
         },
         {
           "player_id": "7588",
           "name": "Javonte Williams",
           "position": "RB",
-          "vorp": 67.6,
+          "vorp": 38.6,
           "cost_round": 3,
-          "surplus": 31.9,
-          "confidence": "high"
+          "surplus": 23.7,
+          "confidence": "medium"
         }
       ],
-      "next_best": "Ladd McConkey",
+      "next_best": "Seattle Seahawks",
       "source": "model"
     },
     "Jreis": {
@@ -90,29 +90,29 @@
           "position": "RB",
           "vorp": 104.5,
           "cost_round": 1,
-          "surplus": 36.9,
+          "surplus": 61.4,
+          "confidence": "high"
+        },
+        {
+          "player_id": "5859",
+          "name": "A.J. Brown",
+          "position": "WR",
+          "vorp": 60.9,
+          "cost_round": 2,
+          "surplus": 36.2,
           "confidence": "high"
         },
         {
           "player_id": "5850",
           "name": "Josh Jacobs",
           "position": "RB",
-          "vorp": 76.1,
-          "cost_round": 2,
-          "surplus": 27.0,
-          "confidence": "high"
-        },
-        {
-          "player_id": "10229",
-          "name": "Rashee Rice",
-          "position": "WR",
-          "vorp": 74.5,
+          "vorp": 47.5,
           "cost_round": 3,
-          "surplus": 38.8,
+          "surplus": 32.5,
           "confidence": "high"
         }
       ],
-      "next_best": "A.J. Brown",
+      "next_best": "Rashee Rice",
       "source": "model"
     },
     "B8T3S": {
@@ -124,7 +124,7 @@
           "position": "RB",
           "vorp": 177.9,
           "cost_round": 1,
-          "surplus": 110.3,
+          "surplus": 134.8,
           "confidence": "high"
         },
         {
@@ -133,7 +133,7 @@
           "position": "RB",
           "vorp": 131.6,
           "cost_round": 2,
-          "surplus": 82.5,
+          "surplus": 106.9,
           "confidence": "high"
         },
         {
@@ -142,7 +142,7 @@
           "position": "WR",
           "vorp": 79.0,
           "cost_round": 3,
-          "surplus": 43.3,
+          "surplus": 64.0,
           "confidence": "high"
         }
       ],
@@ -156,7 +156,7 @@
           "player_id": "11604",
           "name": "Brock Bowers",
           "position": "TE",
-          "vorp": 59.7,
+          "vorp": 57.3,
           "cost_round": 3,
           "surplus": null,
           "confidence": "high",
@@ -168,7 +168,7 @@
           "position": "WR",
           "vorp": 111.9,
           "cost_round": 1,
-          "surplus": 44.3,
+          "surplus": 68.8,
           "confidence": "high"
         },
         {
@@ -177,7 +177,7 @@
           "position": "RB",
           "vorp": 103.3,
           "cost_round": 2,
-          "surplus": 54.2,
+          "surplus": 78.6,
           "confidence": "high"
         }
       ],
@@ -193,7 +193,7 @@
           "position": "QB",
           "vorp": 266.3,
           "cost_round": 1,
-          "surplus": 198.7,
+          "surplus": 223.2,
           "confidence": "high"
         },
         {
@@ -202,7 +202,7 @@
           "position": "RB",
           "vorp": 136.9,
           "cost_round": 2,
-          "surplus": 87.8,
+          "surplus": 112.2,
           "confidence": "high"
         },
         {
@@ -211,7 +211,7 @@
           "position": "WR",
           "vorp": 102.6,
           "cost_round": 3,
-          "surplus": 66.9,
+          "surplus": 87.6,
           "confidence": "high"
         }
       ],
@@ -222,37 +222,37 @@
       "roster_id": "8",
       "predicted_keepers": [
         {
-          "player_id": "7569",
-          "name": "Nico Collins",
-          "position": "WR",
-          "vorp": 68.4,
-          "cost_round": 2,
-          "surplus": null,
-          "confidence": "certain",
-          "override": "Cory intel"
-        },
-        {
-          "player_id": "8130",
-          "name": "Trey McBride",
-          "position": "TE",
-          "vorp": 58.4,
-          "cost_round": 3,
-          "surplus": null,
-          "confidence": "certain",
-          "override": "Cory intel"
-        },
-        {
           "player_id": "9509",
           "name": "Bijan Robinson",
           "position": "RB",
           "vorp": 171.1,
           "cost_round": 1,
-          "surplus": 103.5,
+          "surplus": 128.0,
+          "confidence": "certain",
+          "override": "Cory intel (confirms model)"
+        },
+        {
+          "player_id": "7569",
+          "name": "Nico Collins",
+          "position": "WR",
+          "vorp": 61.3,
+          "cost_round": 2,
+          "surplus": 36.6,
+          "confidence": "certain",
+          "override": "Cory intel (confirms model)"
+        },
+        {
+          "player_id": "8130",
+          "name": "Trey McBride",
+          "position": "TE",
+          "vorp": 46.4,
+          "cost_round": 3,
+          "surplus": 31.4,
           "confidence": "certain",
           "override": "Cory intel (confirms model)"
         }
       ],
-      "next_best": "DeVonta Smith",
+      "next_best": "D'Andre Swift",
       "source": "model + intel override"
     },
     "Schmelley": {
@@ -264,7 +264,7 @@
           "position": "WR",
           "vorp": 136.7,
           "cost_round": 1,
-          "surplus": 69.1,
+          "surplus": 93.6,
           "confidence": "high"
         },
         {
@@ -273,7 +273,7 @@
           "position": "RB",
           "vorp": 90.9,
           "cost_round": 2,
-          "surplus": 41.8,
+          "surplus": 66.2,
           "confidence": "high"
         },
         {
@@ -282,7 +282,7 @@
           "position": "RB",
           "vorp": 77.4,
           "cost_round": 3,
-          "surplus": 41.7,
+          "surplus": 62.5,
           "confidence": "high"
         }
       ],
@@ -298,29 +298,29 @@
           "position": "WR",
           "vorp": 74.8,
           "cost_round": 1,
-          "surplus": 7.2,
-          "confidence": "low"
+          "surplus": 31.7,
+          "confidence": "high"
         },
         {
           "player_id": "8150",
           "name": "Kyren Williams",
           "position": "RB",
-          "vorp": 66.3,
+          "vorp": 43.1,
           "cost_round": 2,
-          "surplus": 17.2,
+          "surplus": 18.4,
           "confidence": "medium"
         },
         {
           "player_id": "9997",
           "name": "Zay Flowers",
           "position": "WR",
-          "vorp": 55.5,
+          "vorp": 24.3,
           "cost_round": 3,
-          "surplus": 19.8,
+          "surplus": 9.4,
           "confidence": "medium"
         }
       ],
-      "next_best": "Michael Pittman",
+      "next_best": "Baltimore Ravens",
       "source": "model"
     }
   }

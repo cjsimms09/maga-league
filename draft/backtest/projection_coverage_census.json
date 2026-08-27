@@ -3,22 +3,22 @@
  "_question": "which players can a three-way weekly grade actually compare?",
  "_limit": "SEASON projections used as the pre-season proxy for the WEEKLY universes. Re-test at week 1 from real weekly snapshots.",
  "measured_from": {
-  "fantasypros": "2026-08-22",
-  "sleeper": "2026-08-22"
+  "fantasypros": "2026-08-26",
+  "sleeper": "2026-08-26"
  },
  "universes": {
-  "fantasypros": 409,
-  "own_weekly_v1": 487,
-  "sleeper": 680
+  "fantasypros": 411,
+  "own_weekly_v1": 489,
+  "sleeper": 700
  },
  "silently_dropped_by_price_week": {
-  "n": 116,
+  "n": 139,
   "why": "no proj_ownmodel on the board row; price_week skips them and does not count or name them anywhere in the snapshot",
-  "on_board_skill": 603,
+  "on_board_skill": 628,
   "by_position": {
-   "WR": 44,
-   "RB": 35,
-   "TE": 21,
+   "WR": 59,
+   "RB": 39,
+   "TE": 25,
    "QB": 16
   },
   "in_fantasypros": [
@@ -27,6 +27,7 @@
    "9502",
    "9999",
    "11292",
+   "11569",
    "11581",
    "11583",
    "12467",
@@ -40,102 +41,102 @@
     "name": "Deshaun Watson",
     "position": "QB",
     "proj_mean": 155.28,
-    "adp": 223.0
+    "adp": 222.0
    },
    {
     "player_id": "11583",
     "name": "Jonathon Brooks",
     "position": "RB",
     "proj_mean": 142.6,
-    "adp": 89.0
-   },
-   {
-    "player_id": "9502",
-    "name": "Tank Dell",
-    "position": "WR",
-    "proj_mean": 95.3,
-    "adp": 184.0
+    "adp": 84.33
    },
    {
     "player_id": "11581",
     "name": "MarShawn Lloyd",
     "position": "RB",
     "proj_mean": 66.1,
-    "adp": 176.67
+    "adp": 171.0
    },
    {
     "player_id": "12467",
     "name": "Jordan James",
     "position": "RB",
     "proj_mean": 54.2,
-    "adp": 241.0
+    "adp": 236.0
+   },
+   {
+    "player_id": "9502",
+    "name": "Tank Dell",
+    "position": "WR",
+    "proj_mean": 43.4,
+    "adp": 180.5
    },
    {
     "player_id": "12511",
     "name": "Will Howard",
     "position": "QB",
     "proj_mean": 24.5,
-    "adp": 425.0
+    "adp": 427.0
    },
    {
     "player_id": "2078",
     "name": "Odell Beckham",
     "position": "WR",
     "proj_mean": 23.0,
-    "adp": 435.0
+    "adp": 437.0
    },
    {
     "player_id": "9999",
     "name": "Will Levis",
     "position": "QB",
     "proj_mean": 13.7,
-    "adp": 472.0
+    "adp": 473.0
    },
    {
     "player_id": "11292",
     "name": "Tommy DeVito",
     "position": "QB",
     "proj_mean": 13.38,
-    "adp": 483.0
+    "adp": 484.0
    },
    {
-    "player_id": "12738",
-    "name": "Phil Mafah",
+    "player_id": "11569",
+    "name": "Jarquez Hunter",
     "position": "RB",
-    "proj_mean": 5.7,
-    "adp": 527.0
+    "proj_mean": 8.6,
+    "adp": 503.0
    }
   ]
  },
  "shared_population": {
-  "n": 398,
+  "n": 399,
   "by_position": {
    "WR": 149,
-   "TE": 97,
+   "TE": 98,
    "RB": 86,
    "QB": 66
   },
-  "share_of_sleeper": 0.5853,
-  "share_of_fantasypros": 0.9731,
-  "share_of_ours": 0.8172
+  "share_of_sleeper": 0.57,
+  "share_of_fantasypros": 0.9708,
+  "share_of_ours": 0.816
  },
  "nesting": {
   "fantasypros_subset_of_sleeper": true,
   "fantasypros_subset_of_ours": false,
   "ours_subset_of_sleeper": true,
   "in_ours_not_fantasypros": {
-   "n": 89,
+   "n": 90,
    "by_position": {
-    "WR": 40,
+    "WR": 42,
     "RB": 27,
-    "TE": 14,
+    "TE": 13,
     "QB": 8
    }
   },
   "in_fantasypros_not_ours": {
-   "n": 11,
+   "n": 12,
    "by_position": {
-    "RB": 5,
+    "RB": 6,
     "QB": 4,
     "WR": 2
    }
@@ -143,18 +144,18 @@
  },
  "k_def": {
   "on_board": 77,
-  "sleeper_covers": 77,
+  "sleeper_covers": 74,
   "fantasypros_covers": 0,
   "own_weekly_v1_prices": 0,
   "note": "FantasyPros publishes no K/DEF here, so a THREE-way grade structurally cannot include them. This is not our gap to close; a two-way grade against Sleeper could."
  },
  "recommended_grading_populations": {
   "primary_three_way": {
-   "n": 398,
+   "n": 399,
    "why": "the only set all three sources price; nested, so no partial-overlap adjudication is needed"
   },
   "secondary_two_way_vs_sleeper": {
-   "n": 487,
+   "n": 489,
    "why": "what the wider universe does, where FantasyPros cannot follow. Reported beside the primary, never instead of it."
   }
  }

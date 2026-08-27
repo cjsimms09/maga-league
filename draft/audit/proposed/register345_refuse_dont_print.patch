@@ -1,0 +1,134 @@
+diff --git a/draft/backtest/measured_need_curve.py b/draft/backtest/measured_need_curve.py
+index 2dc30c04..06890cce 100644
+--- a/draft/backtest/measured_need_curve.py
++++ b/draft/backtest/measured_need_curve.py
+@@ -128,17 +128,34 @@ def main() -> int:
+               ("   " + str(c.get("got", ""))) if c.get("got") is not None else ""))
+     if not all_ok:
+         print("\n  !! A CONTROL FAILED. Nothing below is a measurement.\n")
+-
+-    print("\n  how often an owner's Nth-best player at a position ACTUALLY STARTED")
+-    print("  %-4s %s" % ("pos", "".join(("%dth" % n).rjust(10) for n in range(1, 7))))
++    # register 345 (D): a WARNING over a full table is not a refusal. This
++    # module printed "Nothing below is a measurement." and then printed the
++    # measurement -- and on the contaminated store the table it printed carried
++    # the whole need curve computed on 180 phantom owner-weeks, which a reader can lift into a document without ever
++    # seeing the line above it. Its sibling archetype_need_curve.py already
++    # gets this right ("refusing to report numbers", then stops). Numbers
++    # travelling out of a log into prose is this project's own failure mode
++    # (register 5h, three times), so the numbers stop at the log.
++    #
++    # The COMPUTATION and the ARTIFACT are deliberately untouched, and that
++    # was verified rather than assumed: with a control failing, `--json` still
++    # writes the full artifact carrying `controls_all_passed: false` and the
++    # complete curve, and the process still exits 1. That matters because
++    # streamability.py:38 gates on exactly that flag read out of
++    # draft/data/measured_need_curve.json -- suppressing the write would blind
++    # the downstream gate instead of the reader, which is backwards.
++    say = print if all_ok else (lambda *a, **k: None)
++
++    say("\n  how often an owner's Nth-best player at a position ACTUALLY STARTED")
++    say("  %-4s %s" % ("pos", "".join(("%dth" % n).rjust(10) for n in range(1, 7))))
+     curve = {}
+     for p in POSITIONS:
+         row = [rate(p, n) for n in range(1, 7)]
+         curve[p] = [round(x, 3) if x is not None else None for x in row]
+-        print("  %-4s %s" % (p, "".join((("%.3f" % x) if x is not None else "—").rjust(10) for x in row)))
+-    print("\n  (n = weeks rostered)")
++        say("  %-4s %s" % (p, "".join((("%.3f" % x) if x is not None else "—").rjust(10) for x in row)))
++    say("\n  (n = weeks rostered)")
+     for p in POSITIONS:
+-        print("  %-4s %s" % (p, "".join(str(rostered[(p, n)]).rjust(10) for n in range(1, 7))))
++        say("  %-4s %s" % (p, "".join(str(rostered[(p, n)]).rjust(10) for n in range(1, 7))))
+ 
+     MODEL = {"RB4": 0.128, "WR4": 0.031, "QB2": 0.147, "TE2": 0.188}
+     p150 = {"measured_RB4": curve["RB"][3], "measured_WR4": curve["WR"][3],
+@@ -150,19 +167,19 @@ def main() -> int:
+              and p151["measured_QB2"] < p150["measured_RB4"]
+              and p151["measured_TE2"] < p150["measured_RB4"])
+ 
+-    print("\n  P150 (measured RB4 and WR4 both >= 0.25): %s" % ("TRUE" if p150["TRUE"] else "FALSE"))
+-    print("     RB 4th: measured %s vs my model %.3f" % (p150["measured_RB4"], MODEL["RB4"]))
+-    print("     WR 4th: measured %s vs my model %.3f" % (p150["measured_WR4"], MODEL["WR4"]))
+-    print("  P151 (QB2 and TE2 both < 0.20 and below RB4): %s" % ("TRUE" if p151["TRUE"] else "FALSE"))
+-    print("     QB 2nd: measured %s   TE 2nd: measured %s" % (p151["measured_QB2"], p151["measured_TE2"]))
++    say("\n  P150 (measured RB4 and WR4 both >= 0.25): %s" % ("TRUE" if p150["TRUE"] else "FALSE"))
++    say("     RB 4th: measured %s vs my model %.3f" % (p150["measured_RB4"], MODEL["RB4"]))
++    say("     WR 4th: measured %s vs my model %.3f" % (p150["measured_WR4"], MODEL["WR4"]))
++    say("  P151 (QB2 and TE2 both < 0.20 and below RB4): %s" % ("TRUE" if p151["TRUE"] else "FALSE"))
++    say("     QB 2nd: measured %s   TE 2nd: measured %s" % (p151["measured_QB2"], p151["measured_TE2"]))
+ 
+     per_season_out = {}
+     for yr, (st, ro) in per_season.items():
+         per_season_out[yr] = {p: [round(st[(p, n)] / ro[(p, n)], 3) if ro[(p, n)] else None
+                                   for n in range(1, 7)] for p in POSITIONS}
+-    print("\n  PER SEASON, so one odd year cannot carry it (RB row):")
++    say("\n  PER SEASON, so one odd year cannot carry it (RB row):")
+     for yr in sorted(per_season_out):
+-        print("    %s  RB %s" % (yr, per_season_out[yr]["RB"]))
++        say("    %s  RB %s" % (yr, per_season_out[yr]["RB"]))
+ 
+     rep = {"_territory": "TERRITORY: A — draft/backtest/measured_need_curve.py",
+            "_prereg": "draft/MEASURED-NEED-PREREG-2026-08-19.md",
+diff --git a/draft/backtest/streamability.py b/draft/backtest/streamability.py
+index a0aa8b6b..8872e3b1 100644
+--- a/draft/backtest/streamability.py
++++ b/draft/backtest/streamability.py
+@@ -151,22 +151,39 @@ def main() -> int:
+               ("   " + str(c.get("got"))) if c.get("got") is not None else ""))
+     if not all_ok:
+         print("\n  !! A CONTROL FAILED. Nothing below is a measurement.\n")
+-
+-    print("\n  %-5s %12s %14s %16s" % ("pos", "streamable", "roster-weeks", "measured 2nd-body"))
++    # register 345 (D): a WARNING over a full table is not a refusal. This
++    # module printed "Nothing below is a measurement." and then printed the
++    # measurement -- and on the contaminated store the table it printed carried
++    # "P153 FALSE", the inverse of this module's own published result, which a reader can lift into a document without ever
++    # seeing the line above it. Its sibling archetype_need_curve.py already
++    # gets this right ("refusing to report numbers", then stops). Numbers
++    # travelling out of a log into prose is this project's own failure mode
++    # (register 5h, three times), so the numbers stop at the log.
++    #
++    # The COMPUTATION and the ARTIFACT are deliberately untouched, and that
++    # was verified rather than assumed: with a control failing, `--json` still
++    # writes the full artifact carrying `controls_all_passed: false` and the
++    # complete curve, and the process still exits 1. That matters because
++    # streamability.py:38 gates on exactly that flag read out of
++    # draft/data/measured_need_curve.json -- suppressing the write would blind
++    # the downstream gate instead of the reader, which is backwards.
++    say = print if all_ok else (lambda *a, **k: None)
++
++    say("\n  %-5s %12s %14s %16s" % ("pos", "streamable", "roster-weeks", "measured 2nd-body"))
+     curve = MEASURED["curve"]
+     need2 = {}
+     for q in POSITIONS:
+         s = stream[q]
+         m = (curve.get(q) or [None, None])[1]
+         need2[q] = (m * (1 - s)) if (s is not None and m is not None) else None
+-        print("  %-5s %11s %14d %16s" % (q, ("%.3f" % s) if s is not None else "—",
++        say("  %-5s %11s %14d %16s" % (q, ("%.3f" % s) if s is not None else "—",
+               total[q], ("%.3f" % m) if m is not None else "—"))
+ 
+-    print("\n  ⇒ need for a SECOND body = measured start rate x (1 - streamability)")
+-    print("  %-5s %10s   %10s   %10s" % ("pos", "measured", "streamable", "NEED"))
++    say("\n  ⇒ need for a SECOND body = measured start rate x (1 - streamability)")
++    say("  %-5s %10s   %10s   %10s" % ("pos", "measured", "streamable", "NEED"))
+     for q in POSITIONS:
+         m = (curve.get(q) or [None, None])[1]
+-        print("  %-5s %10s   %10s   %10s" % (q,
++        say("  %-5s %10s   %10s   %10s" % (q,
+               ("%.3f" % m) if m is not None else "—",
+               ("%.3f" % stream[q]) if stream[q] is not None else "—",
+               ("%.3f" % need2[q]) if need2[q] is not None else "—"))
+@@ -179,9 +196,9 @@ def main() -> int:
+     p154 = {"need_2nd_QB": round(need2["QB"], 4) if need2["QB"] is not None else None}
+     p154["TRUE"] = need2["QB"] is not None and 0 < need2["QB"] < 0.15
+ 
+-    print("\n  P153 (K/DEF > QB/TE > RB/WR, and QB−RB ≥ 0.25): %s   gap %s"
++    say("\n  P153 (K/DEF > QB/TE > RB/WR, and QB−RB ≥ 0.25): %s   gap %s"
+           % ("TRUE" if p153["TRUE"] else "FALSE", p153["qb_minus_rb"]))
+-    print("  P154 (2nd-QB need in (0, 0.15)): %s   got %s"
++    say("  P154 (2nd-QB need in (0, 0.15)): %s   got %s"
+           % ("TRUE" if p154["TRUE"] else "FALSE", p154["need_2nd_QB"]))
+ 
+     rep = {"_territory": "TERRITORY: A — draft/backtest/streamability.py",

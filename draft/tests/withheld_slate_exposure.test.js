@@ -55,6 +55,11 @@ const byAdp = pool.slice().sort((a, b) => adpOf(a) - adpOf(b));
 const byId = {};
 pool.forEach(p => { byId[String(p.player_id)] = p; });
 const rankOf = id => byAdp.findIndex(p => String(p.player_id) === String(id)) + 1;
+/* Every keeper the BOARD confirms, which since 2026-08-23 is all ten teams'.
+ * `kept_players` is disjoint from `players` — that disjointness is the thing
+ * this file now guards, and it is why the exposure it was written to price is
+ * zero rather than merely small. Register 350. */
+const CONFIRMED = (DATA.kept_players || []).map(p => String(p.player_id));
 
 /* What the model believes is gone, against what a keeper-aware account gives.
  * Both remove exactly `pick - 1` players — a board slot removes one man whether
@@ -64,7 +69,27 @@ function divergence(keeperIds, myPick) {
   const K = new Set(keeperIds.map(String));
   const model = new Set(byAdp.slice(0, myPick - 1).map(p => String(p.player_id)));
   const real = new Set(K);
-  const live = (myPick - 1) - K.size;
+  /* ⚠️ ONLY KEEPERS THAT ARE ACTUALLY IN THE POOL CONSUME A SLOT HERE, and
+   * getting this wrong is the second instance of the failure mode this file
+   * warns about forty lines above — "an instrument that works perfectly on a
+   * question adjacent to the one being asked".
+   *
+   * This read `K.size`. That was right while the board still carried opponent
+   * keepers in `players`: both accounts removed them, so both had to count
+   * them. The 2026-08-23 league-wide lock ended the withholding this whole
+   * file was written to price — `board.players` now EXCLUDES all 23 — so the
+   * keepers are not in `model` either, and subtracting them from `live`
+   * removed them a SECOND time.
+   *
+   * The signature was decisive once it was looked for: `n` came back as
+   * exactly 20 at every one of Cory's twelve picks — `K.size`, not a
+   * divergence. A real exposure varies with depth; a constant equal to the
+   * keeper count is double-counting. Register 350.
+   *
+   * A keeper outside the pool is irrelevant to BOTH accounts, so it consumes
+   * no slot in either. */
+  const consuming = [...K].filter(id => !!byId[id]);
+  const live = (myPick - 1) - consuming.length;
   let taken = 0;
   for (const p of byAdp) {
     const id = String(p.player_id);
@@ -84,8 +109,19 @@ Object.values(PK.predictions || {}).forEach(v => {
   (v.predicted_keepers || []).forEach(k => others.push(String(k.player_id)));
 });
 ck('there are opponent keepers to reason about', others.length >= 10, others.length);
-ck('and every one of them is still in the draftable pool, so ranks are real',
-  others.every(id => !!byId[id]), others.filter(id => !byId[id]));
+/* ⚠️ THIS ASSERTED THE DEAD PREMISE OUT LOUD — "every one of them is STILL
+ * IN the draftable pool" — and it was the load-bearing condition of the whole
+ * file. It is now false BY DESIGN: the 2026-08-23 lock took all 23 keepers out
+ * of `players`. Inverted rather than deleted, because the property worth
+ * guarding is the one that makes this file's original question moot, and a
+ * board that ever put keepers back in `players` would bring the exposure
+ * straight back. Register 350. */
+ck('the pool EXCLUDES the confirmed keepers — the condition that makes the '
+  + 'withholding cost nothing, rather than the old one that made it cost '
+  + 'something', CONFIRMED.every(id => !byId[id]),
+  CONFIRMED.filter(id => !!byId[id]));
+ck('CONTROL — and there are enough of them for that to mean anything',
+  CONFIRMED.length >= 10, CONFIRMED.length);
 ck('CONTROL — some teams keep NOBODY, which is the clause a uniform model breaks',
   Object.values(PK.predictions || {})
     .filter(v => !(v.predicted_keepers || []).length).length >= 1,
@@ -275,15 +311,31 @@ ck('and caps the count at 3, so at most 30 board slots can be keepers',
 
     ck('CONTROL — the real store carries opponent designations to reason about',
       realOthers.length >= 5, realOthers.length);
-    ck('CONTROL — and every one resolves to a board row, so the ranks are real '
-      + 'rather than a lookup returning 9999 for everybody',
-    realOthers.every(id => !!byId[id]), realOthers.filter(id => !byId[id]));
+    /* Same inversion as above, on the REAL store. ⚠️ AND THE PROSE WAS WRONG
+     * TOO: `rankOf` is `byAdp.findIndex(...) + 1`, so an absent id ranks ZERO,
+     * not 9999 — which is why the 20-August re-check below passed VACUOUSLY
+     * (0 < 33) once the keepers left the pool. Register 350. */
+    ck('CONTROL — every real opponent designation is OUT of the draftable pool, '
+      + 'so the board is already keeper-aware and there is nothing to price',
+    realOthers.every(id => !byId[id]), realOthers.filter(id => !!byId[id]));
 
-    const realDeepest = Math.max.apply(null, realOthers.map(rankOf));
-    ck('THE 20-AUGUST RE-CHECK: no REAL opponent designation ranks deeper than '
-      + 'my first pick — the number this file has been telling every reader to '
-      + 'check on this date',
-    realDeepest < MY[0], { deepest_real_keeper_rank: realDeepest, first_pick: MY[0] });
+    /* ⚠️ THIS PASSED VACUOUSLY AND THAT IS WORSE THAN FAILING. It asked whether
+     * any opponent keeper ranks deeper than pick 33. Every one of them ranks
+     * ZERO — `findIndex` returns -1 for a player who is not in the pool — so
+     * `0 < 33` held for all of them and a check written to verify the slate
+     * passed because NOTHING IN IT RESOLVED. Register 350.
+     *
+     * Only in-pool keepers can have a rank at all, so only they are ranked, and
+     * the count is asserted so an empty set cannot pass this quietly again. */
+    const rankable = realOthers.filter(id => !!byId[id]);
+    const realDeepest = rankable.length
+      ? Math.max.apply(null, rankable.map(rankOf)) : null;
+    ck('THE 20-AUGUST RE-CHECK, NO LONGER VACUOUS: every real opponent '
+      + 'designation is out of the pool, so none of them can rank deeper than '
+      + 'my first pick — and that is now stated as absence, not as a rank',
+    rankable.length === 0 && realOthers.length >= 5,
+    { rankable: rankable.length, total: realOthers.length,
+      deepest_of_any_that_remain: realDeepest, first_pick: MY[0] });
 
     const realPerPick = MY.map(pk => ({ pick: pk, n: divergence(realOthers, pk).length }));
     ck('...so the board and a keeper-aware account agree at every pick on the '
@@ -318,7 +370,10 @@ ck('and caps the count at 3, so at most 30 board slots can be keepers',
 
     console.log('\n      ── THE REAL SLATE, AS IT STANDS TODAY ──');
     console.log('      ' + teamsDesignated + '/' + expected + ' teams designated on Sleeper · '
-      + realOthers.length + ' opponent keepers · deepest #' + realDeepest
+      + realOthers.length + ' opponent keepers · ' + rankable.length
+      + ' of them still in the draftable pool'
+      + (realDeepest === null ? ' (so none has a pool rank at all)'
+        : ' · deepest #' + realDeepest)
       + ' · first pick ' + MY[0]);
     console.log('      divergence from a keeper-aware account: 0 at all '
       + MY.length + ' picks');
@@ -328,18 +383,28 @@ ck('and caps the count at 3, so at most 30 board slots can be keepers',
   }
 }
 
-console.log('\n' + pass + '/' + (pass + fail) + ' checks passed  (deepest opponent '
-  + 'keeper #' + deepest + ', first pick ' + MY[0] + ')');
+/* `deepest` is the PREDICTED arm's rankOfKept — a keeper ranked by its OWN
+ * stored adp against the pool, a DIFFERENT derivation from rankOf, which
+ * looks the player up IN the pool. That is why one run printed three
+ * answers to "deepest opponent keeper": #24 here, #0 from rankOf (absent
+ * => findIndex -1 + 1), #12 in this footer. Labelled with its source now
+ * rather than presented as THE number. Register 350. */
+console.log('\n' + pass + '/' + (pass + fail) + ' checks passed  (deepest predicted '
+  + 'keeper by stored adp #' + deepest + ', first pick ' + MY[0] + ')');
 if (fail) { console.log('\nFAILED'); process.exit(1); }
-console.log('\nWHAT THIS GUARANTEES: withholding the opponent keeper slate from the live');
-console.log('board costs Cory NOTHING at any of his twelve picks, because every keeper is');
-console.log('already inside the window the model removes — and the exposure if that stops');
-console.log('being true is exactly one freed player per keeper deeper than the next pick.');
+console.log('WHAT THIS GUARANTEES, AND THE REASON CHANGED ON 2026-08-23: withholding');
+console.log('the opponent keeper slate costs Cory NOTHING at any of his twelve picks —');
+console.log('but no longer because every keeper sits inside the window the model removes.');
+console.log('The league-wide lock took all of them OUT of board.players, so the model IS');
+console.log('the keeper-aware account and there is nothing left to price. If a board ever');
+console.log('puts them back, the exposure is exactly one freed player per keeper ranked');
+console.log('deeper than the next pick — and the pool-exclusion check is what catches it.');
 console.log('WHAT IT DOES NOT: model the ORDER opponents pick in. Both accounts assume the');
 console.log('room drafts near ADP, and that is the assumption the seat plan already states.');
 console.log('THE 20-AUGUST RE-CHECK IS DONE, and it is section 4 rather than a sentence');
 console.log('telling the next reader to do it. Sections 1-3 run the PREDICTED slate;');
 console.log('section 4 runs the REAL Sleeper designations from draft/config/keepers.json,');
-console.log('and the null holds on both. What is still open is the four teams that have');
-console.log('not declared — bounded above, and the only keeper that costs anything is one');
-console.log('ranked deeper than pick 33.');
+console.log('and the null holds on both. What is still open is the team(s) that have');
+console.log('not declared — COUNTED above, not stated here as a constant (it said FOUR');
+console.log('while the residual measured one) — bounded above, and the only keeper that');
+console.log('costs anything is one ranked deeper than pick ' + (MY[0] - 1) + '.');

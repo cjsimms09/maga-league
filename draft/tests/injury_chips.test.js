@@ -28,8 +28,22 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS  ' + n))
   const res = W.evaluateClaims(fas, mine, league, {
     band: { median: 148, sd: 12 }, lineupMean: 110, lineupSd: 20, oppMean: 110, leagueRosters: {} });
   const claim = res.claims.find(c => c.name === 'Wire Target');
-  ck('evaluateClaims carries injury_status onto the claim',
-    claim && claim.injury_status === 'Questionable', claim && Object.keys(claim));
+  /* ⚠️ THE VALUE IS NORMALISED, AND THIS EXPECTED THE RAW SLEEPER CASING.
+   * Register 321 added ONE normalisation (`injuryTag`, waivers.js:171 —
+   * uppercase, non-letters stripped) so the ranking and the display panel could
+   * not read the tag two ways. `'Questionable'` therefore arrives as
+   * `'QUESTIONABLE'`, and this arm reported it as the field being missing.
+   *
+   * Checked as the CONTRACT rather than as a literal: the claim must carry the
+   * designation, normalised through the exported function, so the test agrees
+   * with the normalisation by construction instead of restating its output.
+   * Register 353. */
+  ck('evaluateClaims carries injury_status onto the claim, normalised through '
+    + 'the one exported tag function (register 321)',
+    claim && claim.injury_status === W.injuryTag(fas[0])
+      && claim.injury_status === 'QUESTIONABLE',
+    claim && { got: claim.injury_status, expected: W.injuryTag(fas[0]),
+      keys: Object.keys(claim) });
 }
 
 // ── the team page renders the leveled ladder ────────────────────────────────
@@ -69,8 +83,25 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS  ' + n))
   ck('the team page renders', /On Ice/.test(page), 'roster missing');
   ck('IR renders as the red cannot-score chip', /class="mu-flag out">IR</.test(page), 'no red IR chip');
   ck('Questionable renders as the amber maybe chip', /class="mu-flag q">Q</.test(page), 'no amber Q chip');
-  ck('a healthy player still reads healthy — and NEVER wears a chip (negative arm)',
-    /healthy/.test(page) && !/Iron Horse[^<]*<span class="mu-flag/.test(page), 'chip on healthy player');
+  /* SPLIT 2026-08-26. This was one `&&` reporting one message, so when it went
+   * red the detail said "chip on healthy player" — and that was not what had
+   * happened. Two different claims, two checks, two messages. Register 353. */
+  ck('NEGATIVE ARM: a healthy player never wears a chip',
+    !/Iron Horse[^<]*<span class="mu-flag/.test(page), 'chip on healthy player');
+  /* ⚠️ AND THE SECOND HALF WAS ASSERTING THE DEFECT. It required the word
+   * "healthy" on the page; `views/team.ejs:311` records that the old Status
+   * column "called a bye-week player 'healthy', which is a different (wrong)
+   * answer to the same question the chip already answers correctly", and
+   * catalog item 16 removed it deliberately. So the check went red because B
+   * shipped the fix this file's own subject line is about.
+   *
+   * INVERTED rather than deleted: the absence is now the assertion, so if the
+   * word ever comes back — with the bye-week bug behind it — this goes red for
+   * the right reason. A healthy player reads healthy by wearing NO chip, which
+   * is the arm directly above. */
+  ck('...and it does NOT print the word "healthy", because doing so is what '
+    + 'mislabelled bye-week players (team.ejs:311, catalog item 16)',
+    !/healthy/i.test(page), 'the page is printing a healthy label again');
   ck('the flat old badge is gone from the injury column', !/badge owes">IR</.test(page), 'old badge remains');
 
   server.close();

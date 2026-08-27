@@ -1,46 +1,75 @@
 {
   "experiment": "34 dollar arm \u2014 policy rosters graded in E[$] (certified grader)",
-  "n_seasons": 3,
+  "n_seasons": 4,
   "aggregate": {
-    "n_seasons": 3,
+    "n_seasons": 4,
     "per_season_total_delta": {
+      "2026": 0.0,
       "2025": -100.0,
       "2024": -825.0,
       "2023": -800.0
     },
-    "mean_season_delta": -575.0,
+    "mean_season_delta": -431.25,
     "sum_delta": -1725.0,
     "ci95_mean_season": [
-      -825.0,
-      -100.0
+      -812.5,
+      -50.0
     ],
     "verdict": "adp-earns-more",
     "per_season_sign": {
+      "2026": 0,
       "2025": -1,
       "2024": -1,
       "2023": -1
     },
-    "sign_consistent": true,
+    "sign_consistent": false,
     "by_component": {
       "weekly_high": {
-        "mean": -200.0,
+        "mean": -150.0,
         "sum": -600.0,
-        "n": 3
+        "n": 4
       },
       "regular_season": {
-        "mean": -108.33,
+        "mean": -81.25,
         "sum": -325.0,
-        "n": 3
+        "n": 4
       },
       "playoff": {
-        "mean": -266.67,
+        "mean": -200.0,
         "sum": -800.0,
-        "n": 3
+        "n": 4
       }
     },
-    "thin": true
+    "thin": false
   },
   "seasons": [
+    {
+      "season": "2026",
+      "our": {
+        "weekly_high": 0.0,
+        "regular_season": 250.0,
+        "playoff": 675.0,
+        "total": 925.0,
+        "playoff_place": 1,
+        "made_playoffs": true,
+        "partial": false
+      },
+      "adp": {
+        "weekly_high": 0.0,
+        "regular_season": 250.0,
+        "playoff": 675.0,
+        "total": 925.0,
+        "playoff_place": 1,
+        "made_playoffs": true,
+        "partial": false
+      },
+      "delta": {
+        "weekly_high": 0.0,
+        "regular_season": 0.0,
+        "playoff": 0.0,
+        "total": 0.0
+      }
+    },
     {
       "season": "2025",
       "our": {
@@ -126,10 +155,10 @@
   "bands_dollars": [
     {
       "band": "value(<=0)",
-      "n": 29,
-      "n_deviations": 27,
+      "n": 38,
+      "n_deviations": 34,
       "sum_dollars": -2350.0,
-      "mean_dollars": -81.03
+      "mean_dollars": -61.84
     },
     {
       "band": "near-zero",
@@ -147,13 +176,189 @@
     },
     {
       "band": "large",
-      "n": 4,
-      "n_deviations": 4,
+      "n": 5,
+      "n_deviations": 5,
       "sum_dollars": -300.0,
-      "mean_dollars": -75.0
+      "mean_dollars": -60.0
     }
   ],
   "traces": {
+    "2026": {
+      "our": [
+        {
+          "pick_no": 33,
+          "round": 4,
+          "chosen": "6770",
+          "real": "10229",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 48,
+          "round": 5,
+          "chosen": "11566",
+          "real": "2133",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 53,
+          "round": 6,
+          "chosen": "6904",
+          "real": "12512",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 68,
+          "round": 7,
+          "chosen": "11563",
+          "real": "11620",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 73,
+          "round": 8,
+          "chosen": "5849",
+          "real": "9487",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 88,
+          "round": 9,
+          "chosen": "6797",
+          "real": "5045",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 93,
+          "round": 10,
+          "chosen": "11560",
+          "real": "11560",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 108,
+          "round": 11,
+          "chosen": "421",
+          "real": "HOU",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 113,
+          "round": 12,
+          "chosen": "9756",
+          "real": "13337",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 128,
+          "round": 13,
+          "chosen": "2133",
+          "real": "9753",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 133,
+          "round": 14,
+          "chosen": "5045",
+          "real": "12493",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 148,
+          "round": 15,
+          "chosen": "10229",
+          "real": "8136",
+          "used_fallback": false
+        }
+      ],
+      "adp": [
+        {
+          "pick_no": 33,
+          "round": 4,
+          "chosen": "10229",
+          "real": "10229",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 48,
+          "round": 5,
+          "chosen": "2133",
+          "real": "2133",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 53,
+          "round": 6,
+          "chosen": "8148",
+          "real": "12512",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 68,
+          "round": 7,
+          "chosen": "11620",
+          "real": "11620",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 73,
+          "round": 8,
+          "chosen": "12512",
+          "real": "9487",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 88,
+          "round": 9,
+          "chosen": "5045",
+          "real": "5045",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 93,
+          "round": 10,
+          "chosen": "9487",
+          "real": "11560",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 108,
+          "round": 11,
+          "chosen": "421",
+          "real": "HOU",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 113,
+          "round": 12,
+          "chosen": "9756",
+          "real": "13337",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 128,
+          "round": 13,
+          "chosen": "11560",
+          "real": "9753",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 133,
+          "round": 14,
+          "chosen": "HOU",
+          "real": "12493",
+          "used_fallback": false
+        },
+        {
+          "pick_no": 148,
+          "round": 15,
+          "chosen": "5022",
+          "real": "8136",
+          "used_fallback": false
+        }
+      ],
+      "our_fallbacks": 0,
+      "adp_fallbacks": 0
+    },
     "2025": {
       "our": [
         {
@@ -754,17 +959,17 @@
     }
   },
   "correlation_arm": {
-    "diff_mean": 0.14,
+    "diff_mean": 0.051,
     "diff_ci": [
-      0.053,
-      0.224
+      -0.06,
+      0.15
     ],
-    "verdict": "beat",
-    "n_picks": 26
+    "verdict": "inconclusive",
+    "n_picks": 34
   },
   "agreement": {
-    "state": "THE INTERESTING RESULT: ranks better but earns same-or-less \u2014 the edge is in evaluating players, not in constructing rosters that fit this payout structure. Points at the PORTFOLIO DOCTRINE, not the projections.",
-    "ranks_better": true,
+    "state": "ranks_better=False, dollar_verdict=adp-earns-more",
+    "ranks_better": false,
     "dollar_verdict": "adp-earns-more"
   },
   "caveats": [],

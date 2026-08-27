@@ -1157,14 +1157,45 @@ def market_agreement(mfl_ids: dict, mfl_rows: dict, source_rows: dict, board,
         # this data and the finding is nevertheless composition. A pooled
         # agreement that vanishes inside every position is Simpson's paradox, and
         # shipping the flag without this is shipping the paradox.
+        #
+        # ⚠️ THE SPLIT TEST COUNTED SIGNS AND NOTHING ELSE, AND ON 2026-08-25 THAT
+        # FLIPPED IT TO True ON TWO CORRELATIONS INDISTINGUISHABLE FROM ZERO.
+        # Measured at the flip: RB agreed on mfl_vs_board = -0.051 (n=32), WR on
+        # -0.151 and -0.029 (n=42). At those sample sizes the SIGN of a rho that
+        # small is a coin flip, and it carried the same vote as RB's -0.55. TE,
+        # the one position with a large mfl arm (+0.179 vs source -0.582), was
+        # counted as DISAGREEING because the signs differ — so the rule was
+        # simultaneously too generous and pointing the wrong way.
+        #
+        # The rule now requires each arm to be individually distinguishable from
+        # zero AT ITS OWN n before the position gets a vote: |rho| >= 1.96/sqrt(n-1),
+        # the large-sample 95% critical value. DERIVED PER POSITION, NOT FITTED —
+        # it is 0.352 at n=32, 0.306 at n=42, 0.544 at n=14, so a small position
+        # has to show more to count, which is the correct direction.
+        #
+        # On the data that flipped it, NOT ONE position has both arms clearing
+        # its own bar, so `survives_within_position` returns to False — and the
+        # docstring's claim ("the gradient evaporates inside every position") is
+        # true again for a reason rather than by luck. Register 346.
         if var == "wopr":
+            def _clears(d):
+                """Both arms separable from zero at this position's own n."""
+                if d["n"] < 3 or d["mfl_vs_board"] is None or d["source_vs_board"] is None:
+                    return False
+                crit = 1.96 / ((d["n"] - 1) ** 0.5)
+                return (abs(d["mfl_vs_board"]) >= crit
+                        and abs(d["source_vs_board"]) >= crit)
+
             agreeing = [d for d in by_pos.values()
-                        if d["n"] >= 3 and d["mfl_vs_board"] is not None
-                        and d["source_vs_board"] is not None
+                        if _clears(d)
                         and (d["mfl_vs_board"] < 0) == (d["source_vs_board"] < 0)]
             out[var]["positions_where_markets_agree"] = len(agreeing)
             out[var]["positions_tested"] = len([d for d in by_pos.values()
                                                 if d["n"] >= 3])
+            #: reported so a reader can see WHY a position did not vote — a
+            #: near-zero arm and an opposite sign are different refusals.
+            out[var]["positions_with_both_arms_separable"] = len(
+                [d for d in by_pos.values() if _clears(d)])
             out[var]["survives_within_position"] = bool(
                 out[var]["positions_tested"]
                 and len(agreeing) > out[var]["positions_tested"] / 2.0)

@@ -162,3 +162,22 @@ rests on.
 `ASK:` apply, or SEND BACK.
 `DEFAULT:` the row stays 🔴 and every VORP-derived number published since
 08-22 03:51 keeps its caveat.
+
+---
+
+# ✅ APPLIED — and verified on the shipped board, not on the commit message
+
+**E, 2026-08-24.** Landed as `5b676028`. Do not apply the patch; `git apply`
+fails against current `main`.
+
+Verified by reading the live constants off `public/draft_data.json` after the
+rebuild, which is the check C2 was written for:
+
+```
+replacement   QB 350.8   RB 181.1   WR 170.3   TE 141.7
+starter_counts   QB 10   RB 24      WR 26      TE 10
+```
+
+Every value matches the independent derivation in register 283 **to the
+decimal**, and the flex split is the corrected RB +4 / WR +6. The +29.6 tilt
+against tight ends is off Cory's board.

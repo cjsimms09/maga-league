@@ -167,6 +167,7 @@ def run():
     hist, pos = load()
     rng = random.Random(SEED)
     rows, skipped = [], 0
+    skipped_unplayed = 0            # weeks with a full lineup and no football
     skipped_started_unmapped, dropped_bench = 0, 0
     ctl_rand, ctl_oracle = [], []
     oracle_exact = []
@@ -192,6 +193,25 @@ def run():
                 pts = {k: float(v) for k, v in (e.get("players_points") or {}).items()}
                 if not roster or not starters or not pts:
                     skipped += 1; continue
+                # ⚠️ A WEEK NOBODY HAS PLAYED IS NOT A DECISION, AND IT DOES NOT
+                # LOOK EMPTY. The store publishes the whole season the moment it
+                # exists: nine starters, sixteen players, a full `players_points`
+                # map — every value 0.0. `pts` is a non-empty dict, so the guard
+                # above waved 180 of them through on 2026-08-25 and every start/sit
+                # choice inside them scored ~0.5 by construction, because every
+                # alternative was tied at zero.
+                #
+                # MEASURED: owner-weeks 530 -> 712, mean percentile 0.8497 ->
+                # 0.7602, and THE KNOWN-POSITIVE CONTROL FAILED — oracle 0.873
+                # against a floor of 0.90 — which is the only reason this was
+                # caught rather than published. The instrument refused itself.
+                #
+                # Guarded PER ENTRY rather than per season deliberately: in
+                # September 2026 becomes a real season with seventeen unplayed
+                # weeks still in it, and a season-level gate would let every one
+                # of them back in. Register 340.
+                if not any(pts.values()):
+                    skipped_unplayed += 1; continue
                 # ⚠️ DROPPING THE WHOLE WEEK FOR ONE UNMAPPED PLAYER BIASED THE
                 # RESULT, AND IT BIASED IT UNEVENLY. The first version refused
                 # any owner-week containing a player absent from
@@ -264,11 +284,12 @@ def run():
                 if orc is not None:
                     ctl_oracle.append(percentile(orc, draws))
     return (rows, ctl_rand, ctl_oracle, skipped, skipped_started_unmapped,
-            dropped_bench, oracle_exact, id_type_audit(hist, pos))
+            dropped_bench, oracle_exact, id_type_audit(hist, pos),
+            skipped_unplayed)
 
 def main():
     (rows, ctl_rand, ctl_oracle, skipped, skip_started, dropped_bench,
-     oracle_exact, idaudit) = run()
+     oracle_exact, idaudit, skip_unplayed) = run()
     if not rows:
         print("NO USABLE OWNER-WEEKS — refusing to print a statistic. skipped=%d" % skipped)
         return 2
@@ -308,6 +329,10 @@ def main():
     print("\n  owner-weeks used: %d   (skipped %d; of those %d because an UNMAPPED"
           " player was actually STARTED)" % (n, skipped + skip_started, skip_started))
     print("  unmapped BENCH players dropped from eligible pools (week kept): %d" % dropped_bench)
+    #: PRINTED EVERY RUN, not only when non-zero. A silent exclusion is how 182
+    #: phantom owner-weeks got IN; a silent one is also how they could get in
+    #: again from the other direction. Register 340.
+    print("  owner-weeks with a full lineup and NO FOOTBALL (unplayed weeks,\n        excluded): %d" % skip_unplayed)
     # REVIEWER-REQUIRED DIAGNOSTICS (run 32437911836), printed every run so an
     # id-type regression or a greedy-oracle gap cannot hide behind a headline.
     print("  id types: history=%s map=%s | unmapped raw=%d, after str()=%d, rescued=%d"
@@ -354,6 +379,7 @@ def main():
         "n_draws_per_week": N_DRAWS, "seed": SEED, "skipped": skipped + skip_started,
         "skipped_because_unmapped_player_was_started": skip_started,
         "unmapped_bench_players_dropped": dropped_bench,
+        "skipped_unplayed_owner_weeks": skip_unplayed,
         "id_type_audit": idaudit,
         "greedy_oracle_vs_exact": ({
             "sampled_weeks": len(oracle_exact),

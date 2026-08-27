@@ -11,9 +11,22 @@
   # Aug 1 and Aug 8, accelerating 31 -> 124 -> 194 a day, which consumed 75% of
   # August's build minutes. Exhausting them suspends the site until Sept 1 and
   # would take the war room down ON DRAFT DAY. Commits stay frequent; deploys
-  # become deliberate: a build happens only on [deploy] in the tip commit, a
-  # tag, or a manual/hook trigger. exit 0 = skip, exit 1 = build — see
-  # netlify-ignore.sh and netlify-ignore.test.sh, which asserts both directions.
+  # become deliberate. exit 0 = skip, exit 1 = build — see netlify-ignore.sh and
+  # netlify-ignore.test.sh, which asserts both directions.
+  #
+  # ⚠️ THIS COMMENT DESCRIBED A POLICY THAT WAS REPLACED, AND IT NEARLY STOPPED
+  # AN INVESTIGATION DEAD (register 347). It said "a build happens only on
+  # [deploy] in the tip commit, a tag, or a manual/hook trigger" — the OPT-IN
+  # gate, which `netlify-ignore.sh` INVERTED on 2026-08-09 because reading the
+  # marker on the tip meant whoever pushed last silently decided whether
+  # anything shipped, and it raced three times. Read against a genuinely
+  # skipped deploy, this comment says "correctly skipped, nothing to see".
+  #
+  # THE POLICY LIVES IN `netlify-ignore.sh` AND ONLY THERE. As of 2026-08-25 it
+  # is OPT-OUT — a served-file change builds by default — plus an 8-HOUR
+  # MINIMUM WINDOW between deploys (Cory's 2-3x/day ruling, 2026-08-24), which
+  # no comment outside that file mentioned at all. Do not restate the rules
+  # here; a second copy is how this one went stale.
   ignore = "bash netlify-ignore.sh"
 
 [functions]

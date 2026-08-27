@@ -200,22 +200,93 @@ def test_THE_MEASURED_EDGE_FALLS_FAR_SHORT_OF_EVERY_BREAKEVEN(board, rule12):
     assert best < min(needs), (best, min(needs))
 
 
-def test_THE_CONCLUSION_HOLDS_ACROSS_EVERY_PLAUSIBLE_REPLACEMENT_GAP(board):
-    """The adversarial sweep, pinned.
+def test_THE_SWEEP_SUBJECT_AND_ITS_GAP_ARE_THE_SAME_QUARTERBACK(board, rule12):
+    """Register 336. The defect that made the old pin fire, guarded at its cause.
 
-    gap(R)=40 is measured off a proxy 1.70 points above the line, while the QB
-    actually ON the line is a rushing quarterback whose gap is plausibly lower —
-    which would make the arbitrage BIGGER. Even at gap(R)=24, implying a
-    replacement quarterback who throws 17 touchdowns, the board's QB1 still moves
-    less than a full round. If that ever stops being true the verdict changes and
-    this test is where it should surface.
+    `dvorp_sensitivity` read its subject as the board's QB1; `run()` handed it a
+    gap from `measured_qb_gaps(...)[0]`. On the board this study was written
+    against those were one man, Josh Allen, and nothing tied them together. The
+    08-23 keeper lock took Allen out of `board["players"]` and the sweep went on
+    applying his scoring gap to Lamar Jackson's board position — a number about
+    neither player, printed with no sign that anything had changed.
     """
-    rows = QA.dvorp_sensitivity(board, 44.0)
-    assert rows, "sensitivity sweep produced nothing"
-    assert all(r["qb1_rounds_earlier"] < 1.0 for r in rows), rows
-    # and it must be monotone: a smaller replacement gap can only help the thesis
+    blk = QA.sensitivity_block(board, QA.measured_qb_gaps(rule12))
+    assert blk is not None, "no measured QB gaps at all — the study lost its input"
+    if blk["rows"] is None:                       # an earned refusal, not a silence
+        assert blk["gap_owner_dropped"] and blk["why"], blk
+        return
+    owner = blk["gap_owner_id"]
+    assert {r["subject_id"] for r in blk["rows"]} == {owner}, blk
+    draftable = {str(p["player_id"]) for p in board["players"]}
+    assert owner in draftable, "the sweep is pricing a pick nobody can make"
+
+
+def test_THE_NAMED_SUBJECT_IS_A_REFUSAL_WHEN_HE_IS_NOT_DRAFTABLE(board, rule12):
+    """The control for the test above (Rule 3f), run against a case with a known
+    answer: Josh Allen has a committed raw row and is a KEPT player, so naming him
+    must return nothing rather than quietly substituting whoever tops the board."""
+    measured = QA.measured_qb_gaps(rule12)
+    kept = {str(p["player_id"]) for p in (board.get("kept_players") or [])}
+    off_board = [m for m in measured if str(m["player_id"]) not in
+                 {str(p["player_id"]) for p in board["players"]}]
+    if not off_board:                 # pre-lock board: the hazard is not present
+        pytest.skip("every measured QB is draftable — nothing to refuse")
+    m = off_board[0]
+    assert str(m["player_id"]) in kept, (m, "off the board but not kept — new case")
+    assert QA.dvorp_sensitivity(board, m["gap"], subject_id=m["player_id"]) == []
+    # and the positive arm, so the refusal above is not just a broken lookup
+    on_board = QA.sensitivity_block(board, measured)
+    assert on_board["rows"], "the draftable arm returns nothing — probe is broken"
+
+
+def test_THE_CONCLUSION_HOLDS_AT_EVERY_GAP_THE_EVIDENCE_SUPPORTS(board, rule12):
+    """The adversarial sweep, re-pinned on evidence rather than on a constant.
+
+    THE OLD PIN WAS `all(rounds_earlier < 1.0)` ACROSS THE WHOLE SWEEP DOWN TO
+    gap(R)=24, AND IT DIED HONESTLY — measured, decomposed, register 336. On the
+    post-keeper-lock board that floor is 1.9 rounds, and neither half of the rise
+    is a coding error: holding the pool fixed and changing only the subject moves
+    it 0.5 -> 0.9 rounds, and holding the subject fixed while the lock removed 20
+    players from the pool moves it 0.9 -> 1.4. A 680-player pool with its top 20
+    gone is simply denser per VORP point than the 700-player pool the constant was
+    calibrated on, so the constant was measuring the board, not the thesis.
+
+    Note the direction: fixing the subject/gap pairing made the floor WORSE (1.4
+    -> 1.9), which is what tells you this re-pin is not a loosening dressed up as
+    a correction.
+
+    What the finding actually rests on is the MEASURED end, and there it is
+    stronger than it has ever been: the only quarterback left on the draftable
+    board whose raw stat line is committed IS the replacement proxy, so the
+    arbitrage this study can measure on a pick Cory could make is exactly ZERO.
+    Everything below that gap is a counterfactual replacement quarterback, and the
+    crossing point is pinned so that a move surfaces instead of being absorbed.
+    """
+    blk = QA.sensitivity_block(board, QA.measured_qb_gaps(rule12))
+    rows = blk["rows"]
+    if rows is None:
+        pytest.skip(blk["why"])
+
+    rep = QA.replacement_qb_proxy(board, [m["player_id"] for m in
+                                          QA.measured_qb_gaps(rule12)])
+    gap_r = next(m["gap"] for m in QA.measured_qb_gaps(rule12)
+                 if m["player_id"] == rep["nearest_qb_id"])
+
+    # 1. at and above the measured replacement gap — the evidence-bound region
+    supported = [r for r in rows if r["gap_at_replacement"] >= gap_r]
+    assert supported, (gap_r, rows)
+    assert all(r["qb1_rounds_earlier"] < 1.0 for r in supported), supported
+
+    # 2. monotone: a smaller replacement gap can only help the thesis
     slots = [r["qb1_slots_earlier"] for r in rows]
     assert slots == sorted(slots, reverse=True), slots
+
+    # 3. the crossing is a counterfactual, not a measurement. If the curve ever
+    #    slides up so that a round is bought at or above a gap we have MEASURED,
+    #    the verdict has changed and this is where it surfaces.
+    crossings = [r["gap_at_replacement"] for r in rows
+                 if r["qb1_rounds_earlier"] >= 1.0]
+    assert all(c < gap_r for c in crossings), (gap_r, crossings)
 
 
 # ── the historical arm's machinery ───────────────────────────────────────────

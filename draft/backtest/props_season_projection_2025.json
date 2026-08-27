@@ -5,14 +5,88 @@
  "status": "graded",
  "graded_season": 2025,
  "coverage": {
-  "props_forecasts": 424,
+  "props_forecasts": 613,
   "unmatched_names": [
+   "Arizona Cardinals D/ST",
+   "Arizona Cardinals Defense",
+   "Atlanta Falcons D/ST",
+   "Atlanta Falcons Defense",
+   "Baltimore Ravens D/ST",
+   "Baltimore Ravens Defense",
+   "Buffalo Bills D/ST",
+   "Buffalo Bills Defense",
    "Cameron Ward",
+   "Carolina Panthers D/ST",
+   "Carolina Panthers Defense",
+   "Chicago Bears D/ST",
+   "Chicago Bears Defense",
+   "Cincinnati Bengals D/ST",
+   "Cincinnati Bengals Defense",
+   "Cleveland Browns D/ST",
+   "Cleveland Browns Defense",
+   "Dalen Cambre",
+   "Dallas Cowboys D/ST",
+   "Dallas Cowboys Defense",
+   "Denver Broncos D/ST",
+   "Denver Broncos Defense",
+   "Detroit Lions D/ST",
+   "Detroit Lions Defense",
    "Gabe Davis",
+   "Green Bay Packers D/ST",
+   "Green Bay Packers Defense",
    "Hollywood Brown",
+   "Houston Texans D/ST",
+   "Houston Texans Defense",
+   "Indianapolis Colts D/ST",
+   "Indianapolis Colts Defense",
+   "Jacksonville Jaguars D/ST",
+   "Jacksonville Jaguars Defense",
+   "Jalen Moreno-Cropper",
+   "James Jordan",
+   "Jeremiah Webb",
+   "Kansas City Chiefs D/ST",
+   "Kansas City Chiefs Defense",
+   "Las Vegas Raiders D/ST",
+   "Las Vegas Raiders Defense",
+   "Los Angeles Chargers D/ST",
+   "Los Angeles Chargers Defense",
+   "Los Angeles Rams D/ST",
+   "Los Angeles Rams Defense",
+   "Miami Dolphins D/ST",
+   "Miami Dolphins Defense",
+   "Minnesota Vikings D/ST",
+   "Minnesota Vikings Defense",
+   "New England Patriots D/ST",
+   "New England Patriots Defense",
+   "New Orleans Saints D/ST",
+   "New Orleans Saints Defense",
+   "New York Giants D/ST",
+   "New York Giants Defense",
+   "New York Jets D/ST",
+   "New York Jets Defense",
+   "No Scorer",
+   "No Touchdown",
+   "Philadelphia Eagles D/ST",
+   "Philadelphia Eagles Defense",
+   "Pittsburgh Steelers D/ST",
+   "Pittsburgh Steelers Defense",
+   "Quentin Skinner",
+   "San Francisco 49ers D/ST",
+   "San Francisco 49ers Defense",
+   "Seattle Seahawks D/ST",
+   "Seattle Seahawks Defense",
+   "Tampa Bay Buccaneers D/ST",
+   "Tampa Bay Buccaneers Defense",
+   "Tennessee Titans D/ST",
+   "Tennessee Titans Defense",
+   "Thomas Odukoya",
+   "Treyton Welch",
+   "Washington Commanders D/ST",
+   "Washington Commanders Defense",
+   "Zach Morton",
    "Zonovan Knight"
   ],
-  "unmatched_count": 4,
+  "unmatched_count": 78,
   "weeks_in_store": 18
  },
  "arm_2025": {
@@ -20,219 +94,219 @@
    "props_season": {
     "cells": {
      "QB": {
-      "n": 57,
+      "n": 58,
       "status": "measured",
-      "mae": 40.26,
-      "bias": -33.96,
-      "spearman": 0.9675
+      "mae": 22.49,
+      "bias": 12.89,
+      "spearman": 0.9716
      },
      "RB": {
-      "n": 104,
+      "n": 150,
       "status": "measured",
-      "mae": 50.17,
-      "bias": -50.05,
-      "spearman": 0.9581
+      "mae": 10.18,
+      "bias": -2.63,
+      "spearman": 0.9589
      },
      "WR": {
-      "n": 161,
+      "n": 215,
       "status": "measured",
-      "mae": 34.57,
-      "bias": -34.45,
-      "spearman": 0.9413
+      "mae": 11.01,
+      "bias": -0.66,
+      "spearman": 0.9552
      },
      "TE": {
-      "n": 82,
+      "n": 117,
       "status": "measured",
-      "mae": 31.47,
-      "bias": -31.45,
-      "spearman": 0.918
+      "mae": 9.24,
+      "bias": -2.49,
+      "spearman": 0.9547
      }
     },
-    "forecasts": 424,
-    "excluded_no_weekly_row": 2
+    "forecasts": 613,
+    "excluded_no_weekly_row": 31
    },
    "own_v6": {
     "cells": {
      "QB": {
       "n": 58,
       "status": "measured",
-      "mae": 72.29,
-      "bias": 10.87,
-      "spearman": 0.7225
+      "mae": 72.75,
+      "bias": 9.44,
+      "spearman": 0.7226
      },
      "RB": {
-      "n": 100,
+      "n": 106,
       "status": "measured",
-      "mae": 37.19,
-      "bias": 2.3,
-      "spearman": 0.7991
+      "mae": 36.94,
+      "bias": 3.82,
+      "spearman": 0.7863
      },
      "WR": {
-      "n": 152,
+      "n": 162,
       "status": "measured",
-      "mae": 33.28,
-      "bias": 8.57,
-      "spearman": 0.7695
+      "mae": 31.88,
+      "bias": 8.19,
+      "spearman": 0.7954
      },
      "TE": {
-      "n": 84,
+      "n": 87,
       "status": "measured",
-      "mae": 23.33,
-      "bias": 2.12,
-      "spearman": 0.7987
+      "mae": 22.78,
+      "bias": 2.0,
+      "spearman": 0.8109
      }
     },
-    "forecasts": 510,
-    "excluded_no_weekly_row": 116
+    "forecasts": 516,
+    "excluded_no_weekly_row": 103
    },
    "naive_prev": {
     "cells": {
      "QB": {
       "n": 58,
       "status": "measured",
-      "mae": 78.89,
-      "bias": 11.64,
+      "mae": 79.29,
+      "bias": 10.21,
       "spearman": 0.708
      },
      "RB": {
-      "n": 100,
+      "n": 106,
       "status": "measured",
-      "mae": 42.01,
-      "bias": 9.01,
-      "spearman": 0.7648
+      "mae": 41.2,
+      "bias": 9.66,
+      "spearman": 0.7534
      },
      "WR": {
-      "n": 152,
+      "n": 162,
       "status": "measured",
-      "mae": 37.28,
-      "bias": 12.05,
-      "spearman": 0.7401
+      "mae": 35.34,
+      "bias": 11.18,
+      "spearman": 0.7675
      },
      "TE": {
-      "n": 84,
+      "n": 87,
       "status": "measured",
-      "mae": 26.73,
-      "bias": 2.69,
-      "spearman": 0.744
+      "mae": 25.95,
+      "bias": 2.48,
+      "spearman": 0.7616
      }
     },
-    "forecasts": 582,
-    "excluded_no_weekly_row": 116
+    "forecasts": 556,
+    "excluded_no_weekly_row": 103
    },
    "recency_blend": {
     "cells": {
      "QB": {
       "n": 58,
       "status": "measured",
-      "mae": 74.09,
-      "bias": 9.77,
-      "spearman": 0.7213
+      "mae": 74.34,
+      "bias": 8.34,
+      "spearman": 0.7214
      },
      "RB": {
-      "n": 100,
+      "n": 106,
       "status": "measured",
-      "mae": 41.5,
-      "bias": 7.63,
-      "spearman": 0.7711
+      "mae": 40.73,
+      "bias": 8.27,
+      "spearman": 0.7644
      },
      "WR": {
-      "n": 152,
+      "n": 162,
       "status": "measured",
-      "mae": 36.44,
-      "bias": 12.56,
-      "spearman": 0.7406
+      "mae": 34.63,
+      "bias": 11.78,
+      "spearman": 0.7714
      },
      "TE": {
-      "n": 84,
+      "n": 87,
       "status": "measured",
-      "mae": 24.04,
-      "bias": 2.36,
-      "spearman": 0.7871
+      "mae": 23.38,
+      "bias": 2.24,
+      "spearman": 0.7988
      }
     },
-    "forecasts": 582,
-    "excluded_no_weekly_row": 116
+    "forecasts": 556,
+    "excluded_no_weekly_row": 103
    }
   },
   "head_to_head_shared_population": {
    "QB": {
-    "n": 45,
+    "n": 46,
     "status": "measured",
     "props_season": {
-     "mae": 45.38,
-     "spearman": 0.9631
+     "mae": 23.5,
+     "spearman": 0.9721
     },
     "own_v6": {
-     "mae": 78.38,
-     "spearman": 0.6555
+     "mae": 77.35,
+     "spearman": 0.6592
     },
     "naive_prev": {
-     "mae": 87.51,
-     "spearman": 0.6148
+     "mae": 86.21,
+     "spearman": 0.6207
     },
     "recency_blend": {
-     "mae": 80.61,
-     "spearman": 0.6559
+     "mae": 79.62,
+     "spearman": 0.6619
     }
    },
    "RB": {
-    "n": 78,
+    "n": 106,
     "status": "measured",
     "props_season": {
-     "mae": 54.03,
-     "spearman": 0.9671
+     "mae": 10.48,
+     "spearman": 0.9694
     },
     "own_v6": {
-     "mae": 41.84,
-     "spearman": 0.7443
+     "mae": 36.94,
+     "spearman": 0.7863
     },
     "naive_prev": {
-     "mae": 49.52,
-     "spearman": 0.6675
+     "mae": 41.2,
+     "spearman": 0.7534
     },
     "recency_blend": {
-     "mae": 48.26,
-     "spearman": 0.6964
+     "mae": 40.73,
+     "spearman": 0.7644
     }
    },
    "WR": {
-    "n": 129,
+    "n": 159,
     "status": "measured",
     "props_season": {
-     "mae": 36.81,
-     "spearman": 0.9448
+     "mae": 11.82,
+     "spearman": 0.9641
     },
     "own_v6": {
-     "mae": 35.88,
-     "spearman": 0.7019
+     "mae": 31.5,
+     "spearman": 0.7958
     },
     "naive_prev": {
-     "mae": 40.95,
-     "spearman": 0.6532
+     "mae": 35.01,
+     "spearman": 0.7636
     },
     "recency_blend": {
-     "mae": 39.94,
-     "spearman": 0.6581
+     "mae": 34.33,
+     "spearman": 0.7704
     }
    },
    "TE": {
-    "n": 68,
+    "n": 87,
     "status": "measured",
     "props_season": {
-     "mae": 30.02,
-     "spearman": 0.9348
+     "mae": 9.1,
+     "spearman": 0.9522
     },
     "own_v6": {
-     "mae": 26.73,
-     "spearman": 0.7437
+     "mae": 22.78,
+     "spearman": 0.8109
     },
     "naive_prev": {
-     "mae": 31.19,
-     "spearman": 0.6719
+     "mae": 25.95,
+     "spearman": 0.7616
     },
     "recency_blend": {
-     "mae": 27.89,
-     "spearman": 0.7312
+     "mae": 23.38,
+     "spearman": 0.7988
     }
    }
   }
@@ -243,45 +317,45 @@
    "QB": {
     "mae_beats_v6": true,
     "spearman_beats_v6": true,
-    "props_mae": 45.38,
-    "own_v6_mae": 78.38,
-    "mae_delta": -33.0,
-    "props_spearman": 0.9631,
-    "own_v6_spearman": 0.6555,
-    "spearman_delta": 0.3076
+    "props_mae": 23.5,
+    "own_v6_mae": 77.35,
+    "mae_delta": -53.85,
+    "props_spearman": 0.9721,
+    "own_v6_spearman": 0.6592,
+    "spearman_delta": 0.3129
    },
    "RB": {
-    "mae_beats_v6": false,
+    "mae_beats_v6": true,
     "spearman_beats_v6": true,
-    "props_mae": 54.03,
-    "own_v6_mae": 41.84,
-    "mae_delta": 12.19,
-    "props_spearman": 0.9671,
-    "own_v6_spearman": 0.7443,
-    "spearman_delta": 0.2228
+    "props_mae": 10.48,
+    "own_v6_mae": 36.94,
+    "mae_delta": -26.46,
+    "props_spearman": 0.9694,
+    "own_v6_spearman": 0.7863,
+    "spearman_delta": 0.1831
    },
    "WR": {
-    "mae_beats_v6": false,
+    "mae_beats_v6": true,
     "spearman_beats_v6": true,
-    "props_mae": 36.81,
-    "own_v6_mae": 35.88,
-    "mae_delta": 0.93,
-    "props_spearman": 0.9448,
-    "own_v6_spearman": 0.7019,
-    "spearman_delta": 0.2429
+    "props_mae": 11.82,
+    "own_v6_mae": 31.5,
+    "mae_delta": -19.68,
+    "props_spearman": 0.9641,
+    "own_v6_spearman": 0.7958,
+    "spearman_delta": 0.1683
    },
    "TE": {
-    "mae_beats_v6": false,
+    "mae_beats_v6": true,
     "spearman_beats_v6": true,
-    "props_mae": 30.02,
-    "own_v6_mae": 26.73,
-    "mae_delta": 3.29,
-    "props_spearman": 0.9348,
-    "own_v6_spearman": 0.7437,
-    "spearman_delta": 0.1911
+    "props_mae": 9.1,
+    "own_v6_mae": 22.78,
+    "mae_delta": -13.68,
+    "props_spearman": 0.9522,
+    "own_v6_spearman": 0.8109,
+    "spearman_delta": 0.1413
    }
   },
-  "clears": false
+  "clears": true
  },
  "in_season_information_asymmetry": "props-implied totals absorb in-season role/injury information own_v6 (a preseason forecast) cannot see by construction \u2014 a props win here answers 'how much is on the table given in-season market access', not 'should the preseason board switch to this' \u2014 see the module docstring for the full statement, preregistered before this grade ran"
 }

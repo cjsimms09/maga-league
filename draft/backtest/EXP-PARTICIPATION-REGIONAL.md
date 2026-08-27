@@ -8,7 +8,7 @@ Each term participates ONLY on picks in a band (default weight there, 0 elsewher
 |---|---|---|---|---|
 | need | -6 [-12.75,-0.06]* | -10 [-22.81,2.25] | +0 [0.0,0.0] | hurts in early_r4_6, neutral elsewhere — drop in those bands |
 | tier | -45 [-64.0,-26.12]* | -19 [-35.38,-3.62]* | -8 [-23.44,7.94] | hurts in early_r4_6, mid_r7_10, neutral elsewhere — drop in those bands |
-| risk | -39 [-57.56,-22.69]* | -34 [-50.88,-16.81]* | +3 [-11.38,17.44] | hurts in early_r4_6, mid_r7_10, neutral elsewhere — drop in those bands |
+| risk | -40 [-57.88,-22.88]* | -34 [-50.88,-16.81]* | +3 [-11.38,17.44] | hurts in early_r4_6, mid_r7_10, neutral elsewhere — drop in those bands |
 | ceiling | +2 [-14.44,18.81] | -16 [-32.06,2.44] | -2 [-14.56,11.31] | flat/neutral across all bands — no regional structure |
 | bye | +2 [-0.62,4.38] | -12 [-25.88,2.81] | -2 [-12.25,7.38] | flat/neutral across all bands — no regional structure |
 

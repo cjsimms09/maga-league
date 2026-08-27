@@ -303,7 +303,12 @@ about the second one.**
 
 ---
 
-## RULE 3e — WHERE E SITS: BESIDE THE PIPELINE, NEVER INSIDE IT
+## RULE 3k — WHERE E SITS: BESIDE THE PIPELINE, NEVER INSIDE IT
+
+*(Renumbered 3e → 3k by the relay, 2026-08-25, register 108's class: "Rule 3e"
+already means the probe-control rule in `CLAUDE.md` and in every citation
+repo-wide — this heading was the one outlier, in the file that governs how the
+lanes work. One internal citation chased (§3h); grep found no external ones.)*
 
 **E does not gate anything and nothing waits on E.** A is the bottleneck; a
 review step in front of the gatekeeper slows the whole project down. So E runs
@@ -547,7 +552,7 @@ supposed to?"*
 
 **Measured the same day: NO, and it could not have.** Of A's 60 open inbox items,
 **48 were unattributed and 12 came from the relay. ZERO came from D or E.** This
-file contained **no** `D → A` or `E → A` path at all. Rule 3e said E's findings
+file contained **no** `D → A` or `E → A` path at all. Rule 3k said E's findings
 *"enter the same queue"* and never said HOW.
 
 **So eleven open register rows owned by D and E had never been seen by the lane

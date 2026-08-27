@@ -948,6 +948,80 @@ jobs:
             echo "served=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: RESCUE the unbackfillable daily series even when the board is refused
+        # REGISTER 343 — AND THIS ONE IS A RATCHET, WHICH IS WHY IT OUTRANKS THE
+        # THREE TIMES THIS DEFECT HAS ALREADY BEEN FIXED IN THIS FILE.
+        #
+        # `proj_series.json` and `adp_series.json` are APPEND-ONLY DAILY CAPTURES.
+        # The daily job writes today's row during the build, well before the gate
+        # runs. When the gate refuses, `exit 1` kills the job, the publish step
+        # below never runs, and the row is discarded with the runner. exp33 says
+        # these series CANNOT BE BACKFILLED — the prices are gone.
+        #
+        # That alone is register 155/170/325's shape ("a capture thrown away by an
+        # unrelated failure"). What makes it a RATCHET is what the gap then does:
+        #
+        #   1. the gate refuses  ->  today's row is discarded
+        #   2. tomorrow's run appends tomorrow's row, so today becomes an INTERIOR
+        #      gap in the span
+        #   3. `test_proj_series_completeness` fails on the interior gap
+        #   4. the gate refuses  ->  go to 1, with one more permanent hole
+        #
+        # MEASURED 2026-08-25, runs per day against series coverage:
+        #   08-22  1 success  ->  captured
+        #   08-23  0 of 2     ->  MISSING, permanently
+        #   08-24  0 of 1     ->  MISSING, permanently
+        #   08-25  0 of 5     ->  would have been the third
+        # The two blocking failures on run 118 were 08-23 and 08-24 — days the
+        # gate itself caused to be missing. It is refusing the board over its own
+        # exhaust, and each refused day makes the next run strictly worse.
+        #
+        # This is also exactly why those two tests pass locally and fail only in
+        # CI: locally the series ends 08-22, so 08-23/24 sit OUTSIDE the span and
+        # are invisible. CI appends today's row first, which puts them inside it.
+        #
+        # `always()` and not a bare `if:` — a bare `if:` gets `success()` ANDed, so
+        # it would be SKIPPED by the very failure it exists to survive (register
+        # 319, same file). `always()` also covers a job that dies before the gate:
+        # if the series was never written the diff is empty and this no-ops.
+        #
+        # ⚠️ POSITION MATTERS AND I GOT IT WRONG FIRST. This step must sit AFTER
+        # the publish step, not before it. Placed before, `steps.publish.outcome`
+        # is the empty string on every run — publish has not run yet — so
+        # `!= 'success'` is TRUE and the rescue would fire on GREEN runs too,
+        # committing and pushing the series separately from the board it belongs
+        # to. Caught by reading the condition against the step order rather than
+        # by the YAML parsing, which was perfectly happy with it.
+        #
+        # ONLY THE TWO SERIES FILES. `git add` is given explicit paths, so the
+        # refused board sitting dirty in the working tree is never staged. A
+        # refused board must not publish; a good capture must not be destroyed by
+        # it. Those are different questions and this step answers only the second.
+        if: always() && steps.publish.outcome != 'success' && github.event.inputs.snapshot != 'true'
+        run: |
+          SERIES="draft/data/proj_series.json draft/data/adp_series.json draft/data/roster_state_series.json"
+          EXISTING=""
+          for p in $SERIES; do [ -e "$p" ] && EXISTING="$EXISTING $p"; done
+          if [ -z "$EXISTING" ] || git diff --quiet -- $EXISTING; then
+            echo "series rescue: nothing new to save (build may not have reached the capture)"
+            exit 0
+          fi
+          echo "::warning::Board was NOT published, but rescuing today's unbackfillable series rows."
+          git config user.name  "draft-bot"
+          git config user.email "actions@github.com"
+          git add $EXISTING
+          git commit -m "Rescue the daily capture from a refused board [skip deploy]" \
+                     -m "The board did not publish. These series are append-only daily captures that cannot be backfilled (exp33), and discarding them is what makes the NEXT run fail on an interior gap. Register 343."
+          for attempt in 1 2 3; do
+            git push && { echo "series rescued"; exit 0; }
+            [ "$attempt" = 3 ] && break
+            git pull --rebase --autostash origin main || break
+          done
+          # Never mask the real verdict: the job is already failing on the gate,
+          # and a lost rescue must be visible rather than swallowed.
+          echo "::error::SERIES RESCUE FAILED TO PUSH — today's capture is lost and tomorrow's run will see a new interior gap. Register 343."
+          exit 0
+
       - name: Verify the deploy actually shipped this board
         # THE ONE DEPLOY NOBODY VERIFIED, found by the 2026-08-15 macro audit.
         # deploy-verify.yml triggers on push — but this workflow pushes with
@@ -963,6 +1037,48 @@ jobs:
           SITE: ${{ vars.SITE_URL || 'https://makefbgreatagain.netlify.app' }}
         run: |
           WANT="$(git rev-parse HEAD)"
+
+          # ⚠️ ASK THE DEPLOY GATE WHETHER A BUILD WAS EVEN EXPECTED, BEFORE
+          # DEMANDING ONE. Register 347.
+          #
+          # This step used to poll for ten minutes and fail the job whenever a
+          # served file moved. It knew nothing about `netlify-ignore.sh`, which
+          # is the thing that actually decides whether Netlify builds — and that
+          # gate has THREE reasons to skip, the third added after this step was
+          # written: **an 8-hour minimum window between deploys, from Cory's
+          # 2-3x/day ruling of 2026-08-24.**
+          #
+          # MEASURED on run 120: the board published correctly, the gate said
+          #   "range touches 11 served file(s), but the last deploy was 4h ago
+          #    and the window is 8h — SKIPPING. Nothing is lost: this change
+          #    ships with the next build."
+          # ...and this step then failed the job, logged "the deploy did not
+          # land", and commented on the board-rebuild-broken issue. **Every
+          # rebuild inside an 8-hour window was a guaranteed false red.**
+          #
+          # That is worse than noise: a red here is indistinguishable from a
+          # REAL deploy failure, which is the one thing this step exists to
+          # catch — and register 217 already records a false red from this same
+          # verifier costing a lane an urgent escalation the night before the
+          # draft.
+          #
+          # The gate is the single source of truth (register 313's ruling
+          # applied to deploys). The live stamp names the last successfully
+          # deployed commit, which is exactly the CACHED_COMMIT_REF the gate
+          # needs, so the range it evaluates here is the range Netlify saw.
+          LIVE="$(curl -fsS --max-time 20 "$SITE/build-stamp.json" 2>/dev/null \
+                  | python3 -c 'import json,sys; print(json.load(sys.stdin).get("commit",""))' 2>/dev/null || echo '')"
+          if [ -z "$LIVE" ]; then
+            echo "::warning::could not read the live build-stamp — verifying without the gate's opinion"
+          elif CACHED_COMMIT_REF="$LIVE" COMMIT_REF="$WANT" BRANCH=main \
+                 bash netlify-ignore.sh; then
+            # exit 0 from the gate means SKIP: Netlify was never going to build.
+            echo "deploy DELIBERATELY DEFERRED by the cadence gate — not a failure."
+            echo "  live is ${LIVE:0:12}, main is ${WANT:0:12}; this board ships with the next build."
+            echo "  site-check.yml owns the separate 'prod is N commits behind' alarm."
+            exit 0
+          fi
+
           echo "polling $SITE/build-stamp.json for ${WANT:0:12} (Netlify builds usually land in 1-3 min)"
           deadline=$(( $(date +%s) + 600 ))
           while [ "$(date +%s)" -lt "$deadline" ]; do
@@ -975,5 +1091,5 @@ jobs:
             echo "  live stamp: ${GOT:0:12} — waiting"
             sleep 30
           done
-          echo "::error::the board was pushed 10 minutes ago and the live site still reports '${GOT:-nothing}' — the deploy did not land. Check Netlify build minutes/status BEFORE trusting the live board."
+          echo "::error::the board was pushed 10 minutes ago, the deploy gate said BUILD, and the live site still reports '${GOT:-nothing}' — the deploy did not land. Check Netlify build minutes/status BEFORE trusting the live board."
           exit 1

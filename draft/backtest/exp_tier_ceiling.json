@@ -8,31 +8,31 @@
     0.5
   ],
   "w_cap": 0.6,
-  "n_seasons": 3,
+  "n_seasons": 4,
   "aggregate": {
     "0.10": {
-      "n": 3,
+      "n": 4,
       "sum_wh_wins_delta": -0.688,
       "sum_rank_delta": 1.599,
       "sum_playoff_pts_delta": -56.48,
       "sum_dollars_delta": -100.0
     },
     "0.20": {
-      "n": 3,
+      "n": 4,
       "sum_wh_wins_delta": -0.764,
       "sum_rank_delta": 1.733,
       "sum_playoff_pts_delta": -41.6,
       "sum_dollars_delta": -100.0
     },
     "0.30": {
-      "n": 3,
+      "n": 4,
       "sum_wh_wins_delta": -0.719,
       "sum_rank_delta": 1.533,
       "sum_playoff_pts_delta": -51.58,
       "sum_dollars_delta": -100.0
     },
     "0.50": {
-      "n": 3,
+      "n": 4,
       "sum_wh_wins_delta": -0.724,
       "sum_rank_delta": 1.533,
       "sum_playoff_pts_delta": -51.9,
@@ -40,6 +40,41 @@
     }
   },
   "seasons": [
+    {
+      "season": "2026",
+      "per_step": {
+        "0.00": {
+          "dollars_total": 925.0,
+          "exp_weekly_high_wins": 1.5,
+          "mean_weekly_rank": 1.0,
+          "playoff_window_points": 0.0
+        },
+        "0.10": {
+          "dollars_total": 925.0,
+          "exp_weekly_high_wins": 1.5,
+          "mean_weekly_rank": 1.0,
+          "playoff_window_points": 0.0
+        },
+        "0.20": {
+          "dollars_total": 925.0,
+          "exp_weekly_high_wins": 1.5,
+          "mean_weekly_rank": 1.0,
+          "playoff_window_points": 0.0
+        },
+        "0.30": {
+          "dollars_total": 925.0,
+          "exp_weekly_high_wins": 1.5,
+          "mean_weekly_rank": 1.0,
+          "playoff_window_points": 0.0
+        },
+        "0.50": {
+          "dollars_total": 925.0,
+          "exp_weekly_high_wins": 1.5,
+          "mean_weekly_rank": 1.0,
+          "playoff_window_points": 0.0
+        }
+      }
+    },
     {
       "season": "2025",
       "per_step": {

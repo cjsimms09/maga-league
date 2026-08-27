@@ -500,31 +500,80 @@ def season_residuals(season: int, history: dict, positions: dict,
 
 
 def dvorp_sensitivity(board: dict, gap_player: float,
-                      gap_r_range=(24.0, 28.0, 32.0, 36.0, 40.0, 44.0)) -> list[dict]:
-    """dVORP for the board's QB1 across a range of replacement-QB gaps.
+                      gap_r_range=(24.0, 28.0, 32.0, 36.0, 40.0, 44.0),
+                      *, subject_id=None) -> list[dict]:
+    """dVORP across a range of replacement-QB gaps, for ONE named quarterback.
 
     THE ADVERSARIAL CHECK, AND IT RUNS IN THE DIRECTION THAT WOULD HELP THE THESIS.
-    `gap(R) = 40.0` is measured off Trevor Lawrence, who sits 1.70 points above the
-    replacement line — but the quarterback exactly ON the line is Jayden Daniels, a
+    `gap(R)` is measured off the nearest quarterback to the replacement line whose
+    raw stat line is committed, while the quarterback exactly ON the line may be a
     RUSHING quarterback. Rushing contributes nothing to this gap, so a rushing
-    replacement plausibly carries a LOWER gap than Lawrence's, which would make
+    replacement plausibly carries a LOWER gap than the proxy's, which would make
     every pocket passer's dVORP LARGER than the headline finding says.
 
     Rather than assert that this does not matter, the range is swept and the slot
     movement reported at each point, so a reader can see how far gap(R) would have
     to fall before the conclusion changes.
+
+    `subject_id` NAMES THE QUARTERBACK `gap_player` BELONGS TO, and it exists
+    because leaving it implicit produced a wrong number for three days. This
+    function used to take its subject as `qb_board(board)[0]` while its caller took
+    the gap from `measured_qb_gaps(...)[0]` — two independent lookups that happened
+    to return the same man (Josh Allen) on the board it was written against, and
+    nothing tied them together. The 08-23 keeper lock made Allen a keeper, he left
+    `board["players"]`, and the sweep went on applying HIS scoring gap to Lamar
+    Jackson's board position. Register 336. Pass the gap's owner; a sweep whose
+    subject and whose gap are different players is not a measurement of either.
     """
-    qb1 = qb_board(board)[0]
+    subject = None
+    if subject_id is not None:
+        subject = next((q for q in qb_board(board)
+                        if str(q["player_id"]) == str(subject_id)), None)
+        if subject is None:
+            return []          # a refusal: the named subject is not draftable
+    if subject is None:
+        subject = qb_board(board)[0]
     out = []
     for g in gap_r_range:
         d = dvorp(gap_player, g)
-        mv = slots_moved(board, d, [qb1["player_id"]])[0]
+        mv = slots_moved(board, d, [subject["player_id"]])[0]
         out.append({"gap_at_replacement": g,
                     "implied_replacement_pass_td_if_10_int": round((g + 10) / 2.0, 1),
+                    "subject": subject["name"],
+                    "subject_id": str(subject["player_id"]),
                     "dvorp_qb1": d,
                     "qb1_slots_earlier": mv["slots_earlier"],
                     "qb1_rounds_earlier": mv["rounds_earlier"]})
     return out
+
+
+def sensitivity_block(board: dict, measured: list[dict]) -> dict | None:
+    """The sweep plus the pairing it rests on, so a mismatch cannot hide again.
+
+    The gap is taken from the highest-gap measured quarterback WHO IS ON THE
+    DRAFTABLE BOARD, because "worth taking N slots earlier" is not a statement
+    anybody can act on about a player nobody can draft. When the highest-gap
+    quarterback overall is not draftable, he is named in `gap_owner_dropped`
+    rather than silently skipped — that drop is the finding, not an implementation
+    detail. Register 336.
+    """
+    if not measured:
+        return None
+    draftable = {str(p["player_id"]) for p in board.get("players") or []}
+    usable = [m for m in measured if str(m["player_id"]) in draftable]
+    dropped = [m["name"] for m in measured if str(m["player_id"]) not in draftable]
+    if not usable:
+        return {"rows": None, "gap_owner": None, "gap_owner_dropped": dropped,
+                "why": ("no quarterback with a committed raw stat line is on the "
+                        "draftable board — the sweep has no honest subject left")}
+    owner = usable[0]
+    return {"gap_owner": owner["name"],
+            "gap_owner_id": str(owner["player_id"]),
+            "gap_owner_gap": owner["gap"],
+            "gap_owner_dropped": dropped,
+            "measurable_draftable_qbs": len(usable),
+            "rows": dvorp_sensitivity(board, owner["gap"],
+                                      subject_id=owner["player_id"])}
 
 
 def permutation_null(seasons: list[dict], position: str = "QB",
@@ -631,8 +680,7 @@ def run() -> dict:
         "survives_replacement": survived,
         "naive_slots_raw_gap_as_vorp": naive,
         "honest_slots_dvorp": honest,
-        "dvorp_sensitivity_to_replacement_gap": (
-            dvorp_sensitivity(board, measured[0]["gap"]) if measured else None),
+        "dvorp_sensitivity_to_replacement_gap": sensitivity_block(board, measured),
         "breakeven_one_round": breakeven_table(board),
         "historical": hist,
     }
