@@ -3570,8 +3570,23 @@ async function liveOptimizeFor(world, owners, me) {
     // are a 64% favourite. Now: a typical TEAM score, with the FIELD's spread,
     // which is what an unknown opponent's uncertainty actually is.
     let oppMean = 0, oppKnown = false, oppSd;
-    if (matchup && matchup.opp && matchup.opp.points > 0) { oppMean = matchup.opp.points; oppKnown = true; }
-    else {
+    // Register 324: this used to switch to the LIVE matchup.opp.points the
+    // moment it went above zero — a PARTIAL mid-game score, not a final one.
+    // Measured on one real Sunday, same roster and projections throughout:
+    // pre-kick "protect, coin flip" ($44.77) -> mid-Sunday, opponent's early
+    // score substituted whole, "start your studs, no chase" ($113.69) -> every
+    // game finished, "protect" again ($43.10). The headline advice flipped and
+    // flipped back, driven entirely by the clock on a roster Cory never
+    // touched. Same false alarm the matchup card's win-odds line already
+    // refuses to make once anyScoreOnBoard() is true (this file, the
+    // requireCommissioner /matchup route above: "an unmoving pre-kick number
+    // next to a live score would be a STALE CLAIM ... A refusal renders
+    // NOTHING, never a guess") — same rule, other direction: a MOVING partial
+    // total is not a final one either. Hold the pre-kick estimate for the
+    // whole live window instead of chasing a score that has not finished; by
+    // the time it IS final, the lineup can no longer be changed, so a
+    // "known" opponent score was never actionable input for this tool.
+    {
       const typical = LO.typicalTeamScore();
       oppMean = typical.median || band.median;
       oppSd = typical.sd || undefined;
