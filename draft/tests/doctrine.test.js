@@ -204,5 +204,78 @@ function check(name, cond, detail) {
   check('auto-hysteresis resumes after returning to recommended', s.current === 'hero_rb', s.current);
 }
 
+// --- A TRAILING PLAN MUST NOT READ AS "CONTESTED" (register 210) ------------
+// `altGap` is `mine - alt.score`, so it is NEGATIVE when the plan trails, and
+// the band test used to compare that SIGNED value against a positive band —
+// making every deficit, however large, "within the band". Both directions are
+// asserted here because a one-sided arm would pass on a function that returned
+// the same string for everything.
+{
+  const s = new D.DoctrineState('wr_anchor', { noiseBand: 4, minPicks: 2 });
+  // Trails by 40 — ten times outside the band, in the direction that matters.
+  const bad = s.update({ wr_anchor: 100, early_qb: 140 }, 1);
+  check('a $40 shortfall is NOT reported as within the band',
+    bad.gap === -40 && !/within the band/.test(bad.confidence), bad.confidence);
+  check('  and it says the plan TRAILS, naming who leads and by how much',
+    /TRAILS/.test(bad.confidence) && /Early-QB Strike/.test(bad.confidence)
+    && /\$40/.test(bad.confidence), bad.confidence);
+
+  // KNOWN-NEGATIVE, same shape one step smaller: a deficit INSIDE the band is
+  // genuinely contested and must still say so, or the fix has just swapped
+  // which case is wrong.
+  const s2 = new D.DoctrineState('wr_anchor', { noiseBand: 4, minPicks: 2 });
+  const near = s2.update({ wr_anchor: 100, early_qb: 103 }, 1);
+  check('a within-band DEFICIT is still "contested", not "trails"',
+    near.gap === -3 && /within the band/.test(near.confidence), near.confidence);
+
+  // And the leading side is unchanged — the sign branch must not repaint a win.
+  const s3 = new D.DoctrineState('wr_anchor', { noiseBand: 4, minPicks: 2 });
+  const good = s3.update({ wr_anchor: 140, early_qb: 100 }, 1);
+  check('a $40 LEAD still reads on-script, so the sign branch is not symmetric',
+    good.gap === 40 && /on script/.test(good.confidence), good.confidence);
+}
+
+// --- THE ENROLLED PLAN'S OWN BINDING IS REPORTED, NOT SWALLOWED (register 209)
+// `others` excludes the current doctrine, so `deferrals` could only ever
+// describe rival plans. When the ENROLLED plan was the one binding, its
+// constraint came back as a plain ranking loss with `deferrals: []` — the
+// one-sided price the deferral note exists to remove, on a different field.
+{
+  const detail = {
+    wr_anchor: { binds: true, forgone: 21, declined: { position: 'RB' } },
+    balanced:  { binds: false },
+  };
+  const s = new D.DoctrineState('wr_anchor', { noiseBand: 4, minPicks: 2 });
+  const out = s.update({ wr_anchor: 100, balanced: 140 }, 1, { detail: detail });
+  const self = (out.deferrals || []).filter(function (d) { return d.self; });
+  check('when MY plan binds, it appears in deferrals rather than only as a loss',
+    self.length === 1 && self[0].key === 'wr_anchor' && self[0].forgone === 21,
+    JSON.stringify(out.deferrals));
+  check('  and it carries what it declined, so the renderer can name the position',
+    self[0].declined && self[0].declined.position === 'RB', JSON.stringify(self[0]));
+  // The gap is NOT suppressed — a number that vanishes at the picks where the
+  // plan costs most is harder to argue with than one that explains itself.
+  check('  the gap still reports, so the cost stays visible alongside its reason',
+    out.gap === -40, 'gap=' + out.gap);
+
+  // KNOWN-NEGATIVE: no self-deferral when the enrolled plan does NOT bind, or
+  // the flag would be decorative rather than load-bearing.
+  const s2 = new D.DoctrineState('wr_anchor', { noiseBand: 4, minPicks: 2 });
+  const free = s2.update({ wr_anchor: 140, balanced: 100 }, 1,
+    { detail: { wr_anchor: { binds: false }, balanced: { binds: false } } });
+  check('no self-deferral when the enrolled plan is unconstrained',
+    (free.deferrals || []).filter(function (d) { return d.self; }).length === 0,
+    JSON.stringify(free.deferrals));
+
+  // And a RIVAL binding is still reported the way it always was.
+  const s3 = new D.DoctrineState('wr_anchor', { noiseBand: 4, minPicks: 2 });
+  const rival = s3.update({ wr_anchor: 140, balanced: 100 }, 1,
+    { detail: { wr_anchor: { binds: false },
+                balanced: { binds: true, forgone: 9, declined: { position: 'QB' } } } });
+  check('a RIVAL binding is unchanged — still a deferral, still not flagged self',
+    (rival.deferrals || []).length === 1 && rival.deferrals[0].key === 'balanced'
+    && !rival.deferrals[0].self, JSON.stringify(rival.deferrals));
+}
+
 console.log(`\n${pass}/${pass + fail} doctrine checks passed`);
 process.exit(fail ? 1 : 0);
