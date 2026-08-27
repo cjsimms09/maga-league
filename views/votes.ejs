@@ -30,7 +30,7 @@
 <% } %>
 <% for (const v of open) { %>
 <div class="card vote-card" id="vote-<%= v.id %>">
-  <h2><%= v.question %> <span class="badge open">Open</span></h2>
+  <h2><%= v.question %> <% if (v.edited_at) { %><span class="muted" style="font-size:.7rem" title="Edited after it was proposed">(edited)</span><% } %> <span class="badge open">Open</span></h2>
   <div class="body">
     <p class="pass-note" style="margin:0 0 .4rem">Proposed by <b><%= v.proposer_name %></b></p>
     <% if (v.description) { %><p style="margin-top:0"><%= v.description %></p><% } %>
@@ -80,6 +80,14 @@
           stands and the button disappears rather than refusing. %>
       <% if (v.proposer_id === owner.id
              && !v.ballots.some(b => b.owner_id !== owner.id)) { %>
+        <details class="asis" style="display:inline-block">
+          <summary style="list-style:none;cursor:pointer" class="btn small ghost" title="Fix a typo — same rule as withdraw, only before anyone else has voted">✎ Edit</summary>
+          <form method="post" action="/votes/<%= v.id %>/edit" style="display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.4rem">
+            <input type="text" name="question" maxlength="200" required value="<%= v.question %>" style="flex:2 1 220px">
+            <input type="text" name="description" maxlength="1000" value="<%= v.description || '' %>" placeholder="Make your case (optional)" style="flex:2 1 220px">
+            <button class="btn small gold" type="submit">Save</button>
+          </form>
+        </details>
         <form class="asis" method="post" action="/votes/<%= v.id %>/withdraw"
               onsubmit="return confirm('Pull this measure off the ballot? It disappears — you can always propose it again.')">
           <button class="btn small ghost" type="submit" title="Take your question off the ballot — nobody has voted on it yet">🗑 Withdraw the measure</button>

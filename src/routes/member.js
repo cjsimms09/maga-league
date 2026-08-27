@@ -2457,6 +2457,31 @@ router.post('/votes/:id/withdraw', aw(async (req, res) => {
   res.redirect('/votes');
 }));
 
+// EDIT AN UNVOTED PROPOSAL (redesign catalog 10, the other half of withdraw):
+// "same rule as bets: until anyone has acted on it, the author owns it.
+// Typo'd ballots currently live forever." Same guard as withdraw above —
+// open, proposer, and nobody else has cast yet — so this is strictly a
+// smaller version of "pull it and re-propose", not a new risk: a measure
+// nobody else has engaged with cannot be stale under anyone but its author.
+// No terms-version bump (register 294/bet-edit's reason for one): a ballot
+// is a fresh yes/no read at cast time, not an accept against a snapshot, and
+// the guard already forbids editing once a single other ballot exists.
+router.post('/votes/:id/edit', aw(async (req, res) => {
+  const vote = await getDoc(`vote:${req.params.id}`, null);
+  const question = String(req.body.question || '').trim().slice(0, 200);
+  if (vote && vote.status === 'open' && Number(vote.proposer_id) === Number(req.owner.id) && question) {
+    const bKeys = await H.store.listKeys(`ballot:${vote.id}:`);
+    const others = bKeys.filter(k => Number(k.split(':')[2]) !== Number(req.owner.id));
+    if (!others.length) {
+      vote.question = question;
+      vote.description = String(req.body.description || '').trim().slice(0, 1000);
+      vote.edited_at = now();
+      await setDoc(`vote:${vote.id}`, vote);
+    }
+  }
+  res.redirect('/votes');
+}));
+
 router.post('/votes/:id/rescind', aw(async (req, res) => {
   const vote = await getDoc(`vote:${req.params.id}`, null);
   if (vote && vote.status === 'open') {
