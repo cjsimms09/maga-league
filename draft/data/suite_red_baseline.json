@@ -8,9 +8,8 @@
   "This file never makes CI pass. The JS suite step still exits non-zero while anything is failing -- see ci.yml. A permanently green build with 32 broken suites is the decay this whole exercise was about."
  ],
  "_baseline_taken": "2026-08-26",
- "count": 8,
+ "count": 7,
  "suites": [
-  "barbell_policy",
   "draft_alert_lifecycle",
   "draft_turn_email",
   "engine_ablation",
@@ -72,6 +71,14 @@
     "roster_room_audit"
    ],
    "why": "Fixed, register 364 — the room seeded all 23 league keepers as Cory roster (size 35) and counted 29 opponent picks before pick 33 where 9 are live. Roster 15 in 8/8, 8/8 legal."
+  },
+  {
+   "date": "2026-08-27",
+   "by": "A",
+   "removed": [
+    "barbell_policy"
+   ],
+   "why": "Fixed, register 365 — a real 0.052-point WR crossing that the label rounded to a 203-vs-203 tie. WR moved to the overlap side with magnitudes reported; RB is the sole no-overlap position. 50/50."
   }
  ]
 }
