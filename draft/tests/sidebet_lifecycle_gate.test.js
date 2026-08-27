@@ -40,6 +40,15 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS ' + n)) : (fail++, cons
   let boardPoints = 0;
   sleeper.bundle = async () => ({
     week: 3,
+    /* ⚠️ WITHOUT `season_type` THE POINTS GATE THIS FILE SAYS IT EXERCISES IS
+     * DISABLED. The bet clock reads `seasonType: sData && sData.season_type`
+     * (`member.js:2487/2657`) and treats a missing value as not-regular —
+     * "preseason points must not lock bets", correct on its own terms. The real
+     * `bundle()` always stamps the field (`sleeper.js:129`, defaulted to
+     * 'regular' at :125), so a stub without it is a shape production never
+     * serves, and both late-accept arms passed their accept through instead of
+     * being refused. Stamped so the stub matches the real return. Register 366. */
+    season_type: 'regular',
     league: { settings: { playoff_week_start: 16, playoff_teams: 4 } },
     users: [], rosters: [],
     matchups: [{ matchup_id: 1, roster_id: 1, points: boardPoints }],

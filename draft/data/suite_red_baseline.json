@@ -8,15 +8,13 @@
   "This file never makes CI pass. The JS suite step still exits non-zero while anything is failing -- see ci.yml. A permanently green build with 32 broken suites is the decay this whole exercise was about."
  ],
  "_baseline_taken": "2026-08-26",
- "count": 7,
+ "count": 5,
  "suites": [
   "draft_alert_lifecycle",
   "draft_turn_email",
   "engine_ablation",
   "member_copy",
-  "member_email_policy",
-  "pickem_surface",
-  "sidebet_lifecycle_gate"
+  "member_email_policy"
  ],
  "_ratchet_log": [
   "2026-08-24: -inseason_explainers, fixed by B and taken in the warroom-shell-rebuild merge. It checked member.js for the K/DEF claims filter and failed regardless of B’s change -- the filter had already moved to src/waiver_reco.js in an earlier same-day extraction that never updated the test. B confirmed the staleness via git stash before touching it and DISCLOSED the one-line TERRITORY: A trespass rather than quietly fixing it. Re-verified green on the rebased tree (this entry was lost once to a rebase and re-applied).",
@@ -79,6 +77,15 @@
     "barbell_policy"
    ],
    "why": "Fixed, register 365 — a real 0.052-point WR crossing that the label rounded to a 203-vs-203 tie. WR moved to the overlap side with magnitudes reported; RB is the sole no-overlap position. 50/50."
+  },
+  {
+   "date": "2026-08-27",
+   "by": "A",
+   "removed": [
+    "pickem_surface",
+    "sidebet_lifecycle_gate"
+   ],
+   "why": "Fixed, register 366 — both fixtures omitted season_type, which gates the points signal in the pickem lock and the bet clock, so both suites were exercising the opposite of what they claimed. 15/15 and 9/9."
   }
  ]
 }

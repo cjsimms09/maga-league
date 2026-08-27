@@ -48,6 +48,21 @@ const cookieFrom = r => r.headers.getSetCookie().map(s => s.split(';')[0]).join(
     league_id: LID, fetched_at: Date.now(),
     data: {
       state: { week: 9 }, week: 9,
+      /* ⚠️ `season_type` IS WHY THE FOUR "LOCKED" ARMS WERE RED, and the fixture
+       * was the thing out of date, not the route. `member.js:2922` gates the
+       * points signal on it — "preseason points must not lock picks", the same
+       * guard the bet clock uses and correct on its own terms.
+       *
+       * `sleeper.js:125` DEFAULTS it to 'regular'... but only on the FETCH path.
+       * `bundle()` returns a cached `data` verbatim (line 97), and this fixture
+       * writes the cache by hand, so the field the real writer always stamps was
+       * simply absent and `anyScore` read false with 40-point games on the board.
+       * Stamped here so the fixture is the shape production actually stores.
+       *
+       * (The read-path asymmetry is real but bounded: a cache written before the
+       * field existed reads as undefined for at most one 5-minute TTL window
+       * after a deploy, then self-heals. Noted, not filed. Register 366.) */
+      season_type: 'regular',
       league: { name: 'MFGA', total_rosters: 10, settings: { playoff_week_start: 16, playoff_teams: 4 } },
       users: active.map((o, i) => ({ user_id: 'u' + i, display_name: o.name })),
       rosters: active.map((o, i) => ({ roster_id: i + 1, owner_id: 'u' + i,
