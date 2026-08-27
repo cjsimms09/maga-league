@@ -83,18 +83,59 @@ function escapeCellPipes(s) {
   return String(s).replace(/(?<!\\)\|/g, '\\|');
 }
 
-function guardsPass() {
-  const checks = [
-    ['python3', ['-m', 'pytest', 'draft/tests/test_defect_register.py', '-q']],
-    ['node', ['draft/tools/register_recheck_check.js']],
-  ];
-  for (const [cmd, args] of checks) {
-    try {
-      execFileSync(cmd, args, { cwd: ROOT, stdio: 'pipe' });
-    } catch (e) {
-      return { ok: false, which: cmd + ' ' + args.join(' '),
-        out: String((e.stdout || '') + (e.stderr || '')).slice(-1200) };
-    }
+/* THE OVERDUE COUNT, so the recheck guard can be scoped to THIS row instead of
+ * vetoing on the whole register's backlog. Returns null if the audit cannot be
+ * taken at all, which the caller treats as "cannot judge" rather than "fine". */
+function overdueCount(today) {
+  try {
+    const R = require(path.join(ROOT, 'draft', 'tools', 'register_recheck_check.js'));
+    const a = R.audit(fs.readFileSync(REGISTER, 'utf8'), today);
+    return (a.overdue || []).length;
+  } catch (e) { return null; }
+}
+
+/* ── WHY THIS GUARD IS SCOPED AND NOT SIMPLY DROPPED (register 374) ─────────
+ *
+ * This ran `register_recheck_check.js` whole and reverted on its exit code.
+ * That check is a WHOLE-REGISTER health check: it exits 1 if any open row
+ * anywhere is past its own recheck date. On 2026-08-24, when this tool was
+ * written and its revert path proven, the register carried ZERO overdue rows —
+ * measured, not assumed — so the guard spoke only about the row being filed.
+ * By 2026-08-27 the backlog was 60, and the tool reverted EVERY row on a
+ * signal none of them caused. Worse, the id is claimed before the guards run
+ * and is never returned (register 186's rule, correctly), so each refusal
+ * spent a number: 372 and 373 name nothing and never will.
+ *
+ * DROPPING THE CHECK WOULD BREAK THE THING IT WAS PROVEN ON — a row that files
+ * itself ALREADY OVERDUE, which is the case the 08-24 proof used. So the
+ * question it asks is narrowed rather than removed: not "is the register
+ * healthy" but "did THIS row make it less healthy". A pre-existing backlog is
+ * register 4g's problem and is not a reason to refuse new work.
+ *
+ * The structural check stays whole — `test_defect_register.py` is about the
+ * ROW's shape, so its verdict is already scoped. */
+function guardsPass(overdueBefore, today) {
+  try {
+    execFileSync('python3', ['-m', 'pytest', 'draft/tests/test_defect_register.py', '-q'],
+      { cwd: ROOT, stdio: 'pipe' });
+  } catch (e) {
+    return { ok: false, which: 'pytest draft/tests/test_defect_register.py',
+      out: String((e.stdout || '') + (e.stderr || '')).slice(-1200) };
+  }
+  const after = overdueCount(today);
+  if (after === null || overdueBefore === null) {
+    return { ok: false, which: 'register_recheck_check.audit',
+      out: 'the recheck audit could not be taken before/after, so this tool '
+        + 'cannot tell whether the new row is overdue. Refusing rather than '
+        + 'filing blind.' };
+  }
+  if (after > overdueBefore) {
+    return { ok: false, which: 'register_recheck_check (scoped to this row)',
+      out: 'the overdue count went ' + overdueBefore + ' -> ' + after
+        + ', so THIS row is already past its own recheck date. Give it a date '
+        + 'in the future.\n(The ' + overdueBefore + ' rows that were already '
+        + 'overdue are not this row\'s fault and did not block it — register '
+        + '374.)' };
   }
   return { ok: true };
 }
@@ -168,10 +209,19 @@ function main() {
     }
   }
   if (ix < 0) { console.error('no existing numbered row to append after'); return 2; }
+
+  /* Overdue count taken BEFORE the write, so the recheck guard can ask whether
+   * THIS row made things worse rather than whether the register is spotless
+   * (register 374). `--today` mirrors register_recheck_check.js's own flag so
+   * the two cannot drift on what day it is. */
+  const ti = process.argv.indexOf('--today');
+  const today = ti > -1 ? process.argv[ti + 1] : new Date().toISOString().slice(0, 10);
+  const overdueBefore = overdueCount(today);
+
   lines.splice(ix + 1, 0, row);
   fs.writeFileSync(REGISTER, lines.join('\n'));
 
-  const g = guardsPass();
+  const g = guardsPass(overdueBefore, today);
   if (!g.ok) {
     /* REVERT rather than leave a broken register behind. A half-filed row that
      * survives until someone runs `git add -A` is exactly how the four
