@@ -52,8 +52,57 @@ const onDisk = new Set(fs.readdirSync(TESTS)
 
 // ── CONTROLS: without these every assertion below could be comparing two
 //    empty sets and passing on nothing.
-ck('CONTROL — the baseline carries entries at all', listed.length > 0,
-  { listed: listed.length });
+/* ⚠️ THIS CONTROL USED TO READ `listed.length > 0` — "the baseline carries
+ * entries at all" — AND IT FIRED ON 2026-08-27 WHEN THE DEBT WAS ACTUALLY
+ * CLEARED (register 371). The standing red went 5 → 0 that day, and this file
+ * refused the result.
+ *
+ * It contradicted its own header, which says of a suite that starts passing:
+ * *"Not a failure — it is the GOAL."* A guard that forbids the goal state of
+ * the thing it guards is not strict, it is wrong, and the direction it is
+ * wrong in is the worst one available: it makes an empty baseline look like a
+ * broken file, so the cheapest way to get green is to put something back.
+ *
+ * THE ANTI-VACUITY WORRY IT WAS WRITTEN FOR IS REAL AND IS ALREADY COVERED
+ * ELSEWHERE — the FAIL ARM at the bottom builds its own list with a ghost in
+ * it and proves the ROT 1 check fires, on a synthetic set, with no dependence
+ * on `listed` being non-empty. That arm is the load-bearing one.
+ *
+ * What genuinely must not pass unnoticed is `suites` being empty because the
+ * FILE broke — key missing, wrong type, truncated write — which reads as zero
+ * and would make every set comparison below vacuous. So the control now
+ * separates the two: the key must be a real array, and an EMPTY one must be
+ * DECLARED, carrying a ratchet-log entry that says which suites were removed
+ * to get there. Empty-by-tightening passes; empty-by-accident does not. */
+ck('CONTROL — `suites` is a real array, and if it is EMPTY that state was '
+  + 'reached by TIGHTENING (the log names what was removed) rather than by a '
+  + 'broken or truncated file — an empty baseline is this mechanism\'s goal, '
+  + 'not a fault (register 371)',
+Array.isArray(doc.suites)
+  && (listed.length > 0
+    || (Array.isArray(doc._ratchet_log) && doc._ratchet_log.length > 0
+      && Array.isArray((doc._ratchet_log[doc._ratchet_log.length - 1] || {}).removed)
+      && doc._ratchet_log[doc._ratchet_log.length - 1].removed.length > 0)),
+{ listed: listed.length, is_array: Array.isArray(doc.suites),
+  last_log_removed: ((doc._ratchet_log || []).slice(-1)[0] || {}).removed });
+
+/* FAIL ARM for the control immediately above — an empty `suites` with NO
+ * ratchet-log evidence is the accident case and must be rejected. Without
+ * this, the clause that permits the empty state could permit anything. */
+{
+  const declared = d => Array.isArray(d.suites)
+    && ((d.suites || []).length > 0
+      || (Array.isArray(d._ratchet_log) && d._ratchet_log.length > 0
+        && Array.isArray((d._ratchet_log[d._ratchet_log.length - 1] || {}).removed)
+        && d._ratchet_log[d._ratchet_log.length - 1].removed.length > 0));
+  ck('FAIL ARM — an empty baseline with no ratchet-log entry is REJECTED, and a '
+    + 'missing `suites` key is rejected too, so "empty is allowed" cannot '
+    + 'become "anything is allowed"',
+  declared({ suites: [], _ratchet_log: [{ removed: ['x'] }] }) === true
+    && declared({ suites: [], _ratchet_log: [] }) === false
+    && declared({ suites: [], _ratchet_log: [{ removed: [] }] }) === false
+    && declared({ _ratchet_log: [{ removed: ['x'] }] }) === false);
+}
 ck('CONTROL — suites were actually found on disk to compare against',
   onDisk.size > 100, { on_disk: onDisk.size });
 ck('CONTROL — the baseline is a strict SUBSET of the suites that exist, so the '

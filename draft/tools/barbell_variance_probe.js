@@ -61,7 +61,31 @@ const board = JSON.parse(fs.readFileSync(
   path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
 const BY_NAME = new Map();
 board.players.forEach(p => { if (!BY_NAME.has(p.name)) BY_NAME.set(p.name, p); });
-const KEEPERS = board.kept_players || [];
+/* CORY'S KEEPERS, AND THE ROWS COME FROM `kept_players` ITSELF (register 370).
+ *
+ * TWO defects lived on this one line, and the second is the one that actually
+ * bit. (a) `kept_players` is the league's 23 since the 08-23 lock, not Cory's
+ * three, so `myRoster` was building a 23-keeper roster. (b) It was joined
+ * through `BY_NAME`, which is built from `board.players` — and post-lock
+ * `players` EXCLUDES every keeper, so the two sets are DISJOINT and the join
+ * resolved **0 of 23**. The `.filter(Boolean)` below then dropped all of them
+ * silently, so in practice this probe's rosters carried NO keepers at all.
+ *
+ * Which is precisely the failure `myRoster`'s own docstring, eight lines down,
+ * says must never happen: *"A pick that cannot be joined is COUNTED, never
+ * dropped silently — a missing join would quietly shrink a roster and lower
+ * its spread, which is the direction that would fake this probe's answer."*
+ * That discipline was applied to PICKS and not to KEEPERS, one line apart.
+ *
+ * The keeper rows carry the projection fields already, so there is nothing to
+ * join: use them directly and the disjointness stops mattering. */
+const KEEPERS = (board.kept_players || [])
+  .filter(k => Number(k.team_slot) === Number(board.league.my_draft_slot));
+if (!KEEPERS.length || KEEPERS.length >= (board.kept_players || []).length) {
+  throw new Error('keeper filter is wrong: ' + KEEPERS.length + ' of '
+    + (board.kept_players || []).length + ' for slot '
+    + board.league.my_draft_slot + ' — refusing to probe (register 370)');
+}
 
 const rooms = JSON.parse(fs.readFileSync(ROOMS_FILE, 'utf8'));
 
@@ -70,7 +94,9 @@ const rooms = JSON.parse(fs.readFileSync(ROOMS_FILE, 'utf8'));
  *  silently — a missing join would quietly shrink a roster and lower its
  *  spread, which is the direction that would fake this probe's answer. */
 function myRoster(room) {
-  const out = KEEPERS.map(k => BY_NAME.get(k.name)).filter(Boolean);
+  // Keeper rows used DIRECTLY — they are disjoint from `board.players`, so a
+  // BY_NAME join here resolved nothing and dropped all three (register 370).
+  const out = KEEPERS.slice();
   let missed = 0;
   (room.picksLog || []).forEach(pk => {
     const p = BY_NAME.get(pk.name);

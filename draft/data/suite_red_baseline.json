@@ -8,10 +8,8 @@
     "This file never makes CI pass. The JS suite step still exits non-zero while anything is failing -- see ci.yml. A permanently green build with 32 broken suites is the decay this whole exercise was about."
   ],
   "_baseline_taken": "2026-08-26",
-  "count": 1,
-  "suites": [
-    "engine_ablation"
-  ],
+  "count": 0,
+  "suites": [],
   "_ratchet_log": [
     "2026-08-24: -inseason_explainers, fixed by B and taken in the warroom-shell-rebuild merge. It checked member.js for the K/DEF claims filter and failed regardless of B’s change -- the filter had already moved to src/waiver_reco.js in an earlier same-day extraction that never updated the test. B confirmed the staleness via git stash before touching it and DISCLOSED the one-line TERRITORY: A trespass rather than quietly fixing it. Re-verified green on the rebased tree (this entry was lost once to a rebase and re-applied).",
     "2026-08-24: -waiver_surface. A TEST-SCOPE defect, not a product one. It asserted Wire Kicker was absent from the ENTIRE page -- true when written, false once BLOCK WATCH shipped 08-24 on Cory’s adversarial-waivers mandate. Block Watch names the best free agent at each position a RIVAL is short at, so it names the wire’s best kicker ON PURPOSE, while the claims block correctly excludes him because Cory rosters a BETTER one (Butker 130 vs 110). A whole-page absence assertion cannot survive a panel designed to mention MORE players. Now scoped to the claims section, with a CONTROL that the scoping happened (else it is scanning the whole page again and proves nothing) and a POSITIVE assertion that Block Watch DOES name him -- without that, scoping is indistinguishable from deleting the check. FAIL ARM proven on the real mechanism: remove the rostered kicker so the K slot is empty (register 294 setup) and the page renders “Claim Wire Kicker”, exit 1; restored, exit 0. ⚠️ MY FIRST FAIL-ARM ATTEMPT WAS A FALSE NEGATIVE -- the sed never matched, the fixture was unchanged, and I was one step from recording “the assertion cannot fire” off a probe that did nothing (Rule 3e).",
@@ -100,6 +98,14 @@
         "member_copy"
       ],
       "why": "Fixed, register 369 — both were fixtures out of step with production, neither was a code defect. draft_alert_lifecycle: the one-time post-draft migration in loadWorld fired inside the suite's LOGIN POST and retired the very alert arm one asserts; the member-route heal restores it, but only from the request after. Measured both directions: seeded active=true, flag unset leaves it false and the next GET renders nothing, flag set renders. Fixture now states the migration has happened. 16/16. member_copy: the same missing season_type as register 366 in a THIRD fixture, which is that row's own follow-up (1) — member.js:2922 ignores every score without it, so the pickem slate never locked and the arm asserting the graded copy was reading the open slate. 23/23. SWEPT ALL 25 remaining bundle-building suites with a controlled stamp: 25/25 unaffected, so member_copy was the last one."
+    },
+    {
+      "date": "2026-08-27",
+      "by": "A",
+      "removed": [
+        "engine_ablation"
+      ],
+      "why": "Fixed, register 370 — THE BASELINE IS NOW EMPTY. This suite was carried unexamined because it OOM-killed the container; it runs fine under NODE_OPTIONS=--max-old-space-size=1536, so the OOM was environmental and the suite was never the problem. It came back 42/44 with two REAL failures, both now fixed: ROOM PARITY broken because draftRoom() seeded Cory with all 23 league keepers (register 364 shape, in a file whose 08-24 pass had already filtered two OTHER sites), and the ceiling_tiebreak INERT pin, retired on a measurement (ratio varies in 60 of 60 live cells since Draft Sharks became the ceiling source on 08-19, register 99). 44/44. A ratchet at zero is a real state, not a finished one: the JS suite is green, and this file stays as the mechanism that tells a NEW red from a standing one."
     }
   ]
 }

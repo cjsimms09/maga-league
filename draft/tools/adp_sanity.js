@@ -48,7 +48,27 @@ const E = global.DraftEngine;
 
 const BOARD = LC.loadBoard();
 const ALL = BOARD.players;
-const KEEPERS = BOARD.kept_players;
+/* TWO POPULATIONS, NOT ONE (register 370, the shape register 364 named).
+ * `kept_players` stopped being Cory's three at the 08-23 league-wide lock and
+ * is now all 23, DISJOINT from `players`. It was serving two purposes here:
+ *
+ *   AVAILABILITY — every league keeper is off the board. Wants all 23, and
+ *     this tool has no opponent-keeper path, so it is the only thing marking
+ *     them drafted. That use was always correct.
+ *   MY ROSTER    — wants Cory's three. Unfiltered, the reference drafter and
+ *     the tool it is benchmarking both started from a 23-man roster holding
+ *     nine other managers' players.
+ *
+ * Splitting them is the whole fix; neither number changes for the other's
+ * sake. */
+const ALL_KEPT = BOARD.kept_players || [];
+const MY_KEPT = ALL_KEPT.filter(
+  k => Number(k.team_slot) === Number(BOARD.league.my_draft_slot));
+if (!MY_KEPT.length || MY_KEPT.length >= ALL_KEPT.length) {
+  throw new Error('MY_KEPT filter is wrong: ' + MY_KEPT.length + ' of '
+    + ALL_KEPT.length + ' for slot ' + BOARD.league.my_draft_slot
+    + ' — refusing to simulate (register 370)');
+}
 const MY = (BOARD.pick_order.my_picks || []).slice();
 const TOTAL = (BOARD.pick_order.picks || []).length;
 
@@ -64,8 +84,8 @@ function bestByAdp(pool) {
 
 function simulate(chooser) {
   const drafted = new Set();
-  KEEPERS.forEach(k => drafted.add(String(k.player_id)));
-  const roster = KEEPERS.map(k => Object.assign({}, k, { is_keeper: true }));
+  ALL_KEPT.forEach(k => drafted.add(String(k.player_id)));   // availability: all 23
+  const roster = MY_KEPT.map(k => Object.assign({}, k, { is_keeper: true })); // roster: my 3
   const mine = [];
   for (let i = 0; i < MY.length; i++) {
     const pick = MY[i];
@@ -165,7 +185,8 @@ const fmt = v => v == null ? '  -  ' : (v >= 0 ? '+' : '') + v.toFixed(1);
 
 console.log('STAGE 1 — MEASUREMENT ONLY. No diagnosis in this file or this output.\n');
 console.log('  ' + MY.length + ' of my picks in a ' + TOTAL + '-pick draft, seat '
-  + BOARD.league.my_draft_slot + ', keepers ' + KEEPERS.map(k => k.name).join(', '));
+  + BOARD.league.my_draft_slot + ', keepers ' + MY_KEPT.map(k => k.name).join(', ')
+  + '  (' + ALL_KEPT.length + ' league keepers off the board)');
 console.log('  Both arms: identical seat, keepers, opponents (ADP) and pick numbers.\n');
 
 console.log('POSITIONAL DISTRIBUTION');

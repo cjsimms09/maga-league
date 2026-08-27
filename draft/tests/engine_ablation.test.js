@@ -124,11 +124,39 @@ const baseCtx = over => Object.assign({
       E.recommend(ctx()).map(s => s.player.name).join('|'));
     ck('flag plumbing — ceiling_tiebreak flip changes the order where the ceiling '
       + 'actually carries information', on !== off, { on: on, off: off });
-    ck('  and it is INERT on the live board, because every cross-cell swap there '
-      + 'would be decided by a calibration constant',
-      EA.withFlags([['E', 'CEILING_TIEBREAK', false]], () => topN(mkCtx())) === base,
-      'if this ever fails the live ceiling has started carrying per-player '
-      + 'information — good news, and the check above moves back into the loop');
+    /* ── AND IT IS NO LONGER INERT ON THE LIVE BOARD (register 370) ─────────
+     *
+     * This assertion used to read "INERT on the live board, because every
+     * cross-cell swap there would be decided by a calibration constant", and
+     * carried its own instruction for the day it failed: *"if this ever fails
+     * the live ceiling has started carrying per-player information — good
+     * news, and the check above moves back into the loop."* It failed. This is
+     * that move, taken on the measurement rather than on the note alone.
+     *
+     * MEASURED on the live board before changing anything: of the 60 cells
+     * (position × tier) holding three or more of the 600 priced players,
+     * `proj_ceiling / proj_mean` VARIES within **60 of 60** — not one constant
+     * cell. The per-cell calibration constant this pin was built on does not
+     * exist any more.
+     *
+     * The cause is recorded and is not a regression: Draft Sharks became the
+     * ceiling source on 2026-08-19 (register 99), supplying per-player floors
+     * and ceilings for 189 of the draftable top 200. So the tiebreak now has
+     * real information to act on at the live pick, which is the condition the
+     * 08-17 note named as the one that ends the exemption.
+     *
+     * The synthetic check above STAYS. It proves the mechanism on a board
+     * built to isolate it — same cell, equal means, different ceilings — and
+     * that is a different claim from "it reaches the live surface". Keeping
+     * both is what tells a future reader whether a failure is the mechanism
+     * breaking or the board's information going away again. */
+    ck('flag plumbing — ceiling_tiebreak flip changes the top-15 at the real '
+      + 'pick 33 (live ceilings carry per-player information since 08-19; the '
+      + '08-17 inertness exemption is retired, register 370)',
+      EA.withFlags([['E', 'CEILING_TIEBREAK', false]], () => topN(mkCtx())) !== base,
+      'if this fails, the live ceiling has gone back to being proj_mean times a '
+      + 'per-cell constant — re-measure the ratio spread per cell before '
+      + 'concluding the flag is unplumbed');
   }
 }
 {
