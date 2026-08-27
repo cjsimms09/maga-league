@@ -93,11 +93,20 @@
       <span class="sub"><%= _ny.length %> thing<%= _ny.length === 1 ? '' : 's' %> waiting on you</span></h2>
     <div class="body" style="padding-top:.35rem">
       <% for (const it of _ny) { %>
-        <a href="<%= it.href %>" style="display:flex;align-items:center;gap:.6rem;padding:.5rem .2rem;text-decoration:none;color:inherit;border-bottom:1px solid var(--line,#e5e7eb)">
-          <span style="font-size:1.1rem" aria-hidden="true"><%= it.icon %></span>
-          <span style="flex:1 1 auto"><%= it.text %></span>
-          <span class="muted" style="white-space:nowrap;font-weight:700"><%= it.cue %></span>
-        </a>
+        <div style="display:flex;align-items:center;gap:.6rem;padding:.5rem .2rem;border-bottom:1px solid var(--line,#e5e7eb)">
+          <a href="<%= it.href %>" style="display:flex;align-items:center;gap:.6rem;flex:1 1 auto;text-decoration:none;color:inherit;min-width:0">
+            <span style="font-size:1.1rem" aria-hidden="true"><%= it.icon %></span>
+            <span style="flex:1 1 auto"><%= it.text %></span>
+          </a>
+          <%# Catalog item 26 — a straight bet offer accepts right here, no
+              tap-through required (Rule 4: actions live on the thing). %>
+          <% if (it.betId) { %>
+            <form class="asis" method="post" action="/sidebets/<%= it.betId %>/accept" style="flex:0 0 auto">
+              <button class="btn small gold" type="submit" style="padding:.3rem .6rem;font-size:.82rem">✓ Accept</button>
+            </form>
+          <% } %>
+          <a href="<%= it.href %>" class="muted" style="white-space:nowrap;font-weight:700;text-decoration:none;flex:0 0 auto"><%= it.cue %></a>
+        </div>
       <% } %>
     </div>
   </div>

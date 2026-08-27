@@ -585,11 +585,18 @@ router.get('/', aw(async (req, res) => {
       if (!mine) continue;
       if (bb.status === SB.STATUS.PROPOSED && !mine.accepted) {
         const from = (bb.parties || []).find(pp => pp.accepted);
-        needsYou.push({ icon: '🤝', href: '/bank?section=sidebets',
-          text: `${_nameOf(from && from.owner_id)} sent you a $${bb.stake} bet`, cue: 'accept or decline →' });
+        needsYou.push({ icon: '🤝', href: `/bank?section=sidebets#bet-${bb.id}`,
+          text: `${_nameOf(from && from.owner_id)} sent you a $${bb.stake} bet`, cue: 'accept or decline →',
+          // Catalog item 26: "NEEDS YOU on home carries it with the Accept
+          // inline" — a straight bet needs nothing else to accept, so it gets
+          // a real inline button. A pool bet's accept also assigns franchise
+          // positions (SB.accept's position/picks fields), which has no home
+          // for that UI here — it keeps the tap-through instead of a button
+          // that would silently accept with no positions chosen.
+          betId: bb.format !== 'pool' ? bb.id : null });
       }
       if (bb.status === SB.STATUS.AWAITING_CONFIRM && bb.declared && bb.declared.by !== req.owner.id) {
-        needsYou.push({ icon: '⚖️', href: '/bank?section=sidebets',
+        needsYou.push({ icon: '⚖️', href: `/bank?section=sidebets#bet-${bb.id}`,
           text: `${_nameOf(bb.declared.by)} declared a result on your $${bb.stake} bet`, cue: 'confirm or dispute →' });
       }
     }
