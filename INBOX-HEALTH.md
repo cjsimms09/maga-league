@@ -7,14 +7,14 @@ by hand, so it cannot quietly stop being true.
 Two questions, measured:
 **is anyone answering**, and **is any finished work invisible from `main`**.
 
-_Last measured: 2026-08-27 19:22 UTC_
+_Last measured: 2026-08-27 21:02 UTC_
 
 ```
 ============================================================================
 ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
   911 items · 325 open · 262 of those carry a DEFAULT (silence resolves them)
-  60 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
+  52 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
   of 63 open item(s) with no default: 5 SAY they ask for nothing · 0 are BROADCASTS (same
   header in 3+ inboxes — a rule, not four decisions) · 58 declare NEITHER, so nobody
   can tell whether a decision is owed. That last number is the real state of the inbox.
@@ -23,14 +23,14 @@ ROUTES RESPONSE CHECK — is anyone answering?
   rewording is precisely what stops it matching.
 
   waiting on:
-      16     8d oldest   A
+      13     8d oldest   A
       10     8d oldest   E
       10     7d oldest   B
        9     8d oldest   D
-       3     4d oldest   Cory
        3     7d oldest   C
-       2     7d oldest   A/B
        2     3d oldest   relay
+       2     4d oldest   Cory
+       1     4d oldest   A/Cory
 
   the five oldest:
     8d  2026-08-19 · E → A · 🔴 **REPLY TO `ROSTER-CONSTRUCTION-CALL.md`: RELAXING TE'S CAP TO AN ALREAD
@@ -69,9 +69,9 @@ ROUTES RESPONSE CHECK — is anyone answering?
     C → C                     13 items   100% ticked    0 open with NO default
     relay/PM → D               7 items   100% ticked    0 open with NO default
 
-  baseline 0  ->  now 60
+  baseline 0  ->  now 52
 
-  ❌ THE BACKLOG GREW BY 60. Answer them, add a DEFAULT so silence resolves them, or SEND BACK.
+  ❌ THE BACKLOG GREW BY 52. Answer them, add a DEFAULT so silence resolves them, or SEND BACK.
      A ratchet that only reports is the thing that failed here already.
 ============================================================================
 ```
@@ -80,11 +80,11 @@ ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
 LANE STATUS — work that exists but `main` cannot see
 ============================================================================
-  ⚠️  150 commits    66h old  claude/data-stewardship-setup-bo5h9j
-       55 commits     3h old  claude/external-ingest-program-1xfinj
-       50 commits     2h old  claude/red-team-fantasy-football-97otna
-        5 commits     1h old  claude/warroom-shell-rebuild-0817
-        1 commits    50h old  claude/derived-values-bbm-tier-xxto5m
+  ⚠️  150 commits    68h old  claude/data-stewardship-setup-bo5h9j
+       55 commits     5h old  claude/external-ingest-program-1xfinj
+       50 commits     3h old  claude/red-team-fantasy-football-97otna
+        5 commits     3h old  claude/warroom-shell-rebuild-0817
+        1 commits    52h old  claude/derived-values-bbm-tier-xxto5m
 
   ⚠️  1 branch(es) look STRANDED — 3+ commits, 12h+ old, unmerged.
      ROUTES.md cannot show you these: it lists what a lane WROTE DOWN,
