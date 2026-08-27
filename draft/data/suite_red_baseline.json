@@ -8,7 +8,7 @@
   "This file never makes CI pass. The JS suite step still exits non-zero while anything is failing -- see ci.yml. A permanently green build with 32 broken suites is the decay this whole exercise was about."
  ],
  "_baseline_taken": "2026-08-26",
- "count": 10,
+ "count": 9,
  "suites": [
   "barbell_policy",
   "draft_alert_lifecycle",
@@ -18,7 +18,6 @@
   "member_email_policy",
   "pickem_surface",
   "roster_room_audit",
-  "seat_plan_contract",
   "sidebet_lifecycle_gate"
  ],
  "_ratchet_log": [
@@ -58,6 +57,14 @@
     "floor_is_a_cohort_not_a_forecast"
    ],
    "why": "Fixed, register 362 — three controls failing while printing SKIPPED (guarded !COHORT || property, so they fire only when it exists), plus a keeper-lock identity lookup. B routed it 08-19. 22/22."
+  },
+  {
+   "date": "2026-08-27",
+   "by": "A",
+   "removed": [
+    "seat_plan_contract"
+   ],
+   "why": "Fixed, register 363 — the orphan-plan demotion covered bench seats only and the contradiction reached starter seats. Orphans 2 -> 0."
   }
  ]
 }
