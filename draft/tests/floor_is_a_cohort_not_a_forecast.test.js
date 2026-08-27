@@ -122,7 +122,18 @@ ck('a player mid-band gets the cohort line but NOT the edge warning',
   const BOARD2 = path.join(ROOT, 'public', 'draft_data.json');
   const art2 = fs.existsSync(BOARD2) ? JSON.parse(fs.readFileSync(BOARD2, 'utf8')) : null;
   if (art2) {
-    const all2 = art2.players || [];
+    /* ⚠️ LOOKED UP IN `players` ALONE, AND ONE OF THE TWO IS A KEEPER. Ashton
+     * Jeanty went to slot 1 at the 2026-08-23 lock, so he left `players` and
+     * `falsePos.length === 2` could no longer be satisfied — the pin failed on
+     * the man being kept, not on the guard flagging him.
+     *
+     * This is an IDENTITY lookup, not an availability one: the question is
+     * "does the guard flag these two players", which does not stop being
+     * askable because one of them is off the draftable board. So the union is
+     * correct here — and it is the population the E1 ruling names anyway
+     * ("full-universe rank band, players + keepers, by proj_mean"), which is
+     * what `dispersionCaveat` is being asked to reproduce. Register 362. */
+    const all2 = (art2.players || []).concat(art2.kept_players || []);
     const falsePos = ['Ashton Jeanty', 'Kyle Pitts']
       .map(n => all2.find(p => p.name === n)).filter(Boolean);
     ck('CALIBRATION PIN: the two players a looser (0.5) factor falsely flagged '
@@ -183,11 +194,52 @@ else {
  * outlived by a data change nobody re-pointed it at.
  *
  * So the three controls become conditional on the cohort existing, and the
- * property that DOES matter on today's board is asserted instead, below. */
-const MEASURED_COHORT_EXISTS = (art.players || []).some(p =>
+ * property that DOES matter on today's board is asserted instead, below.
+ *
+ * ⚠️⚠️ CORRECTED 2026-08-27 — "ZERO players carry one" STOPPED BEING TRUE AND THE
+ * THREE CONTROLS WENT RED WHILE PRINTING THE WORD "SKIPPED" IN THEIR OWN LABELS.
+ * They are guarded `!MEASURED_COHORT_EXISTS || <property>`, so they can only
+ * fail when the cohort DOES exist — which means the label a reader saw beside
+ * the failure was the opposite of what had happened.
+ *
+ * THE COHORT CAME BACK, AND IT IS THREE UNDRAFTABLE MEN: Jack Velling (TE103,
+ * ADP 535), Dante Pettis (WR165, ADP 526), David Moore (WR181, ADP 577) — the
+ * SAME three the ceiling side turned up on the 08-25 rebuild (register 355 ⑨).
+ * One cause seen twice: they are new to the board, Draft Sharks carries no band
+ * for them and neither did the prior board, so they fall through to the measured
+ * cell — which is a live THIRD fallback in `projections.py`, not dead code, and
+ * calling it gone was always one rebuild away from being wrong.
+ *
+ * SO THE GATE IS SCOPED TO REACH RATHER THAN EXISTENCE, exactly as
+ * `ceiling_source_window.test.js` was on the same day and for the same reason:
+ * what matters is whether a measured-cohort band prices anyone the league can
+ * DRAFT, at the depth the board itself declares. It prices nobody. The residue
+ * is PRINTED every run so a walk back toward a real cohort is visible in the log
+ * before it is a failure, and the controls skip on a TRUE label instead of a
+ * false one. Register 362. */
+const DRAFTABLE_DEPTH = ((art.pick_order || {}).picks || []).length;
+const _adpOf = p => Number(p.adjusted_adp != null ? p.adjusted_adp
+  : (p.raw_adp != null ? p.raw_adp : p.adp));
+const MEASURED_ROWS = (art.players || []).filter(p =>
   /^measured-/.test(String(p.proj_floor_source || '')));
+const MEASURED_DRAFTABLE = MEASURED_ROWS.filter(p => {
+  const a = _adpOf(p);
+  return !Number.isFinite(a) || a <= DRAFTABLE_DEPTH;
+});
+console.log('      measured-cohort floor residue: ' + MEASURED_ROWS.length + ' of '
+  + (art.players || []).length + ' board players, ' + MEASURED_DRAFTABLE.length
+  + ' inside the ' + DRAFTABLE_DEPTH + '-pick draftable depth'
+  + (MEASURED_ROWS.length ? ' (' + MEASURED_ROWS.map(p => p.position + p.pos_rank
+    + ' @' + _adpOf(p)).join(', ') + ')' : ''));
+ck('CONTROL: the board declares how deep the room drafts, so the scope below is '
+  + 'derived rather than a number I chose', DRAFTABLE_DEPTH > 0, DRAFTABLE_DEPTH);
+ck('no measured-cohort floor prices anyone the league can DRAFT — the cohort is '
+  + 'not gone (it is a live third fallback) but it does not reach his board',
+  MEASURED_DRAFTABLE.length === 0,
+  MEASURED_DRAFTABLE.map(p => p.position + p.pos_rank + ' ' + p.name + ' @' + _adpOf(p)));
+const MEASURED_COHORT_EXISTS = MEASURED_DRAFTABLE.length > 0;
   ck('KNOWN-POSITIVE: the live board really does contain adjacent-rank floor cliffs '
-    + '(SKIPPED — no measured-cohort band ships any more; see the header)',
+    + '(SKIPPED while no measured-cohort band reaches the draftable board; see the header)',
     !MEASURED_COHORT_EXISTS || cliffs.length > 0,
     cliffs.map(c => c.pos + ': ' + c.hi.name + ' -> ' + c.lo.name));
 
@@ -219,7 +271,7 @@ const MEASURED_COHORT_EXISTS = (art.players || []).some(p =>
   classified.map(c => c.who + ' edge=' + c.edge + ' repriced=' + c.repriced
     + ' penny=' + c.penny));
   ck('and both ON-SCREEN causes are actually present, so neither branch is dead '
-    + 'code (SKIPPED — no measured-cohort band ships any more)',
+    + 'code (SKIPPED while no measured-cohort band reaches the draftable board)',
     !MEASURED_COHORT_EXISTS || (classified.some(c => c.edge) && classified.some(c => c.repriced)),
     classified.map(c => c.who + ' edge=' + c.edge + ' repriced=' + c.repriced));
 
@@ -247,7 +299,7 @@ const MEASURED_COHORT_EXISTS = (art.players || []).some(p =>
     .filter(p => /register E1, ruled/.test(dispersionCaveat(p, all)))
     .map(p => p.position + p.pos_rank + ' ' + p.name));
   ck('KNOWN-POSITIVE: the ruled repricing set is non-empty on the live board '
-    + '(keepers really do shift bands) — SKIPPED while no measured cohort ships',
+    + '(keepers really do shift bands) — SKIPPED while no measured cohort reaches the draftable board',
     !MEASURED_COHORT_EXISTS || expected.size > 0, [...expected]);
   ck('the repricing warning fires on exactly the ruled set — every player '
     + 'whose full-universe band differs from his published band, and no other',

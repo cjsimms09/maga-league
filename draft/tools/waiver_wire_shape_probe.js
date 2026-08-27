@@ -51,8 +51,52 @@ const taken = new Set(LOG.map(r => String(r.player_id)));
 const MY_SLOT = Number(CFG.my_draft_slot);
 const enrich = p => ({ player_id: String(p.player_id), name: p.name, position: p.position,
                        proj_mean: p.proj_mean, bye: p.bye, vorp: p.vorp || 0 });
-const roster = LOG.filter(r => Number(r.team_slot) === MY_SLOT)
-  .map(r => byId[String(r.player_id)]).filter(Boolean).map(enrich);
+/* ⚠️ THE ROSTER SOURCE MOVED ON 2026-08-25 AND THIS PROBE WOULD HAVE GONE
+ * QUIETLY STALE. The 8-kicker finding was measured off the DRAFT PICK LOG, which
+ * is a record of the draft and NOT a roster: it stopped describing what Cory owns
+ * the moment he made his first waiver claim. He added Harrison Mevis (K) and
+ * swapped Oronde Gadsden for Kenyon Sadiq (TE) in week 1.
+ *
+ * So the LIVE roster is read from `league_history.json`'s `final_rosters` while
+ * the season is in progress, and the pick log is the FALLBACK for the pre-season
+ * state the original finding was taken in. The source is printed, because
+ * "which roster was this measured on" is the first question about any number here. */
+/* ⚠️ AND `final_rosters` IS ITSELF A WEEKLY SNAPSHOT — `league-history-export.yml`
+ * runs `cron: '0 11 * * 2'`, TUESDAYS ONLY. So this source is current on a
+ * Tuesday and up to SEVEN DAYS behind on a Monday, across exactly the waiver and
+ * game cycle. Repointing at it fixed a stale pick log and introduced a slower
+ * staleness one source over, so the age is printed rather than implied. The LIVE
+ * site does not have this problem: it reads Sleeper directly. */
+function ageNote(builtAt) {
+  if (!builtAt) return 'age unknown';
+  const days = (Date.now() - Date.parse(builtAt)) / 86400000;
+  if (!isFinite(days)) return 'age unknown';
+  if (days < 1.5) return 'CURRENT (' + (24 * days).toFixed(0) + 'h old)';
+  return '⚠️ ' + days.toFixed(1) + ' DAYS OLD — the export runs Tuesdays only, so '
+    + 'any add or drop since then is invisible here';
+}
+function liveRoster() {
+  try {
+    const hist = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data', 'league_history.json'), 'utf8'));
+    const s = (hist.seasons || []).find(x => String(x.season) === '2026');
+    if (!s || s.status !== 'in_season') return null;
+    const rid = Object.keys(s.owners || {})
+      .find(k => ((s.owners[k] || {}).display_name) === 'coryjsimms');
+    if (!rid) return null;
+    const r = (s.final_rosters || []).find(x => String(x.roster_id) === String(rid));
+    return (r && (r.players || []).length)
+      ? { ids: r.players.map(String),
+          source: 'league_history final_rosters, built ' + (hist.built_at || '?')
+            + ' — ' + ageNote(hist.built_at) }
+      : null;
+  } catch (e) { return null; }
+}
+const liveRos = liveRoster();
+const ROSTER_SOURCE = liveRos ? liveRos.source
+  : 'draft pick log — PRE-SEASON, seat ' + MY_SLOT + ' (no live roster available)';
+const rosterIds = liveRos ? liveRos.ids
+  : LOG.filter(r => Number(r.team_slot) === MY_SLOT).map(r => String(r.player_id));
+const roster = rosterIds.map(id => byId[id]).filter(Boolean).map(enrich);
 const freeAgents = avail.filter(p => !taken.has(String(p.player_id))).map(enrich);
 
 function shape(rows) {
@@ -62,9 +106,11 @@ function shape(rows) {
 }
 
 console.log('CONTROLS');
-ok('C1', roster.length === 15, 'roster at seat ' + MY_SLOT + ' from the pick log = ' + roster.length + ' (want 15)');
-ok('C2', !roster.some(p => p.position === 'K'),
-   'precondition: the roster has NO kicker — ' + JSON.stringify(shape(roster)));
+console.log('  roster source: ' + ROSTER_SOURCE);
+ok('C1', roster.length >= 15, 'roster resolves to ' + roster.length + ' players');
+const noK = !roster.some(p => p.position === 'K');
+ok('C2', true, 'kicker on the roster? ' + (noK ? 'NO — the flood precondition holds'
+   : 'YES — the flood precondition is GONE, and that is the point') + '  ' + JSON.stringify(shape(roster)));
 
 const live = W.evaluateClaims(freeAgents, roster, DATA.league, {});
 const shown = live.claims.filter(c => c.net_value > 0).slice(0, SHOWN);
@@ -80,8 +126,10 @@ const withK = W.evaluateClaims(freeAgents.filter(p => p.player_id !== bestK.play
 const shownWithK = withK.claims.filter(c => c.net_value > 0).slice(0, SHOWN);
 const kNow = shown.filter(c => c.position === 'K').length;
 const kThen = shownWithK.filter(c => c.position === 'K').length;
-ok('C3', kNow === SHOWN && kThen < SHOWN,
-   'give him one kicker and the flood clears: ' + kNow + '/' + SHOWN + ' -> ' + kThen + '/' + SHOWN);
+ok('C3', noK ? (kNow === SHOWN && kThen < SHOWN) : (kNow < SHOWN),
+   noK ? ('give him one kicker and the flood clears: ' + kNow + '/' + SHOWN + ' -> ' + kThen + '/' + SHOWN)
+       : ('he HAS a kicker now, so the flood is gone on its own: ' + kNow + '/' + SHOWN
+          + ' onesies in the block — which is exactly what C3 predicted'));
 
 if (fails.length) { console.log('\n*** ' + fails.length + ' control(s) failed — output void ***'); process.exit(1); }
 

@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 360,
+ "next_numeric_id": 364,
  "history": [
   {
    "id": 47,
@@ -994,6 +994,23 @@
   },
   {
    "id": 359,
+   "claimed_at": "2026-08-27"
+  },
+  {
+   "id": 360,
+   "claimed_at": "2026-08-27"
+  },
+  {
+   "id": 361,
+   "claimed_at": "2026-08-27",
+   "note": "D: props weekly backtest prereg; renumbered from 360 which main printed first"
+  },
+  {
+   "id": 362,
+   "claimed_at": "2026-08-27"
+  },
+  {
+   "id": 363,
    "claimed_at": "2026-08-27"
   }
  ]

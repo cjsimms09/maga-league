@@ -368,23 +368,62 @@ plan.forEach(x => {
    * than presented as the recommendation, and the shortlist stands. A row that
    * shows a name its own list does not contain is not a disagreement a reader
    * can resolve — it is the screen contradicting itself. */
+  /* ⚠️ THE DEMOTION BELOW COVERED BENCH SEATS ONLY, AND THE CONTRADICTION
+   * REACHED STARTER SEATS TOO — measured 2026-08-27 on the shipped artifact:
+   * pick 33 named WR Davante Adams over a shortlist of Flowers/Wilson/Smith/
+   * McMillan/Egbuka, and pick 48 named RB Rhamondre Stevenson over Swift/
+   * Montgomery/Tuten/Williams/McLaurin. Neither man is in his own list.
+   *
+   * SAME PRINCIPLE, DIFFERENT SECOND VALUATION. On a bench row the disagreement
+   * is realized-wire vs preseason best-undrafted. On a STARTER row it is the
+   * plan's option value vs raw projection — this file says so twenty lines up
+   * ("A STARTER SEAT still ranks on projection, and that is not an oversight").
+   * Both are honest disagreements between two defensible rankings, and in both
+   * cases the row as rendered says something a reader cannot resolve. The rule
+   * this file already wrote for bench is not bench-specific:
+   *
+   *     "A row that shows a name its own list does not contain is not a
+   *      disagreement a reader can resolve — it is the screen contradicting
+   *      itself."
+   *
+   * So `planInList` now gates BOTH kinds, and `superseded_plan_player` carries
+   * the reason appropriate to the seat rather than the bench reason for
+   * everything.
+   *
+   * ⚠️⚠️ AND THE SHORTLIST IS NOT THE PROBLEM — I MEASURED THAT WRONG FIRST.
+   * My first pass compared each shortlist entry's ADP against the seat's PICK
+   * NUMBER and reported "43 of 60 already gone, 5 of 5 at picks 33 and 48". That
+   * is the scale confusion this file's own comment at `liveBefore` names in as
+   * many words — "a count of SELECTIONS and a BOARD position are different
+   * quantities" — and in a keeper league they differ by 23. Re-measured against
+   * `liveBefore(pick)`, which is what `gone` actually uses: **0 of 60 shortlist
+   * entries are gone by their own seat.** The survival filter is correct at
+   * every seat. Register 363. */
   const planInList = x.p && short.some(q => q.player_id === String(x.p.player_id));
   seats.push({
     pick: x.pick,
     slot: x.bench ? 'BENCH' : x.slot,
     is_starter_seat: !x.bench,
     unpriced: !!x.unpriced,
-    plan_player: (x.p && (!x.bench || planInList))
+    plan_player: (x.p && planInList)
       ? { player_id: String(x.p.player_id), name: x.p.name, position: x.p.position } : null,
     /* Kept, never dropped: "the plan named nobody" and "the plan named someone
      * on a line since superseded" are different facts. */
-    superseded_plan_player: (x.p && x.bench && !planInList)
+    superseded_plan_player: (x.p && !planInList)
       ? { player_id: String(x.p.player_id), name: x.p.name, position: x.p.position,
-          why: 'draft_plan chose him on the PRESEASON best-undrafted waiver line. '
-            + 'This shortlist ranks on the REALIZED wire (764 measured acquisitions), '
-            + 'which is the line that makes the roster-spot rule computable and the '
-            + 'one that changes answers. He is not in the list because the two lines '
-            + 'genuinely disagree here.' } : null,
+          why: x.bench
+            ? ('draft_plan chose him on the PRESEASON best-undrafted waiver line. '
+              + 'This shortlist ranks on the REALIZED wire (764 measured acquisitions), '
+              + 'which is the line that makes the roster-spot rule computable and the '
+              + 'one that changes answers. He is not in the list because the two lines '
+              + 'genuinely disagree here.')
+            : ('draft_plan chose him on OPTION VALUE against the next pick; a starter '
+              + 'shortlist ranks on season projection, which this file keeps on purpose '
+              + 'because position-constrained candidates are already comparable. He '
+              + 'survives to this pick and is a legitimate choice — he is simply not '
+              + 'top-five on the projection ranking, so the two orderings disagree. '
+              + 'He is NOT excluded for being unavailable: 0 of 60 shortlist entries '
+              + 'are gone by their own seat.') } : null,
     plan_value: x.unpriced ? null : Math.round(x.v * 10) / 10,
     shortlist: short,
     gap_to_second: gap,

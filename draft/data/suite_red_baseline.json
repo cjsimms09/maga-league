@@ -8,19 +8,16 @@
   "This file never makes CI pass. The JS suite step still exits non-zero while anything is failing -- see ci.yml. A permanently green build with 32 broken suites is the decay this whole exercise was about."
  ],
  "_baseline_taken": "2026-08-26",
- "count": 12,
+ "count": 9,
  "suites": [
   "barbell_policy",
   "draft_alert_lifecycle",
-  "draft_shape",
   "draft_turn_email",
   "engine_ablation",
-  "floor_is_a_cohort_not_a_forecast",
   "member_copy",
   "member_email_policy",
   "pickem_surface",
   "roster_room_audit",
-  "seat_plan_contract",
   "sidebet_lifecycle_gate"
  ],
  "_ratchet_log": [
@@ -44,6 +41,30 @@
    ],
    "why": "Tightened after fixing them. withheld_slate_exposure (register 350), source_rerank_is_real and vona_wire_bench (register 351 ③④); keeper_option_floor and ui_fidelity_verdict were already passing and had simply never been removed. 24 suites red at the start of this session, 13 now.",
    "note": "register_recheck_check is DELIBERATELY NOT ADDED. It is red because 80-odd register rows are past their own recheck dates, which is the debt it exists to make visible; putting it in the baseline would mute the one alarm in this repo whose whole job is to refuse to be ignored."
+  },
+  {
+   "date": "2026-08-27",
+   "by": "A",
+   "removed": [
+    "draft_shape"
+   ],
+   "why": "Fixed, register 360 — a second unswept instance of the keeper-lock roster defect plus two pinned counts Cory's own completed draft broke. 44/44."
+  },
+  {
+   "date": "2026-08-27",
+   "by": "A",
+   "removed": [
+    "floor_is_a_cohort_not_a_forecast"
+   ],
+   "why": "Fixed, register 362 — three controls failing while printing SKIPPED (guarded !COHORT || property, so they fire only when it exists), plus a keeper-lock identity lookup. B routed it 08-19. 22/22."
+  },
+  {
+   "date": "2026-08-27",
+   "by": "A",
+   "removed": [
+    "seat_plan_contract"
+   ],
+   "why": "Fixed, register 363 — the orphan-plan demotion covered bench seats only and the contradiction reached starter seats. Orphans 2 -> 0."
   }
  ]
 }
