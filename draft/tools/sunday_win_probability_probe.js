@@ -136,6 +136,31 @@ function run() {
   console.log('\n  The swap is worth ~4x more at 11am than at 1pm, unchanged in every way');
   console.log('  except the clock. And below a ~1.0-point edge the alert STOPS MENTIONING');
   console.log('  it mid-Sunday and starts again afterwards.');
+  /* ---- WHAT EACH FIX ACTUALLY COSTS -------------------------------------
+   * The matchup card's precedent is REFUSE (member.js:2812). On this page that
+   * means `oppMean: 0`, which lineup.js:494 documents as "0 disables the matchup
+   * term". It is supported and it is not free -- measured below, so B decides
+   * with the number rather than the principle. */
+  console.log('\n  WHAT EACH OPTION COSTS — the same roster, mid-Sunday');
+  const opt = (label, oppMean, oppSd) => {
+    const out = LO.optimize(ROSTER.map(r => Object.assign({}, r)),
+      { band, sigmaByPos, oppMean, oppSd, current: CURRENT });
+    let posture = '';
+    try { const wp = LO.weeklyPosture(out, band); posture = (wp && (wp.headline || wp.label || wp.text)) || ''; }
+    catch (e) { posture = '(unavailable)'; }
+    console.log('  ' + pad(label, 32)
+      + pad(out.ev.pWin != null ? (100 * out.ev.pWin).toFixed(1) + '%' : '—', 9)
+      + pad('$' + out.ev.dollars.toFixed(2), 11) + posture);
+  };
+  opt('hold the pre-kick estimate', typical.median, typical.sd);
+  opt('REFUSE (oppMean 0)', 0, undefined);
+  opt('today — substitute the partial', 40, undefined);
+  console.log('\n  Refusing removes the wrong probability and is NOT free: the dollar');
+  console.log('  figure collapses ~10x because the matchup term carried most of it, and');
+  console.log('  the headline still ASSERTS something ("no chase this week") rather than');
+  console.log('  saying the matchup cannot be priced mid-game. There is no "we cannot');
+  console.log('  say" state on this surface, and that is the real gap behind all three.');
+
   console.log('\n  ⚠️ The silent case is CONSTRUCTED to sit near the $0.50 bar and is not');
   console.log('  claimed as typical. The 4x swing in the dollar value is unconditional,');
   console.log('  and the bar is real, so some swap lands in that band most weeks.');

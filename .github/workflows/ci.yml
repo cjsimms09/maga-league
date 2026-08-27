@@ -541,6 +541,30 @@ jobs:
         if: always()
         run: git fetch --all --quiet && node draft/tools/lane_status.js || true
 
+      - name: Claimed shas — does the evidence point at a commit anyone can see (REPORT ONLY)
+        # Register 254's structural half, built 2026-08-27. The row asked for a
+        # BLOCKING rule ("an item whose text says PUSHED must name a sha that is
+        # an ancestor of main"), and this project's own record says that rule is
+        # wrong three times over: 249 and 254 were both DELIVERED by a different
+        # commit than the one they named, and 204 was the reverse — the files
+        # landed by another route while the guard genuinely had not. So
+        # not-an-ancestor is not not-delivered, and a blocking check would have
+        # reddened main over two finished pieces of work.
+        #
+        # It reports three states instead of one boolean, and the one worth
+        # seeing is UNRESOLVABLE: a sha on no ref at all, which nobody can check
+        # now or later. Measured on the day it was wired: 9 distinct shas, 4 on
+        # main, 1 off it, and FOUR that exist nowhere after fetching every branch.
+        #
+        # `git fetch --all` FIRST and then report — on the first run five read as
+        # unresolvable and one came back once every branch was fetched, so the
+        # bucket is only meaningful against a full clone. `|| true` for the same
+        # reason as the step above: a visibility aid that can redden main becomes
+        # a thing people delete. Its controls are enforced by
+        # draft/tests/claimed_sha_check.test.js, which the JS glob already runs.
+        if: always()
+        run: git fetch --all --quiet && node draft/tools/claimed_sha_check.js || true
+
       - name: Guard — every critical step actually ran (no silent skips)
         if: always()
         # Outcomes are success/failure/skipped/cancelled. A real failure is reported by

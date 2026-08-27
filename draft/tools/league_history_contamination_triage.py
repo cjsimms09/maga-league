@@ -32,11 +32,49 @@ def artifacts():
             except Exception: pass
     return d
 
+def runner(mod):
+    """How this file is executed. A pytest test invoked as a plain script exits
+    0 having run nothing, and a .js file handed to python errors instantly --
+    either way the arm executes nothing and the module reports as clean. That
+    is a silent all-clear from a probe that never ran, so the sweep ships a
+    pytest-path control and this dispatch is shared by both scripts."""
+    if mod.endswith(".js"):
+        return ["node", mod]
+    b = os.path.basename(mod)
+    if b.startswith("_lh_ctl_pytest"):
+        return [sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", mod]
+    if "/tests/" in mod and b.startswith("test_"):
+        return [sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", mod]
+    return [sys.executable, mod]
+
+
+def reset_artifacts():
+    """Put the artifacts back between arms -- and NOTHING ELSE. This was
+    `git checkout -- .`, which reverted every dirty tracked file including
+    THIS SCRIPT: an uncommitted fix to the runner dispatch was erased by the
+    first arm, so the second arm ran the old code and all three flipping tests
+    reported "no difference". A probe that edits itself out of existence
+    mid-run reports a clean all-clear, which is the failure this whole sweep
+    exists to find. draft/tools is excluded explicitly."""
+    out = subprocess.run(["git", "status", "--porcelain"], cwd=ROOT,
+                         capture_output=True, text=True).stdout
+    paths = []
+    for line in out.split("\n"):
+        if not line.strip() or line.startswith("??"):
+            continue
+        p = line[3:].strip().strip('"')
+        if p.startswith("draft/tools/") or "league_history.json" in p:
+            continue
+        paths.append(p)
+    if paths:
+        subprocess.run(["git", "checkout", "--"] + paths, cwd=ROOT, capture_output=True)
+
+
 def run(mod, store):
-    subprocess.run(["git", "checkout", "--", "."], cwd=ROOT, capture_output=True)
+    reset_artifacts()
     shutil.copy(store, STORE)
     try:
-        p = subprocess.run([sys.executable, mod], cwd=ROOT, capture_output=True, timeout=TIMEOUT)
+        p = subprocess.run(runner(mod), cwd=ROOT, capture_output=True, timeout=TIMEOUT)
         out = scrub(p.stdout.decode("utf8", "replace") + p.stderr.decode("utf8", "replace"))
     except subprocess.TimeoutExpired:
         out = "<TIMEOUT>"
@@ -63,5 +101,5 @@ try:
         if not d and not (set(aa.items()) ^ set(ba.items())):
             print("   (no difference on re-run — check for nondeterminism)")
 finally:
-    subprocess.run(["git", "checkout", "--", "."], cwd=ROOT, capture_output=True)
+    reset_artifacts()
     shutil.copy(REAL, STORE)

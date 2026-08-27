@@ -217,7 +217,17 @@ everyone" is the reference implementation's position, not a preference.**
 Register 99. **The simple VONA model he asked for is also already ours:
 `draft/tools/draft_plan.js` — two equations, exact seat assignment, and on his
 real twelve picks it is the ONLY arm of five that draws a second TE and a
-backup QB (QB2/RB5/WR4/TE2). It has never been graded.**
+backup QB (QB2/RB5/WR4/TE2).** ~~It has never been graded.~~ **⚠️ CORRECTED
+2026-08-27 — THAT SENTENCE IS FALSE AND IT WAS RETRACTED EIGHT DAYS AGO, in
+`DUPLICATE-A-REAL-MODEL-2026-08-19.md` §12 (*"⛔ RETRACTION … the grade has been
+on the board all along"*) and in the paragraph three screens up in THIS file,
+which already tells the story as *"an absence asserted without a grep"*.
+`draft_plan.js` has two grades and one of them is in `public/seat_plan.json`,
+which the war room reads — `emit_seat_plan.js:48` requires the module directly.
+Register 102. **THE RETRACTION LANDED IN TWO PLACES AND MISSED A THIRD, and the
+third is the sentence a new session actually acts on** — which is register 5h's
+mechanism applied to a claim instead of a weight. Found by working the recheck
+backlog, not by anyone reading the file.**
 
 **⭐ READ `DRAFT-WEEK-BRIEF.md` FIRST** (written 2026-08-17; draft is 08-22).
 08-17 changed the model's FOUNDATIONS, not its features: every dispersion field
