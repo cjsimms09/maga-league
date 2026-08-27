@@ -8,11 +8,9 @@
     "This file never makes CI pass. The JS suite step still exits non-zero while anything is failing -- see ci.yml. A permanently green build with 32 broken suites is the decay this whole exercise was about."
   ],
   "_baseline_taken": "2026-08-26",
-  "count": 3,
+  "count": 1,
   "suites": [
-    "draft_alert_lifecycle",
-    "engine_ablation",
-    "member_copy"
+    "engine_ablation"
   ],
   "_ratchet_log": [
     "2026-08-24: -inseason_explainers, fixed by B and taken in the warroom-shell-rebuild merge. It checked member.js for the K/DEF claims filter and failed regardless of B’s change -- the filter had already moved to src/waiver_reco.js in an earlier same-day extraction that never updated the test. B confirmed the staleness via git stash before touching it and DISCLOSED the one-line TERRITORY: A trespass rather than quietly fixing it. Re-verified green on the rebased tree (this entry was lost once to a rebase and re-applied).",
@@ -93,6 +91,15 @@
         "draft_turn_email"
       ],
       "why": "Fixed, register 367 — neither was a policy breach. member_email_policy red because notify.js exports one extra symbol, tuesdayWire, which is a WAIVER REMINDER and so reads as exactly what Cory 2026-08-11 forbade; verified commissioner-only two ways (notify.js filters o.is_commissioner && o.active and returns {skipped:\"not-commissioner\"}, and its kind is not in MEMBER_KINDS), admitted to ALLOWED WITH a containment control so the entry cannot outlive its reason. 48/48. draft_turn_email red with 302 /draft?error=The draft room is closed: the one-time post-draft migration in loadWorld (src/helpers.js:151-166, guarded by config.draft2026_closed) sets seasons[2026].draft_open=false, so ensureSeeded()'s true never survived the request. Fixture now marks the migration DONE before opening the room rather than defeating it. 18/18."
+    },
+    {
+      "date": "2026-08-27",
+      "by": "A",
+      "removed": [
+        "draft_alert_lifecycle",
+        "member_copy"
+      ],
+      "why": "Fixed, register 369 — both were fixtures out of step with production, neither was a code defect. draft_alert_lifecycle: the one-time post-draft migration in loadWorld fired inside the suite's LOGIN POST and retired the very alert arm one asserts; the member-route heal restores it, but only from the request after. Measured both directions: seeded active=true, flag unset leaves it false and the next GET renders nothing, flag set renders. Fixture now states the migration has happened. 16/16. member_copy: the same missing season_type as register 366 in a THIRD fixture, which is that row's own follow-up (1) — member.js:2922 ignores every score without it, so the pickem slate never locked and the arm asserting the graded copy was reading the open slate. 23/23. SWEPT ALL 25 remaining bundle-building suites with a controlled stamp: 25/25 unaffected, so member_copy was the last one."
     }
   ]
 }
