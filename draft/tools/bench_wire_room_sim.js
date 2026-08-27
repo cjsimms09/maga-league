@@ -83,11 +83,26 @@ function gaussian(rng) {
 
 const board = LC.loadBoard();
 const ALL = board.players;
-const KEEPERS = board.kept_players;
+/* ⚠️ SAME TWO DEFECTS AS `draft/backtest/roster_room_audit.js`, WHICH WAS COPIED
+ * FROM THIS FILE — and the copy was partially corrected while the original was
+ * not. Register 364's follow-up asked whether the source carried them; it does.
+ * Fixed 2026-08-27, register 364.
+ *
+ * ONE FIELD, TWO POPULATIONS, different since the 2026-08-23 league-wide lock:
+ * `kept_players` was Cory's three and is now all 23 across 9 seats. Marking
+ * players OFF THE BOARD wants all of them and is correct; seeding MY ROSTER
+ * wants mine. */
+const ALL_KEPT = board.kept_players || [];
 const LEAGUE = board.league;
 const ORDER = board.pick_order;
 const MY_SLOT = LEAGUE.my_draft_slot;
 const MY_PICKS = (ORDER.my_picks || []).slice();
+const MY_KEPT = ALL_KEPT.filter(k => Number(k.team_slot) === Number(MY_SLOT));
+if (!MY_KEPT.length || MY_KEPT.length >= ALL_KEPT.length) {
+  throw new Error('bench_wire_room_sim: expected MY keepers to be a strict, non-empty '
+    + 'subset of the league slate (' + MY_KEPT.length + ' of ' + ALL_KEPT.length
+    + '). REFUSING to simulate — register 364.');
+}
 const TOTAL = (ORDER.picks || []).length;
 
 // Noisy-ADP opponent: real ADP, perturbed by a seeded Gaussian draw scaled to
@@ -108,8 +123,8 @@ function opponentPick(pool, rng) {
 function runRoom(seed, slotAware, wireBenchOn) {
   const rng = mulberry32(seed);
   const drafted = new Set();
-  KEEPERS.forEach(k => drafted.add(String(k.player_id)));
-  let myRoster = KEEPERS.map(k => Object.assign({}, k, { is_keeper: true }));
+  ALL_KEPT.forEach(k => drafted.add(String(k.player_id)));   // availability: all 23
+  let myRoster = MY_KEPT.map(k => Object.assign({}, k, { is_keeper: true }));
   const picksLog = [];
 
   // VONA_SLOT_AWARE must be ON for either bench-formula arm — the bench
@@ -130,7 +145,18 @@ function runRoom(seed, slotAware, wireBenchOn) {
       const pick = MY_PICKS[i];
       const next = MY_PICKS[i + 1] || null;
       let pool = ALL.filter(p => !drafted.has(String(p.player_id)));
-      const before = i === 0 ? pick - 1 : pick - MY_PICKS[i - 1] - 1;
+      /* ⚠️ `pick - prev - 1` IS BOARD-POSITION ARITHMETIC WHERE A COUNT OF
+       * SELECTIONS IS WANTED, and `roster_room_audit.js`'s header already
+       * named this formula as the thing it deviated from — it removed the 3
+       * phantom players Cory's own keeper slots produced. Post-lock the gap is
+       * bigger: at pick 33 this gives 32 opponent selections where only NINE
+       * are live, so twenty-three phantom opponents strip the board before his
+       * first pick. `keeper_slot` is on every row of `pick_order.picks`, so the
+       * honest filter is the field itself — the same one
+       * `emit_seat_plan.js:liveBefore` uses. */
+      const prevPick = i === 0 ? 0 : MY_PICKS[i - 1];
+      const before = (ORDER.picks || []).filter(r => r.overall > prevPick
+        && r.overall < pick && r.slot !== MY_SLOT && !r.keeper_slot).length;
       for (let k = 0; k < before; k++) {
         const p = opponentPick(pool, rng);
         if (!p) break;

@@ -73,11 +73,31 @@ function gaussian(rng) {
 
 const board = LC.loadBoard();
 const ALL = board.players;
-const KEEPERS = board.kept_players;
+/* ⚠️ ONE FIELD, TWO POPULATIONS, AND THEY STOPPED BEING THE SAME SET ON
+ * 2026-08-23. `kept_players` was Cory's three before the league-wide lock; it is
+ * now all 23 across 9 seats, and this file uses it for two things that need
+ * DIFFERENT answers:
+ *
+ *   · marking players OFF THE BOARD  -> all 23 is CORRECT. Every league keeper
+ *     is genuinely undraftable, so `ALL_KEPT` stays the full slate.
+ *   · seeding MY ROSTER              -> only mine. `MY_KEPT` is seat-filtered.
+ *
+ * Unfiltered, `rosterSize` came out 35 (12 live picks + 23), and every legality
+ * and flex measurement this audit produced since the lock was taken against a
+ * roster holding twelve running backs and nine receivers belonging to other
+ * teams. Register 364. */
+const ALL_KEPT = board.kept_players || [];
 const LEAGUE = board.league;
 const ORDER = board.pick_order;
 const MY_SLOT = LEAGUE.my_draft_slot;
 const MY_PICKS = (ORDER.my_picks || []).map(p => (p.overall != null ? p.overall : p));
+const MY_KEPT = ALL_KEPT.filter(k => Number(k.team_slot) === Number(MY_SLOT));
+if (!MY_KEPT.length || MY_KEPT.length >= ALL_KEPT.length) {
+  throw new Error('roster_room_audit: expected MY keepers to be a strict, non-empty '
+    + 'subset of the league slate (' + MY_KEPT.length + ' of ' + ALL_KEPT.length
+    + '). REFUSING to simulate — seeding the league\'s slate as one roster is the '
+    + 'defect register 364 is about, and it produced rosterSize 35.');
+}
 const PICKS = ORDER.picks || [];
 const STARTERS = { QB: 1, RB: 2, WR: 2, TE: 1, K: 1, DEF: 1 }; // + 1 FLEX
 const FLEX_ELIG = { RB: true, WR: true, TE: true };
@@ -133,8 +153,8 @@ function optimalLineup(roster) {
 function runRoom(seed, arm) {
   const rng = mulberry32(seed);
   const drafted = new Set();
-  KEEPERS.forEach(k => drafted.add(String(k.player_id)));
-  const myRoster = KEEPERS.map(k => Object.assign({}, k, { is_keeper: true }));
+  ALL_KEPT.forEach(k => drafted.add(String(k.player_id)));   // availability: all 23
+  const myRoster = MY_KEPT.map(k => Object.assign({}, k, { is_keeper: true }));
   const picksLog = [];
   const tieLog = [];
   let prevPick = 0;
@@ -144,8 +164,19 @@ function runRoom(seed, arm) {
     const next = MY_PICKS[i + 1] || null;
     // Opponent picks between my previous live pick and this one — only slots
     // that are not mine (my keeper-consumed slots draft nobody).
+    /* ⚠️ AND THE OPPONENTS WERE OVER-COUNTED BY THE SAME LOCK. This filtered on
+     * slot ownership alone, which removed MY three keeper-consumed slots and
+     * nobody else's — correct when I was the only owner with keepers. Post-lock
+     * 23 of the 150 rows are `keeper_slot`, so before pick 33 this counted
+     * TWENTY-NINE opponent selections where only NINE are live, and twenty
+     * phantom opponents stripped the board before Cory's first pick.
+     *
+     * `keeper_slot` is on every row of `pick_order.picks`, so the honest filter
+     * is the field itself rather than a proxy for it — the same one
+     * `emit_seat_plan.js:liveBefore` already uses. It subsumes the deliberate
+     * deviation the header describes: my keeper slots ARE keeper slots. */
     const oppSlots = PICKS.filter(p => p.overall > prevPick && p.overall < pick
-      && p.slot !== MY_SLOT).length;
+      && p.slot !== MY_SLOT && !p.keeper_slot).length;
     let pool = ALL.filter(p => !drafted.has(String(p.player_id)));
     for (let k = 0; k < oppSlots; k++) {
       const p = opponentPick(pool, rng);
@@ -304,7 +335,7 @@ const tieByPick = MY_PICKS.map((pick, i) => {
 // or a keeper (keepers were never labeled by a pick), or someone labeled
 // otherwise (disagreement worth reading).
 const flexRows = rooms.shipped.filter(r => !r.crashed && r.flexOptimal);
-const keeperNames = new Set(KEEPERS.map(k => k.name));
+const keeperNames = new Set(MY_KEPT.map(k => k.name));
 const flexAgree = flexRows.filter(r => r.flexPickNames.includes(r.flexOptimal)).length;
 const flexKeeper = flexRows.filter(r => keeperNames.has(r.flexOptimal)).length;
 const flexSummary = {

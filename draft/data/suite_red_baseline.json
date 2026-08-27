@@ -8,7 +8,7 @@
   "This file never makes CI pass. The JS suite step still exits non-zero while anything is failing -- see ci.yml. A permanently green build with 32 broken suites is the decay this whole exercise was about."
  ],
  "_baseline_taken": "2026-08-26",
- "count": 9,
+ "count": 8,
  "suites": [
   "barbell_policy",
   "draft_alert_lifecycle",
@@ -17,7 +17,6 @@
   "member_copy",
   "member_email_policy",
   "pickem_surface",
-  "roster_room_audit",
   "sidebet_lifecycle_gate"
  ],
  "_ratchet_log": [
@@ -65,6 +64,14 @@
     "seat_plan_contract"
    ],
    "why": "Fixed, register 363 — the orphan-plan demotion covered bench seats only and the contradiction reached starter seats. Orphans 2 -> 0."
+  },
+  {
+   "date": "2026-08-27",
+   "by": "A",
+   "removed": [
+    "roster_room_audit"
+   ],
+   "why": "Fixed, register 364 — the room seeded all 23 league keepers as Cory roster (size 35) and counted 29 opponent picks before pick 33 where 9 are live. Roster 15 in 8/8, 8/8 legal."
   }
  ]
 }
