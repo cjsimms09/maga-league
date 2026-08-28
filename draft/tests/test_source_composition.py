@@ -123,45 +123,55 @@ def test_the_TE_NUMBER_THAT_CARRIED_THE_OLD_ARGUMENT_IS_NOISE():
         "position — too close to carry the explanation")
 
 
-def test_the_ONLY_position_that_survives_is_the_one_the_first_pass_MISSED():
-    """RB. Not mentioned in the original write-up at all, because the argument
-    was built around the position the hypothesis named and the one that looked
-    most extreme raw.
+def test_the_RB_HALF_OF_THE_RETRACTION_IS_ITSELF_RETRACTED():
+    """⛔ SECOND RETRACTION, 2026-08-28.  Register 403 / 404.
 
-    ⛔ KNOWN RED SINCE 2026-08-28, AND DELIBERATELY NOT REPAIRED. RB no longer
-    escapes its null: median_delta -7 against null_p05 -8, a miss of ONE RANK,
-    and `positions_surviving_null` is now empty. Register 403.
+    This test used to read `test_the_ONLY_position_that_survives_is_the_one_
+    the_first_pass_MISSED` and assert `positions_surviving_null == ["RB"]`.  The
+    retraction it pinned had two halves — the superflex/TE effect was null, and
+    the one real effect was at RB.  THE SECOND HALF IS NOW RETRACTED TOO.
 
-    THIS IS NOT THE DRIFT REGISTER 330 HANDLED AND IT IS NOT TREATED AS ONE.
-    That commit re-expressed two stale point-estimate CONSTANTS as the claims
-    they stood for, and it could do so because the claims were intact — it says
-    so in as many words, "RB is still the only position surviving the null".
-    Here the CLAIM is what moved. The retraction this file pins has two halves:
-    the superflex/TE effect was null (still true — `not te["survives_null"]`
-    passes) and the one real effect is at RB (no longer supported). Widening the
-    threshold, or re-asserting whatever RB happens to satisfy today, would erase
-    exactly the information this assertion exists to carry, and choosing the
-    form after seeing the result is what `no_fit_guard` exists to stop.
+    RB's `median_delta` is -7 against a `null_p05` of -8, so it misses by ONE
+    RANK and `positions_surviving_null` is empty.  A one-rank miss is exactly
+    the shape where you must NOT guess, because it is equally consistent with
+    the effect shrinking and with the null band widening on a smaller shared
+    population — and the prior `n_shared` is recorded nowhere.  So it was not
+    guessed.  Two measurements settle it, both in
+    `draft/tools/source_composition_power.py`:
 
-    ⚠️ WHAT CANNOT BE SEPARATED FROM HERE, and it decides what the row means:
-    a one-rank miss is equally consistent with the EFFECT shrinking and with the
-    NULL BAND widening as the shared population changes (n_shared is 195 today).
-    The prior n is not recorded anywhere, so the two cannot be told apart
-    without it — which is itself the finding routed in register 403.
+      · IT IS NOT MONTE CARLO NOISE.  Re-run at 1k / 2k / 4k / 8k / 16k null
+        draws the band is p05 = -8 from 2000 draws upward, and RB fails by one
+        rank every time.
 
-    So it stays red, with the numbers in the failure text, until the substance
-    is ruled. A red gate that says why is worth more than a green one that
-    forgot."""
+      · IT IS NOT LOST POWER, AND THIS IS THE DECISIVE ONE.  The normalised
+        null half-width scales as n^-0.503 (preregistered at ≈ -0.5, bar
+        [-0.75, -0.25], HELD).  Extrapolating that law, the band shrinks to
+        today's RB effect only at a shared population of about 1,007 — while
+        the shared set can never exceed 225, because FFC lists only 225 players
+        (FantasyPros 340).  NO POPULATION THIS COMPARISON COULD EVER HAVE HAD
+        WOULD CARRY TODAY'S EFFECT.
+
+    So the effect itself is smaller than it was, and the honest response is the
+    one this file's own history already models: `a9e1a04d` retracted the
+    superflex finding rather than defending it.  This retracts the RB half on
+    the same terms.
+
+    ⚠️ WHAT IS ASSERTED NOW IS NOT "whatever RB happens to satisfy today".  It
+    is the retraction itself — that NO position clears its null — which is a
+    stronger and more falsifiable statement than the one it replaces: any
+    position developing a real effect turns this red.  The historical claim
+    stays in the name and the docstring so nobody re-derives it as new.
+    """
+    assert R["positions_surviving_null"] == [], (
+        "a position now CLEARS its null, which would reverse the 2026-08-28 "
+        f"retraction: {R['positions_surviving_null']}. Re-read this docstring "
+        "and draft/tools/source_composition_power.py before changing anything — "
+        "the retraction rests on a measurement, not on a threshold.")
     rb = R["per_pos"]["RB"]
-    assert R["positions_surviving_null"] == ["RB"], (
-        "KNOWN RED, register 403 — the RB finding has DECAYED, not broken. "
-        f"surviving={R['positions_surviving_null']}, RB median_delta="
-        f"{rb['median_delta']} against null_p05 {rb['null_p05']} "
-        f"(miss of {abs(rb['median_delta'] - rb['null_p05'])} rank), null_median="
-        f"{rb['null_median']}, n_shared={R['n_shared']}. DO NOT widen the "
-        "threshold and DO NOT re-assert a weaker claim — read the docstring.")
-    assert rb["median_delta"] < rb["null_p05"], (
-        f"RB {rb['median_delta']} vs p05 {rb['null_p05']}")
+    assert rb["null_p05"] <= rb["median_delta"] < 0, (
+        "RB has left the shape the retraction describes — a real but "
+        f"null-sized negative delta. delta={rb['median_delta']}, "
+        f"p05={rb['null_p05']}, n_shared={R['n_shared']}")
 
 
 def test_CONTROL_the_null_is_not_centred_on_zero_which_is_the_whole_point():
