@@ -123,6 +123,53 @@ function stagedAddedLines() {
     .map(l => l.slice(1));
 }
 
+/* ── A CITATION TO A ROW THAT DOES NOT EXIST YET (register 409) ────────────
+ *
+ * On 2026-08-28 a commit shipped four source files citing "register 408" before
+ * 408 was filed. The register was NOT staged in that commit, so this guard
+ * returned 0 at its first branch and the dangling citations were caught by the
+ * JS suite afterwards instead of refused at the gate. It was the fourth
+ * cite-before-claim of the session and the first to reach a commit.
+ *
+ * So the scan runs whether or not the register is staged, and compares against
+ * the register AS IT WILL BE AFTER THIS COMMIT: the staged blob if staged, else
+ * HEAD. The extraction rule is the one `register_citations_resolve.test.js`
+ * already uses — /[Rr]egister (\d{1,3})\b/ over staged .js/.py — because a
+ * second spelling of the same rule is how two guards come to disagree
+ * (register 313). If that test's rule changes, change this with it. */
+function stagedSourceFiles() {
+  const out = execFileSync('git', ['diff', '--cached', '--name-only', '--diff-filter=ACMR'],
+    { cwd: ROOT, encoding: 'utf8', maxBuffer: BUF }).split('\n')
+    .map(x => x.trim()).filter(Boolean);
+  return out.filter(f => /\.(js|py)$/.test(f) && f !== FILE);
+}
+
+function registerAfterThisCommit(staged) {
+  if (staged !== null) return staged;
+  try {
+    return execFileSync('git', ['show', 'HEAD:' + FILE],
+      { cwd: ROOT, encoding: 'utf8', maxBuffer: BUF });
+  } catch (e) { return null; }
+}
+
+function danglingCitations(registerText, files) {
+  if (registerText === null) return null;      // cannot judge — never "clean"
+  const ids = new Set([...registerText.matchAll(/^\| ([A-Za-z0-9]+) \|/gm)].map(m => m[1]));
+  if (ids.size < 50) return null;              // the register did not parse; refuse to judge
+  const bad = [];
+  files.forEach(f => {
+    let t;
+    try {
+      t = execFileSync('git', ['show', ':' + f],
+        { cwd: ROOT, encoding: 'utf8', maxBuffer: BUF });
+    } catch (e) { return; }
+    for (const m of t.matchAll(/[Rr]egister (\d{1,3})\b/g)) {
+      if (!ids.has(m[1])) bad.push(f + ' cites register ' + m[1]);
+    }
+  });
+  return bad;
+}
+
 function selfTest() {
   const ok = '| 12 | what | **A** | OPEN | do a thing |';
   const broken = '| 13 | a || b | **A** | OPEN | x |';
@@ -155,7 +202,41 @@ function selfTest() {
     + 'CONTROL — the LIVE register passes, so this guard does not block all work'
     + (okLive ? '' : ': ' + JSON.stringify(liveProblems.slice(0, 3))));
 
-  console.log('\n' + (cases.length + 1 - bad) + '/' + (cases.length + 1) + ' self-tests passed');
+  /* ── THE CITATION ARM, PROVEN BOTH WAYS (register 409) ──────────────────
+   * A guard that has only ever printed success has not been tested, only run.
+   * The register read here is the real one, so the id set is the live set. */
+  let citeExtra = 0, citeBad = 0;
+  const cck = (n, ok, d) => {
+    citeExtra++;
+    if (!ok) citeBad++;
+    console.log((ok ? 'PASS  ' : 'FAIL  ') + n
+      + (ok || d === undefined ? '' : ': ' + JSON.stringify(d).slice(0, 160)));
+  };
+  {
+    let reg = null;
+    try {
+      reg = execFileSync('git', ['show', 'HEAD:' + FILE],
+        { cwd: ROOT, encoding: 'utf8', maxBuffer: BUF });
+    } catch (e) { reg = null; }
+    if (reg === null) {
+      cck('the citation arm could read the register to test against', false);
+    } else {
+      const ids = new Set([...reg.matchAll(/^\| ([A-Za-z0-9]+) \|/gm)].map(x => x[1]));
+      cck('CONTROL — the register parses into a real id set', ids.size > 100, ids.size);
+      /* de-literalised, so this file does not itself cite a row that is missing */
+      const missing = '9' + '9' + '9';
+      cck('KNOWN POSITIVE — an id that does not exist is absent from the set',
+        !ids.has(missing), missing);
+      cck('KNOWN NEGATIVE — an id that does exist is present', ids.has('313'));
+    }
+    cck('a register that does not parse returns null, never an empty "clean" list',
+      danglingCitations('| 1 |\n| 2 |', []) === null);
+    cck('a null register text returns null too', danglingCitations(null, []) === null);
+  }
+  bad += citeBad;
+
+  console.log('\n' + (cases.length + 1 + citeExtra - bad) + '/'
+    + (cases.length + 1 + citeExtra) + ' self-tests passed');
   return bad ? 1 : 0;
 }
 
@@ -172,7 +253,26 @@ function main(argv) {
       + 'broken row (register 390).');
     return 2;
   }
-  if (staged === null) return 0;              // genuinely not staged — nothing to judge
+  /* The citation arm runs even when the register is NOT staged, because that is
+   * exactly the commit shape that got four dangling citations past this guard
+   * (register 409). */
+  const cites = danglingCitations(registerAfterThisCommit(staged), stagedSourceFiles());
+  if (cites === null) {
+    console.error('\n⛔ REGISTER COMMIT GUARD could not read the register to check '
+      + 'citations against. REFUSING rather than reporting clean.');
+    return 2;
+  }
+  if (cites.length) {
+    console.error('\n⛔ REGISTER COMMIT GUARD — ' + cites.length
+      + ' citation(s) to a register row that does not exist:\n');
+    cites.forEach(c => console.error('   ' + c));
+    console.error('\n  File the row FIRST — `file_register_row.js` hands you the id it '
+      + 'actually claimed — then cite it. Four ids were burned this way on 2026-08-28 '
+      + 'and one reached a commit (register 409).\n');
+    return 1;
+  }
+
+  if (staged === null) return 0;              // genuinely not staged — nothing else to judge
 
   const bad = problems(staged, stagedAddedLines());
   if (!bad.length) return 0;
@@ -188,4 +288,4 @@ function main(argv) {
 }
 
 if (require.main === module) process.exit(main(process.argv.slice(2)));
-module.exports = { problems, isRegisterRow, cellCount };
+module.exports = { problems, isRegisterRow, cellCount, danglingCitations };
