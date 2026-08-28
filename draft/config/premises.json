@@ -1,0 +1,102 @@
+{
+  "_territory": "A",
+  "_what": "PINNED PREMISES AND THE MEASUREMENT THAT RETIRES EACH ONE.",
+  "_why": [
+    "2026-08-27/28: nine separate defects in one session were the same shape —",
+    "not a bug, but an assertion that outlived the condition it was written",
+    "under and kept asserting. A baseline control that forbade its own goal",
+    "state; a ceiling tiebreak pinned inert against a board that had changed",
+    "sources; a per-row guard that ran a whole-register health check because",
+    "the backlog happened to be zero the day it was written; a test pinning a",
+    "document this repo marks superseded; and a SessionStart hook whose author",
+    "matched it to when he NOTICED the problem rather than when it happens.",
+    "",
+    "Recheck DATES chase the calendar. They cannot chase a CONDITION. A date",
+    "says 'look again on the 31st'; a condition says 'void the moment the",
+    "ceiling source changes'. Prose conditions decay — CLAUDE.md documents that",
+    "failure three times and then commits it again — so every condition here is",
+    "a NUMBER a probe measures from live state.",
+    "",
+    "The one healthy example is the pattern being copied: ceiling_tiebreak's",
+    "08-17 note named, in writing, the condition that should retire it. When it",
+    "failed the failure explained itself and the fix took minutes."
+  ],
+  "_how_to_add": [
+    "id        — kebab-case, stable; it is what a register row cites.",
+    "claim     — the premise IN THE FORM SOMEBODY ASSERTED IT. Not the fix.",
+    "where/anchor — the file the premise is load-bearing in, and a literal",
+    "            string that must still appear in it. If the anchor vanishes",
+    "            the code moved out from under the premise and the entry is",
+    "            reported ANCHOR MOVED rather than silently checked against",
+    "            something that is no longer there.",
+    "probe     — a key of draft/tools/premise_probes.js, returning a NUMBER.",
+    "holds_when — {op, value}: eq | ne | gt | gte | lt | lte.",
+    "note      — what to do when it goes VOID, for whoever reads the report."
+  ],
+  "_status": "REPORT ONLY. --strict exits 1 on any VOID, for a caller that wants to gate.",
+  "premises": [
+    {
+      "id": "ceiling-is-a-cell-constant",
+      "claim": "proj_ceiling is proj_mean x a per-(position,tier) constant, so every player in a cell shares one multiple and the ceiling carries no player-specific information",
+      "where": "draft/tests/engine_ablation.test.js",
+      "anchor": "ceiling_tiebreak",
+      "probe": "ceiling_ratio_constant_cells",
+      "holds_when": { "op": "gt", "value": 0 },
+      "note": "VOID since 2026-08-19 (Draft Sharks became the ceiling source, register 99). Anything asserting the ceiling tiebreak is inert, or that upside is a cohort statistic rather than a forecast, must be re-derived. Registers 370, E16."
+    },
+    {
+      "id": "floor-is-a-cell-constant",
+      "claim": "proj_floor is proj_mean x a per-cell constant, putting a cliff at every band edge",
+      "where": "DEFECT-REGISTER.md",
+      "anchor": "E16",
+      "probe": "floor_ratio_constant_cells",
+      "holds_when": { "op": "gt", "value": 0 },
+      "note": "VOID since 2026-08-19, same source change. E16's step-vs-interpolate question died with it."
+    },
+    {
+      "id": "kept-players-is-my-keepers",
+      "claim": "board.kept_players is Cory's keepers, so ONE variable can serve both availability (who is off the board) and roster (who is mine)",
+      "where": "draft/tools/archetype_rooms.js",
+      "anchor": "kept_players",
+      "probe": "kept_players_not_mine",
+      "holds_when": { "op": "eq", "value": 0 },
+      "note": "VOID since the 2026-08-23 league-wide lock. Every tool that conflates the two now seeds Cory with other managers' players. Found in six tools: registers 364, 370. Split into ALL_KEPT and MY_KEPT."
+    },
+    {
+      "id": "register-backlog-is-empty",
+      "claim": "the register carries no overdue rows, so a WHOLE-REGISTER recheck is a safe guard on a SINGLE new row",
+      "where": "draft/tools/file_register_row.js",
+      "anchor": "register_recheck_check",
+      "probe": "register_overdue_rows",
+      "holds_when": { "op": "eq", "value": 0 },
+      "note": "True on 2026-08-24 when the guard was written and proven; false since. Made the tool refuse every row on a signal none of them caused, and burn an id each time. Register 374 — the guard is now scoped to the row being filed."
+    },
+    {
+      "id": "ceiling-weight-is-0.45",
+      "claim": "MEASURED_WEIGHTS.ceiling is 0.45 — the board folds upside into every player's score",
+      "where": "public/js/draft/engine.js",
+      "anchor": "MEASURED_WEIGHTS",
+      "probe": "shipped_ceiling_weight_x100",
+      "holds_when": { "op": "eq", "value": 45 },
+      "note": "VOID: Cory ruled it back to 0.0 on 2026-08-20 ('switch it off, its so arbitrary'). Register 5h — four documents went on quoting 0.45, including the file every session reads first."
+    },
+    {
+      "id": "need-weight-is-zero",
+      "claim": "MEASURED_WEIGHTS.need is 0, so nothing in the score is roster-aware and the tool will happily draft seven quarterbacks",
+      "where": "public/js/draft/engine.js",
+      "anchor": "MEASURED_WEIGHTS",
+      "probe": "shipped_need_weight_x100",
+      "holds_when": { "op": "eq", "value": 0 },
+      "note": "VOID: shipped at 1.0 since 2026-08-20. Every conversion-gap and QB-pileup figure measured at need=0 describes a configuration that has not shipped since. Register 317."
+    },
+    {
+      "id": "python-red-means-broken-code",
+      "claim": "a failing pytest run on this machine is about the CODE, because the interpreter matches draft/requirements.txt",
+      "where": "draft/requirements.txt",
+      "anchor": "nfl_data_py",
+      "probe": "declared_python_packages_missing",
+      "holds_when": { "op": "eq", "value": 0 },
+      "note": "Goes VOID whenever the container is recreated (register 384) and every declared package vanishes. On 2026-08-27 that turned eight ModuleNotFoundErrors into an hour of false findings. Fix: bash draft/tools/restore_container.sh."
+    }
+  ]
+}
