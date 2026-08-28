@@ -39,7 +39,10 @@ ck('CONTROL — the register parses into a real set of ids', ids.size > 100, { i
 
 const files = execFileSync('git',
   ['ls-files', 'draft/tools', 'draft/tests', 'public/js/draft', 'src'],
-  { cwd: ROOT, encoding: 'utf8' })
+  // maxBuffer: `ls-files` is a REPO-SCALE command — its output grows with the
+  // repo, not with any one file, and the 1MB default throws rather than
+  // truncating (register 391). ~52KB today; the ratchet now covers this class.
+  { cwd: ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })
   .split('\n').filter(f => /\.(js|py)$/.test(f));
 ck('CONTROL — source files were found to scan', files.length > 100, { files: files.length });
 

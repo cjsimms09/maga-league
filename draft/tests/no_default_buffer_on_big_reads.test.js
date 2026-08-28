@@ -45,7 +45,20 @@ const files = execFileSync('git',
   .split('\n').filter(f => /\.js$/.test(f));
 ck('CONTROL — source files were found to scan', files.length > 50, { n: files.length });
 
-/** Pure and testable: unprotected exec sites whose command names a big file. */
+/* REPO-SCALE COMMANDS — output that grows with the REPO rather than with any
+ * one file, so no filename appears in the call and the big-file rule above
+ * cannot see them. `git ls-tree -r` is already at 461KB and `ls-files` at
+ * 47KB; both climb with every commit, and the 1MB default THROWS rather than
+ * truncating, so the failure arrives all at once and (in every instance found)
+ * is caught as "absent".
+ *
+ * MEASURED BEFORE WIDENING (Rule 3i): adding this class flagged exactly ONE
+ * unprotected site, and it was mine — the citation ratchet from register 389.
+ * Fixed, so this locks a clean state rather than opening a backlog. */
+const REPO_SCALE = /ls-tree[^)]*-r|'ls-files'|log -p|rev-list[^)]*--all/;
+
+/** Pure and testable: unprotected exec sites whose command names a big file,
+ *  OR whose command is repo-scale. */
 function offenders(lines, bigNames) {
   const out = [];
   lines.forEach((l, i) => {
@@ -57,7 +70,9 @@ function offenders(lines, bigNames) {
     if (!/exec(File)?Sync|spawnSync/.test(l) || /require\(/.test(l)) return;
     const win = lines.slice(i, i + 5).join(' ');
     if (/maxBuffer/.test(win)) return;
-    if (bigNames.some(b => win.includes(b))) out.push({ line: i + 1, src: l.trim().slice(0, 70) });
+    if (bigNames.some(b => win.includes(b)) || REPO_SCALE.test(win)) {
+      out.push({ line: i + 1, src: l.trim().slice(0, 70) });
+    }
   });
   return out;
 }
@@ -74,16 +89,31 @@ bad.length === 0, bad);
 // FAIL ARM — the scanner must be able to fire, or it is decoration.
 {
   const synthetic = [
-    "const t = execFileSync('git', ['show', 'HEAD:ROUTES.md'], { cwd: ROOT });",
+    // Concatenated so the scanner does not flag this file's own fixtures —
+    // it reads every source file including this one, and a literal here is
+    // indistinguishable from a real call site. The citation ratchet needed the
+    // same treatment for the same reason (register 391).
+    "const t = execFile" + "Sync('git', ['show', 'HEAD:ROU" + "TES.md'], { cwd: ROOT });",
   ];
   ck('FAIL ARM — an unprotected read of a big file IS detected',
     offenders(synthetic, ['ROUTES.md']).length === 1);
   const guarded = [
-    "const t = execFileSync('git', ['show', 'HEAD:ROUTES.md'],",
+    "const t = execFile" + "Sync('git', ['show', 'HEAD:ROU" + "TES.md'],",
     "  { cwd: ROOT, maxBuffer: 64 * 1024 * 1024 });",
   ];
   ck('  and the same read WITH maxBuffer is not flagged, so the guard cannot '
     + 'fire on correct code', offenders(guarded, ['ROUTES.md']).length === 0);
+}
+
+// FAIL ARM for the repo-scale class, and its inverse.
+{
+  const bare = ["const x = execFile" + "Sync('git', ['ls-" + "files', 'src'], { cwd: ROOT });"];
+  ck('FAIL ARM — an unprotected REPO-SCALE command is detected even though it '
+    + 'names no file', offenders(bare, []).length === 1);
+  const guarded = ["const x = execFile" + "Sync('git', ['ls-" + "files', 'src'],",
+    '  { cwd: ROOT, maxBuffer: 64 * 1024 * 1024 });'];
+  ck('  and the same command WITH maxBuffer is not flagged',
+    offenders(guarded, []).length === 0);
 }
 
 console.log('\nscanned ' + files.length + ' files against ' + BIG.length + ' oversized target(s)');
