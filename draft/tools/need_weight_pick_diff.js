@@ -90,13 +90,9 @@ function walk(w){
  * again, the run stops instead of printing one arm twice. Register 406. */
 const A=walk(E.MEASURED_WEIGHTS);
 const NEED0=Object.assign({},E.MEASURED_WEIGHTS,{need:0.0});
-if (JSON.stringify(NEED0) === JSON.stringify(E.MEASURED_WEIGHTS)) {
-  throw new Error('need_weight_pick_diff: the need0 arm is IDENTICAL to the shipped '
-    + 'weights, so this run would print the same walk under two names. The shipped '
-    + 'the shipped need weight has evidently gone back to 0 — re-point the '
-    + 'counterfactual at whatever '
-    + 'now differs (register 406).');
-}
+/* ONE guard, not four copies — draft/tools/arms_differ.js, register 408. */
+require('./arms_differ.js').assertArmsDiffer('need_weight_pick_diff',
+  { shipped: E.MEASURED_WEIGHTS, need0: NEED0 });
 const B=walk(NEED0);
 console.log('A13, RULED 2026-08-20 — every pick, SHIPPED (need ' + E.MEASURED_WEIGHTS.need
   + ') vs the PRE-RULING need 0, on the published board\n');

@@ -152,25 +152,8 @@ const ARMS = {
  * created by a RULING elsewhere rather than by an edit here. The fingerprint is
  * the flags plus the weights the arm actually resolves to, so a future ruling
  * that collapses two arms fails loudly instead of printing twice. */
-function assertArmsDiffer(E) {
-  const seen = new Map();
-  const dupes = [];
-  Object.keys(ARMS).forEach(k => {
-    const a = ARMS[k];
-    let w;
-    try { w = typeof a.w === 'function' ? a.w(E, null) : a.w; } catch (e) { w = null; }
-    const fp = JSON.stringify([a.flags, w]);
-    if (seen.has(fp)) dupes.push([seen.get(fp), k]); else seen.set(fp, k);
-  });
-  if (dupes.length) {
-    throw new Error('fieldability_probe: these arms resolve to IDENTICAL '
-      + 'configurations, so the run would print the same roster under two names — '
-      + dupes.map(d => d.join(' == ')).join(', ')
-      + '. A ruling elsewhere has probably collapsed them; re-point the arm at a '
-      + 'counterfactual that still differs (register 405).');
-  }
-  return Object.keys(ARMS).length;
-}
+/* ONE guard, not four copies — draft/tools/arms_differ.js, register 408. */
+const { assertArmsDiffer } = require('./arms_differ.js');
 
 /* THE WALK ONLY RUNS WHEN THIS FILE IS INVOKED DIRECTLY. Its own test file
  * requires it for `fieldable()`, and a module that drafts four rosters on
@@ -178,7 +161,16 @@ function assertArmsDiffer(E) {
 function run() {
 /* The duplicate-arm guard runs FIRST, on a throwaway engine load, so a collapsed
  * pair refuses before four rosters are drafted rather than after (register 405). */
-const n_arms = assertArmsDiffer(loadEngine(ARMS.shipped.flags));
+const _E0 = loadEngine(ARMS.shipped.flags);
+/* Handed as FUNCTIONS so the helper's own try/catch owns the resolution: the
+ * `auto` arm asks the engine for phase weights and throws on a null context,
+ * and an arm that cannot be resolved must be fingerprinted under its own name
+ * rather than crashing the guard (register 408). */
+const n_arms = assertArmsDiffer('fieldability_probe',
+  Object.fromEntries(Object.keys(ARMS).map(k => [k, () => ({
+    flags: ARMS[k].flags,
+    weights: (typeof ARMS[k].w === 'function' ? ARMS[k].w(_E0, null) : ARMS[k].w),
+  })])));
 const report = {
   arms_checked_distinct: n_arms,
   _territory: 'TERRITORY: A — draft/tools/fieldability_probe.js',

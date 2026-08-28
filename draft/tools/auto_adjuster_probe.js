@@ -75,12 +75,25 @@ function baseCtx(board, roster, i) {
  * exists once. */
 const ARMS = {
   shipped: () => E.MEASURED_WEIGHTS,
-  need1: () => Object.assign({}, E.MEASURED_WEIGHTS, { need: 1.0 }),
+  /* ⛔ THIS ARM WAS `need1` AND HAD COLLAPSED INTO `shipped`.
+   *
+   * It forced `need: 1.0` over MEASURED_WEIGHTS to show what turning the term on
+   * would do. Cory ruled it on 2026-08-20 and engine.js:826 has shipped
+   * `need: 1.0` ever since, so the override became a no-op and two of this
+   * probe's three arms have been the same run. Registers 405 and 406 found the
+   * identical defect in fieldability_probe.js and need_weight_pick_diff.js.
+   *
+   * Re-pointed at the PRE-RULING configuration, which is the counterfactual that
+   * still carries information, and guarded below. Register 407. */
+  need0: () => Object.assign({}, E.MEASURED_WEIGHTS, { need: 0.0 }),
   auto: (ctx) => {
     const a = E.autoWeights(ctx);
     return (a && a.weights) ? a.weights : a;
   },
 };
+
+/* ONE guard, not four copies — draft/tools/arms_differ.js, register 408. */
+require('./arms_differ.js').assertArmsDiffer('auto_adjuster_probe', ARMS, null);
 
 function walk(armName) {
   const fn = ARMS[armName];
@@ -136,11 +149,11 @@ const report = {
   auto_phase_trace: runs.auto.phases,
   agreement: {
     auto_vs_shipped: agree(runs.auto, runs.shipped) + '/' + SCHED.length,
-    need1_vs_shipped: agree(runs.need1, runs.shipped) + '/' + SCHED.length,
+    need0_vs_shipped: agree(runs.need0, runs.shipped) + '/' + SCHED.length,
     /* THE NUMBER THE WHOLE PROBE EXISTS FOR: if Auto and need=1.0 land in the
      * same place, the graded +68.6 is available as a CHECKBOX rather than as a
      * weight change on draft week. */
-    auto_vs_need1: agree(runs.auto, runs.need1) + '/' + SCHED.length,
+    auto_vs_need0: agree(runs.auto, runs.need0) + '/' + SCHED.length,
   },
 };
 
@@ -155,10 +168,10 @@ console.log('    ' + 'pick'.padStart(4) + '  ' + 'SHIPPED (need 0)'.padEnd(28)
   + 'AUTO'.padEnd(28) + 'need=1.0');
 SCHED.forEach((pk, i) => console.log('    ' + String(pk).padStart(4) + '  '
   + String(runs.shipped.picks[i]).padEnd(28) + String(runs.auto.picks[i]).padEnd(28)
-  + String(runs.need1.picks[i])));
+  + String(runs.need0.picks[i])));
 console.log('\n  rosters: shipped ' + JSON.stringify(runs.shipped.counts));
 console.log('           auto    ' + JSON.stringify(runs.auto.counts));
-console.log('           need1   ' + JSON.stringify(runs.need1.counts));
+console.log('           need0   ' + JSON.stringify(runs.need0.counts));
 console.log('\n  agreement: ' + JSON.stringify(report.agreement));
 
 const outPath = (() => { const i = process.argv.indexOf('--json'); return i >= 0 ? process.argv[i + 1] : null; })();
