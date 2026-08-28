@@ -1,0 +1,17 @@
+#!/bin/bash
+# Refuse a commit that carries a registered study artifact nobody declared.
+# See draft/tools/artifact_write_guard.js for why (register 388): running a
+# study is a WRITE, and `git add -A` after a diagnostic run committed six
+# artifacts by accident on 2026-08-28 — one of them a published file, one a
+# flipped model arm.
+#
+# commit-msg rather than pre-commit, because the DECLARATION lives in the
+# message: this hook is the first point where both the staged set and the
+# message exist together.
+#
+# Wired by draft/tools/restore_container.sh (`git config core.hooksPath
+# .githooks`), because a recreated container loses local git config along with
+# everything else.
+set -euo pipefail
+ROOT="$(git rev-parse --show-toplevel)"
+exec node "$ROOT/draft/tools/artifact_write_guard.js" "$1"

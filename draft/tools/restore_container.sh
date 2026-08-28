@@ -60,6 +60,20 @@ if git rev-parse --git-dir >/dev/null 2>&1; then
   fi
 fi
 
+# ── 1b. GIT HOOKS: a recreated container loses local git config too ────────
+# `core.hooksPath` is repo-LOCAL config, so it vanishes with the container
+# exactly like the pip installs did. Without this line the artifact write guard
+# (register 388) sits in the tree and never runs — which is worse than absent,
+# because the tree LOOKS protected.
+if git rev-parse --git-dir >/dev/null 2>&1 && [ -d .githooks ]; then
+  have="$(git config core.hooksPath || true)"
+  if [ "$have" != ".githooks" ]; then
+    git config core.hooksPath .githooks && echo "  hooks: core.hooksPath -> .githooks (was '${have:-unset}')"
+  else
+    echo "  hooks: core.hooksPath already .githooks"
+  fi
+fi
+
 # ── 2. PYTHON: the deps the snapshot loses ─────────────────────────────────
 # draft/requirements.txt is the same file ci.yml installs, so the container
 # matches CI rather than a second hand-maintained list. pyyaml matches ci.yml's
