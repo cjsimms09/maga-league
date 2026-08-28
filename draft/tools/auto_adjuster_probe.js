@@ -38,7 +38,18 @@ const DATA = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.js
 const E = require(path.join(ROOT, 'public', 'js', 'draft', 'engine.js'));
 const KEEP = require(path.join(__dirname, 'keepers_of.js'));
 
-const SCHED = [8, 13, 28, 33, 48, 53, 68, 73, 88, 93, 108, 113, 128, 133, 148];
+/* ⛔ THIS WAS THE HARDCODED FIFTEEN-PICK LITERAL [8, 13, 28, 33, ...] — the
+ * defect register 95 found, which Cory caught himself: keeping three players
+ * forfeits rounds 1-3, so he owns TWELVE picks starting at 33 and does NOT own
+ * 8, 13 or 28, the three most valuable in the draft. A drive down the literal
+ * hands him three picks he cannot make and every roster it reports is wrong.
+ *
+ * Register 95's sweep fixed eight tools and MISSED SEVEN, this one among them,
+ * for nine days. Rule 11: one derivation. draft_plan derives the schedule from
+ * the snake and cross-checks it against the artifact's own pre-keeper list, and
+ * refuses if the two disagree — so it is read from there and never retyped.
+ * Register 406. */
+const SCHED = require('./draft_plan.js').SCHED;
 const keep = KEEP.keepersFrom(DATA);
 const pool = DATA.players.filter(p => p.position && (p.proj_mean || 0) > 0);
 const adpOf = p => (p.adjusted_adp != null ? +p.adjusted_adp

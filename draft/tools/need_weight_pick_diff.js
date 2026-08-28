@@ -28,7 +28,18 @@ global.window=global; global.document={getElementById:()=>null,querySelector:()=
 const DATA=JSON.parse(fs.readFileSync('public/draft_data.json','utf8'));
 const E=require('/home/user/maga-league/public/js/draft/engine.js');
 const KEEP=require('/home/user/maga-league/draft/tools/keepers_of.js');
-const SCHED=[8,13,28,33,48,53,68,73,88,93,108,113,128,133,148];
+/* ⛔ THIS WAS THE HARDCODED FIFTEEN-PICK LITERAL [8, 13, 28, 33, ...] — the
+ * defect register 95 found, which Cory caught himself: keeping three players
+ * forfeits rounds 1-3, so he owns TWELVE picks starting at 33 and does NOT own
+ * 8, 13 or 28, the three most valuable in the draft. A drive down the literal
+ * hands him three picks he cannot make and every roster it reports is wrong.
+ *
+ * Register 95's sweep fixed eight tools and MISSED SEVEN, this one among them,
+ * for nine days. Rule 11: one derivation. draft_plan derives the schedule from
+ * the snake and cross-checks it against the artifact's own pre-keeper list, and
+ * refuses if the two disagree — so it is read from there and never retyped.
+ * Register 406. */
+const SCHED = require('./draft_plan.js').SCHED;
 const keep=KEEP.keepersFrom(DATA);
 const pool=DATA.players.filter(p=>p.position&&(p.proj_mean||0)>0);
 const adpOf=p=>(p.adjusted_adp!=null?+p.adjusted_adp:(p.raw_adp!=null?+p.raw_adp:9999));
@@ -63,10 +74,34 @@ function walk(w){
   });
   return {picks:out,roster:roster};
 }
+/* ⛔ BOTH ARMS WERE THE SAME RUN, AND THE HEADER SAID OTHERWISE.
+ *
+ * This tool was A13's own evidence — *"need: 1.0 CHANGES ONLY THREE OF YOUR
+ * FIFTEEN PICKS"*. Cory RULED A13 on 2026-08-20 and `engine.js:826` has shipped
+ * `need: 1.0` ever since, so arm B's override became a no-op: it printed
+ * "picks changed: 0 of 12" while labelling column one "SHIPPED (need 0)", which
+ * has been false for eight days. Nothing could have caught it here, because the
+ * collapse was caused by a ruling elsewhere. Register 405 found the identical
+ * defect in `fieldability_probe.js` the same hour.
+ *
+ * The informative comparison is now the other direction — what the board looked
+ * like BEFORE the ruling — so arm B is `need: 0` and the labels say which is
+ * which. The refusal below is the guard: if a future ruling collapses these two
+ * again, the run stops instead of printing one arm twice. Register 406. */
 const A=walk(E.MEASURED_WEIGHTS);
-const B=walk(Object.assign({},E.MEASURED_WEIGHTS,{need:1.0}));
-console.log('A13 MADE CONCRETE — every pick, shipped vs need:1.0, on the published board\n');
-console.log('  pick   SHIPPED (need 0)              need = 1.0                    changed?');
+const NEED0=Object.assign({},E.MEASURED_WEIGHTS,{need:0.0});
+if (JSON.stringify(NEED0) === JSON.stringify(E.MEASURED_WEIGHTS)) {
+  throw new Error('need_weight_pick_diff: the need0 arm is IDENTICAL to the shipped '
+    + 'weights, so this run would print the same walk under two names. The shipped '
+    + 'the shipped need weight has evidently gone back to 0 — re-point the '
+    + 'counterfactual at whatever '
+    + 'now differs (register 406).');
+}
+const B=walk(NEED0);
+console.log('A13, RULED 2026-08-20 — every pick, SHIPPED (need ' + E.MEASURED_WEIGHTS.need
+  + ') vs the PRE-RULING need 0, on the published board\n');
+console.log('  pick   SHIPPED (need ' + E.MEASURED_WEIGHTS.need + ')'
+  + '              PRE-RULING need = 0            changed?');
 let ch=0;
 SCHED.forEach((pk,i)=>{
   const a=A.picks[i],b=B.picks[i];
@@ -78,6 +113,6 @@ SCHED.forEach((pk,i)=>{
 });
 const cnt=r=>{const c={};r.filter(p=>!p.is_keeper).forEach(p=>c[p.position]=(c[p.position]||0)+1);return c;};
 console.log('\n  picks changed: '+ch+' of '+SCHED.length);
-console.log('  roster shipped : '+JSON.stringify(cnt(A.roster)));
-console.log('  roster need1.0 : '+JSON.stringify(cnt(B.roster)));
+console.log('  roster SHIPPED  (need ' + E.MEASURED_WEIGHTS.need + ') : '+JSON.stringify(cnt(A.roster)));
+console.log('  roster PRE-RULE (need 0) : '+JSON.stringify(cnt(B.roster)));
 console.log('  league top-3 target (15-pick seasons): QB 1.33  RB 3.83  WR 5.17  TE 1.83');

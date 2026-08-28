@@ -62,7 +62,7 @@ const Fieldable = require(path.join(ROOT, 'public', 'js', 'draft', 'fieldable.js
  * derivation, reused — not a constant retyped into each probe.
  *
  * SEVEN OTHER TOOLS STILL CARRY THE SAME LITERAL (register 95). */
-const SCHED = require(path.join(__dirname, 'draft_plan.js')).SCHED;
+const SCHED = require('./draft_plan.js').SCHED;
 const STARTERS = (DATA.league && DATA.league.starters) || {};
 
 /* THE BYE WEEKS THIS BOARD ACTUALLY CARRIES — discovered, never a hardcoded

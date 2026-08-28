@@ -60,7 +60,7 @@ const KEEP = require(path.join(__dirname, 'keepers_of.js'));
  * the same fifteen-pick literal, three picks of which Cory does not own; my
  * first draft of this file re-derived it from `pick_order` and got the shape
  * wrong on the first run, which is the same mistake wearing a different hat. */
-const SCHED = require(path.join(__dirname, 'draft_plan.js')).SCHED;
+const SCHED = require('./draft_plan.js').SCHED;
 
 /* ---- THE ARM, exactly as preregistered (§2-3) --------------------------- */
 /* The four values are `autoWeights`'s own ceiling ramp — 0.45/0.60/0.80/0.50,
