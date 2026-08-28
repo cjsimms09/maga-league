@@ -82,6 +82,43 @@ const PROBES = {
     return all.length - all.filter(p => Number(p.team_slot) === slot).length;
   },
 
+  /* ── THE MODEL'S OWN FITS vs THE MODEL'S SHIPPED CONSTANTS (register 386) ──
+   *
+   * `RECENCY_WEIGHTS = (0.7, 0.3)` is marked "DECLARED — see prereg: cannot be
+   * refit leak-free", and `recency_weight_fit.py` fits it anyway to see whether
+   * the hand-set number was defensible. Its own header states the expectation:
+   * "The incumbent 0.7 was hand-set and never measured; a small gap means it
+   * was fine and we finally know it."
+   *
+   * At three positions it WAS fine. At QB it is not, and nobody read it,
+   * because the artifact carrying the answer sat in the freshness tool's
+   * ERROR bucket for want of a `--json` flag.
+   *
+   * THE 0.05 LINE IS DECLARED, AND THE DISTRIBUTION SAYS IT IS NOT
+   * LOAD-BEARING (Rule 3i): the four measured gaps are WR 0.0049, TE 0.0074,
+   * RB 0.0112, QB 0.1154. Any threshold between 0.012 and 0.115 returns the
+   * identical answer, so the verdict rests on a tenfold separation in the data
+   * rather than on where the line was put. If a future refit lands a position
+   * INSIDE that empty band, this number stops being safe and the premise entry
+   * must be re-derived rather than re-thresholded. */
+  recency_positions_where_the_fit_disagrees: () => {
+    const f = path.join(ROOT, 'draft', 'backtest', 'recency_weight_fit.json');
+    if (!fs.existsSync(f)) throw new Error('no recency_weight_fit.json — run the fit');
+    const doc = JSON.parse(fs.readFileSync(f, 'utf8'));
+    const curves = doc.curves || {};
+    const keys = Object.keys(curves);
+    if (!keys.length) throw new Error('recency_weight_fit.json carries no curves');
+    let n = 0, seen = 0;
+    for (const k of keys) {
+      const gap = curves[k]['mean_gap_0.7_to_best'];
+      if (gap == null) continue;
+      seen++;
+      if (Number(gap) > 0.05) n++;
+    }
+    if (!seen) throw new Error('no position reported a gap — cannot judge');
+    return n;
+  },
+
   /* Register 374. `file_register_row.js` ran a WHOLE-REGISTER health check as
    * a per-row guard. That was harmless while the backlog was zero, which it
    * was on 08-24 — and a veto on all new rows once it was not. */

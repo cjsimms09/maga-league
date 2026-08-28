@@ -317,8 +317,10 @@
    "artifact_path": "draft/backtest/recency_weight_fit.json",
    "regenerate_command": [
     "python3",
-    "draft/backtest/recency_weight_fit.py"
-   ]
+    "draft/backtest/recency_weight_fit.py",
+    "--json"
+   ],
+   "_contract_note": "--json added 2026-08-28 (register 386): the module's default output is a human report, which this tool correctly classified ERROR \u2014 'a real bug, not staleness'. Opt-in flag so existing readers are untouched."
   },
   {
    "id": "ridge_arm_fit",

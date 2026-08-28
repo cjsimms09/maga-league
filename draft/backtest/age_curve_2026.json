@@ -7,7 +7,7 @@
   "2023->2024",
   "2024->2025"
  ],
- "player_season_pairs": 687,
+ "player_season_pairs": 689,
  "curves": {
   "QB": {
    "by_age": {
@@ -67,28 +67,28 @@
      "status": "unmeasurable"
     },
     "33": {
-     "median_ratio": 1.054,
-     "n": 2,
+     "median_ratio": 1.155,
+     "n": 1,
      "status": "unmeasurable"
     },
     "34": {
-     "median_ratio": 0.61,
+     "median_ratio": 0.821,
      "n": 4,
      "status": "unmeasurable"
     },
     "35": {
-     "median_ratio": 1.705,
+     "median_ratio": 1.399,
      "n": 2,
      "status": "unmeasurable"
     },
     "36": {
-     "median_ratio": 0.728,
+     "median_ratio": 1.009,
      "n": 2,
      "status": "unmeasurable"
     },
     "37": {
-     "median_ratio": 1.738,
-     "n": 1,
+     "median_ratio": 1.16,
+     "n": 2,
      "status": "unmeasurable"
     },
     "38": {
@@ -118,8 +118,8 @@
     },
     "22": {
      "median_ratio": 1.432,
-     "n": 9,
-     "status": "measured"
+     "n": 7,
+     "status": "unmeasurable"
     },
     "23": {
      "median_ratio": 0.853,
@@ -132,13 +132,13 @@
      "status": "measured"
     },
     "25": {
-     "median_ratio": 0.924,
-     "n": 29,
+     "median_ratio": 0.908,
+     "n": 30,
      "status": "measured"
     },
     "26": {
-     "median_ratio": 1.109,
-     "n": 25,
+     "median_ratio": 1.107,
+     "n": 26,
      "status": "measured"
     },
     "27": {
@@ -182,8 +182,8 @@
      "status": "unmeasurable"
     }
    },
-   "fitted_peak_age": 22,
-   "mean_decline_past_peak_per_year": 0.0144,
+   "fitted_peak_age": 25,
+   "mean_decline_past_peak_per_year": -0.0108,
    "cory_prior_peak": [
     23,
     26
@@ -222,33 +222,38 @@
      "status": "measured"
     },
     "28": {
-     "median_ratio": 0.932,
-     "n": 25,
+     "median_ratio": 0.96,
+     "n": 24,
      "status": "measured"
     },
     "29": {
-     "median_ratio": 0.927,
-     "n": 22,
+     "median_ratio": 0.922,
+     "n": 21,
      "status": "measured"
     },
     "30": {
-     "median_ratio": 0.823,
+     "median_ratio": 0.749,
      "n": 13,
      "status": "measured"
     },
     "31": {
-     "median_ratio": 0.817,
-     "n": 10,
+     "median_ratio": 0.929,
+     "n": 11,
      "status": "measured"
     },
     "32": {
-     "median_ratio": 0.804,
+     "median_ratio": 0.657,
      "n": 6,
+     "status": "unmeasurable"
+    },
+    "33": {
+     "median_ratio": 0.952,
+     "n": 1,
      "status": "unmeasurable"
     }
    },
    "fitted_peak_age": 22,
-   "mean_decline_past_peak_per_year": 0.0594,
+   "mean_decline_past_peak_per_year": 0.0527,
    "cory_prior_peak": [
     26,
     28
@@ -292,13 +297,13 @@
      "status": "measured"
     },
     "28": {
-     "median_ratio": 1.118,
-     "n": 18,
+     "median_ratio": 1.049,
+     "n": 19,
      "status": "measured"
     },
     "29": {
-     "median_ratio": 0.773,
-     "n": 15,
+     "median_ratio": 0.847,
+     "n": 16,
      "status": "measured"
     },
     "30": {
@@ -333,7 +338,7 @@
     }
    },
    "fitted_peak_age": 24,
-   "mean_decline_past_peak_per_year": 0.001,
+   "mean_decline_past_peak_per_year": 0.0002,
    "cory_prior_peak": [
     26,
     29
