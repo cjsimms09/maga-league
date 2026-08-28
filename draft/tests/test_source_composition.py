@@ -126,9 +126,40 @@ def test_the_TE_NUMBER_THAT_CARRIED_THE_OLD_ARGUMENT_IS_NOISE():
 def test_the_ONLY_position_that_survives_is_the_one_the_first_pass_MISSED():
     """RB. Not mentioned in the original write-up at all, because the argument
     was built around the position the hypothesis named and the one that looked
-    most extreme raw."""
-    assert R["positions_surviving_null"] == ["RB"], R["positions_surviving_null"]
+    most extreme raw.
+
+    ⛔ KNOWN RED SINCE 2026-08-28, AND DELIBERATELY NOT REPAIRED. RB no longer
+    escapes its null: median_delta -7 against null_p05 -8, a miss of ONE RANK,
+    and `positions_surviving_null` is now empty. Register 403.
+
+    THIS IS NOT THE DRIFT REGISTER 330 HANDLED AND IT IS NOT TREATED AS ONE.
+    That commit re-expressed two stale point-estimate CONSTANTS as the claims
+    they stood for, and it could do so because the claims were intact — it says
+    so in as many words, "RB is still the only position surviving the null".
+    Here the CLAIM is what moved. The retraction this file pins has two halves:
+    the superflex/TE effect was null (still true — `not te["survives_null"]`
+    passes) and the one real effect is at RB (no longer supported). Widening the
+    threshold, or re-asserting whatever RB happens to satisfy today, would erase
+    exactly the information this assertion exists to carry, and choosing the
+    form after seeing the result is what `no_fit_guard` exists to stop.
+
+    ⚠️ WHAT CANNOT BE SEPARATED FROM HERE, and it decides what the row means:
+    a one-rank miss is equally consistent with the EFFECT shrinking and with the
+    NULL BAND widening as the shared population changes (n_shared is 195 today).
+    The prior n is not recorded anywhere, so the two cannot be told apart
+    without it — which is itself the finding routed in register 403.
+
+    So it stays red, with the numbers in the failure text, until the substance
+    is ruled. A red gate that says why is worth more than a green one that
+    forgot."""
     rb = R["per_pos"]["RB"]
+    assert R["positions_surviving_null"] == ["RB"], (
+        "KNOWN RED, register 403 — the RB finding has DECAYED, not broken. "
+        f"surviving={R['positions_surviving_null']}, RB median_delta="
+        f"{rb['median_delta']} against null_p05 {rb['null_p05']} "
+        f"(miss of {abs(rb['median_delta'] - rb['null_p05'])} rank), null_median="
+        f"{rb['null_median']}, n_shared={R['n_shared']}. DO NOT widen the "
+        "threshold and DO NOT re-assert a weaker claim — read the docstring.")
     assert rb["median_delta"] < rb["null_p05"], (
         f"RB {rb['median_delta']} vs p05 {rb['null_p05']}")
 
