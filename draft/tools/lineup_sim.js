@@ -271,6 +271,15 @@ const flip = results.find(r => r.ceiling_vs_mean_pct > 0);
 const p204 = !!flip && flip.rho < 1.0;
 
 const out = {
+  /* PROVENANCE. This artifact is BOARD-DEPENDENT and carried no stamp: at the
+   * same `--seasons 1500` it does not reproduce from its own committed figures,
+   * because the board was rebuilt on 08-26 and every roster, every score and
+   * `players_without_a_bye` moved with it. The graded verdicts (P203, P204) did
+   * NOT move, which is how the regeneration was shown to be safe. An artifact
+   * that cannot name its input is one rebuild away from being a lie — the same
+   * fix `need_curve.js` took on register 393. Register 396. */
+  _generated_at: new Date().toISOString(),
+  _board_built_at: BOARD.built_at || null,
   _territory: 'TERRITORY: A — draft/tools/lineup_sim.js',
   _prereg: 'draft/HOW-I-WOULD-DRAFT-2026-08-19.md (P203-P205)',
   _note: 'REPORT ONLY. Scores STARTING LINEUPS over 17 weeks, not rosters.',
@@ -281,17 +290,45 @@ const out = {
       why: 'if foresight changes the score when nothing is random, the signal is '
          + 'leaking realised points into the total instead of only into the choice' },
     C2_same_seed_across_arms: { ok: true, why: 'identical injury and score draws per arm' },
+    /* ── C3 CHECKED EIGHT OF THE NINE SLOTS AND ITS OWN `why` SAID NINE ───────
+     *
+     * It read `const NEED1 = { QB: 1, RB: 2, WR: 2, TE: 1, K: 1, DEF: 1 }` — a
+     * hardcoded requirement summing to EIGHT, while `SLOTS` two hundred lines up
+     * is the nine the simulator actually fills. The missing one is the FLEX, so
+     * an arm holding exactly one body for every dedicated seat and nothing left
+     * over passed a control whose stated purpose is that the arm "could not fill
+     * nine slots". `lineup_sim.js` never reads `league.starters` at all.
+     *
+     * Found by `frozen_expectation_sweep.js` on its first real run, which is the
+     * whole reason that sweep exists (register 396). The requirement is DERIVED
+     * from `SLOTS` now, so the control and the simulator cannot drift again. */
     C3_every_arm_can_field_a_lineup: (() => {
-      const NEED1 = { QB: 1, RB: 2, WR: 2, TE: 1, K: 1, DEF: 1 };
+      const need = {};                       // dedicated seats, per position
+      let flexSeats = 0;
+      const flexElig = new Set();
+      SLOTS.forEach(s => {
+        if (s.length === 1) need[s[0]] = (need[s[0]] || 0) + 1;
+        else { flexSeats++; s.forEach(q => flexElig.add(q)); }
+      });
       const bad = [];
       Object.entries({ mean: armMean, ceiling: armCeil, floor: armFloor }).forEach(([k, r]) => {
         const c = {}; r.forEach(x => { c[x.position] = (c[x.position] || 0) + 1; });
-        POS.forEach(q => { if ((c[q] || 0) < NEED1[q]) bad.push(`${k}: ${q} ${c[q] || 0}/${NEED1[q]}`); });
+        POS.forEach(q => {
+          if ((c[q] || 0) < (need[q] || 0)) bad.push(`${k}: ${q} ${c[q] || 0}/${need[q]}`);
+        });
+        /* the flex is whatever is LEFT OVER at a flex-eligible position — the
+         * half the literal could not express, and the half that was missing */
+        const spare = [...flexElig].reduce(
+          (a, q) => a + Math.max(0, (c[q] || 0) - (need[q] || 0)), 0);
+        if (spare < flexSeats) bad.push(`${k}: FLEX ${spare}/${flexSeats}`);
       });
       return { ok: bad.length === 0, missing: bad,
+        required_from_SLOTS: Object.assign({ FLEX: flexSeats }, need),
         why: 'the first run compared arms that could not fill nine slots -- the '
            + 'mean arm had no TE and no DEF, so the comparison was about roster '
-           + 'legality and not about the key' };
+           + 'legality and not about the key. The requirement is derived from '
+           + 'SLOTS, never retyped: a hardcoded copy of it omitted the FLEX and '
+           + 'checked eight of nine (register 396).' };
     })(),
     C4_weekly_sd_is_football_shaped: (() => {
       const rb = pool.filter(x => x.position === 'RB' && x.mu > 8);

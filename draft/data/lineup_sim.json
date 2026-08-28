@@ -1,15 +1,17 @@
 {
+ "_generated_at": "2026-08-28T19:05:49.157Z",
+ "_board_built_at": "2026-08-26T04:02:06Z",
  "_territory": "TERRITORY: A — draft/tools/lineup_sim.js",
  "_prereg": "draft/HOW-I-WOULD-DRAFT-2026-08-19.md (P203-P205)",
  "_note": "REPORT ONLY. Scores STARTING LINEUPS over 17 weeks, not rosters.",
  "seasons": 1500,
  "weeks": 17,
- "players_without_a_bye": 1,
+ "players_without_a_bye": 2,
  "controls": {
   "C1_zero_variance_makes_rho_irrelevant": {
    "ok": true,
-   "flat_rho0": 1437.9,
-   "flat_rho1": 1437.9,
+   "flat_rho0": 1404.2,
+   "flat_rho1": 1404.2,
    "why": "if foresight changes the score when nothing is random, the signal is leaking realised points into the total instead of only into the choice"
   },
   "C2_same_seed_across_arms": {
@@ -21,38 +23,47 @@
    "missing": [
     "ceiling: DEF 0/1"
    ],
-   "why": "the first run compared arms that could not fill nine slots -- the mean arm had no TE and no DEF, so the comparison was about roster legality and not about the key"
+   "required_from_SLOTS": {
+    "FLEX": 1,
+    "QB": 1,
+    "RB": 2,
+    "WR": 2,
+    "TE": 1,
+    "K": 1,
+    "DEF": 1
+   },
+   "why": "the first run compared arms that could not fill nine slots -- the mean arm had no TE and no DEF, so the comparison was about roster legality and not about the key. The requirement is derived from SLOTS, never retyped: a hardcoded copy of it omitted the FLEX and checked eight of nine (register 396)."
   },
   "C4_weekly_sd_is_football_shaped": {
    "ok": true,
-   "median_sd_over_mean": 0.35,
+   "median_sd_over_mean": 0.31,
    "why": "the first run gave an RB a weekly sd of 18.0 on a mean of 14.1 by putting the whole SEASON band into weekly noise"
   }
  },
- "hybrid_switch_pick": 1332,
+ "hybrid_switch_pick": 1377,
  "rosters": {
   "mean": [
    "Lamar Jackson (QB)",
-   "Jayden Daniels (QB)",
+   "Drake Maye (QB)",
+   "DeVonta Smith (WR)",
    "Garrett Wilson (WR)",
-   "Mike Evans (WR)",
+   "Rhamondre Stevenson (RB)",
    "Brandon Aubrey (K)",
-   "Rico Dowdle (RB)",
+   "Jaylen Warren (RB)",
    "Jayden Reed (WR)",
-   "Jonathon Brooks (RB)",
+   "Michael Pittman (WR)",
    "Jakobi Meyers (WR)",
-   "KC Concepcion (WR)",
    "Brenton Strange (TE)",
-   "Baltimore Ravens (DEF)"
+   "New England Patriots (DEF)"
   ],
   "ceiling": [
    "Lamar Jackson (QB)",
    "Jayden Daniels (QB)",
-   "Bhayshul Tuten (RB)",
+   "TreVeyon Henderson (RB)",
    "Jonathon Brooks (RB)",
    "Blake Corum (RB)",
    "Jordan Mason (RB)",
-   "Jacory Croskey-Merritt (RB)",
+   "Kyle Monangai (RB)",
    "Zach Charbonnet (RB)",
    "Matthew Golden (WR)",
    "Deebo Samuel (WR)",
@@ -61,28 +72,28 @@
   ],
   "floor": [
    "Lamar Jackson (QB)",
-   "Jayden Daniels (QB)",
+   "Drake Maye (QB)",
+   "DeVonta Smith (WR)",
    "Garrett Wilson (WR)",
    "Brandon Aubrey (K)",
-   "Mike Evans (WR)",
-   "Rico Dowdle (RB)",
+   "Jaylen Warren (RB)",
+   "Michael Pittman (WR)",
    "Jayden Reed (WR)",
    "Jakobi Meyers (WR)",
-   "Xavier Worthy (WR)",
-   "Houston Texans (DEF)",
    "Brenton Strange (TE)",
-   "Tyjae Spears (RB)"
+   "Tyjae Spears (RB)",
+   "Baltimore Ravens (DEF)"
   ],
   "hybrid": [
    "Lamar Jackson (QB)",
+   "DeVonta Smith (WR)",
    "Garrett Wilson (WR)",
-   "Jaylen Waddle (WR)",
+   "Bucky Irving (RB)",
    "Brandon Aubrey (K)",
-   "Bhayshul Tuten (RB)",
-   "Rico Dowdle (RB)",
-   "Mark Andrews (TE)",
+   "Jaylen Warren (RB)",
+   "Travis Kelce (TE)",
    "Houston Texans (DEF)",
-   "Kyler Murray (QB)",
+   "Malik Willis (QB)",
    "Zach Charbonnet (RB)",
    "Chris Rodriguez (RB)",
    "MarShawn Lloyd (RB)"
@@ -91,66 +102,66 @@
  "results": [
   {
    "rho": 0,
-   "mean": 1444.1,
-   "ceiling": 1217.3,
-   "floor": 1433.8,
-   "hybrid": 1410.1,
-   "ceiling_vs_mean_pct": -15.71,
-   "hybrid_vs_mean_pct": -2.35
+   "mean": 1406.9,
+   "ceiling": 1206.1,
+   "floor": 1402.4,
+   "hybrid": 1378.2,
+   "ceiling_vs_mean_pct": -14.27,
+   "hybrid_vs_mean_pct": -2.04
   },
   {
    "rho": 0.1,
-   "mean": 1514.7,
-   "ceiling": 1289.5,
-   "floor": 1509.5,
-   "hybrid": 1449.1,
-   "ceiling_vs_mean_pct": -14.87,
-   "hybrid_vs_mean_pct": -4.33
+   "mean": 1483.3,
+   "ceiling": 1270.7,
+   "floor": 1480.5,
+   "hybrid": 1381.1,
+   "ceiling_vs_mean_pct": -14.33,
+   "hybrid_vs_mean_pct": -6.89
   },
   {
    "rho": 0.2,
-   "mean": 1531.6,
-   "ceiling": 1310.9,
-   "floor": 1525.2,
-   "hybrid": 1459.6,
-   "ceiling_vs_mean_pct": -14.41,
-   "hybrid_vs_mean_pct": -4.7
+   "mean": 1489,
+   "ceiling": 1292.5,
+   "floor": 1486,
+   "hybrid": 1391.7,
+   "ceiling_vs_mean_pct": -13.2,
+   "hybrid_vs_mean_pct": -6.53
   },
   {
    "rho": 0.3,
-   "mean": 1539.4,
-   "ceiling": 1321.2,
-   "floor": 1532.2,
-   "hybrid": 1464.2,
-   "ceiling_vs_mean_pct": -14.17,
-   "hybrid_vs_mean_pct": -4.88
+   "mean": 1494.2,
+   "ceiling": 1303.1,
+   "floor": 1491.6,
+   "hybrid": 1403.6,
+   "ceiling_vs_mean_pct": -12.79,
+   "hybrid_vs_mean_pct": -6.06
   },
   {
    "rho": 0.5,
-   "mean": 1544.6,
-   "ceiling": 1329,
-   "floor": 1536.9,
-   "hybrid": 1470.1,
-   "ceiling_vs_mean_pct": -13.96,
-   "hybrid_vs_mean_pct": -4.82
+   "mean": 1498.9,
+   "ceiling": 1310.9,
+   "floor": 1496.4,
+   "hybrid": 1414.3,
+   "ceiling_vs_mean_pct": -12.54,
+   "hybrid_vs_mean_pct": -5.65
   },
   {
    "rho": 0.75,
-   "mean": 1545.9,
-   "ceiling": 1331.2,
-   "floor": 1538.2,
-   "hybrid": 1473.3,
-   "ceiling_vs_mean_pct": -13.89,
-   "hybrid_vs_mean_pct": -4.7
+   "mean": 1500.3,
+   "ceiling": 1313.1,
+   "floor": 1497.8,
+   "hybrid": 1417.9,
+   "ceiling_vs_mean_pct": -12.48,
+   "hybrid_vs_mean_pct": -5.49
   },
   {
    "rho": 1,
-   "mean": 1546.1,
-   "ceiling": 1331.6,
-   "floor": 1538.3,
-   "hybrid": 1474,
-   "ceiling_vs_mean_pct": -13.88,
-   "hybrid_vs_mean_pct": -4.67
+   "mean": 1500.5,
+   "ceiling": 1313.4,
+   "floor": 1498,
+   "hybrid": 1418.6,
+   "ceiling_vs_mean_pct": -12.47,
+   "hybrid_vs_mean_pct": -5.46
   }
  ],
  "grades": {
