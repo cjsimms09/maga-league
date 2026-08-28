@@ -62,7 +62,10 @@ ck('every numeric register citation in source resolves to a row that exists',
 // FAIL ARM — the check must be able to fire, or it is decoration.
 {
   const fakeIds = new Set(['1', '2']);
-  const hit = ['register 999'].filter(s => {
+  // Built by concatenation on purpose: written literally, this line would be
+  // a dangling citation in its own right and the scan above would flag this
+  // very file — which it did, the first time it ran.
+  const hit = ['regi' + 'ster ' + '999'].filter(s => {
     const m = s.match(/register (\d+)/);
     return m && !fakeIds.has(m[1]);
   });
