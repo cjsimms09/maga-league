@@ -1,12 +1,21 @@
 {
  "_territory": "TERRITORY: A — draft/tools/need_curve.js",
  "_prereg": "draft/NEED-CURVE-PREREG-2026-08-19.md",
+ "_generated_at": "2026-08-28T18:51:18.126Z",
+ "_board_built_at": "2026-08-26T04:02:06Z",
+ "_board_players": 705,
+ "_board_kept_players": 23,
  "_note": "REPORT ONLY. draft_plan.js is NOT touched; it feeds seat_plan.json which the war room reads.",
  "controls": {
   "C1_reproduces_the_shipped_curve": {
    "ok": true,
-   "worst_abs_diff": 0,
-   "why": "the same binomial at WEEKS=1 with the shipped rate IS pNeedNth"
+   "worst_abs_diff": 3.469446951953614e-17,
+   "why": "needAt() forced to the shipped rate and one-week basis IS pNeedNth"
+  },
+  "C1b_known_negative_the_rate_swap_is_visible": {
+   "ok": true,
+   "worst_abs_diff": 0.094891,
+   "why": "at WEEKS=1 but the MEASURED rate the curves must differ; if this reads 0 the comparison is not looking at the new function"
   },
   "C2_monotone_non_increasing": {
    "ok": true
@@ -24,6 +33,13 @@
    },
    "why": "read from the board; gamesExpected() throws rather than substituting"
   },
+  "C6_keepers_are_in_the_population": {
+   "ok": true,
+   "kept_players": 23,
+   "rb_in_population": 139,
+   "rb_in_draftable_pool": 127,
+   "why": "the last-starter line is a POPULATION question; since the 08-23 lock the draftable pool alone reads it 23 bodies too deep, worst at RB (114.2 vs 159.8, 12 of the 23 keepers)"
+  },
   "C5_flex_credited_once": {
    "ok": true,
    "why": "crediting the flex to RB, WR and TE at once once drafted three tight ends"
@@ -32,10 +48,12 @@
  "controls_all_passed": true,
  "weeks": 17,
  "waiver_levels": {
-  "QB": 319,
-  "RB": 112,
-  "WR": 124,
-  "TE": 124
+  "QB": 305.2,
+  "RB": 84.1,
+  "WR": 112.3,
+  "TE": 112.5,
+  "K": 130.1,
+  "DEF": 106.1
  },
  "curves": {
   "QB": {
@@ -117,32 +135,32 @@
  },
  "priced_against_wire": {
   "QB": [
-   31.3,
-   29.2,
+   45.6,
+   42.5,
    0,
    0,
    0,
    0
   ],
   "RB": [
-   41.6,
-   41.6,
-   41.6,
-   41.5,
-   37.5,
-   7.2
+   75.7,
+   75.7,
+   75.7,
+   75.7,
+   68.3,
+   13.2
   ],
   "WR": [
-   58.4,
-   58.4,
-   58.4,
-   24.3,
+   72.6,
+   72.6,
+   72.5,
+   30.2,
    0,
    0
   ],
   "TE": [
-   17.4,
-   16.9,
+   29.2,
+   28.4,
    0,
    0,
    0,
@@ -159,10 +177,61 @@
   "TRUE": false
  },
  "P143": {
-  "second_QB": 29.2,
-  "second_TE": 16.9,
-  "third_RB": 41.6,
-  "third_WR": 58.4,
+  "second_QB": 42.5,
+  "second_TE": 28.4,
+  "third_RB": 75.7,
+  "third_WR": 72.5,
   "TRUE": true
- }
+ },
+ "decomposition": [
+  {
+   "pos": "QB",
+   "held": 1,
+   "A_shipped": 0.14,
+   "B_rate_only": 0.1471,
+   "C_basis_only": 0.923,
+   "D_corrected": 0.9331
+  },
+  {
+   "pos": "RB",
+   "held": 3,
+   "A_shipped": 0.6268,
+   "B_rate_only": 0.5319,
+   "C_basis_only": 1,
+   "D_corrected": 1
+  },
+  {
+   "pos": "RB",
+   "held": 4,
+   "A_shipped": 0.1913,
+   "B_rate_only": 0.1276,
+   "C_basis_only": 0.9729,
+   "D_corrected": 0.9017
+  },
+  {
+   "pos": "WR",
+   "held": 2,
+   "A_shipped": 0.36,
+   "B_rate_only": 0.3218,
+   "C_basis_only": 0.9995,
+   "D_corrected": 0.9986
+  },
+  {
+   "pos": "WR",
+   "held": 3,
+   "A_shipped": 0.04,
+   "B_rate_only": 0.0311,
+   "C_basis_only": 0.5004,
+   "D_corrected": 0.416
+  },
+  {
+   "pos": "TE",
+   "held": 1,
+   "A_shipped": 0.22,
+   "B_rate_only": 0.1882,
+   "C_basis_only": 0.9854,
+   "D_corrected": 0.9711
+  }
+ ],
+ "_decomposition_note": "register 393 — the correction swaps the per-week rate AND the basis. A shipped / B rate only / C basis only / D corrected. The basis carries it; the rate swap offsets a little, so the move is understated."
 }

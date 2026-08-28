@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 392,
+ "next_numeric_id": 394,
  "history": [
   {
    "id": 47,
@@ -1102,6 +1102,15 @@
   },
   {
    "id": 391,
+   "claimed_at": "2026-08-28"
+  },
+  {
+   "id": 392,
+   "claimed_at": "2026-08-28",
+   "note": "BURNED, names nothing. A ran next_register_id.js to LOOK UP the next id while planning register 393, which claims it. The fourth instance this session of citing an id before filing the row that owns it; the fix is that the id comes back FROM file_register_row.js, never from a lookup beforehand."
+  },
+  {
+   "id": 393,
    "claimed_at": "2026-08-28"
   }
  ]
