@@ -83,6 +83,30 @@ function overdueCount(today) {
   } catch (e) { return null; }
 }
 
+/* ── THE GUARD THIS TOOL DID NOT HAVE, AND ITS FIRST REAL USE PROVED IT ─────
+ *
+ * 2026-08-28, within the hour of shipping: amending row 283 PREPENDED a header
+ * carrying "recheck 09-04" while the original action still said "recheck 08-28".
+ * Two live dates in one open row means the build's behaviour depends on WORD
+ * ORDER — the tool's own precedence is last-wins — and `register_recheck_check`'s
+ * live-register arm went red. Every guard this tool ran passed: the column count
+ * was right, the overdue count did not rise, test_defect_register.py was green.
+ *
+ * That is the SAME shape as the corruption this tool was built for: a row that
+ * satisfies every structural check and is wrong. And prepending is exactly what
+ * an amendment does, so this tool is the thing most likely to cause it.
+ *
+ * The rule is not reimplemented here — a second copy is how two guards come to
+ * disagree (register 313). It is the same regex the live test uses, and if that
+ * test's rule changes this must be updated with it. Register 400. */
+function liveDates(rowText) {
+  const seen = new Set();
+  const re = /recheck\s+(?:(\d{4})-)?(\d{2})-(\d{2})/gi;
+  let m;
+  while ((m = re.exec(rowText)) !== null) seen.add(m[2] + '-' + m[3]);
+  return [...seen];
+}
+
 function structuralGuard() {
   try {
     execFileSync('python3', ['-m', 'pytest', 'draft/tests/test_defect_register.py', '-q'],
@@ -134,6 +158,18 @@ function selfTest() {
     'no marker here'.replace(/@SHA@/g, 'abc1234') === 'no marker here');
   ck('  and does replace the marker when it is there',
     'fixed in @SHA@'.replace(/@SHA@/g, 'abc1234') === 'fixed in abc1234');
+
+  /* KNOWN POSITIVE — the real 283 shape: a prepended header with a new date
+   * over an original action that still carries the old one. */
+  ck('KNOWN POSITIVE — two live recheck dates in one row are seen',
+    liveDates('owner A, recheck 09-04. ── ORIGINAL ── ... recheck 08-28 more text').length === 2,
+    liveDates('owner A, recheck 09-04. ── ORIGINAL ── ... recheck 08-28 more text'));
+  ck('  and the retired form leaves exactly ONE live date, which is the fix the '
+    + 'rule prescribes',
+    liveDates('recheck 09-04 ... recheck WAS 08-28 — superseded').length === 1,
+    liveDates('recheck 09-04 ... recheck WAS 08-28 — superseded'));
+  ck('KNOWN NEGATIVE — one date stays one date',
+    liveDates('unblocked by nothing, owner A, recheck 09-02.').length === 1);
 
   console.log('\n' + pass + '/' + (pass + fail) + ' self-tests passed');
   return fail ? 1 : 0;
@@ -189,10 +225,19 @@ function main() {
   const g = structuralGuard();
   const overdueAfter = overdueCount(today);
   const worse = (overdueBefore != null && overdueAfter != null && overdueAfter > overdueBefore);
-  if (!g.ok || worse) {
+  /* Two live dates only matter while the row is OPEN — a closed row is not
+   * chased by anything, so its retired date is harmless. */
+  const closedNow = /\b(closed|resolved|ruled|withdrawn|superseded|retracted)\b/i
+    .test(cells[CELLS - 3]);
+  const dates = closedNow ? [] : liveDates(lines[ix]);
+  const ambiguous = dates.length > 1;
+  if (!g.ok || worse || ambiguous) {
     fs.writeFileSync(REGISTER, before);
     console.error('\n⛔ GUARD FAILED amending row ' + id
-      + (worse ? ' — the overdue count went ' + overdueBefore + ' -> ' + overdueAfter
+      + (ambiguous ? ' — the row now carries TWO LIVE RECHECK DATES (' + dates.join(', ')
+        + '), so which one the build honours depends on WORD ORDER. Write the '
+        + 'retired one as "recheck WAS MM-DD" and say why (register 400).'
+      : worse ? ' — the overdue count went ' + overdueBefore + ' -> ' + overdueAfter
         + ', so this edit put the row past its own recheck date (register 374).'
         : ' — test_defect_register.py'));
     console.error('   DEFECT-REGISTER.md has been REVERTED; nothing was left half-written.');
