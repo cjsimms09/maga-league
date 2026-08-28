@@ -18,6 +18,7 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
+import sys
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
@@ -97,6 +98,13 @@ def build() -> dict:
 
 if __name__ == "__main__":
     d = build()
+    # `--json` prints the ARTIFACT, the contract
+    # draft/tools/check_artifact_freshness.py regenerates against
+    # (register 386). OPT-IN: the human report below is what a person
+    # runs this for, so default stdout is deliberately untouched.
+    if "--json" in sys.argv:
+        print(json.dumps(d))
+        raise SystemExit(0)
     print(f"wrote market_upside_2026.json: {d['players_covered']} players, "
           f"{d['ladders_dropped_incoherent']} incoherent dropped, "
           f"{d['ladders_unmatched_name']} unmatched")

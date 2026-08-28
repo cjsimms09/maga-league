@@ -277,8 +277,10 @@
    "artifact_path": "public/expert_spread_2026.json",
    "regenerate_command": [
     "python3",
-    "draft/backtest/expert_spread_artifact.py"
-   ]
+    "draft/backtest/expert_spread_artifact.py",
+    "--json"
+   ],
+   "_contract_note": "--json added 2026-08-28 (register 386): default output is a human report, which check_artifact_freshness correctly called ERROR \u2014 'a real bug, not staleness'. Opt-in so readers are safe."
   },
   {
    "id": "market_upside_2026",
@@ -287,8 +289,10 @@
    "artifact_path": "public/market_upside_2026.json",
    "regenerate_command": [
     "python3",
-    "draft/backtest/market_upside_artifact.py"
-   ]
+    "draft/backtest/market_upside_artifact.py",
+    "--json"
+   ],
+   "_contract_note": "--json added 2026-08-28 (register 386): default output is a human report, which check_artifact_freshness correctly called ERROR \u2014 'a real bug, not staleness'. Opt-in so readers are safe."
   },
   {
    "id": "own_attribution_2026",
@@ -297,8 +301,10 @@
    "artifact_path": "draft/backtest/own_attribution_2026.json",
    "regenerate_command": [
     "python3",
-    "draft/backtest/own_attribution.py"
-   ]
+    "draft/backtest/own_attribution.py",
+    "--json"
+   ],
+   "_contract_note": "--json added 2026-08-28 (register 386): default output is a human report, which check_artifact_freshness correctly called ERROR \u2014 'a real bug, not staleness'. Opt-in so readers are safe."
   },
   {
    "id": "age_curve_2026",
@@ -307,8 +313,10 @@
    "artifact_path": "draft/backtest/age_curve_2026.json",
    "regenerate_command": [
     "python3",
-    "draft/backtest/age_curve_fit.py"
-   ]
+    "draft/backtest/age_curve_fit.py",
+    "--json"
+   ],
+   "_contract_note": "--json added 2026-08-28 (register 386): default output is a human report, which check_artifact_freshness correctly called ERROR \u2014 'a real bug, not staleness'. Opt-in so readers are safe."
   },
   {
    "id": "recency_weight_fit",
@@ -329,8 +337,10 @@
    "artifact_path": "draft/backtest/ridge_arm_fit.json",
    "regenerate_command": [
     "python3",
-    "draft/backtest/ridge_arm_fit.py"
-   ]
+    "draft/backtest/ridge_arm_fit.py",
+    "--json"
+   ],
+   "_contract_note": "--json added 2026-08-28 (register 386): default output is a human report, which check_artifact_freshness correctly called ERROR \u2014 'a real bug, not staleness'. Opt-in so readers are safe."
   },
   {
    "id": "variance_inputs_2026",

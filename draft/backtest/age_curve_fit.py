@@ -33,6 +33,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from statistics import median
+import sys
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
@@ -123,6 +124,13 @@ def build() -> dict:
 
 if __name__ == "__main__":
     d = build()
+    # `--json` prints the ARTIFACT, the contract
+    # draft/tools/check_artifact_freshness.py regenerates against
+    # (register 386). OPT-IN: the human report below is what a person
+    # runs this for, so default stdout is deliberately untouched.
+    if "--json" in sys.argv:
+        print(json.dumps(d))
+        raise SystemExit(0)
     print(f"pairs: {d['player_season_pairs']}")
     for pos, c in d["curves"].items():
         print(f"{pos}: fitted peak {c['fitted_peak_age']} (Cory prior "
