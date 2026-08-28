@@ -14,64 +14,64 @@
    {
     "scored_on": 2024,
     "alpha_chosen_on_prior": 1000.0,
-    "rho_ridge": 0.605,
-    "rho_ols": 0.5896,
-    "gap": 0.0154
+    "rho_ridge": 0.6052,
+    "rho_ols": 0.5909,
+    "gap": 0.0143
    },
    {
     "scored_on": 2025,
     "alpha_chosen_on_prior": 1000.0,
-    "rho_ridge": 0.6651,
+    "rho_ridge": 0.6652,
     "rho_ols": 0.6625,
-    "gap": 0.0026
+    "gap": 0.0027
    }
   ],
   "RB": [
    {
     "scored_on": 2024,
     "alpha_chosen_on_prior": 1000.0,
-    "rho_ridge": 0.7188,
-    "rho_ols": 0.7117,
-    "gap": 0.0071
+    "rho_ridge": 0.7159,
+    "rho_ols": 0.7074,
+    "gap": 0.0085
    },
    {
     "scored_on": 2025,
     "alpha_chosen_on_prior": 1000.0,
-    "rho_ridge": 0.7643,
-    "rho_ols": 0.7626,
-    "gap": 0.0017
+    "rho_ridge": 0.7623,
+    "rho_ols": 0.7623,
+    "gap": 0.0
    }
   ],
   "WR": [
    {
     "scored_on": 2024,
-    "alpha_chosen_on_prior": 1.0,
-    "rho_ridge": 0.6978,
-    "rho_ols": 0.6978,
-    "gap": 0.0
+    "alpha_chosen_on_prior": 10.0,
+    "rho_ridge": 0.6983,
+    "rho_ols": 0.6979,
+    "gap": 0.0004
    },
    {
     "scored_on": 2025,
     "alpha_chosen_on_prior": 1000.0,
-    "rho_ridge": 0.7737,
-    "rho_ols": 0.7737,
-    "gap": 0.0
+    "rho_ridge": 0.773,
+    "rho_ols": 0.7731,
+    "gap": -0.0001
    }
   ],
   "TE": [
    {
     "scored_on": 2024,
     "alpha_chosen_on_prior": 1000.0,
-    "rho_ridge": 0.6848,
-    "rho_ols": 0.679,
-    "gap": 0.0058
+    "rho_ridge": 0.6835,
+    "rho_ols": 0.6786,
+    "gap": 0.0049
    },
    {
     "scored_on": 2025,
     "alpha_chosen_on_prior": 1000.0,
-    "rho_ridge": 0.7501,
-    "rho_ols": 0.7501,
-    "gap": 0.0
+    "rho_ridge": 0.7511,
+    "rho_ols": 0.7512,
+    "gap": -0.0001
    }
   ]
  }
