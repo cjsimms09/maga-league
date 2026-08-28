@@ -163,11 +163,21 @@ function zOf(p) {
 const sigmaOf = p => (p.proj_ceiling != null && p.proj_mean != null)
   ? Math.max(0, (+p.proj_ceiling - +p.proj_mean) / Z128) : 0;
 
-/* dispersion at each position's WIRE rank -- the alternative body's range */
+/* dispersion at each position's WIRE rank -- the alternative body's range.
+ *
+ * ── THE RANK IS LEAGUE-WIDE, SO THE POOL MUST BE TOO (register 397) ────────
+ * `WIRE_RANK` is this room's revealed consumption per 150-pick draft (see the
+ * WAIVER block above): the wire body is the (N+1)th best at his position IN THE
+ * LEAGUE. Ranking that over `DATA.players` alone reads it 23 bodies deep, since
+ * the 2026-08-23 lock emptied every keeper out of `players`. Fourth hand-rolled
+ * copy of register 283's arithmetic, after the two register 394 retired, so it
+ * shares `draft_plan.starterPool()` rather than becoming a fifth.
+ * MEASURED on the 08-26 board, pre-DS column: RB wire sigma 17.42 -> 16.76 and
+ * WR 9.54 -> 5.14. Small against the other two, and real. */
 const WIRE_RANK = { QB: 17, RB: 48, WR: 53, TE: 15, K: 11, DEF: 11 };
 const SIGMA_WIRE = {};
 POS.forEach(q => {
-  const v = DATA.players.filter(p => p.position === q && p.proj_mean != null)
+  const v = PLAN.starterPool().filter(p => p.position === q && p.proj_mean != null)
     .sort((a, b) => +b.proj_mean - +a.proj_mean);
   const r = WIRE_RANK[q] || 1;
   const win = v.slice(Math.max(0, r - 4), r + 3).map(sigmaOf).sort((a, b) => a - b);
