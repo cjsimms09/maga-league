@@ -165,9 +165,30 @@ const ctl = {};
   ctl.C2_monotone_non_increasing = { ok: mono };
   ctl.C3_bounded_0_1 = { ok: bounded };
 }
-ctl.C4_q_from_the_board = { ok: true,
-  games_expected_median: Object.fromEntries(POS.map(p => [p, gamesExpected(p)])),
-  why: 'read from the board; gamesExpected() throws rather than substituting' };
+/* ⛔ THIS CONTROL WAS `ok: true` — a named property asserted by writing the
+ * word, not checked. Written by me on 2026-08-28 in the same commit that fixed
+ * two other vacuous controls, which is why the sweep that found it is a tool
+ * and not a habit (register 410).
+ *
+ * The property it names is checkable in one line: every position must yield a
+ * games_expected that is a real number inside a season, and the q it implies
+ * must be a probability. `gamesExpected()` already THROWS rather than
+ * substituting a constant, so reaching here at all is half the evidence — the
+ * other half is that what it returned is usable. */
+ctl.C4_q_from_the_board = (() => {
+  const ge = Object.fromEntries(POS.map(p => [p, gamesExpected(p)]));
+  const q = Object.fromEntries(POS.map(p => [p, (WEEKS - ge[p] + 1) / WEEKS]));
+  const badGe = POS.filter(p => !(Number.isFinite(ge[p]) && ge[p] > 0 && ge[p] <= WEEKS));
+  const badQ = POS.filter(p => !(q[p] > 0 && q[p] < 1));
+  return { ok: badGe.length === 0 && badQ.length === 0,
+    games_expected_median: ge,
+    q_per_week: Object.fromEntries(POS.map(p => [p, +q[p].toFixed(4)])),
+    positions_with_an_unusable_games_expected: badGe,
+    positions_whose_q_is_not_a_probability: badQ,
+    why: 'read from the board — gamesExpected() throws rather than substituting a '
+       + 'constant — and the value it returns is checked to be a real number inside '
+       + 'a season whose implied q is a probability' };
+})();
 /* C6 — THE GUARD FOR THE DEFECT THAT SILENTLY MOVED THIS TOOL'S HEADLINE.
  * The league-wide keeper lock empties every keeper out of `board.players`, and
  * the pricing line below is a statement about the LEAGUE, not about the

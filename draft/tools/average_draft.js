@@ -390,7 +390,18 @@ const ctl = {
     why: 'reported, not silently defaulted' },
   C3_same_picks_and_keepers_every_room: { ok: SCHED.length === 12 && PLAN.keep.length === 3,
     sched: SCHED, keepers: PLAN.keep.map(k => k.position) },
-  C4_sources_passed_their_controls: { ok: true },
+  /* ⛔ WAS `{ ok: true }` — the one control in this file that asserted its
+   * property instead of reading it, while the flags it is about are loaded
+   * twenty lines from the top. Register 410. */
+  C4_sources_passed_their_controls: {
+    ok: MN.controls_all_passed === true && ST.controls_all_passed === true
+        && FLEXX.controls_all_passed === true,
+    measured_need_curve: MN.controls_all_passed,
+    streamability: ST.controls_all_passed,
+    flex_exposure: FLEXX.controls_all_passed,
+    why: 'this run is only as good as the three artifacts it drives on; the file '
+       + 'REFUSES at load if any of them failed, and this reads the same flags '
+       + 'rather than restating the conclusion' },
   C6_gate_never_leaves_a_slot_empty: (() => {
     const bad = rows.filter(r => !r.legal).length;
     return { ok: bad === 0, rooms_with_an_unfilled_starting_slot: bad,

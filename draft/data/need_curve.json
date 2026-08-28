@@ -1,7 +1,7 @@
 {
  "_territory": "TERRITORY: A — draft/tools/need_curve.js",
  "_prereg": "draft/NEED-CURVE-PREREG-2026-08-19.md",
- "_generated_at": "2026-08-28T18:51:18.126Z",
+ "_generated_at": "2026-08-28T23:57:40.910Z",
  "_board_built_at": "2026-08-26T04:02:06Z",
  "_board_players": 705,
  "_board_kept_players": 23,
@@ -31,7 +31,15 @@
     "WR": 15,
     "TE": 14.8
    },
-   "why": "read from the board; gamesExpected() throws rather than substituting"
+   "q_per_week": {
+    "QB": 0.1471,
+    "RB": 0.2235,
+    "WR": 0.1765,
+    "TE": 0.1882
+   },
+   "positions_with_an_unusable_games_expected": [],
+   "positions_whose_q_is_not_a_probability": [],
+   "why": "read from the board — gamesExpected() throws rather than substituting a constant — and the value it returns is checked to be a real number inside a season whose implied q is a probability"
   },
   "C6_keepers_are_in_the_population": {
    "ok": true,
