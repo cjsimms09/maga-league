@@ -389,9 +389,35 @@ function dpSeat(picks, seatId, flexArm) {
 }
 
 /* ── run ──────────────────────────────────────────────────────────────────── */
+/* ⚠️ A SEASON COUNTS ONLY IF IT HAS REALIZED POINTS, NOT MERELY A `weeks` KEY.
+ *
+ * `if (!season.weeks || ...)` was the guard, and it held while 2026 had no
+ * weeks at all. The 2026 scaffolding landed 18 weeks of ZEROS after the 08-22
+ * draft — week 1 is 09-10, nothing has been played — and 2026 has a 150-pick
+ * draft, so it walked straight through the guard and added TEN SEATS THAT
+ * GRADE 0 FOR EVERY OWNER AND EVERY ARM.
+ *
+ * That is not a small error. It diluted every mean this tool reports by
+ * exactly 30/40: the MLV-vs-owner edge read +45.84/+29.33 and became
+ * +34.38/+22.00, which is 0.75x to the decimal. Control A caught it and
+ * REFUSED to report, which is the control doing precisely its job — the
+ * frozen literal was RIGHT and the guard was wrong. Register 419.
+ *
+ * ⚠️ THE PREDICATE IS "COMPLETE", NOT "SOMEBODY SCORED", AND THE DIFFERENCE
+ * IS A DATE. The first cut of this fix asked whether ANY week had realized
+ * points. That is correct today and becomes WRONG ON 2026-09-10, when week 1
+ * is played: 2026 would then satisfy it and enter a FULL-SEASON grade on
+ * 1 of 18 weeks — a subtler error than the zeros, and one that would arrive
+ * on a schedule with nobody watching. `gradeSeason` grades a season, so a
+ * season qualifies only when every week it carries has been played. Measured:
+ * 2023, 2024 and 2025 each have 18 of 18 weeks scored; 2026 has 0 of 18. */
+const { isCompleteSeason } = require('./season_completeness.js');
+
 const seats = [];
+const skippedUngraded = [];
 Object.values(H.seasons).forEach(season => {
   if (!season.weeks || !(season.drafts || []).length) return;
+  if (!isCompleteSeason(season)) { skippedUngraded.push(season.season); return; }
   const draft = (season.drafts || []).find(d => (d.picks || []).length >= 100);
   if (!draft) return;
   const picks = (draft.picks || []).slice().sort((a, b) => a.pick_no - b.pick_no);
@@ -424,6 +450,14 @@ Object.values(H.seasons).forEach(season => {
     });
   });
 });
+
+/* An exclusion nobody can see is the defect this run was built out of, so it
+ * is printed and it goes into the artifact. Register 419. */
+if (skippedUngraded.length) {
+  console.error('[seasons] EXCLUDED as INCOMPLETE (drafted, but not every '
+    + 'week has been played): ' + skippedUngraded.join(', ') + ' — they would grade 0 for every '
+    + 'owner and dilute every mean below.');
+}
 
 /* control A: the replicated greedy must reproduce the harness numbers */
 const mA = seats.reduce((a, s) => a + (s.mlv_actual - s.owner_actual), 0) / seats.length;

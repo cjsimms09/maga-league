@@ -494,6 +494,9 @@ function buildSeat(season, draft, seatId, rosterOn) {
   return mine;
 }
 
+const { isCompleteSeason } = require('./season_completeness.js');
+const skippedUngraded = new Set();   // register 419 — announced, never silent
+
 const ownerRoster = (draft, seatId) => (draft.picks || [])
   .filter(p => p.roster_id === seatId).map(p => p.player_id);
 
@@ -501,6 +504,11 @@ const ownerRoster = (draft, seatId) => (draft.picks || [])
 const seats = [];
 Object.values(H.seasons).forEach(season => {
   if (!season.weeks || !(season.drafts || []).length) return;
+  /* register 419: 2026 carries 18 weeks of ZEROS and a 150-pick draft, so the
+   * guard above passes and ten seats grading 0 for everyone enter the means.
+   * MEASURED: seats_checked 40 vs 30, and P215's mean_delta -15.3 where the
+   * truth on played seasons is -20.41. */
+  if (!isCompleteSeason(season)) { skippedUngraded.add(season.season); return; }
   const draft = (season.drafts || []).find(d => (d.picks || []).length >= 100);
   if (!draft) return;
   const ids = [...new Set((draft.picks || []).map(p => p.roster_id))].sort((a, b) => a - b);
@@ -560,9 +568,19 @@ const equationBeatsOff = seats.filter(s => s.builder.points > s.builder_no_equat
  * reproduce the owner's own total. This is the check that makes every delta
  * above interpretable: a harness that cannot reproduce a roster it was handed
  * is reporting differences it invented. */
+if (skippedUngraded.size) {
+  console.error('[seasons] EXCLUDED as INCOMPLETE (drafted, but not every week '
+    + 'has been played): ' + [...skippedUngraded].join(', ') + ' — register 419.');
+}
+
 let c1ok = true, c1n = 0;
 Object.values(H.seasons).forEach(season => {
   if (!season.weeks || !(season.drafts || []).length) return;
+  /* register 419: 2026 carries 18 weeks of ZEROS and a 150-pick draft, so the
+   * guard above passes and ten seats grading 0 for everyone enter the means.
+   * MEASURED: seats_checked 40 vs 30, and P215's mean_delta -15.3 where the
+   * truth on played seasons is -20.41. */
+  if (!isCompleteSeason(season)) { skippedUngraded.add(season.season); return; }
   const draft = (season.drafts || []).find(d => (d.picks || []).length >= 100);
   if (!draft) return;
   [...new Set((draft.picks || []).map(p => p.roster_id))].forEach(seatId => {

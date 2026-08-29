@@ -601,6 +601,20 @@
    "timeout_s": 300,
    "_contract_note": "registered 2026-08-29 (register 415) via regenerate_writes_artifact: this tool writes its artifact at a fixed path and prints a human report, so it could satisfy neither the stdout contract nor {OUT}. It is checked by running it in a throwaway git worktree and reading the sandbox copy back; nothing is written into the repo. Verified by running it once \u2014 a candidate that ERRORed was NOT registered.",
    "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "objective_dp",
+   "description": "Exact DP optimum of the construction problem vs the MLV greedy (prereg \u00a712, P142). Report only.",
+   "owner_module": "draft/tools/objective_dp.js",
+   "artifact_path": "draft/data/objective_dp.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/objective_dp.js"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 400,
+   "_contract_note": "registered 2026-08-29 (register 419) \u2014 excluded from register 415's batch because its control A was failing; the cause was the ungraded 2026 season, not the tool, and it now reproduces +45.84/+29.33.",
+   "_verified_at_registration": "runs clean, control A passes"
   }
  ],
  "_not_yet_migrated": [

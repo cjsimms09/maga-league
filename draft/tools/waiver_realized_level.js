@@ -38,11 +38,17 @@ const posOf = id => POSOF[String(id)] || (/^[A-Z]{2,3}$/.test(String(id)) ? 'DEF
 /* the floor under attack — §13's numbers, per week */
 const FLOOR = { QB: 322.9 / 17, RB: 78.4 / 17, WR: 124.8 / 17, TE: 130.4 / 17, K: 128.6 / 17, DEF: 100.0 / 17 };
 
+const { isCompleteSeason } = require('./season_completeness.js');
+const skippedUngraded = new Set();   // register 419 — announced, never silent
 const perAdd = { QB: [], RB: [], WR: [], TE: [], K: [], DEF: [] };
 let joined = 0, skippedNoGames = 0;
 Object.values(H.seasons).forEach(season => {
   const t = season.transactions || {};
   if (!Object.keys(t).length || !season.weeks) return;
+  /* register 419: 2026's 18 weeks of zeros pass the guard above and drag the
+   * realized-level means. MEASURED: joined 734 vs 730, K rows 85 vs 84,
+   * K realized_mean_per_week 7.63 vs the true 7.72. */
+  if (!isCompleteSeason(season)) { skippedUngraded.add(season.season); return; }
   const wk = {};   // week -> {id: pts}
   Object.entries(season.weeks).forEach(([wn, arr]) => {
     const w = +wn;
@@ -114,6 +120,10 @@ POS.forEach(q => {
 });
 console.log('='.repeat(74));
 
+if (skippedUngraded.size) {
+  console.error('[seasons] EXCLUDED as INCOMPLETE (drafted, but not every week '
+    + 'has been played): ' + [...skippedUngraded].join(', ') + ' — register 419.');
+}
 fs.writeFileSync(path.join(ROOT, 'draft', 'data', 'waiver_realized_level.json'),
   JSON.stringify({ generated: new Date().toISOString(),
     prereg: 'DISTRIBUTIONAL-OBJECTIVE-PREREG-2026-08-20.md §2 (P150)',
