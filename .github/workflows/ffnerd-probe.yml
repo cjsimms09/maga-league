@@ -56,7 +56,11 @@ jobs:
           else
             git commit -m "FantasyNerds census [skip deploy]" \
               -m "What the FFNERD_API_KEY tier serves, per endpoint. Automated via ffnerd-probe.yml."
-            git push
+            # main moves fast here — round 2's census was committed and then
+            # lost to a push race (rejected, fetch first). Rebase-then-push,
+            # retried once, so a busy main cannot eat a measurement again.
+            git pull --rebase -q origin main || true
+            git push || { git pull --rebase -q origin main && git push; }
           fi
           if [ "${PROBE_EXIT:-0}" -ne 0 ]; then
             echo "::error::census committed but NO endpoint returned >=50 named players — the key may unlock nothing at this tier; read draft/data/ffnerd_census.json"
