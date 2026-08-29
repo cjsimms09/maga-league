@@ -268,7 +268,9 @@
     "-c",
     "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport projection_error as PE\ncal = PE.regenerate()\nif cal.get('status') == 'VOID':\n    print(cal.get('reason', 'VOID'), file=sys.stderr)\n    sys.exit(1)\nprint(json.dumps(PE.document(cal)))"
    ],
-   "timeout_s": 1800
+   "timeout_s": 1800,
+   "needs_network": true,
+   "needs_network_reason": "MEASURED 2026-08-29 over all 53 entries: this is the ONLY entry that ERRORs, and it fails fetching the Sleeper player index. Its own error says it \u2014 'a fact about the runner, not about any historical season'. Marked so a scheduled ERROR-only gate does not go red on the network (register 418)."
   },
   {
    "id": "expert_spread_2026",

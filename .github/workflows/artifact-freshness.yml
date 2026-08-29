@@ -1,0 +1,121 @@
+# THE ARTIFACT REGISTRY RUNS ON A CLOCK, AND IT GATES ON *ERROR* ONLY.
+#
+# ── WHY THIS EXISTS (register 418) ─────────────────────────────────────────
+#
+# Cory's 2026-08-16 ruling replaced N bespoke `test_X_matches_regeneration`
+# pytest functions with one registry, `draft/data/artifact_registry.json`.
+# MEASURED 2026-08-29: NO WORKFLOW RAN IT. The only mention of
+# check_artifact_freshness under .github/workflows/ was a comment.
+#
+# That is worse than "a check nobody runs", because the surviving bespoke
+# tests carry comments telling readers to migrate INTO the registry —
+# test_variance_inputs.py:143 says so in as many words — and one artifact
+# already had. Following that instruction dropped coverage instead of moving
+# it. The pytest node now carries a DO-NOT-DELETE note pointing here.
+#
+# ── WHY IT GATES ON ERROR AND NOT ON STALE ─────────────────────────────────
+#
+# The script's own docstring separates the two: STALE means the board or the
+# inputs moved since the artifact was committed, which is NORMAL — 42 of 53
+# entries are stale today and every one of them is legitimate drift. ERROR
+# means a regenerate_command crashed, timed out, or produced no valid JSON,
+# which the docstring calls "a code bug (or a broken registry entry)". The
+# script already exits nonzero on ERROR alone, so no code change was needed
+# to gate this way.
+#
+# ⛔ GATING ON STALE WOULD MAKE THIS RED MOST MORNINGS FOR CORRECT REASONS,
+# and this project has three recorded instances of what happens next —
+# registers 388 ("a guard that fires on ordinary work is a guard people
+# delete"), 417 (an alarm that went red with no available action and had to
+# be repaired) and 422. The stale count is printed on every run; it is
+# information, not a failure.
+#
+# ── WHY A SCHEDULE AND NOT `on: push` ──────────────────────────────────────
+#
+# The full sweep took ~20 minutes over 53 entries, because every entry is
+# regenerated in a throwaway git worktree (register 415 — the script used to
+# overwrite the artifacts it was checking, including a file in public/). That
+# is far too slow to sit in the push path, and the thing it detects — a
+# generator that has stopped working — does not appear at push time anyway.
+#
+# ── WHY --skip-network ─────────────────────────────────────────────────────
+#
+# MEASURED over all 53 entries: exactly ONE errors, and it errors fetching
+# the Sleeper player index. Its own message says it — "a fact about the
+# runner, not about any historical season". It is marked `needs_network` in
+# the registry with that reason, and the run ANNOUNCES the skip rather than
+# dropping it silently: "NOT checked, which is not the same as clean".
+#
+# ⚠️ WHAT THIS DOES NOT COVER, said plainly: an entry that needs network and
+# happens to succeed today is still checked, and would go red here on a bad
+# network day. If that happens, mark it needs_network with a reason — do not
+# widen the skip by pattern.
+name: artifact freshness (ERROR-only)
+
+# ⏸️ THE SCHEDULE IS DELIBERATELY OFF UNTIL THE FIRST FULL RUN IS VERIFIED.
+# The ERROR-only design rests on a measurement — exactly one of 53 entries
+# errors, and it errors on the network — but "one entry errors" and "the gate
+# exits 0" are two different claims, and only the first is measured. Shipping
+# a cron that goes red on its first unattended fire is the precise failure
+# this file's own comments are about. Uncomment the cron once a manual
+# `workflow_dispatch` run has come back green. Register 418.
+on:
+  # schedule:
+  #   # 06:20 UTC daily, off the hour so it does not contend with the nightly
+  #   # board rebuild or the other crons that cluster at :00.
+  #   - cron: '20 6 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: artifact-freshness
+  cancel-in-progress: false
+
+jobs:
+  freshness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The script regenerates each artifact in a git worktree and several
+          # entries walk history, so a shallow clone would turn "cannot see the
+          # commit" into something indistinguishable from a broken generator.
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install declared Python dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r draft/requirements.txt pyyaml
+
+      - name: Install Node dependencies
+        run: npm ci --no-audit --no-fund || npm install --no-audit --no-fund
+
+      - name: Prove the sandbox before trusting the run
+        # Register 415: this script once overwrote the artifacts it was
+        # checking. The self-test's known positive writes into the repo on
+        # purpose and asserts the live tree is untouched. If that ever stops
+        # holding, the run below must not happen at all.
+        run: node --version && python3 draft/tools/check_artifact_freshness.py --self-test
+
+      - name: Registry sweep — ERROR fails, STALE is reported
+        run: python3 draft/tools/check_artifact_freshness.py --skip-network
+
+      - name: The working tree must be exactly as the run found it
+        # The script asserts this itself and exits 2 if it moved; this is the
+        # belt-and-braces version, because the one thing that must never
+        # happen here is a workflow committing a regenerated artifact.
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "::error::the freshness run left changes in the tree — register 415"
+            git status --porcelain
+            exit 1
+          fi
+          echo "tree clean"

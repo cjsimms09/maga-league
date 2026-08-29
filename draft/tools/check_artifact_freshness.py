@@ -572,6 +572,11 @@ def main(argv: list[str] | None = None) -> int:
                     help="only check this registry entry id (repeatable)")
     ap.add_argument("--self-test", action="store_true",
                     help="prove the sandbox actually spares the live tree")
+    ap.add_argument("--skip-network", action="store_true",
+                    help="skip entries marked needs_network. Their failure is a "
+                         "fact about the RUNNER, not about the artifact, so a "
+                         "scheduled ERROR-only gate must not go red on them "
+                         "(register 418).")
     args = ap.parse_args(argv)
 
     if args.self_test:
@@ -589,6 +594,16 @@ def main(argv: list[str] | None = None) -> int:
 
     before = _tree_signature()
     sandbox = Sandbox()
+    #: ⚠️ A SKIP IS ANNOUNCED, NEVER SILENT. "did not check" and "checked and
+    #: clean" must not look the same (rule 3e), and a gate that quietly drops
+    #: entries is how coverage disappears without anyone deciding to drop it.
+    skipped = []
+    if args.skip_network:
+        keep = []
+        for e in entries:
+            (skipped if e.get("needs_network") else keep).append(e)
+        entries = keep
+
     fresh_n = stale_n = error_n = 0
     try:
         for entry in entries:
@@ -611,6 +626,10 @@ def main(argv: list[str] | None = None) -> int:
 
     total = len(entries)
     print(f"\n{fresh_n} fresh, {stale_n} stale, {error_n} errored, {total} total.")
+    if skipped:
+        print(f"SKIPPED {len(skipped)} entry(ies) marked needs_network — NOT checked, "
+              f"which is not the same as clean: "
+              + ", ".join(e["id"] for e in skipped))
     if stale_n:
         print("STALE is expected and does not indicate a defect — it means "
               "the board/inputs moved since the artifact was committed. "
