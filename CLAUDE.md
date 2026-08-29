@@ -191,10 +191,22 @@ of +0.049 / +0.023 / −0.004 where the shipped arm read −0.087 / −0.011 /
 measured, an arm that closes it was graded, Cory ruled A13 on that evidence on
 08-20, and the weight shipped. **Only the prose decayed — which is register 5h,
 exactly what it says on the tin, and nothing more.** Register 317. **THE REAL
-REMAINING GAP IS SEAT RANK, which is the question Cory actually asked:
-`seat_rank_lab.json` carries NO arm dimension and `seat_rank_lab.py` takes only
+REMAINING GAP IS SEAT RANK, which is the question Cory actually asked:**
+~~`seat_rank_lab.json` carries NO arm dimension and `seat_rank_lab.py` takes only
 `--json`, so *8th of 10* is the need0 rank and the need1 rank has never been
-computed.** ⚠️ **And every recorded arm still carries the superseded ~~`ceiling: 0.45`~~
+computed.~~ ⚠️ **CORRECTED 2026-08-29 — THE need1 RANK WAS COMPUTED ON 08-27 AND
+THIS FILE ALREADY SAYS SO FIFTY-SIX LINES UP.** `seat_rank_by_arm_lab.json`
+carries six arms with `controls_all_passed: true`: **shipped 7.80 · need1 7.13 ·
+slot_s1 7.00 · auto 7.73 · bye1 7.80 · slot_s0 7.80**, and `need1` paired against
+shipped is **+0.667 places, 95% CI [−0.133, +1.466], sign p 0.119, 11 seats
+improved / 4 worsened / 15 unchanged.** *8th of 10* is still the SHIPPED rank —
+that part holds — but "never been computed" was false, and the paragraph
+correcting it is the one beginning *"MEASURED ACROSS ALL SIX ARMS"*. **A reader
+who reached this sentence first would go and re-derive a number that has been
+on disk for two days.** ⚠️ **THIS IS REGISTER 5h FOR THE FIFTH TIME AND THE
+THIRD IN THIS FILE, and it is now a CONTRADICTION rather than mere decay: the
+same document asserts both. Found by working register 87's overdue recheck, not
+by anyone reading here.** ⚠️ **And every recorded arm still carries the superseded ~~`ceiling: 0.45`~~
 while the shipped constant is 0.0, so no artifact yet describes the exact live
 config.** **The mechanism BEHIND the gap, however, is
 now established far more strongly than the audit showed: across 30 seat-years
