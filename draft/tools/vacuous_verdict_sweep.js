@@ -131,7 +131,7 @@ function selfTest() {
    * removed it). A historical blob cannot be repaired out from under a
    * fixture, so this control now holds no matter how many live claims get
    * fixed — which is the whole point of a detector whose job is to drive its
-   * own findings to zero. Register 421. */
+   * own findings to zero. Register 422. */
   const FIXTURE_SHA = '8a648806';
   let real = null;
   try {
