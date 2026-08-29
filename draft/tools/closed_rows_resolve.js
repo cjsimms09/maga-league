@@ -118,6 +118,21 @@ function hashState(sha) {
   } catch (e) { return 'not_on_head'; }
 }
 
+/* ⚠️ A PATH A TOOL *WRITES* NEED NOT EXIST. Row 65 cites
+ * `draft/data/board_offline_fixture.json`, which `build.py:2601` CREATES on an
+ * offline build; it is absent only because nobody has run one. Flagging an
+ * output as a missing artifact is a wrong finding, and a guard that produces
+ * wrong findings gets ignored. */
+function isWrittenBySomeTool(rel) {
+  const base = path.basename(rel);
+  try {
+    execFileSync('git', ['grep', '-q', '--', base, '--',
+                         'draft/tools', 'draft/backtest', 'draft/build.py', 'src'],
+      { cwd: ROOT, stdio: 'ignore', maxBuffer: BUF });
+    return true;
+  } catch (e) { return false; }
+}
+
 function audit() {
   const text = fs.readFileSync(REGISTER, 'utf8');
   const findings = [];
@@ -134,13 +149,34 @@ function audit() {
        * `draft/baseline/v1.json` and was a false positive on the first run. */
       if (!fs.existsSync(path.join(ROOT, p))
           && !fs.existsSync(path.join(ROOT, 'draft', p))) {
-        findings.push({ id: r.id, kind: 'missing_file', ref: p });
+        findings.push({ id: r.id,
+          kind: isWrittenBySomeTool(p) ? 'absent_but_generated' : 'missing_file',
+          ref: p });
       }
     });
+    /* ⚠️ A DEAD SHA IS NOT THE SAME AS AN UNLANDED FIX, AND THE TRIAGE PROVED
+     * IT: rows 147, 204 and 229 each cite a commit that is not on `main` while
+     * the WORK is plainly here — rebased, squashed or merged under another
+     * sha. Register 324 was the opposite and that is the case worth catching.
+     * So a hash finding is qualified by whether the SAME ROW names a file that
+     * exists: if it does, the citation is stale; if it does not, there is no
+     * artifact evidence at all and it needs a human. */
+    /* Corroboration is a FILE that exists OR ANOTHER HASH in the same row that
+     * IS on main. Row 249 is the case that demanded the second: its own body
+     * says *"B's fix reached `main` as `efe4a6de` — not the `7c57ac4a` merge I
+     * asked for — so my sha check still reads NOT-an-ancestor while the
+     * CONTENT is there"*. Someone had already done this triage in prose; the
+     * tool should not re-raise what the row itself explains. */
+    const corroborated =
+      paths.some(p => fs.existsSync(path.join(ROOT, p))
+                   || fs.existsSync(path.join(ROOT, 'draft', p)))
+      || hashes.some(h => hashState(h) === 'on_head');
     hashes.forEach(h => {
       refsChecked++;
       const st = hashState(h);
-      if (st !== 'on_head') findings.push({ id: r.id, kind: st, ref: h });
+      if (st === 'on_head') return;
+      findings.push({ id: r.id, ref: h,
+        kind: corroborated ? 'stale_citation_artifact_present' : st });
     });
   });
   return { closed_rows: closed, refs_checked: refsChecked,
@@ -215,13 +251,20 @@ function main() {
   if (!rep.findings.length) {
     console.log('  ✅ every backticked file and commit in a CLOSED row resolves here.');
   } else {
-    const by = { missing_file: [], unresolvable: [], not_on_head: [] };
+    const by = { missing_file: [], unresolvable: [], not_on_head: [],
+                 absent_but_generated: [], stale_citation_artifact_present: [] };
     rep.findings.forEach(f => by[f.kind].push(f));
     const label = {
       missing_file: 'file named in a CLOSED row does not exist',
       unresolvable: 'commit named in a CLOSED row DOES NOT RESOLVE AT ALL',
       not_on_head: 'commit named in a CLOSED row is NOT an ancestor of HEAD '
-                 + '(the register-324 shape: the fix is real and unmerged)',
+                 + 'AND the row names no file that exists — the register-324 '
+                 + 'shape, and the one worth acting on',
+      absent_but_generated: 'file is absent but some tool WRITES it — an output, '
+                 + 'not a missing artifact (row 65 / build.py)',
+      stale_citation_artifact_present: 'commit does not resolve here, but the row '
+                 + 'names a file that DOES exist — a stale citation (rebased or '
+                 + 'squashed), not an unlanded fix. Fix the hash, not the code.',
     };
     Object.keys(by).forEach(k => {
       if (!by[k].length) return;
@@ -242,7 +285,20 @@ function main() {
     }, rep), null, 1) + '\n');
     console.log('\n  wrote ' + process.argv[i + 1]);
   }
-  return (process.argv.includes('--strict') && rep.findings.length) ? 1 : 0;
+  /* ⚠️ `--strict` GATES ON THE ACTIONABLE CLASSES ONLY, and that is a ruling,
+   * not a convenience. After triage (register 425) the twelve raw findings are
+   * ONE real case: a closed row whose commits are not on `main` and which
+   * names no artifact to check. The other classes are stale citations where
+   * the work is plainly here, and an output a tool writes — gating on those
+   * would make the guard red for prose defects and get it deleted, which is
+   * the failure registers 388, 417 and 422 each recorded. Fix the citation by
+   * all means; do not fail a build over it. */
+  const ACTIONABLE = new Set(['not_on_head', 'unresolvable', 'missing_file']);
+  const actionable = rep.findings.filter(f => ACTIONABLE.has(f.kind));
+  console.log('\n  ' + actionable.length + ' finding(s) in the ACTIONABLE classes '
+    + '(--strict gates on these only); ' + (rep.findings.length - actionable.length)
+    + ' are stale citations or generated outputs, reported but not gating.');
+  return (process.argv.includes('--strict') && actionable.length) ? 1 : 0;
 }
 
 if (require.main === module) process.exit(main());
