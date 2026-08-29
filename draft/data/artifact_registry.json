@@ -615,6 +615,120 @@
    "timeout_s": 400,
    "_contract_note": "registered 2026-08-29 (register 419) \u2014 excluded from register 415's batch because its control A was failing; the cause was the ungraded 2026 season, not the tool, and it now reproduces +45.84/+29.33.",
    "_verified_at_registration": "runs clean, control A passes"
+  },
+  {
+   "id": "empirical_draft_value",
+   "description": "Backtest study writing draft/backtest/empirical_draft_value.json; reads league_history.",
+   "owner_module": "draft/backtest/empirical_draft_value.py",
+   "artifact_path": "draft/backtest/empirical_draft_value.json",
+   "regenerate_command": [
+    "python3",
+    "draft/backtest/empirical_draft_value.py"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 420) via regenerate_writes_artifact, to widen what ungraded_season_leak.py can speak about: this module READS league_history.json, so the 2026 unplayed season can reach its numbers (register 419). Verified by running it once before registration; a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "exp_discoverability",
+   "description": "Backtest study writing draft/backtest/exp_discoverability.json; reads league_history.",
+   "owner_module": "draft/backtest/exp_discoverability.py",
+   "artifact_path": "draft/backtest/exp_discoverability.json",
+   "regenerate_command": [
+    "python3",
+    "draft/backtest/exp_discoverability.py"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 420) via regenerate_writes_artifact, to widen what ungraded_season_leak.py can speak about: this module READS league_history.json, so the 2026 unplayed season can reach its numbers (register 419). Verified by running it once before registration; a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "exp_inverse_adjuster",
+   "description": "Backtest study writing draft/backtest/exp_inverse_adjuster.json; reads league_history.",
+   "owner_module": "draft/backtest/exp_inverse_adjuster.py",
+   "artifact_path": "draft/backtest/exp_inverse_adjuster.json",
+   "regenerate_command": [
+    "python3",
+    "draft/backtest/exp_inverse_adjuster.py"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 420) via regenerate_writes_artifact, to widen what ungraded_season_leak.py can speak about: this module READS league_history.json, so the 2026 unplayed season can reach its numbers (register 419). Verified by running it once before registration; a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "exp_strategy_tournament",
+   "description": "Backtest study writing draft/backtest/exp_strategy_tournament.json; reads league_history.",
+   "owner_module": "draft/backtest/exp_strategy_tournament.py",
+   "artifact_path": "draft/backtest/exp_strategy_tournament.json",
+   "regenerate_command": [
+    "python3",
+    "draft/backtest/exp_strategy_tournament.py"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 420) via regenerate_writes_artifact, to widen what ungraded_season_leak.py can speak about: this module READS league_history.json, so the 2026 unplayed season can reach its numbers (register 419). Verified by running it once before registration; a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "FRESH"
+  },
+  {
+   "id": "exp_value_pockets",
+   "description": "Backtest study writing draft/backtest/exp_value_pockets.json; reads league_history.",
+   "owner_module": "draft/backtest/exp_value_pockets.py",
+   "artifact_path": "draft/backtest/exp_value_pockets.json",
+   "regenerate_command": [
+    "python3",
+    "draft/backtest/exp_value_pockets.py"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 420) via regenerate_writes_artifact, to widen what ungraded_season_leak.py can speak about: this module READS league_history.json, so the 2026 unplayed season can reach its numbers (register 419). Verified by running it once before registration; a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "opponent_profiles",
+   "description": "Backtest study writing draft/backtest/opponent_profiles.json; reads league_history.",
+   "owner_module": "draft/backtest/opponent_profiles.py",
+   "artifact_path": "draft/backtest/opponent_profiles.json",
+   "regenerate_command": [
+    "python3",
+    "draft/backtest/opponent_profiles.py"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 420) via regenerate_writes_artifact, to widen what ungraded_season_leak.py can speak about: this module READS league_history.json, so the 2026 unplayed season can reach its numbers (register 419). Verified by running it once before registration; a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE",
+   "incomplete_seasons_are_intended": true,
+   "incomplete_seasons_reason": "reads ONLY draft picks \u2014 zero references to players_points or weeks \u2014 so the 2026 draft (08-22, real) is evidence of how owners draft, not contamination. Its caveat derives the season list rather than claiming '3 seasons'. Register 420."
+  },
+  {
+   "id": "p151_target_share_trend",
+   "description": "Backtest study writing draft/backtest/p151_target_share_trend.json; reads league_history.",
+   "owner_module": "draft/backtest/p151_target_share_trend.py",
+   "artifact_path": "draft/backtest/p151_target_share_trend.json",
+   "regenerate_command": [
+    "python3",
+    "draft/backtest/p151_target_share_trend.py"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 420) via regenerate_writes_artifact, to widen what ungraded_season_leak.py can speak about: this module READS league_history.json, so the 2026 unplayed season can reach its numbers (register 419). Verified by running it once before registration; a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "year2_leap_arm",
+   "description": "Backtest study writing draft/backtest/year2_leap_arm.json; reads league_history.",
+   "owner_module": "draft/backtest/year2_leap_arm.py",
+   "artifact_path": "draft/backtest/year2_leap_arm.json",
+   "regenerate_command": [
+    "python3",
+    "draft/backtest/year2_leap_arm.py"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 420) via regenerate_writes_artifact, to widen what ungraded_season_leak.py can speak about: this module READS league_history.json, so the 2026 unplayed season can reach its numbers (register 419). Verified by running it once before registration; a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
   }
  ],
  "_not_yet_migrated": [

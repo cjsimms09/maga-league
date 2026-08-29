@@ -59,15 +59,10 @@ from check_artifact_freshness import (  # noqa: E402
 HISTORY_REL = "draft/data/league_history.json"
 
 
-def is_complete_season(season: dict) -> bool:
-    """Every week the season carries has somebody scoring in it."""
-    weeks = list((season.get("weeks") or {}).values())
-    if not weeks:
-        return False
-    return all(
-        any(float((e or {}).get("points") or 0) > 0 for e in (entries or []))
-        for entries in weeks
-    )
+#: ONE predicate, imported rather than restated — register 408's lesson, and
+#: `test_season_completeness_agrees.py` pins the Python module against the
+#: JavaScript one on the live history so the two cannot drift apart.
+from season_completeness import is_complete_season  # noqa: E402
 
 
 def strip_incomplete(history: dict) -> tuple[dict, list]:
@@ -110,6 +105,26 @@ def check(entry: dict, real: Sandbox, stripped: Sandbox) -> tuple[str, str]:
         a = regenerate(entry, cwd=real.path())
     except RegenerationError as e:
         return "ERROR", str(e)
+
+    #: ⚠️ THE DETERMINISM CONTROL, AND IT EARNED ITS PLACE IMMEDIATELY.
+    #: This tool compares two SEPARATE RUNS, so a study that does not
+    #: reproduce itself will differ for reasons that have nothing to do with
+    #: the stripped season — and it will differ in exactly the way real
+    #: contamination looks. `exp_inverse_adjuster.py` was reported
+    #: CONTAMINATED on `per_season.2024.rounds[2].top3[2].value_rank`; run
+    #: TWICE IN THE SAME SANDBOX it moves on the same field. The finding was
+    #: mine, not the data's. So the real arm runs twice and disagreement with
+    #: itself is reported as its own verdict, never as contamination.
+    try:
+        a2 = regenerate(entry, cwd=real.path())
+    except RegenerationError as e:
+        return "ERROR", "second run of the determinism control failed: " + str(e)
+    a_s = _strip_generation_time(a, RUN_TIME_KEYS)
+    if not tolerant_equal(a_s, _strip_generation_time(a2, RUN_TIME_KEYS)):
+        d = diff_paths(a_s, _strip_generation_time(a2, RUN_TIME_KEYS))
+        return "NONDETERMINISTIC", "; ".join(
+            f"{p}: run1={x} run2={y}" for p, x, y in d[:3])
+
     try:
         b = regenerate(entry, cwd=stripped.path())
     except RegenerationError as e:
@@ -119,12 +134,29 @@ def check(entry: dict, real: Sandbox, stripped: Sandbox) -> tuple[str, str]:
         #: StopIteration. That is the generator being correct, not a defect,
         #: and calling it ERROR alongside a real crash would bury both.
         return "REQUIRES_IT", str(e).strip().splitlines()[-1][:160]
-    a = _strip_generation_time(a, RUN_TIME_KEYS)
+    a = a_s
     b = _strip_generation_time(b, RUN_TIME_KEYS)
     if tolerant_equal(a, b):
         return "CLEAN", ""
     diffs = diff_paths(a, b)
     detail = "; ".join(f"{p}: with={x} without={y}" for p, x, y in diffs[:3])
+
+    #: ── AN EXEMPTION MUST BE DECLARED, NEVER INFERRED ─────────────────────
+    #: Some studies read ONLY DRAFT PICKS. The 2026 draft really happened on
+    #: 08-22, so for those the incomplete season is evidence, not
+    #: contamination — `opponent_profiles.py` profiles how owners draft and
+    #: contains no reference to points or weeks at all. Without this the tool
+    #: would flag a CORRECT study red on every run forever, which is the
+    #: "a guard that fires on ordinary work is a guard people delete" failure
+    #: register 388 names and register 417 watched kill an alarm outright.
+    #:
+    #: ⚠️ It is opt-in per entry and carries a REASON, so an exemption is a
+    #: recorded decision rather than a silence. The tool still MEASURES the
+    #: difference and still prints it — what changes is the verdict, not the
+    #: evidence. Register 420.
+    if entry.get("incomplete_seasons_are_intended"):
+        why = entry.get("incomplete_seasons_reason") or "no reason recorded — add one"
+        return "BY_DESIGN", why + "  ·  differs at: " + detail[:160]
     return "CONTAMINATED", detail
 
 
@@ -192,6 +224,30 @@ def self_test() -> int:
         ck("  KNOWN NEGATIVE — a probe that ignores the history reports the same "
            "in both, so CLEAN is not what this tool says about everything",
            regenerate(blind, cwd=real.path()) == regenerate(blind, cwd=stripped_sb.path()))
+
+        #: C4 KNOWN POSITIVE for the DETERMINISM CONTROL. Without this, a
+        #: study that disagrees with itself reads as CONTAMINATED -- which is
+        #: exactly what exp_inverse_adjuster did, and the finding was mine
+        #: rather than the data's.
+        flaky = {"artifact_path": "draft/data/_leak_flaky_probe.json",
+                 "regenerate_writes_artifact": True,
+                 "regenerate_command": [
+                     sys.executable, "-c",
+                     "import json,random,pathlib;pathlib.Path("
+                     "'draft/data/_leak_flaky_probe.json').write_text("
+                     "json.dumps({'n': random.random()}))"]}
+        st, _ = check(flaky, real, stripped_sb)
+        ck("C4 KNOWN POSITIVE — a study that disagrees with ITSELF is reported "
+           "NONDETERMINISTIC, never CONTAMINATED", st == "NONDETERMINISTIC", st)
+
+        steady = dict(flaky, regenerate_command=[
+            sys.executable, "-c",
+            "import json,pathlib;pathlib.Path("
+            "'draft/data/_leak_flaky_probe.json').write_text(json.dumps({'n': 1}))"])
+        st2, _ = check(steady, real, stripped_sb)
+        ck("  KNOWN NEGATIVE — a steady study that ignores the history is CLEAN, "
+           "so the control does not simply label everything unreproducible",
+           st2 == "CLEAN", st2)
     finally:
         real.close()
         stripped_sb.close()
@@ -248,7 +304,9 @@ def main(argv=None) -> int:
                          "status": status, "detail": detail})
             mark = {"CLEAN": "✅ clean", "CONTAMINATED": "🔴 CONTAMINATED",
                     "ERROR": "⚠️  errored",
-                    "REQUIRES_IT": "🔵 is ABOUT that season"}[status]
+                    "REQUIRES_IT": "🔵 is ABOUT that season",
+                    "NONDETERMINISTIC": "🟣 NOT REPRODUCIBLE",
+                    "BY_DESIGN": "🔵 INCLUDES IT ON PURPOSE"}[status]
             print(f"  {mark:18} {e['id']}")
             if detail:
                 print(f"       {detail[:200]}")
@@ -260,9 +318,18 @@ def main(argv=None) -> int:
     na = [r for r in rows if r["status"] == "not_applicable"]
     err = [r for r in rows if r["status"] == "ERROR"]
     req = [r for r in rows if r["status"] == "REQUIRES_IT"]
+    nd = [r for r in rows if r["status"] == "NONDETERMINISTIC"]
+    bd = [r for r in rows if r["status"] == "BY_DESIGN"]
     print(f"\n  {len(bad)} contaminated · "
-          f"{len(rows) - len(bad) - len(na) - len(err) - len(req)} clean · {len(err)} errored "
-          f"· {len(req)} about that season by design · {len(na)} not applicable")
+          f"{len(rows) - len(bad) - len(na) - len(err) - len(req) - len(nd) - len(bd)} clean · "
+          f"{len(err)} errored · {len(nd)} not reproducible · {len(bd)} by design · "
+          f"{len(req)} about that season by design · {len(na)} not applicable")
+    if nd:
+        print("\n  🟣 A NOT-REPRODUCIBLE study cannot be judged by this instrument at all:")
+        print("      it disagrees with ITSELF between two runs in the same sandbox, so any")
+        print("      difference across the two arms is unattributable. That is its own")
+        print("      defect and it is louder than staleness — a committed artifact nobody")
+        print("      can reproduce. Register 420.")
     print("\n  ⚠️  NOT-APPLICABLE IS NOT CLEAN. It means the generator does not read")
     print("      league_history at all, so this instrument cannot speak about it.")
     print("  ⚠️  A CONTAMINATED artifact is a number that is WRONG NOW, not one that")
