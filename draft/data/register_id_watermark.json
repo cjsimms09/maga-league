@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 360,
+ "next_numeric_id": 421,
  "history": [
   {
    "id": 47,
@@ -974,6 +974,252 @@
   {
    "id": 359,
    "claimed_at": "2026-08-27"
+  },
+  {
+   "id": 360,
+   "claimed_at": "2026-08-27"
+  },
+  {
+   "id": 361,
+   "claimed_at": "2026-08-27",
+   "note": "D: props weekly backtest prereg; renumbered from 360 which main printed first"
+  },
+  {
+   "id": 362,
+   "claimed_at": "2026-08-27"
+  },
+  {
+   "id": 363,
+   "claimed_at": "2026-08-27"
+  },
+  {
+   "id": 364,
+   "claimed_at": "2026-08-27"
+  },
+  {
+   "id": 365,
+   "claimed_at": "2026-08-27"
+  },
+  {
+   "id": 366,
+   "claimed_at": "2026-08-27"
+  },
+  {
+   "id": 367,
+   "claimed_at": "2026-08-27"
+  },
+  {
+   "id": 368,
+   "claimed_at": "2026-08-27"
+  },
+  {
+   "id": 369,
+   "claimed_at": "2026-08-27"
+  },
+  {
+   "id": 370,
+   "claimed_at": "2026-08-27"
+  },
+  {
+   "id": 371,
+   "claimed_at": "2026-08-27"
+  },
+  {
+   "id": 372,
+   "claimed_at": "2026-08-27"
+  },
+  {
+   "id": 373,
+   "claimed_at": "2026-08-27"
+  },
+  {
+   "id": 374,
+   "claimed_at": "2026-08-27"
+  },
+  {
+   "id": 375,
+   "claimed_at": "2026-08-27"
+  },
+  {
+   "id": 376,
+   "claimed_at": "2026-08-27"
+  },
+  {
+   "id": 377,
+   "claimed_at": "2026-08-27"
+  },
+  {
+   "id": 378,
+   "claimed_at": "2026-08-27"
+  },
+  {
+   "id": 379,
+   "claimed_at": "2026-08-27"
+  },
+  {
+   "id": 380,
+   "claimed_at": "2026-08-27"
+  },
+  {
+   "id": 381,
+   "claimed_at": "2026-08-27"
+  },
+  {
+   "id": 382,
+   "claimed_at": "2026-08-27"
+  },
+  {
+   "id": 383,
+   "claimed_at": "2026-08-27"
+  },
+  {
+   "id": 384,
+   "claimed_at": "2026-08-27"
+  },
+  {
+   "id": 385,
+   "claimed_at": "2026-08-28"
+  },
+  {
+   "id": 386,
+   "claimed_at": "2026-08-28"
+  },
+  {
+   "id": 387,
+   "claimed_at": "2026-08-28"
+  },
+  {
+   "id": 388,
+   "claimed_at": "2026-08-28"
+  },
+  {
+   "id": 389,
+   "claimed_at": "2026-08-28"
+  },
+  {
+   "id": 390,
+   "claimed_at": "2026-08-28"
+  },
+  {
+   "id": 391,
+   "claimed_at": "2026-08-28"
+  },
+  {
+   "id": 392,
+   "claimed_at": "2026-08-28",
+   "note": "BURNED, names nothing. A ran next_register_id.js to LOOK UP the next id while planning register 393, which claims it. The fourth instance this session of citing an id before filing the row that owns it; the fix is that the id comes back FROM file_register_row.js, never from a lookup beforehand."
+  },
+  {
+   "id": 393,
+   "claimed_at": "2026-08-28"
+  },
+  {
+   "id": 394,
+   "claimed_at": "2026-08-28"
+  },
+  {
+   "id": 395,
+   "claimed_at": "2026-08-28"
+  },
+  {
+   "id": 396,
+   "claimed_at": "2026-08-28"
+  },
+  {
+   "id": 397,
+   "claimed_at": "2026-08-28"
+  },
+  {
+   "id": 398,
+   "claimed_at": "2026-08-28"
+  },
+  {
+   "id": 399,
+   "claimed_at": "2026-08-28"
+  },
+  {
+   "id": 400,
+   "claimed_at": "2026-08-28"
+  },
+  {
+   "id": 401,
+   "claimed_at": "2026-08-28"
+  },
+  {
+   "id": 402,
+   "claimed_at": "2026-08-28"
+  },
+  {
+   "id": 403,
+   "claimed_at": "2026-08-28"
+  },
+  {
+   "id": 404,
+   "claimed_at": "2026-08-28"
+  },
+  {
+   "id": 405,
+   "claimed_at": "2026-08-28"
+  },
+  {
+   "id": 406,
+   "claimed_at": "2026-08-28"
+  },
+  {
+   "id": 407,
+   "claimed_at": "2026-08-28"
+  },
+  {
+   "id": 408,
+   "claimed_at": "2026-08-28"
+  },
+  {
+   "id": 409,
+   "claimed_at": "2026-08-28"
+  },
+  {
+   "id": 410,
+   "claimed_at": "2026-08-28"
+  },
+  {
+   "id": 411,
+   "claimed_at": "2026-08-29"
+  },
+  {
+   "id": 412,
+   "claimed_at": "2026-08-29"
+  },
+  {
+   "id": 413,
+   "claimed_at": "2026-08-29"
+  },
+  {
+   "id": 414,
+   "claimed_at": "2026-08-29"
+  },
+  {
+   "id": 415,
+   "claimed_at": "2026-08-29"
+  },
+  {
+   "id": 416,
+   "claimed_at": "2026-08-29"
+  },
+  {
+   "id": 417,
+   "claimed_at": "2026-08-29"
+  },
+  {
+   "id": 418,
+   "claimed_at": "2026-08-29"
+  },
+  {
+   "id": 419,
+   "claimed_at": "2026-08-29"
+  },
+  {
+   "id": 420,
+   "claimed_at": "2026-08-29"
   }
  ]
 }

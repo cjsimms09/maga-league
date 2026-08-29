@@ -41,6 +41,49 @@ const DATA = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.js
 const KEEP = require(path.join(ROOT, 'draft', 'tools', 'keepers_of.js'));
 
 const pool = DATA.players.filter(p => p.position && (p.proj_mean || 0) > 0);
+
+/* ── THE DRAFTABLE POOL AND THE LEAGUE POPULATION ARE NOT THE SAME SET ──────
+ *
+ * `pool` is what can be DRAFTED. Since the 2026-08-23 league-wide keeper lock
+ * it excludes all 23 kept players, who are the best players in the league.
+ * Any question of the form "the Nth best STARTER in a ten-team league" is about
+ * the POPULATION, and ranking it over `pool` walks the marker 23 bodies deeper.
+ *
+ * `vorp.py` fixed exactly this at the source on register 283 (`full_pool=`), and
+ * nobody swept for hand-rolled copies of the arithmetic. There were two, both
+ * here-ish: `wireVsStarter()` below, and `scoring_edge.js`'s own `repl`. This is
+ * the one place they now share, so a third copy is not the way to add a third
+ * consumer. Register 394.
+ *
+ * MEASURED on the 2026-08-26 board: 12 of the 23 keepers are running backs, so
+ * RB's starter line read 9.61 pts/wk where the population gives 11.96 —
+ * UNDERSTATED BY 24.5%, moving the RB hold-or-stream ratio from a reported
+ * 61.4% to a true 49.3%. WR 9.8%, TE 2.7%, QB 0.9%.
+ *
+ * CORRECT IN BOTH ERAS: the union is by `player_id`, so on a PRE-lock board —
+ * where the keepers are still in `players` — this is a byte-for-byte no-op.
+ * Lazy and memoised so a board with no keepers at all never pays for it, and so
+ * the refusal below fires at the call site rather than at require time. */
+let _starterPool = null;
+function starterPool() {
+  if (_starterPool) return _starterPool;
+  const inPool = new Set(pool.map(x => String(x.player_id)));
+  const extra = (DATA.kept_players || [])
+    .filter(x => x.position && Number.isFinite(+x.proj_mean)
+      && !inPool.has(String(x.player_id)));
+  const declared = (DATA.kept_player_ids || []).length;
+  const stillDraftable = (DATA.kept_player_ids || [])
+    .filter(id => inPool.has(String(id))).length;
+  if (declared > 0 && stillDraftable === 0 && !extra.length) {
+    throw new Error('draft_plan.starterPool: the board declares ' + declared
+      + ' kept players, none of them are in `players`, and none arrive priced in '
+      + '`kept_players` — so a league-wide starter line has nothing to rank the top '
+      + 'of the league over. REFUSING rather than reading the line ' + declared
+      + ' bodies too deep (register 394).');
+  }
+  _starterPool = pool.concat(extra);
+  return _starterPool;
+}
 const adpOf = p => (p.adjusted_adp != null ? +p.adjusted_adp
   : (p.raw_adp != null ? +p.raw_adp : 9999));
 const byAdp = pool.slice().sort((a, b) => adpOf(a) - adpOf(b));
@@ -578,11 +621,41 @@ function wireVsStarter() {
    * the direction that makes a running back look easier to replace.
    */
   const EXP_FALLBACK = { QB: 15.5, RB: 14.2, WR: 15.0, TE: 14.8, K: 16.5, DEF: 17.0 };
+  /* ── AND THE RANKING POOL LOST 23 PLAYERS ON 2026-08-23 (register 394) ─────
+   *
+   * `slots` is `per x teams` — an explicitly LEAGUE-WIDE count, "the twentieth
+   * best starting running back in a ten-team league". `pool` is the DRAFTABLE
+   * pool, and since the league-wide keeper lock it excludes all 23 kept
+   * players. Ranking a league-wide line over the draftable pool alone walks
+   * the marker 23 bodies deeper — this is register 283's finding, which was
+   * fixed at the SOURCE in `vorp.py` (`full_pool=`) and never swept for
+   * hand-rolled copies of the same arithmetic. This is one.
+   *
+   * MEASURED on the 2026-08-26 board: 12 of the 23 keepers are running backs,
+   * so the RB starter line read 10.41 pts/wk where the league population gives
+   * 13.98 — UNDERSTATED BY 34.3%, against WR 10.3%, TE 2.7%, QB 0.9%.
+   *
+   * ⚠️ AND IT IS THE SAME FAILURE THIS FUNCTION ALREADY DOCUMENTS THIRTY LINES
+   * UP, SIX TIMES LARGER. That comment records dividing every position by a
+   * hardcoded 15: *"It understated the RB starter line by 5.6%, which flatters
+   * every RB ratio in the direction that makes a running back look easier to
+   * replace."* Identical direction, identical consequence, and the keeper lock
+   * introduced it AFTER that fix was written.
+   *
+   * `starterPool` is used for RANKING only. Nothing else in this file changes:
+   * `pool` remains the draftable set for every pick, price and shortlist.
+   *
+   * ⚠️ WRITTEN TO BE CORRECT IN BOTH ERAS, because a bare `pool.concat(kept)`
+   * would double-count on any PRE-lock board, where the keepers are still in
+   * `players`. The union is taken by `player_id`, so a pre-lock board is a
+   * byte-for-byte no-op. The one case that must never pass silently is the
+   * lock being IN EFFECT with nothing priced to put back — that is refused. */
+  const sPool = starterPool();
   const out = {};
   Object.keys(WL.per_week).forEach(p => {
     const per = (+st[p] || 0) + (+st.FLEX ? (flexShare[p] || 0) * +st.FLEX : 0);
     const slots = Math.round(per * teams);
-    const s = pool.filter(x => x.position === p && Number.isFinite(+x.proj_mean))
+    const s = sPool.filter(x => x.position === p && Number.isFinite(+x.proj_mean))
       .map(x => +x.proj_mean / (+x.games_expected || EXP_FALLBACK[p] || 15))
       .sort((a, b) => b - a);
     const starter = s.length >= slots ? s[slots - 1] : null;
@@ -606,7 +679,7 @@ function wireVsStarter() {
   return out;
 }
 
-module.exports = { liveBefore, roundOf, wireVsStarter, plan, ranked, WAIVER, keep, pool, byAdp, SCHED, optionValue, TOTAL, MAXPOS };
+module.exports = { liveBefore, roundOf, wireVsStarter, plan, ranked, WAIVER, keep, pool, starterPool, byAdp, SCHED, optionValue, TOTAL, MAXPOS };
 if (require.main !== module) return;
 
 console.log('  pick   role     take                        value');

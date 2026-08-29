@@ -8303,7 +8303,26 @@
     if (!state.mockMode || !state.data) return null;
     const block = state.data.predicted_keepers;
     if (!block || !block.predictions) return null;
-    const mine = new Set((state.data.kept_players || []).map(k => String(k.player_id)));
+    /* ⚠️ `kept_players` STOPPED MEANING "my slate" ON 2026-08-23 and this line
+     * was not updated with the others. Post-lock it carries the WHOLE league's
+     * confirmed keepers (3 → 23), as the comment at the top of this file's
+     * board-read section already records — so `mine` came to hold every
+     * confirmed keeper in the league, and a predicted opponent keeper that was
+     * ALSO a confirmed one was skipped by the `mine.has(id)` guard below and
+     * left on the rehearsal board. A CONFIRMED opponent keeper is the most
+     * certainly-unavailable player there is; it is the last one that should
+     * survive the filter.
+     *
+     * Filtered by league seat, the same idiom as populateKeepers and the mock
+     * pick_order build. An unknown seat yields an EMPTY set deliberately: my
+     * own predicted keepers are already excluded by owner directly below, so
+     * an empty `mine` removes opponent keepers (this function's whole purpose)
+     * rather than protecting all of them. Register 417. */
+    const rehearsalSeat = (state.mockMode && state.realSlot)
+      ? Number(state.realSlot) : mySlot();
+    const mine = new Set((state.data.kept_players || [])
+      .filter(k => rehearsalSeat && Number(k.team_slot) === Number(rehearsalSeat))
+      .map(k => String(k.player_id)));
     const remove = new Map();
     Object.keys(block.predictions).forEach(owner => {
       if (owner === 'coryjsimms') return;                 // my own keepers are seeded, not removed

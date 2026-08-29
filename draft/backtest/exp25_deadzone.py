@@ -109,14 +109,40 @@ def _real_draft(season: dict) -> list[dict]:
 
 
 def load_picks() -> tuple[list[dict], dict]:
-    """Assemble non-keeper picks with {overall, position, realized} from LOCAL data."""
+    """Assemble non-keeper picks with {overall, position, realized} from LOCAL data.
+
+    ⚠️ SEASONS WITHOUT REALIZED OUTCOMES ARE EXCLUDED, AND THE EXCLUSION IS
+    ANNOUNCED (register 420). Every pick here carries a `realized` value
+    summed from that season's weekly points, so a season nobody has played
+    contributes picks whose realized value is 0.0 — not missing, ZERO, which
+    every downstream average silently believes. 2026 drafted on 08-22 and its
+    scaffolding carries 18 weeks in which all 180 `points` entries are 0.0;
+    week 1 is 09-10.
+
+    Measured: this loader is shared by `exp_value_pockets` and
+    `exp_positional_persistence`, and unguarded it takes the pick count from
+    ~395 to ~462 with the extra 67 all scoring zero.
+
+    ⛔ THIS FILTER BELONGS HERE BECAUSE THIS LOADER ATTACHES REALIZED POINTS.
+    A study reading only DRAFT PICKS must not copy it — the 2026 draft really
+    happened and is legitimate evidence of how owners draft
+    (`opponent_profiles.py` is exactly that case and is deliberately left
+    alone).
+    """
     sys.path.insert(0, str(HERE))
+    sys.path.insert(0, str(HERE.parent / "tools"))
     import roster_sim as RS
+    from season_completeness import is_complete_season
     hist = json.loads((HERE.parent / "data" / "league_history.json").read_text())
     board = json.loads((HERE.parent.parent / "public" / "draft_data.json").read_text())
     pos = {str(p.get("player_id")): p.get("position") for p in board["players"] if p.get("position")}
     picks, per_season = [], {}
+    skipped_ungraded = []
     for s in hist["seasons"]:
+        if not is_complete_season(s):
+            if _real_draft(s):
+                skipped_ungraded.append(s.get("season"))
+            continue
         rows = _real_draft(s)
         if not rows:
             continue
@@ -135,6 +161,11 @@ def load_picks() -> tuple[list[dict], dict]:
                               "realized": realized[pid], "season": str(s.get("season"))})
                 n += 1
         per_season[str(s.get("season"))] = n
+    if skipped_ungraded:
+        print(f"[seasons] EXCLUDED as INCOMPLETE (drafted, but not every week has "
+              f"been played, so every pick would carry realized 0.0): "
+              f"{', '.join(map(str, skipped_ungraded))} — register 420.",
+              file=sys.stderr)
     return picks, per_season
 
 

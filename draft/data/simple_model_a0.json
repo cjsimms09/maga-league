@@ -11,45 +11,53 @@
   },
   "C2_no_source_mixing": {
    "ok": true,
-   "pool": 247,
-   "excluded_inside_adp200": 11,
+   "pool": 227,
+   "excluded_inside_adp200": 18,
    "excluded_names": [
-    "Jayden Higgins (WR, adp 151.9)",
-    "David Njoku (TE, adp 176.1)",
-    "Ja'Kobi Lane (WR, adp 170.4)",
-    "Malik Washington (WR, adp 193.1)",
-    "Tank Dell (WR, adp 184.9)",
-    "Cooper Kupp (WR, adp 198.4)",
-    "Kayshon Boutte (WR, adp 197.7)",
-    "Isaac TeSlaa (WR, adp 199.3)",
-    "Theo Wease (WR, adp 120.6)",
-    "Nick Folk (K, adp 172.1)"
+    "Jayden Higgins (WR, adp 105.9)",
+    "David Njoku (TE, adp 158.1)",
+    "Ja'Kobi Lane (WR, adp 130.7)",
+    "Malik Washington (WR, adp 161.3)",
+    "Tank Dell (WR, adp 162.1)",
+    "Cooper Kupp (WR, adp 184.6)",
+    "Caleb Douglas (WR, adp 188.0)",
+    "Kayshon Boutte (WR, adp 185.6)",
+    "Tre' Harris (WR, adp 183.8)",
+    "Darius Slayton (WR, adp 138.5)"
    ],
    "why": "a player with no Draft Sharks line is EXCLUDED, never back-filled with our proj_mean — mixing two sources inside one VONA is the defect this model removes"
   },
   "C3_band_order_valid": {
    "ok": true,
    "rejected_rows": 0,
-   "rejected": []
+   "rejected": [],
+   "why": "a band whose floor exceeds its ceiling is a broken row, not a wide one; these are DROPPED at load and this is the count that were"
   },
   "C4_need_curve_is_the_committed_one": {
    "ok": true
   }
  },
  "controls_all_passed": true,
- "pool_size": 247,
+ "pool_size": 227,
  "excluded_inside_adp200": [
-  "Jayden Higgins (WR, adp 151.9)",
-  "David Njoku (TE, adp 176.1)",
-  "Ja'Kobi Lane (WR, adp 170.4)",
-  "Malik Washington (WR, adp 193.1)",
-  "Tank Dell (WR, adp 184.9)",
-  "Cooper Kupp (WR, adp 198.4)",
-  "Kayshon Boutte (WR, adp 197.7)",
-  "Isaac TeSlaa (WR, adp 199.3)",
-  "Theo Wease (WR, adp 120.6)",
-  "Nick Folk (K, adp 172.1)",
-  "Blake Grupe (K, adp 166.2)"
+  "Jayden Higgins (WR, adp 105.9)",
+  "David Njoku (TE, adp 158.1)",
+  "Ja'Kobi Lane (WR, adp 130.7)",
+  "Malik Washington (WR, adp 161.3)",
+  "Tank Dell (WR, adp 162.1)",
+  "Cooper Kupp (WR, adp 184.6)",
+  "Caleb Douglas (WR, adp 188.0)",
+  "Kayshon Boutte (WR, adp 185.6)",
+  "Tre' Harris (WR, adp 183.8)",
+  "Darius Slayton (WR, adp 138.5)",
+  "Isaac TeSlaa (WR, adp 189.2)",
+  "Malachi Fields (WR, adp 194.3)",
+  "Cyrus Allen (WR, adp 166.8)",
+  "Ray Davis (RB, adp 192.3)",
+  "Nick Folk (K, adp 150.0)",
+  "Atlanta Falcons (DEF, adp 182.2)",
+  "Cincinnati Bengals (DEF, adp 163.5)",
+  "Dallas Cowboys (DEF, adp 197.1)"
  ],
  "mean_roster": {
   "QB": {
@@ -59,14 +67,14 @@
    "max": 1
   },
   "RB": {
-   "mean": 5.12,
-   "sd": 0.33,
+   "mean": 5.03,
+   "sd": 0.16,
    "min": 5,
    "max": 6
   },
   "WR": {
-   "mean": 5.88,
-   "sd": 0.33,
+   "mean": 5.97,
+   "sd": 0.16,
    "min": 5,
    "max": 6
   },
@@ -93,7 +101,7 @@
  "rooms_with_an_empty_starting_slot": 0,
  "cory_spec": {
   "onesies_all_1": true,
-  "share_of_rooms_WR_over_RB": 0.877,
+  "share_of_rooms_WR_over_RB": 0.973,
   "meets_spec": true
  },
  "grades": {
@@ -103,5 +111,5 @@
   "P189_qb_leak_survives": false,
   "P190_with_corys_two_rules": false
  },
- "p187_moved_in_top_100": 89
+ "p187_moved_in_top_100": 85
 }

@@ -1,0 +1,3069 @@
+{
+ "_territory": "TERRITORY: D \u2014 produced by draft/tools/hydrate_weekly_props_from_historical.py",
+ "_note": "BACKTEST HYDRATION, not a live capture. Implied points for one week, priced from the committed historical prop-line store under this league's frozen scoring table. A player with no quoted market that week is ABSENT, never a zero.",
+ "season": 2025,
+ "week": 7,
+ "formula": "props_season_projection.line_to_points",
+ "provenance": {
+  "source": "hydrated_from_historical",
+  "source_store": "draft/backtest/historical_props_2025.json",
+  "source_sha256": "0f4e767290652a931932b91b59c2e6fffa51007206ec2da7a724265e1d3ff0e1",
+  "markets_confirmed_live": [],
+  "why": "prereg \u00a78 \u2014 a backtest fold must not be able to masquerade as a live capture."
+ },
+ "players": {
+  "11082": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11370": {
+   "points": 2.22,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "9486": {
+   "points": 1.56,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "10231": {
+   "points": 0.66,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11435": {
+   "points": 5.88,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5970": {
+   "points": 0.84,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "3257": {
+   "points": 19.61,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "8500": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6804": {
+   "points": 20.23,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "5850": {
+   "points": 9.84,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "7050": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "9481": {
+   "points": 0.66,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11210": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11628": {
+   "points": 9.34,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "12501": {
+   "points": 9.47,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "7607": {
+   "points": 7.49,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "10232": {
+   "points": 4.95,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8116": {
+   "points": 1.62,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8121": {
+   "points": 10.07,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "12482": {
+   "points": 0.48,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7812": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11381": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8130": {
+   "points": 12.03,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "9484": {
+   "points": 9.1,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "11921": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4080": {
+   "points": 1.38,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8122": {
+   "points": 5.83,
+   "markets": [
+    "any_td",
+    "rush_yd"
+   ]
+  },
+  "4035": {
+   "points": 11.16,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "2197": {
+   "points": 2.73,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "11560": {
+   "points": 21.98,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "8144": {
+   "points": 11.06,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6826": {
+   "points": 3.3,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "12517": {
+   "points": 3.76,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6790": {
+   "points": 12.49,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "4983": {
+   "points": 7.57,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "11834": {
+   "points": 0.99,
+   "markets": [
+    "any_td",
+    "rec_yd"
+   ]
+  },
+  "6847": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "12476": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5008": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5985": {
+   "points": 1.23,
+   "markets": [
+    "any_td",
+    "rec_yd"
+   ]
+  },
+  "7946": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "13079": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7002": {
+   "points": 5.9,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "9757": {
+   "points": 5.79,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "12534": {
+   "points": 3.67,
+   "markets": [
+    "any_td",
+    "rush_yd"
+   ]
+  },
+  "12519": {
+   "points": 4.56,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "11895": {
+   "points": 0.18,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6271": {
+   "points": 5.4,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8676": {
+   "points": 7.6,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "11620": {
+   "points": 12.05,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "10235": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11562": {
+   "points": 20.23,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "4381": {
+   "points": 1.98,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6012": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "96": {
+   "points": 18.37,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "10226": {
+   "points": 3.28,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "7757": {
+   "points": 0.54,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "12062": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "10228": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "9224": {
+   "points": 11.36,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "8181": {
+   "points": 0.6,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5846": {
+   "points": 12.04,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "9479": {
+   "points": 5.16,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6001": {
+   "points": 0.66,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7564": {
+   "points": 14.04,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8228": {
+   "points": 13.22,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "11640": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "19": {
+   "points": 18.73,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "4144": {
+   "points": 6.12,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "12504": {
+   "points": 2.55,
+   "markets": [
+    "any_td",
+    "rush_yd"
+   ]
+  },
+  "12971": {
+   "points": 0.54,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7567": {
+   "points": 8.16,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "5857": {
+   "points": 5.92,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "7600": {
+   "points": 3.04,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "11630": {
+   "points": 1.75,
+   "markets": [
+    "any_td",
+    "rec_yd"
+   ]
+  },
+  "4147": {
+   "points": 4.27,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "12543": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6801": {
+   "points": 9.34,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6109": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11201": {
+   "points": 0.6,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5113": {
+   "points": 0.48,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "2505": {
+   "points": 6.93,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "9226": {
+   "points": 15.41,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "7612": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "12486": {
+   "points": 11.11,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "12469": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "13101": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "12506": {
+   "points": 8.04,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "12503": {
+   "points": 5.04,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "11633": {
+   "points": 1.55,
+   "markets": [
+    "any_td",
+    "rec_yd"
+   ]
+  },
+  "7526": {
+   "points": 10.38,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "11643": {
+   "points": 0.18,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8143": {
+   "points": 3.67,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "6783": {
+   "points": 7.57,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "11371": {
+   "points": 2.34,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "11617": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11610": {
+   "points": 4.77,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "7496": {
+   "points": 2.39,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "12495": {
+   "points": 2.61,
+   "markets": [
+    "any_td",
+    "rush_yd"
+   ]
+  },
+  "12512": {
+   "points": 15.69,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "12472": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11821": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8849": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6768": {
+   "points": 17.09,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "11596": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11593": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6786": {
+   "points": 14.56,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "3269": {
+   "points": 7.43,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "10219": {
+   "points": 2.51,
+   "markets": [
+    "any_td",
+    "rush_yd"
+   ]
+  },
+  "11942": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "3294": {
+   "points": 21.51,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "8137": {
+   "points": 11.6,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "11510": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "12533": {
+   "points": 13.21,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "8110": {
+   "points": 9.12,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "11506": {
+   "points": 0.66,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8117": {
+   "points": 1.84,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "7588": {
+   "points": 15.19,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "11566": {
+   "points": 25.47,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "12457": {
+   "points": 2.03,
+   "markets": [
+    "any_td",
+    "rush_yd"
+   ]
+  },
+  "12641": {
+   "points": 7.6,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "4219": {
+   "points": 3.0,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "7716": {
+   "points": 1.34,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8917": {
+   "points": 4.99,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "11650": {
+   "points": 7.78,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "10871": {
+   "points": 0.91,
+   "markets": [
+    "any_td",
+    "rec_yd"
+   ]
+  },
+  "8800": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11783": {
+   "points": 1.94,
+   "markets": [
+    "any_td",
+    "rec_yd"
+   ]
+  },
+  "1339": {
+   "points": 10.34,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8025": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6869": {
+   "points": 1.4,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "12889": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11563": {
+   "points": 21.85,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "12481": {
+   "points": 12.58,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "3048": {
+   "points": 0.18,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5045": {
+   "points": 11.48,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8225": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6130": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4066": {
+   "points": 5.96,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6699": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6806": {
+   "points": 12.45,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "11439": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "9497": {
+   "points": 3.12,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "12508": {
+   "points": 15.07,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "5938": {
+   "points": 5.18,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "9494": {
+   "points": 4.78,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "11433": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "12492": {
+   "points": 0.66,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "12489": {
+   "points": 6.52,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "11597": {
+   "points": 5.74,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "12715": {
+   "points": 0.18,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5154": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11627": {
+   "points": 6.8,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8208": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11655": {
+   "points": 3.03,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "8126": {
+   "points": 8.6,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "7547": {
+   "points": 16.27,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "4892": {
+   "points": 21.69,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "7891": {
+   "points": 0.66,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8111": {
+   "points": 8.94,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6659": {
+   "points": 0.18,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5892": {
+   "points": 10.93,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "11820": {
+   "points": 0.48,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "12732": {
+   "points": 0.18,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "12514": {
+   "points": 3.9,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "12535": {
+   "points": 2.82,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "11237": {
+   "points": 0.18,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "9221": {
+   "points": 16.77,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "8148": {
+   "points": 9.34,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "3163": {
+   "points": 20.03,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "3634": {
+   "points": 0.72,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11994": {
+   "points": 0.78,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "2216": {
+   "points": 12.46,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "10227": {
+   "points": 0.6,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8136": {
+   "points": 12.93,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "5285": {
+   "points": 0.48,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11421": {
+   "points": 0.78,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "10859": {
+   "points": 9.67,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "9506": {
+   "points": 2.77,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "11729": {
+   "points": 0.18,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "3200": {
+   "points": 7.05,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "12485": {
+   "points": 1.38,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "12490": {
+   "points": 2.87,
+   "markets": [
+    "any_td",
+    "rush_yd"
+   ]
+  },
+  "11586": {
+   "points": 3.15,
+   "markets": [
+    "any_td",
+    "rush_yd"
+   ]
+  },
+  "11631": {
+   "points": 12.32,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "11644": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6865": {
+   "points": 0.6,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "2133": {
+   "points": 16.21,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "10214": {
+   "points": 0.72,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7587": {
+   "points": 5.52,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "7535": {
+   "points": 4.1,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "11569": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4314": {
+   "points": 0.72,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11623": {
+   "points": 7.47,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "12718": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8150": {
+   "points": 15.45,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "12544": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "421": {
+   "points": 19.23,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "9487": {
+   "points": 3.24,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8195": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "12487": {
+   "points": 0.6,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4351": {
+   "points": 0.6,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7543": {
+   "points": 12.33,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "12530": {
+   "points": 7.42,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "7523": {
+   "points": 20.79,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "7562": {
+   "points": 6.98,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "3271": {
+   "points": 6.24,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "11168": {
+   "points": 0.66,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6386": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "12527": {
+   "points": 13.58,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "12455": {
+   "points": 2.86,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "13122": {
+   "points": 0.18,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "12541": {
+   "points": 0.78,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11574": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7561": {
+   "points": 0.9,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "1373": {
+   "points": 12.83,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "4995": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8205": {
+   "points": 8.94,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "12483": {
+   "points": 1.08,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5947": {
+   "points": 7.21,
+   "markets": [
+    "any_td",
+    "rec_yd"
+   ]
+  },
+  "12505": {
+   "points": 0.18,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11595": {
+   "points": 0.18,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4040": {
+   "points": 3.28,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "9489": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4098": {
+   "points": 6.48,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "5848": {
+   "points": 5.68,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "9482": {
+   "points": 7.28,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "11320": {
+   "points": 0.18,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7828": {
+   "points": 2.6,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "4046": {
+   "points": 29.25,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "2749": {
+   "points": 1.77,
+   "markets": [
+    "any_td",
+    "rush_yd"
+   ]
+  },
+  "10229": {
+   "points": 12.78,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "4602": {
+   "points": 0.18,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "1466": {
+   "points": 8.6,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "10213": {
+   "points": 8.66,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8188": {
+   "points": 1.59,
+   "markets": [
+    "any_td",
+    "rec_yd"
+   ]
+  },
+  "11624": {
+   "points": 9.13,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "8139": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11625": {
+   "points": 4.02,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8142": {
+   "points": 7.06,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "2359": {
+   "points": 0.48,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11762": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "12471": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5870": {
+   "points": 21.41,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "10234": {
+   "points": 0.66,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8489": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8123": {
+   "points": 3.77,
+   "markets": [
+    "any_td",
+    "rush_yd"
+   ]
+  },
+  "6813": {
+   "points": 18.12,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "6797": {
+   "points": 22.13,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "12670": {
+   "points": 0.66,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "1479": {
+   "points": 9.52,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "11647": {
+   "points": 11.95,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "11635": {
+   "points": 11.6,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "3155": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6819": {
+   "points": 10.38,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "4054": {
+   "points": 0.54,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "12493": {
+   "points": 5.62,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "9754": {
+   "points": 10.8,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "12509": {
+   "points": 0.78,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8885": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5133": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8207": {
+   "points": 0.48,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "12518": {
+   "points": 11.59,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "12826": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5010": {
+   "points": 2.06,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "10220": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5859": {
+   "points": 10.82,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6828": {
+   "points": 1.07,
+   "markets": [
+    "any_td",
+    "rush_yd"
+   ]
+  },
+  "1689": {
+   "points": 0.54,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "13121": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "3832": {
+   "points": 0.18,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6938": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "10210": {
+   "points": 0.12,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "3161": {
+   "points": 19.65,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "5022": {
+   "points": 8.48,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "7525": {
+   "points": 9.28,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "11304": {
+   "points": 0.12,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8119": {
+   "points": 2.34,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6904": {
+   "points": 24.94,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "8180": {
+   "points": 3.32,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8147": {
+   "points": 0.18,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "9756": {
+   "points": 8.68,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8408": {
+   "points": 13.59,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "5973": {
+   "points": 0.54,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6794": {
+   "points": 14.62,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "7602": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "13075": {
+   "points": 0.18,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4866": {
+   "points": 15.37,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "5844": {
+   "points": 6.7,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "12496": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "9225": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11577": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11306": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11299": {
+   "points": 2.57,
+   "markets": [
+    "any_td",
+    "rush_yd"
+   ]
+  },
+  "5185": {
+   "points": 3.18,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6323": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "12539": {
+   "points": 2.98,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "7865": {
+   "points": 0.48,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8155": {
+   "points": 15.19,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "9228": {
+   "points": 18.41,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "11157": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7594": {
+   "points": 7.55,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "6931": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5955": {
+   "points": 0.72,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11571": {
+   "points": 3.03,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "11608": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11600": {
+   "points": 4.38,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "11646": {
+   "points": 4.9,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8170": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8219": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8145": {
+   "points": 1.52,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "12523": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4171": {
+   "points": 5.54,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "7591": {
+   "points": 23.37,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "7720": {
+   "points": 0.18,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7608": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "12498": {
+   "points": 8.22,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "12473": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7021": {
+   "points": 12.63,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "8583": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "12526": {
+   "points": 10.34,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "7694": {
+   "points": 2.58,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "12531": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6960": {
+   "points": 1.5,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "11626": {
+   "points": 4.42,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "11603": {
+   "points": 5.2,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "11280": {
+   "points": 0.18,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5121": {
+   "points": 0.66,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "12374": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "12171": {
+   "points": 0.18,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "9758": {
+   "points": 20.59,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "4950": {
+   "points": 0.72,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4039": {
+   "points": 7.52,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "5001": {
+   "points": 7.46,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8129": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4718": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8527": {
+   "points": 0.18,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "12521": {
+   "points": 3.0,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "4189": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "12048": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6850": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "10867": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "9488": {
+   "points": 15.26,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "12484": {
+   "points": 5.64,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "12536": {
+   "points": 2.12,
+   "markets": [
+    "any_td",
+    "rec_yd"
+   ]
+  },
+  "8151": {
+   "points": 9.59,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "4988": {
+   "points": 6.98,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "13151": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7569": {
+   "points": 13.16,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "4943": {
+   "points": 19.11,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "12497": {
+   "points": 3.72,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "12474": {
+   "points": 7.73,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "10218": {
+   "points": 4.62,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "9753": {
+   "points": 8.55,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "9509": {
+   "points": 19.63,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "10224": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8154": {
+   "points": 2.27,
+   "markets": [
+    "any_td",
+    "rush_yd"
+   ]
+  },
+  "11806": {
+   "points": 2.58,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "7075": {
+   "points": 0.54,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4034": {
+   "points": 19.27,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "7090": {
+   "points": 6.6,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6154": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "3286": {
+   "points": 3.3,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8112": {
+   "points": 12.96,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "7531": {
+   "points": 0.18,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4217": {
+   "points": 10.02,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "11651": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8698": {
+   "points": 1.08,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4198": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7049": {
+   "points": 7.44,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "12634": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "12743": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4454": {
+   "points": 9.48,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "5773": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "1379": {
+   "points": 1.46,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "7553": {
+   "points": 7.2,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "7842": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7527": {
+   "points": 19.71,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "5086": {
+   "points": 0.66,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11559": {
+   "points": 19.29,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "12897": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5096": {
+   "points": 1.32,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8220": {
+   "points": 0.54,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8168": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8227": {
+   "points": 0.18,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8132": {
+   "points": 5.71,
+   "markets": [
+    "any_td",
+    "rush_yd"
+   ]
+  },
+  "3202": {
+   "points": 2.38,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "11959": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "12522": {
+   "points": 18.05,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "12540": {
+   "points": 3.36,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "12357": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "9501": {
+   "points": 4.1,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "11564": {
+   "points": 22.33,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "12542": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "12499": {
+   "points": 7.42,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "12502": {
+   "points": 4.2,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "3214": {
+   "points": 7.86,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "12045": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8254": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "9504": {
+   "points": 6.27,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "12547": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4177": {
+   "points": 2.98,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "7436": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7611": {
+   "points": 10.81,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "2449": {
+   "points": 10.08,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "12412": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5967": {
+   "points": 9.2,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "12529": {
+   "points": 9.53,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "9508": {
+   "points": 5.71,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "2374": {
+   "points": 2.9,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6853": {
+   "points": 4.58,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  }
+ },
+ "unmatched_names": [
+  "Arizona Cardinals D/ST",
+  "Arizona Cardinals Defense",
+  "Atlanta Falcons D/ST",
+  "Atlanta Falcons Defense",
+  "Bam Knight",
+  "Cameron Ward",
+  "Carolina Panthers D/ST",
+  "Carolina Panthers Defense",
+  "Chicago Bears D/ST",
+  "Chicago Bears Defense",
+  "Chigoziem Okonkwo",
+  "Cincinnati Bengals D/ST",
+  "Cincinnati Bengals Defense",
+  "Cleveland Browns D/ST",
+  "Cleveland Browns Defense",
+  "Dallas Cowboys D/ST",
+  "Dallas Cowboys Defense",
+  "Denver Broncos D/ST",
+  "Denver Broncos Defense",
+  "Detroit Lions D/ST",
+  "Green Bay Packers D/ST",
+  "Green Bay Packers Defense",
+  "Houston Texans D/ST",
+  "Indianapolis Colts D/ST",
+  "Indianapolis Colts Defense",
+  "Jacksonville Jaguars D/ST",
+  "Jacksonville Jaguars Defense",
+  "Kansas City Chiefs D/ST",
+  "Kansas City Chiefs Defense",
+  "Las Vegas Raiders D/ST",
+  "Las Vegas Raiders Defense",
+  "Los Angeles Chargers D/ST",
+  "Los Angeles Chargers Defense",
+  "Los Angeles Rams D/ST",
+  "Los Angeles Rams Defense",
+  "Miami Dolphins D/ST",
+  "Miami Dolphins Defense",
+  "Minnesota Vikings D/ST",
+  "Minnesota Vikings Defense",
+  "Mitchell Tinsley",
+  "New England Patriots D/ST",
+  "New England Patriots Defense",
+  "New Orleans Saints D/ST",
+  "New Orleans Saints Defense",
+  "New York Giants D/ST",
+  "New York Giants Defense",
+  "New York Jets D/ST",
+  "New York Jets Defense",
+  "No Scorer",
+  "No Touchdown",
+  "Nyheim Hines",
+  "Philadelphia Eagles D/ST",
+  "Philadelphia Eagles Defense",
+  "Pittsburgh Steelers D/ST",
+  "Pittsburgh Steelers Defense",
+  "San Francisco 49ers D/ST",
+  "San Francisco 49ers Defense",
+  "Scott Matlock",
+  "Scott Miller",
+  "Seattle Seahawks D/ST",
+  "Tampa Bay Buccaneers D/ST",
+  "Tennessee Titans D/ST",
+  "Tennessee Titans Defense",
+  "Washington Commanders D/ST",
+  "Washington Commanders Defense"
+ ]
+}

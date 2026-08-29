@@ -145,6 +145,15 @@ def test_committed_artifact_matches_regeneration():
     # artifact_freshness_infra_2026-08-16.md); until it migrates there it is
     # marked, stays red in normal pytest when stale, and the fix is the same
     # re-run + re-commit as the coverage node above.
+    #
+    # ⛔ DO NOT DELETE THIS TEST ON THE STRENGTH OF THE SENTENCE ABOVE. It HAS
+    # migrated — registry entry `variance_inputs_2026` calls the identical
+    # `V.run()` on the identical artifact — but MEASURED 2026-08-29: NO CI
+    # WORKFLOW RUNS check_artifact_freshness.py. The only mention of it under
+    # .github/workflows/ is a comment. So the "permanent home" is not gated
+    # anywhere in CI, and retiring this duplicate would drop the artifact out
+    # of CI entirely rather than move it. This node is the coverage until the
+    # registry itself is gated. Register 418.
     committed = json.loads(ARTIFACT.read_text())
     assert json.dumps(committed, sort_keys=True) \
         == json.dumps(V.run(), sort_keys=True)

@@ -1,0 +1,166 @@
+{
+ "_territory": "TERRITORY: A \u2014 draft/tools/register76_recheck.py",
+ "_answers": "register 76, owed by register 283 part (2)",
+ "_board_built_at": "2026-08-26T04:02:06Z",
+ "_note": "Re-measures register 76's counts on the post-283 board. Does NOT rule anything \u2014 register 76 is WAITING ON CORY (A14) and this only puts a correct number in front of him.",
+ "controls": {
+  "C1_reproduces_the_published_replacement": {
+   "ok": true,
+   "worst_abs_diff": 0.0,
+   "worst_position": null,
+   "published": {
+    "TE": 141.7,
+    "RB": 181.1,
+    "WR": 170.3,
+    "QB": 350.8,
+    "DEF": 100.5,
+    "K": 125.9
+   },
+   "recomputed": {
+    "TE": 141.7,
+    "WR": 170.3,
+    "RB": 181.1,
+    "QB": 350.8,
+    "DEF": 100.5,
+    "K": 125.9
+   },
+   "why": "the shipped arm run through vorp.py must BE the board, or this is a different harness that happens to agree"
+  },
+  "C2_the_two_arms_really_differ": {
+   "ok": true,
+   "total_abs_replacement_gap_skill_positions": 19.78,
+   "why": "if the sleeper-only substitution is not reaching proj_mean the arms are one arm"
+  },
+  "C3_the_counterfactual_is_complete_where_it_is_counted": {
+   "ok": true,
+   "missing_in_top_12": [],
+   "missing_in_top_24": [],
+   "missing_in_top_48": [
+    {
+     "pos": "DEF",
+     "name": "Houston Texans"
+    },
+    {
+     "pos": "DEF",
+     "name": "Denver Broncos"
+    }
+   ],
+   "missing_in_top_48_at_a_SKILL_position": [],
+   "why": "register 76 counts RB and WR. A DEF without a sleeper-only projection cannot move that count; a running back could."
+  },
+  "C4_the_single_source_fallback_is_exact": {
+   "ok": true,
+   "rows_using_the_fallback": 184,
+   "rows_where_the_single_source_is_NOT_sleeper": [],
+   "why": "for a row blended from one source that IS sleeper, sleeper-only equals the blend by construction \u2014 not an approximation"
+  }
+ },
+ "controls_all_passed": true,
+ "replacement": {
+  "blended": {
+   "TE": 141.7,
+   "WR": 170.3,
+   "RB": 181.1,
+   "QB": 350.8,
+   "DEF": 100.5,
+   "K": 125.9
+  },
+  "sleeper_only": {
+   "TE": 136.4,
+   "WR": 173.9,
+   "RB": 179.3,
+   "QB": 341.72,
+   "DEF": 100.5,
+   "K": 97.0
+  }
+ },
+ "starter_counts": {
+  "blended": {
+   "TE": 10,
+   "WR": 26,
+   "RB": 24,
+   "QB": 10,
+   "DEF": 10,
+   "K": 10
+  },
+  "sleeper_only": {
+   "TE": 10,
+   "WR": 27,
+   "RB": 23,
+   "QB": 10,
+   "DEF": 10,
+   "K": 10
+  }
+ },
+ "top_n_counts": {
+  "12": {
+   "sleeper_only": {
+    "RB": 6,
+    "WR": 4,
+    "TE": 1,
+    "QB": 1
+   },
+   "blended": {
+    "RB": 7,
+    "WR": 4,
+    "QB": 1
+   }
+  },
+  "24": {
+   "sleeper_only": {
+    "RB": 12,
+    "WR": 8,
+    "TE": 3,
+    "QB": 1
+   },
+   "blended": {
+    "RB": 13,
+    "WR": 8,
+    "QB": 1,
+    "TE": 2
+   }
+  },
+  "48": {
+   "sleeper_only": {
+    "RB": 14,
+    "WR": 19,
+    "TE": 5,
+    "QB": 5,
+    "DEF": 3,
+    "K": 2
+   },
+   "blended": {
+    "RB": 20,
+    "WR": 17,
+    "QB": 4,
+    "TE": 4,
+    "DEF": 2,
+    "K": 1
+   }
+  }
+ },
+ "median_blend_lift_pct": {
+  "QB": {
+   "n": 39,
+   "median_lift_pct": 3.67
+  },
+  "RB": {
+   "n": 63,
+   "median_lift_pct": 8.7
+  },
+  "WR": {
+   "n": 104,
+   "median_lift_pct": 2.68
+  },
+  "TE": {
+   "n": 46,
+   "median_lift_pct": 2.46
+  }
+ },
+ "published_2026_08_19": {
+  "top_48": "RB12/WR26 -> RB22/WR18",
+  "top_24": "RB10 -> RB14",
+  "top_12": "RB6 -> RB9",
+  "median_lift": "RB +11.4%, WR +2.1%"
+ }
+}

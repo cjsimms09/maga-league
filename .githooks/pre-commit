@@ -1,0 +1,15 @@
+#!/bin/bash
+# Refuse a commit carrying a malformed or shell-corrupted register row —
+# whatever tool wrote it (register 390).
+#
+# file_register_row.js already prevents both defects by construction, and
+# protected nobody, because nothing obliged anyone to use it: five rows were
+# filed without it on 2026-08-27/28 and two came out corrupt. One broke into
+# nine columns; the other lost twelve backticked identifiers to bash, and BOTH
+# register gates passed on it because the structure was intact and only the
+# content had been destroyed.
+#
+# This validates the STAGED BLOB, so the tool used is irrelevant.
+set -euo pipefail
+ROOT="$(git rev-parse --show-toplevel)"
+exec node "$ROOT/draft/tools/register_commit_guard.js"

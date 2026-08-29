@@ -235,11 +235,18 @@ function runArm(weights) {
   };
 }
 
+/* ⛔ `NEED_1` HAD COLLAPSED INTO `SHIPPED`. Cory ruled `need: 1.0` on
+ * 2026-08-20 and engine.js:826 has shipped it since, so the override became a
+ * no-op and this lab compared two identical arms. Re-pointed at the PRE-RULING
+ * configuration and guarded. Registers 405/406/407. */
 const ARMS = {
   SHIPPED: E.MEASURED_WEIGHTS,
-  NEED_1: Object.assign({}, E.MEASURED_WEIGHTS, { need: 1.0 }),
+  NEED_0: Object.assign({}, E.MEASURED_WEIGHTS, { need: 0.0 }),
   DEFAULT: E.DEFAULT_WEIGHTS,
 };
+/* ONE guard, not four copies — draft/tools/arms_differ.js, register 408. */
+require(path.join(ROOT, 'draft', 'tools', 'arms_differ.js'))
+  .assertArmsDiffer('lab_starting_lineup_yield', ARMS);
 
 console.log('STARTING-LINEUP YIELD');
 console.log('league: ' + LEAGUE.teams + ' teams, starters '
@@ -273,9 +280,9 @@ Object.keys(ARMS).forEach(n => {
 });
 
 /* THE CONTRAST, STATED AS A NUMBER RATHER THAN AS A CONCLUSION. */
-const d = out.NEED_1.starting_points - out.SHIPPED.starting_points;
-const dr = out.NEED_1.roster_points - out.SHIPPED.roster_points;
-console.log('NEED_1 - SHIPPED   starting points ' + (d >= 0 ? '+' : '') + d.toFixed(1)
+const d = out.NEED_0.starting_points - out.SHIPPED.starting_points;
+const dr = out.NEED_0.roster_points - out.SHIPPED.roster_points;
+console.log('NEED_0 - SHIPPED   starting points ' + (d >= 0 ? '+' : '') + d.toFixed(1)
   + '   roster points ' + (dr >= 0 ? '+' : '') + dr.toFixed(1));
 console.log('');
 console.log('n = 1 room, deterministic ADP opponents, nine teams\' keepers unknown.');

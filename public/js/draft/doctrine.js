@@ -531,6 +531,35 @@
     const altGap = alt ? +(mine - alt.score).toFixed(2) : null;
     const cur = doctrineMeta(this.current);
 
+    /* ── THE ENROLLED PLAN'S OWN BINDING IS A DEFERRAL TOO (register 209) ────
+     *
+     * `others` excludes the current doctrine by construction, so `deferrals`
+     * above could only ever describe OTHER plans. That made the treatment
+     * asymmetric in the one direction that costs Cory something: when another
+     * doctrine binds, its gap is pulled out of the ranking and reported as a
+     * two-sided trade; when HIS OWN plan binds, the same constraint came back
+     * as a plain ranking loss — `alternative: "Balanced Value", gap: -40,
+     * deferrals: []` — which is exactly the one-sided price the deferral note
+     * was written to remove, moved from the `sentence` field to the `gap` one.
+     *
+     * Reported rather than suppressed. Hiding the gap when the plan binds would
+     * make the banner go quiet at precisely the picks where the plan is costing
+     * the most, and a number that disappears is harder to argue with than a
+     * number that explains itself. The renderer already turns a deferral into
+     * "<plan> defers <position> here (−$N at this pick; what it buys later is
+     * not in that number)", so the self case needs no display change — it needs
+     * to be IN the list.
+     *
+     * `self: true` marks it for any consumer that must tell "my plan is paying
+     * this" from "a rival plan would pay this". */
+    if (detail && bindsOf(this.current) && detail[this.current]) {
+      deferrals.unshift({
+        key: this.current, name: cur.name, self: true,
+        forgone: detail[this.current].forgone,
+        declined: detail[this.current].declined,
+      });
+    }
+
     const out = {
       pick: pick,
       doctrine: cur.name,
@@ -562,7 +591,32 @@
     // but "contested" would be a lie — nothing is competing, every doctrine
     // takes the same player. Saying so tells you this pick is a free one.
     if (neutral) return 'Plan not binding here — every doctrine takes the same player';
-    if (altGap != null && altGap <= this.noiseBand) return 'Contested — alternative within the band';
+    /* ── THE BAND TEST TAKES A MAGNITUDE, NOT A SIGNED GAP (register 210) ────
+     *
+     * This read `altGap <= this.noiseBand`. `altGap` is `mine - alt.score`, so
+     * it is NEGATIVE exactly when the current plan TRAILS — and every negative
+     * number is <= a positive band. A $40 shortfall therefore reported
+     * "Contested — alternative within the band", which is the opposite of true:
+     * the alternative was not inside the band, it was ten times outside it, in
+     * the direction that matters.
+     *
+     * Reachable with no binding constraint at all, between the first badly
+     * trailing read and the hysteresis switch — the window where the banner is
+     * the only thing telling Cory his plan is losing. It was left alone on
+     * draft eve on purpose (`robot-mock.js`, registers 209/210) because it is a
+     * display-semantics change and the switch was the half that instructs him
+     * to abandon a plan. The 2026 draft is done; that reason has expired.
+     *
+     * A trailing plan now SAYS SO, rather than falling through to "on script".
+     * Suppressing the wrong word would have left a $40 deficit rendering as
+     * business as usual, which is the same failure one step quieter. */
+    if (altGap != null && Math.abs(altGap) <= this.noiseBand) {
+      return 'Contested — alternative within the band';
+    }
+    if (altGap != null && altGap < 0) {
+      return 'Plan TRAILS — ' + (alt.name || 'the alternative') + ' leads by $'
+        + Math.abs(altGap).toFixed(0);
+    }
     return 'Plan intact — on script';
   };
 

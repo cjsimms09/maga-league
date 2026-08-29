@@ -1,0 +1,227 @@
+{
+ "_territory": "TERRITORY: A — draft/tools/vacuous_verdict_sweep.js",
+ "_answers": "register 23 (the verdict half), given a durable form per register 406",
+ "_generated_at": "2026-08-29T00:00:46.139Z",
+ "_caveat": "the claim/disclosure split is a heuristic on the entry's own text",
+ "scanned": 702,
+ "claims": [
+  {
+   "file": "draft/tests/draft_sheet_tiers.test.js",
+   "kind": "call",
+   "name": "the sheet does not announce tier boundaries it cannot honour",
+   "verdict": "literal true",
+   "klass": "claim",
+   "why": null
+  },
+  {
+   "file": "draft/tests/opponent_predict.test.js",
+   "kind": "call",
+   "name": "   (a silent fallback would have graded it a tie and hidden that it never ran)",
+   "verdict": "literal true",
+   "klass": "claim",
+   "why": null
+  },
+  {
+   "file": "draft/tests/override_record.test.js",
+   "kind": "call",
+   "name": "  (it resolves against one player\\'s outcome, not two)",
+   "verdict": "literal true",
+   "klass": "claim",
+   "why": null
+  },
+  {
+   "file": "draft/tests/override_vorp.test.js",
+   "kind": "call",
+   "name": "  (a zero here would be a claim, and a scaled number would be wrong)",
+   "verdict": "literal true",
+   "klass": "claim",
+   "why": null
+  },
+  {
+   "file": "draft/tests/recap_wiring.test.js",
+   "kind": "call",
+   "name": "  (it declined to send, which is also acceptable)",
+   "verdict": "literal true",
+   "klass": "claim",
+   "why": null
+  },
+  {
+   "file": "draft/tests/seat_panel_markup.test.js",
+   "kind": "call",
+   "name": "every rendered gap carries its row-specific units",
+   "verdict": "literal true",
+   "klass": "claim",
+   "why": null
+  },
+  {
+   "file": "draft/tools/adp_upside.js",
+   "kind": "named_control",
+   "name": "C1_slot_value_is_within_position",
+   "verdict": "literal true",
+   "klass": "claim",
+   "why": "a QB at pick 100 and an RB at pick 100 buy different point totals. "
+  },
+  {
+   "file": "draft/tools/draft_model.js",
+   "kind": "named_control",
+   "name": "C3_players_without_a_band_are_named_not_invented",
+   "verdict": "literal true",
+   "klass": "claim",
+   "why": "an invented band is the exact thing Cory has been correcting"
+  },
+  {
+   "file": "draft/tools/draftsharks_join.js",
+   "kind": "named_control",
+   "name": "ctl.C2_no_ambiguous_names_joined",
+   "verdict": "literal true",
+   "klass": "claim",
+   "why": "a name appearing twice on our board is DROPPED, never joined — a wrong "
+  },
+  {
+   "file": "draft/tools/lineup_sim.js",
+   "kind": "named_control",
+   "name": "C2_same_seed_across_arms",
+   "verdict": "literal true",
+   "klass": "claim",
+   "why": "identical injury and score draws per arm"
+  },
+  {
+   "file": "draft/tools/one_equation_plan.js",
+   "kind": "named_control",
+   "name": "C5_room_drained_by_adp",
+   "verdict": "literal true",
+   "klass": "claim",
+   "why": "strict ADP order, identical to the other arms"
+  },
+  {
+   "file": "draft/tools/position_boards.js",
+   "kind": "named_control",
+   "name": "C3_survival_is_labelled_adp_only",
+   "verdict": "literal true",
+   "klass": "claim",
+   "why": "the live war room has an opponent-aware number and MUST override this one"
+  },
+  {
+   "file": "draft/tools/reprojection.js",
+   "kind": "named_control",
+   "name": "C2_band_coverage_reported",
+   "verdict": "literal true",
+   "klass": "claim",
+   "why": "a silent fallback would make the adjuster look weaker than it is and hide which players are inert"
+  },
+  {
+   "file": "draft/tools/roster_builder_replay.js",
+   "kind": "named_control",
+   "name": "C2_no_hindsight_in_the_choice",
+   "verdict": "literal true",
+   "klass": "claim",
+   "why": "buildSeat receives the draft and the roster state only. Actual points "
+  },
+  {
+   "file": "draft/tools/roster_builder_replay.js",
+   "kind": "named_control",
+   "name": "C4_keepers_as_recorded",
+   "verdict": "literal true",
+   "klass": "claim",
+   "why": "is_keeper picks stay with their real owner in every arm; the builder "
+  },
+  {
+   "file": "draft/tools/roster_builder_replay.js",
+   "kind": "named_control",
+   "name": "C5_comparator_is_not_a_straw_man",
+   "verdict": "literal true",
+   "klass": "claim",
+   "why": "the equation-OFF arm still takes best-available on the same market "
+  },
+  {
+   "file": "draft/tools/simple_model.js",
+   "kind": "named_control",
+   "name": "C2_no_source_mixing",
+   "verdict": "literal true",
+   "klass": "claim",
+   "why": "a player with no Draft Sharks line is EXCLUDED, never back-filled with our proj_mean — mixing two sources inside one VONA is the defect this model removes"
+  },
+  {
+   "file": "draft/tools/source_boards.js",
+   "kind": "named_control",
+   "name": "C4_coverage_reported_not_assumed",
+   "verdict": "literal true",
+   "klass": "claim",
+   "why": "no source covers all 700. A column that is short at a position says so "
+  },
+  {
+   "file": "draft/tools/sources_page.js",
+   "kind": "named_control",
+   "name": "C1_ranks_are_within_position",
+   "verdict": "literal true",
+   "klass": "claim",
+   "why": "a raw projection cannot be compared across sources — they sit on "
+  },
+  {
+   "file": "draft/tools/sources_page.js",
+   "kind": "named_control",
+   "name": "C3_missing_is_shown_not_filled",
+   "verdict": "literal true",
+   "klass": "claim",
+   "why": "a source with no opinion prints ·, and a player with no Draft Sharks "
+  },
+  {
+   "file": "draft/tools/strike_page.js",
+   "kind": "named_control",
+   "name": "C3_no_cross_position_ranking",
+   "verdict": "literal true",
+   "klass": "claim",
+   "why": "VONA is not comparable across positions (P196). The page shows each "
+  },
+  {
+   "file": "draft/tools/vona_upside_plan.js",
+   "kind": "named_control",
+   "name": "C3_bench_picks_come_from_the_value_shortlist",
+   "verdict": "literal true",
+   "klass": "claim",
+   "why": "enforced by construction — the chooser only sees list.slice(0, N)"
+  },
+  {
+   "file": "draft/tools/vona_upside_plan.js",
+   "kind": "named_control",
+   "name": "C4_absence_reported",
+   "verdict": "literal true",
+   "klass": "claim",
+   "why": "absent, not zero (register 101)"
+  },
+  {
+   "file": "draft/tools/waiver_wire_shape_probe.js",
+   "kind": "call",
+   "name": "C2",
+   "verdict": "literal true",
+   "klass": "claim",
+   "why": null
+  }
+ ],
+ "disclosures": [
+  {
+   "file": "draft/tests/coherence.test.js",
+   "kind": "call",
+   "name": "  (the identity binds the STORED pair, so it catches a one-sided write,",
+   "verdict": "literal true",
+   "klass": "disclosure",
+   "why": null
+  },
+  {
+   "file": "draft/tools/reprojection.js",
+   "kind": "named_control",
+   "name": "C3_declared_choices",
+   "verdict": "literal true",
+   "klass": "disclosure",
+   "why": "these are CHOICES, not measurements. Declared in the prereg, reported here, never tuned toward a result."
+  },
+  {
+   "file": "draft/tools/roster_builder_replay.js",
+   "kind": "named_control",
+   "name": "C3_legality_reported_not_assumed",
+   "verdict": "literal true",
+   "klass": "disclosure",
+   "why": "a roster short at a position is REPORTED, never silently scored short"
+  }
+ ]
+}

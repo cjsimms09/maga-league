@@ -2,10 +2,10 @@
   "_territory": "TERRITORY: A — draft/tools/ffanalytics_probe.R",
   "_note": "RAW ROWS ONLY. Nothing here is averaged, scored, or allowed near proj_mean. ffanalytics does NOT scrape Draft Sharks — it scrapes FantasySharks, a different company.",
   "season": "NA",
-  "scraped_at": "2026-08-26T07:04:33Z",
+  "scraped_at": "2026-08-28T18:36:03Z",
   "sources_asked": ["CBS", "ESPN", "FantasyPros", "FantasySharks", "FFToday", "FleaFlicker", "NumberFire", "FantasyFootballNerd", "NFL", "RTSports", "Walterfootball", "FantasyData"],
   "sources_returning_rows": ["FantasyPros", "FFToday", "Walterfootball"],
-  "total_rows": 498,
+  "total_rows": 497,
   "per_source": {
     "CBS": {
       "ok": true,
@@ -61,11 +61,11 @@
     },
     "FFToday": {
       "ok": true,
-      "rows": 388,
+      "rows": 387,
       "positions": {
         "QB": 50,
         "RB": 94,
-        "WR": 130,
+        "WR": 129,
         "TE": 50,
         "K": 32,
         "DST": 32

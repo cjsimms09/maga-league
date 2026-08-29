@@ -3,8 +3,27 @@
  "_what": "The ONE list of words a DEFECT-REGISTER.md status cell may use, read by BOTH guards. Register 313.",
  "_why": "The two guards each carried their own list and they had drifted apart. test_defect_register.py tracked a row only if some cell contained OPEN / IN HAND / WAITING / CLOSED; register_recheck_check.js closed a row only on closed|resolved|ruled|withdrawn|superseded|retracted. A status of `✅ FIXED` matched NEITHER — invisible to the first, chased forever by the second. MEASURED 2026-08-24: 25 of 295 numbered rows contained none of the first list and were silently dropped from the owner check, the next-action check, the duplicate-id check and the unescaped-pipe ratchet. Two of them (95, 69) were ORANGE, i.e. live open work nothing was tracking.",
  "_rule": "A numbered row's status must contain at least one word from `live` or `terminal`. Adding a word here is a deliberate act: it widens what every guard accepts. Prefer rewriting the row's status to an existing word over adding a new one.",
- "live": ["OPEN", "IN HAND", "WAITING"],
- "terminal": ["CLOSED", "RESOLVED", "RULED", "WITHDRAWN", "SUPERSEDED", "RETRACTED"],
+ "live": [
+  "OPEN",
+  "IN HAND",
+  "WAITING"
+ ],
+ "terminal": [
+  "CLOSED",
+  "RESOLVED",
+  "RULED",
+  "WITHDRAWN",
+  "SUPERSEDED",
+  "RETRACTED"
+ ],
  "_terminal_note": "`FIXED`, `BUILT` and `DIAGNOSED` are deliberately NOT terminal. They describe work done, not a row closed — a fixed defect can still owe a test, a note, or a follow-up row. Write `✅ CLOSED — fixed in <sha>` so both guards agree, which is also what a reader needs.",
- "_taken": "2026-08-24"
+ "_taken": "2026-08-24",
+ "claimed_done": [
+  "FIXED",
+  "BUILT",
+  "DIAGNOSED",
+  "GRADED",
+  "MEASURED"
+ ],
+ "_claimed_done_note": "Words that CLAIM the work is done without CLOSING the row. A status carrying one of these and no `terminal` word is still open to every guard - correctly, since a fixed defect can still owe a test, a note or a follow-up row. But such a row is usually the CHEAPEST thing in the backlog: the work exists and only the verification and the sha are missing. MEASURED 2026-08-28: 10 of 118 overdue rows were in this state and three of them (143, 144, 146) closed on the spot once verified, one of them carrying an 'Open' clause that had been stale for eight days. register_recheck_check.js reports them as their own bucket so they stop hiding among untouched rows."
 }

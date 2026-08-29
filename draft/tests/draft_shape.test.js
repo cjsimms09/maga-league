@@ -49,7 +49,20 @@ const seasons = (HIST.seasons || []).map(s => {
   return { season: String(s.season), draft: d || {}, picks: ((d || {}).picks) || [] };
 });
 const completed = seasons.filter(s => s.picks.length);
-ck('there are completed Sleeper drafts to replay', completed.length === 3,
+/* ⚠️ WAS `=== 3`, AND CORY'S OWN DRAFT BROKE IT — the same pinned-count failure
+ * as `pick_schedule.test.js`'s, in the same week, for the same reason: the 2026
+ * draft completed on 08-22 and became a fourth completed draft in this league's
+ * history, so a control asserting *"there are drafts to replay"* went red
+ * because there were MORE of them.
+ *
+ * A FLOOR is the right shape here and not merely the convenient one. Everything
+ * below is an INVARIANCE across seasons — round 2 reverses round 1, round 3
+ * returns or repeats according to `reversal_round`, nobody keeps more than the
+ * league maximum — so an extra season strictly strengthens every arm rather than
+ * loosening it. The count is printed so a COLLAPSE is still visible; that is the
+ * failure this control actually exists to catch. Register 360. */
+ck('there are completed Sleeper drafts to replay (' + completed.length + ': '
+  + completed.map(s => s.season).join(', ') + ')', completed.length >= 3,
   completed.map(s => s.season + ':' + s.picks.length));
 
 // ── 1. THE SHAPE IS `reversal_round`, NOT `type` ─────────────────────────
@@ -121,7 +134,16 @@ const keptZero = completed.filter(s => s.picks.some(p => p.is_keeper)).map(s => 
   const all = new Set(s.picks.map(p => p.roster_id));
   return { season: s.season, zero: [...all].filter(r => !withKeepers.has(r)) };
 });
-ck('CONTROL — keeper seasons exist to check this against', keptZero.length === 2, keptZero);
+/* ⚠️ ALSO `=== 2`, and also broken by 2026 completing — there are now THREE
+ * keeper seasons (2024, 2025, 2026) against 2023's none. Same floor, same
+ * reason: the claim below is *"in EVERY keeper season somebody kept nobody"*,
+ * and it is a stronger claim over three seasons than over two. Measured today it
+ * holds in all three, and by exactly one team each — 2026 roster 2, 2025 roster
+ * 3, 2024 roster 4 — which is the clause a uniform keeper model would silently
+ * violate. */
+ck('CONTROL — keeper seasons exist to check this against (' + keptZero.length
+  + ': ' + keptZero.map(x => x.season).join(', ') + ')',
+  keptZero.length >= 2, keptZero);
 ck('in EVERY keeper season somebody kept nobody and picked in round 1',
   keptZero.every(x => x.zero.length >= 1), keptZero);
 ck('and the round-1 keeper count is therefore NOT the league keeper count',
@@ -136,7 +158,28 @@ ck('and the round-1 keeper count is therefore NOT the league keeper count',
 const L = DATA.league;
 const po = DATA.pick_order || {};
 const mySlot = +L.my_draft_slot;
-const kept = (po.forfeited || []).length;
+/* ⚠️ `po.forfeited` IS THE WHOLE LEAGUE'S NOW, AND THIS COUNTED ALL OF IT.
+ * Pre-lock it held only MY keeper costs, so its length WAS my first-live-round
+ * offset. Post 2026-08-23 it holds all 23 forfeits across 9 seats, so this
+ * derived a first live round of 24 and a first pick that does not exist.
+ * `pick_schedule.test.js` fixed the identical line at the lock and this file was
+ * not swept with it — the same defect, in a second place, found only by working
+ * the standing-debt list.
+ *
+ * The era-robust read filters to my seat: each entry has carried `team_slot` in
+ * BOTH eras, so this is correct before and after the lock rather than correct
+ * for today. Asserted rather than assumed — my forfeits must also be the OPENING
+ * rounds for the contiguous-schedule arithmetic below to mean anything.
+ * Register 360. */
+const myForfeits = (po.forfeited || []).filter(f => Number(f.team_slot) === mySlot);
+ck('CONTROL — my forfeited rounds are MINE and are the opening rounds, which is '
+  + 'what makes the arithmetic below contiguous (' + myForfeits.length + ' of '
+  + (po.forfeited || []).length + ' league-wide)',
+  myForfeits.length > 0 && myForfeits.length < (po.forfeited || []).length
+    && myForfeits.map(f => Number(f.cost_round)).sort((a, b) => a - b)
+      .every((r, i) => r === i + 1),
+  { mine: myForfeits.map(f => f.cost_round), leagueWide: (po.forfeited || []).length });
+const kept = myForfeits.length;
 const firstRound = kept + 1;
 const nth = firstRound % 2 === 1 ? mySlot : TEAMS + 1 - mySlot;
 ck('I keep three, so my first live round is 4', firstRound === 4, firstRound);
@@ -231,6 +274,49 @@ ck('and the derived label agrees with it', L.draft_type === 'snake', L.draft_typ
     + 'defaulting to 0', !!threwNull && /REFUSING/.test(threwNull), threwNull);
 }
 
+/* ── 6. AND MY SEAT IS NOW DERIVABLE, WHICH THIS FILE'S OWN EPILOGUE ASKED FOR ──
+ *
+ * The epilogue used to end: *"slot 8 rests on Cory's word and a config file. It
+ * is derivable for COMPLETED drafts and the 2026 draft has no picks yet, so this
+ * closes only when the live draft object is fetched."* **The draft was played on
+ * 2026-08-22 and the object IS fetched — 150 picks.** The gap this file declared
+ * has closed, and nothing was watching for that; found 2026-08-27 while working
+ * the standing-debt list.
+ *
+ * TWO PATHS, AND ONLY TWO — stated carefully, because three would be an
+ * overclaim this file would otherwise be making about itself:
+ *
+ *   · the draft's `slot_to_roster_id` says slot 8 -> roster 1. That map is
+ *     DERIVED from round-1 pick order (`slot_to_roster_id_basis` says so in
+ *     words), so checking it against round-1 order again would be one path
+ *     agreeing with itself, not corroboration.
+ *   · the season's `owners` map says roster 1 is `coryjsimms`, user
+ *     434915673219526656 — which is `league.my_manager_id` on the board. That
+ *     is a genuinely independent field: it comes from the league's roster
+ *     ownership, not from anything about pick order.
+ *
+ * So the seat is confirmed by the draft ORDER and the roster OWNERSHIP meeting
+ * at the same number, and `my_draft_slot` stops resting on a config file alone.
+ */
+{
+  const s26 = completed.find(x => x.season === '2026');
+  if (s26) {
+    const map = s26.draft.slot_to_roster_id || {};
+    const owners = ((HIST.seasons || []).find(x => String(x.season) === '2026') || {}).owners || {};
+    const myRoster = map[String(mySlot)];
+    const owner = owners[String(myRoster)] || {};
+    ck('CONTROL — the played 2026 draft carries a seat map at all, so the check '
+      + 'below is not passing on two undefineds',
+      Object.keys(map).length === TEAMS, { size: Object.keys(map).length, teams: TEAMS });
+    ck('MY SEAT IS DERIVED, NOT DECLARED: the draft puts slot ' + mySlot
+      + ' on roster ' + myRoster + ', and the league OWNERS map puts that '
+      + 'roster on my_manager_id — two independent fields meeting at one number',
+      myRoster != null && String(owner.user_id) === String(L.my_manager_id),
+      { slot: mySlot, roster: myRoster, owner: owner.display_name,
+        owner_user_id: owner.user_id, my_manager_id: L.my_manager_id });
+  }
+}
+
 console.log('\n' + pass + '/' + (pass + fail) + ' checks passed  ('
   + completed.reduce((n, s) => n + s.picks.length, 0) + ' real picks replayed)');
 if (fail) { console.log('\nFAILED'); process.exit(1); }
@@ -239,7 +325,10 @@ console.log('ACTUALLY DID in three drafts of this league — the snake direction
 console.log('round, the third-round reversal that `type` cannot express, keepers costing');
 console.log('rounds 1..N top-down, and teams keeping zero who therefore DO pick in round');
 console.log('one. My first pick is 33 by the same arithmetic that reproduces all three.');
-console.log('WHAT IT DOES NOT: verify my_draft_slot. slot_to_roster_id is captured empty');
-console.log('for every season, so slot 8 rests on Cory\'s word and a config file. It is');
-console.log('derivable for COMPLETED drafts and the 2026 draft has no picks yet, so this');
-console.log('closes only when the live draft object is fetched.');
+console.log('AND SINCE 2026-08-22, my_draft_slot TOO: the played draft puts slot 8 on');
+console.log('roster 1 and the league owners map puts roster 1 on my_manager_id, so the');
+console.log('seat is confirmed by draft ORDER and roster OWNERSHIP meeting at one number');
+console.log('rather than by a config file. That closes the gap this epilogue used to name.');
+console.log('WHAT IT STILL DOES NOT: the seat map is DERIVED from round-1 pick order');
+console.log('(slot_to_roster_id_basis says so) — Sleeper served none — so the draft-order');
+console.log('half is one path, not two. The owners map is the independent one.');

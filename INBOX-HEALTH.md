@@ -7,50 +7,50 @@ by hand, so it cannot quietly stop being true.
 Two questions, measured:
 **is anyone answering**, and **is any finished work invisible from `main`**.
 
-_Last measured: 2026-08-27 16:17 UTC_
+_Last measured: 2026-08-28 15:16 UTC_
 
 ```
 ============================================================================
 ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
-  904 items · 322 open · 259 of those carry a DEFAULT (silence resolves them)
-  62 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
-  of 63 open item(s) with no default: 5 SAY they ask for nothing · 0 are BROADCASTS (same
-  header in 3+ inboxes — a rule, not four decisions) · 58 declare NEITHER, so nobody
+  916 items · 328 open · 264 of those carry a DEFAULT (silence resolves them)
+  53 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
+  of 64 open item(s) with no default: 5 SAY they ask for nothing · 0 are BROADCASTS (same
+  header in 3+ inboxes — a rule, not four decisions) · 59 declare NEITHER, so nobody
   can tell whether a decision is owed. That last number is the real state of the inbox.
   NEITHER IS SUBTRACTED: "no ask" is a loophole anyone can type, so the baseline stays
   comparable and the split prints beside it. Only the broadcast half is unfakeable —
   rewording is precisely what stops it matching.
 
   waiting on:
-      16     8d oldest   A
-      10     8d oldest   E
-      10     7d oldest   B
-       9     8d oldest   D
-       4     4d oldest   Cory
-       3     7d oldest   A/B
-       3     7d oldest   C
-       2     3d oldest   relay
+      13     9d oldest   A
+      10     9d oldest   E
+      10     8d oldest   B
+       9     9d oldest   D
+       3     5d oldest   Cory
+       3     8d oldest   C
+       2     4d oldest   relay
+       1     5d oldest   A/Cory
 
   the five oldest:
-    8d  2026-08-19 · E → A · 🔴 **REPLY TO `ROSTER-CONSTRUCTION-CALL.md`: RELAXING TE'S CAP TO AN ALREAD
-    8d  2026-08-19 · C → D · 🎯 **CORY RULED ON THE ROSTER-CONSTRUCTION TARGET — verbatim: "We should be
-    8d  2026-08-19 · C → E · 🎯 **CORY RULED ON THE ROSTER-CONSTRUCTION TARGET — verbatim: "We should be
-    7d  2026-08-20 · relay → A · 🔬 **AUDIT-PACKAGE ADDENDUM: question 2 (the friction constant) now has
-    7d  2026-08-20 · relay → A · 🚂 **FULL STEAM — **CORY, VERBATIM (08-20): "everyones full task list s
+    9d  2026-08-19 · E → A · 🔴 **REPLY TO `ROSTER-CONSTRUCTION-CALL.md`: RELAXING TE'S CAP TO AN ALREAD
+    9d  2026-08-19 · C → D · 🎯 **CORY RULED ON THE ROSTER-CONSTRUCTION TARGET — verbatim: "We should be
+    9d  2026-08-19 · C → E · 🎯 **CORY RULED ON THE ROSTER-CONSTRUCTION TARGET — verbatim: "We should be
+    8d  2026-08-20 · relay → A · 🔬 **AUDIT-PACKAGE ADDENDUM: question 2 (the friction constant) now has
+    8d  2026-08-20 · relay → A · 🚂 **FULL STEAM — **CORY, VERBATIM (08-20): "everyones full task list s
 
   DOES THE LOOP VISIBLY CLOSE? — ticked share by sender→recipient
   (a low rate is a QUESTION: real backlog, or answered and never ticked?)
     E → B                     15 items    13% ticked    1 open with NO default
     relay → E                 15 items    13% ticked    1 open with NO default
-    E → A                     81 items    14% ticked   13 open with NO default
+    E → A                     85 items    15% ticked   12 open with NO default
     relay → D                 19 items    26% ticked    4 open with NO default
     A → E                     15 items    40% ticked    0 open with NO default
-    D → A                     86 items    52% ticked    8 open with NO default
-    relay → A                117 items    56% ticked   14 open with NO default
+    D → A                     89 items    53% ticked    9 open with NO default
+    relay → A                118 items    55% ticked   14 open with NO default
     relay → C                 28 items    57% ticked    3 open with NO default
+    B → A                     66 items    59% ticked    8 open with NO default
     D → C                      5 items    60% ticked    0 open with NO default
-    B → A                     63 items    60% ticked    7 open with NO default
     A → A                     72 items    65% ticked    1 open with NO default
     relay → B                 21 items    76% ticked    4 open with NO default
     A → D                     14 items    86% ticked    0 open with NO default
@@ -69,9 +69,9 @@ ROUTES RESPONSE CHECK — is anyone answering?
     C → C                     13 items   100% ticked    0 open with NO default
     relay/PM → D               7 items   100% ticked    0 open with NO default
 
-  baseline 0  ->  now 62
+  baseline 0  ->  now 53
 
-  ❌ THE BACKLOG GREW BY 62. Answer them, add a DEFAULT so silence resolves them, or SEND BACK.
+  ❌ THE BACKLOG GREW BY 53. Answer them, add a DEFAULT so silence resolves them, or SEND BACK.
      A ratchet that only reports is the thing that failed here already.
 ============================================================================
 ```
@@ -80,11 +80,11 @@ ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
 LANE STATUS — work that exists but `main` cannot see
 ============================================================================
-  ⚠️  150 commits    63h old  claude/data-stewardship-setup-bo5h9j
-  ⚠️   53 commits    18h old  claude/external-ingest-program-1xfinj
-  ⚠️   48 commits    47h old  claude/red-team-fantasy-football-97otna
-        2 commits    15h old  claude/warroom-shell-rebuild-0817
-        1 commits    47h old  claude/derived-values-bbm-tier-xxto5m
+  ⚠️  150 commits    86h old  claude/data-stewardship-setup-bo5h9j
+  ⚠️   55 commits    23h old  claude/external-ingest-program-1xfinj
+  ⚠️   50 commits    22h old  claude/red-team-fantasy-football-97otna
+        6 commits     0h old  claude/warroom-shell-rebuild-0817
+        1 commits    70h old  claude/derived-values-bbm-tier-xxto5m
 
   ⚠️  3 branch(es) look STRANDED — 3+ commits, 12h+ old, unmerged.
      ROUTES.md cannot show you these: it lists what a lane WROTE DOWN,

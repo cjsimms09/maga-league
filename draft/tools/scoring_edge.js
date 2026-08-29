@@ -151,10 +151,20 @@ console.log('WHERE OUR SCORING AND THE MARKET\'S PRICES DISAGREE\n');
     : (p.raw_adp != null ? +p.raw_adp : 9999));
   const byAdp = pool.slice().sort((a, b) => adpOf(a) - adpOf(b));
   const POS = ['QB', 'RB', 'WR', 'TE'];
+  /* THE LAST STARTER IS RANKED OVER THE LEAGUE, NOT OVER WHAT IS DRAFTABLE
+   * (register 394). `slots` is `per x teams`, so this line is a statement about
+   * the population; `pool` since the 2026-08-23 keeper lock excludes all 23 kept
+   * players and walked the marker that many bodies deeper — worst at RB, where
+   * 12 of the 23 sit. This was the second hand-rolled copy of the arithmetic
+   * `vorp.py` fixed at source on register 283, so it now shares draft_plan's one
+   * `starterPool()` rather than becoming a third. */
+  const starterPool = PLAN.starterPool()
+    .filter(p => Number.isFinite(+p.proj_mean) && +p.proj_mean > 0);
   const repl = {};
   POS.forEach(p => {
     const slots = VS[p] ? VS[p].slots : null;
-    const s = pool.filter(x => x.position === p).map(x => +x.proj_mean).sort((a, b) => b - a);
+    const s = starterPool.filter(x => x.position === p)
+      .map(x => +x.proj_mean).sort((a, b) => b - a);
     repl[p] = (slots && s.length >= slots) ? s[slots - 1] : null;
   });
   console.log('\n  3. WHERE IT BECOMES A DECISION — points above the LAST STARTER at each');

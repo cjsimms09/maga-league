@@ -565,6 +565,22 @@ jobs:
         if: always()
         run: git fetch --all --quiet && node draft/tools/claimed_sha_check.js || true
 
+      - name: Premise check — is what we pinned still TRUE? (register 385)
+        # The register chases findings by DATE. A date cannot express "void the
+        # moment the ceiling source changes", so a premise that dies between
+        # rechecks stays true-LOOKING until somebody trips on it. On 2026-08-27
+        # nine defects in one session were exactly that, and six of the seven
+        # premises registered here were already dead when it was first run.
+        #
+        # `|| true` for the same reason as the step above, and it matters more
+        # here: this one is EXPECTED to report void entries for as long as the
+        # consequences are being worked through. A visibility aid that can
+        # redden main becomes a thing people delete. Its controls are enforced
+        # by draft/tests/premise_check.test.js, which the JS glob already runs —
+        # so the MECHANISM is gated even though the VERDICTS are not.
+        if: always()
+        run: node draft/tools/premise_check.js || true
+
       - name: Guard — every critical step actually ran (no silent skips)
         if: always()
         # Outcomes are success/failure/skipped/cancelled. A real failure is reported by

@@ -1,5 +1,28 @@
 # Every session starts here
 
+## 📅 THE ERA CHANGED — read this before anything below (relay, 2026-08-26)
+
+**The draft happened 2026-08-22. Much of this file below this banner is draft-week
+state, kept as history with corrections riding in place — do not act on a
+draft-week instruction without checking its date.** What governs NOW:
+
+* **THE SEASON RULING (Cory, 08-24, `ROUTES.md` top):** in-season tools, capture
+  everything, make the model better, find edge — **and keep making the site
+  better for owners** (his same-day amendment, verbatim: *"no, dont stop doing
+  things that make site better for owners.... thats importnat to"*).
+* **⭐ READ `DRAFT-2026-LESSONS.md`** — 18 measured lessons; the build plan with
+  owners and dates is `DRAFT-2027-PROGRAM.md` §7.
+* **`LEARNING-CONSTITUTION.md` is RATIFIED (Cory, 08-25)** — the Tier-0/1/2
+  change-control taxonomy is live authority: any change that alters a number or
+  the ordering/defaults/salience of a decision surface has a tier; check before
+  shipping.
+* **The audit rhythm:** Wednesday register audits (worksheet pattern:
+  `draft/audit/WEDNESDAY-AUDIT-*.md`); the ledger gates run in CI and are green —
+  keep them that way. First blend grade vs Cory's edge bar: **09-15**.
+* **Week 1 is 09-10.** The dated season calendar lives in `ROUTES.md` and the
+  register; the capture rail (waiver/stream/lineup auto-capture, Tuesday wire,
+  weekly probe) is live and self-verifying.
+
 ## 🪪 WHO OWNS WHAT — you own an OUTCOME, not a checklist
 
 **Cory, 2026-08-17:** *"no one actually owns anything.. even A just grades and
@@ -229,7 +252,7 @@ third is the sentence a new session actually acts on** — which is register 5h'
 mechanism applied to a claim instead of a weight. Found by working the recheck
 backlog, not by anyone reading the file.**
 
-**⭐ READ `DRAFT-WEEK-BRIEF.md` FIRST** (written 2026-08-17; draft is 08-22).
+**⭐ ~~READ `DRAFT-WEEK-BRIEF.md` FIRST~~ — SUPERSEDED 08-26: the draft is over; the era banner at the top of this file is the entry point now. The brief stays as history.** (Original line, written 2026-08-17; draft was 08-22.)
 08-17 changed the model's FOUNDATIONS, not its features: every dispersion field
 on the board was `proj_mean x a per-band constant` — zero player-specific
 information — which is the single cause of three conclusions we had believed.

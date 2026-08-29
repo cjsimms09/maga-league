@@ -61,6 +61,20 @@ const enrich = p => ({ player_id: String(p.player_id), name: p.name, position: p
  * the season is in progress, and the pick log is the FALLBACK for the pre-season
  * state the original finding was taken in. The source is printed, because
  * "which roster was this measured on" is the first question about any number here. */
+/* ⚠️ AND `final_rosters` IS ITSELF A WEEKLY SNAPSHOT — `league-history-export.yml`
+ * runs `cron: '0 11 * * 2'`, TUESDAYS ONLY. So this source is current on a
+ * Tuesday and up to SEVEN DAYS behind on a Monday, across exactly the waiver and
+ * game cycle. Repointing at it fixed a stale pick log and introduced a slower
+ * staleness one source over, so the age is printed rather than implied. The LIVE
+ * site does not have this problem: it reads Sleeper directly. */
+function ageNote(builtAt) {
+  if (!builtAt) return 'age unknown';
+  const days = (Date.now() - Date.parse(builtAt)) / 86400000;
+  if (!isFinite(days)) return 'age unknown';
+  if (days < 1.5) return 'CURRENT (' + (24 * days).toFixed(0) + 'h old)';
+  return '⚠️ ' + days.toFixed(1) + ' DAYS OLD — the export runs Tuesdays only, so '
+    + 'any add or drop since then is invisible here';
+}
 function liveRoster() {
   try {
     const hist = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data', 'league_history.json'), 'utf8'));
@@ -71,7 +85,9 @@ function liveRoster() {
     if (!rid) return null;
     const r = (s.final_rosters || []).find(x => String(x.roster_id) === String(rid));
     return (r && (r.players || []).length)
-      ? { ids: r.players.map(String), source: "league_history final_rosters (LIVE, built " + (hist.built_at || '?') + ")" }
+      ? { ids: r.players.map(String),
+          source: 'league_history final_rosters, built ' + (hist.built_at || '?')
+            + ' — ' + ageNote(hist.built_at) }
       : null;
   } catch (e) { return null; }
 }

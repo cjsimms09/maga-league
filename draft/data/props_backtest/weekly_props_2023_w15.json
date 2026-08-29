@@ -1,0 +1,3685 @@
+{
+ "_territory": "TERRITORY: D \u2014 produced by draft/tools/hydrate_weekly_props_from_historical.py",
+ "_note": "BACKTEST HYDRATION, not a live capture. Implied points for one week, priced from the committed historical prop-line store under this league's frozen scoring table. A player with no quoted market that week is ABSENT, never a zero.",
+ "season": 2023,
+ "week": 15,
+ "formula": "props_season_projection.line_to_points",
+ "provenance": {
+  "source": "hydrated_from_historical",
+  "source_store": "draft/backtest/historical_props_2023.json",
+  "source_sha256": "6741b92b096a59347184e27c5f9b3d982155ba704c2e89dbda17d8e4076d0400",
+  "markets_confirmed_live": [],
+  "why": "prereg \u00a78 \u2014 a backtest fold must not be able to masquerade as a live capture."
+ },
+ "players": {
+  "11201": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6803": {
+   "points": 13.09,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "10224": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8183": {
+   "points": 21.15,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "7075": {
+   "points": 0.66,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "2381": {
+   "points": 0.6,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4034": {
+   "points": 22.63,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "5872": {
+   "points": 14.03,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "10231": {
+   "points": 0.54,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7561": {
+   "points": 2.1,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11199": {
+   "points": 0.54,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "2545": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4217": {
+   "points": 9.82,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "5970": {
+   "points": 1.26,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4137": {
+   "points": 9.52,
+   "markets": [
+    "any_td",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "7049": {
+   "points": 3.76,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "4219": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8408": {
+   "points": 1.74,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "1379": {
+   "points": 0.66,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5849": {
+   "points": 16.93,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "5848": {
+   "points": 1.86,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7607": {
+   "points": 0.18,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "10232": {
+   "points": 1.62,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7601": {
+   "points": 1.5,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "10221": {
+   "points": 0.66,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8130": {
+   "points": 9.9,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "4319": {
+   "points": 0.66,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "2197": {
+   "points": 8.02,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6786": {
+   "points": 16.36,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "3294": {
+   "points": 22.49,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "10236": {
+   "points": 8.76,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "5906": {
+   "points": 4.28,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6234": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "9505": {
+   "points": 0.48,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6943": {
+   "points": 7.14,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "11510": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8110": {
+   "points": 8.44,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "11034": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8117": {
+   "points": 2.96,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8138": {
+   "points": 12.25,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "4984": {
+   "points": 26.43,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "8917": {
+   "points": 0.9,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8134": {
+   "points": 5.32,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "1476": {
+   "points": 3.72,
+   "markets": [
+    "any_td",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "10871": {
+   "points": 0.66,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8800": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5038": {
+   "points": 3.64,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8197": {
+   "points": 0.66,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7536": {
+   "points": 0.48,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7204": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7021": {
+   "points": 3.65,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "6964": {
+   "points": 0.48,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "2449": {
+   "points": 13.92,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "5967": {
+   "points": 13.89,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "5154": {
+   "points": 0.66,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6039": {
+   "points": 1.93,
+   "markets": [
+    "any_td",
+    "rush_yd"
+   ]
+  },
+  "1689": {
+   "points": 8.42,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "9509": {
+   "points": 12.99,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "9228": {
+   "points": 11.68,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "7594": {
+   "points": 11.57,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "1535": {
+   "points": 0.78,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4951": {
+   "points": 3.88,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8159": {
+   "points": 12.57,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "8112": {
+   "points": 8.6,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "4995": {
+   "points": 0.6,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7559": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8500": {
+   "points": 0.12,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "10225": {
+   "points": 6.81,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "4144": {
+   "points": 4.08,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "5773": {
+   "points": 0.6,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7553": {
+   "points": 6.7,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "4177": {
+   "points": 0.48,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7944": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6151": {
+   "points": 4.33,
+   "markets": [
+    "any_td",
+    "rush_yd"
+   ]
+  },
+  "2446": {
+   "points": 0.6,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8255": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6290": {
+   "points": 0.54,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6970": {
+   "points": 1.2,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "7565": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7694": {
+   "points": 2.74,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8885": {
+   "points": 0.18,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8132": {
+   "points": 5.12,
+   "markets": [
+    "any_td",
+    "rec",
+    "rush_yd"
+   ]
+  },
+  "6853": {
+   "points": 1.44,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "10226": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5695": {
+   "points": 0.66,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "3832": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "10228": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "9224": {
+   "points": 5.1,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "7794": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7989": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6001": {
+   "points": 0.72,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6126": {
+   "points": 0.48,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7564": {
+   "points": 12.54,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6111": {
+   "points": 21.07,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "8180": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4018": {
+   "points": 14.67,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "4314": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "9756": {
+   "points": 7.68,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "5973": {
+   "points": 0.54,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6794": {
+   "points": 14.3,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "7066": {
+   "points": 4.42,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "7720": {
+   "points": 0.78,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6894": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5980": {
+   "points": 0.6,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4464": {
+   "points": 19.77,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "8523": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5844": {
+   "points": 7.8,
+   "markets": [
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "5409": {
+   "points": 4.42,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6801": {
+   "points": 7.8,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6144": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6598": {
+   "points": 0.48,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7009": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8230": {
+   "points": 11.22,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "3225": {
+   "points": 6.62,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "2309": {
+   "points": 10.38,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "10444": {
+   "points": 3.66,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6826": {
+   "points": 7.38,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "4111": {
+   "points": 8.19,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "4983": {
+   "points": 0.9,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7090": {
+   "points": 4.76,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8118": {
+   "points": 0.72,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4033": {
+   "points": 8.52,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "7596": {
+   "points": 7.5,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6850": {
+   "points": 1.28,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6957": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8143": {
+   "points": 10.53,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "19": {
+   "points": 18.62,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd"
+   ]
+  },
+  "5032": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7591": {
+   "points": 18.39,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "14076": {
+   "points": 0.12,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4098": {
+   "points": 6.65,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "7608": {
+   "points": 2.33,
+   "markets": [
+    "any_td",
+    "rush_yd"
+   ]
+  },
+  "6379": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "111": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "1346": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8116": {
+   "points": 0.9,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4602": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "10235": {
+   "points": 3.15,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "6012": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4218": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "9490": {
+   "points": 1.6,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8223": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6869": {
+   "points": 2.64,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "7547": {
+   "points": 14.46,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "11053": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8756": {
+   "points": 0.48,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7891": {
+   "points": 1.3,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "3048": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5045": {
+   "points": 11.18,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6659": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5892": {
+   "points": 13.64,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "6824": {
+   "points": 0.48,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "3391": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "9221": {
+   "points": 14.65,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "11439": {
+   "points": 2.33,
+   "markets": [
+    "any_td",
+    "rush_yd"
+   ]
+  },
+  "8170": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8148": {
+   "points": 4.08,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "3163": {
+   "points": 20.01,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "7588": {
+   "points": 13.29,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "6783": {
+   "points": 8.64,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "4171": {
+   "points": 4.26,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "3634": {
+   "points": 3.6,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "5938": {
+   "points": 1.36,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8249": {
+   "points": 0.48,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "9494": {
+   "points": 3.5,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "2471": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11433": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "1234": {
+   "points": 21.75,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "10859": {
+   "points": 10.2,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "4147": {
+   "points": 3.07,
+   "markets": [
+    "any_td",
+    "rec_yd"
+   ]
+  },
+  "6828": {
+   "points": 1.5,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4199": {
+   "points": 4.08,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4892": {
+   "points": 19.49,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "11082": {
+   "points": 0.6,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8204": {
+   "points": 0.48,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8111": {
+   "points": 5.2,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "5000": {
+   "points": 0.9,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4037": {
+   "points": 8.74,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "4274": {
+   "points": 0.6,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8253": {
+   "points": 0.66,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "9486": {
+   "points": 1.92,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "10222": {
+   "points": 10.4,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6804": {
+   "points": 21.05,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "7050": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "3242": {
+   "points": 0.66,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8484": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11210": {
+   "points": 1.26,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "2216": {
+   "points": 12.6,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6963": {
+   "points": 3.48,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "10227": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8136": {
+   "points": 15.27,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "8121": {
+   "points": 8.84,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8235": {
+   "points": 0.84,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "9506": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "9492": {
+   "points": 4.94,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "9484": {
+   "points": 7.38,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8142": {
+   "points": 5.54,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "1992": {
+   "points": 2.88,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8489": {
+   "points": 1.46,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6878": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8125": {
+   "points": 0.78,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8181": {
+   "points": 1.14,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6453": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "9479": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5937": {
+   "points": 8.34,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8831": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6011": {
+   "points": 19.65,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "8137": {
+   "points": 8.3,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "5220": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4197": {
+   "points": 0.78,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8228": {
+   "points": 10.91,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "9500": {
+   "points": 8.08,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "7602": {
+   "points": 3.22,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6819": {
+   "points": 13.66,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "5965": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "3976": {
+   "points": 14.01,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "4054": {
+   "points": 0.54,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7528": {
+   "points": 10.65,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "7600": {
+   "points": 6.68,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8757": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7593": {
+   "points": 0.9,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8207": {
+   "points": 0.66,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "10220": {
+   "points": 2.42,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6845": {
+   "points": 15.21,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "9480": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4981": {
+   "points": 9.5,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8127": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6694": {
+   "points": 3.73,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "11139": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4066": {
+   "points": 9.8,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "5248": {
+   "points": 6.35,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "8131": {
+   "points": 6.96,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "4198": {
+   "points": 0.6,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7733": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5995": {
+   "points": 0.78,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "9511": {
+   "points": 9.28,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "4881": {
+   "points": 25.24,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "7842": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "2325": {
+   "points": 3.06,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "2078": {
+   "points": 7.74,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "9487": {
+   "points": 4.34,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "4353": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7571": {
+   "points": 4.8,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "9225": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8013": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7543": {
+   "points": 13.63,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "7523": {
+   "points": 20.45,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "7595": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "9997": {
+   "points": 9.78,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "4080": {
+   "points": 8.2,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "4226": {
+   "points": 0.48,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6945": {
+   "points": 12.27,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "7746": {
+   "points": 0.66,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7757": {
+   "points": 0.72,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6926": {
+   "points": 0.72,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5199": {
+   "points": 0.54,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "10219": {
+   "points": 4.11,
+   "markets": [
+    "any_td",
+    "rush_yd"
+   ]
+  },
+  "8214": {
+   "points": 0.48,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4039": {
+   "points": 14.44,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8192": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4082": {
+   "points": 7.58,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "10214": {
+   "points": 1.32,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "3286": {
+   "points": 6.7,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6753": {
+   "points": 0.6,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7587": {
+   "points": 0.66,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7535": {
+   "points": 1.32,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8119": {
+   "points": 7.08,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "2410": {
+   "points": 0.54,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7716": {
+   "points": 0.6,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "3312": {
+   "points": 0.48,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8150": {
+   "points": 20.89,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "2251": {
+   "points": 6.78,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "421": {
+   "points": 20.79,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "9493": {
+   "points": 13.6,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "5046": {
+   "points": 1.32,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8162": {
+   "points": 22.51,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "5927": {
+   "points": 10.76,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "7562": {
+   "points": 2.34,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "3271": {
+   "points": 5.94,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6960": {
+   "points": 0.6,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "9222": {
+   "points": 0.54,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "10866": {
+   "points": 11.59,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "3433": {
+   "points": 0.48,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "2359": {
+   "points": 1.74,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4663": {
+   "points": 13.39,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "3202": {
+   "points": 0.6,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "1034": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "2133": {
+   "points": 13.02,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "2750": {
+   "points": 1.02,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "10234": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6074": {
+   "points": 2.38,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6185": {
+   "points": 13.72,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "4089": {
+   "points": 6.12,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "5955": {
+   "points": 4.88,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8153": {
+   "points": 0.72,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5947": {
+   "points": 8.68,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6421": {
+   "points": 0.78,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6075": {
+   "points": 0.18,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5850": {
+   "points": 3.54,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7670": {
+   "points": 6.76,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "7045": {
+   "points": 2.41,
+   "markets": [
+    "any_td",
+    "rush_yd"
+   ]
+  },
+  "9482": {
+   "points": 4.28,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "3258": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "9754": {
+   "points": 5.78,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8583": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "10213": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8139": {
+   "points": 3.0,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6109": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5185": {
+   "points": 2.48,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "5121": {
+   "points": 1.2,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8155": {
+   "points": 11.99,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "5113": {
+   "points": 0.66,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6886": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4029": {
+   "points": 3.22,
+   "markets": [
+    "any_td",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "7064": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "9226": {
+   "points": 3.54,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5008": {
+   "points": 1.08,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8146": {
+   "points": 9.99,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "9227": {
+   "points": 0.54,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7526": {
+   "points": 9.45,
+   "markets": [
+    "any_td",
+    "rec_yd"
+   ]
+  },
+  "5284": {
+   "points": 2.22,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8145": {
+   "points": 2.4,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "11371": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7597": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5116": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "2749": {
+   "points": 11.07,
+   "markets": [
+    "any_td",
+    "rush_yd"
+   ]
+  },
+  "928": {
+   "points": 0.48,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4854": {
+   "points": 0.66,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "3423": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6768": {
+   "points": 18.93,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "5133": {
+   "points": 4.96,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "2390": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "3321": {
+   "points": 4.8,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11306": {
+   "points": 2.64,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "7538": {
+   "points": 12.34,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "8157": {
+   "points": 11.87,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "2422": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6820": {
+   "points": 9.99,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "2319": {
+   "points": 5.44,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "9501": {
+   "points": 8.4,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "10870": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "3164": {
+   "points": 11.6,
+   "markets": [
+    "any_td",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "3214": {
+   "points": 5.4,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6996": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6798": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "2161": {
+   "points": 6.75,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "4040": {
+   "points": 4.32,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "5374": {
+   "points": 3.67,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "7606": {
+   "points": 3.16,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "9504": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8174": {
+   "points": 0.72,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5086": {
+   "points": 3.26,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "7992": {
+   "points": 0.12,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4993": {
+   "points": 0.48,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7828": {
+   "points": 2.63,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "4046": {
+   "points": 21.31,
+   "markets": [
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "4443": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "10229": {
+   "points": 11.21,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "5137": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8168": {
+   "points": 2.49,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "1466": {
+   "points": 14.42,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8188": {
+   "points": 0.78,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "10863": {
+   "points": 1.32,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8025": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4035": {
+   "points": 16.93,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "8144": {
+   "points": 2.7,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8225": {
+   "points": 0.72,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6149": {
+   "points": 4.7,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "2505": {
+   "points": 1.38,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "2028": {
+   "points": 18.29,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "10223": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5985": {
+   "points": 0.54,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6699": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6920": {
+   "points": 0.72,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "9497": {
+   "points": 4.18,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "4149": {
+   "points": 4.0,
+   "markets": [
+    "any_td",
+    "rush_yd"
+   ]
+  },
+  "8194": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "616": {
+   "points": 0.84,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7002": {
+   "points": 1.2,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5134": {
+   "points": 0.78,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7106": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6909": {
+   "points": 1.38,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6989": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4455": {
+   "points": 1.43,
+   "markets": [
+    "any_td",
+    "rush_yd"
+   ]
+  },
+  "5880": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8676": {
+   "points": 5.49,
+   "markets": [
+    "any_td",
+    "rec_yd"
+   ]
+  },
+  "4866": {
+   "points": 14.55,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "3200": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "4381": {
+   "points": 4.72,
+   "markets": [
+    "any_td",
+    "rush_yd"
+   ]
+  },
+  "11292": {
+   "points": 14.44,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "8126": {
+   "points": 4.81,
+   "markets": [
+    "any_td",
+    "rec_yd"
+   ]
+  },
+  "5859": {
+   "points": 14.98,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6843": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5122": {
+   "points": 0.6,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11280": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8414": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6865": {
+   "points": 0.66,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6790": {
+   "points": 11.89,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "7612": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5846": {
+   "points": 11.12,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "5022": {
+   "points": 7.9,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8527": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7525": {
+   "points": 8.25,
+   "markets": [
+    "any_td",
+    "rec_yd"
+   ]
+  },
+  "6931": {
+   "points": 0.66,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5854": {
+   "points": 0.78,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "1373": {
+   "points": 0.78,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8177": {
+   "points": 0.42,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7946": {
+   "points": 0.54,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "10867": {
+   "points": 0.78,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6904": {
+   "points": 26.85,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "9488": {
+   "points": 7.77,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "947": {
+   "points": 0.6,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7567": {
+   "points": 4.35,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "8151": {
+   "points": 9.79,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "10216": {
+   "points": 0.48,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "2941": {
+   "points": 0.12,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5857": {
+   "points": 4.39,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "6271": {
+   "points": 0.54,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6927": {
+   "points": 2.44,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "4985": {
+   "points": 0.6,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "2374": {
+   "points": 9.42,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "5010": {
+   "points": 0.54,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "9753": {
+   "points": 6.76,
+   "markets": [
+    "any_td",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "6323": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7568": {
+   "points": 0.9,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "1737": {
+   "points": 11.16,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd"
+   ]
+  },
+  "8210": {
+   "points": 6.28,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "3269": {
+   "points": 0.78,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "11046": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5001": {
+   "points": 7.02,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "8129": {
+   "points": 4.61,
+   "markets": [
+    "any_td",
+    "rush_yd"
+   ]
+  },
+  "4718": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "1426": {
+   "points": 8.1,
+   "markets": [
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "3198": {
+   "points": 12.74,
+   "markets": [
+    "any_td",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "6130": {
+   "points": 9.35,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "4189": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8147": {
+   "points": 1.02,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7087": {
+   "points": 0.36,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "10212": {
+   "points": 0.54,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5171": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7436": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "5209": {
+   "points": 0.3,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "7496": {
+   "points": 4.37,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "4234": {
+   "points": 7.36,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "1352": {
+   "points": 4.59,
+   "markets": [
+    "any_td",
+    "rec_yd"
+   ]
+  },
+  "6402": {
+   "points": 0.24,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "6181": {
+   "points": 0.54,
+   "markets": [
+    "any_td"
+   ]
+  },
+  "8135": {
+   "points": 3.94,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd"
+   ]
+  },
+  "9508": {
+   "points": 6.67,
+   "markets": [
+    "any_td",
+    "rec",
+    "rec_yd",
+    "rush_yd"
+   ]
+  },
+  "9999": {
+   "points": 18.89,
+   "markets": [
+    "any_td",
+    "pass_td",
+    "pass_yd",
+    "rush_yd"
+   ]
+  },
+  "10218": {
+   "points": 2.63,
+   "markets": [
+    "any_td",
+    "rec_yd"
+   ]
+  }
+ },
+ "unmatched_names": [
+  "A'Shawn Robinson",
+  "A. Trautman",
+  "A.J. Terrell",
+  "ARI D/ST",
+  "ATL Defense/Special Teams",
+  "Aaron Donald",
+  "Adam Gotsis",
+  "Adam Theilen",
+  "Adetomiwa Adebawore",
+  "Adoree' Jackson",
+  "Ahkello Witherspoon",
+  "Aidan Hutchinson",
+  "Akayleb Evans",
+  "Akeem Davis-Gaither",
+  "Alex Anzalone",
+  "Alex Cook",
+  "Alex Highsmith",
+  "Alex Singleton",
+  "Alohi Gilman",
+  "Alontae Taylor",
+  "Amani Hooker",
+  "Amik Robertson",
+  "Amon-Ra St.Brown",
+  "Andrei Iosivias",
+  "Andrew Farmer II",
+  "Anfernee Jennings",
+  "Anthony Walker Jr.",
+  "Antoine Winfield Jr.",
+  "Antonio Hamilton Sr.",
+  "Arden Key",
+  "Arizona Defense",
+  "Armon Watts",
+  "Arnold Ebiketie",
+  "Arthur Maulet",
+  "Asante Samuel Jr.",
+  "Ashtyn Davis",
+  "Atlanta Defense",
+  "Austin Johnson",
+  "Azeez Al-Shaair",
+  "B.J. Hill",
+  "BAL Defense/Special Teams",
+  "BJ Ojulari",
+  "BUF Defense/Special Teams",
+  "Baltimore Defense",
+  "Baron Browning",
+  "Benjamin St-Juste",
+  "Blake Martinez",
+  "Bobby Okereke",
+  "Bobby Wagner",
+  "Bradley Roby",
+  "Brandon Stephens",
+  "Brian Branch",
+  "Brian Burns",
+  "Broderick Washington",
+  "Bryce Huff",
+  "Bryon Pringle",
+  "Bud Dupree",
+  "Budda Baker",
+  "Buffalo Defense",
+  "Byron Murphy Jr.",
+  "Byron Young",
+  "C.J. Mosley",
+  "CAR Defense/Special Teams",
+  "CHI Defense/Special Teams",
+  "CIN Defense/Special Teams",
+  "CLE Defense/Special Teams",
+  "Calais Campbell",
+  "Calijah Kancey",
+  "Cam Lewis",
+  "Cam Sample",
+  "Cameron Heyward",
+  "Cameron Mitchell",
+  "Cameron Sutton",
+  "Camryn Bynum",
+  "Carl Granderson",
+  "Carolina Defense",
+  "Carrington Valentine",
+  "Casey Toohill",
+  "Chamarri Conner",
+  "Chandon Sullivan",
+  "Charles Omenihu",
+  "Chase Young",
+  "Chicago Defense",
+  "Chidobe Awuzie",
+  "Chigoziem Okonkwo",
+  "Chosen Anderson",
+  "Chris Jones",
+  "Christian Barmore",
+  "Christian Benford",
+  "Christian Harris",
+  "Christian Rozeboom",
+  "Cincinnati Defense",
+  "Clelin Ferrell",
+  "Cleveland Defense",
+  "Cobie Durant",
+  "Cody Barton",
+  "Cor'Dale Flott",
+  "Corey Ballentine",
+  "D'Anthony Bell",
+  "D.J. Jones",
+  "D.J. Reader",
+  "D.J. Reed Jr.",
+  "D.J. Wonnum",
+  "DAL Defense/Special Teams",
+  "DEN Defense/Special Teams",
+  "DET Defense/Special Teams",
+  "DJ Ivey",
+  "DJ Johnson",
+  "DaRon Bland",
+  "Dallas Defense",
+  "Dalvin Tomlinson",
+  "Damar Hamlin",
+  "Damone Clark",
+  "Damontae Kazee",
+  "Dane Belton",
+  "Dane Jackson",
+  "Danielle Hunter",
+  "Dante Stills",
+  "Darious Williams",
+  "Darnay Holmes",
+  "Daron Payne",
+  "Darrell Baker Jr.",
+  "Daryl Worley",
+  "David Mayo",
+  "Davon Godchaux",
+  "Dawuane Smoot",
+  "Dax Hill",
+  "Dayo Odeyingbo",
+  "DeForest Buckner",
+  "DeMarcco Hellams",
+  "DeMarcus Lawrence",
+  "DeMarcus Walker",
+  "DeShawn Williams",
+  "Deatrich Wise Jr.",
+  "Dee Alford",
+  "Dee Delaney",
+  "Demario Davis",
+  "Demetrius Flannigan-Fowles",
+  "Denico Autry",
+  "Dennis Gardeck",
+  "Denver Defense",
+  "Denzel Perryman",
+  "Denzel Ward",
+  "Deommodore Lenoir",
+  "Deonte Banks",
+  "Derion Kendrick",
+  "Derrick Barnes",
+  "Derrick Brown",
+  "Derrick Nnadi",
+  "Derwin James Jr.",
+  "Detroit Defense",
+  "Devin Lloyd",
+  "Dexter Lawrence II",
+  "Divine Deablo",
+  "Donovan Wilson",
+  "Donte Jackson",
+  "Dorance Armstrong",
+  "Dre Greenlaw",
+  "Drew Sanders",
+  "Drue Tranquill",
+  "Duron Harmon",
+  "E.J. Speed",
+  "Ed Oliver",
+  "Eddie Jackson",
+  "Elandon Roberts",
+  "Eli Ricks",
+  "Elijah Hicks",
+  "Elijah Molden",
+  "Emmanuel Forbes Jr.",
+  "Eric Garror",
+  "Eric Kendricks",
+  "Ernest Jones",
+  "Essang Bassey",
+  "Fabian Moreau",
+  "Fletcher Cox",
+  "Foye Oluokun",
+  "Frankie Luvu",
+  "Fred Warner",
+  "GB Defense/Special Teams",
+  "Gabriel Davis",
+  "Garrett Williams",
+  "Geno Stone",
+  "George Karlaftis",
+  "Germaine Pratt",
+  "Gervon Dexter Sr.",
+  "Green Bay Defense",
+  "Greg Newsome II",
+  "Greg Rousseau",
+  "HOU Defense/Special Teams",
+  "Haason Reddick",
+  "Harold Landry III",
+  "Harrison Phillips",
+  "Harrison Smith",
+  "Houston Defense",
+  "IND Defense/Special Teams",
+  "Ifeatu Melifonwu",
+  "Indianapolis Defense",
+  "Irvin Charles",
+  "Isaac Yiadom",
+  "Isaiah Buggs",
+  "Isaiah Oliver",
+  "Isaiah Simmons",
+  "Israel Mukuamu",
+  "Ivan Pace Jr.",
+  "J.C. Jackson",
+  "JAC Defense/Special Teams",
+  "Ja'Quan McMillian",
+  "Ja'Sir Taylor",
+  "Ja'Whaun Bentley",
+  "Jabrill Peppers",
+  "Jack Campbell",
+  "Jack Cochrane",
+  "Jack Gibbens",
+  "Jack Sanborn",
+  "Jacksonville Defense",
+  "Jadeveon Clowney",
+  "Jahlani Tavai",
+  "Jaleel Johnson",
+  "Jalen Carter",
+  "Jalen Davis",
+  "Jalen Mills",
+  "Jalen Pitre",
+  "Jalen Reeves-Maybin",
+  "Jalen Thompson",
+  "James Bradberry",
+  "Jamien Sherwood",
+  "Jaquan Brisker",
+  "Jaquelin Roy",
+  "Jarran Reed",
+  "Jartavius Martin",
+  "Jason Pinnock",
+  "Javon Kinlaw",
+  "Jaycee Horn",
+  "Jaylen Watson",
+  "Jaylinn Hawkins",
+  "Jaylon Johnson",
+  "Jaylon Jones",
+  "Jayron Kearse",
+  "Ja\u2019Marr Chase",
+  "Jeff Okudah",
+  "Jeremiah Ledbetter",
+  "Jeremiah Owusu-Koramoah",
+  "Jermaine Johnson",
+  "Jerry Jacobs",
+  "Jessie Bates III",
+  "Ji'Ayir Brown",
+  "Joey Porter Jr.",
+  "John Cominsky",
+  "John Johnson III",
+  "Jonathan Bullard",
+  "Jonathan Jones",
+  "Jonathon Cooper",
+  "Jordan Battle",
+  "Jordan Davis",
+  "Jordan Elliott",
+  "Jordan Fuller",
+  "Jordan Howden",
+  "Jordan Phillips",
+  "Jordan Poyer",
+  "Jordan Whitehead",
+  "Jordyn Brooks",
+  "Josey Jewell",
+  "Josh Metellus",
+  "Josh Paschal",
+  "Josh Sweat",
+  "Josh Uche",
+  "Josh Woods",
+  "Jourdan Lewis",
+  "Juanyeh Thomas",
+  "Julian Blackmon",
+  "Julius Brents",
+  "Justin Hollins",
+  "Justin Madubuike",
+  "Justin Reid",
+  "Justin Simmons",
+  "K'Von Wallace",
+  "K.J. Henry",
+  "KC Defense/Special Teams",
+  "Kaden Elliss",
+  "Kahlef Hailassie",
+  "Kamren Curl",
+  "Kamu Grugier-Hill",
+  "Kansas City Defense",
+  "Kayvon Thibodeaux",
+  "Keeanu Benton",
+  "Kei'Trel Clark",
+  "Keion White",
+  "Keith Smith",
+  "Kelee Ringo",
+  "Kendall Fuller",
+  "Kenneth Murray Jr.",
+  "Kenny Moore II",
+  "Kerby Joseph",
+  "Kevin Byard",
+  "Kevin Strong Jr.",
+  "Khaleke Hudson",
+  "Khalil Mack",
+  "Kindle Vildor",
+  "Kobie Turner",
+  "Krys Barnes",
+  "Kwity Paye",
+  "Kyle Dugger",
+  "Kyle Hamilton",
+  "Kyle Van Noy",
+  "Kyler Gordon",
+  "L'Jarius Sneed",
+  "L. Bowden",
+  "LA Chargers Defense",
+  "LAC Defense/Special Teams",
+  "LAR Defense/Special Teams",
+  "LVR Defense/Special Teams",
+  "Lamar Jackson (BAL)",
+  "Larry Ogunjobi",
+  "Las Vegas Defense",
+  "Lavonte David",
+  "Lawrence Guy",
+  "Leo Chenal",
+  "Leonard Floyd",
+  "Levi Wallace",
+  "Lil\u2019Jordan Humphrey",
+  "Logan Wilson",
+  "Lorenzo Carter",
+  "Los Angeles Rams Defense",
+  "Luke Gifford",
+  "MIA Defense/Special Teams",
+  "MIN Defense/Special Teams",
+  "Mack Wilson Sr.",
+  "Malik Harrison",
+  "Malik Hooker",
+  "Marcus Epps",
+  "Marcus Williams",
+  "Mark Robinson",
+  "Markquese Bell",
+  "Marlon Davidson",
+  "Marlon Humphrey",
+  "Martin Emerson Jr.",
+  "Maxx Crosby",
+  "Mekhi Blackmon",
+  "Miami Defense",
+  "Micah McFadden",
+  "Micah Parsons",
+  "Michael Davis",
+  "Michael Hoecht",
+  "Michael Pierce",
+  "Mike Danna",
+  "Mike Edwards",
+  "Mike Ford Jr.",
+  "Mike Hilton",
+  "Mike Hughes",
+  "Mike Purcell",
+  "Minkah Fitzpatrick",
+  "Minnesota Defense",
+  "Mitch Trubisky",
+  "Mitchell Tinsley",
+  "Montaric Brown",
+  "Montez Sweat",
+  "Morgan Fox",
+  "Myles Bryant",
+  "Myles Garrett",
+  "NE Defense/Special Teams",
+  "NY Giants Defense",
+  "NYG Defense/Special Teams",
+  "NYJ Defense/Special Teams",
+  "Nahshon Wright",
+  "Nate Hobbs",
+  "Nate Landman",
+  "New England Defense",
+  "New Orleans Defense",
+  "New York Jets Defense",
+  "Nicholas Morrow",
+  "Nick Bellore",
+  "Nick Bolton",
+  "Nick Bosa",
+  "Nick Cross",
+  "Nick Herbig",
+  "Nick Scott",
+  "No Touchdown",
+  "Nolan Smith",
+  "Odafe Oweh",
+  "Osa Odighizuwa",
+  "P.J. Locke",
+  "PIT Defense/Special Teams",
+  "Pat Surtain II",
+  "Patrick Jones II",
+  "Patrick Peterson",
+  "Patrick Queen",
+  "Paulson Adebo",
+  "Percy Butler",
+  "Philadelphia Defense",
+  "Pittsburgh Defense",
+  "Preston Smith",
+  "Quandre Diggs",
+  "Quentin Lake",
+  "Quincy Williams",
+  "Quinnen Williams",
+  "Quinton Jefferson",
+  "Rakeem Nunez-Roches",
+  "Rashad Weaver",
+  "Rashan Gary",
+  "Rasul Douglas",
+  "Rayshawn Jenkins",
+  "Reed Blankenship",
+  "Richie Grant",
+  "Robert Spillane",
+  "Rodney Thomas II",
+  "Roger McCreary",
+  "Ronnie Harrison Jr.",
+  "Ronnie Hickman",
+  "Roquan Smith",
+  "Roy Lopez",
+  "Roy Robertson-Harris",
+  "Russ Yeast",
+  "SF Defense/Special Teams",
+  "Saints Defense/Special Teams",
+  "Sam Hubbard",
+  "Samson Ebukam",
+  "San Francisco Defense",
+  "Sauce Gardner",
+  "Scott Matlock",
+  "Scott Miller",
+  "Sean Murphy-Bunting",
+  "Seattle Defense",
+  "Sebastian Joseph-Day",
+  "Shaquille Leonard",
+  "Shelby Harris",
+  "Sheldon Day",
+  "Siaki Ika",
+  "Sione Takitaki",
+  "Siran Neal",
+  "Solomon Thomas",
+  "Starling Thomas V",
+  "Stephon Gilmore",
+  "T.J. Edwards",
+  "T.J. Watt",
+  "TB Defense/Special Teams",
+  "TEN Defense/Special Teams",
+  "Tae Davis",
+  "Tampa Bay Defense",
+  "Tariq Woolen",
+  "Taron Johnson",
+  "Tavius Robinson",
+  "Taylor Rapp",
+  "Tennessee Defense",
+  "Terell Smith",
+  "Terrel Bernard",
+  "Terrell Edmunds",
+  "Theo Jackson",
+  "Tim Settle",
+  "Tony Adams",
+  "Tony Fields II",
+  "Tracy Walker",
+  "Travis Jones",
+  "Travon Walker",
+  "Tre Avery",
+  "Tre'von Moehrig",
+  "Tremaine Edmunds",
+  "Tremon Smith",
+  "Trent McDuffie",
+  "Trenton Thompson",
+  "Trey Hendrickson",
+  "Trey McBride (Ari)",
+  "Troy Dye",
+  "Troy Reeder",
+  "Tuli Tuipulotu",
+  "Tyquan Lewis",
+  "Tyrann Mathieu",
+  "Tyrel Dodson",
+  "Tyrique Stevenson",
+  "Victor Dimukeje",
+  "WAS Defense/Special Teams",
+  "Washington Defense",
+  "Willie Gay Jr.",
+  "Xavier McKinney",
+  "Xavier Woods",
+  "Za'Darius Smith",
+  "Zach Allen",
+  "Zaire Franklin",
+  "Zaven Collins",
+  "Zyon McCollum"
+ ]
+}

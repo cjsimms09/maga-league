@@ -1,0 +1,168 @@
+{
+ "_territory": "TERRITORY: A — draft/tools/ceiling_source_recheck.js",
+ "_answers": "register 119",
+ "_generated_at": "2026-08-28T19:13:24.944Z",
+ "_board_built_at": "2026-08-26T04:02:06Z",
+ "_note": "Does NOT reproduce the 2026-08-19 table — the 08-26 rebuild replaced the cross-source bands it was measured on. Dated, not refuted (register 364).",
+ "controls": {
+  "C1_statistic_read_from_average_draft": {
+   "ok": true,
+   "wire_rank": {
+    "QB": 17,
+    "RB": 48,
+    "WR": 53,
+    "TE": 15,
+    "K": 11,
+    "DEF": 11
+   },
+   "why": "WIRE_RANK is parsed out of average_draft.js and the sigma formula is asserted present there, so this probe cannot drift from the tool whose measurement register 119 quoted"
+  },
+  "C2_the_two_columns_really_differ": {
+   "ok": true,
+   "total_abs_gap": 192.79,
+   "why": "KNOWN NEGATIVE — if the pre-DS and shipped columns are identical the Draft Sharks attach is not reaching the board and every comparison below is a run against itself"
+  },
+  "C3_pre_ds_column_exists": {
+   "ok": true,
+   "players_with_pre_ds_ceiling": 680,
+   "why": "REFUSING to describe a \"before\" that is not on the board"
+  }
+ },
+ "controls_all_passed": true,
+ "band": [
+  90,
+  250
+ ],
+ "census": {
+  "band_90_250": {
+   "n": 166,
+   "by_source": {
+    "draftsharks_per_player": 123,
+    "pre_ds_pct": 42,
+    "position_median_pct": 1
+   },
+   "draftsharks_pct": 74.1
+  },
+  "top_200": {
+   "n": 203,
+   "by_source": {
+    "draftsharks_per_player": 185,
+    "position_median_pct": 1,
+    "pre_ds_pct": 17
+   },
+   "draftsharks_pct": 91.1
+  }
+ },
+ "pre_ds": [
+  {
+   "pos": "QB",
+   "n": 23,
+   "median_sigma": 17.33835812572824,
+   "wire_sigma": 11.876229103221588,
+   "difference": 5.46,
+   "ratio": 1.46,
+   "cv": 0.06135865759682129
+  },
+  {
+   "pos": "RB",
+   "n": 38,
+   "median_sigma": 16.760933057634706,
+   "wire_sigma": 16.760933057634706,
+   "difference": 0,
+   "ratio": 1,
+   "cv": 0.21599723463742676
+  },
+  {
+   "pos": "WR",
+   "n": 41,
+   "median_sigma": 9.5431197064652,
+   "wire_sigma": 5.142204322616981,
+   "difference": 4.4,
+   "ratio": 1.856,
+   "cv": 0.0926301107099546
+  },
+  {
+   "pos": "TE",
+   "n": 21,
+   "median_sigma": 12.071305139739705,
+   "wire_sigma": 13.327594814916246,
+   "difference": -1.26,
+   "ratio": 0.906,
+   "cv": 0.10739595320053118
+  },
+  {
+   "pos": "K",
+   "n": 21,
+   "median_sigma": 26.038749354435296,
+   "wire_sigma": 27.318448153993987,
+   "difference": -1.28,
+   "ratio": 0.953,
+   "cv": 0.20073853072005537
+  },
+  {
+   "pos": "DEF",
+   "n": 22,
+   "median_sigma": 12.17274467872911,
+   "wire_sigma": 12.56289675176531,
+   "difference": -0.39,
+   "ratio": 0.969,
+   "cv": 0.11991867346256406
+  }
+ ],
+ "shipped": [
+  {
+   "pos": "QB",
+   "n": 23,
+   "median_sigma": 95.19710582083026,
+   "wire_sigma": 86.84785145785577,
+   "difference": 8.35,
+   "ratio": 1.096,
+   "cv": 0.3058210659451374
+  },
+  {
+   "pos": "RB",
+   "n": 38,
+   "median_sigma": 69.91525148808516,
+   "wire_sigma": 79.59102289938266,
+   "difference": -9.68,
+   "ratio": 0.878,
+   "cv": 0.9647103890554282
+  },
+  {
+   "pos": "WR",
+   "n": 41,
+   "median_sigma": 45.88188378905589,
+   "wire_sigma": 51.96825612842044,
+   "difference": -6.09,
+   "ratio": 0.883,
+   "cv": 0.3590131751882308
+  },
+  {
+   "pos": "TE",
+   "n": 21,
+   "median_sigma": 24.189428528243752,
+   "wire_sigma": 30.04170962378661,
+   "difference": -5.85,
+   "ratio": 0.805,
+   "cv": 0.20808110561930118
+  },
+  {
+   "pos": "K",
+   "n": 21,
+   "median_sigma": 15.37199167762586,
+   "wire_sigma": 16.69850872594891,
+   "difference": -1.33,
+   "ratio": 0.921,
+   "cv": 0.12333639798920056
+  },
+  {
+   "pos": "DEF",
+   "n": 22,
+   "median_sigma": 14.825778775375204,
+   "wire_sigma": 15.684113336054816,
+   "difference": -0.86,
+   "ratio": 0.945,
+   "cv": 0.15271775400248117
+  }
+ ]
+}

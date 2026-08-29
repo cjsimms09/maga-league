@@ -118,9 +118,26 @@ def test_CONTROL_the_extractor_finds_the_ids_the_sheet_is_built_around():
 
     RE-AIMED AGAIN 2026-08-18: 4e shipped and was struck from the sheet in
     the same commit that struck 4i/4v/4f, per the rule this docstring states
-    -- swapped for 5i, which the sheet is still built around today."""
+    -- swapped for 5i, which the sheet is still built around today.
+
+    RE-AIMED AGAIN 2026-08-29, IN THE COMMIT THAT DECIDED 31, per the rule
+    above -- and this time the list SHRINKS rather than swaps, which the rule
+    forbids doing silently, so here is the reason. 31 closed (the instrument
+    it waited on was ruled 08-21 in GRADING-POLICY.md and nobody had walked
+    back to the row), and there is nothing live to swap in: this sheet is a
+    PRE-DRAFT TRIAGE -- its title says "before 22 August" -- the draft was
+    08-22, and all four of its §2 decisions were ruled on 08-18. What remains
+    is a historical record with three pointers still open (5i, E15, E6).
+
+    ⚠️ THE FLOOR MOVES 4 -> 3 FOR THAT REASON AND NO OTHER. It is not the
+    control eroding a row at a time, which is what the rule above is guarding
+    against; it is a spent sheet, and demanding that a finished triage keep
+    naming four live decisions forever is register 417's failure -- a guard
+    whose premise expired, going red with no correct action available. If
+    this floor is ever tempted downward again, the honest move is to retire
+    the sheet as history, not to shave the control to 2."""
     named = _ids_named()
-    for core in ("31", "5i", "E15", "E6"):
+    for core in ("5i", "E15", "E6"):
         assert core in named, f"{core} is not being extracted — the pattern drifted"
     #: and the list must stay big enough to be a real control
     #: floor re-pinned 8 -> 5 (A, 08-18, same commit as the list above): the
@@ -128,7 +145,7 @@ def test_CONTROL_the_extractor_finds_the_ids_the_sheet_is_built_around():
     #: ruled, the §3 rewrite slimmed the pointers — which is the sheet getting
     #: healthier, not the extractor drifting. The five named ids above are the
     #: drift guard; this floor only catches a wholesale extraction collapse.
-    assert len(named) >= 4, f"only {len(named)} ids extracted — the pattern drifted"
+    assert len(named) >= 3, f"only {len(named)} ids extracted — the pattern drifted"
 
 
 def test_every_named_row_is_still_OPEN():

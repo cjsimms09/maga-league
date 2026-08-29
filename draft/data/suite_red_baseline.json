@@ -1,49 +1,111 @@
 {
- "_territory": "TERRITORY: A — draft/data/suite_red_baseline.json",
- "_what": "The JS suites that are KNOWN to be failing on main. A RATCHET, not a permission slip: CI still goes red while this list is non-empty. What this file adds is the ability to tell a NEW failure from a standing one, which is the distinction register 300 says nobody could make.",
- "_why": "Measured 2026-08-24 (register 300): main had been red for over a week with no successful ci.yml run in the last 90, and the red had ACCRETED -- sampled backwards, 1 of 4 suites failing on 08-15, 6 of 6 by 08-22. No single commit to revert and no human watching the trend. A count that only ever goes up is invisible; a count checked against a committed baseline is not.",
- "_rules": [
-  "ADDING a name here is a deliberate act and needs a reason in the commit message. It is not a way to make a red build quiet.",
-  "REMOVING a name is the goal, and suite_baseline_check.js tells you when a listed suite has started passing so the ratchet can be tightened.",
-  "This file never makes CI pass. The JS suite step still exits non-zero while anything is failing -- see ci.yml. A permanently green build with 32 broken suites is the decay this whole exercise was about."
- ],
- "_baseline_taken": "2026-08-26",
- "count": 12,
- "suites": [
-  "barbell_policy",
-  "draft_alert_lifecycle",
-  "draft_shape",
-  "draft_turn_email",
-  "engine_ablation",
-  "floor_is_a_cohort_not_a_forecast",
-  "member_copy",
-  "member_email_policy",
-  "pickem_surface",
-  "roster_room_audit",
-  "seat_plan_contract",
-  "sidebet_lifecycle_gate"
- ],
- "_ratchet_log": [
-  "2026-08-24: -inseason_explainers, fixed by B and taken in the warroom-shell-rebuild merge. It checked member.js for the K/DEF claims filter and failed regardless of B’s change -- the filter had already moved to src/waiver_reco.js in an earlier same-day extraction that never updated the test. B confirmed the staleness via git stash before touching it and DISCLOSED the one-line TERRITORY: A trespass rather than quietly fixing it. Re-verified green on the rebased tree (this entry was lost once to a rebase and re-applied).",
-  "2026-08-24: -waiver_surface. A TEST-SCOPE defect, not a product one. It asserted Wire Kicker was absent from the ENTIRE page -- true when written, false once BLOCK WATCH shipped 08-24 on Cory’s adversarial-waivers mandate. Block Watch names the best free agent at each position a RIVAL is short at, so it names the wire’s best kicker ON PURPOSE, while the claims block correctly excludes him because Cory rosters a BETTER one (Butker 130 vs 110). A whole-page absence assertion cannot survive a panel designed to mention MORE players. Now scoped to the claims section, with a CONTROL that the scoping happened (else it is scanning the whole page again and proves nothing) and a POSITIVE assertion that Block Watch DOES name him -- without that, scoping is indistinguishable from deleting the check. FAIL ARM proven on the real mechanism: remove the rostered kicker so the K slot is empty (register 294 setup) and the page renders “Claim Wire Kicker”, exit 1; restored, exit 0. ⚠️ MY FIRST FAIL-ARM ATTEMPT WAS A FALSE NEGATIVE -- the sed never matched, the fixture was unchanged, and I was one step from recording “the assertion cannot fire” off a probe that did nothing (Rule 3e).",
-  "2026-08-24: -surface_contract. GENUINE doc-drift, and I checked which kind after register 322 -- where three identical-looking doc failures were ONE broken join. The discriminator is a QUALITY FLOOR: 322 had one and it had gone through the floor (coverage 79.3% vs a declared 86-97%); this has none, and every structural assertion passes (ceiling correctly 0, the document names EXACTLY the engine terms, risk correctly UNMEASURED). The share table moved for two legitimate reasons and NEITHER is a weight change -- both columns are need 1.0 / ceiling 0.0. The keeper lock went league-wide 08-23, and the derivation was CORRECTED for it on 08-24 (register 303) so it now uses Cory’s three keepers rather than the league’s 23, which had inflated the keeper bar and collapsed every candidate’s keeper value. The 08-20 column was right when taken and became wrong; the new one is measured on the real population. need 58.5->70.7, value 24.4->18.7, onesie 9.7->6.8, stack 7.5->3.8. Old column struck rather than deleted. Fail arm proven by planting the old need share: exit 1 with the poison, 0 restored.",
-  "2026-08-24: -onesie_history_check. It read as THREE stale PARKED.md claims and was ONE data regression: positionIndex() built its player->position map from board.players alone, and post-keeper-lock kept_players is DISJOINT (23 of 23 absent), so 61 of 450 historical picks stopped resolving a position. Position coverage 79.3% against the 86-97% band the doc itself declares -- a coverage FLOOR going through the floor is a join breaking, not a doc drifting, and it is the only one of the three failures that named the disease. Register 277s concat, in a consumer nobody swept. Fixed: 418/450 (92.9%), a number PREDICTED before the edit and matched to the decimal. All three failures cleared at once because all three were computed off the same index. Register 322.",
-  "2026-08-24: -panel_spec. It was red on a DOC-ACCURACY claim, not a code defect: the spec said renderRecommendations was 392 lines and it is 422. The section header states the standard -- these claims \"must be true now, not true when they were typed\" -- so the fix is to make the claims true, and all 14 were re-derived from app.js rather than typed. THE REAL FIND WAS THE COVERAGE: the test checked ONE panel, and sweeping all 14 showed THREE out of tolerance with the largest invisible -- renderSeatPlan claimed 121 and was 252, MORE THAN DOUBLED with nothing watching; renderThreats +37. The check now covers every claim, and its fail arm was proven by planting the exact renderSeatPlan drift that hid (exit 1 with the poison, 0 restored).",
-  "2026-08-24: -2 (slotpicker, every_route_renders). BOTH were fixed EARLIER TODAY and the baseline was not tightened behind them, which is the exact rot red_baseline_is_honest.test.js exists to catch in the other direction. slotpicker was a LIVE PRODUCTION 500 on /admin/slot-picker: src/slotpicker.js read the league-wide forfeited list (23 keepers) as one seat's, so myPicks() forfeited 23 of 15 rounds, my_picks came back empty and the fail-loud throw fired -- with a message pointing at keepers.js, which loaded fine. every_route_renders was red FOR that 500 and went green with it. Both verified green immediately before this edit, not remembered.",
-  "2026-08-24: -ruled_target_is_one_definition. It was failing because TWO tools I added THIS SESSION (rail_late_rounds_sweep.js, draft_autopsy.js) each hardcoded Cory's ruled roster target instead of reading league_config.ruled_roster_target. The guard that forbids that had been red since, and my own baseline had just enshrined my regression as 'known'. Both now read the config and REFUSE rather than defaulting; the printed copy in the sweep's output is derived too, because a second copy in a display string drifts as silently as one in a constant.",
-  "2026-08-24: -7 (archetype_rooms, live_context, mlv_seat_plan, seat_plan_knows_the_seat_is_filled, keeper_bar_ignores_what_it_cannot_value, draft_session, keeper_lock_reorders_the_board). All the same root as register 303 -- the 08-23 keeper slate went league-wide and these read `kept_players` whole where they meant Cory's three. keeper_bar needed the fix in THREE places in one file, which is why 303's action asks for a guard rather than a sweep.",
-  {
-   "date": "2026-08-26",
-   "by": "A",
-   "removed": [
-    "keeper_option_floor",
-    "source_rerank_is_real",
-    "ui_fidelity_verdict",
-    "vona_wire_bench",
-    "withheld_slate_exposure"
-   ],
-   "why": "Tightened after fixing them. withheld_slate_exposure (register 350), source_rerank_is_real and vona_wire_bench (register 351 ③④); keeper_option_floor and ui_fidelity_verdict were already passing and had simply never been removed. 24 suites red at the start of this session, 13 now.",
-   "note": "register_recheck_check is DELIBERATELY NOT ADDED. It is red because 80-odd register rows are past their own recheck dates, which is the debt it exists to make visible; putting it in the baseline would mute the one alarm in this repo whose whole job is to refuse to be ignored."
-  }
- ]
+  "_territory": "TERRITORY: A — draft/data/suite_red_baseline.json",
+  "_what": "The JS suites that are KNOWN to be failing on main. A RATCHET, not a permission slip: CI still goes red while this list is non-empty. What this file adds is the ability to tell a NEW failure from a standing one, which is the distinction register 300 says nobody could make.",
+  "_why": "Measured 2026-08-24 (register 300): main had been red for over a week with no successful ci.yml run in the last 90, and the red had ACCRETED -- sampled backwards, 1 of 4 suites failing on 08-15, 6 of 6 by 08-22. No single commit to revert and no human watching the trend. A count that only ever goes up is invisible; a count checked against a committed baseline is not.",
+  "_rules": [
+    "ADDING a name here is a deliberate act and needs a reason in the commit message. It is not a way to make a red build quiet.",
+    "REMOVING a name is the goal, and suite_baseline_check.js tells you when a listed suite has started passing so the ratchet can be tightened.",
+    "This file never makes CI pass. The JS suite step still exits non-zero while anything is failing -- see ci.yml. A permanently green build with 32 broken suites is the decay this whole exercise was about."
+  ],
+  "_baseline_taken": "2026-08-26",
+  "count": 0,
+  "suites": [],
+  "_ratchet_log": [
+    "2026-08-24: -inseason_explainers, fixed by B and taken in the warroom-shell-rebuild merge. It checked member.js for the K/DEF claims filter and failed regardless of B’s change -- the filter had already moved to src/waiver_reco.js in an earlier same-day extraction that never updated the test. B confirmed the staleness via git stash before touching it and DISCLOSED the one-line TERRITORY: A trespass rather than quietly fixing it. Re-verified green on the rebased tree (this entry was lost once to a rebase and re-applied).",
+    "2026-08-24: -waiver_surface. A TEST-SCOPE defect, not a product one. It asserted Wire Kicker was absent from the ENTIRE page -- true when written, false once BLOCK WATCH shipped 08-24 on Cory’s adversarial-waivers mandate. Block Watch names the best free agent at each position a RIVAL is short at, so it names the wire’s best kicker ON PURPOSE, while the claims block correctly excludes him because Cory rosters a BETTER one (Butker 130 vs 110). A whole-page absence assertion cannot survive a panel designed to mention MORE players. Now scoped to the claims section, with a CONTROL that the scoping happened (else it is scanning the whole page again and proves nothing) and a POSITIVE assertion that Block Watch DOES name him -- without that, scoping is indistinguishable from deleting the check. FAIL ARM proven on the real mechanism: remove the rostered kicker so the K slot is empty (register 294 setup) and the page renders “Claim Wire Kicker”, exit 1; restored, exit 0. ⚠️ MY FIRST FAIL-ARM ATTEMPT WAS A FALSE NEGATIVE -- the sed never matched, the fixture was unchanged, and I was one step from recording “the assertion cannot fire” off a probe that did nothing (Rule 3e).",
+    "2026-08-24: -surface_contract. GENUINE doc-drift, and I checked which kind after register 322 -- where three identical-looking doc failures were ONE broken join. The discriminator is a QUALITY FLOOR: 322 had one and it had gone through the floor (coverage 79.3% vs a declared 86-97%); this has none, and every structural assertion passes (ceiling correctly 0, the document names EXACTLY the engine terms, risk correctly UNMEASURED). The share table moved for two legitimate reasons and NEITHER is a weight change -- both columns are need 1.0 / ceiling 0.0. The keeper lock went league-wide 08-23, and the derivation was CORRECTED for it on 08-24 (register 303) so it now uses Cory’s three keepers rather than the league’s 23, which had inflated the keeper bar and collapsed every candidate’s keeper value. The 08-20 column was right when taken and became wrong; the new one is measured on the real population. need 58.5->70.7, value 24.4->18.7, onesie 9.7->6.8, stack 7.5->3.8. Old column struck rather than deleted. Fail arm proven by planting the old need share: exit 1 with the poison, 0 restored.",
+    "2026-08-24: -onesie_history_check. It read as THREE stale PARKED.md claims and was ONE data regression: positionIndex() built its player->position map from board.players alone, and post-keeper-lock kept_players is DISJOINT (23 of 23 absent), so 61 of 450 historical picks stopped resolving a position. Position coverage 79.3% against the 86-97% band the doc itself declares -- a coverage FLOOR going through the floor is a join breaking, not a doc drifting, and it is the only one of the three failures that named the disease. Register 277s concat, in a consumer nobody swept. Fixed: 418/450 (92.9%), a number PREDICTED before the edit and matched to the decimal. All three failures cleared at once because all three were computed off the same index. Register 322.",
+    "2026-08-24: -panel_spec. It was red on a DOC-ACCURACY claim, not a code defect: the spec said renderRecommendations was 392 lines and it is 422. The section header states the standard -- these claims \"must be true now, not true when they were typed\" -- so the fix is to make the claims true, and all 14 were re-derived from app.js rather than typed. THE REAL FIND WAS THE COVERAGE: the test checked ONE panel, and sweeping all 14 showed THREE out of tolerance with the largest invisible -- renderSeatPlan claimed 121 and was 252, MORE THAN DOUBLED with nothing watching; renderThreats +37. The check now covers every claim, and its fail arm was proven by planting the exact renderSeatPlan drift that hid (exit 1 with the poison, 0 restored).",
+    "2026-08-24: -2 (slotpicker, every_route_renders). BOTH were fixed EARLIER TODAY and the baseline was not tightened behind them, which is the exact rot red_baseline_is_honest.test.js exists to catch in the other direction. slotpicker was a LIVE PRODUCTION 500 on /admin/slot-picker: src/slotpicker.js read the league-wide forfeited list (23 keepers) as one seat's, so myPicks() forfeited 23 of 15 rounds, my_picks came back empty and the fail-loud throw fired -- with a message pointing at keepers.js, which loaded fine. every_route_renders was red FOR that 500 and went green with it. Both verified green immediately before this edit, not remembered.",
+    "2026-08-24: -ruled_target_is_one_definition. It was failing because TWO tools I added THIS SESSION (rail_late_rounds_sweep.js, draft_autopsy.js) each hardcoded Cory's ruled roster target instead of reading league_config.ruled_roster_target. The guard that forbids that had been red since, and my own baseline had just enshrined my regression as 'known'. Both now read the config and REFUSE rather than defaulting; the printed copy in the sweep's output is derived too, because a second copy in a display string drifts as silently as one in a constant.",
+    "2026-08-24: -7 (archetype_rooms, live_context, mlv_seat_plan, seat_plan_knows_the_seat_is_filled, keeper_bar_ignores_what_it_cannot_value, draft_session, keeper_lock_reorders_the_board). All the same root as register 303 -- the 08-23 keeper slate went league-wide and these read `kept_players` whole where they meant Cory's three. keeper_bar needed the fix in THREE places in one file, which is why 303's action asks for a guard rather than a sweep.",
+    {
+      "date": "2026-08-26",
+      "by": "A",
+      "removed": [
+        "keeper_option_floor",
+        "source_rerank_is_real",
+        "ui_fidelity_verdict",
+        "vona_wire_bench",
+        "withheld_slate_exposure"
+      ],
+      "why": "Tightened after fixing them. withheld_slate_exposure (register 350), source_rerank_is_real and vona_wire_bench (register 351 ③④); keeper_option_floor and ui_fidelity_verdict were already passing and had simply never been removed. 24 suites red at the start of this session, 13 now.",
+      "note": "register_recheck_check is DELIBERATELY NOT ADDED. It is red because 80-odd register rows are past their own recheck dates, which is the debt it exists to make visible; putting it in the baseline would mute the one alarm in this repo whose whole job is to refuse to be ignored."
+    },
+    {
+      "date": "2026-08-27",
+      "by": "A",
+      "removed": [
+        "draft_shape"
+      ],
+      "why": "Fixed, register 360 — a second unswept instance of the keeper-lock roster defect plus two pinned counts Cory's own completed draft broke. 44/44."
+    },
+    {
+      "date": "2026-08-27",
+      "by": "A",
+      "removed": [
+        "floor_is_a_cohort_not_a_forecast"
+      ],
+      "why": "Fixed, register 362 — three controls failing while printing SKIPPED (guarded !COHORT || property, so they fire only when it exists), plus a keeper-lock identity lookup. B routed it 08-19. 22/22."
+    },
+    {
+      "date": "2026-08-27",
+      "by": "A",
+      "removed": [
+        "seat_plan_contract"
+      ],
+      "why": "Fixed, register 363 — the orphan-plan demotion covered bench seats only and the contradiction reached starter seats. Orphans 2 -> 0."
+    },
+    {
+      "date": "2026-08-27",
+      "by": "A",
+      "removed": [
+        "roster_room_audit"
+      ],
+      "why": "Fixed, register 364 — the room seeded all 23 league keepers as Cory roster (size 35) and counted 29 opponent picks before pick 33 where 9 are live. Roster 15 in 8/8, 8/8 legal."
+    },
+    {
+      "date": "2026-08-27",
+      "by": "A",
+      "removed": [
+        "barbell_policy"
+      ],
+      "why": "Fixed, register 365 — a real 0.052-point WR crossing that the label rounded to a 203-vs-203 tie. WR moved to the overlap side with magnitudes reported; RB is the sole no-overlap position. 50/50."
+    },
+    {
+      "date": "2026-08-27",
+      "by": "A",
+      "removed": [
+        "pickem_surface",
+        "sidebet_lifecycle_gate"
+      ],
+      "why": "Fixed, register 366 — both fixtures omitted season_type, which gates the points signal in the pickem lock and the bet clock, so both suites were exercising the opposite of what they claimed. 15/15 and 9/9."
+    },
+    {
+      "date": "2026-08-27",
+      "by": "A",
+      "removed": [
+        "member_email_policy",
+        "draft_turn_email"
+      ],
+      "why": "Fixed, register 367 — neither was a policy breach. member_email_policy red because notify.js exports one extra symbol, tuesdayWire, which is a WAIVER REMINDER and so reads as exactly what Cory 2026-08-11 forbade; verified commissioner-only two ways (notify.js filters o.is_commissioner && o.active and returns {skipped:\"not-commissioner\"}, and its kind is not in MEMBER_KINDS), admitted to ALLOWED WITH a containment control so the entry cannot outlive its reason. 48/48. draft_turn_email red with 302 /draft?error=The draft room is closed: the one-time post-draft migration in loadWorld (src/helpers.js:151-166, guarded by config.draft2026_closed) sets seasons[2026].draft_open=false, so ensureSeeded()'s true never survived the request. Fixture now marks the migration DONE before opening the room rather than defeating it. 18/18."
+    },
+    {
+      "date": "2026-08-27",
+      "by": "A",
+      "removed": [
+        "draft_alert_lifecycle",
+        "member_copy"
+      ],
+      "why": "Fixed, register 369 — both were fixtures out of step with production, neither was a code defect. draft_alert_lifecycle: the one-time post-draft migration in loadWorld fired inside the suite's LOGIN POST and retired the very alert arm one asserts; the member-route heal restores it, but only from the request after. Measured both directions: seeded active=true, flag unset leaves it false and the next GET renders nothing, flag set renders. Fixture now states the migration has happened. 16/16. member_copy: the same missing season_type as register 366 in a THIRD fixture, which is that row's own follow-up (1) — member.js:2922 ignores every score without it, so the pickem slate never locked and the arm asserting the graded copy was reading the open slate. 23/23. SWEPT ALL 25 remaining bundle-building suites with a controlled stamp: 25/25 unaffected, so member_copy was the last one."
+    },
+    {
+      "date": "2026-08-27",
+      "by": "A",
+      "removed": [
+        "engine_ablation"
+      ],
+      "why": "Fixed, register 370 — THE BASELINE IS NOW EMPTY. This suite was carried unexamined because it OOM-killed the container; it runs fine under NODE_OPTIONS=--max-old-space-size=1536, so the OOM was environmental and the suite was never the problem. It came back 42/44 with two REAL failures, both now fixed: ROOM PARITY broken because draftRoom() seeded Cory with all 23 league keepers (register 364 shape, in a file whose 08-24 pass had already filtered two OTHER sites), and the ceiling_tiebreak INERT pin, retired on a measurement (ratio varies in 60 of 60 live cells since Draft Sharks became the ceiling source on 08-19, register 99). 44/44. A ratchet at zero is a real state, not a finished one: the JS suite is green, and this file stays as the mechanism that tells a NEW red from a standing one."
+    }
+  ]
 }

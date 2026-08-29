@@ -354,11 +354,27 @@ const isHeading = l => /^## TO: /.test(l);
 // after resolving and before committing.
 {
   const cp = require('child_process');
+  /* maxBuffer, AND A CATCH THAT TELLS ABSENCE FROM FAILURE (register 391).
+   * This read ROUTES.md through the DEFAULT 1MB buffer and caught EVERYTHING as
+   * null — and null here means "no such merge stage, we are not in a merge,
+   * this check is inert". ROUTES.md is 2.34MB. So on a real merge of the very
+   * file this guard protects, git show would throw ENOBUFS, be read as "not in
+   * a merge", and the guard would print SKIP and pass in the ONE situation it
+   * was built for. A genuinely absent stage still returns null; any OTHER
+   * failure is surfaced, because a guard that cannot read what it guards must
+   * not report success. */
+  let stageReadError = null;
   const stage = (n) => {
     try {
       return cp.execFileSync('git', ['show', ':' + n + ':ROUTES.md'],
-        { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
-    } catch (e) { return null; }
+        { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'],
+          maxBuffer: 64 * 1024 * 1024 });
+    } catch (e) {
+      if (e && (e.code === 'ENOBUFS' || e.signal)) {
+        stageReadError = (e.code || e.signal) + ' reading stage ' + n;
+      }
+      return null;
+    }
   };
   /* THE UNION LOGIC, EXERCISED WHETHER OR NOT A MERGE IS IN PROGRESS.
    *
@@ -421,6 +437,11 @@ const isHeading = l => /^## TO: /.test(l);
   }
 
   const ours = stage(2), theirs = stage(3);
+  /* THE SKIP MUST BE HONEST (register 391): a null stage means EITHER "no merge
+   * in progress" or "the read failed", and those printed the identical SKIP
+   * line until now. An unreadable stage is a FAILED check, never a skipped one. */
+  ck('merge stages were READABLE — a skip must mean "no merge", never "the read '
+    + 'blew up on a 2.34MB mailbox"', stageReadError === null, stageReadError);
   if (!ours || !theirs) {
     console.log('SKIP  merge-union against real stages — no merge in progress '
       + '(the logic above was still exercised)');

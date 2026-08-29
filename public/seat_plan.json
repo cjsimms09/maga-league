@@ -128,12 +128,13 @@
       "slot": "WR",
       "is_starter_seat": true,
       "unpriced": false,
-      "plan_player": {
+      "plan_player": null,
+      "superseded_plan_player": {
         "player_id": "2133",
         "name": "Davante Adams",
-        "position": "WR"
+        "position": "WR",
+        "why": "draft_plan chose him on OPTION VALUE against the next pick; a starter shortlist ranks on season projection, which this file keeps on purpose because position-constrained candidates are already comparable. He survives to this pick and is a legitimate choice — he is simply not top-five on the projection ranking, so the two orderings disagree. He is NOT excluded for being unavailable: 0 of 60 shortlist entries are gone by their own seat."
       },
-      "superseded_plan_player": null,
       "plan_value": 184.9,
       "shortlist": [
         {
@@ -219,12 +220,13 @@
       "slot": "FLEX",
       "is_starter_seat": true,
       "unpriced": false,
-      "plan_player": {
+      "plan_player": null,
+      "superseded_plan_player": {
         "player_id": "7611",
         "name": "Rhamondre Stevenson",
-        "position": "RB"
+        "position": "RB",
+        "why": "draft_plan chose him on OPTION VALUE against the next pick; a starter shortlist ranks on season projection, which this file keeps on purpose because position-constrained candidates are already comparable. He survives to this pick and is a legitimate choice — he is simply not top-five on the projection ranking, so the two orderings disagree. He is NOT excluded for being unavailable: 0 of 60 shortlist entries are gone by their own seat."
       },
-      "superseded_plan_player": null,
       "plan_value": 167.7,
       "shortlist": [
         {

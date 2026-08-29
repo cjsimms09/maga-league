@@ -77,32 +77,79 @@ function needOld(pos, held, flexOwner) {
   return binomAtLeast(held - S + 1, S, INJURY[pos] || 0.15);
 }
 
-function needNew(pos, held, flexOwner) {
+/* ── THE CORRECTION CHANGES TWO THINGS, NOT ONE, AND THE FIRST CUT HID THAT ──
+ *
+ * `needNew` swaps the per-week miss rate (shipped `INJURY` -> `q` derived from
+ * the board's `games_expected`) AND swaps the basis (one week -> seventeen).
+ * Written as one function those are inseparable, and the headline "RB need at
+ * the fourth back goes 0.191 -> 0.902" then has no attribution.
+ *
+ * ⚠️ AND THE CONTROL THAT WAS SUPPOSED TO LICENSE IT DID NOT TOUCH IT. C1's
+ * first version compared `needOld` against a REIMPLEMENTATION OF `needOld` and
+ * reported `worst_abs_diff: 0` — it never called `needNew` at all, so it
+ * proved "the old function is a binomial" and nothing else. Measured: at
+ * WEEKS=1 the new curve differs from the shipped one by up to 0.095 (RB at
+ * held-3, 0.6268 vs 0.5319), because the rate is q and not INJURY. Register
+ * 118's shape — a control that is not what its name says — inside the tool
+ * register 110's whole conclusion rests on. Register 393.
+ *
+ * So the rate and the basis are now PARAMETERS, C1 forces them back to the
+ * shipped pair and demands exactness, and the report prints the decomposition
+ * next to the headline. The conclusion SURVIVES: the move is the basis, and
+ * the rate swap offsets a little of it (RB held-4: shipped 0.191 -> 0.973 on
+ * basis alone -> 0.902 with both). It was understated, not overstated. */
+function needAt(pos, held, flexOwner, opt) {
   const S = slotsOf(pos, flexOwner);
   if (S <= 0) return 0;
   if (held < S) return 1.0;
-  const q = (WEEKS - gamesExpected(pos) + 1) / WEEKS;   // +1 = the bye
-  const weekly = binomAtLeast(held - S + 1, S, q);
-  return 1 - Math.pow(1 - weekly, WEEKS);
+  const o = opt || {};
+  const weeks = o.weeks != null ? o.weeks : WEEKS;
+  const rate = o.rate != null ? o.rate
+    : (WEEKS - gamesExpected(pos) + 1) / WEEKS;         // +1 = the bye
+  const weekly = binomAtLeast(held - S + 1, S, rate);
+  return 1 - Math.pow(1 - weekly, weeks);
+}
+
+function needNew(pos, held, flexOwner) {
+  return needAt(pos, held, flexOwner, null);
 }
 
 /* ── controls ─────────────────────────────────────────────────────────────── */
 const ctl = {};
 {
-  /* C1 — with WEEKS=1 and the shipped injury rate, the new machinery must
-   * reproduce the OLD curve exactly. If it cannot reproduce what ships, its
-   * "correction" is not a correction. */
+  /* C1 — the NEW function, driven at the shipped rate and the shipped basis,
+   * must reproduce the OLD curve exactly. If it cannot reproduce what ships,
+   * its "correction" is not a correction.
+   *
+   * ⚠️ THE POINT OF THE REWRITE: this now calls `needAt`, the function under
+   * test. The version it replaces compared `needOld` against a fresh
+   * reimplementation of `needOld` and could not have failed (register 393). */
   let worst = 0;
   POS.forEach(pos => {
     for (let h = 0; h <= 8; h++) {
-      const S = slotsOf(pos, 'RB');
       const oldv = needOld(pos, h, 'RB');
-      const reprod = h < S ? 1.0 : binomAtLeast(h - S + 1, S, INJURY[pos]);
+      const reprod = needAt(pos, h, 'RB', { rate: INJURY[pos], weeks: 1 });
       worst = Math.max(worst, Math.abs(oldv - reprod));
     }
   });
   ctl.C1_reproduces_the_shipped_curve = { ok: worst < 1e-12, worst_abs_diff: worst,
-    why: 'the same binomial at WEEKS=1 with the shipped rate IS pNeedNth' };
+    why: 'needAt() forced to the shipped rate and one-week basis IS pNeedNth' };
+
+  /* C1b — THE KNOWN NEGATIVE C1 NEVER HAD. A control that only ever shows
+   * agreement cannot tell agreement from a stub, so prove the same comparison
+   * DISAGREES when the rate is left at its measured value — which is exactly
+   * what the old C1 would have caught had it called the function. */
+  let worstFree = 0;
+  POS.forEach(pos => {
+    for (let h = 0; h <= 8; h++) {
+      worstFree = Math.max(worstFree,
+        Math.abs(needOld(pos, h, 'RB') - needAt(pos, h, 'RB', { weeks: 1 })));
+    }
+  });
+  ctl.C1b_known_negative_the_rate_swap_is_visible = { ok: worstFree > 1e-6,
+    worst_abs_diff: +worstFree.toFixed(6),
+    why: 'at WEEKS=1 but the MEASURED rate the curves must differ; if this '
+       + 'reads 0 the comparison is not looking at the new function' };
 }
 {
   let mono = true, bounded = true;
@@ -118,16 +165,67 @@ const ctl = {};
   ctl.C2_monotone_non_increasing = { ok: mono };
   ctl.C3_bounded_0_1 = { ok: bounded };
 }
-ctl.C4_q_from_the_board = { ok: true,
-  games_expected_median: Object.fromEntries(POS.map(p => [p, gamesExpected(p)])),
-  why: 'read from the board; gamesExpected() throws rather than substituting' };
+/* ⛔ THIS CONTROL WAS `ok: true` — a named property asserted by writing the
+ * word, not checked. Written by me on 2026-08-28 in the same commit that fixed
+ * two other vacuous controls, which is why the sweep that found it is a tool
+ * and not a habit (register 410).
+ *
+ * The property it names is checkable in one line: every position must yield a
+ * games_expected that is a real number inside a season, and the q it implies
+ * must be a probability. `gamesExpected()` already THROWS rather than
+ * substituting a constant, so reaching here at all is half the evidence — the
+ * other half is that what it returned is usable. */
+ctl.C4_q_from_the_board = (() => {
+  const ge = Object.fromEntries(POS.map(p => [p, gamesExpected(p)]));
+  const q = Object.fromEntries(POS.map(p => [p, (WEEKS - ge[p] + 1) / WEEKS]));
+  const badGe = POS.filter(p => !(Number.isFinite(ge[p]) && ge[p] > 0 && ge[p] <= WEEKS));
+  const badQ = POS.filter(p => !(q[p] > 0 && q[p] < 1));
+  return { ok: badGe.length === 0 && badQ.length === 0,
+    games_expected_median: ge,
+    q_per_week: Object.fromEntries(POS.map(p => [p, +q[p].toFixed(4)])),
+    positions_with_an_unusable_games_expected: badGe,
+    positions_whose_q_is_not_a_probability: badQ,
+    why: 'read from the board — gamesExpected() throws rather than substituting a '
+       + 'constant — and the value it returns is checked to be a real number inside '
+       + 'a season whose implied q is a probability' };
+})();
+/* C6 — THE GUARD FOR THE DEFECT THAT SILENTLY MOVED THIS TOOL'S HEADLINE.
+ * The league-wide keeper lock empties every keeper out of `board.players`, and
+ * the pricing line below is a statement about the LEAGUE, not about the
+ * draftable pool. If the keepers ever stop reaching `positionPopulation` this
+ * must go red rather than quietly re-price a running back at 2.2 (register 393). */
+{
+  const kept = (DATA.kept_players || []).length;
+  const rb = positionPopulation('RB').length;
+  const rbDraftable = DATA.players.filter(p => p.position === 'RB' && p.proj_mean).length;
+  ctl.C6_keepers_are_in_the_population = {
+    ok: kept > 0 && rb > rbDraftable,
+    kept_players: kept, rb_in_population: rb, rb_in_draftable_pool: rbDraftable,
+    why: 'the last-starter line is a POPULATION question; since the 08-23 lock '
+       + 'the draftable pool alone reads it 23 bodies too deep, worst at RB '
+       + '(114.2 vs 159.8, 12 of the 23 keepers)' };
+}
 ctl.C5_flex_credited_once = {
   ok: POS.reduce((n, p) => n + (slotsOf(p, 'RB') - (STARTERS[p] || 0)), 0) === (STARTERS.FLEX || 0),
   why: 'crediting the flex to RB, WR and TE at once once drafted three tight ends' };
 const allOk = Object.values(ctl).every(c => c.ok);
 
 /* ── report ───────────────────────────────────────────────────────────────── */
-const WAIVER = { QB: 319, RB: 112, WR: 124, TE: 124 };   // draft_plan's measured levels
+/* ── THE WAIVER LEVELS ARE NOW READ FROM draft_plan, NOT SNAPSHOTTED ────────
+ * These were four literals with the comment "draft_plan's measured levels".
+ * They WERE draft_plan's levels on 2026-08-19. On 2026-08-28 draft_plan
+ * measures QB 305 · RB 84 · WR 112 · TE 113 — every one of them has moved, RB
+ * by 28 points. A copied constant labelled as a measurement is the shape this
+ * repo keeps paying for (register 5h), so it is a live read now: draft_plan
+ * exports WAIVER and is silent when required (`LOUD = require.main === module`).
+ * Register 393. */
+const WAIVER = require(path.join(ROOT, 'draft', 'tools', 'draft_plan.js')).WAIVER;
+['QB', 'RB', 'WR', 'TE'].forEach(p => {
+  if (!(Number(WAIVER[p]) > 0)) {
+    throw new Error('need_curve: draft_plan reported no waiver level for ' + p
+      + ' — REFUSING to substitute a constant (register 393).');
+  }
+});
 const rows = {};
 console.log('THE NEED CURVE — one-week (shipped) vs season (corrected)   P142/P143\n');
 Object.entries(ctl).forEach(([k, c]) => console.log('  ' + (c.ok ? 'OK ' : '!! ') + k));
@@ -148,6 +246,28 @@ POS.forEach(pos => {
     + n.map(x => x.toFixed(3).padStart(11)).join('') + '   CORRECTED (season)');
 });
 
+/* ── THE DECOMPOSITION (register 393) ──────────────────────────────────────
+ * The correction moves the RATE and the BASIS at once. Printed apart so the
+ * headline number can never again be quoted without knowing which half did it.
+ * A = shipped · B = rate only · C = basis only · D = both (the corrected curve). */
+const DECOMP = [['QB', 1], ['RB', 3], ['RB', 4], ['WR', 2], ['WR', 3], ['TE', 1]];
+const decomp = DECOMP.map(([pos, h]) => ({
+  pos: pos, held: h,
+  A_shipped: +needAt(pos, h, 'RB', { rate: INJURY[pos], weeks: 1 }).toFixed(4),
+  B_rate_only: +needAt(pos, h, 'RB', { weeks: 1 }).toFixed(4),
+  C_basis_only: +needAt(pos, h, 'RB', { rate: INJURY[pos] }).toFixed(4),
+  D_corrected: +needAt(pos, h, 'RB', null).toFixed(4),
+}));
+console.log('\n  WHICH HALF OF THE CORRECTION DID IT?  (register 393)');
+console.log('  ' + 'pos'.padEnd(4) + 'held'.padEnd(6)
+  + 'A shipped'.padStart(11) + 'B rate only'.padStart(13)
+  + 'C basis only'.padStart(14) + 'D corrected'.padStart(13));
+decomp.forEach(d => console.log('  ' + d.pos.padEnd(4) + String(d.held).padEnd(6)
+  + d.A_shipped.toFixed(3).padStart(11) + d.B_rate_only.toFixed(3).padStart(13)
+  + d.C_basis_only.toFixed(3).padStart(14) + d.D_corrected.toFixed(3).padStart(13)));
+console.log('  the BASIS carries the correction; the rate swap OFFSETS a little of it,');
+console.log('  so the published move is understated rather than overstated.');
+
 /* P142 — RB/WR need at the 3rd and 4th HELD body */
 const p142 = { RB_held3: rows.RB.season[3], RB_held4: rows.RB.season[4],
                WR_held3: rows.WR.season[3], WR_held4: rows.WR.season[4],
@@ -157,9 +277,30 @@ p142.TRUE = [p142.RB_held3, p142.RB_held4, p142.WR_held3, p142.WR_held4].every(v
 /* P143 — priced against the wire, does the 2nd QB/TE fall below the 3rd RB/WR?
  * Priced on a common yardstick: need x (a replacement-level starter's points
  * MINUS the waiver level), using the board's own positional medians. */
+/* ── "THE LAST STARTER LEAGUE-WIDE" IS A POPULATION QUESTION, SO THE KEEPERS
+ *    BELONG IN IT — AND SINCE 2026-08-23 THEY WERE NOT (register 393) ───────
+ *
+ * `board.players` is the DRAFTABLE pool. Since the league-wide keeper lock it
+ * EXCLUDES all 23 kept players, and those are the best players in the league.
+ * Reading the tenth-best-per-team line out of the draftable pool alone
+ * therefore reads a line 23 bodies too deep.
+ *
+ * MEASURED, 2026-08-28: 12 of the 23 keepers are running backs, so the damage
+ * is wildly uneven — RB's last-starter line reads 114.2 where the true league
+ * population gives 159.8, a 45.6-point error, against QB 3.0 and TE 3.7. That
+ * single number is what drove the 3rd-RB price from a published 41.6 down to
+ * 2.2 and flipped P143's grade to FALSE. It was an artifact, not a reversal.
+ *
+ * This is the AVAILABILITY-vs-POPULATION confusion for the seventh time: the
+ * lock is correct for "who can I draft" and wrong for "how good is a starter
+ * in this league". */
+function positionPopulation(pos) {
+  return DATA.players.concat(DATA.kept_players || [])
+    .filter(p => p.position === pos && p.proj_mean)
+    .map(p => +p.proj_mean).sort((a, b) => b - a);
+}
 function typicalStarter(pos) {
-  const v = DATA.players.filter(p => p.position === pos && p.proj_mean)
-    .map(p => p.proj_mean).sort((a, b) => b - a);
+  const v = positionPopulation(pos);
   const S = slotsOf(pos, 'RB');
   return v[Math.min(v.length - 1, S * 10 - 1)] || 0;    // ~last starter league-wide
 }
@@ -187,11 +328,22 @@ console.log('  P143 (2nd QB and 2nd TE price below 3rd RB and 3rd WR): ' + (p143
 console.log('     2nd QB ' + p143.second_QB.toFixed(1) + ' · 2nd TE ' + p143.second_TE.toFixed(1)
   + '   vs   3rd RB ' + p143.third_RB.toFixed(1) + ' · 3rd WR ' + p143.third_WR.toFixed(1));
 
+/* PROVENANCE, because the whole of register 393's defect 2 was a table quoted
+ * for nine days without anyone able to see which board produced it. An artifact
+ * that cannot name its own input is one board rebuild away from being a lie. */
 const rep = { _territory: 'TERRITORY: A — draft/tools/need_curve.js',
   _prereg: 'draft/NEED-CURVE-PREREG-2026-08-19.md',
+  _generated_at: new Date().toISOString(),
+  _board_built_at: DATA.built_at || null,
+  _board_players: (DATA.players || []).length,
+  _board_kept_players: (DATA.kept_players || []).length,
   _note: 'REPORT ONLY. draft_plan.js is NOT touched; it feeds seat_plan.json which the war room reads.',
   controls: ctl, controls_all_passed: allOk, weeks: WEEKS, waiver_levels: WAIVER,
-  curves: rows, priced_against_wire: priced, P142: p142, P143: p143 };
+  curves: rows, priced_against_wire: priced, P142: p142, P143: p143,
+  decomposition: decomp,
+  _decomposition_note: 'register 393 — the correction swaps the per-week rate AND '
+    + 'the basis. A shipped / B rate only / C basis only / D corrected. The basis '
+    + 'carries it; the rate swap offsets a little, so the move is understated.' };
 const i = process.argv.indexOf('--json');
 if (i >= 0) { fs.writeFileSync(process.argv[i + 1], JSON.stringify(rep, null, 1));
   console.log('\n  wrote ' + process.argv[i + 1]); }

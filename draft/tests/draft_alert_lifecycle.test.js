@@ -32,6 +32,41 @@ const dayOffset = n => new Date(Date.now() + n * 864e5).toISOString().slice(0, 1
   mem.password_hash = hashPassword('pw'); mem.must_change_password = false; mem.is_commissioner = false;
   await store.set('owners', owners);
 
+  /* MARK THE ONE-TIME POST-DRAFT MIGRATION AS ALREADY DONE (register 369).
+   *
+   * `loadWorld()` carries a one-time cleanup added 2026-08-23 on Cory's "draft
+   * day alert should be gone..? So should draft spot picker.." — guarded by
+   * `config.draft2026_closed`, it retires every alert matching
+   * /draft (day|spots)|keeper deadline/i and closes the 2026 draft room
+   * (src/helpers.js:151-166).
+   *
+   * It fired inside this suite's first request — WHICH IS THE LOGIN POST, not
+   * the `get('/')` the first arm reads — and retired the very alert that arm
+   * asserts. MEASURED, one variable, both directions: seeded active=true; with
+   * the flag unset the login POST leaves it active=false and the following GET
+   * renders nothing; with the flag set it stays active=true and the same GET
+   * renders. That is why exactly ONE arm was red while the day-of arm eleven
+   * lines below passed — the member route's self-heal re-activates the alert
+   * (member.js:640), but only from the request AFTER the one that healed it,
+   * because `res.locals.alerts` is computed in server-app before the route
+   * runs. A one-request window, invisible to every later arm.
+   *
+   * This is NOT defeating the migration, and the migration is NOT broken. On
+   * the real config `draft_date` is 08/22/26, so `draftInfo.passed` is true and
+   * the route takes its RETIRE branch — the alert stays down, which is what
+   * Cory asked for. The re-activation only happens when a draft is scheduled in
+   * the FUTURE, which is this suite's own "a re-scheduled draft can bring the
+   * alert back" arm working as designed.
+   *
+   * What this suite tests is the DATE-DRIVEN lifecycle. Letting a one-time
+   * historical migration run inside it means arm one measures the migration and
+   * every other arm measures the lifecycle, so the fixture states that the
+   * migration has already happened — the state every real request after
+   * 2026-08-23 is in. */
+  const cfg0 = await store.get('config');
+  cfg0.draft2026_closed = true;
+  await store.set('config', cfg0);
+
   const srv = createApp().listen(0);
   await new Promise(r => srv.once('listening', r));
   const base = `http://127.0.0.1:${srv.address().port}`;
