@@ -363,6 +363,244 @@
     "-c",
     "import sys, json\nsys.path.insert(0, 'draft/backtest')\nsys.path.insert(0, 'draft')\nimport v7_candidate_grade as V\nprint(json.dumps(V.run()))"
    ]
+  },
+  {
+   "id": "need_curve",
+   "description": "The season-basis need curve against the shipped one-week curve (P142/P143), with the rate/basis decomposition and the keeper-population guard.",
+   "owner_module": "draft/tools/need_curve.js",
+   "artifact_path": "draft/data/need_curve.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/need_curve.js",
+    "--json",
+    "{OUT}"
+   ],
+   "regenerate_writes_to": "{OUT}",
+   "timeout_s": 120
+  },
+  {
+   "id": "ceiling_source_recheck",
+   "description": "Register 119 re-measured on the shipped board: where proj_ceiling comes from now, and whether the mid-round WR is still the narrowest band.",
+   "owner_module": "draft/tools/ceiling_source_recheck.js",
+   "artifact_path": "draft/data/ceiling_source_recheck.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/ceiling_source_recheck.js",
+    "--json",
+    "{OUT}"
+   ],
+   "regenerate_writes_to": "{OUT}",
+   "timeout_s": 180
+  },
+  {
+   "id": "vacuous_verdict_sweep",
+   "description": "Named controls whose verdict is the literal true, split into claims and disclosures \u2014 the verdict half of register 23's sweep.",
+   "owner_module": "draft/tools/vacuous_verdict_sweep.js",
+   "artifact_path": "draft/data/vacuous_verdict_sweep.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/vacuous_verdict_sweep.js",
+    "--json",
+    "{OUT}"
+   ],
+   "regenerate_writes_to": "{OUT}",
+   "timeout_s": 120
+  },
+  {
+   "id": "fieldability_probe",
+   "description": "Can each arm's drafted roster fill every starting slot in every bye week, on Cory's real twelve picks.",
+   "owner_module": "draft/tools/fieldability_probe.js",
+   "artifact_path": "draft/data/fieldability_probe.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/fieldability_probe.js",
+    "--json",
+    "{OUT}"
+   ],
+   "regenerate_writes_to": "{OUT}",
+   "timeout_s": 300
+  },
+  {
+   "id": "adp_upside",
+   "description": "Per-player ADP-relative upside rows.",
+   "owner_module": "draft/tools/adp_upside.js",
+   "artifact_path": "draft/data/adp_upside.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/adp_upside.js"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 415) via regenerate_writes_artifact: this tool writes its artifact at a fixed path and prints a human report, so it could satisfy neither the stdout contract nor {OUT}. It is checked by running it in a throwaway git worktree and reading the sandbox copy back; nothing is written into the repo. Verified by running it once \u2014 a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "clay_2025_retrograde",
+   "description": "Clay 2025 retrograde comparison rows.",
+   "owner_module": "draft/tools/clay_2025_retrograde.js",
+   "artifact_path": "draft/data/clay_2025_retrograde.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/clay_2025_retrograde.js"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 415) via regenerate_writes_artifact: this tool writes its artifact at a fixed path and prints a human report, so it could satisfy neither the stdout contract nor {OUT}. It is checked by running it in a throwaway git worktree and reading the sandbox copy back; nothing is written into the repo. Verified by running it once \u2014 a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "FRESH"
+  },
+  {
+   "id": "clay_blend_impact",
+   "description": "Impact of the Clay source on the published blend.",
+   "owner_module": "draft/tools/clay_blend_impact.js",
+   "artifact_path": "draft/data/clay_blend_impact.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/clay_blend_impact.js"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 415) via regenerate_writes_artifact: this tool writes its artifact at a fixed path and prints a human report, so it could satisfy neither the stdout contract nor {OUT}. It is checked by running it in a throwaway git worktree and reading the sandbox copy back; nothing is written into the repo. Verified by running it once \u2014 a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "draft_day_consistency",
+   "description": "Cross-surface consistency checks for draft day.",
+   "owner_module": "draft/tools/draft_day_consistency.js",
+   "artifact_path": "draft/data/draft_day_consistency.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/draft_day_consistency.js"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 415) via regenerate_writes_artifact: this tool writes its artifact at a fixed path and prints a human report, so it could satisfy neither the stdout contract nor {OUT}. It is checked by running it in a throwaway git worktree and reading the sandbox copy back; nothing is written into the repo. Verified by running it once \u2014 a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "FRESH"
+  },
+  {
+   "id": "draftday_checks",
+   "description": "Draft-day readiness check results.",
+   "owner_module": "draft/tools/draftday_checks.js",
+   "artifact_path": "draft/data/draftday_checks.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/draftday_checks.js"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 415) via regenerate_writes_artifact: this tool writes its artifact at a fixed path and prints a human report, so it could satisfy neither the stdout contract nor {OUT}. It is checked by running it in a throwaway git worktree and reading the sandbox copy back; nothing is written into the repo. Verified by running it once \u2014 a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "lineup_drafter",
+   "description": "Lineup-aware drafter arm output.",
+   "owner_module": "draft/tools/lineup_drafter.js",
+   "artifact_path": "draft/data/lineup_drafter.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/lineup_drafter.js"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 415) via regenerate_writes_artifact: this tool writes its artifact at a fixed path and prints a human report, so it could satisfy neither the stdout contract nor {OUT}. It is checked by running it in a throwaway git worktree and reading the sandbox copy back; nothing is written into the repo. Verified by running it once \u2014 a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "lineup_sim",
+   "description": "Lineup simulation rows.",
+   "owner_module": "draft/tools/lineup_sim.js",
+   "artifact_path": "draft/data/lineup_sim.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/lineup_sim.js"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 415) via regenerate_writes_artifact: this tool writes its artifact at a fixed path and prints a human report, so it could satisfy neither the stdout contract nor {OUT}. It is checked by running it in a throwaway git worktree and reading the sandbox copy back; nothing is written into the repo. Verified by running it once \u2014 a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "nothing_computed_goes_unshown",
+   "description": "Sweep: every computed quantity reaches a surface.",
+   "owner_module": "draft/tools/nothing_computed_goes_unshown.js",
+   "artifact_path": "draft/data/unshown.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/nothing_computed_goes_unshown.js"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 415) via regenerate_writes_artifact: this tool writes its artifact at a fixed path and prints a human report, so it could satisfy neither the stdout contract nor {OUT}. It is checked by running it in a throwaway git worktree and reading the sandbox copy back; nothing is written into the repo. Verified by running it once \u2014 a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "reprojection",
+   "description": "In-season reprojection rows.",
+   "owner_module": "draft/tools/reprojection.js",
+   "artifact_path": "draft/data/reprojection.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/reprojection.js"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 415) via regenerate_writes_artifact: this tool writes its artifact at a fixed path and prints a human report, so it could satisfy neither the stdout contract nor {OUT}. It is checked by running it in a throwaway git worktree and reading the sandbox copy back; nothing is written into the repo. Verified by running it once \u2014 a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "roster_builder_replay",
+   "description": "Roster-builder replay output.",
+   "owner_module": "draft/tools/roster_builder_replay.js",
+   "artifact_path": "draft/data/roster_builder_replay.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/roster_builder_replay.js"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 415) via regenerate_writes_artifact: this tool writes its artifact at a fixed path and prints a human report, so it could satisfy neither the stdout contract nor {OUT}. It is checked by running it in a throwaway git worktree and reading the sandbox copy back; nothing is written into the repo. Verified by running it once \u2014 a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "vona_board",
+   "description": "VONA board rows.",
+   "owner_module": "draft/tools/vona_board.js",
+   "artifact_path": "draft/data/vona_board.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/vona_board.js"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 415) via regenerate_writes_artifact: this tool writes its artifact at a fixed path and prints a human report, so it could satisfy neither the stdout contract nor {OUT}. It is checked by running it in a throwaway git worktree and reading the sandbox copy back; nothing is written into the repo. Verified by running it once \u2014 a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "waiver_advisor_paired_harness",
+   "description": "Paired harness for the waiver advisor.",
+   "owner_module": "draft/tools/waiver_advisor_paired_harness.js",
+   "artifact_path": "draft/data/waiver_advisor_paired_harness.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/waiver_advisor_paired_harness.js"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 415) via regenerate_writes_artifact: this tool writes its artifact at a fixed path and prints a human report, so it could satisfy neither the stdout contract nor {OUT}. It is checked by running it in a throwaway git worktree and reading the sandbox copy back; nothing is written into the repo. Verified by running it once \u2014 a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "waiver_realized_level",
+   "description": "Realized level of waiver adds.",
+   "owner_module": "draft/tools/waiver_realized_level.js",
+   "artifact_path": "draft/data/waiver_realized_level.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/waiver_realized_level.js"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 415) via regenerate_writes_artifact: this tool writes its artifact at a fixed path and prints a human report, so it could satisfy neither the stdout contract nor {OUT}. It is checked by running it in a throwaway git worktree and reading the sandbox copy back; nothing is written into the repo. Verified by running it once \u2014 a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
   }
  ],
  "_not_yet_migrated": [
