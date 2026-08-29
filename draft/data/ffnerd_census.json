@@ -1,0 +1,193 @@
+{
+ "_territory": "TERRITORY: relay \u2014 written by draft/tools/ffnerd_probe.py",
+ "_question": "Cory 2026-08-26: key added after A16; what does it unlock, and does anything here carry odds/props?",
+ "captured_at": "2026-08-29T05:10:30.420245+00:00",
+ "key_len": 20,
+ "endpoints": {
+  "draft-projections": {
+   "status": 200,
+   "bytes": 32,
+   "player_rows": 0,
+   "fields": [],
+   "top_keys": [
+    "error"
+   ],
+   "error": null,
+   "body_head": "{\"error\":\"Missing Subscription\"}"
+  },
+  "weekly-projections": {
+   "status": 200,
+   "bytes": 32,
+   "player_rows": 0,
+   "fields": [],
+   "top_keys": [
+    "error"
+   ],
+   "error": null,
+   "body_head": "{\"error\":\"Missing Subscription\"}"
+  },
+  "ros": {
+   "status": 200,
+   "bytes": 32,
+   "player_rows": 0,
+   "fields": [],
+   "top_keys": [
+    "error"
+   ],
+   "error": null,
+   "body_head": "{\"error\":\"Missing Subscription\"}"
+  },
+  "draft-rankings": {
+   "status": 200,
+   "bytes": 32,
+   "player_rows": 0,
+   "fields": [],
+   "top_keys": [
+    "error"
+   ],
+   "error": null,
+   "body_head": "{\"error\":\"Missing Subscription\"}"
+  },
+  "weekly-rankings": {
+   "status": 200,
+   "bytes": 32,
+   "player_rows": 0,
+   "fields": [],
+   "top_keys": [
+    "error"
+   ],
+   "error": null,
+   "body_head": "{\"error\":\"Missing Subscription\"}"
+  },
+  "odds": {
+   "status": 200,
+   "bytes": 32,
+   "player_rows": 0,
+   "fields": [],
+   "top_keys": [
+    "error"
+   ],
+   "error": null,
+   "body_head": "{\"error\":\"No api call supplied\"}"
+  },
+  "injuries": {
+   "status": 200,
+   "bytes": 32,
+   "player_rows": 0,
+   "fields": [],
+   "top_keys": [
+    "error"
+   ],
+   "error": null,
+   "body_head": "{\"error\":\"Missing Subscription\"}"
+  },
+  "depth": {
+   "status": 200,
+   "bytes": 32,
+   "player_rows": 0,
+   "fields": [],
+   "top_keys": [
+    "error"
+   ],
+   "error": null,
+   "body_head": "{\"error\":\"Missing Subscription\"}"
+  },
+  "players": {
+   "status": 200,
+   "bytes": 32,
+   "player_rows": 0,
+   "fields": [],
+   "top_keys": [
+    "error"
+   ],
+   "error": null,
+   "body_head": "{\"error\":\"Missing Subscription\"}"
+  },
+  "schedule": {
+   "status": 200,
+   "bytes": 32,
+   "player_rows": 0,
+   "fields": [],
+   "top_keys": [
+    "error"
+   ],
+   "error": null,
+   "body_head": "{\"error\":\"Missing Subscription\"}"
+  },
+  "auction": {
+   "status": 200,
+   "bytes": 32,
+   "player_rows": 0,
+   "fields": [],
+   "top_keys": [
+    "error"
+   ],
+   "error": null,
+   "body_head": "{\"error\":\"Missing Subscription\"}"
+  },
+  "dfs": {
+   "status": 200,
+   "bytes": 32,
+   "player_rows": 0,
+   "fields": [],
+   "top_keys": [
+    "error"
+   ],
+   "error": null,
+   "body_head": "{\"error\":\"Missing Subscription\"}"
+  },
+  "news": {
+   "status": 200,
+   "bytes": 32,
+   "player_rows": 0,
+   "fields": [],
+   "top_keys": [
+    "error"
+   ],
+   "error": null,
+   "body_head": "{\"error\":\"Missing Subscription\"}"
+  },
+  "standings": {
+   "status": 200,
+   "bytes": 32,
+   "player_rows": 0,
+   "fields": [],
+   "top_keys": [
+    "error"
+   ],
+   "error": null,
+   "body_head": "{\"error\":\"Missing Subscription\"}"
+  },
+  "leaders": {
+   "status": 200,
+   "bytes": 32,
+   "player_rows": 0,
+   "fields": [],
+   "top_keys": [
+    "error"
+   ],
+   "error": null,
+   "body_head": "{\"error\":\"Missing Subscription\"}"
+  },
+  "add-drops": {
+   "status": 200,
+   "bytes": 32,
+   "player_rows": 0,
+   "fields": [],
+   "top_keys": [
+    "error"
+   ],
+   "error": null,
+   "body_head": "{\"error\":\"Missing Subscription\"}"
+  }
+ },
+ "verdict": {
+  "any_endpoint_with_players": false,
+  "best_player_rows": 0,
+  "odds_endpoint": {
+   "status": 200,
+   "bytes": 32,
+   "note": "odds returned content \u2014 read the committed fields to see if player props or only game lines"
+  }
+ }
+}
