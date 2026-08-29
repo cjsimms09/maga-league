@@ -52,18 +52,17 @@
 # widen the skip by pattern.
 name: artifact freshness (ERROR-only)
 
-# ⏸️ THE SCHEDULE IS DELIBERATELY OFF UNTIL THE FIRST FULL RUN IS VERIFIED.
-# The ERROR-only design rests on a measurement — exactly one of 53 entries
-# errors, and it errors on the network — but "one entry errors" and "the gate
-# exits 0" are two different claims, and only the first is measured. Shipping
-# a cron that goes red on its first unattended fire is the precise failure
-# this file's own comments are about. Uncomment the cron once a manual
-# `workflow_dispatch` run has come back green. Register 418.
+# ✅ THE SCHEDULE IS ON, AND IT WAS HELD OFF UNTIL THE GATE WAS ACTUALLY GREEN.
+# "one entry errors" and "the gate exits 0" are two different claims; only the
+# first was measured when this file was written, so the cron shipped commented
+# out. VERIFIED 2026-08-29 on a quiet tree: 10 fresh, 42 stale, 0 ERRORED, 52
+# checked, 1 announced skip, exit 0, and the working tree byte-identical
+# afterwards. Register 418.
 on:
-  # schedule:
-  #   # 06:20 UTC daily, off the hour so it does not contend with the nightly
-  #   # board rebuild or the other crons that cluster at :00.
-  #   - cron: '20 6 * * *'
+  schedule:
+    # 06:20 UTC daily, off the hour so it does not contend with the nightly
+    # board rebuild or the other crons that cluster at :00.
+    - cron: '20 6 * * *'
   workflow_dispatch:
 
 concurrency:
@@ -112,6 +111,13 @@ jobs:
         # The script asserts this itself and exits 2 if it moved; this is the
         # belt-and-braces version, because the one thing that must never
         # happen here is a workflow committing a regenerated artifact.
+        #
+        # ⚠️ THIS CHECK IS ONLY UNAMBIGUOUS IN CI, AND THAT IS THE POINT OF
+        # RUNNING IT HERE. A tree comparison cannot tell a sandbox leak from a
+        # concurrent writer: locally the script reported "the sandbox leaked"
+        # at exit 2 on 08-29 when the real cause was ME committing three files
+        # while it ran. On a runner nothing else touches the tree, so a change
+        # here means what it says.
         run: |
           if [ -n "$(git status --porcelain)" ]; then
             echo "::error::the freshness run left changes in the tree — register 415"

@@ -643,10 +643,18 @@ def main(argv: list[str] | None = None) -> int:
     after = _tree_signature()
     if after != before:
         moved = sorted(set(after[0]) - set(before[0])) or ["(content changed in place)"]
-        print("\n🔴 THE LIVE WORKING TREE CHANGED DURING THIS RUN — the sandbox "
-              "leaked.\n   A generator wrote into the repo, so the artifacts "
-              "just compared may have\n   been overwritten by the comparison "
-              "itself and these verdicts do not\n   reproduce. Register 415.")
+        print("\n🔴 THE LIVE WORKING TREE CHANGED DURING THIS RUN.\n"
+              "   TWO CAUSES LOOK IDENTICAL HERE AND THIS CHECK CANNOT TELL "
+              "THEM APART:\n"
+              "     (a) a generator wrote into the repo — the sandbox leaked, "
+              "and the\n         verdicts above do not reproduce (register 415); "
+              "or\n"
+              "     (b) SOMETHING ELSE EDITED THE TREE WHILE THIS RAN — an "
+              "editor, a\n         commit, another agent. On 2026-08-29 this "
+              "fired at exit 2 and\n         the cause was a commit landing "
+              "mid-run, not a leak.\n"
+              "   Re-run on a QUIET TREE before believing (a). In CI nothing "
+              "else writes,\n   so there it means (a).")
         for p in moved[:20]:
             print(f"     {p}")
         return 2
