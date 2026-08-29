@@ -71,8 +71,15 @@ function pairingsFrom(data) {
         if (g.length !== 2) { oversized.push({ season: s.season, week: wk, mid, n: g.length }); continue; }
         const ua = r2u[g[0].roster_id], ub = r2u[g[1].roster_id];
         if (!ua || !ub || ua === ub) continue;
+        const ptsA = Number(g[0].points) || 0, ptsB = Number(g[1].points) || 0;
+        // NOT YET PLAYED — mirrors h2h.js's own guard (register found live by
+        // Cory, 2026-08-27: a phantom 0.0-0.0 "tie" from a future scheduled
+        // week the export pre-populates). The independent derivation has to
+        // know the same rule or it stops being independent verification and
+        // starts being an echo of whichever bug both sides share.
+        if (ptsA === 0 && ptsB === 0) continue;
         out.push({ season: String(s.season), week: Number(wk),
-          uidA: ua, uidB: ub, ptsA: Number(g[0].points) || 0, ptsB: Number(g[1].points) || 0 });
+          uidA: ua, uidB: ub, ptsA, ptsB });
       }
     }
   }
@@ -101,13 +108,18 @@ const { pairings, oversized, dupRoster } = pairingsFrom(ARCHIVE);
 // games, and both would be silently useless — the same vacuous-pass shape as a
 // check that cannot fail.
 ck('the independent derivation found games at all', pairings.length > 0, pairings.length);
-// A season is only expected to yield games if it CONTAINS any played matchup.
-// The archive carries 2026, which has begun on paper and has no games, so
-// comparing against every season with a `weeks` key charged the derivation with
-// missing a season that has nothing in it.
+// A season is only expected to yield games if it CONTAINS any ACTUALLY PLAYED
+// matchup — not merely a scheduled one. The export pre-populates the whole
+// season's matchup_id pairings up front, 0.0-0.0, before a single snap; 2026
+// carries every week's pairing on paper from week 1, so a structural check
+// ("has a matchup_id") would say 2026 already has games when nobody has
+// kicked off yet. Independent of `pairings` on purpose — scans ARCHIVE
+// directly for any row with a real (non-zero) score, so this stays a real
+// cross-check rather than comparing the derivation to itself.
 const seasonsWithGames = (ARCHIVE.seasons || []).filter(s => s.weeks
   && Object.values(s.weeks).some(rows => Array.isArray(rows)
-    && rows.some(r => r.matchup_id != null))).map(s => String(s.season));
+    && rows.some(r => r.matchup_id != null && (Number(r.points) || 0) !== 0)))
+  .map(s => String(s.season));
 ck('it found games in every season that HAS games',
   new Set(pairings.map(p => p.season)).size === seasonsWithGames.length,
   { derived: [...new Set(pairings.map(p => p.season))].sort(), expected: seasonsWithGames });

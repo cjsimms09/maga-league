@@ -110,6 +110,21 @@ function headToHead(uidA, uidB, dataOrNull) {
 
       const pa = Number(ra.points) || 0;
       const pb = Number(rb.points) || 0;
+      // NOT YET PLAYED. Sleeper's export pre-populates the WHOLE season's
+      // schedule up front — every future week already carries a roster/
+      // matchup_id pairing with points: 0, indistinguishable in shape from a
+      // real game. Cory, live: "Says I lead 3-2-2?? We have tied twice??" —
+      // the real record was 3-2-0; two of those "ties" were the current
+      // week (not even kicked off) and a future scheduled meeting, both
+      // 0.0-0.0. A genuine 0-0 result is not realistically possible in this
+      // scoring format (every starter including K/DEF would have to score
+      // exactly zero), so both-zero is the same "we don't know yet" signal
+      // pickem.js's gameResult() already trusts for its own undecided games
+      // — never let it masquerade as a decided one. This also fixes the
+      // averages (a phantom 0-point game was diluting points-per-meeting)
+      // and the current-streak read (a phantom tie sorts first and a tie
+      // ends a streak, so an unplayed week could erase a real one).
+      if (pa === 0 && pb === 0) continue;
       const isPost = Number(wk) >= PLAYOFF_START;
       const tag = isPost ? bracketTag(s.brackets, ra.roster_id, rb.roster_id) : null;
       // Was either team the WHOLE LEAGUE's top score that week? (the $100 game.)

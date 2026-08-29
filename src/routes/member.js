@@ -585,11 +585,18 @@ router.get('/', aw(async (req, res) => {
       if (!mine) continue;
       if (bb.status === SB.STATUS.PROPOSED && !mine.accepted) {
         const from = (bb.parties || []).find(pp => pp.accepted);
-        needsYou.push({ icon: '🤝', href: '/bank?section=sidebets',
-          text: `${_nameOf(from && from.owner_id)} sent you a $${bb.stake} bet`, cue: 'accept or decline →' });
+        needsYou.push({ icon: '🤝', href: `/bank?section=sidebets#bet-${bb.id}`,
+          text: `${_nameOf(from && from.owner_id)} sent you a $${bb.stake} bet`, cue: 'accept or decline →',
+          // Catalog item 26: "NEEDS YOU on home carries it with the Accept
+          // inline" — a straight bet needs nothing else to accept, so it gets
+          // a real inline button. A pool bet's accept also assigns franchise
+          // positions (SB.accept's position/picks fields), which has no home
+          // for that UI here — it keeps the tap-through instead of a button
+          // that would silently accept with no positions chosen.
+          betId: bb.format !== 'pool' ? bb.id : null });
       }
       if (bb.status === SB.STATUS.AWAITING_CONFIRM && bb.declared && bb.declared.by !== req.owner.id) {
-        needsYou.push({ icon: '⚖️', href: '/bank?section=sidebets',
+        needsYou.push({ icon: '⚖️', href: `/bank?section=sidebets#bet-${bb.id}`,
           text: `${_nameOf(bb.declared.by)} declared a result on your $${bb.stake} bet`, cue: 'confirm or dispute →' });
       }
     }
@@ -2457,6 +2464,31 @@ router.post('/votes/:id/withdraw', aw(async (req, res) => {
   res.redirect('/votes');
 }));
 
+// EDIT AN UNVOTED PROPOSAL (redesign catalog 10, the other half of withdraw):
+// "same rule as bets: until anyone has acted on it, the author owns it.
+// Typo'd ballots currently live forever." Same guard as withdraw above —
+// open, proposer, and nobody else has cast yet — so this is strictly a
+// smaller version of "pull it and re-propose", not a new risk: a measure
+// nobody else has engaged with cannot be stale under anyone but its author.
+// No terms-version bump (register 294/bet-edit's reason for one): a ballot
+// is a fresh yes/no read at cast time, not an accept against a snapshot, and
+// the guard already forbids editing once a single other ballot exists.
+router.post('/votes/:id/edit', aw(async (req, res) => {
+  const vote = await getDoc(`vote:${req.params.id}`, null);
+  const question = String(req.body.question || '').trim().slice(0, 200);
+  if (vote && vote.status === 'open' && Number(vote.proposer_id) === Number(req.owner.id) && question) {
+    const bKeys = await H.store.listKeys(`ballot:${vote.id}:`);
+    const others = bKeys.filter(k => Number(k.split(':')[2]) !== Number(req.owner.id));
+    if (!others.length) {
+      vote.question = question;
+      vote.description = String(req.body.description || '').trim().slice(0, 1000);
+      vote.edited_at = now();
+      await setDoc(`vote:${vote.id}`, vote);
+    }
+  }
+  res.redirect('/votes');
+}));
+
 router.post('/votes/:id/rescind', aw(async (req, res) => {
   const vote = await getDoc(`vote:${req.params.id}`, null);
   if (vote && vote.status === 'open') {
@@ -3570,8 +3602,23 @@ async function liveOptimizeFor(world, owners, me) {
     // are a 64% favourite. Now: a typical TEAM score, with the FIELD's spread,
     // which is what an unknown opponent's uncertainty actually is.
     let oppMean = 0, oppKnown = false, oppSd;
-    if (matchup && matchup.opp && matchup.opp.points > 0) { oppMean = matchup.opp.points; oppKnown = true; }
-    else {
+    // Register 324: this used to switch to the LIVE matchup.opp.points the
+    // moment it went above zero — a PARTIAL mid-game score, not a final one.
+    // Measured on one real Sunday, same roster and projections throughout:
+    // pre-kick "protect, coin flip" ($44.77) -> mid-Sunday, opponent's early
+    // score substituted whole, "start your studs, no chase" ($113.69) -> every
+    // game finished, "protect" again ($43.10). The headline advice flipped and
+    // flipped back, driven entirely by the clock on a roster Cory never
+    // touched. Same false alarm the matchup card's win-odds line already
+    // refuses to make once anyScoreOnBoard() is true (this file, the
+    // requireCommissioner /matchup route above: "an unmoving pre-kick number
+    // next to a live score would be a STALE CLAIM ... A refusal renders
+    // NOTHING, never a guess") — same rule, other direction: a MOVING partial
+    // total is not a final one either. Hold the pre-kick estimate for the
+    // whole live window instead of chasing a score that has not finished; by
+    // the time it IS final, the lineup can no longer be changed, so a
+    // "known" opponent score was never actionable input for this tool.
+    {
       const typical = LO.typicalTeamScore();
       oppMean = typical.median || band.median;
       oppSd = typical.sd || undefined;
@@ -3591,6 +3638,14 @@ async function liveOptimizeFor(world, owners, me) {
     // Flag it so the view shows a calm "projections pending" state instead of a
     // 0%-to-win doom read off an all-zero board.
     live.projPending = projSource === 'none' || Number(live.ev.mean || 0) < 1;
+    // Register 324, E's follow-up: holding the pre-kick estimate stops the
+    // headline from FLIPPING, but the page still asserts it with the same
+    // confidence whether it was computed five minutes ago or five days ago —
+    // "the page does not know it is gone" (the live opponent number). Say so:
+    // once any score is on the board this week, the call on screen was set
+    // pre-kick and has not moved since, which is a fact worth one line rather
+    // than a silent held number that could pass for fresh.
+    live.midGame = PE.anyScoreOnBoard(sData);
   }
   const weekNo = (matchup && matchup.week) || (sData && sData.week) || 1;
   return { live, roster, matchup, projSource, band, weekNo };

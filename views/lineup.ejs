@@ -103,6 +103,13 @@
             <span class="lo-verdict-tag"><%= posture.mode === 'chase' ? '🎯 CHASE' : posture.mode === 'pending' ? '⏳ PENDING' : '🛡️ PROTECT' %></span>
             <span class="lo-verdict-line"><%= posture.headline %></span>
           </div>
+          <%# Register 324, E's follow-up: holding the pre-kick estimate stops
+              the headline from flipping mid-Sunday, but says so nowhere — a
+              held number can pass for a fresh one. One line, not a hedge on
+              every word above it. %>
+          <% if (live.midGame && !live.projPending) { %>
+            <p class="muted" style="margin:.1rem 0 .3rem; font-size:.78rem">⏳ <b>Games are underway</b> — this call was set before kickoff and has not moved since. Check back once today's slate is final.</p>
+          <% } %>
           <%- include('partials/_wr_explain', { ex: G.posture }) %>
           <p class="lo-verdict-why"><%= posture.why %></p>
           <p class="muted lo-src">Projections: <%= SRC_LABEL[projSource] || 'unknown source' %>.<% if (!live.projPending && projSource && projSource !== 'sleeper') { %> <b>Treat the dollar figures as directional, not precise, until live projections land.</b><% } %><% if (!live.projPending && !live.oppKnown) { %> Opponent modelled as a <b>typical team score (<%= Math.round((live.assumptions && live.assumptions.oppMean) || 0) %>)</b> until theirs lands — not the week's winning score, which would make every week look like a long shot.<% } %></p>
