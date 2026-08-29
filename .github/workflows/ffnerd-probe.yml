@@ -31,8 +31,10 @@ jobs:
           FFNERD_API_KEY: ${{ secrets.FFNERD_API_KEY }}
         run: |
           set -uo pipefail
-          python3 draft/tools/ffnerd_probe.py
-          code=$?
+          # bash -e is injected by Actions and a bare `cmd; code=$?` dies on
+          # cmd's nonzero exit BEFORE code is read — the exact bug
+          # draft-night-sync.yml documented on 08-15. The `if` form is exempt.
+          if python3 draft/tools/ffnerd_probe.py; then code=0; else code=$?; fi
           # 2 = key missing (a secret problem, fail loud); 1 = census wrote
           # but no endpoint carried players (commit THAT too — a measured
           # "unlocks nothing" is a finding; the exit code stays red so the

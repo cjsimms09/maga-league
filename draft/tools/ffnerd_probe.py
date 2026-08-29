@@ -98,6 +98,11 @@ def main():
                 body = r.read()
                 entry["status"] = r.status
                 entry["bytes"] = len(body)
+                if len(body) < 500:
+                    # a tiny 200 is almost always an error envelope — record it
+                    # verbatim so sixteen identical 32-byte bodies can never
+                    # hide behind a byte count (rule 3d)
+                    entry["body_head"] = body.decode("utf-8", "replace")
                 try:
                     payload = json.loads(body)
                     if isinstance(payload, dict):
