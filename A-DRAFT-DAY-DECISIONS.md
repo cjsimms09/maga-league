@@ -108,14 +108,13 @@ Everything else open. Named so nobody has to re-derive that it was considered:
   rendered board), the restore button works, the cohort ceilings are marked on
   the board, and BIG BOARD now says *"undrafted"* where it collided with the
   scarcity rail's *"left"*.
-- **🆕 SURFACED TODAY, NOT INVENTED TODAY** — 31, E6 and E15 had all been marked
-  finished with a ✅ that meant *"fixed, verify"*, and the register's own check
-  read any tick as closed, so none of the three was ever chased. E15 is now
-  **A5** above; E6 is B's; **31** is yours but genuinely post-draft — D corrected
-  the headline edge number in four TERRITORY: A files and offered you a SEND
-  BACK, and the ±41.8-point detection floor means a decision is owed on what
-  instrument can grade a change that size at all — now ruled: Q15's
-  paired-within-room estimand (A, 08-18), D builds the harness. `register_check_was_hiding_rows_2026-08-18.md`.
+- **🆕 SURFACED TODAY, NOT INVENTED TODAY** — ~~31~~, E6 and E15 had all been
+  marked finished with a ✅ that meant *"fixed, verify"*, and the register's own
+  check read any tick as closed, so none of the three was ever chased. E15 is now
+  **A5** above; E6 is B's; ~~31~~ was yours — D corrected the headline edge
+  number in four TERRITORY: A files, and the instrument it then waited on was
+  ruled 08-21 (`GRADING-POLICY.md`, the decision-null standard, replacing R\*).
+  Struck 08-29. `register_check_was_hiding_rows_2026-08-18.md`.
 - **Post-draft by construction** — everything with a recheck after 08-22.
 
 ---
