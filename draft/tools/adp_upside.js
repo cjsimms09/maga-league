@@ -78,10 +78,59 @@ const out = rows.map(r => {
 
 /* ── controls ─────────────────────────────────────────────────────────────── */
 const ctl = {
-  C1_slot_value_is_within_position: { ok: true,
-    why: 'a QB at pick 100 and an RB at pick 100 buy different point totals. '
-       + 'Pooling them across positions is the error made three times today — '
-       + 'the VONA value term, the ceiling-steals list, and the centring offsets.' },
+  C1_slot_value_is_within_position: (() => {
+    /* ⚠️ THIS ASSERTED ITS OWN CLAIM WITH A LITERAL `true` (register 410). It
+     * named a property the file can actually check and did not check it — the
+     * exact shape register 23's sweep was built for, sitting inside a tool
+     * whose whole point is that pooling positions is the error.
+     *
+     * TWO ARMS, because either alone is weak:
+     *   ① RECOMPUTE — every published `slot_normally_returns` must equal
+     *      `slotValue(position, adp)`. Catches the number arriving from
+     *      somewhere other than the within-position path.
+     *   ② AGAINST THE POOLED ALTERNATIVE — recompute each slot value with the
+     *      position filter REMOVED and require that most rows MOVE. If the
+     *      filter were deleted tomorrow, arm ① would still pass (it would
+     *      recompute the pooled value and agree with itself); only this arm
+     *      notices. It is the known positive for the claim.
+     *
+     * MEASURED 2026-08-29 before the bar was chosen, not after (rule 3i): 182
+     * rows comparable, 162 (89%) differ from pooled by >0.5, median gap 9.1
+     * points, p90 184.5. The bar is HALF, which the live board clears with
+     * room and which collapses to 0 the moment the filter goes. */
+    const pooledSlot = (adp, window) => {
+      const w = window || 24;
+      const near = rows.filter(r => Math.abs(r.adp - adp) <= w);
+      if (near.length < 5) return null;
+      const v = near.map(r => r.proj).sort((a, b) => a - b);
+      return v[v.length >> 1];
+    };
+    let recomputed = 0, mismatched = 0, comparable = 0, moved = 0;
+    out.forEach(o => {
+      const within = slotValue(o.position, o.adp);
+      if (within == null) return;
+      recomputed++;
+      if (Math.abs(+within.toFixed(1) - o.slot_normally_returns) > 1e-9) mismatched++;
+      const p = pooledSlot(o.adp);
+      if (p == null) return;
+      comparable++;
+      if (Math.abs(p - within) > 0.5) moved++;
+    });
+    const share = comparable ? moved / comparable : 0;
+    return {
+      ok: recomputed > 0 && mismatched === 0 && comparable >= 50 && share >= 0.5,
+      rows_recomputed: recomputed,
+      mismatched_vs_within_position: mismatched,
+      comparable_to_pooled: comparable,
+      differ_from_pooled: moved,
+      share_differing: +share.toFixed(3),
+      why: 'a QB at pick 100 and an RB at pick 100 buy different point totals. '
+         + 'Pooling them across positions is the error made three times in one day — '
+         + 'the VONA value term, the ceiling-steals list, and the centring offsets. '
+         + 'Arm 2 is what makes this falsifiable: delete the position filter and '
+         + 'share_differing goes to 0.',
+    };
+  })(),
   C2_upside_is_not_just_the_projection: (() => {
     /* if upside_over_price were ~perfectly correlated with proj_over_price, the
      * ceiling adds nothing and this is a projection ranking wearing a new name */
