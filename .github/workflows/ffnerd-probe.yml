@@ -1,0 +1,64 @@
+name: FantasyNerds census — what does Cory's key unlock?
+
+# Cory added FFNERD_API_KEY 2026-08-26 (CORY-ASKS A16). The ffanalytics
+# package's FFNerd scrape is an EMPTY STUB (source_scrapes.R:1426 prints "not
+# implemeted yet"), so the nightly ffanalytics probe can never consume this
+# key — this census hits fantasynerds.com's own REST API directly instead.
+# His standing order the same day: "Make sure we are looking at free sources
+# for props. If we need more info than they give you need to let me know,
+# don't ignore!" — so the battery includes `odds`, and a gap gets committed
+# by name rather than swallowed.
+#
+# COSTS NOTHING — FantasyNerds keys are flat-tier, GET-only; no credit pool.
+# The probe exits nonzero unless >=1 endpoint returns >=50 named players
+# (rule 3e: a census that has never returned a positive is only scheduled).
+# Dispatch-only until the census says a weekly capture is worth a cron.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  census:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run the census
+        env:
+          FFNERD_API_KEY: ${{ secrets.FFNERD_API_KEY }}
+        run: |
+          set -uo pipefail
+          # bash -e is injected by Actions and a bare `cmd; code=$?` dies on
+          # cmd's nonzero exit BEFORE code is read — the exact bug
+          # draft-night-sync.yml documented on 08-15. The `if` form is exempt.
+          if python3 draft/tools/ffnerd_probe.py; then code=0; else code=$?; fi
+          # 2 = key missing (a secret problem, fail loud); 1 = census wrote
+          # but no endpoint carried players (commit THAT too — a measured
+          # "unlocks nothing" is a finding; the exit code stays red so the
+          # run cannot read as a healthy capture).
+          if [ "$code" -eq 2 ]; then exit 2; fi
+          echo "PROBE_EXIT=$code" >> "$GITHUB_ENV"
+      - name: Commit the census
+        run: |
+          set -euo pipefail
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          if [ ! -f draft/data/ffnerd_census.json ]; then
+            echo "no census written — nothing to commit"
+            exit 0
+          fi
+          git add draft/data/ffnerd_census.json
+          if git diff --cached --quiet; then
+            echo "census unchanged — nothing to commit"
+          else
+            git commit -m "FantasyNerds census [skip deploy]" \
+              -m "What the FFNERD_API_KEY tier serves, per endpoint. Automated via ffnerd-probe.yml."
+            git push
+          fi
+          if [ "${PROBE_EXIT:-0}" -ne 0 ]; then
+            echo "::error::census committed but NO endpoint returned >=50 named players — the key may unlock nothing at this tier; read draft/data/ffnerd_census.json"
+            exit 1
+          fi

@@ -157,6 +157,17 @@ def run_once(mod, store):
 def classify(mod):
     a = run_once(mod, REAL)
     b = run_once(mod, PLAYED)
+    # DETERMINISM FIRST, and this control exists because its absence put a
+    # false positive in register 345. `exp_inverse_adjuster` was flagged
+    # SENSITIVE by this tool and was not contaminated at all -- it was
+    # NONDETERMINISTIC, and a study that disagrees with ITSELF reads exactly
+    # like a study that disagrees across two stores. A (register 420) found
+    # that; this tool could not have, because it never ran anything twice
+    # against the same store. Only flagged modules pay the extra run.
+    if (a["rc"] != b["rc"] or a["out"] != b["out"] or a["files"] != b["files"]):
+        c = run_once(mod, REAL)
+        if c["rc"] != a["rc"] or c["out"] != a["out"] or c["files"] != a["files"]:
+            return "NOT-REPRODUCIBLE", a, b
     if a["rc"] == "TIMEOUT" or b["rc"] == "TIMEOUT":
         return "TIMEOUT", a, b
     if a["rc"] != 0 and b["rc"] != 0:
@@ -193,7 +204,7 @@ if __name__ == "__main__":
     POSITIVE = ("draft/tools/_lh_ctl_weeks.py" if WEEKS_MODE
                 else "draft/tools/_lh_ctl_positive.py")
     CTL = [POSITIVE, "draft/tools/_lh_ctl_negative.py",
-           "draft/tools/_lh_ctl_artifact.py"]
+           "draft/tools/_lh_ctl_artifact.py", "draft/tools/_lh_ctl_random.py"]
     if any("/tests/" in m for m in mods):
         CTL.append("draft/tools/_lh_ctl_pytest_probe.py")
     mods = CTL + [m for m in mods if m not in CTL]
@@ -219,6 +230,13 @@ if __name__ == "__main__":
         if pyt != "SENSITIVE":
             print("*** PYTEST CONTROL FAILED -- this run is void.")
             sys.exit(2)
+    rnd = results.get("draft/tools/_lh_ctl_random.py", {}).get("verdict")
+    print(f"DETERMINISM CONTROL: random probe={rnd} (want NOT-REPRODUCIBLE), "
+          f"steady probe={neg} (want insensitive)")
+    if rnd != "NOT-REPRODUCIBLE":
+        print("*** DETERMINISM CONTROL FAILED -- a self-disagreeing study would "
+              "still be reported as contaminated (register 345's own false positive).")
+        sys.exit(2)
     print(f"\nCONTROLS: stdout-positive={pos} (want SENSITIVE)  negative={neg} "
           f"(want insensitive)  artifact-positive={art} (want SENSITIVE)")
     if pos != "SENSITIVE" or neg != "insensitive" or art != "SENSITIVE":
