@@ -35,6 +35,14 @@ const fs = require('fs');
 const path = require('path');
 const ROOT = path.join(__dirname, '..', '..');
 const PB = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'position_boards.json'), 'utf8'));
+/* The live board's own stamp, so C4_freshness has something to compare against
+ * instead of printing one timestamp and passing (register 411). */
+const LIVE_BOARD_BUILT_AT = (() => {
+  try {
+    return JSON.parse(fs.readFileSync(
+      path.join(ROOT, 'public', 'draft_data.json'), 'utf8')).built_at || null;
+  } catch (e) { return null; }
+})();
 if (!PB.controls_all_passed) throw new Error('position_boards failed its controls — REFUSING');
 
 const POS = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
@@ -212,8 +220,22 @@ const ctl = {
   C3_no_cross_position_ranking: { ok: true,
     why: 'VONA is not comparable across positions (P196). The page shows each '
        + 'position on its own row and never sorts them against each other.' },
+  /* ⛔ WAS `ok: true`: it PRINTED the timestamp and passed regardless, so the
+   * staleness it is named for could not fire. It compares now — `position_boards`
+   * copies the board's `built_at`, so a mismatch means it was not regenerated
+   * after the last board rebuild, which is the failure this control exists for.
+   * ⚠️ WHAT IT STILL CANNOT SEE, stated rather than implied: whether the artifact
+   * was built before or after the board's POST-PROCESSING (the Draft Sharks
+   * attach, eight minutes later on the 08-26 board) — that needs the artifact to
+   * carry its own generation time, added to position_boards.js in the same
+   * commit and readable from the next rebuild onward. Register 411. */
   C4_freshness: {
-    ok: true, position_boards_built_at: PB.built_at, adjuster: PB.adjuster_a,
+    ok: !!PB.built_at && !!LIVE_BOARD_BUILT_AT && PB.built_at === LIVE_BOARD_BUILT_AT,
+    position_boards_built_at: PB.built_at,
+    live_board_built_at: LIVE_BOARD_BUILT_AT,
+    position_boards_generated_at: PB.generated_at || '(not stamped — pre-register-411 artifact)',
+    board_post_processed_at: PB.board_post_processed_at || '(not stamped)',
+    adjuster: PB.adjuster_a,
     why: 'the artifact this renders was STALE (08:52Z, pre-Draft-Sharks, '
        + 'adjuster 0) and read by nothing. Regenerated before this page was '
        + 'built; the timestamp is printed on the page so a stale render is '

@@ -1,7 +1,7 @@
 {
  "_territory": "TERRITORY: A — draft/tools/vacuous_verdict_sweep.js",
  "_answers": "register 23 (the verdict half), given a durable form per register 406",
- "_generated_at": "2026-08-28T23:57:41.107Z",
+ "_generated_at": "2026-08-29T00:00:46.139Z",
  "_caveat": "the claim/disclosure split is a heuristic on the entry's own text",
  "scanned": 702,
  "claims": [
@@ -142,14 +142,6 @@
    "why": "a player with no Draft Sharks line is EXCLUDED, never back-filled with our proj_mean — mixing two sources inside one VONA is the defect this model removes"
   },
   {
-   "file": "draft/tools/simple_model.js",
-   "kind": "named_control",
-   "name": "C3_band_order_valid",
-   "verdict": "literal true",
-   "klass": "claim",
-   "why": null
-  },
-  {
    "file": "draft/tools/source_boards.js",
    "kind": "named_control",
    "name": "C4_coverage_reported_not_assumed",
@@ -180,14 +172,6 @@
    "verdict": "literal true",
    "klass": "claim",
    "why": "VONA is not comparable across positions (P196). The page shows each "
-  },
-  {
-   "file": "draft/tools/strike_page.js",
-   "kind": "named_control",
-   "name": "C4_freshness",
-   "verdict": "literal true",
-   "klass": "claim",
-   "why": "the artifact this renders was STALE (08:52Z, pre-Draft-Sharks, "
   },
   {
    "file": "draft/tools/vona_upside_plan.js",
