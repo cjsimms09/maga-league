@@ -35568,7 +35568,7 @@
      "position": "TE"
     },
     "13408": {
-     "depth_chart_order": 4,
+     "depth_chart_order": 3,
      "team": "JAX",
      "years_exp": 0,
      "adp": 415.0,
@@ -36065,7 +36065,6 @@
      "position": "TE"
     },
     "11820": {
-     "depth_chart_order": 3,
      "team": "TB",
      "years_exp": 2,
      "adp": 545.0,
@@ -36079,7 +36078,7 @@
      "position": "WR"
     },
     "10212": {
-     "depth_chart_order": 5,
+     "depth_chart_order": 4,
      "team": "GB",
      "years_exp": 3,
      "adp": 557.0,
@@ -36195,7 +36194,7 @@
      "position": "TE"
     },
     "8484": {
-     "depth_chart_order": 4,
+     "depth_chart_order": 5,
      "team": "TB",
      "years_exp": 4,
      "adp": 605.0,
@@ -36209,7 +36208,7 @@
      "position": "TE"
     },
     "8041": {
-     "team": "BUF",
+     "team": "FA",
      "years_exp": 5,
      "adp": 607.0,
      "position": "TE"
@@ -36295,13 +36294,13 @@
      "position": "TE"
     },
     "13321": {
-     "team": "LAR",
+     "team": "FA",
      "years_exp": 0,
      "adp": 914.0,
      "position": "TE"
     },
     "14055": {
-     "team": "HOU",
+     "team": "FA",
      "years_exp": 0,
      "adp": 914.0,
      "position": "TE"
@@ -36320,7 +36319,7 @@
      "position": "TE"
     },
     "13810": {
-     "team": "LAR",
+     "team": "FA",
      "years_exp": 0,
      "adp": 914.0,
      "position": "TE"
@@ -36375,7 +36374,7 @@
      "position": "TE"
     },
     "13308": {
-     "depth_chart_order": 5,
+     "depth_chart_order": 4,
      "team": "TB",
      "years_exp": 0,
      "adp": 914.0,
@@ -36413,7 +36412,7 @@
      "position": "TE"
     },
     "13913": {
-     "team": "LV",
+     "team": "FA",
      "years_exp": 0,
      "adp": 914.0,
      "position": "TE"
@@ -36689,7 +36688,6 @@
      "position": "WR"
     },
     "13316": {
-     "depth_chart_order": 6,
      "team": "TB",
      "years_exp": 0,
      "adp": 435.0,
@@ -36805,7 +36803,7 @@
     },
     "13403": {
      "depth_chart_order": 4,
-     "team": "NE",
+     "team": "FA",
      "years_exp": 0,
      "adp": 465.0,
      "position": "RB"
@@ -36945,7 +36943,7 @@
      "position": "RB"
     },
     "11510": {
-     "depth_chart_order": 4,
+     "depth_chart_order": 5,
      "team": "DAL",
      "years_exp": 3,
      "adp": 526.0,
@@ -36979,7 +36977,7 @@
      "position": "WR"
     },
     "12860": {
-     "team": "MIA",
+     "team": "FA",
      "years_exp": 1,
      "adp": 520.0,
      "position": "WR"
@@ -36993,7 +36991,7 @@
      "position": "RB"
     },
     "12738": {
-     "depth_chart_order": 5,
+     "depth_chart_order": 6,
      "team": "DAL",
      "years_exp": 1,
      "adp": 536.0,
@@ -37014,7 +37012,7 @@
      "position": "WR"
     },
     "4992": {
-     "team": "BUF",
+     "team": "FA",
      "years_exp": 8,
      "adp": 533.0,
      "position": "WR"
@@ -37208,7 +37206,7 @@
     },
     "6659": {
      "depth_chart_order": 5,
-     "team": "WAS",
+     "team": "FA",
      "years_exp": 7,
      "adp": 584.0,
      "position": "RB"
@@ -37320,7 +37318,7 @@
      "position": "WR"
     },
     "3269": {
-     "team": "BAL",
+     "team": "FA",
      "years_exp": 10,
      "adp": 591.0,
      "position": "WR"
@@ -37333,7 +37331,7 @@
      "position": "WR"
     },
     "12515": {
-     "team": "MIA",
+     "team": "FA",
      "years_exp": 1,
      "adp": 602.0,
      "position": "RB"
@@ -37519,7 +37517,7 @@
      "position": "RB"
     },
     "13844": {
-     "team": "MIA",
+     "team": "FA",
      "years_exp": 0,
      "adp": 914.0,
      "position": "RB"
@@ -37660,7 +37658,7 @@
      "position": "WR"
     },
     "13973": {
-     "team": "ATL",
+     "team": "FA",
      "years_exp": 0,
      "adp": 914.0,
      "position": "WR"
@@ -37939,7 +37937,7 @@
      "position": "WR"
     },
     "13708": {
-     "team": "NYG",
+     "team": "FA",
      "years_exp": 0,
      "adp": 914.0,
      "position": "WR"
@@ -38246,7 +38244,7 @@
     },
     "4464": {
      "depth_chart_order": 3,
-     "team": "JAX",
+     "team": "FA",
      "years_exp": 9,
      "adp": 489.0,
      "position": "QB"
@@ -38289,7 +38287,7 @@
     },
     "260": {
      "depth_chart_order": 3,
-     "team": "CIN",
+     "team": "FA",
      "years_exp": 18,
      "adp": 500.0,
      "position": "QB"
@@ -38334,13 +38332,13 @@
      "position": "QB"
     },
     "13802": {
-     "team": "LV",
+     "team": "FA",
      "years_exp": 0,
      "adp": 914.0,
      "position": "QB"
     },
     "13428": {
-     "team": "JAX",
+     "team": "FA",
      "years_exp": 0,
      "adp": 914.0,
      "position": "QB"
