@@ -1800,8 +1800,30 @@ def _update_proj_series(artifact: dict, *, today: str, path: Path = PROJ_SERIES_
     """Freeze today's Sleeper PRESEASON projection (the board's proj_baseline) into the dated,
     append-only snapshot archive. proj_baseline is the consensus projection converted to our
     scoring BEFORE any opportunity adjustment — the honest 'what the source projected preseason'.
-    Deduped by (date, source). Non-fatal by contract."""
-    players = artifact.get("players", [])
+    Deduped by (date, source). Non-fatal by contract.
+
+    ⚠️ KEPT PLAYERS ARE PART OF THE POPULATION, AND THEY WERE MISSING FOR TEN
+    DAYS (D, 2026-08-31, register 444). This read
+    `artifact["players"]` alone, and the keeper lock MOVES a player out of that
+    list into `kept_players`. So from the lock on 2026-08-22 this archive
+    carried no projection row -- and no situation and no distribution -- for any
+    of the twenty-three best players in the league: Bijan Robinson, Ja'Marr
+    Chase, Puka Nacua, Saquon Barkley, Josh Allen, Jonathan Taylor and the rest
+    of them. Measured: 0 of 23 keepers present in every snapshot from 08-22
+    onward, and the twenty ids that vanish on the lock date are exactly twenty
+    kept players.
+
+    That is register 80's named bug -- a join walking `players` and silently
+    missing keepers -- landing in the one file where the loss cannot be undone.
+    This archive exists to make the January 2027 source grade possible, and its
+    own note says a retroactive fetch leaks (exp33): a day not captured is not
+    late, it is gone. Nothing reported it, because the completeness check beside
+    it asks whether a row was WRITTEN, not what is inside it.
+
+    Both pools, therefore. The keepers already carry `proj_baseline` (23 of 23)
+    and `proj_fantasypros` (22 of 23) on the artifact -- the numbers were always
+    there, this function just was not looking at them."""
+    players = artifact.get("players", []) + artifact.get("kept_players", [])
     proj_by_id = {str(p["player_id"]): p["proj_baseline"]
                   for p in players if p.get("proj_baseline") is not None}
     if not proj_by_id:
