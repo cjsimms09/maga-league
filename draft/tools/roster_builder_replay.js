@@ -599,10 +599,71 @@ const ctl = {
     why: 'the grader is handed the owner\'s own roster (and a shuffled copy) and '
        + 'must return the same total. A harness that cannot reproduce a roster it '
        + 'was given is reporting differences it invented.' },
-  C2_no_hindsight_in_the_choice: { ok: true,
-    why: 'buildSeat receives the draft and the roster state only. Actual points '
-       + 'are not in scope at pick time — enforced by the function signature, '
-       + 'not by discipline.' },
+  C2_no_hindsight_in_the_choice: (() => {
+    /* ⚠️ THIS ASSERTED ITS OWN CLAIM WITH A LITERAL `true` (register 410), and
+     * of the vacuous ones it was the most load-bearing: every delta this file
+     * reports is worthless if the builder can see the season it is being
+     * graded on. "Enforced by the function signature, not by discipline" is an
+     * argument about the code, and an argument is not a measurement.
+     *
+     * THE MEASUREMENT: rebuild every seat against a season whose realized
+     * weekly points have been SCRAMBLED — same shape, same ids, values
+     * permuted — and require the chosen roster to come back IDENTICAL. A
+     * builder that peeks at outcomes cannot survive that; one that never
+     * reads them cannot notice it happened.
+     *
+     * Scrambled rather than deleted on purpose: removing `weeks` would also
+     * fail for benign reasons (any incidental touch of the key), and then the
+     * control would be testing access instead of DEPENDENCE, which is the
+     * thing actually claimed. */
+    const scrambleSeason = (season) => {
+      const copy = JSON.parse(JSON.stringify(season));
+      Object.keys(copy.weeks || {}).forEach(wn => {
+        const arr = copy.weeks[wn];
+        if (!Array.isArray(arr)) return;
+        arr.forEach(m => {
+          const pts = m.players_points || {};
+          const ids = Object.keys(pts).sort();
+          /* deterministic permutation: values reversed against sorted ids, so
+           * the scramble is reproducible and every value still appears once */
+          const vals = ids.map(id => pts[id]).reverse();
+          ids.forEach((id, i) => { pts[id] = vals[i]; });
+        });
+      });
+      return copy;
+    };
+    let checked = 0, changed = 0;
+    const movers = [];
+    Object.values(H.seasons).forEach(season => {
+      if (!season.weeks || !(season.drafts || []).length) return;
+      if (!isCompleteSeason(season)) return;
+      const draft = (season.drafts || []).find(d => (d.picks || []).length >= 100);
+      if (!draft) return;
+      const fake = scrambleSeason(season);
+      [...new Set((draft.picks || []).map(p => p.roster_id))].sort((a, b) => a - b)
+        .forEach(seatId => {
+          if (ownerRoster(draft, seatId).length < 10) return;
+          const real = buildSeat(season, draft, seatId, true);
+          const scrambled = buildSeat(fake, draft, seatId, true);
+          checked++;
+          if (JSON.stringify(real) !== JSON.stringify(scrambled)) {
+            changed++;
+            if (movers.length < 5) movers.push(`${season.season}/${seatId}`);
+          }
+        });
+    });
+    return {
+      ok: checked > 0 && changed === 0,
+      seats_rebuilt_against_scrambled_points: checked,
+      seats_whose_choice_moved: changed,
+      movers: movers,
+      why: 'buildSeat receives the draft and the roster state only. Actual points '
+         + 'are not in scope at pick time — and this is now the MEASUREMENT of '
+         + 'that, not the assertion of it: scramble the season\'s realized points '
+         + 'and every chosen roster comes back byte-identical. A builder that '
+         + 'peeked would move.',
+    };
+  })(),
   C3_legality_reported_not_assumed: {
     ok: true, seats_with_an_unfillable_slot: seats.filter(s => s.unfillable.length).length,
     detail: seats.filter(s => s.unfillable.length).map(s => `${s.season}/${s.seat}: ${s.unfillable.join(',')}`),

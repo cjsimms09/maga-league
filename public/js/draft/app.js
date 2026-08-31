@@ -1349,7 +1349,7 @@
     },
     recommendations: {
       what: 'The engine\'s ranked list for THIS pick: every candidate\'s composite '
-        + 'score is a weighted sum of the seven adjuster terms, scored on your roster '
+        + 'score is a weighted sum of the eight adjuster terms, scored on your roster '
         + 'and what the room has already taken.',
       read: 'Take the top name unless the verdict above says SPLIT or TOSS-UP — those '
         + 'mean the ranking alone cannot settle it. A gap under 2 composite points '

@@ -65,14 +65,51 @@ HISTORY_REL = "draft/data/league_history.json"
 from season_completeness import is_complete_season  # noqa: E402
 
 
-def strip_incomplete(history: dict) -> tuple[dict, list]:
-    """Return (history without incomplete seasons, the seasons removed)."""
+def _week_was_played(entries) -> bool:
+    return any(float((e or {}).get("points") or 0) > 0 for e in (entries or []))
+
+
+def strip_incomplete(history: dict, mode: str = "weeks") -> tuple[dict, list]:
+    """Return (history with the unplayed data removed, what was removed).
+
+    ── TWO MODES, AND `weeks` IS THE DEFAULT (register 423) ────────────────
+
+    `whole` drops every incomplete SEASON. That was this tool's only mode and
+    it CONFLATES TWO CAUSES — the distinction is D's, from
+    `league_history_contamination_sweep.py`, and it is better than mine: the
+    2026 season carries a REAL COMPLETED DRAFT *and* 180 zero owner-weeks, so
+    dropping the season also removes a legitimate draft record. A study that
+    reads only picks then "changes" for a reason that is entirely the
+    counterfactual's fault, and I papered over that with a hand-declared
+    per-entry exemption (register 420, `opponent_profiles`).
+
+    `weeks` keeps the season and removes only the weeks nobody has played. The
+    zeros — the thing that actually contaminates a mean — are gone; the draft
+    record survives. A picks-only study comes back CLEAN with no declaration
+    at all, which is the exemption made STRUCTURAL instead of asserted.
+
+    `whole` stays available because it is the stronger counterfactual: it
+    answers "does this season reach the number AT ALL", which is the right
+    question when the suspicion is about the draft record rather than the
+    points.
+    """
     out = json.loads(json.dumps(history))
-    kept, dropped = [], []
+    if mode == "whole":
+        kept, dropped = [], []
+        for s in out.get("seasons", []):
+            (kept if is_complete_season(s) else dropped).append(s)
+        out["seasons"] = kept
+        return out, [s.get("season") for s in dropped]
+
+    removed = []
     for s in out.get("seasons", []):
-        (kept if is_complete_season(s) else dropped).append(s)
-    out["seasons"] = kept
-    return out, [s.get("season") for s in dropped]
+        weeks = s.get("weeks") or {}
+        gone = [w for w, entries in weeks.items() if not _week_was_played(entries)]
+        for w in gone:
+            del weeks[w]
+        if gone:
+            removed.append(f"{s.get('season')}:{len(gone)}wk")
+    return out, removed
 
 
 def reads_history(entry: dict) -> bool:
@@ -197,10 +234,27 @@ def self_test() -> int:
     ck("  and a season with EVERY week scored IS complete, so the predicate is "
        "not simply always-false", is_complete_season(all_scored))
 
-    small, dropped = strip_incomplete(history)
-    ck("C2 stripping removes exactly the incomplete seasons and keeps the rest",
+    small, dropped = strip_incomplete(history, "whole")
+    ck("C2 WHOLE mode removes exactly the incomplete seasons and keeps the rest",
        dropped == ["2026"] and len(small["seasons"]) == len(history["seasons"]) - 1,
        (dropped, len(small["seasons"])))
+
+    #: C2b — the mode this tool now DEFAULTS to (register 423). The season
+    #: survives, carrying its real draft; only the unplayed weeks go.
+    wk, wdrop = strip_incomplete(history, "weeks")
+    wseasons = {x["season"]: x for x in wk["seasons"]}
+    ck("C2b WEEKS mode keeps EVERY season — the 2026 draft record survives",
+       len(wk["seasons"]) == len(history["seasons"]) and "2026" in wseasons,
+       [x["season"] for x in wk["seasons"]])
+    ck("  and strips 2026's unplayed weeks to nothing while 2025 keeps all 18",
+       len(wseasons["2026"].get("weeks") or {}) == 0
+       and len(wseasons["2025"].get("weeks") or {}) == 18,
+       (len(wseasons["2026"].get("weeks") or {}),
+        len(wseasons["2025"].get("weeks") or {}), wdrop))
+    ck("  and the DRAFT is untouched, which is the whole reason for this mode",
+       len(((wseasons["2026"].get("drafts") or [{}])[0]).get("picks") or [])
+       == len((([x for x in history["seasons"] if x["season"] == "2026"][0]
+                .get("drafts") or [{}])[0]).get("picks") or []))
 
     #: C3 END-TO-END KNOWN POSITIVE: a command that reads the history and
     #: reports its season count must see a DIFFERENT number in the two
@@ -208,7 +262,7 @@ def self_test() -> int:
     #: comparison all work -- proven, not assumed.
     real, stripped_sb = Sandbox(), Sandbox()
     try:
-        _seed_stripped(stripped_sb, small)
+        _seed_stripped(stripped_sb, wk)
         counter = {"regenerate_command": [
             sys.executable, "-c",
             "import json;print(json.dumps({'n': len(json.load(open('"
@@ -216,8 +270,26 @@ def self_test() -> int:
         a = regenerate(counter, cwd=real.path())
         b = regenerate(counter, cwd=stripped_sb.path())
         ck("C3 KNOWN POSITIVE end-to-end — a probe that counts seasons sees 4 "
-           "in the real sandbox and 3 in the stripped one",
-           a == {"n": 4} and b == {"n": 3}, (a, b))
+           "in the real sandbox and 4 in the WEEKS-stripped one, because the "
+           "season survives; only its unplayed weeks are gone",
+           a == {"n": 4} and b == {"n": 4}, (a, b))
+
+        #: C3b THE KNOWN POSITIVE FOR THE NEW DEFAULT. C3 above now asserts the
+        #: season count is UNCHANGED, which is the point of weeks mode but is a
+        #: negative — on its own it cannot tell "the strip worked and seasons
+        #: survive" from "the strip did nothing". A probe counting WEEKS must
+        #: move: 4x18 = 72 real, 54 with 2026's unplayed 18 gone.
+        weekcount = {"regenerate_command": [
+            sys.executable, "-c",
+            "import json;h=json.load(open('" + HISTORY_REL + "'));"
+            "print(json.dumps({'w': sum(len(s.get('weeks') or {}) "
+            "for s in h['seasons'])}))"]}
+        wa = regenerate(weekcount, cwd=real.path())
+        wb = regenerate(weekcount, cwd=stripped_sb.path())
+        ck("C3b KNOWN POSITIVE for WEEKS mode — a probe counting weeks sees 72 "
+           "in the real sandbox and 54 in the stripped one, so the strip did "
+           "something even though the season count did not move",
+           wa == {"w": 72} and wb == {"w": 54}, (wa, wb))
 
         blind = {"regenerate_command": [sys.executable, "-c",
                                         "import json;print(json.dumps({'n': 1}))"]}
@@ -267,12 +339,17 @@ def main(argv=None) -> int:
     ap.add_argument("--json", dest="out")
     ap.add_argument("--id", action="append", dest="ids", default=None)
     ap.add_argument("--self-test", action="store_true")
+    ap.add_argument("--mode", choices=("weeks", "whole"), default="weeks",
+                    help="weeks (default): keep the season, drop only unplayed "
+                         "weeks. whole: drop the incomplete season entirely — the "
+                         "stronger counterfactual, but it also removes a real "
+                         "draft record (register 423).")
     args = ap.parse_args(argv)
     if args.self_test:
         return self_test()
 
     history = json.loads((ROOT / HISTORY_REL).read_text())
-    small, dropped = strip_incomplete(history)
+    small, dropped = strip_incomplete(history, args.mode)
     if not dropped:
         print("Every season in league_history.json is COMPLETE — there is no "
               "ungraded season to leak, and this tool has nothing to measure "
@@ -286,7 +363,7 @@ def main(argv=None) -> int:
 
     print("UNGRADED-SEASON LEAK — which committed numbers move when a season "
           "nobody has played is removed?\n")
-    print(f"  incomplete season(s) stripped: {', '.join(map(str, dropped))}")
+    print(f"  mode: {args.mode}  ·  stripped: {', '.join(map(str, dropped))}")
     print(f"  {len(entries)} registry entries; only those whose owner_module reads "
           "league_history are RUN\n")
 

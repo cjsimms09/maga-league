@@ -49,6 +49,29 @@ const ROSTER = [
 ];
 const CURRENT = ROSTER.filter(r => r.starter).map(r => r.id);
 
+/* ⚠️ WHAT THIS PROBE IS, AND WHAT IT IS NOT — added 2026-08-27 by E after I
+ * misused my own tool. This file imports `lineup.js` (the optimizer) and
+ * RE-IMPLEMENTS member.js's opponent-score choice locally, a few lines below.
+ * So it demonstrates the CONSEQUENCE of feeding a partial score into pWin —
+ * it is blind to whether the shipped code actually feeds one. It prints the
+ * identical table on fixed and on broken code, and on 2026-08-27 I ran it
+ * against a FIXED `main` and reported the unchanged output as though it were
+ * evidence the defect was still live. It was not. The two checks that WERE
+ * decisive were reading the literal line in member.js and `git log -S` showing
+ * it had never been removed on main.
+ *
+ * So the live-state check now runs HERE, reading the shipped source, and the
+ * probe says out loud which of the two things it is reporting. */
+function liveState() {
+  const fs = require('fs');
+  const src = fs.readFileSync(path.join(__dirname, '..', '..', 'src', 'routes', 'member.js'), 'utf8');
+  /* The defect: oppMean taking the live accumulated matchup.opp.points. */
+  const substitutes = /oppMean\s*=\s*matchup\.opp\.points/.test(src);
+  return { substitutes, evidence: substitutes
+    ? 'member.js assigns oppMean = matchup.opp.points — the partial IS substituted'
+    : 'member.js contains no `oppMean = matchup.opp.points` — the partial is NOT substituted' };
+}
+
 const ARC = [
   ['pre-kickoff — points 0, the fallback fires', 0],
   ['one early game finished', 15],
@@ -58,6 +81,14 @@ const ARC = [
 ];
 
 function run() {
+  const ls = liveState();
+  console.log('\n  LIVE STATE OF THE SHIPPED CODE (read from src/routes/member.js, not simulated)');
+  console.log('  ' + ls.evidence);
+  console.log('  ' + (ls.substitutes
+    ? '=> the arc below is what the page IS DOING today.'
+    : '=> the arc below is the MECHANISM ONLY — a demonstration of what would happen\n     if the partial were fed in. It is NOT evidence about the current code.'));
+  console.log('');
+
   const fails = [];
   const pad = (x, n) => { x = String(x); return x + ' '.repeat(Math.max(0, n - x.length)); };
   const ok = (n, c, d) => { console.log('  ' + n + ' ' + pad(d, 62) + (c ? 'OK' : '*** FAILED ***')); if (!c) fails.push(n); };

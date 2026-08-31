@@ -114,22 +114,50 @@ function selfTest() {
   const ck = (n, ok, d) => { ok ? (pass++, console.log('PASS  ' + n))
     : (fail++, console.log('FAIL  ' + n + (d !== undefined ? '\n        ' + JSON.stringify(d).slice(0, 300) : ''))); };
 
-  /* KNOWN POSITIVE — the real line out of average_draft.js, and the file is
-   * read from git rather than retyped, so the fixture cannot drift from it
-   * (register 121). */
+  /* KNOWN POSITIVE — the real line out of average_draft.js, read from git
+   * rather than retyped so the fixture cannot drift from it (register 121).
+   *
+   * ⚠️ PINNED TO A REVISION, NOT TO `HEAD`, AND THAT CHANGE IS ITSELF THE
+   * LESSON. This read `HEAD:draft/tools/average_draft.js` and looked for
+   * `C4_sources_passed_their_controls: { ok: true }`. Register 410 then FIXED
+   * that control — which is the sweep succeeding — and the known positive went
+   * empty, so the detector's only proof that it can detect anything failed
+   * BECAUSE THE DEFECT IT POINTED AT WAS REPAIRED. That is the "a control
+   * anchored to HEAD that passed once then failed forever" trap named in
+   * CLAUDE.md's rule 3f list, arriving in the tool written to enforce 3f.
+   *
+   * `8a648806` is a revision where the vacuous form provably exists (verified:
+   * the string is present there and absent at `17343daa`, the commit that
+   * removed it). A historical blob cannot be repaired out from under a
+   * fixture, so this control now holds no matter how many live claims get
+   * fixed — which is the whole point of a detector whose job is to drive its
+   * own findings to zero. Register 422. */
+  const FIXTURE_SHA = '8a648806';
   let real = null;
   try {
-    real = execFileSync('git', ['show', 'HEAD:draft/tools/average_draft.js'],
+    real = execFileSync('git', ['show', FIXTURE_SHA + ':draft/tools/average_draft.js'],
       { cwd: ROOT, encoding: 'utf8', maxBuffer: BUF });
   } catch (e) { real = null; }
   if (real === null) {
-    ck('KNOWN POSITIVE — average_draft.js could be read from git', false);
+    ck('KNOWN POSITIVE — the pinned fixture blob ' + FIXTURE_SHA + ' is reachable. '
+      + 'A shallow clone fails HERE, loudly, rather than skipping the only proof '
+      + 'this detector can detect anything', false);
   } else {
     const hits = scan(real);
     const c4 = hits.find(h => /C4_sources_passed_their_controls/.test(h.name));
     ck('KNOWN POSITIVE — the detector finds a real named control asserted true',
       !!c4, hits.map(h => h.name).slice(0, 6));
     ck('  and calls it a CLAIM, not a disclosure', !!c4 && c4.klass === 'claim', c4);
+    /* and the pin is doing work: the SAME control at HEAD must now be computed,
+     * so the fixture is genuinely historical rather than a second copy of today. */
+    let head = null;
+    try {
+      head = execFileSync('git', ['show', 'HEAD:draft/tools/average_draft.js'],
+        { cwd: ROOT, encoding: 'utf8', maxBuffer: BUF });
+    } catch (e) { head = null; }
+    ck('  and the live file has SINCE been fixed, so the pin is load-bearing '
+      + 'rather than decorative',
+      head !== null && !scan(head).some(h => /C4_sources_passed_their_controls/.test(h.name)));
   }
 
   ck('KNOWN NEGATIVE — a computed verdict is NOT flagged',

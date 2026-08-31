@@ -9,9 +9,9 @@ _(a season marked `harvest` had its realized recovered from league_history playe
 
 ## PRIMARY — rank correlation over the available pool
 
-- our ordering: mean rho 0.261 CI (0.143, 0.37)
-- market (ADP): mean rho 0.21 CI (0.137, 0.279)
-- **difference (our - market): 0.051 CI [-0.06, 0.15] -> INCONCLUSIVE** over 34 picks
+- our ordering: mean rho 0.319 CI (0.227, 0.403)
+- market (ADP): mean rho 0.184 CI (0.1, 0.26)
+- **difference (our - market): 0.135 CI [0.051, 0.223] -> BEAT** over 34 picks
 
 ## Top-N set value (realized pts, our set vs market set)
 
@@ -22,14 +22,14 @@ _(a season marked `harvest` had its realized recovered from league_history playe
 
 ### by FORGONE VALUE (primary) (projected pts given up)
 
-- value(<=0): n=18 hit=0.222 mean_delta=23.322 CI [-4.517, 53.278] inconclusive
+- value(<=0): n=17 hit=0.235 mean_delta=24.694 CI [-1.235, 55.382] inconclusive
 - near-zero: n=2 hit=1.0 mean_delta=40.35 CI [38.18, 42.52] beat ⚠THIN
 - moderate: n=5 hit=0.4 mean_delta=-5.38 CI [-23.1, 15.28] inconclusive ⚠THIN
 - large: n=9 hit=0.444 mean_delta=-66.684 CI [-149.504, 5.416] inconclusive
 
 ### by ADP DISTANCE (comparison — which unit predicts better is a finding) (spots)
 
-- <5: n=26 hit=0.231 mean_delta=-13.254 CI [-49.34, 18.462] inconclusive
+- <5: n=25 hit=0.24 mean_delta=-13.784 CI [-51.132, 18.91] inconclusive
 - 5-15: n=5 hit=0.8 mean_delta=37.344 CI [-1.776, 95.16] inconclusive ⚠THIN
 - 15-30: n=1 hit=1.0 mean_delta=50.3 CI [nan, nan] inconclusive ⚠THIN
 - >30: n=3 hit=0.333 mean_delta=-7.46 CI [-77.98, 76.4] inconclusive ⚠THIN
@@ -39,13 +39,13 @@ _(a season marked `harvest` had its realized recovered from league_history playe
 - r1-3: n=4 hit=0.75 mean_delta=49.03 CI [3.55, 112.5] beat ⚠THIN
 - r4-7: n=13 hit=0.462 mean_delta=9.877 CI [-1.968, 22.3] inconclusive
 - r8-11: n=11 hit=0.273 mean_delta=10.587 CI [-30.28, 55.573] inconclusive
-- r12+: n=7 hit=0.0 mean_delta=-81.563 CI [-175.326, -2.971] lost ⚠THIN
+- r12+: n=6 hit=0.0 mean_delta=-95.157 CI [-195.697, -3.467] lost ⚠THIN
 
 ### by MARKET DISPERSION (ADP stdev)
 
 - unanimous: n=4 hit=0.75 mean_delta=21.255 CI [5.25, 37.26] beat ⚠THIN
 - mid: n=17 hit=0.235 mean_delta=-12.406 CI [-48.975, 20.798] inconclusive
-- contested: n=14 hit=0.357 mean_delta=-0.291 CI [-57.394, 46.201] inconclusive
+- contested: n=13 hit=0.385 mean_delta=-0.314 CI [-62.035, 50.138] inconclusive
 
 ### tier-cliff proximity
 

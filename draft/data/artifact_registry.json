@@ -268,7 +268,9 @@
     "-c",
     "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport projection_error as PE\ncal = PE.regenerate()\nif cal.get('status') == 'VOID':\n    print(cal.get('reason', 'VOID'), file=sys.stderr)\n    sys.exit(1)\nprint(json.dumps(PE.document(cal)))"
    ],
-   "timeout_s": 1800
+   "timeout_s": 1800,
+   "needs_network": true,
+   "needs_network_reason": "MEASURED 2026-08-29 over all 53 entries: this is the ONLY entry that ERRORs, and it fails fetching the Sleeper player index. Its own error says it \u2014 'a fact about the runner, not about any historical season'. Marked so a scheduled ERROR-only gate does not go red on the network (register 418)."
   },
   {
    "id": "expert_spread_2026",
@@ -698,9 +700,7 @@
    "regenerate_writes_artifact": true,
    "timeout_s": 300,
    "_contract_note": "registered 2026-08-29 (register 420) via regenerate_writes_artifact, to widen what ungraded_season_leak.py can speak about: this module READS league_history.json, so the 2026 unplayed season can reach its numbers (register 419). Verified by running it once before registration; a candidate that ERRORed was NOT registered.",
-   "_verified_at_registration": "STALE",
-   "incomplete_seasons_are_intended": true,
-   "incomplete_seasons_reason": "reads ONLY draft picks \u2014 zero references to players_points or weeks \u2014 so the 2026 draft (08-22, real) is evidence of how owners draft, not contamination. Its caveat derives the season list rather than claiming '3 seasons'. Register 420."
+   "_verified_at_registration": "STALE"
   },
   {
    "id": "p151_target_share_trend",

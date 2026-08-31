@@ -3,85 +3,85 @@
  "rooms": 150,
  "seed": 20260808,
  "control": {
-  "weekly_mean": 83.4,
-  "weekly_sd": 54.5
+  "weekly_mean": 71.2,
+  "weekly_sd": 50.9
  },
  "leaderboard": [
   {
    "candidate": "flat_l0.25",
-   "mean_edge": 586.83,
+   "mean_edge": 252.17,
    "ci95": [
-    530.5,
-    642.17
+    200.17,
+    305.33
    ],
-   "weekly_mean": 114.6,
-   "weekly_sd": 69.4,
+   "weekly_mean": 93.1,
+   "weekly_sd": 61.2,
    "verdict": "WINNER \u2014 install via the gates (slider change, cited)"
   },
   {
    "candidate": "late_l1.0",
-   "mean_edge": 469.67,
+   "mean_edge": 230.5,
    "ci95": [
-    413.33,
-    522.33
+    179.67,
+    282.17
    ],
-   "weekly_mean": 110.9,
-   "weekly_sd": 68.1,
+   "weekly_mean": 93.5,
+   "weekly_sd": 63.3,
    "verdict": "WINNER \u2014 install via the gates (slider change, cited)"
   },
   {
    "candidate": "early_l1.0",
-   "mean_edge": 318.5,
+   "mean_edge": 213.67,
    "ci95": [
-    267.5,
-    372.33
+    162.33,
+    269.33
    ],
-   "weekly_mean": 102.9,
-   "weekly_sd": 68.2,
+   "weekly_mean": 92.4,
+   "weekly_sd": 62.8,
    "verdict": "WINNER \u2014 install via the gates (slider change, cited)"
   },
   {
    "candidate": "flat_l0.5",
-   "mean_edge": 201.17,
+   "mean_edge": 87.5,
    "ci95": [
-    161.67,
-    244.83
+    53.0,
+    124.67
    ],
-   "weekly_mean": 97.6,
-   "weekly_sd": 68.2,
+   "weekly_mean": 83.8,
+   "weekly_sd": 60.1,
    "verdict": "WINNER \u2014 install via the gates (slider change, cited)"
   },
   {
-   "candidate": "flat_l1.0",
-   "mean_edge": 111.33,
+   "candidate": "flat_l3.0",
+   "mean_edge": 49.33,
    "ci95": [
-    77.83,
-    147.17
+    19.67,
+    77.0
    ],
-   "weekly_mean": 91.5,
-   "weekly_sd": 67.9,
+   "weekly_mean": 76.8,
+   "weekly_sd": 69.2,
    "verdict": "WINNER \u2014 install via the gates (slider change, cited)"
   },
   {
    "candidate": "flat_l2.0",
-   "mean_edge": 29.17,
+   "mean_edge": 44.5,
    "ci95": [
-    -0.67,
-    59.17
+    13.17,
+    75.5
    ],
-   "weekly_mean": 83.5,
-   "weekly_sd": 66.1,
-   "verdict": "parked: CI includes $0"
+   "weekly_mean": 78.5,
+   "weekly_sd": 62.4,
+   "verdict": "WINNER \u2014 install via the gates (slider change, cited)"
   },
   {
-   "candidate": "flat_l3.0",
-   "mean_edge": -23.0,
+   "candidate": "flat_l1.0",
+   "mean_edge": 29.83,
    "ci95": [
-    -49.83,
-    0.83
+    -0.17,
+    56.5
    ],
-   "weekly_mean": 77.2,
-   "weekly_sd": 69.1,
+   "weekly_mean": 75.4,
+   "weekly_sd": 61.5,
    "verdict": "parked: CI includes $0"
   }
  ],
