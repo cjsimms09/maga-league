@@ -142,3 +142,69 @@ def test_an_explicit_week_overrides_the_preseason_skip(monkeypatch):
     monkeypatch.setattr(M.SI, "fetch_projections", lambda season, week=None: {})
     # Reaches the fetch (and refuses on empty rows) rather than skipping at the gate.
     assert M.main() == 1
+
+
+# ── register 440: `season_type == 'regular'` is not the same as the week existing
+def _import_module():
+    import importlib
+    import sys as _sys
+    from pathlib import Path as _P
+    root = _P(__file__).resolve().parents[2]
+    if str(root) not in _sys.path:
+        _sys.path.insert(0, str(root))
+    if str(root / "draft") not in _sys.path:
+        _sys.path.insert(0, str(root / "draft"))
+    return importlib.import_module("weekly_proj_snapshot")
+
+
+def test_KNOWN_POSITIVE_a_week_whose_games_are_far_away_is_a_CLEAN_skip(monkeypatch, capsys):
+    """THE INCIDENT, from run 33324693382 on 2026-08-30: Sleeper had flipped
+    `season_type` to 'regular' eleven days before week 1's first game, so this
+    job asked for week-1 projections nobody had published, got `7627 rows, 0
+    with stats`, correctly refused to write an empty snapshot, and exited 1 —
+    and would have done so every day until kickoff.
+
+    The guard above it already says why that is wrong ("a job that is red by
+    design for a month is a job nobody reads"); it was keyed on the wrong field.
+    """
+    W = _import_module()
+    monkeypatch.setattr(W, "nfl_state", lambda: {"season": "2026", "season_type": "regular", "week": 1})
+    monkeypatch.setattr(W.sys, "argv", ["prog"])
+    monkeypatch.setenv("PROJ_SNAPSHOT_NOW", "2026-08-30T17:14:00Z")
+    monkeypatch.setenv("SEASON", "2026")
+    rc = W.main()
+    out = capsys.readouterr().out
+    assert rc == 0, out
+    assert "not live yet" in out, out
+    assert "goes red" in out, "the message must say the skip STOPS being clean"
+
+
+def test_CONTROL_inside_the_window_it_does_NOT_skip(monkeypatch, capsys):
+    """The other arm, or the fix would just be a switch that turns the job off.
+    Week 1's real Sunday is inside the window, so main() must fall through past
+    the skip and reach the provider — which is unreachable in this sandbox, so
+    it lands on a LATER, DIFFERENT refusal. That distinction is the assertion."""
+    W = _import_module()
+    monkeypatch.setattr(W, "nfl_state", lambda: {"season": "2026", "season_type": "regular", "week": 1})
+    monkeypatch.setattr(W.sys, "argv", ["prog"])
+    monkeypatch.setenv("PROJ_SNAPSHOT_NOW", "2026-09-13T12:50:00Z")
+    monkeypatch.setenv("SEASON", "2026")
+    W.main()
+    out = capsys.readouterr().out
+    assert "not live yet" not in out, out
+    assert "snapshotting week 1 of 2026" in out, out
+
+
+def test_CANNOT_SAY_never_skips(monkeypatch, capsys):
+    """A season the schedule does not cover is CANNOT SAY, and cannot-say must
+    fall through — a missing or stale schedule must never silently switch off
+    the one input with a real deadline (rule 3e)."""
+    W = _import_module()
+    monkeypatch.setattr(W, "nfl_state", lambda: {"season": "2099", "season_type": "regular", "week": 1})
+    monkeypatch.setattr(W.sys, "argv", ["prog"])
+    monkeypatch.setenv("PROJ_SNAPSHOT_NOW", "2099-01-01T00:00:00Z")
+    monkeypatch.setenv("SEASON", "2099")
+    W.main()
+    out = capsys.readouterr().out
+    assert "not live yet" not in out, out
+    assert "snapshotting week 1 of 2099" in out, out
