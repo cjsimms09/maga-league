@@ -729,6 +729,20 @@
    "timeout_s": 300,
    "_contract_note": "registered 2026-08-29 (register 420) via regenerate_writes_artifact, to widen what ungraded_season_leak.py can speak about: this module READS league_history.json, so the 2026 unplayed season can reach its numbers (register 419). Verified by running it once before registration; a candidate that ERRORed was NOT registered.",
    "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "variance_inputs",
+   "description": "Variance-portfolio measuring arm: per-class weekly CV and per-player coverage, derived from the board's player set. Goes stale on any rebuild that adds or drops a player.",
+   "owner_module": "draft/tools/variance_portfolio.py",
+   "artifact_path": "draft/data/variance_inputs_2026.json",
+   "regenerate_command": [
+    "python3",
+    "draft/tools/variance_portfolio.py"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-31 (register 86). It was NOT in this registry, so the freshness sweep has never been able to see it \u2014 while register 86 named it, by name, as one of the two artifacts that drift on every board rebuild. Its partition test was red on main. `regenerate_writes_artifact` because main() writes OUT directly rather than printing. Determinism verified before registering: two independent runs byte-identical.",
+   "_verified_at_registration": "FRESH (regenerated in the same commit)"
   }
  ],
  "_not_yet_migrated": [

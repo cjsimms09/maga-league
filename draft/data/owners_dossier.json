@@ -1,0 +1,233 @@
+{
+ "_territory": "TERRITORY: relay (build) \u2014 Expert Mandate axis 4; E owns the claims",
+ "_built": "2026-08-31T15:27:10.632160+00:00",
+ "_source": "league_history.json (2023-2026), derived never asserted",
+ "controls": {
+  "c1_cory_keepers_and_zero_team": true,
+  "c2_league_conversion_in_band": true,
+  "league_mean_conversion": 0.8733,
+  "c3_standings_join_sane": true
+ },
+ "owners": {
+  "459850070410391552": {
+   "name": "Schmelley",
+   "weeks_measured": 54,
+   "conversion": 0.863,
+   "bench_pts_lost_per_week": 17.6,
+   "zero_point_starts_per_season": 4.72,
+   "waiver_claims": 135,
+   "waiver_fail_rate": 0.585,
+   "fa_adds": 36,
+   "adds_per_week": 3.17,
+   "trades": 0,
+   "early_round_mix": {
+    "QB": 2,
+    "RB": 6,
+    "WR": 6,
+    "TE": 2
+   },
+   "first_qb_round_median": 6,
+   "first_te_round": 2,
+   "keepers_2026": 3,
+   "unknown_pos_playerweeks": 0
+  },
+  "461443264013135872": {
+   "name": "MarianSaar",
+   "weeks_measured": 54,
+   "conversion": 0.8492,
+   "bench_pts_lost_per_week": 19.86,
+   "zero_point_starts_per_season": 2.5,
+   "waiver_claims": 70,
+   "waiver_fail_rate": 0.371,
+   "fa_adds": 38,
+   "adds_per_week": 2.0,
+   "trades": 1,
+   "early_round_mix": {
+    "QB": 3,
+    "RB": 5,
+    "WR": 5,
+    "TE": 2
+   },
+   "first_qb_round_median": 4,
+   "first_te_round": 5,
+   "keepers_2026": 3,
+   "unknown_pos_playerweeks": 5
+  },
+  "434915673219526656": {
+   "name": "coryjsimms",
+   "weeks_measured": 54,
+   "conversion": 0.8621,
+   "bench_pts_lost_per_week": 17.9,
+   "zero_point_starts_per_season": 3.61,
+   "waiver_claims": 66,
+   "waiver_fail_rate": 0.439,
+   "fa_adds": 61,
+   "adds_per_week": 2.35,
+   "trades": 0,
+   "early_round_mix": {
+    "QB": 2,
+    "RB": 5,
+    "WR": 8,
+    "TE": 2
+   },
+   "first_qb_round_median": 5,
+   "first_te_round": 4,
+   "keepers_2026": 3,
+   "unknown_pos_playerweeks": 10
+  },
+  "434921916734631936": {
+   "name": "cashworth",
+   "weeks_measured": 54,
+   "conversion": 0.8782,
+   "bench_pts_lost_per_week": 14.92,
+   "zero_point_starts_per_season": 4.17,
+   "waiver_claims": 93,
+   "waiver_fail_rate": 0.495,
+   "fa_adds": 22,
+   "adds_per_week": 2.13,
+   "trades": 0,
+   "early_round_mix": {
+    "QB": 3,
+    "RB": 8,
+    "WR": 8,
+    "TE": 1
+   },
+   "first_qb_round_median": 2,
+   "first_te_round": 5,
+   "keepers_2026": 2,
+   "unknown_pos_playerweeks": 0
+  },
+  "458507445241638912": {
+   "name": "mhagen",
+   "weeks_measured": 54,
+   "conversion": 0.893,
+   "bench_pts_lost_per_week": 14.09,
+   "zero_point_starts_per_season": 4.17,
+   "waiver_claims": 43,
+   "waiver_fail_rate": 0.442,
+   "fa_adds": 50,
+   "adds_per_week": 1.72,
+   "trades": 0,
+   "early_round_mix": {
+    "QB": 1,
+    "RB": 5,
+    "WR": 7,
+    "TE": 2
+   },
+   "first_qb_round_median": 4,
+   "first_te_round": 5,
+   "keepers_2026": 3,
+   "unknown_pos_playerweeks": 0
+  },
+  "439662843298574336": {
+   "name": "B8T3S",
+   "weeks_measured": 54,
+   "conversion": 0.8808,
+   "bench_pts_lost_per_week": 14.84,
+   "zero_point_starts_per_season": 2.5,
+   "waiver_claims": 41,
+   "waiver_fail_rate": 0.341,
+   "fa_adds": 40,
+   "adds_per_week": 1.5,
+   "trades": 1,
+   "early_round_mix": {
+    "QB": 1,
+    "RB": 2,
+    "WR": 10,
+    "TE": 2
+   },
+   "first_qb_round_median": 5,
+   "first_te_round": 4,
+   "keepers_2026": 3,
+   "unknown_pos_playerweeks": 1
+  },
+  "440723317066821632": {
+   "name": "Jreis",
+   "weeks_measured": 54,
+   "conversion": 0.8996,
+   "bench_pts_lost_per_week": 11.84,
+   "zero_point_starts_per_season": 5.0,
+   "waiver_claims": 57,
+   "waiver_fail_rate": 0.491,
+   "fa_adds": 23,
+   "adds_per_week": 1.48,
+   "trades": 1,
+   "early_round_mix": {
+    "QB": 2,
+    "RB": 10,
+    "WR": 7,
+    "TE": 3
+   },
+   "first_qb_round_median": 5,
+   "first_te_round": 4,
+   "keepers_2026": 2,
+   "unknown_pos_playerweeks": 2
+  },
+  "739930057887334400": {
+   "name": "Sadbru",
+   "weeks_measured": 54,
+   "conversion": 0.876,
+   "bench_pts_lost_per_week": 14.2,
+   "zero_point_starts_per_season": 5.0,
+   "waiver_claims": 30,
+   "waiver_fail_rate": 0.367,
+   "fa_adds": 18,
+   "adds_per_week": 0.89,
+   "trades": 0,
+   "early_round_mix": {
+    "QB": 2,
+    "RB": 10,
+    "WR": 8,
+    "TE": 0
+   },
+   "first_qb_round_median": 3,
+   "first_te_round": 7,
+   "keepers_2026": 1,
+   "unknown_pos_playerweeks": 8
+  },
+  "471160336402083840": {
+   "name": "Richard2121",
+   "weeks_measured": 54,
+   "conversion": 0.8814,
+   "bench_pts_lost_per_week": 14.34,
+   "zero_point_starts_per_season": 4.72,
+   "waiver_claims": 40,
+   "waiver_fail_rate": 0.3,
+   "fa_adds": 82,
+   "adds_per_week": 2.26,
+   "trades": 0,
+   "early_round_mix": {
+    "QB": 2,
+    "RB": 4,
+    "WR": 8,
+    "TE": 1
+   },
+   "first_qb_round_median": 2,
+   "first_te_round": 5,
+   "keepers_2026": 3,
+   "unknown_pos_playerweeks": 1
+  },
+  "434921290978029568": {
+   "name": "ds7mmet",
+   "weeks_measured": 54,
+   "conversion": 0.85,
+   "bench_pts_lost_per_week": 19.67,
+   "zero_point_starts_per_season": 3.61,
+   "waiver_claims": 73,
+   "waiver_fail_rate": 0.342,
+   "fa_adds": 71,
+   "adds_per_week": 2.67,
+   "trades": 0,
+   "early_round_mix": {
+    "QB": 4,
+    "RB": 6,
+    "WR": 6,
+    "TE": 3
+   },
+   "first_qb_round_median": 3,
+   "first_te_round": 1,
+   "keepers_2026": 0,
+   "unknown_pos_playerweeks": 0
+  }
+ }
+}

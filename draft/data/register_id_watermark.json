@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 427,
+ "next_numeric_id": 434,
  "history": [
   {
    "id": 47,
@@ -1185,6 +1185,23 @@
    "claimed_at": "2026-08-29"
   },
   {
+   "id": 425,
+   "claimed_at": "2026-08-29"
+  },
+  {
+   "id": 426,
+   "claimed_at": "2026-08-29"
+  },
+  {
+   "id": 427,
+   "claimed_at": "2026-08-31"
+  },
+  {
+   "id": 428,
+   "claimed_at": "2026-08-31",
+   "note": "D: self-audit never runs a Python test; renumbered from 427 which main printed first"
+  },
+  {
    "id": "137-138",
    "claimed_at": "2026-08-20",
    "note": "A renumbered D two colliding rows (133,134) at merge; A retained 133/134, which are cited from shipped code (mlv.js), three tests and panel_spec.js."
@@ -1235,12 +1252,25 @@
    "note": "A filed 47/48 on main concurrently with the watermark's first claim of 47; A's B0 row took 49; the watermark's row renumbered to 50. Watermark now authoritative from 51."
   },
   {
-   "id": 425,
-   "claimed_at": "2026-08-29"
+   "id": 429,
+   "claimed_at": "2026-08-31"
   },
   {
-   "id": 426,
-   "claimed_at": "2026-08-29"
+   "id": 430,
+   "claimed_at": "2026-08-31",
+   "note": "A: the week-1 capture probe scores a dead rail OK, and its test was red in CI / green in every sandbox. Claimed 429; renumbered because main printed 428 and 429 first (register 186). A standalone next_register_id.js call by A also spent 428 before either row landed — the id was independently claimed on main, so nothing was lost, but the tool's own warning against running it standalone stands."
+  },
+  {
+   "id": 431,
+   "claimed_at": "2026-08-31"
+  },
+  {
+   "id": 432,
+   "claimed_at": "2026-08-31"
+  },
+  {
+   "id": 433,
+   "claimed_at": "2026-08-31"
   }
  ]
 }

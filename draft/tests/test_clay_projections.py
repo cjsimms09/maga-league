@@ -88,11 +88,40 @@ def test_coverage_matches_the_known_page_counts():
 
 
 def test_matched_to_board_floor():
+    """⚠️ THE NAME SAYS FLOOR, THE COMMENT SAID FLOOR, AND THE CODE PINNED AN
+    EQUALITY — `assert coverage["matched_to_board"] == 380` (A, 2026-08-31,
+    register 433's board-publish sweep, editing C's file; see the routed note).
+
+    `_doc()` calls `C.main()`, which rebuilds this store against the LIVE
+    `public/draft_data.json`. So the number is a property of whichever board is
+    on disk, and the nightly rebuild grades it against a FRESHLY BUILT one. An
+    equality pin therefore refuses a correct board for being NEW — and it did:
+    this test is on the acceptance gate's refusal list on every scheduled
+    rebuild since 2026-08-27, and the published board has not moved since 08-26.
+
+    What is asserted instead is what the crosswalk can actually promise without
+    knowing tonight's board: the coverage block is INTERNALLY CONSISTENT (which
+    is board-independent and catches a miscount outright), and the match RATE
+    clears a floor. Measured on the committed store 2026-08-31: 380/418 =
+    0.9091, so 0.85 leaves real room for board churn while a genuine crosswalk
+    regression — the nickname fallback breaking, a column shifting — drops the
+    rate far further than churn can.
+    """
     doc = _doc()
-    # 380/418 after the local nickname fallback (Ken Walker -> Kenneth
-    # Walker, Cameron Ward -> Cam Ward); a real regression would drop this,
-    # a genuinely improved crosswalk is free to raise it.
-    assert doc["coverage"]["matched_to_board"] == 380
+    cov = doc["coverage"]
+    matched = sum(1 for p in doc["players"].values() if p["matched_board"])
+    total = len(doc["players"])
+    assert cov["matched_to_board"] == matched, (
+        "the coverage block disagrees with the rows it summarises — a miscount, "
+        f"not board churn: {cov['matched_to_board']} vs {matched} matched rows")
+    assert cov["matched_to_board"] + cov["unmatched_total"] == total, (
+        "matched + unmatched must partition the store exactly")
+    rate = matched / total
+    assert rate >= 0.85, (
+        f"only {matched}/{total} = {rate:.4f} of Clay's rows reach a board "
+        "player. 0.9091 was measured 2026-08-31; a drop past 0.85 is a broken "
+        "crosswalk (the Ken Walker / Cam Ward nickname fallback, or a shifted "
+        "PDF column), not a rebuilt board.")
 
 
 def test_no_two_clay_rows_collide_on_the_same_board_player():

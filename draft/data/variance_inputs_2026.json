@@ -891,14 +891,6 @@
    "source_season": 2025,
    "position": "TE"
   },
-  "12507": {
-   "mean": 13.3,
-   "sd": 7.252,
-   "cv": 0.5452,
-   "n_weeks": 9,
-   "source_season": 2025,
-   "position": "RB"
-  },
   "12508": {
    "mean": 19.014,
    "sd": 11.834,
@@ -994,14 +986,6 @@
    "n_weeks": 16,
    "source_season": 2025,
    "position": "WR"
-  },
-  "12527": {
-   "mean": 12.919,
-   "sd": 8.867,
-   "cv": 0.6863,
-   "n_weeks": 16,
-   "source_season": 2025,
-   "position": "RB"
   },
   "12529": {
    "mean": 10.712,
@@ -1419,14 +1403,6 @@
    "source_season": 2025,
    "position": "TE"
   },
-  "4034": {
-   "mean": 22.306,
-   "sd": 7.525,
-   "cv": 0.3373,
-   "n_weeks": 16,
-   "source_season": 2025,
-   "position": "RB"
-  },
   "4035": {
    "mean": 7.655,
    "sd": 4.368,
@@ -1587,6 +1563,14 @@
    "source_season": 2024,
    "position": "WR"
   },
+  "4274": {
+   "mean": 4.746,
+   "sd": 4.6,
+   "cv": 0.9693,
+   "n_weeks": 13,
+   "source_season": 2024,
+   "position": "WR"
+  },
   "4351": {
    "mean": 3.608,
    "sd": 5.218,
@@ -1624,14 +1608,6 @@
    "sd": 2.085,
    "cv": 1.5314,
    "n_weeks": 13,
-   "source_season": 2025,
-   "position": "RB"
-  },
-  "4866": {
-   "mean": 13.362,
-   "sd": 6.987,
-   "cv": 0.5229,
-   "n_weeks": 16,
    "source_season": 2025,
    "position": "RB"
   },
@@ -1691,14 +1667,6 @@
    "source_season": 2025,
    "position": "WR"
   },
-  "4984": {
-   "mean": 25.914,
-   "sd": 12.052,
-   "cv": 0.4651,
-   "n_weeks": 16,
-   "source_season": 2025,
-   "position": "QB"
-  },
   "4988": {
    "mean": 5.453,
    "sd": 4.196,
@@ -1706,6 +1674,14 @@
    "n_weeks": 15,
    "source_season": 2025,
    "position": "RB"
+  },
+  "4992": {
+   "mean": 0.957,
+   "sd": 1.837,
+   "cv": 1.9188,
+   "n_weeks": 7,
+   "source_season": 2025,
+   "position": "WR"
   },
   "4993": {
    "mean": 4.945,
@@ -1850,14 +1826,6 @@
    "n_weeks": 12,
    "source_season": 2025,
    "position": "TE"
-  },
-  "5859": {
-   "mean": 12.087,
-   "sd": 8.817,
-   "cv": 0.7295,
-   "n_weeks": 15,
-   "source_season": 2025,
-   "position": "WR"
   },
   "5870": {
    "mean": 20.342,
@@ -2051,14 +2019,6 @@
    "source_season": 2025,
    "position": "WR"
   },
-  "6786": {
-   "mean": 13.542,
-   "sd": 4.192,
-   "cv": 0.3095,
-   "n_weeks": 12,
-   "source_season": 2025,
-   "position": "WR"
-  },
   "6790": {
    "mean": 13.753,
    "sd": 6.567,
@@ -2066,14 +2026,6 @@
    "n_weeks": 15,
    "source_season": 2025,
    "position": "RB"
-  },
-  "6794": {
-   "mean": 9.069,
-   "sd": 4.766,
-   "cv": 0.5256,
-   "n_weeks": 16,
-   "source_season": 2025,
-   "position": "WR"
   },
   "6797": {
    "mean": 21.18,
@@ -2112,14 +2064,6 @@
    "sd": 3.926,
    "cv": 0.3556,
    "n_weeks": 10,
-   "source_season": 2025,
-   "position": "RB"
-  },
-  "6813": {
-   "mean": 20.9,
-   "sd": 12.121,
-   "cv": 0.58,
-   "n_weeks": 16,
    "source_season": 2025,
    "position": "RB"
   },
@@ -2299,14 +2243,6 @@
    "source_season": 2025,
    "position": "RB"
   },
-  "7547": {
-   "mean": 15.381,
-   "sd": 9.9,
-   "cv": 0.6436,
-   "n_weeks": 16,
-   "source_season": 2025,
-   "position": "WR"
-  },
   "7553": {
    "mean": 9.875,
    "sd": 9.129,
@@ -2330,14 +2266,6 @@
    "n_weeks": 16,
    "source_season": 2025,
    "position": "RB"
-  },
-  "7569": {
-   "mean": 12.713,
-   "sd": 5.907,
-   "cv": 0.4646,
-   "n_weeks": 15,
-   "source_season": 2025,
-   "position": "WR"
   },
   "7571": {
    "mean": 3.531,
@@ -2499,14 +2427,6 @@
    "source_season": 2025,
    "position": "TE"
   },
-  "8112": {
-   "mean": 13.827,
-   "sd": 10.762,
-   "cv": 0.7783,
-   "n_weeks": 11,
-   "source_season": 2025,
-   "position": "WR"
-  },
   "8116": {
    "mean": 2.564,
    "sd": 2.732,
@@ -2571,14 +2491,6 @@
    "source_season": 2024,
    "position": "RB"
   },
-  "8130": {
-   "mean": 15.181,
-   "sd": 7.459,
-   "cv": 0.4913,
-   "n_weeks": 16,
-   "source_season": 2025,
-   "position": "TE"
-  },
   "8131": {
    "mean": 4.0,
    "sd": 3.642,
@@ -2626,14 +2538,6 @@
    "n_weeks": 16,
    "source_season": 2025,
    "position": "WR"
-  },
-  "8138": {
-   "mean": 17.762,
-   "sd": 8.451,
-   "cv": 0.4758,
-   "n_weeks": 16,
-   "source_season": 2025,
-   "position": "RB"
   },
   "8139": {
    "mean": 3.287,
@@ -2947,35 +2851,11 @@
    "source_season": 2025,
    "position": "WR"
   },
-  "9221": {
-   "mean": 19.35,
-   "sd": 13.227,
-   "cv": 0.6836,
-   "n_weeks": 16,
-   "source_season": 2025,
-   "position": "RB"
-  },
-  "9224": {
-   "mean": 14.444,
-   "sd": 7.472,
-   "cv": 0.5173,
-   "n_weeks": 16,
-   "source_season": 2025,
-   "position": "RB"
-  },
   "9225": {
    "mean": 2.514,
    "sd": 3.56,
    "cv": 1.4158,
    "n_weeks": 14,
-   "source_season": 2025,
-   "position": "RB"
-  },
-  "9226": {
-   "mean": 18.081,
-   "sd": 6.744,
-   "cv": 0.373,
-   "n_weeks": 16,
    "source_season": 2025,
    "position": "RB"
   },
@@ -3051,22 +2931,6 @@
    "source_season": 2025,
    "position": "WR"
   },
-  "9488": {
-   "mean": 18.062,
-   "sd": 6.97,
-   "cv": 0.3859,
-   "n_weeks": 16,
-   "source_season": 2025,
-   "position": "WR"
-  },
-  "9493": {
-   "mean": 19.3,
-   "sd": 9.448,
-   "cv": 0.4895,
-   "n_weeks": 15,
-   "source_season": 2025,
-   "position": "WR"
-  },
   "9494": {
    "mean": 4.893,
    "sd": 4.995,
@@ -3120,14 +2984,6 @@
    "sd": 5.327,
    "cv": 0.7702,
    "n_weeks": 12,
-   "source_season": 2025,
-   "position": "RB"
-  },
-  "9509": {
-   "mean": 20.344,
-   "sd": 9.368,
-   "cv": 0.4605,
-   "n_weeks": 16,
    "source_season": 2025,
    "position": "RB"
   },
@@ -3224,20 +3080,20 @@
  },
  "board_coverage": {
   "QB": {
-   "measured": 49,
+   "measured": 48,
    "fallback": 42
   },
   "RB": {
-   "measured": 105,
-   "fallback": 53
+   "measured": 95,
+   "fallback": 57
   },
   "WR": {
-   "measured": 159,
-   "fallback": 82
+   "measured": 153,
+   "fallback": 97
   },
   "TE": {
-   "measured": 86,
-   "fallback": 47
+   "measured": 85,
+   "fallback": 51
   }
  }
 }

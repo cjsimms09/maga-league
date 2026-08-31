@@ -1,0 +1,344 @@
+STALE-CANDIDATE SWEEP — 450 open rows, 166 mentioned by later commits:
+
+  417   last mention 2026-08-31 5068016c  «Register 417's open half: measured by counterfactual, and it is a clean null»
+        row:  🟠 **`kept_players` STOPPED MEANING "MY SLATE" ON 2026-08-23 — IT WENT FROM CORY'S THREE K
+  60    last mention 2026-08-29 b8a82ba4  «Register 60 re-measured: three disconnection points are now one, 🔴🔴 -> 🟠»
+        row:  🔴🔴 **REGISTER 59'S ROOT CAUSE, ONE LEVEL DOWN, AND IT IS WORSE THAN "`need` IS OFF": THE 
+  4t    last mention 2026-08-29 55c37e8f  «Close register 4t on the board, and repin the repo_parity node list»
+        row:  🔴🔴🔴 **WHAT WE CALL `proj_ceiling` IS NOT A CEILING. Cory, 2026-08-18: *"this isn't a ceil
+  426   last mention 2026-08-29 4083b85a  «E: register 426 (a deferral with no home), and two corrections — one of them min»
+        row:  🟡 **THE DEEP FIX REGISTER 324 DEFERRED HAS NO ROW, AND 324 IS NOW CLOSED — SO THE ONLY RE
+  423   last mention 2026-08-29 b68b4608  «Register 423: two instruments now answer the same question, and each has what th»
+        row:  🟡 **TWO INSTRUMENTS NOW ANSWER "WHICH NUMBERS ADMIT THE UNPLAYED SEASON", THEY WERE BUILT
+  422   last mention 2026-08-29 d149a951  «E: register 422 — the win-probability defect is marked CLOSED and is live on mai»
+        row:  🟠 **A DETECTOR'S ONLY PROOF THAT IT CAN DETECT ANYTHING WAS ANCHORED TO `HEAD`, SO FIXING
+  420   last mention 2026-08-29 e66ee8c0  «Register 420: the shared loader, and two false positives of my own making»
+        row:  🟠 **REGISTER 419'S SWEEP WAS TOO NARROW, AND WIDENING IT FOUND THE SHARED LOADER — PLUS T
+  419   last mention 2026-08-29 1f9cd94b  «Register 419: the 2026 season arrived as 18 weeks of zeros and entered three stu»
+        row:  🔴 **THE 2026 SEASON ARRIVED AS EIGHTEEN WEEKS OF ZEROS AND WALKED INTO THREE STUDIES THAT
+  418   last mention 2026-08-29 fe2237ea  «Register 418: the artifact registry gets a workflow, gating on ERROR only»
+        row:  🟠 **`check_artifact_freshness.py` IS RUN BY NO CI WORKFLOW — THE "PERMANENT HOME" FOR COM
+  413   last mention 2026-08-29 df1852b4  «Register 413: the copied-timestamp sweep is done, and the class is two - not the»
+        row:  🟡 **REGISTER 411'S "COPIED TIMESTAMP" SWEEP IS DONE, AND THE CLASS IS ONE INSTANCE, NOT T
+  412   last mention 2026-08-29 fe7e3562  «Register 412's detector is built, and it found a second stale page on its first »
+        row:  🟡 **`public/strike.html` IS TEN DAYS STALE AND DISAGREES MATERIALLY WITH ITS OWN GENERATO
+  31    last mention 2026-08-29 4d75d438  «Strike register 31 from the decision sheet, which I should have done in the clos»
+        row:  🔴 **THE PROJECT'S HEADLINE EDGE NUMBER IS MISREAD IN FOUR FILES, INCLUDING `CLAUDE.md`.**
+  245   last mention 2026-08-29 f5a004cb  «Swept my four overdue rows — and register 245's falsehood was still live in a ro»
+        row:  🟠 **THIS LEAGUE'S WAIVER MECHANIC IS MISNAMED IN THREE ALREADY-SHIPPED PREDICTION-LEDGER 
+  407   last mention 2026-08-28 4895890d  «Registers 407 and 408: two more tools had collapsed into their own baseline, and»
+        row:  🟠 **THE SWEEP REGISTER 405 PROMISED, DONE THE SAME DAY: TWO MORE MULTI-ARM TOOLS HAD COLL
+  406   last mention 2026-08-28 98e66acb  «Register 406: register 95's sweep fixed eight tools and missed nine, and one of »
+        row:  🔴 **REGISTER 95'S SWEEP FIXED EIGHT TOOLS AND MISSED NINE, AND ONE OF THE NINE IS THE TOO
+  404   last mention 2026-08-28 86d77f5c  «Register 404: the RB half of the source-composition retraction is itself retract»
+        row:  🟠 **THE RB HALF OF THE SOURCE-COMPOSITION RETRACTION IS ITSELF RETRACTED, ON A MEASUREMEN
+  403   last mention 2026-08-28 83f922d8  «Register 403: the RB half of the source-composition retraction has decayed, and »
+        row:  🟠 **THE RB HALF OF THE SOURCE-COMPOSITION RETRACTION HAS DECAYED, IT IS ONE OF THE TWO ST
+  398   last mention 2026-08-28 84a58f1a  «Register 398: "FIXED" is not "CLOSED", and the backlog could not show the differ»
+        row:  🟠 **"FIXED" IS NOT "CLOSED" — THE VOCABULARY HAS SAID SO SINCE REGISTER 313 AND THE BACKL
+  397   last mention 2026-08-28 f258765a  «Register 397 closes register 119: the owed Draft Sharks re-run, and 119's own ra»
+        row:  🟠 **REGISTER 119'S OWED RE-RUN IS DONE, AND IT SETTLES THE ROW TWO WAYS AT ONCE: THE INPU
+  395   last mention 2026-08-28 93c07a6f  «Register 395 closes register 118: C5's deterministic run is computed now, and th»
+        row:  🟠 **REGISTER 118'S HARDCODED CONTROL IS COMPUTED NOW, AND THE LITERAL IT REPLACES WAS WRO
+  394   last mention 2026-08-28 f7ee06aa  «Register 394: register 283's keeper-lock fix was applied at one site and never s»
+        row:  🟠 **REGISTER 283 FIXED THE KEEPER-LOCK POPULATION BUG AT THE SOURCE AND NOBODY SWEPT FOR 
+  391   last mention 2026-08-28 757d3591  «Register 391 widened: the buffer ratchet now covers repo-scale commands, and the»
+        row:  🔴 **THE MERGE GUARD PROTECTING `ROUTES.md` WOULD HAVE SILENTLY DONE NOTHING DURING A REAL
+  386   last mention 2026-08-28 77983cfd  «Registers 386 closed, 387 filed: the artifact contract is done, and it was hidin»
+        row:  🔴 **A FIFTH OF THE MODEL'S ARTIFACTS HAVE NO FRESHNESS SIGNAL AT ALL, FOR ONE TRIVIAL REA
+  384   last mention 2026-08-28 52034e1b  «Register 384 corrected: the hook was necessary and not sufficient — recovery is »
+        row:  🟠 **THE CHECKOUT "SILENTLY REVERTED" THREE TIMES TODAY AND IT IS NOT A REVERT — THE CONTA
+  283   last mention 2026-08-28 f7ee06aa  «Register 394: register 283's keeper-lock fix was applied at one site and never s»
+        row:  🔴 **THE KEEPER LOCK TOOK 23 PLAYERS OUT OF THE VORP POOL AND LEFT `starter_counts` AT ITS
+  277   last mention 2026-08-28 2523b045  «Close register 277 properly (was stuck on FIXED, not a terminal word)»
+        row:  🔴🔴 **THE WAIVER WIRE'S "BEST CLAIM" TOLD CORY TO DROP JA'MARR CHASE — IT PRICES EVERY KEE
+  23    last mention 2026-08-28 17343daa  «Register 410: register 23's vacuous-verdict sweep left no detector behind, and t»
+        row:  **A spent fetch whose answer lives only in a log is a fetch paid for twice.** The workflo
+  119   last mention 2026-08-28 f258765a  «Register 397 closes register 119: the owed Draft Sharks re-run, and 119's own ra»
+        row:  🔴 **OUR `proj_ceiling` MEASURES ANALYST DISAGREEMENT, NOT PLAYER VOLATILITY, AND FOR RECE
+  118   last mention 2026-08-28 93c07a6f  «Register 395 closes register 118: C5's deterministic run is computed now, and th»
+        row:  🟡 **CONTROL C5 IN `average_draft.js` IS NOT WHAT ITS NAME SAYS: `det` IS A HARDCODED LITE
+  89    last mention 2026-08-27 910413ea  «Register 89 rendered with a shifted column — an unescaped pipe inside inline cod»
+        row:  🟠 **A METADATA-ONLY CHANGE TO `build.py` TURNS CI RED, AND THE ONLY REMEDY IS A FULL BOAR
+  4g    last mention 2026-08-27 69b2eca7  «A's inbox cut (register 4g): 220 open items -> 56 that need A, with the 16 silen»
+        row:  🟠 **A'S INBOX — FIRST PASS DONE, THE REAL CUT STILL OWED.** A is the gatekeeper and is me
+  378   last mention 2026-08-27 ea01585c  «Register 378: the Python suite has 16 standing failures and no ratchet — two fix»
+        row:  🟠 **THE PYTHON SUITE HAS SIXTEEN STANDING FAILURES AND NO MECHANISM TO TELL A NEW ONE FRO
+  374   last mention 2026-08-27 1daebd5d  «Register 374 closed: the row-filing tool's guard is scoped to the row, not to th»
+        row:  🟠 **THE TOOL BUILT TO FILE REGISTER ROWS SAFELY CANNOT FILE A ROW ANY MORE, AND IT BURNS 
+  369   last mention 2026-08-27 d11329ef  «Register 369: the last two runnable red suites, and the season_type sweep done r»
+        row:  🟠 **THE LAST TWO RUNNABLE STANDING-DEBT SUITES WERE BOTH FIXTURES OUT OF STEP WITH PRODUC
+  364   last mention 2026-08-27 3055f3f0  «Register 364 amended: not regenerating bench_wire_room_sim.json, and why»
+        row:  🔴 **A BACKTEST SIMULATED CORY HOLDING TWENTY-THREE KEEPERS AGAINST A BOARD STRIPPED BY TW
+  360   last mention 2026-08-27 73bea78f  «Register 360 / P347: the props weekly arm is feasible on 2023-25, preregistered »
+        row:  🟠 **THE KEEPER-LOCK ROSTER DEFECT HAD A SECOND, UNSWEPT INSTANCE — AND CORY'S OWN DRAFT B
+  345   last mention 2026-08-27 95560146  «PROPOSED to A (register 345 ①): two modules print the table under "Nothing below»
+        row:  🔴 **REGISTER 339'S OPEN SWEEP, DONE: NINE `draft/backtest/` STUDIES MOVE WHEN THE UNPLAYE
+  324   last mention 2026-08-27 eb7cc8ee  «ROUTES: B status -- register 324 confirmed merged, item 10 (vote edit) shipped»
+        row:  🔴🔴 **THE WIN PROBABILITY ON THE LINEUP PAGE COMPARES CORY'S FULL-WEEK PROJECTION AGAINST 
+  309   last mention 2026-08-27 b6db5bf1  «Register 309's fix grades as a clean before/after: zero of sixty post-fix CI run»
+        row:  🔴 **FOUR IN FIVE COMMITS TO `main` WERE NEVER TESTED — 80% OF CI RUNS WERE CANCELLED BEFO
+  27    last mention 2026-08-27 cb06dc63  «E → A: route registers 382 and 383 (register 27's actionable residue)»
+        row:  🔴 **"WE CAN ONLY GRADE ONE SEASON" IS FALSE — ALL FIVE REALIZED STORES ARE POPULATED.** M
+  257   last mention 2026-08-27 0ceef062  «Swept my own overdue rows: 67 -> 62, and register 257 nearly cost A a broken des»
+        row:  🟡 **EVERY ROW IN THE REAL DRAFT'S PICK LOG CARRIES `is_mine: false` — INCLUDING CORY'S TW
+  255   last mention 2026-08-27 c50b43b3  «Register 255 closed: the green publish committed the consistency report, per the»
+        row:  🟡 **THE DRAFT-DAY CONSISTENCY REPORT NEVER PUBLISHES — `draft/data/draft_day_consistency.
+  204   last mention 2026-08-27 ba84e44c  «Register 204's guard merged six days late — and five more rows closed with evide»
+        row:  🟢 **EIGHT PREREGS AND FIVE AUDITS WERE EMPTIED TO ZERO BYTES BY A COMMIT THAT SAID IT WAS
+  185   last mention 2026-08-27 cd33e85c  «Register 185's deadline was today and it was already satisfied — plus 319 and 33»
+        row:  🔴 **THE 08-27 DEFAULT WILL MAKE THE *WRONG* FROZEN CONTROL CANONICAL, BECAUSE MY CLAIM ON
+  102   last mention 2026-08-27 ed6027a8  «Register 102: the retraction landed in two places and missed the one a session a»
+        row:  🔴 **I TOLD CORY `draft_plan.js` HAD NEVER BEEN GRADED. IT HAS BEEN GRADED TWICE AND ONE O
+  352   last mention 2026-08-26 7070f02b  «Register 351 ③④⑤ closed + register 352: a snapshot of a sample that grows by des»
+        row:  🟠 **A SHIPPED CONSTANT IS A SNAPSHOT OF A SAMPLE THAT GROWS BY DESIGN, SO IT GOES STALE O
+  351   last mention 2026-08-26 d8053e7e  «Register 351: five suites behind the keeper blocker, three of one class — two fi»
+        row:  🟠 **CLEARING THE KEEPER BLOCKER REVEALED FIVE FAILING SUITES BEHIND IT IN `ci.yml`, AND A
+  350   last mention 2026-08-26 9bcf0553  «Register 350 corrected before anyone acted on it — the diagnosis and the fix wer»
+        row:  🔴 **`ci.yml` HAS BEEN RED ON EVERY RUN TODAY AND I REPORTED `main` AS GREEN — THE BOARD G
+  340   last mention 2026-08-25 38b7f0db  «Register 340's inference was wrong in the direction that matters — corrected in »
+        row:  🔴🔴 **THE START/SIT SKILL INSTRUMENT — THE ONE `CLAUDE.md` CALLS DECISIVE FOR THE WHOLE LE
+  339   last mention 2026-08-25 1c5d045c  «Registers 339 and 340: the same store refresh broke the persistence findings and»
+        row:  🔴 **FOUR TRANSACTIONS IN A SEASON NOBODY HAS PLAYED DESTROY C-003 ENTIRELY — ALL THREE IN
+  337   last mention 2026-08-25 4a9b8813  «Register 337: three gate blockers, one cause — the export fix broke the control »
+        row:  ⚙️ **THREE GATE BLOCKERS, ONE CAUSE: THE EXPORT FIX THAT CLOSED THE SEAT-MAP DEFECT IS WH
+  328   last mention 2026-08-25 9c5b9e39  «Register 328 + Cory ask: the pre-draft freeze was never re-taken, and its alarm »
+        row:  🔴🔴 **THE PRE-DRAFT FREEZE — CORY'S OWN *"ONLY IRREVERSIBLE ITEM"* — WAS NEVER RE-TAKEN AF
+  325   last mention 2026-08-25 dfadf091  «ROUTES A->C: the D3 ADP capture discards a good board every day (register 325) [»
+        row:  🔴🔴 **THE D3 ADP CAPTURE HAS BEEN FETCHING A REAL BOARD EVERY DAY FOR A WEEK AND THROWING 
+  323   last mention 2026-08-25 86ab7e78  «Register 323 corrected: both halves of my own row were wrong»
+        row:  🔴 **A TERM SHIPPING AT WEIGHT 1.0 CONTRIBUTES ESSENTIALLY NOTHING, AND THE SUITE THAT SAY
+  319   last mention 2026-08-25 e92ea501  «Register 319: my own hypothesis about the 17 was mostly wrong [skip deploy]»
+        row:  🔴🔴 **THE BOARD HAS NOT BEEN REBUILT OR PUBLISHED BY ANY SCHEDULED RUN SINCE 2026-08-19 — 
+  281   last mention 2026-08-25 7e09c33a  «Register 281: weekly_volatility's docstring described a scoring split that no lo»
+        row:  🟠 **REGISTER 27b'S FIX LANDED AND ITS DOCSTRING DID NOT FOLLOW — `weekly_volatility.py` S
+  280   last mention 2026-08-25 e98b7551  «Register 280: a constructed null for P322, and the probe that said it was inert»
+        row:  🔴 **THE ARCHETYPE AUDIT'S OWN KILL-SWITCH FIRED AND THE AUDIT REPORTED THE ARMS ANYWAY. 5
+  276   last mention 2026-08-25 c0fd7eeb  «Register 276: four seat-blind tools, and the predicate moved somewhere it can st»
+        row:  🔴 **REGISTER 269 IS THE LOUD HALF. FOUR MORE TOOLS READ THE SAME WRONG THING AND SAY NOTH
+  229   last mention 2026-08-25 30ca3331  «Register 229: fix the Adjusters tab's stale "seven things" copy to eight»
+        row:  🟠 **THE ADJUSTERS TAB SAYS *"a weighted sum of SEVEN things. These are the weights"* AND 
+  223   last mention 2026-08-25 747df3d6  «Register 223: the weekly archive now lands where the grader actually reads»
+        row:  🔴🔴 **THE 2027 PROGRAM'S CENTRAL GRADE CANNOT RUN, ALL SEASON — THE CAPTURE THAT FEEDS IT 
+  175   last mention 2026-08-25 7b6837d8  «Close registers 175/187/229 (B's own overdue rows) with evidence»
+        row:  🟡 **THREE OF THE FOUR SELF-MOUNTING WAR-ROOM PANELS WERE ANCHORED TO IDS THAT NEVER EXIST
+  321   last mention 2026-08-24 d88152a3  «Register 321 drop side — and I was wrong about it having a clear right answer»
+        row:  🔴 **THE WIRE CAN RECOMMEND CLAIMING A PLAYER WHO IS ON IR, AT HIS FULL AUGUST PROJECTION,
+  317   last mention 2026-08-24 e8fa7564  «Register 317: the conversion-gap headline was measured at need=0, and Cory switc»
+        row:  🔴 **THE CONVERSION GAP — THE HEADLINE `CLAUDE.md` CARRIES AS "WHERE THE MODEL IS GOING" —
+  316   last mention 2026-08-24 6a45529a  «E: de-duplicate registers 316 and 317 — my union-resolve duplicated a two-row re»
+        row:  🟠 **TWO OF THE FOUR DISABLED RULING-GUARDS DIAGNOSED, AND NEITHER IS WHAT A RED SUITE LOO
+  315   last mention 2026-08-24 debce18c  «Register 315: running the test suite can spend one of Cory's three daily deploys»
+        row:  🟠 **RUNNING THE TEST SUITE REWRITES A COMMITTED, SERVED ARTIFACT — SO A CARELESS `git add
+  310   last mention 2026-08-24 63e32aec  «MAILBOX — register 310: escape two bare pipes that split the row into 11 columns»
+        row:  🟠 **THE SEAT PLAN THE WAR ROOM READS WOULD HAVE SHIPPED A DEFENSE AT PICK 33 ON ITS NEXT 
+  307   last mention 2026-08-24 9dbad167  «E: my own evidence was nearly vacuous — six of seven suites are blind to a 50% r»
+        row:  🔴 **(filed as 306; renumbered to 307 — main printed 306 for the bench_mv non-monotonicity
+  306   last mention 2026-08-24 a89bcdfb  «Register 306: bench_mv is non-monotone in 'prior' mode — and the shipped mode is»
+        row:  🟡 **`bench_mv.js` IS NON-MONOTONE IN `lineupInfo: 'prior'` — A CANDIDATE TWO POINTS PER W
+  304   last mention 2026-08-24 41ea443c  «MAILBOX + Rule 1c — built the ledger-vs-artifact staleness sweep register 304 as»
+        row:  🟠 **A COMPLETED GRADE SAT IN AN ARTIFACT FOR FOUR DAYS WHILE THE LEDGER SAID OPEN AND THE
+  303   last mention 2026-08-24 9277b7d5  «Register 303: a mechanism for the silent roster defect, because a sweep is not o»
+        row:  🔴 **THE FIXTURE WRITTEN TO END THE EMPTY-ROSTER FICTION SHIPPED A DIFFERENT FICTION, AND 
+  302   last mention 2026-08-24 9d5001a4  «MAILBOX — register 302 + P336: the suite I could not repair, and the grade insid»
+        row:  🟠 **`withheld_slate_exposure.test.js` MEASURES A HAZARD THE KEEPER LOCK ELIMINATED BY CON
+  301   last mention 2026-08-24 da7ac341  «MAILBOX — register 301: keepers are snapshotted before enrichment, 94 fields wid»
+        row:  🟠 **THE 23 KEEPERS ARE SNAPSHOTTED OUT OF THE BOARD *BEFORE* THE ENRICHMENT STAGES RUN, S
+  300   last mention 2026-08-24 e9712a85  «Register 300: survival_scale repaired, 19/19 — and it now runs MORE checks»
+        row:  🔴 **`main` HAS BEEN RED FOR AT LEAST NINE DAYS, NOBODY KNOWS WHEN IT WAS LAST GREEN, AND 
+  298   last mention 2026-08-24 7d121c57  «E: correcting register 298 within the hour — I recommended building something th»
+        row:  ⚠️ **CORRECTED BY ME WITHIN THE HOUR, AND THE CORRECTION IS THE HALF WORTH READING: MY RE
+  295   last mention 2026-08-24 d084bbb5  «MAILBOX + Rule 1c — P330 GRADED TRUE, and register 295: three archetype arms rev»
+        row:  🔴 **THE COMMITTED ARCHETYPE ARTIFACTS ARE MUTUALLY INCOMPARABLE — EIGHT ARTIFACTS, SEVEN 
+  294   last mention 2026-08-24 f3fa7276  «ROUTES: register 294 waiver kicker-flood fix, urgent merge-ask, ahead of Tuesday»
+        row:  🔴🔴 **CORY'S WAIVER PAGE SHOWS EIGHT CLAIMS AND ALL EIGHT ARE KICKERS — INCLUDING SIX BELO
+  289   last mention 2026-08-24 d520db2a  «Merge the keeper grader (register 289 closed, 299 filed, P334)»
+        row:  🟡 **THE KEEPER CHOICE IS GRADED NOWHERE, AND IT IS THE HIGHEST-STAKES DECISION CORY MAKES
+  287   last mention 2026-08-24 fea9ed4c  «MAILBOX — register 287: the week-1 chase now runs itself, first production probe»
+        row:  🟠 **EVERY IN-SEASON TOOL'S ADVICE WAS GRADEABLE ONLY IF A HUMAN TAPPED A BUTTON — THE LEA
+  285   last mention 2026-08-24 f5fa56bc  «MAILBOX — register 285 (third preseason-lock surface, FIXED) + normalise the 19 »
+        row:  🟠 **THE PRESEASON FALSE LOCK HAD A THIRD SURFACE: `matchupWindow()` CLOSED THE MATCHUP QU
+  27b   last mention 2026-08-24 7e12f8ac  «MAILBOX + Rule 1c — close register 27b (its fix landed, verified) and file regis»
+        row:  🔴 **AND THE BOUNDARY THAT WOULD STILL HAVE SEPARATED THEM IS NOT REAL EITHER — the scorin
+  154   last mention 2026-08-24 58e47b7b  «Register 154's shape is wrong, and building to it would have produced a silent d»
+        row:  🔴 **`weekly_realized.json` HAS THREE INDEPENDENT CONSUMERS, ONE EXISTING FETCH PRIMITIVE 
+  112   last mention 2026-08-24 8931abcd  «ROUTES: register 112's join is built -- Josh Allen/Kyle Allen known-positive, re»
+        row:  🔴 **EVERY PLAYER AT A POSITION HAS IDENTICAL MODELLED AVAILABILITY: THE BOARD CARRIES EXA
+  269   last mention 2026-08-23 e805c57c  «MAILBOX + Rule 1c: register 269's proposed diff (two legs, not one) and register»
+        row:  🔴 **TWO ENGINE TOOLS THROW ON EVERY RUN POST-LOCK — `MY_KEEPERS` WAS NEVER *MY* KEEPERS, 
+  266   last mention 2026-08-23 809fee9c  «D: main is red because I published register 266 without its watermark bump»
+        row:  *(claimed 265 from the allocator and renumbered immediately — another lane printed its ow
+  264   last mention 2026-08-23 9968c5e3  «Repair register 264: my own heredoc ate every field name it was filing about»
+        row:  🔴 **THE CAPTURE CANNOT ANSWER "WHY", AND CORY HAS RULED THAT IT MUST BEFORE THE NEXT DRAF
+  260   last mention 2026-08-23 2b86ab5b  «Register 260 sweep: five more internal-ADP sites converted to the market number,»
+        row:  *(claimed 259 from the allocator and renumbered minutes later — another lane printed its 
+  259   last mention 2026-08-23 c1f78022  «D (mailbox, Rule 1b): register 259 -- we predicted all 150 picks, graded none of»
+        row:  🟡 **CORY, POST-DRAFT (2027 ITEM, HIS OWN CATCH): "our ADPs listed on player cards were wr
+  258   last mention 2026-08-23 1d9e4c38  «Correction on register 258: Bowers was gone at pick 4, and my three-way comparis»
+        row:  🔴 **THE ARTIFACT THAT WILL GRADE THE SEASON'S DRAFT SAYS THE RIGHT ANSWER WAS A DEFENSE O
+  199   last mention 2026-08-23 99c53ceb  «D (mailbox, Rule 1b): the register 199 code is still unmerged and its deadline i»
+        row:  🔴 **ONE OF `ADAPTATION-POLICY.md`'S THREE RULES HAS NO IMPLEMENTATION — QUICK-KILL EXISTS
+  253   last mention 2026-08-22 d7efdc66  «Register 253 root cause: a step-order bug, and the comment defending the order s»
+        row:  🟢 **CLOSED 05:05Z 08-22 — REGENERATED AND VERIFIED ON `main` (`e2dcdc31`), on Cory's dire
+  63    last mention 2026-08-21 09aa8780  «D: register 63 answered -- the rookie-bloc veto's power measured against the rea»
+        row:  🟡 **THE ROOKIE-BLOC VETO NOW PASSES FOR A REASON THAT MAKES IT WEAKER, AND THE p-VALUE RE
+  5h    last mention 2026-08-21 b31f7996  «Merge: conditional-value fingerprint, register 5h x3, reviewer path-scoping, war»
+        row:  🟠 **A WEIGHT RULING SHIPS AND THE PROSE QUOTING THE OLD NUMBER IS NEVER UPDATED — FOUR IN
+  5g    last mention 2026-08-21 e2aef0d3  «Red-teamed A's draft-pick null within the hour it shipped: three defects, all me»
+        row:  🟠 *(filed 🔴🔴, corrected to 🟠 — measured blast radius 0 of 12 seats)* **THE "RESTORE THE M
+  238   last mention 2026-08-21 effb9b82  «ROUTES: register 238's four QB-wait numbers decoded from source for B's one-clau»
+        row:  *(A, 2026-08-21 — renumbered 221→238 at merge under register 186's protocol: **ids PRINTE
+  237   last mention 2026-08-21 40e86c83  «MAILBOX (Rule 1b): register 237 is live on what main ships tonight, and the row »
+        row:  *(A, 2026-08-21 — renumbered 220→237 at merge under register 186's protocol: **ids PRINTE
+  220   last mention 2026-08-21 fb3373ff  «ROUTES: register 220/237/249 delivery receipt -- B's Big Board fix is on main, E»
+        row:  ⚠️⚠️ **THIS ROW'S HEADLINE CLAIM WAS FALSE AND IS WITHDRAWN BY ITS OWN AUTHOR, SAME DAY —
+  218   last mention 2026-08-21 f212436b  «Register 218's four blockers diagnosed one by one -- and two of my own character»
+        row:  🟢 **FIXED 2026-08-21 — `prior_art.py` WENT BLIND A SECOND TIME, IN THE ONE TOOL WHOSE ENT
+  21    last mention 2026-08-21 54407abb  «C's source hunt: five measured gaps (weather, practice reports, K/DEF coverage, »
+        row:  🔴 **THE BOARD DOES NOT BLEND ANYTHING. `proj_mean` IS SLEEPER, SCALED.** `proj_baseline =
+  198   last mention 2026-08-21 dc6cd56e  «D (mailbox, Rule 1b): register 198's controls now gate the exit code on D's bran»
+        row:  🟠 **THE POLICY'S THIRD REQUIREMENT SAYS *THE CONTROLS GATE THE EXIT CODE*, AND **0 OF 21*
+  197   last mention 2026-08-21 75dc5284  «D (mailbox, Rule 1b): fix main's duplicate register 197 -- it is failing test_de»
+        row:  🟠 **ESPN AND MIKE CLAY ARE ONE SOURCE, NOT TWO — IDENTICAL ON 306 OF THE 331 PLAYERS THEY
+  192   last mention 2026-08-21 b72cd3f0  «Merge origin/main: my register 192 renumbers (main prints 192), and B's a70f9bf5»
+        row:  🟡 **OUR CEILINGS DO NOT PRESERVE DRAFT SHARKS' ORDERING — 7.4% OF PAIRS IN CORY'S TOP 200
+  191   last mention 2026-08-21 139f6039  «main is red on six CI steps and no run has reached a verdict in over an hour -- »
+        row:  🟡 **`BLEND-SEARCH-DESIGN` STEP 3 (preregistered blends, due 10-08) HAS A DEPENDENCY NOBOD
+  186   last mention 2026-08-21 e26b505b  «Register 186 RULED: main-printed ids are canonical, and the merge order E -> D -»
+        row:  🔴 **THREE LINES OF HISTORY ALLOCATED REGISTER IDS INDEPENDENTLY AND 172/173/174 NOW NAME 
+  174   last mention 2026-08-21 94a43cb3  «Register 174: Cory's need:1.0 ruling woke two dormant mechanisms, and two red te»
+        row:  🟠 **CORY'S `need:1.0` RULING WOKE TWO MECHANISMS THAT WERE DORMANT, AND THE ONLY THING TH
+  173   last mention 2026-08-21 e70768f0  «Merge origin/main: register 173 collision resolved to 177, and origin's new row »
+        row:  🔴 **C'S ENTIRE EXTERNAL-INGEST PROGRAM IS STRANDED ON A BRANCH WHILE ITS ROUTES ROWS ON M
+  172   last mention 2026-08-21 d854045c  «Register 172: the Sunday props cron shipped without its clobber guard, live and »
+        row:  🔴 **THE NEW SUNDAY PROPS CRON WAS SHIPPED WITHOUT THE HALF THAT PREVENTS IT FROM DESTROYI
+  170   last mention 2026-08-21 7e378953  «Merge origin/main: renumber three fresh id collisions (register 169 content upda»
+        row:  🔴 **THE `*_pre_ds` BAND SNAPSHOTS ARE FROZEN FROM AN OLD BOARD AND THE FALLBACK EVERY REB
+  132   last mention 2026-08-21 34fe9136  «D: register 132's TE-curve sweep done -- 0.50 was never special, the shipped 0.0»
+        row:  🔴 **THE HARNESS CANNOT RESOLVE THE DIFFERENCES WE HAVE BEEN RANKING. NOTHING MEASURED TON
+  96    last mention 2026-08-20 0f93975b  «ROUTES: register 96 dispatch nearly cascaded into re-scoring the live board's pr»
+        row:  🟠 **SEVEN PROJECTION SOURCES ARE ASKED EVERY NIGHT, RETURN ZERO ROWS, REPORT `ok: true` W
+  67    last mention 2026-08-20 aad9f483  «kdef_weekly_points: K and DEF realized weekly points, register 67»
+        row:  🟡 **THE RB10 ALARM AND THE REPLAY DISAGREE BY A FACTOR OF TWO, AND BOTH NUMBERS ARE MINE.
+  4q    last mention 2026-08-20 9fe76503  «TO: C inbox check per RULE 1c: tick items already satisfied on disk, close out t»
+        row:  🔴🔴🔴 **THE FIX IS IDENTIFIED AND IT IS ONE BAND. 72% OF THE CALIBRATION SITS IN A SINGLE C
+  180   last mention 2026-08-20 edcf12fa  «Merge origin/main: re-verify A-DRAFT-DAY-DECISIONS.md's open-row count live, fix»
+        row:  🟢 **FIXED 08-20 — `test_a_draft_day_decisions.py`'s own open-row counter used a DIFFERENT
+  168   last mention 2026-08-20 32edc82c  «Fix register 168 duplicate: caught by test_defect_register.py after the push, gi»
+        row:  🟡 **ELEVEN OF THE 150 DRAFT-CRITICAL JS SUITES ARE RED, AND I TOLD CORY THERE WERE NONE.*
+  167   last mention 2026-08-20 f6633666  «Register 167: close it -- Cory confirmed need:1.0 directly»
+        row:  🔴 **EVERY FIELD CORY ASKED FOR THIS WEEK IS COMPUTED, COMMITTED, AND ON NO SCREEN — measu
+  164   last mention 2026-08-20 b931d410  «Close A20/register 164: Cory confirmed need:1.0 directly -- "It was my call"»
+        row:  🔴🔴 **`need` SHIPPED TO 1.0 ON `main` — NO RECORDED CORY RULING, AND IT DIRECTLY CONTRADIC
+  161   last mention 2026-08-20 694ee1f7  «Register 161: the dollar panel prices Malik Willis above Josh Allen -- E[$] flat»
+        row:  🟡 **`relay_publish.sh` CANNOT CARRY A GRADE UPDATE TO AN EXISTING LEDGER ROW — insert-nev
+  160   last mention 2026-08-20 e95ddf0c  «routes(B): surface E's stuck register 160 (VONA/VBD formula gap) and 159 (positi»
+        row:  🔴🔴 **CORY SENT A REFERENCE ARTICLE (Subvertadown's "Snake Value Based Drafting") AND ITS 
+  16    last mention 2026-08-20 baff73bd  «ROUTES: backlog sweep — 15 items ticked as done, register 16 (vegas pbp) closed »
+        row:  **ONLY ONE COPY WAS EVER COMMITTED — the diff has no second input.** Searched every commi
+  159   last mention 2026-08-20 7109fa4a  «E: merge origin/main + file register 159 -- position-boards panel shows drafted »
+        row:  🔴🔴 **CORY, LIVE MID-MOCK: "board still showing players who are already gone" — CONFIRMED 
+  157   last mention 2026-08-20 d5f02ef3  «Register 157: A's own post_chain marker fix left test_gate_selection.py stale»
+        row:  🟢 **CORY'S THREE KEEPERS WERE PRICED ON A DIFFERENT REPLACEMENT TABLE THAN EVERY OTHER PL
+  156   last mention 2026-08-20 f1eb9cea  «relay_publish --grade: carry ledger grades onto main's OPEN stubs (register 156 »
+        row:  🟢 **THE WAR ROOM'S SOURCE BUTTONS PRICED EVERY SOURCE OVER ALL 700 BOARD PLAYERS, SO DRAF
+  155   last mention 2026-08-20 f47016cf  «ROUTES: acknowledge RULE 1c, flag a real constraint, and file register 155»
+        row:  🔴🔴 *(claimed 151 — `next_register_id.js` said 151 and I typed 150 by assuming it followed
+  153   last mention 2026-08-20 d1b7680d  «E files register 153: Cory's war-room audit found the source-toggle button lies »
+        row:  🔴🔴 **CORY'S OWN AUDIT ORDER FOUND A REAL ONE: THE SOURCE-TOGGLE BUTTON LIES AFTER A PAGE 
+  152   last mention 2026-08-20 d4878fd4  «Merge origin/main; reconcile register id collision at 149; close out register 15»
+        row:  *(claimed 152 by E, 2026-08-20, merging origin/main — this row was id 149 on main; renumb
+  151   last mention 2026-08-20 ff02b7a5  «ROUTES: draft-morning readiness drill (item 1) — 3 of 4 links verified live toda»
+        row:  *(claimed 151 by E, 2026-08-20, merging origin/main — this row was id 148 on main; renumb
+  150   last mention 2026-08-20 b19669e1  «E answers register 150: the TE tilt reads as calibration fault, not edge»
+        row:  *(claimed 150 by E, 2026-08-20, merging origin/main — this row was id 147 on main; same c
+  142   last mention 2026-08-20 9617cc90  «Register 142: test_attach_draftsharks_ranking.py collects zero pytest items»
+        row:  🟡 *(renumbered five times at merge — 64, 66, 95, 112 and 125 all independently taken same
+  137   last mention 2026-08-20 04108023  «Merge origin/main: reconcile duplicate register 137/138, close registers 152/153»
+        row:  🟡 **THE TE CAP IS A REAL, WELL-CONTROLLED, POSITIVE DIRECTION FOR THE OPEN ROSTER-CONSTRU
+  134   last mention 2026-08-20 e539300b  «Fix the roster-builder panel footer to match A's K/DEF correction (register 134)»
+        row:  🟢 **THE RELAY'S MARGINAL-LINEUP-VALUE MECHANISM CLEARS EVERY PREREGISTERED BAR ON A'S OWN
+  123   last mention 2026-08-20 aba0c9a2  «Register 123 closed on a measurement — and it took three probes, two of which ga»
+        row:  🔴 **A CAPTURE JOB PUSHED NOTHING, FAILED ALL FOUR RETRIES, AND REPORTED SUCCESS — AND THE
+  108   last mention 2026-08-20 d1667e61  «Relay inbox cleared: ceiling-suite consent, P246 pointer (deltas already posted)»
+        row:  🟡 **`OPERATING-MODEL.md` HAS TWO DIFFERENT RULES BOTH NUMBERED 3f, AND NOBODY HAD NOTICED
+  85    last mention 2026-08-19 d66d579a  «Merge C's external-ingest branch — C was right and register 85 was wrong»
+        row:  ✅ ⚠️ **MOSTLY WRONG AND WITHDRAWN THE SAME EVENING — C CAUGHT IT. THREE OF THE FIVE WERE 
+  83    last mention 2026-08-19 3a7c854e  «Fix the market-lean note's cross-position VORP/ADP contamination (register 83/84»
+        row:  ✅ **A14's TWO CONTRADICTORY MEASUREMENTS ARE RESOLVED, AND REGISTER 76'S HEADLINE LARGELY
+  80    last mention 2026-08-19 fa537924  «Institutionalise register 80's lesson: sweep for diagnostics nobody reads»
+        row:  🔴🔴 **CORY'S ENTIRE KEEPER SLATE IS PRICED ON A BASIS THE REST OF THE BOARD NO LONGER USES
+  79    last mention 2026-08-19 d36ada6a  «Register 79: opponent_need_2026.json now carries an input_fingerprint stamp»
+        row:  🟠 **REGISTER 62 ASKS FOR THE WRONG STAMP ON THREE OF ITS FIVE ARTIFACTS, AND ONE OF THEM 
+  78    last mention 2026-08-19 12b2ee60  «Close register 78's B-routed piece: the null-plan seats already fall back cleanl»
+        row:  🔴 **THE WAR ROOM'S SEAT PLAN WAS STALE AGAINST THE PUBLISHED BOARD AND NOTHING ON DISK CO
+  73    last mention 2026-08-19 74c8e31d  «Fix a real bug in the bye-fieldability warning: extract the shared matcher (regi»
+        row:  🔴 ⚠️ **NUMBERS SUPERSEDED SAME DAY — see register 74: these were measured on the pre-blen
+  69    last mention 2026-08-19 4a3d9285  «Register 69's own sweep comes back clean and bounded: bye is the only such field»
+        row:  🔴 **THE `bye` ARM IS INERT AND WAS ONE GRADE AWAY FROM BEING PUBLISHED AS "THE BYE WEIGHT
+  62    last mention 2026-08-19 7c942a1a  «Register 62: does the model match what Cory is actually told at the draft?»
+        row:  🟠 **FOUR OF THE FIVE ARTIFACTS THE WAR ROOM READS CARRY NO PROVENANCE STAMP — NOTHING ON 
+  59    last mention 2026-08-19 a52a5a26  «P110 GRADED: need is worth +68.6 pts/seat-season and does NOT fix register 59»
+        row:  🔴🔴 **DRIVEN DOWN CORY'S OWN PICK SCHEDULE, THE TOOL DRAFTS TWELVE RUNNING BACKS AND TWO R
+  54    last mention 2026-08-19 9edc0555  «Close register 54 (self-cleared as predicted) and flag a lighter follow-on drift»
+        row:  🔴 **THE PUBLISHED BOARD IS STALE AGAINST THE HEALED `component_stats_2025` STORE, AND IT 
+  4v    last mention 2026-08-19 4bb1fb80  «Close register 4v's drill-down half: mark cohort-constant ceilings in renderDril»
+        row:  🔴 **32% OF CORY'S DRAFT RANGE SHOWS A CEILING THAT CONTAINS NO INFORMATION ABOUT THAT PLA
+  2e    last mention 2026-08-19 e4386488  «C: fetch real K + DEF component stats, 2021-2025 (register 2e)»
+        row:  🔴🔴 **REOPENED 2026-08-19 BY A — THIS ROW WAS MARKED RESOLVED AND ITS OWN NAMED ROOT CAUSE
+  133   last mention 2026-08-19 d79820e8  «Register 133: suggest a third option between the two-choice framing»
+        row:  🟢 **CORY'S REGIME CALL IS MEASURED AND MONOTONE — AND IT EXPLAINS WHY MY RB FIX FAILED. I
+  131   last mention 2026-08-19 d864e6c1  «Merge main: A's self-correction on register 131's season concentration»
+        row:  🟢 **CORY'S INSIGHT MEASURED OUT AND IT IS THE BIGGEST RESULT OF THE NIGHT — BUT IT FAILED
+  130   last mention 2026-08-19 eebac779  «Register 130: CFG.ROSTER_SHAPE described as shipped does not exist in engine.js»
+        row:  🔴🔴 **`CFG.ROSTER_SHAPE` — CORY'S OWN TRANSCRIBED NEED CURVE, DESCRIBED AS "SHIPPED KNOWIN
+  129   last mention 2026-08-19 6f5c1dc7  «Merge main: take the twice-updated register 129 (two K/DEF fixes both failed, pr»
+        row:  ✅ **SUPERSEDED 2026-08-21 (A) — ITS PREMISE IS A FLAG THAT IS NOT IN THE SHIPPED ENGINE. 
+  127   last mention 2026-08-19 d607db42  «Prereg: take the onesie on a SUPPLY DEADLINE, not a weight (register 127, 2nd at»
+        row:  🟠 **OPEN — `dollar_replacement_baseline.test.js` WENT RED ON TONIGHT'S BOARD AND I DO NOT
+  125   last mention 2026-08-19 6f0b5614  «Register 125 update: the need-curve fix confirms the mechanism, a=0.5/a=1 still »
+        row:  🟠 **THE SIMPLE MODEL'S COMMITTED a=0.5/a=1 ARTIFACTS SHOW A ROSTER SHAPE NOBODY HAS WRITT
+  E13   last mention 2026-08-18 28aabfac  «Register E13 CLOSED on the regenerated artifact: ten distinct rookie rates, cove»
+        row:  ✅ **FIXED 2026-08-17.** ~~`rookie_affinity` is 0.0 for all ten managers and could not hav
+  5n    last mention 2026-08-18 ebc70c21  «Fix 1 lands as a CORRECTION, not new code: the units defect was already fixed at»
+        row:  🟠 **A MECHANISM CORY ORDERED DELETED ON 08-14 IS STILL LIVE ON THE DRAFT BOARD, AND A COM
+  5m    last mention 2026-08-18 968513bc  «Register 5m: the pinned DRAFT DAY alert is gated on a flag that is always true»
+        row:  🟠 **THE PINNED, LEAGUE-WIDE "DRAFT DAY" ALERT IS GATED ON A FLAG THAT IS ALWAYS TRUE — SO
+  4r    last mention 2026-08-18 82d09140  «projection_error/cli: register 4r — filter the calibration to skill positions»
+        row:  🔴🔴🔴 **A'S "NO SHIP" RULING ON THE BAND SPLIT WAS MEASURED ON A CONTAMINATED POPULATION — 
+  4i    last mention 2026-08-18 b49d43b8  «ROUTES.md: register 4i, third and (hopefully) final correction»
+        row:  🔴 **THE WAR ROOM'S "⏮ RESTORE THE MEASURED CORE" BUTTON IS A SILENT NO-OP, AND IT IS ON T
+  4e    last mention 2026-08-18 9f808043  «Ship register 4e's caption fix and script the war-room dress rehearsal»
+        row:  **The shortlist is not sorted by the number it displays.** Gibbs +156, Allen +64, Nacua +
+  49    last mention 2026-08-18 ad976350  «Task 6 run and the finding is about the instrument: the room simulator grades fr»
+        row:  🟠 **THE ROOM SIMULATOR IS CIRCULAR FOR MARKET-VS-TOOL QUESTIONS, AND `exp_keeper_b0.json`
+  45    last mention 2026-08-18 7b79cbe5  «D's two fresh asks answered with measurements: nothing served reads the stale fr»
+        row:  *(renumbered from 38 at merge — id taken)* 🔴 **THE PRE-DRAFT FREEZE CARRIES A REVERTED PO
+  4     last mention 2026-08-18 8c61b389  «ROUTES.md: re-verify register 4/4b/4c/4e/4f still closed against today's board»
+        row:  **`main` CI red** on `matchup_placed_bet` (3) and `trashtalk` (3), since 08-16 23:01. A r
+  34    last mention 2026-08-18 f45b41a3  «JS gate fully green after A's rebuild; one artifact left behind, which is regist»
+        row:  🔴 **THE BOARD'S ONLY EDIT TO SLEEPER IS ZERO-INFORMATION, AND EVERY NUMBER WAS ALREADY IN
+  32    last mention 2026-08-18 b162aafb  «B's three rehearsal findings closed: fallback clock bounded by my recorded slots»
+        row:  ✅ **THE ASYMMETRIC ENVIRONMENT ARM: ONE REAL SIGNAL, ONE NULL — AND THE PREREGISTERED BAR
+  22    last mention 2026-08-18 c9751ad3  «Register 22 + route: the probe exists, but I cannot dispatch it myself»
+        row:  **We capture ONE SCALAR from FantasyPros — total projected points.** `proj_series.json` s
+  19    last mention 2026-08-18 fc581af9  «Register 19/19b re-run module: the REAL FFC-vs-FP comparison, with the old defec»
+        row:  🔴 **THE FP-vs-FFC ADP COMPARISON NEVER HAPPENED — IT COMPARED FANTASYPROS TO FANTASYPROS.
+  18b   last mention 2026-08-18 ae2bb60e  «PREREG (register 18b): the game-total oracle's lambda grid»
+        row:  ✅ **MEASURED 08-18 — the grid edge was real, the ceiling barely moved, and the ASYMMETRY 
+  18    last mention 2026-08-18 dd48fa85  «Register 18 closed: the join was 100%, and the real team-level line buys ~nothin»
+        row:  ✅ **CLOSED 08-17 — Q2 ANSWERED: the join was 100%.** The team-level implied-total arm reg
+  15c   last mention 2026-08-18 5d710e1e  «ROUTES: register 15c DONE -- all three week-1 prop slates repaired, one workflow»
+        row:  🟡 **THE WEEK-1 PROPS STORES CARRY `any_td` AS DECIMAL ODDS, AND IT IS THE BINDING CONSTRA
+  4p    last mention 2026-08-17 d23649b8  «A's one ask executed: branch merged (band-split hook + refit workflow), register»
+        row:  🔴🔴 **THE BOARD SAYS LATE PLAYERS HAVE PROPORTIONALLY LESS UPSIDE THAN EARLY ONES. THAT IS
+
+Each line is a VERIFY-THEN-CLOSE, not a close: open the commit, check the row's premise against it, write the ✅ with the sha — or leave it open with a note saying why the commit did not settle it.
+
+--- METHOD NOTE (relay, 08-31): two closure-detection methods disagree —
+column-parse says 292 open / 96 candidates, tail-content says 450 / 166,
+because unescaped pipes shift columns (register 89) and some closures sit
+mid-row. The tool ships the OVER-inclusive tail method deliberately: a
+candidate that turns out closed costs the sweeper five seconds; a stale row
+the tool hides costs A an afternoon. The true open count is between the two
+figures — the sweep itself will converge it.

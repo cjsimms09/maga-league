@@ -59,7 +59,26 @@ jobs:
       # origin/main, which can be arbitrarily far back).
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          # 2 -> 0, 2026-08-31 (register 433, the board-publish stall, found
+          # while asking why the board has not published since 08-26).
+          # `ci.yml` learned this on 08-17 and
+          # carries a fifteen-line comment about it; THIS workflow never got the
+          # same fix, and it is the one that publishes.
+          #
+          # MEASURED: every scheduled rebuild since 08-21 has been REFUSED, and
+          # from 08-29 the refusal list carries
+          # `test_draft_week_brief_numbers::test_the_era_board_is_reachable_so_
+          # the_pinned_tests_are_not_silently_skipping`. That test is a CONTROL:
+          # it reads `public/draft_data.json` at the pinned pre-draft sha and
+          # fails loudly if the blob is unreachable, precisely so a shallow
+          # clone cannot turn three pinned tests into three quiet skips. At
+          # depth 2 the blob is unreachable BY CONSTRUCTION, so the control was
+          # correct and the checkout was wrong — it passes in `ci.yml`, which
+          # already fetches full history, and failed only here.
+          #
+          # ⚠️ This is ONE of the six tests blocking the publish, not all six.
+          # Fixing it does not by itself republish the board.
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
@@ -689,6 +708,34 @@ jobs:
           # for Cory's own running backs. It runs BEFORE the consistency check
           # below, or that check fails on an artifact this step was meant to fix.
           python3 draft/backtest/conditional_value.py
+          # ── REGISTER 86, FIXED HERE AFTER THREE HAND-REGENERATIONS ─────────
+          # `playoff_sos_2026.json` and `variance_inputs_2026.json` are derived
+          # from the board's PLAYER SET, so any rebuild that adds or drops a
+          # player breaks their partition tests. That row has been open since
+          # 08-19 with the fix already written down -- "regenerate them INSIDE
+          # draft-data.yml right after the board is written, as a build step, so
+          # they cannot drift from the board they describe" -- and deferred with
+          # the reason "it belongs after the draft". The draft was 08-22.
+          #
+          # It bit again on 08-31: the board rebuilt 08-26, the SOS artifact was
+          # still the 08-16 one, and test_playoff_sos went red on `main` -- and
+          # the staleness was not cosmetic. THREE players had CHANGED TEAMS in
+          # between (Boutte NE->HOU, Zamir White SF->NO, Roydell Williams
+          # IND->DET), so the artifact was serving the wrong playoff opponents
+          # and the wrong softness for all three.
+          #
+          # Placed HERE, after the blend/DS chain and before the consistency
+          # join, so both describe the board that is actually about to be
+          # committed. Both regenerators are DETERMINISTIC (measured 08-31: two
+          # independent runs byte-identical each), so a no-drift rebuild leaves
+          # them untouched and this step costs seconds.
+          #
+          # NOT `|| true`: these feed the war room, and a derived artifact that
+          # cannot be rebuilt from the board it claims to describe is exactly
+          # the "screenshot with a current-looking timestamp" the seat-plan note
+          # above is about.
+          python3 draft/tools/playoff_sos.py
+          python3 draft/tools/variance_portfolio.py
           # AND THEN PROVE IT, rather than trusting that running the steps was
           # enough. This joins every artifact the war room reads BACK to the
           # freshly built board and compares the VALUES -- not the timestamps,
@@ -908,7 +955,13 @@ jobs:
           # workflow (so the gate stopped failing on a stale census) but not into
           # this list — so CI graded a fresh census and committed the old one, and
           # the repo's copy stayed one rebuild behind for every consumer but the gate.
-          PATHS="public/draft_data.json public/mlv_plan.json public/board_ds.json public/board_sleeper.json public/board_own.json public/board_fp.json public/source_boards.json public/seat_plan.json public/position_boards.json public/mlv_recommend.json public/conditional_value_2026.json draft/data/conditional_value_2026.json public/opponent_need_2026.json draft/data/blended_projection.json draft/config/keepers.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md draft/data/adp_series.json draft/data/proj_series.json draft/data/room_read.md draft/data/room_read.json draft/data/player_positions.json draft/backtest/projection_coverage_census.json draft/data/roster_state_series.json public/world_state_override.json draft/data/draft_day_consistency.json"
+          PATHS="public/draft_data.json public/mlv_plan.json public/board_ds.json public/board_sleeper.json public/board_own.json public/board_fp.json public/source_boards.json public/seat_plan.json public/position_boards.json public/mlv_recommend.json public/conditional_value_2026.json draft/data/conditional_value_2026.json public/opponent_need_2026.json draft/data/blended_projection.json draft/config/keepers.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md draft/data/adp_series.json draft/data/proj_series.json draft/data/room_read.md draft/data/room_read.json draft/data/player_positions.json draft/backtest/projection_coverage_census.json draft/data/roster_state_series.json public/world_state_override.json draft/data/draft_day_consistency.json draft/data/playoff_sos_2026.json draft/data/variance_inputs_2026.json"
+          # ⬆️ The last two ADDED 2026-08-31 with the step that regenerates them
+          # (register 86). Added IN THE SAME EDIT deliberately: the note above
+          # records that wiring a regeneration in here without adding its output
+          # to this list made CI grade a fresh artifact and commit the stale one,
+          # and that is a trap you fall into once by forgetting and twice by not
+          # reading your own warning.
           EXISTING=""
           for p in $PATHS; do [ -e "$p" ] && EXISTING="$EXISTING $p"; done
           if [ -z "$EXISTING" ] || git diff --quiet -- $EXISTING; then
