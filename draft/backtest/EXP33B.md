@@ -6,17 +6,18 @@ grader). Pre-registered: if naive wins, REPLACE the input; ships nothing (gate f
 
 ## RANKING (mean per-pick rho with realized)
 
-- blend 0.406 · naive 0.349 · market/ADP 0.244 (n=38 picks)
-- **naive − blend: -0.056 CI [-0.115, -0.003] → negative**
-- naive − market: 0.106 CI [-0.018, 0.219] → inconclusive
-- blend − market: 0.162 CI [0.078, 0.247] → positive
+- blend 0.293 · naive 0.266 · market/ADP 0.17 (n=50 picks)
+- **naive − blend: -0.027 CI [-0.076, 0.015] → inconclusive**
+- naive − market: 0.095 CI [-0.01, 0.195] → inconclusive
+- blend − market: 0.123 CI [0.036, 0.205] → positive
 
 ## DOLLARS (value-greedy roster per source)
 
-- 2025: blend $100.0 · naive $0.0 · adp $200.0 (naive−blend $-100.0)
+- 2026: blend $925.0 · naive $925.0 · adp $925.0 (naive−blend $0.0)
+- 2025: blend $0.0 · naive $0.0 · adp $200.0 (naive−blend $0.0)
 - 2024: blend $200.0 · naive $100.0 · adp $1025.0 (naive−blend $-100.0)
 - 2023: blend $0.0 · naive $0.0 · adp $800.0 (naive−blend $0.0)
-- **naive − blend, summed: $-200.0**
+- **naive − blend, summed: $-100.0**
 
 ## DECISION (pre-registered reading, applied not tuned)
 
@@ -24,6 +25,7 @@ grader). Pre-registered: if naive wins, REPLACE the input; ships nothing (gate f
 
 ## Caveats
 
+- 2026: realized from harvest (nflverse unavailable)
 - 2025: realized from harvest (nflverse unavailable)
 
 _Ships nothing. A source change is gated on null + leave-one-season-out CV._
