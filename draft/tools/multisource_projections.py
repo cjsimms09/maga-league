@@ -329,7 +329,14 @@ def main() -> None:
 
     print("MULTI-SOURCE PROJECTIONS — scored under OUR table\n")
     for s in srcs:
-        d = doc["diagnostics"][s]
+        # A USABLE source that returned zero rows in today's scrape never gets
+        # a `diag["by_source"][s]` entry (that dict is only touched per-row),
+        # so `doc["diagnostics"]` can lack the key entirely — report it as a
+        # zero-row source rather than crashing on the missing key.
+        d = doc["diagnostics"].get(s)
+        if d is None:
+            print(f"  {s:10} rows    0  (no rows scraped for this source today)")
+            continue
         print(f"  {s:10} rows {d['rows']:4}  scored {d['scored']:4}  "
               f"joined {d['joined']:4}  zero-point rows {d['zero_points']:4}")
     c = doc["coverage"]
