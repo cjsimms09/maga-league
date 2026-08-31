@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 434,
+ "next_numeric_id": 435,
  "history": [
   {
    "id": 47,
@@ -358,27 +358,27 @@
   {
    "id": 212,
    "claimed_at": "2026-08-21",
-   "note": "A, 08-21: BURNED, NOT USED. I wrote register references into code comments (robot-mock.js, doctrine.js) before claiming ids, then had to renumber to 206-211 once the allocator showed 205 was already D's. Advancing the watermark past my six real rows consumed these five. No table row carries them and none should be back-filled \u2014 claim 217+."
+   "note": "A, 08-21: BURNED, NOT USED. I wrote register references into code comments (robot-mock.js, doctrine.js) before claiming ids, then had to renumber to 206-211 once the allocator showed 205 was already D's. Advancing the watermark past my six real rows consumed these five. No table row carries them and none should be back-filled — claim 217+."
   },
   {
    "id": 213,
    "claimed_at": "2026-08-21",
-   "note": "A, 08-21: BURNED, NOT USED. I wrote register references into code comments (robot-mock.js, doctrine.js) before claiming ids, then had to renumber to 206-211 once the allocator showed 205 was already D's. Advancing the watermark past my six real rows consumed these five. No table row carries them and none should be back-filled \u2014 claim 217+."
+   "note": "A, 08-21: BURNED, NOT USED. I wrote register references into code comments (robot-mock.js, doctrine.js) before claiming ids, then had to renumber to 206-211 once the allocator showed 205 was already D's. Advancing the watermark past my six real rows consumed these five. No table row carries them and none should be back-filled — claim 217+."
   },
   {
    "id": 214,
    "claimed_at": "2026-08-21",
-   "note": "A, 08-21: BURNED, NOT USED. I wrote register references into code comments (robot-mock.js, doctrine.js) before claiming ids, then had to renumber to 206-211 once the allocator showed 205 was already D's. Advancing the watermark past my six real rows consumed these five. No table row carries them and none should be back-filled \u2014 claim 217+."
+   "note": "A, 08-21: BURNED, NOT USED. I wrote register references into code comments (robot-mock.js, doctrine.js) before claiming ids, then had to renumber to 206-211 once the allocator showed 205 was already D's. Advancing the watermark past my six real rows consumed these five. No table row carries them and none should be back-filled — claim 217+."
   },
   {
    "id": 215,
    "claimed_at": "2026-08-21",
-   "note": "A, 08-21: BURNED, NOT USED. I wrote register references into code comments (robot-mock.js, doctrine.js) before claiming ids, then had to renumber to 206-211 once the allocator showed 205 was already D's. Advancing the watermark past my six real rows consumed these five. No table row carries them and none should be back-filled \u2014 claim 217+."
+   "note": "A, 08-21: BURNED, NOT USED. I wrote register references into code comments (robot-mock.js, doctrine.js) before claiming ids, then had to renumber to 206-211 once the allocator showed 205 was already D's. Advancing the watermark past my six real rows consumed these five. No table row carries them and none should be back-filled — claim 217+."
   },
   {
    "id": 216,
    "claimed_at": "2026-08-21",
-   "note": "A, 08-21: BURNED, NOT USED. I wrote register references into code comments (robot-mock.js, doctrine.js) before claiming ids, then had to renumber to 206-211 once the allocator showed 205 was already D's. Advancing the watermark past my six real rows consumed these five. No table row carries them and none should be back-filled \u2014 claim 217+."
+   "note": "A, 08-21: BURNED, NOT USED. I wrote register references into code comments (robot-mock.js, doctrine.js) before claiming ids, then had to renumber to 206-211 once the allocator showed 205 was already D's. Advancing the watermark past my six real rows consumed these five. No table row carries them and none should be back-filled — claim 217+."
   },
   {
    "id": 217,
@@ -441,7 +441,7 @@
   {
    "id": 235,
    "claimed_at": "2026-08-21",
-   "note": "E: claimed by an accidental `next_register_id.js` run during a merge resolve, then USED \u2014 my 219 claim collided with main's PRINTED register 219 (A's sys.modules stub-leak row, e12b3c2e). Register 186's protocol: main-printed ids are canonical, so my pre-deploy VONA row renumbers 219->235. Fifteenth collision this session and SILENT again: the two rows sat twelve lines apart, git auto-merged with no marker, and only a duplicate-id grep caught it. Five citations repointed individually with a per-line ownership assertion (ROUTES 13, 2830, 2831; DEFECT-REGISTER 427 twice); draft/audit/PRE-DEPLOY-VONA-VERIFICATION-2026-08-21.md carries no id and needed none."
+   "note": "E: claimed by an accidental `next_register_id.js` run during a merge resolve, then USED — my 219 claim collided with main's PRINTED register 219 (A's sys.modules stub-leak row, e12b3c2e). Register 186's protocol: main-printed ids are canonical, so my pre-deploy VONA row renumbers 219->235. Fifteenth collision this session and SILENT again: the two rows sat twelve lines apart, git auto-merged with no marker, and only a duplicate-id grep caught it. Five citations repointed individually with a per-line ownership assertion (ROUTES 13, 2830, 2831; DEFECT-REGISTER 427 twice); draft/audit/PRE-DEPLOY-VONA-VERIFICATION-2026-08-21.md carries no id and needed none."
   },
   {
    "id": 236,
@@ -573,7 +573,7 @@
   {
    "id": 269,
    "claimed_at": "2026-08-23",
-   "note": "A: my rank-vs-gap two-orderings row renumbered 266 -> 269 at merge. main PRINTED its own 266 (the relay's row, itself renumbered from 265) while my publish was in flight, and register 186's protocol is that main-printed ids are canonical. My 267 and 268 are unaffected \u2014 main printed neither. Watermark advanced to 270 so the id I just took cannot be reissued, and committed IN THE SAME COMMIT as the register, which is register 263's lesson: claiming an id without publishing the watermark is what made the allocator hand out duplicates in the first place."
+   "note": "A: my rank-vs-gap two-orderings row renumbered 266 -> 269 at merge. main PRINTED its own 266 (the relay's row, itself renumbered from 265) while my publish was in flight, and register 186's protocol is that main-printed ids are canonical. My 267 and 268 are unaffected — main printed neither. Watermark advanced to 270 so the id I just took cannot be reissued, and committed IN THE SAME COMMIT as the register, which is register 263's lesson: claiming an id without publishing the watermark is what made the allocator hand out duplicates in the first place."
   },
   {
    "id": 270,
@@ -654,7 +654,7 @@
   {
    "id": 291,
    "claimed_at": "2026-08-24",
-   "note": "A: the drop-grader row renumbered 288 -> 291 at merge. main printed its own 288 (E's seat-replay-blind-to-ceiling-arms row) while this branch was in flight. Register 186 protocol, main-printed canonical. My 289 (keepers ungraded) and 290 (sweep the tool's INSTRUCTIONS, not its decisions) are untouched \u2014 main printed neither. BOTH sides of the hunk kept; verified by count that 287-291 hold exactly one row each and that both findings survive by their own text."
+   "note": "A: the drop-grader row renumbered 288 -> 291 at merge. main printed its own 288 (E's seat-replay-blind-to-ceiling-arms row) while this branch was in flight. Register 186 protocol, main-printed canonical. My 289 (keepers ungraded) and 290 (sweep the tool's INSTRUCTIONS, not its decisions) are untouched — main printed neither. BOTH sides of the hunk kept; verified by count that 287-291 hold exactly one row each and that both findings survive by their own text."
   },
   {
    "id": 292,
@@ -1174,7 +1174,7 @@
   {
    "id": 421,
    "claimed_at": "2026-08-29",
-   "note": "BURNED by E, 2026-08-27 \u2014 claimed by hand, then filed via file_register_row.js which claimed 422. No row carries 421."
+   "note": "BURNED by E, 2026-08-27 — claimed by hand, then filed via file_register_row.js which claimed 422. No row carries 421."
   },
   {
    "id": 422,
@@ -1208,7 +1208,7 @@
   {
    "id": 430,
    "claimed_at": "2026-08-31",
-   "note": "A: the week-1 capture probe scores a dead rail OK, and its test was red in CI / green in every sandbox. Claimed 429; renumbered because main printed 428 and 429 first (register 186). A standalone next_register_id.js call by A also spent 428 before either row landed \u2014 the id was independently claimed on main, so nothing was lost, but the tool's own warning against running it standalone stands."
+   "note": "A: the week-1 capture probe scores a dead rail OK, and its test was red in CI / green in every sandbox. Claimed 429; renumbered because main printed 428 and 429 first (register 186). A standalone next_register_id.js call by A also spent 428 before either row landed — the id was independently claimed on main, so nothing was lost, but the tool's own warning against running it standalone stands."
   },
   {
    "id": 431,
@@ -1235,7 +1235,7 @@
   {
    "id": "163-185 reconciled",
    "claimed_at": "2026-08-21",
-   "note": "relay: main-side authors (relay 173, A 174, and rows 163-172) allocated by grepping the table max, bypassing this file \u2014 C flagged it stale 08-20, unactioned. D's branch meanwhile used this watermark faithfully through 185. Ruling proposed to A: ids PRINTED on main stay (documents cite them); branch rows colliding in 163-174 renumber to fresh ids at merge (E's per-citation classification is the input); D's branch-side renumber of main's 173 to 184 reverts. Watermark now authoritative from 186, and a CI test now fails any table id filed at or past the watermark."
+   "note": "relay: main-side authors (relay 173, A 174, and rows 163-172) allocated by grepping the table max, bypassing this file — C flagged it stale 08-20, unactioned. D's branch meanwhile used this watermark faithfully through 185. Ruling proposed to A: ids PRINTED on main stay (documents cite them); branch rows colliding in 163-174 renumber to fresh ids at merge (E's per-citation classification is the input); D's branch-side renumber of main's 173 to 184 reverts. Watermark now authoritative from 186, and a CI test now fails any table id filed at or past the watermark."
   },
   {
    "id": "187-189",
@@ -1245,12 +1245,12 @@
   {
    "id": "192 -> 195",
    "claimed_at": "2026-08-21",
-   "note": "D: a graded prediction (P143) silently reverted to an OPEN stub and its successor vanished from the live ledger; found while converting P143 to GRADING-POLICY, not by any guard. relay_publish.sh's insert step is insert-never-overwrite and skips silently without --grade; prediction_ledger_check only fails on rows past their grade-by date, so a reverted grade is invisible until then and then reads as never-graded. Routed to relay with a history-vs-head guard as the fix. Watermark now authoritative from 193. \u26a0\ufe0f RENUMBERED 192->195 at merge: main printed its own 192 (Draft Sharks ceiling-ordering) and A's 08-21 protocol keeps main-printed ids. Both citations repointed. NOTE: the relay had ALREADY acted on this finding independently (2684ce87) -- P143's grade restored from 0b05742c and the ledger regression guard built -- so this row documents a defect that is already fixed."
+   "note": "D: a graded prediction (P143) silently reverted to an OPEN stub and its successor vanished from the live ledger; found while converting P143 to GRADING-POLICY, not by any guard. relay_publish.sh's insert step is insert-never-overwrite and skips silently without --grade; prediction_ledger_check only fails on rows past their grade-by date, so a reverted grade is invisible until then and then reads as never-graded. Routed to relay with a history-vs-head guard as the fix. Watermark now authoritative from 193. ⚠️ RENUMBERED 192->195 at merge: main printed its own 192 (Draft Sharks ceiling-ordering) and A's 08-21 protocol keeps main-printed ids. Both citations repointed. NOTE: the relay had ALREADY acted on this finding independently (2684ce87) -- P143's grade restored from 0b05742c and the ledger regression guard built -- so this row documents a defect that is already fixed."
   },
   {
    "id": "200(->208),206,207,209 + P316",
    "claimed_at": "2026-08-21",
-   "note": "E: FOUR simultaneous silent collisions in one merge (191, 197, 199, P314), plus one row of mine that main had already renumbered for me. Protocol 186, main-printed ids canonical. My 191 (main-is-red) -> 208 (200 was already mine, from the 193->195->200 chain -- I caught that by grepping duplicates after the renumber, not before); my 197 (control-band k=) -> 206; my 199 (draft-pick-null review) -> 207; my P314 (slate countdown) -> P316. My blind-control row is DROPPED from my branch rather than renumbered: main already carries it at 197 with the full renumber history ('was 192, then 195, now 197'), so keeping my copy at 198 would be a third instance of one finding. \u26a0\ufe0f AND MAIN ITSELF NOW CARRIES A DUPLICATE 197 -- my blind-control row and the ESPN/Clay row share it -- which means test_no_two_rows_share_an_id is RED on main. Flagged to A; not fixed here, because renumbering another lane's row is not mine to do. RESOLUTION OF MAIN'S OWN DUPLICATE: main printed 197 twice -- my blind-control row and the ESPN/Clay row -- so I moved MY row to 209 (its fourth id: 192->194/195->197->209) and left the ESPN/Clay row at 197, because renumbering another lane's row is not mine to do. test_no_two_rows_share_an_id is RED on main until A picks one."
+   "note": "E: FOUR simultaneous silent collisions in one merge (191, 197, 199, P314), plus one row of mine that main had already renumbered for me. Protocol 186, main-printed ids canonical. My 191 (main-is-red) -> 208 (200 was already mine, from the 193->195->200 chain -- I caught that by grepping duplicates after the renumber, not before); my 197 (control-band k=) -> 206; my 199 (draft-pick-null review) -> 207; my P314 (slate countdown) -> P316. My blind-control row is DROPPED from my branch rather than renumbered: main already carries it at 197 with the full renumber history ('was 192, then 195, now 197'), so keeping my copy at 198 would be a third instance of one finding. ⚠️ AND MAIN ITSELF NOW CARRIES A DUPLICATE 197 -- my blind-control row and the ESPN/Clay row share it -- which means test_no_two_rows_share_an_id is RED on main. Flagged to A; not fixed here, because renumbering another lane's row is not mine to do. RESOLUTION OF MAIN'S OWN DUPLICATE: main printed 197 twice -- my blind-control row and the ESPN/Clay row -- so I moved MY row to 209 (its fourth id: 192->194/195->197->209) and left the ESPN/Clay row at 197, because renumbering another lane's row is not mine to do. test_no_two_rows_share_an_id is RED on main until A picks one."
   },
   {
    "id": "213,214",
@@ -1265,12 +1265,16 @@
   {
    "id": "271-273",
    "claimed_at": "2026-08-23",
-   "note": "A: ALL THREE of my autopsy rows renumbered at merge \u2014 267->271 (RAIL_LATE_ROUNDS forced both onesies into the last two picks), 268->272 (which captured fields have never held a non-default value), 269->273 (rank and gap reported in two different orderings; this row's SECOND move today, 266->269->273). main printed its own 267, 268, 269 AND 270 between my two merge attempts, so every id I had was canonical to someone else. Register 186's protocol, main-printed wins. Rows matched BY CONTENT, never by id chain \u2014 register 212 is what that mistake costs. Note that main's own 270 is E filing the same class of problem from the other side: rows deleted twice in one evening by concurrent merges. Watermark to 274, committed WITH the register."
+   "note": "A: ALL THREE of my autopsy rows renumbered at merge — 267->271 (RAIL_LATE_ROUNDS forced both onesies into the last two picks), 268->272 (which captured fields have never held a non-default value), 269->273 (rank and gap reported in two different orderings; this row's SECOND move today, 266->269->273). main printed its own 267, 268, 269 AND 270 between my two merge attempts, so every id I had was canonical to someone else. Register 186's protocol, main-printed wins. Rows matched BY CONTENT, never by id chain — register 212 is what that mistake costs. Note that main's own 270 is E filing the same class of problem from the other side: rows deleted twice in one evening by concurrent merges. Watermark to 274, committed WITH the register."
   },
   {
    "id": "47-50 reconciled",
    "claimed_at": "2026-08-18",
    "note": "A filed 47/48 on main concurrently with the watermark's first claim of 47; A's B0 row took 49; the watermark's row renumbered to 50. Watermark now authoritative from 51."
+  },
+  {
+   "id": 434,
+   "claimed_at": "2026-08-31"
   }
  ]
 }
