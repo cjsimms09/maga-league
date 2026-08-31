@@ -80,9 +80,36 @@ def test_ligature_corrupted_name_is_fixed():
 
 
 def test_crosswalk_matches_every_player_uniquely():
+    """⚠️ REWRITTEN 2026-08-31 (D, register 435; see also 436). This asserted
+    `n_unmatched == 0`, and from 2026-08-27 it blocked every board publish:
+    Sleeper dropped Nick Chubb and Trey Benson — two unsigned free agents — from
+    its projection universe that morning, board membership requires a Sleeper
+    projection, so a freshly built board has no row for them and their two Draft
+    Sharks rows have nothing to match. `2 == 0`, five days of a stale board.
+
+    A frozen 250-row PDF joined to a LIVE board universe cannot hold a
+    zero-misses invariant forever, so the invariant is the thing that was wrong.
+    What replaces it keeps every tooth: a row may go unmatched ONLY when the
+    board itself has no candidate for it (see `absence_reason`), the count of
+    such rows is bounded, and every one is named on stderr. A matcher
+    regression leaves its candidate sitting on the board, so it comes back
+    `unexplained` and still fails here.
+    """
     doc = D.main()
-    assert doc["n_unmatched"] == 0
-    ids = [r["sleeper_id"] for r in doc["players"]]
+    for u in doc["unmatched"]:
+        assert u["reason"] == "absent-from-board", u
+    assert doc["n_unmatched_unexplained"] == 0, doc["unmatched"]
+
+    # BOUNDED, so a mass parse failure cannot walk through the exemption. If a
+    # page-break reflow ever garbled many names at once, every garbled row
+    # would look "absent from the board" — true, and still a defect. Five is a
+    # handful of departed free agents; a fortieth is a broken parse.
+    assert doc["n_unmatched_absent_from_board"] <= 5, doc["unmatched"]
+
+    # `sleeper_id` is None on an unmatched row, so two unmatched rows used to
+    # make this line fail as a *duplicate match* — a second, quieter defect in
+    # the old version, and it would have fired the moment the first one did.
+    ids = [r["sleeper_id"] for r in doc["players"] if r["sleeper_id"]]
     assert len(ids) == len(set(ids)), "two Draft Sharks rows matched the same player"
 
 

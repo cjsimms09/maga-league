@@ -94,6 +94,8 @@
  ],
  "n_matched": 250,
  "n_unmatched": 0,
+ "n_unmatched_absent_from_board": 0,
+ "n_unmatched_unexplained": 0,
  "match_methods": {
   "first-initial+pos": 198,
   "first-initial+pos+closest-rank": 2,

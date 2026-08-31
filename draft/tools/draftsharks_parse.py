@@ -48,6 +48,7 @@ from __future__ import annotations
 import collections
 import json
 import re
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent.parent
@@ -482,6 +483,57 @@ def match_draftsharks_player(row: dict, index: dict, ADP) -> tuple[str | None, s
     return None, ""
 
 
+def absence_reason(row: dict, index: dict, ADP) -> str:
+    """WHY did this row fail to match? There are two answers and only one of
+    them is a defect.
+
+    ⚠️ ADDED 2026-08-31 (D, register 435; see also 436) AFTER THE GATE BLOCKED THE BOARD FOR
+    FIVE DAYS ON THIS TEST. Sleeper dropped Nick Chubb (4988) and Trey Benson
+    (11589) from its projection universe on 2026-08-27 -- both are unsigned free
+    agents, and Draft Sharks' own capture already writes Chubb's team as "UNS".
+    Board membership REQUIRES a Sleeper projection (every row on the published
+    board carries a non-null `proj_sleeper`), so a fresh build simply has no row
+    for them, their buckets in this index are empty, and their two Draft Sharks
+    rows cannot match anything. `n_unmatched == 0` was an invariant on a frozen
+    250-row PDF joined to a LIVE board universe, so it could only ever hold
+    until the world moved. It moved.
+
+    THE DISTINCTION THAT KEEPS THE GUARD'S TEETH: absence is judged by the
+    BOARD, not by the matcher. If the board holds no candidate that any matching
+    path here could legitimately have picked, then the player is not in the
+    universe and no matcher could have found them. If such a candidate exists,
+    we failed to pick it -- that is a matcher defect, it is called `unexplained`,
+    and it still fails the gate. A regression cannot hide here, because a
+    regression by definition leaves its candidate on the board.
+
+    ⚠️ POSITION IS PART OF "COULD HAVE PICKED", AND LEAVING IT OUT WAS THIS
+    FUNCTION'S FIRST BUG -- caught by its own C1 control on the first run, which
+    is the only reason it is not shipping. Written position-blind, the Trey
+    Benson row came back `unexplained`, because the board still carries MALIK
+    Benson, LV WR: a different player, at a position no path here would ever
+    offer for an RB row. That version would have left the gate exactly as red as
+    it was. Every matching path filters candidates by position (`same_pos`, and
+    the last-name path's own `c["pos"] == pos`), so the absence test filters by
+    position too.
+
+    That does mean a row whose POSITION were misparsed would read as absent. It
+    cannot get here silently: `test_no_row_has_a_category_split_impossible_for_
+    its_position` fails on any row whose points categories do not match its
+    stated position, and it runs on the same document.
+    """
+    pos = ADP._norm_pos(row["position"])
+    key = _first_initial_key(row["name"], ADP)
+    by_initial = [c for c in index.get("by_first_initial", {}).get(key, [])
+                  if c["pos"] == pos]
+    parts = ADP.normalize_name(row["name"]).split()
+    last_tok = parts[-1] if parts else ""
+    by_last = [c for c in index.get("by_last_name", {}).get(last_tok, [])
+               if c["pos"] == pos]
+    if not by_initial and not by_last:
+        return "absent-from-board"
+    return "unexplained"
+
+
 def main() -> dict:
     pts = parse_pts()
     ceil = parse_ceil()
@@ -553,7 +605,17 @@ def main() -> dict:
             match_methods[method] += 1
         else:
             unmatched.append({"rank": r["rank"], "name": r["name"],
-                               "team": r["team"], "position": r["position"]})
+                               "team": r["team"], "position": r["position"],
+                               "reason": absence_reason(r, index, ADP)})
+
+    # NEVER SILENTLY. A skipped row is disclosed by name on stderr every run,
+    # so "the crosswalk covered 248 of 250" is never something a reader has to
+    # go digging for -- same discipline as the roster_robustness vintage-drift
+    # skip (relay, 2026-08-31).
+    for u in unmatched:
+        print(f"draftsharks crosswalk: rank {u['rank']} {u['name']} "
+              f"({u['team']} {u['position']}) UNMATCHED — {u['reason']}",
+              file=sys.stderr)
 
     doc = {
         "_territory": "TERRITORY: C — written by draftsharks_parse.py",
@@ -584,6 +646,10 @@ def main() -> dict:
         "join_mismatches": join_mismatches,
         "n_matched": sum(match_methods.values()),
         "n_unmatched": len(unmatched),
+        "n_unmatched_absent_from_board": sum(
+            1 for u in unmatched if u["reason"] == "absent-from-board"),
+        "n_unmatched_unexplained": sum(
+            1 for u in unmatched if u["reason"] != "absent-from-board"),
         "match_methods": dict(match_methods),
         "unmatched": unmatched,
         "players": players,
