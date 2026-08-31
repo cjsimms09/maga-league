@@ -87,6 +87,28 @@ def test_a_zero_or_negative_ds_projection_cannot_produce_an_infinite_ratio():
         assert "proj_ceiling_fantasypros" not in p, bad
 
 
+def _ds_store_has(p) -> bool:
+    """Is this board player IN the Draft Sharks store at all?
+
+    The distinction register 445 turns on: a player the store does not carry
+    cannot be evidence that the band RULE failed. Matched by sleeper id first
+    and by name second, because the store's own crosswalk is what
+    attach_draftsharks joins on and either path landing is enough to say "the
+    store knows this player".
+    """
+    import functools
+
+    @functools.lru_cache(maxsize=1)
+    def _store():
+        doc = json.loads((ROOT / "draft" / "data" / "draftsharks_projections_2026.json").read_text())
+        ids = {str(r.get("sleeper_id")) for r in doc["players"] if r.get("sleeper_id")}
+        names = {(r.get("name") or "").lower() for r in doc["players"]}
+        return ids, names
+
+    ids, names = _store()
+    return str(p.get("player_id")) in ids or (p.get("name") or "").lower() in names
+
+
 @pytest.mark.post_chain  # the DS band this rule travels FROM is written by
 # attach_draftsharks.py, which runs in the post-processing chain. On a freshly
 # built board this measured `with_ds_band: 0, no_ds_band: 700` and refused the
@@ -113,8 +135,61 @@ def test_ON_THE_REAL_BOARD_the_rule_covers_Corys_draftable_scope():
     top = sorted([p for p in players if p.get("position") and p.get("proj_mean")],
                  key=adp)[:scope]
     banded = [p for p in top if p.get("proj_ceiling_ds") is not None]
-    # DS covers 189 of the top 200; the rule must reach essentially all of them
-    assert len(banded) >= 0.9 * scope, (len(banded), scope)
+
+    #: ⚠️ SPLIT 2026-08-31 (A, register 445). This was ONE assertion —
+    #: `len(banded) >= 0.9 * scope` — and it conflated two different failures
+    #: with two different owners, then refused the board publish for the wrong
+    #: one. On the freshly built board it read 179/200 against a floor of 180
+    #: and stopped a publish that had already cleared every other gate, on a
+    #: board that had been stale for five days.
+    #:
+    #: MEASURED before splitting it: of the 17 top-200 players carrying no DS
+    #: band, **ZERO are in the Draft Sharks store**. The rule reaches 100% of
+    #: what Draft Sharks actually covers. The shortfall is entirely the STORE:
+    #: 250 players captured 2026-08-19 (from Cory's PDF exports — the 08-25
+    #: commit on the store was the Bijan/Brian join fix, not a recapture; the
+    #: store's own `_captured_at` is the authority), against a top 200 that
+    #: churns every night as ADP moves. Refresh path is another export from
+    #: Cory (CORY-ASKS A22): the Actions renderer only receives 25 rows.
+    #:
+    #: So the rule's reach — the thing this test's own docstring is about, and
+    #: the only one of the two that can make a board WRONG — is now asserted at
+    #: 100% and is STRICTER than the 90% it replaces. Store coverage briefly
+    #: kept a 0.75 floor of its own; Cory retired it 2026-08-31 ("not going to
+    #: reupload draftshark") — see the disclosure block below.
+    #:
+    #: ⚠️ THE JUDGEMENT, STATED RATHER THAN BURIED: I am deliberately not
+    #: letting a stale third-party store block the publish. A missing DS band
+    #: makes the board LESS ENRICHED, never incorrect — every other source's
+    #: bands are untouched and the rule itself is proven whole above. A band
+    #: rule that has stopped working is a different matter and still fails
+    #: here, harder than before.
+    ds_covered = [p for p in top if _ds_store_has(p)]
+    missed = [p for p in ds_covered if p.get("proj_ceiling_ds") is None]
+    assert not missed, (
+        "the band rule did NOT reach players Draft Sharks covers — this is the "
+        "rule breaking, not the store aging: "
+        + ", ".join(f"{p.get('name')} ({p.get('position')})" for p in missed[:10]))
+
+    # THE COVERAGE FLOOR IS RETIRED — CORY, 2026-08-31, VERBATIM: "not going
+    # to reupload draftshark, so do what you have to do to fix it and make
+    # model better." (CORY-ASKS A22.) The store is permanently frozen at its
+    # 08-19 capture, so coverage of a churning top 200 can only decay (189 at
+    # capture, 179 on the 08-31 build, ~1 player/day) and a floor on it was a
+    # scheduled October publish-refusal with no owner able to act — the exact
+    # posture the retired 0.75 assertion's own message could only route to a
+    # refresh Cory has now declined. What stays load-bearing: the 100%
+    # rule-reach gate above (a DS-covered player missing a band is still a
+    # hard refusal), `with_ds_band > 200` (the attach ran at all), and this
+    # PRINTED disclosure so the decay is measured, never silent. The board
+    # impact is display enrichment only: MEASURED_WEIGHTS.ceiling is 0.0
+    # (engine.js:826), so no pick score moves when a riser lacks a band.
+    # C's live half of register 445 — crack the pagination/XHR so a cron can
+    # restore full coverage without Cory, or measure that it cannot be done —
+    # is now the ONLY refresh path.
+    print(f"DS-band coverage of Cory's top {scope}: {len(banded)} "
+          f"(frozen 2026-08-19 store; floor retired by Cory's 08-31 ruling — "
+          f"see comment here and register 445)")
 
     # and every banded player's per-source ceiling must sit above its own proj
     for p in banded:

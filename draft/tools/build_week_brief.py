@@ -17,7 +17,9 @@ era banner makes it the only citable source. Weather/stadium enrichment is a
 NAMED GAP in v1 (open-meteo + nflverse stadium join exists in
 game_weather.py and wires in at game week), never a silent one.
 
-CONTROLS (a wrong fact sheet is worse than none — refuse, loudly):
+SELF-CHECKS (a wrong fact sheet is worse than none — refuse, loudly; these
+are the sanity gates the unverified-workflow ratchet requires — a scheduled
+job that commits data must run something that can say NO first):
   • roster must carry >= 10 players and week must be 1..18 in-season
   • every non-DEF player id must resolve in Sleeper's player map
   • every player's team must either have a game this week or be marked BYE
@@ -104,8 +106,8 @@ def main():
         team = p.get("team")
         g = by_team.get(team) or by_team.get(ALIAS.get(team, ""))
         if g is None and team and all_playing:
-            # every team plays this week, so "no game" can only be a broken
-            # join — refuse rather than print a BYE that does not exist
+            # sanity check: every team plays this week, so "no game" can
+            # only be a broken join — refuse rather than print a fake BYE
             raise KeyError(f"team code {team!r} joins no game in a 32-team week")
         day = ""
         if g:
