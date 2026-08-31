@@ -241,6 +241,28 @@ function check(text, todayStr, opts) {
           `"second-grade:P<n>", "pending-second-grade", or "exempt: <reason>".`);
       }
     }
+  
+    /* ── THE FALSE-SUCCESSOR RULE (Cory, 08-31: false predictions "are not
+     * good if we arent still learning from them, trying new versions of
+     * things that might have promise, but also not chasing things that
+     * obviously arent going to give edge"). A FALSE grade must do one of two
+     * things, EXPLICITLY: spawn the next version of the idea, or retire the
+     * line with the reason no more versions are worth buying. Silence — a
+     * dead idea with neither a successor nor a tombstone — is the un-learning
+     * Cory named. Enforced from P348 (grades before this rule keep their
+     * form; the stale-row sweep chases those the slow way). */
+    if (idNum >= 348 && statusWord(cells[COL.status]) === 'GRADED' &&
+        /\bFALSE\b/.test(String(cells[COL.result] || '') + ' ' +
+                          String(cells[COL.status] || ''))) {
+      const c = String(changed || '');
+      if (!/successor:\s*P\d+/i.test(c) && !/line retired:/i.test(c)) {
+        problems.push(
+          `${id}: GRADED FALSE WITH NEITHER A SUCCESSOR NOR A TOMBSTONE. ` +
+          `Cory 08-31: a false prediction we do not learn from is not good. ` +
+          `Write "SUCCESSOR: P<n>" (the next version, preregistered) or ` +
+          `"LINE RETIRED: <why no further version is worth buying>".`);
+      }
+    }
   }
   /* CORY, 2026-08-18: "we need to be adding things and trying things and adapting
    * until we find the right blend ... no stone unturned."
