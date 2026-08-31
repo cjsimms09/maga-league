@@ -1,0 +1,36 @@
+{
+ "_territory": "TERRITORY: relay \u2014 written by test_roster_robustness on each run",
+ "_what": "seats where the engine pick is absent from the seat's own shortlist",
+ "count": 7,
+ "of": 12,
+ "seats": [
+  {
+   "pick": 33,
+   "name": "Davante Adams"
+  },
+  {
+   "pick": 48,
+   "name": "Rhamondre Stevenson"
+  },
+  {
+   "pick": 73,
+   "name": "Kenny Gainwell"
+  },
+  {
+   "pick": 108,
+   "name": "Xavier Worthy"
+  },
+  {
+   "pick": 113,
+   "name": "Tyjae Spears"
+  },
+  {
+   "pick": 128,
+   "name": "Brenton Strange"
+  },
+  {
+   "pick": 148,
+   "name": "Keenan Allen"
+  }
+ ]
+}
