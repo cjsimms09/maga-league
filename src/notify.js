@@ -239,7 +239,8 @@ async function sundayAlert(owners, alert) {
   if (!owner) return { skipped: true, reason: 'not-commissioner' };
   if (!owner.email) return { skipped: true, reason: 'commissioner-has-no-email' };
   if (!alert) return { skipped: true, reason: 'no-alert' };
-  const week = alert.week ? `Week ${alert.week}` : 'This week';
+  const week = (alert.week ? `Week ${alert.week}` : 'This week')
+             + (alert.scope === 'thursday' ? ' — Thursday night locks tonight' : '');
   // The badge must cover every posture the engine can return. It was a two-way
   // ternary over three modes, so `pending` came out branded 🛡️ PROTECT above its
   // own headline "No projections yet — nothing to optimize" — and the on-page

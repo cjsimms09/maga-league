@@ -299,7 +299,15 @@ router.get('/api/sunday-alert', aw(async (req, res) => {
   // swallowed. The manual button (POST /lineup/sunday/send) deliberately does
   // NOT check the stamp: an explicit click is a request, not a schedule.
   const season = String(H.currentSeason(world.seasons).year || new Date().getUTCFullYear());
-  const stampKey = `sunday-alert-sent:${season}:${weekNo}`;
+  // TWO SCOPES, TWO STAMPS (Cory, 2026-08-31: "help me maximize my bench
+  // disipline and set best lineups!!"). The Thursday firing exists because a
+  // TNF starter's fate is sealed three days before the Sunday check — the
+  // rail's own convention says so — and a dead Thursday slot was uncatchable.
+  // The Sunday stamp keeps its LEGACY key (no suffix) so weeks already
+  // stamped in production stay stamped; only the Thursday scope suffixes.
+  const scope = req.query.scope === 'thursday' ? 'thursday' : 'sunday';
+  if (scope === 'thursday') alert.scope = 'thursday';
+  const stampKey = `sunday-alert-sent:${season}:${weekNo}` + (scope === 'thursday' ? ':thu' : '');
   const already = await getDoc(stampKey, null);
   if (already) {
     return res.json({ ok: true, sent: 0, quiet: true, emailConfigured, week: weekNo,

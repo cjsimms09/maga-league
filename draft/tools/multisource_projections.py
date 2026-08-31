@@ -146,7 +146,7 @@ def league_scoring() -> dict:
     return doc["weeks"][0]["scoring"]
 
 
-def main() -> None:
+def main() -> int:
     if not RAW.exists():
         raise SystemExit(f"no {RAW} — dispatch ffanalytics-probe.yml first")
     scoring = league_scoring()
@@ -325,6 +325,49 @@ def main() -> None:
         "diagnostics": {k: dict(v) for k, v in diag["by_source"].items()},
         "agreement_spearman": agree,
     }
+    # ── A DECLARED SOURCE THAT CONTRIBUTED NOTHING IS A REFUSAL, NOT A CRASH ──
+    #
+    # Register 442. This job has failed every night since 2026-08-27 with
+    # `KeyError: 'CBS'` from the print loop below — an accident of a reporting
+    # loop assuming every USABLE source appears in a defaultdict that is only
+    # populated when a row arrives. THE CRASH WAS LOAD-BEARING BY ACCIDENT, and
+    # that is the part worth keeping: `OUT.write_text` ran FIRST, so "fixing"
+    # the KeyError alone would have started shipping an artifact whose
+    # `sources_used` says ["CBS", "ESPN", "FFToday"] while carrying ONE.
+    #
+    # MEASURED on the 2026-08-31 capture: CBS 0 rows, ESPN 0 rows, FFToday 385
+    # — plus FantasyPros 60 and Walterfootball 50, both EXCLUDED by name above
+    # as truncated top-10 leaderboards. So the multi-source blend has quietly
+    # become a single-source one upstream, and nobody saw it for five days
+    # because the symptom was a Python traceback rather than a claim.
+    #
+    # The committed artifact is from 08-20 and carries CBS 442 / ESPN 416 /
+    # FFToday 390. It is STALE and HONEST, which register 364 says is worth
+    # more than a fresh one that silently changes what a citation means — so
+    # the refusal below leaves it in place rather than overwriting it.
+    missing = sorted(s for s in srcs if not diag["by_source"].get(s, {}).get("rows"))
+    if missing:
+        present = {s: v["rows"] for s, v in sorted(diag["by_source"].items())}
+        raw_by_source = {}
+        for r in rows:
+            raw_by_source[r.get("source")] = raw_by_source.get(r.get("source"), 0) + 1
+        print("MULTI-SOURCE PROJECTIONS — REFUSING TO WRITE\n", file=sys.stderr)
+        print(f"  declared USABLE sources with ZERO rows: {', '.join(missing)}",
+              file=sys.stderr)
+        print(f"  usable sources that did arrive: {present or '(none)'}", file=sys.stderr)
+        print(f"  every source in the raw capture:  {raw_by_source}", file=sys.stderr)
+        print(f"  raw file: {RAW.relative_to(ROOT)}", file=sys.stderr)
+        print("\n  NOT overwriting the committed artifact. It would still claim\n"
+              f"  sources_used={sorted(USABLE)} while carrying "
+              f"{len(present)} of {len(srcs)}, and a fresh artifact that\n"
+              "  silently changes what a citation means is worse than a stale one\n"
+              "  that is honestly dated (register 364).\n"
+              "\n  This is an UPSTREAM capture problem, not a scoring one: fix\n"
+              "  what fills the raw CSV, or rule the missing sources out of\n"
+              "  USABLE by name with a reason, the way FantasyPros and\n"
+              "  Walterfootball already are.", file=sys.stderr)
+        return 1
+
     OUT.write_text(json.dumps(doc, indent=1))
 
     print("MULTI-SOURCE PROJECTIONS — scored under OUR table\n")
@@ -340,7 +383,8 @@ def main() -> None:
     for k, v in agree.items():
         print(f"    {k:24} n={v['n']:4}  rho={v['spearman']}")
     print(f"\n  wrote {OUT.relative_to(ROOT)}")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

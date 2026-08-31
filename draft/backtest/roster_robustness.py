@@ -412,11 +412,26 @@ def arm_rosters() -> tuple[dict, dict]:
     by_id, by_name = board_maps()
     keepers = [_player(by_id[str(k["player_id"])]) for k in seat["keepers"]]
     arms, medoid = {}, {}
+    missing_from_board: dict = {}
     for arm, rooms in doc["detail"].items():
         rosters = []
         sets = []
         for r in rooms:
-            picks = [_player(by_name[(x["name"], x["pos"])]) for x in r["picksLog"]]
+            # The tournament artifact is FROZEN (built against the board of
+            # its day); the board keeps rebuilding. A pick whose (name, pos)
+            # no longer joins is VINTAGE DRIFT, not a crash: skip it and say
+            # so out loud, so the measurement stays a measurement and the
+            # reader can judge whether the drift invalidates it (it crashed
+            # here on ('Jayden Higgins','WR') from 08-26 through 08-31 and
+            # blocked every board publish behind the acceptance gate).
+            picks = []
+            for x in r["picksLog"]:
+                row = by_name.get((x["name"], x["pos"]))
+                if row is None:
+                    missing_from_board.setdefault(arm, set()).add(
+                        f"{x['name']} ({x['pos']})")
+                    continue
+                picks.append(_player(row))
             rosters.append({"seed": int(r["seed"]), "roster": keepers + picks})
             sets.append(frozenset(x["name"] for x in r["picksLog"]))
         best_i, best_s = 0, -1.0
@@ -427,6 +442,13 @@ def arm_rosters() -> tuple[dict, dict]:
         arms[arm] = rosters
         medoid[arm] = {"index": best_i, "seed": rooms[best_i]["seed"],
                        "mean_jaccard": round(best_s / len(sets), 3)}
+    if missing_from_board:
+        import sys
+        for arm, names in sorted(missing_from_board.items()):
+            print(f"⚠️ roster_robustness: {len(names)} artifact pick(s) no longer "
+                  f"join the current board in arm '{arm}': {sorted(names)} — "
+                  "vintage drift between the frozen tournament artifact and a "
+                  "rebuilt board; rosters computed WITHOUT them.", file=sys.stderr)
     return arms, medoid
 
 
