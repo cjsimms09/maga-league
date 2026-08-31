@@ -5,15 +5,15 @@
     "n_seasons": 4,
     "per_season_total_delta": {
       "2026": 0.0,
-      "2025": -100.0,
+      "2025": -200.0,
       "2024": -825.0,
       "2023": -800.0
     },
-    "mean_season_delta": -431.25,
-    "sum_delta": -1725.0,
+    "mean_season_delta": -456.25,
+    "sum_delta": -1825.0,
     "ci95_mean_season": [
       -812.5,
-      -50.0
+      -100.0
     ],
     "verdict": "adp-earns-more",
     "per_season_sign": {
@@ -25,8 +25,8 @@
     "sign_consistent": false,
     "by_component": {
       "weekly_high": {
-        "mean": -150.0,
-        "sum": -600.0,
+        "mean": -175.0,
+        "sum": -700.0,
         "n": 4
       },
       "regular_season": {
@@ -73,10 +73,10 @@
     {
       "season": "2025",
       "our": {
-        "weekly_high": 100.0,
+        "weekly_high": 0.0,
         "regular_season": 0.0,
         "playoff": 0.0,
-        "total": 100.0,
+        "total": 0.0,
         "playoff_place": null,
         "made_playoffs": false,
         "partial": false
@@ -91,10 +91,10 @@
         "partial": false
       },
       "delta": {
-        "weekly_high": -100.0,
+        "weekly_high": -200.0,
         "regular_season": 0.0,
         "playoff": 0.0,
-        "total": -100.0
+        "total": -200.0
       }
     },
     {
@@ -281,14 +281,14 @@
         {
           "pick_no": 48,
           "round": 5,
-          "chosen": "2133",
+          "chosen": "7543",
           "real": "2133",
           "used_fallback": false
         },
         {
           "pick_no": 53,
           "round": 6,
-          "chosen": "8148",
+          "chosen": "2133",
           "real": "12512",
           "used_fallback": false
         },
@@ -441,7 +441,7 @@
         {
           "pick_no": 144,
           "round": 15,
-          "chosen": "8676",
+          "chosen": "8154",
           "real": "DET",
           "used_fallback": false
         }
@@ -959,17 +959,17 @@
     }
   },
   "correlation_arm": {
-    "diff_mean": 0.051,
+    "diff_mean": 0.135,
     "diff_ci": [
-      -0.06,
-      0.15
+      0.051,
+      0.223
     ],
-    "verdict": "inconclusive",
+    "verdict": "beat",
     "n_picks": 34
   },
   "agreement": {
-    "state": "ranks_better=False, dollar_verdict=adp-earns-more",
-    "ranks_better": false,
+    "state": "THE INTERESTING RESULT: ranks better but earns same-or-less \u2014 the edge is in evaluating players, not in constructing rosters that fit this payout structure. Points at the PORTFOLIO DOCTRINE, not the projections.",
+    "ranks_better": true,
     "dollar_verdict": "adp-earns-more"
   },
   "caveats": [],

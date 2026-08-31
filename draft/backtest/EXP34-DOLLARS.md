@@ -8,22 +8,22 @@ construction (n=seasons); where it spans zero the correlation arm carries it._
 
 ## HEADLINE — our-policy minus ADP-policy dollars
 
-- **mean per-season delta: $-431.25  CI95 [-812.5, -50.0]  -> ADP-EARNS-MORE**
-- sum across 4 seasons: $-1725.0
-- per season: 2026: $0.0, 2025: $-100.0, 2024: $-825.0, 2023: $-800.0
+- **mean per-season delta: $-456.25  CI95 [-812.5, -100.0]  -> ADP-EARNS-MORE**
+- sum across 4 seasons: $-1825.0
+- per season: 2026: $0.0, 2025: $-200.0, 2024: $-825.0, 2023: $-800.0
 - sign consistent across seasons: False ({'2026': 0, '2025': -1, '2024': -1, '2023': -1})
 
 ### decomposed (our - ADP), summed across seasons
 
-- weekly high: sum $-600.0 (mean/season $-150.0, n=4)
+- weekly high: sum $-700.0 (mean/season $-175.0, n=4)
 - regular season: sum $-325.0 (mean/season $-81.25, n=4)
 - playoff: sum $-800.0 (mean/season $-200.0, n=4)
 
 ## AGREEMENT with the correlation (ranking) arm
 
-- correlation arm: diff 0.051 CI [-0.06, 0.15] -> inconclusive (n=34)
+- correlation arm: diff 0.135 CI [0.051, 0.223] -> beat (n=34)
 - dollar arm: adp-earns-more
-- **ranks_better=False, dollar_verdict=adp-earns-more**
+- **THE INTERESTING RESULT: ranks better but earns same-or-less — the edge is in evaluating players, not in constructing rosters that fit this payout structure. Points at the PORTFOLIO DOCTRINE, not the projections.**
 
 ## Per season
 
@@ -33,9 +33,9 @@ construction (n=seasons); where it spans zero the correlation arm carries it._
 - **delta $0.0** (wh $0.0 / rs $0.0 / po $0.0)
 
 ### 2025
-- our:  total $100.0  (wh $100.0 / rs $0.0 / po $0.0, place None)
+- our:  total $0.0  (wh $0.0 / rs $0.0 / po $0.0, place None)
 - adp:  total $200.0  (wh $200.0 / rs $0.0 / po $0.0, place None)
-- **delta $-100.0** (wh $-100.0 / rs $0.0 / po $0.0)
+- **delta $-200.0** (wh $-200.0 / rs $0.0 / po $0.0)
 
 ### 2024
 - our:  total $200.0  (wh $200.0 / rs $0.0 / po $0.0, place None)

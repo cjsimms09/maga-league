@@ -5,8 +5,8 @@
   "aggregate": {
     "ceiling": {
       "weekly_high": {
-        "sum": -100.0,
-        "mean": -25.0,
+        "sum": 0.0,
+        "mean": 0.0,
         "n": 4
       },
       "regular_season": {
@@ -20,22 +20,22 @@
         "n": 4
       },
       "total": {
-        "sum": -100.0,
-        "mean": -25.0,
+        "sum": 0.0,
+        "mean": 0.0,
         "n": 4
       },
       "sign_consistent": false,
       "per_season_total": {
         "2026": 0.0,
-        "2025": -100.0,
+        "2025": 0,
         "2024": 0.0,
         "2023": 0
       }
     },
     "floor": {
       "weekly_high": {
-        "sum": -200.0,
-        "mean": -50.0,
+        "sum": -100.0,
+        "mean": -25.0,
         "n": 4
       },
       "regular_season": {
@@ -49,14 +49,14 @@
         "n": 4
       },
       "total": {
-        "sum": -200.0,
-        "mean": -50.0,
+        "sum": -100.0,
+        "mean": -25.0,
         "n": 4
       },
       "sign_consistent": false,
       "per_season_total": {
         "2026": 0.0,
-        "2025": -100.0,
+        "2025": 0,
         "2024": -100.0,
         "2023": 0
       }
@@ -69,25 +69,25 @@
     ],
     "ceiling": {
       "exp_weekly_high_wins": {
-        "sum": -0.1327,
-        "mean": -0.0332,
+        "sum": 0.0539,
+        "mean": 0.0135,
         "n": 4,
         "per_season": {
           "2026": 0.0,
-          "2025": -0.1608,
+          "2025": 0.0258,
           "2024": 0.107,
           "2023": -0.0789
         },
         "sign_consistent": false,
-        "helped": false
+        "helped": true
       },
       "mean_weekly_rank": {
-        "sum": -0.133,
-        "mean": -0.0333,
+        "sum": -0.266,
+        "mean": -0.0665,
         "n": 4,
         "per_season": {
           "2026": 0.0,
-          "2025": -0.333,
+          "2025": -0.466,
           "2024": 0.0,
           "2023": 0.2
         },
@@ -95,12 +95,12 @@
         "helped": true
       },
       "playoff_window_points": {
-        "sum": 29.5,
-        "mean": 7.375,
+        "sum": 31.3,
+        "mean": 7.825,
         "n": 4,
         "per_season": {
           "2026": 0.0,
-          "2025": 21.3,
+          "2025": 23.1,
           "2024": -2.2,
           "2023": 10.4
         },
@@ -110,12 +110,12 @@
     },
     "floor": {
       "exp_weekly_high_wins": {
-        "sum": -0.3719,
-        "mean": -0.093,
+        "sum": -0.1853,
+        "mean": -0.0463,
         "n": 4,
         "per_season": {
           "2026": 0.0,
-          "2025": -0.158,
+          "2025": 0.0286,
           "2024": -0.135,
           "2023": -0.0789
         },
@@ -123,12 +123,12 @@
         "helped": false
       },
       "mean_weekly_rank": {
-        "sum": 0.467,
-        "mean": 0.1168,
+        "sum": 0.334,
+        "mean": 0.0835,
         "n": 4,
         "per_season": {
           "2026": 0.0,
-          "2025": -0.133,
+          "2025": -0.266,
           "2024": 0.4,
           "2023": 0.2
         },
@@ -136,12 +136,12 @@
         "helped": false
       },
       "playoff_window_points": {
-        "sum": 27.52,
-        "mean": 6.88,
+        "sum": 29.32,
+        "mean": 7.33,
         "n": 4,
         "per_season": {
           "2026": 0.0,
-          "2025": 22.32,
+          "2025": 24.12,
           "2024": -5.2,
           "2023": 10.4
         },
@@ -244,10 +244,10 @@
       "season": "2025",
       "graded": {
         "points": {
-          "weekly_high": 100.0,
+          "weekly_high": 0.0,
           "regular_season": 0.0,
           "playoff": 0.0,
-          "total": 100.0,
+          "total": 0.0,
           "playoff_place": null,
           "made_playoffs": false,
           "partial": false
@@ -273,21 +273,21 @@
       },
       "delta_vs_points": {
         "ceiling": {
-          "weekly_high": -100.0,
+          "weekly_high": 0,
           "regular_season": 0,
           "playoff": 0,
-          "total": -100.0
+          "total": 0
         },
         "floor": {
-          "weekly_high": -100.0,
+          "weekly_high": 0,
           "regular_season": 0,
           "playoff": 0,
-          "total": -100.0
+          "total": 0
         }
       },
       "players_changed_vs_points": {
         "ceiling": 1,
-        "floor": 4
+        "floor": 3
       },
       "fallbacks": {
         "points": 0,
@@ -297,10 +297,10 @@
       "sigma_weekly": 21.26,
       "proxy": {
         "points": {
-          "exp_weekly_high_wins": 0.41,
-          "exact_weekly_high_wins": 1.0,
-          "mean_weekly_rank": 9.0,
-          "playoff_window_points": 279.28
+          "exp_weekly_high_wins": 0.2234,
+          "exact_weekly_high_wins": 0.0,
+          "mean_weekly_rank": 9.133,
+          "playoff_window_points": 277.48
         },
         "ceiling": {
           "exp_weekly_high_wins": 0.2492,
@@ -317,14 +317,14 @@
       },
       "proxy_delta_vs_points": {
         "ceiling": {
-          "exp_weekly_high_wins": -0.1608,
-          "mean_weekly_rank": -0.333,
-          "playoff_window_points": 21.3
+          "exp_weekly_high_wins": 0.0258,
+          "mean_weekly_rank": -0.466,
+          "playoff_window_points": 23.1
         },
         "floor": {
-          "exp_weekly_high_wins": -0.158,
-          "mean_weekly_rank": -0.133,
-          "playoff_window_points": 22.32
+          "exp_weekly_high_wins": 0.0286,
+          "mean_weekly_rank": -0.266,
+          "playoff_window_points": 24.12
         }
       }
     },
@@ -506,7 +506,7 @@
     }
   ],
   "caveats": [],
-  "verdict": "Both alternative shapes ~tie the points objective \u2014 the board's value ranking is already close to the money-maximizing shape; the objective is not where the edge is. CEILING trails points by $-100.0 total across 4 seasons (weekly-high \u0394$-100.0, playoff \u0394$0.0; mixed by season). FLOOR trails points by $-200.0 total across 4 seasons (weekly-high \u0394$-200.0, playoff \u0394$0.0; mixed by season). Thin (n=seasons); directional, not significant.",
-  "proxy_verdict": "NULL even on the finer proxy: no shape beats the points objective with a sign-consistent, shape-specific edge on weekly-high win probability, consistency, or playoff-window points. Positive sums exist but are mixed by season and/or shared by BOTH tilts (generic, not the hypothesized effect). The board's value ranking IS the money-maximizing shape at this seat. CEILING exp_weekly_high_wins: \u0394-0.1327 wins vs points (higher better) -> hurt [4 seasons, mixed by season] ;; FLOOR mean_weekly_rank: \u03940.467 vs points (lower better) -> hurt [4 seasons, mixed by season] ;; FLOOR playoff_window_points: \u039427.52 pts vs points (higher better) -> HELPED [4 seasons, mixed by season] ;; CEILING mean_weekly_rank: \u0394-0.133 vs points (lower better) -> HELPED [4 seasons, mixed by season] ;; FLOOR exp_weekly_high_wins: \u0394-0.3719 wins vs points (higher better) -> hurt [4 seasons, mixed by season] ;; CEILING playoff_window_points: \u039429.5 pts vs points (higher better) -> HELPED [4 seasons, mixed by season] Thin (n=seasons); directional.",
+  "verdict": "Both alternative shapes ~tie the points objective \u2014 the board's value ranking is already close to the money-maximizing shape; the objective is not where the edge is. CEILING ties points by $0.0 total across 4 seasons (weekly-high \u0394$0.0, playoff \u0394$0.0; mixed by season). FLOOR trails points by $-100.0 total across 4 seasons (weekly-high \u0394$-100.0, playoff \u0394$0.0; mixed by season). Thin (n=seasons); directional, not significant.",
+  "proxy_verdict": "NULL even on the finer proxy: no shape beats the points objective with a sign-consistent, shape-specific edge on weekly-high win probability, consistency, or playoff-window points. Positive sums exist but are mixed by season and/or shared by BOTH tilts (generic, not the hypothesized effect). The board's value ranking IS the money-maximizing shape at this seat. CEILING exp_weekly_high_wins: \u03940.0539 wins vs points (higher better) -> HELPED [4 seasons, mixed by season] ;; FLOOR mean_weekly_rank: \u03940.334 vs points (lower better) -> hurt [4 seasons, mixed by season] ;; FLOOR playoff_window_points: \u039429.32 pts vs points (higher better) -> HELPED [4 seasons, mixed by season] ;; CEILING mean_weekly_rank: \u0394-0.266 vs points (lower better) -> HELPED [4 seasons, mixed by season] ;; FLOOR exp_weekly_high_wins: \u0394-0.1853 wins vs points (higher better) -> hurt [4 seasons, mixed by season] ;; CEILING playoff_window_points: \u039431.3 pts vs points (higher better) -> HELPED [4 seasons, mixed by season] Thin (n=seasons); directional.",
   "note": "leak-free: projection is walk-forward, boom/bust + availability from PRIOR-season weekly only. beta pre-registered at 0.15 (board's opportunity nudge). Both alt objectives graded on the SAME optimal-lineup ceiling and the SAME fixed room as POINTS, so the delta isolates the objective. Thin (n=seasons) \u2014 per-season sign + component split is the read, not the CI."
 }
