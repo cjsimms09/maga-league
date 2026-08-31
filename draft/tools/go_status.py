@@ -88,7 +88,11 @@ def main():
         # alone printed "(no output)" beside a red gate, an alarm with no
         # information (caught by the first GO sweep, commit a2e5f3d2).
         combined = (p.stdout + "\n" + p.stderr).strip()
-        tail = (combined.splitlines() or ["(no output)"])[-1]
+        lines = combined.splitlines() or ["(no output)"]
+        # surface the ACTIONABLE line (an overdue/failing row), not whatever
+        # happens to print last — the whole point is an agenda, not a shrug
+        hot = [l for l in lines if "✗" in l or "OVERDUE" in l or "due 20" in l]
+        tail = (hot or lines)[-1].strip()
         print(f" {'✅' if ok else '🔴'} {tool.split('/')[-1]:30} {tail[:90]}")
         if not ok:
             red.append(f"{tool}: exit {p.returncode} — {tail[:120]}")
