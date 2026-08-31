@@ -82,10 +82,16 @@ def main():
 
     sched = json.load(open(SCHEDULE))
     games = [g for g in sched["rows"] if g["week"] == week]
+    # TEAM-CODE ALIASES: the schedule store (Ball Don't Lie) says WSH where
+    # Sleeper says WAS. The first live brief printed Rachaad White as "BYE" in
+    # a 16-game week 1 because of exactly this — a join failure wearing a
+    # fact's clothes (the crosswalk class adp.TEAM_ALIASES exists for).
+    ALIAS = {"WAS": "WSH"}
     by_team = {}
     for g in games:
         by_team[g["home"]] = dict(opp=g["away"], home=True, date=g["date"])
         by_team[g["away"]] = dict(opp=g["home"], home=False, date=g["date"])
+    all_playing = len({g["home"] for g in games} | {g["away"] for g in games}) == 32
 
     def describe(pid, starters):
         if pid.isalpha():  # DEF
@@ -96,11 +102,18 @@ def main():
             if not p:
                 raise KeyError(pid)
         team = p.get("team")
-        g = by_team.get(team)
+        g = by_team.get(team) or by_team.get(ALIAS.get(team, ""))
+        if g is None and team and all_playing:
+            # every team plays this week, so "no game" can only be a broken
+            # join — refuse rather than print a BYE that does not exist
+            raise KeyError(f"team code {team!r} joins no game in a 32-team week")
         day = ""
         if g:
+            # kickoff DAY in US/Eastern — the first brief rendered UTC, which
+            # shifted every night game a day late (SNF printed Mon, MNF Tue)
+            from zoneinfo import ZoneInfo
             day = datetime.fromisoformat(g["date"].replace("Z", "+00:00")) \
-                .astimezone(timezone.utc).strftime("%a")
+                .astimezone(ZoneInfo("America/New_York")).strftime("%a")
         return {
             "id": pid,
             "name": p.get("full_name") or f'{p.get("first_name","")} {p.get("last_name","")}'.strip(),
