@@ -138,6 +138,40 @@ def measure() -> dict:
             "ours_subset_of_sleeper": ours <= sleeper,
             "in_ours_not_fantasypros": {"n": len(ours - fp), "by_position": by_pos(ours - fp)},
             "in_fantasypros_not_ours": {"n": len(fp - ours), "by_position": by_pos(fp - ours)},
+            # ⚠️ ADDED 2026-08-31 (register 439). The three booleans above say
+            # WHETHER the nesting holds and published no way to size the break
+            # when it does not — so the moment it broke, the guard reading this
+            # artifact had a bare False and nothing to judge it by, and its only
+            # honest option was to refuse. A boolean that can only ever mean
+            # "something changed, magnitude unknown" is the shape of a finding
+            # nobody can act on.
+            #
+            # It broke on the 2026-08-30 capture: THREE rookie quarterbacks —
+            # Behren Morton (13295), Cole Payton (13335), Garrett Nussmeier
+            # (13404) — are in FantasyPros and not in Sleeper. 3 of 410, 0.73%.
+            # Sleeper simply has not published projections for them; that is
+            # data, and the reason to measure it rather than assert it away.
+            "in_fantasypros_not_sleeper": {
+                "n": len(fp - sleeper), "by_position": by_pos(fp - sleeper),
+                "ids": sorted(fp - sleeper)[:25]},
+            "in_ours_not_sleeper": {
+                "n": len(ours - sleeper), "by_position": by_pos(ours - sleeper),
+                "ids": sorted(ours - sleeper)[:25]},
+            # ⚠️ ALSO ADDED 2026-08-31 (register 439), and it exists because the
+            # guard reading this file found a SECOND cause while that change was
+            # being made. "We cannot price this FantasyPros player" had one
+            # recorded reason — on the board with no `proj_ownmodel` — and the
+            # count no longer adds up: 13 unpriceable, 11 explained. The other
+            # two (`10231`, `5008`) are not on our board AT ALL, which is a
+            # different thing entirely and was being absorbed into the first
+            # number. Publishing it separately is what lets a THIRD cause still
+            # fail loudly instead of hiding inside a widened tolerance.
+            "in_fantasypros_not_board": {
+                "n": len(fp - set(position)),
+                "ids": sorted(fp - set(position))[:25],
+                "why": "FantasyPros projects a player our board does not carry "
+                       "at all — distinct from a board row with no proj_ownmodel",
+            },
         },
         # A coverage fact with an owner, not an oversight: own_weekly_v1's
         # formula is QB/RB/WR/TE, and FantasyPros publishes no K/DEF at all, so
