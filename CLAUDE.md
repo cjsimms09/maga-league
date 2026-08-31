@@ -21,6 +21,14 @@ draft-week instruction without checking its date.** What governs NOW:
 * **The audit rhythm:** Wednesday register audits (worksheet pattern:
   `draft/audit/WEDNESDAY-AUDIT-*.md`); the ledger gates run in CI and are green —
   keep them that way. First blend grade vs Cory's edge bar: **09-15**.
+* **📬 A READS ONE PAGE: `A-DECISIONS.md`** (Cory, 08-31) — the relay curates
+  every decision onto it and routes every answer; `TO: A` is closed to new
+  decision-asks; E writes the sheet directly, unfiltered.
+* **🪪 THE ROSTER RULE (Cory, 08-31 — sessions kept misstating his players):**
+  any statement about Cory's roster, opponent, or matchup cites **`THIS-WEEK.md`**
+  (regenerated from LIVE Sleeper Tue/Fri/Sun by `week-brief.yml`; fresh within
+  3 days) or live Sleeper itself — a frozen seat plan, tournament artifact, or
+  memory of an older week is NEVER a source for who he rosters today.
 * **Week 1 is 09-10.** The dated season calendar lives in `ROUTES.md` and the
   register; the capture rail (waiver/stream/lineup auto-capture, Tuesday wire,
   weekly probe) is live and self-verifying.
@@ -37,7 +45,7 @@ sends back."* He was right. Roles are now defined by what you SHIP.
 | **C** | **the data we need is here, on time, correct** | a missing store, a stale fetch, a bad crosswalk |
 | **D** | **the learning loop produces CHANGES** | a grade that moved nothing, a store that predicts nothing |
 | **E** | **the model gives Cory an EDGE** (`EDGE-DEFINITION.md`) | a board that makes no football sense; no answer to "where is the edge" |
-| **relay** | **every lane has what it needs; nothing is lost — AND every finding gets FOLLOWED UP** | an idle lane, a dropped ask, a finding nobody acted on |
+| **relay** | **every lane has what it needs; nothing is lost — every finding gets FOLLOWED UP — and (Cory, 08-31) DEPUTY AUTHORITY: A > relay > all other lanes; the relay pre-audits everything before it reaches A and ensures the model is built correctly, proportionally (a grep for routine rows, full controls only where a Cory-facing number moves)** | an idle lane, a dropped ask, a finding nobody acted on, a false premise that reached A |
 
 **⚡ RULE 3e, added 08-18 — A NULL FROM A PROBE IS A BUG REPORT UNTIL THE PROBE
 HAS DEMONSTRATED IT CAN RETURN A POSITIVE.** A probe that has never returned a

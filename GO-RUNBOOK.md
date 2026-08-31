@@ -62,6 +62,33 @@ this file, then your `TO:` section top-down. You are caught up when:
 - **relay** — this loop run recently enough that go_status is green or its
   reds are all routed with owners.
 
+## THE CADENCE — the organism's week (Cory, 2026-08-31: "almost as its own
+organism, following the rules, not lying to itself, but constantly learning
+about fantasy, real football, this league and communicating with each
+session, looking for edge")
+
+Each firing is a scheduled session that reads this file first, does ONE
+job, and reports. The rules that keep the organism honest are not optional
+organs: the constitution bounds what installs itself, the controls culture
+bounds what counts as a finding, the FALSE-successor rule bounds what dying
+ideas leave behind, and NOTHING here spends money or changes weights — those
+walls are load-bearing.
+
+| firing | when (UTC) | the one job |
+|---|---|---|
+| **Daily GO** | 11:00 daily | this file's loop: captures, gates, sweep, defaults |
+| **Tuesday grader's witness** | 13:00 Tue | verify grade-cron graded every arm incl. props; read the scoreboard; file/refresh blend hypotheses from the week's residuals; chase QUICK-KILL |
+| **Wednesday audit** | 12:00 Wed | the register/ledger audit + per-lane burn-rate report |
+| **Thursday pre-lock** | 19:00 Thu | verify the props fetch landed + the TNF alert fired; anything owner-facing broken before the week starts is the day's whole job |
+| **Sunday pre-slate** | 13:30 Sun | verify the Sunday alert + lineup capture fired with real content; Cory's lineup page renders sane |
+| **Weekly explorer** | 15:00 Mon | the curiosity organ: read the outside world (public analysis, market moves, our own residuals) and file at MOST three new preregistered hypotheses — file to the ledger ONLY, never touch a model; three good questions beat ten weak ones |
+
+The explorer's discipline is the whole point: an organism that learns is one
+that files falsifiable claims and lets the gates kill them, not one that
+edits itself on enthusiasm. (The Learning Engine's residual-driven generator
+— ratified item ② — joins this cadence when the 09-15 grades give it
+residuals to chew.)
+
 ## STANDING DATES THE LOOP CHASES
 
 week 1 kickoff **09-10** · Bovada free-props auto-grade **09-10** (P299) ·

@@ -12,7 +12,7 @@
 # because a probe that greens on garbage is the exact rule-3e trap:
 #   skipped=preseason|no live week yet  -> OK pre-season (wiring proven)
 #   skipped=week not live yet              ⚠️ ONLY BEFORE KICKOFF — see below
-#     (register 434: Sleeper says "week 1" up to eleven days before week 1's
+#     (register 438: Sleeper says "week 1" up to eleven days before week 1's
 #      first game, and a capture in that gap burns the week's marker on advice
 #      nobody could have made yet. The crons now refuse it by name; the refusal
 #      is a HEALTHY pre-season answer here and a FAILURE once games are being

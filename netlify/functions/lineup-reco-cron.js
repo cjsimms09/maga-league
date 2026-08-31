@@ -44,7 +44,7 @@ exports.runCapture = async () => {
 
     const markKey = `lineupauto:${ctx.season}:${ctx.week}`;
     /* ⚠️ A MARKER WRITTEN BEFORE ITS OWN WEEK'S WINDOW OPENED IS NOT A RECORD
-     * OF THAT WEEK'S DECISION (register 434). `lineupauto:2026:1` was written
+     * OF THAT WEEK'S DECISION (register 438). `lineupauto:2026:1` was written
      * on 2026-08-30, eleven days before week 1's first game, by the probe's
      * fallback capture — and without this it would suppress the real Sunday
      * capture for the whole of week 1 while the probe reported the healthiest
@@ -56,7 +56,7 @@ exports.runCapture = async () => {
       return { statusCode: 200, body: JSON.stringify({ ok: true, skipped: 'already captured', week: ctx.week }) };
     }
     if (mark) {
-      console.log(`[lineup-reco] marker ${markKey} was written ${mark.at}, before week ${ctx.week}'s capture window opened — recapturing at the real decision moment (register 434)`);
+      console.log(`[lineup-reco] marker ${markKey} was written ${mark.at}, before week ${ctx.week}'s capture window opened — recapturing at the real decision moment (register 438)`);
     }
 
     // The page's own computation, on the commissioner's roster. member.js

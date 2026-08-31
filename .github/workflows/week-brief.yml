@@ -1,0 +1,50 @@
+name: THIS-WEEK brief — the roster fact sheet every session cites
+
+# Cory, 2026-08-31: "every session seems to be mistating the players on my
+# roster... each week, each session should be aware of my roster, who i am
+# playing, their speicfic games, weather, home/away." This regenerates
+# THIS-WEEK.md + this_week.json from LIVE Sleeper three times a week —
+# Tuesday (post-waivers), Friday (injury reports), Sunday morning (final) —
+# so THE ROSTER RULE (CLAUDE.md era banner) always has a fresh target.
+# The generator REFUSES to write on any control failure: a brief that lies
+# is worse than one that says its own age.
+
+on:
+  schedule:
+    - cron: '30 13 * * 2'   # Tue 13:30 UTC — waivers have cleared
+    - cron: '30 13 * * 5'   # Fri 13:30 UTC — injury designations landing
+    - cron: '30 11 * * 0'   # Sun 11:30 UTC — before the Sunday alert reads the world
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  brief:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the brief from live Sleeper
+        run: |
+          set -uo pipefail
+          if python3 draft/tools/build_week_brief.py; then code=0; else code=$?; fi
+          # bash -e is injected; the if-form is exempt (draft-night-sync's lesson)
+          if [ "$code" -ne 0 ]; then
+            echo "::error::week brief REFUSED to write (control failure or fetch error) — the last committed brief stands, with its own generated_at as the warning"
+            exit "$code"
+          fi
+      - name: Commit
+        run: |
+          set -euo pipefail
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add THIS-WEEK.md draft/data/this_week.json 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "no change (or preseason skip wrote nothing) — nothing to commit"
+            exit 0
+          fi
+          git commit -m "THIS-WEEK brief refresh [skip deploy]" \
+            -m "Live-Sleeper roster fact sheet, per THE ROSTER RULE. Automated via week-brief.yml."
+          git pull --rebase -q origin main || true
+          git push || { git pull --rebase -q origin main && git push; }

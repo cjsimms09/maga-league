@@ -56,7 +56,7 @@ const ok = (name, cond, detail) => {
   const owners = [{ id: 1, name: 'Cory', is_commissioner: true }, { id: 2, name: 'Rich' }];
   const cfg = { sleeper_map: { '8': 1, '3': 2 } };
   const liveS = { state: { season: '2026' }, week: 3, season_type: 'regular' };
-  /* ⚠️ THE CLOCK IS EXPLICIT FROM HERE ON (register 434). The gate now also
+  /* ⚠️ THE CLOCK IS EXPLICIT FROM HERE ON (register 438). The gate now also
    * asks whether week N's games are NEAR, so a fixture claiming week 3 is only
    * a live capture when `now` is inside week 3's window — and these two arms
    * went red the moment the gate landed, which is the gate working. Week 3's
@@ -71,7 +71,7 @@ const ok = (name, cond, detail) => {
   ok('unmapped commissioner is a named skip, not a crash',
     /not mapped/.test(autoCaptureContext(liveS, { sleeper_map: {} }, owners, IN_WK3).skip || ''));
 
-  // ── register 434: Sleeper saying "week N" is not week N being near ────────
+  // ── register 438: Sleeper saying "week N" is not week N being near ────────
   /* THE INCIDENT, from the live probe's own log: on 2026-08-30 Sleeper had
    * flipped to regular/week-1 and the probe's fallback captured
    * `lineup_auto|2026|w1|1` — ELEVEN DAYS before week 1's first game
