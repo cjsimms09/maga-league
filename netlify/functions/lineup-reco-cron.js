@@ -23,6 +23,7 @@
  * grade-cron.
  */
 const store = require('../../src/store');
+const WINDOW = require('../../src/capture_window');
 const predledger = require('../../src/predledger');
 const { buildAutoLineupEntry } = require('../../src/waiver_reco');
 const { autoCaptureContext } = require('./waiver-reco-cron');
@@ -42,8 +43,20 @@ exports.runCapture = async () => {
     }
 
     const markKey = `lineupauto:${ctx.season}:${ctx.week}`;
-    if (await store.get(markKey)) {
+    /* ⚠️ A MARKER WRITTEN BEFORE ITS OWN WEEK'S WINDOW OPENED IS NOT A RECORD
+     * OF THAT WEEK'S DECISION (register 438). `lineupauto:2026:1` was written
+     * on 2026-08-30, eleven days before week 1's first game, by the probe's
+     * fallback capture — and without this it would suppress the real Sunday
+     * capture for the whole of week 1 while the probe reported the healthiest
+     * verdict it has. Nothing in a pull request can edit the live store, so the
+     * self-heal has to live here. A marker with no `at` is treated as VALID:
+     * markers predate that field and refusing them would re-capture history. */
+    const mark = await store.get(markKey);
+    if (mark && !WINDOW.markerIsPremature(mark, ctx.season, ctx.week)) {
       return { statusCode: 200, body: JSON.stringify({ ok: true, skipped: 'already captured', week: ctx.week }) };
+    }
+    if (mark) {
+      console.log(`[lineup-reco] marker ${markKey} was written ${mark.at}, before week ${ctx.week}'s capture window opened — recapturing at the real decision moment (register 438)`);
     }
 
     // The page's own computation, on the commissioner's roster. member.js
