@@ -15,7 +15,8 @@ session would otherwise spend twenty minutes re-deriving:
      token needed). A capture that is red or silent IS the finding.
   2. GATE HEALTH — both ledger gates run locally, verdicts printed.
   3. BOARD FRESHNESS — when the live board last actually published (the last
-     lab-bot "Draft board: rebuild" commit), because a green repo with a
+     lab-bot "Player board: rebuild" commit — "Draft board" before
+     2026-08-31, and both are matched), because a green repo with a
      week-old board is not in-season ready.
 
 Exit 0 = everything green. Exit 1 = at least one red thing, each printed
@@ -50,17 +51,33 @@ WATCHED = [
 ]
 
 
-def last_run(workflow):
+def last_run(workflow, attempts=2):
+    """⚠️ ONE RETRY, ADDED 2026-08-31 (A, register 447), because a transient
+    blip was printing a RED agenda item for a healthy job.
+
+    Observed live: this returned `api-error: HTTPError` for `draft-data.yml`
+    minutes after that workflow's run finished SUCCESSFULLY; the same URL
+    fetched cleanly on the next call. The report was honest — it says
+    `api-error`, not `failure`, so it never claimed the capture was broken —
+    but it still put a working job on the agenda, and a sweep that cries wolf
+    is a sweep people stop reading (registers 388, 417, 422).
+
+    An api-error that SURVIVES the retry is still reported and still red: "I
+    could not ask" must never look like "I asked and it is fine" (rule 3e).
+    """
     url = f"https://api.github.com/repos/{REPO}/actions/workflows/{workflow}/runs?per_page=1"
-    try:
-        with urllib.request.urlopen(url, timeout=20) as r:
-            runs = json.load(r).get("workflow_runs", [])
-        if not runs:
-            return ("never-run", None, None)
-        run = runs[0]
-        return (run["conclusion"] or run["status"], run["created_at"], run["event"])
-    except Exception as e:  # noqa: BLE001 — a health check reports, it does not crash
-        return (f"api-error: {type(e).__name__}", None, None)
+    last_err = None
+    for _ in range(max(1, attempts)):
+        try:
+            with urllib.request.urlopen(url, timeout=20) as r:
+                runs = json.load(r).get("workflow_runs", [])
+            if not runs:
+                return ("never-run", None, None)
+            run = runs[0]
+            return (run["conclusion"] or run["status"], run["created_at"], run["event"])
+        except Exception as e:  # noqa: BLE001 — a health check reports, it does not crash
+            last_err = e
+    return (f"api-error: {type(last_err).__name__}", None, None)
 
 
 def main():
@@ -99,10 +116,37 @@ def main():
             red.append(f"{tool}: exit {p.returncode} — {tail[:120]}")
 
     print("\n── BOARD FRESHNESS ─────────────────────────────────────────")
-    p = subprocess.run(["git", "log", "-1", "--format=%ci %s", "--grep",
-                        "Draft board: rebuild", "origin/main"],
-                       capture_output=True, text=True)
-    line = p.stdout.strip() or "no publish commit found"
+    # ⚠️ TWO SUBJECTS, BOTH REQUIRED (A, 2026-08-31, register 447 — touching the
+    # relay's file because it is the same edit as the rename, and leaving it
+    # would blind this check the moment the rename landed).
+    #
+    # Cory ruled the rebuild is "the waiver/wire pipeline now, stop calling it
+    # the draft board", so draft-data.yml's commit subject became "Player
+    # board: rebuild". Every publish BEFORE 2026-08-31 says "Draft board:
+    # rebuild" and those are the answer until the next run, so matching only
+    # the new string would report "no publish commit found" on a fresh repo.
+    #
+    # ⚠️⚠️ AND `git log --grep` WAS THE WRONG INSTRUMENT ALL ALONG — it matches the whole
+    # commit MESSAGE, body included. Caught 2026-08-31 by the control for the
+    # change above: the query returned *"Register 433 closed: the board
+    # published — first green rebuild since 08-26"*, a PROSE commit of mine
+    # whose body quotes the publish subject. It gave the right freshness by
+    # luck, because I happened to write it the same day.
+    #
+    # So this check could report a stale board as fresh any time somebody
+    # merely WROTE ABOUT a rebuild — which is the exact shape of a probe that
+    # greens for the wrong reason. Match the SUBJECT, in code, where the
+    # comparison is exact.
+    #: No commit limit on purpose: this repo commits fast enough that a window
+    #: of "the last N" could miss a publish from this morning and report a
+    #: fresh board as missing — a guard that fires on ordinary work is a guard
+    #: somebody deletes (registers 388, 417, 422).
+    SUBJECTS = ("Draft board: rebuild", "Player board: rebuild")
+    log = subprocess.run(["git", "log", "--format=%ci\t%s", "origin/main"],
+                         capture_output=True, text=True).stdout
+    hit = next((ln for ln in log.splitlines()
+                if ln.split("\t", 1)[-1].startswith(SUBJECTS)), "")
+    line = hit.replace("\t", " ").strip() or "no publish commit found"
     print(f"   last published board: {line[:100]}")
     try:
         pub = datetime.fromisoformat(line.split(" ")[0] + "T" + line.split(" ")[1] + line.split(" ")[2])

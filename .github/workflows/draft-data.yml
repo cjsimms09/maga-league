@@ -1,8 +1,50 @@
-name: Build draft board
+name: Rebuild the player board (the waiver/wire pipeline)
 
+# ── WHAT THIS JOB IS FOR, AS OF 2026-08-31 ──────────────────────────────────
+#
+# CORY RULED IT, VERBATIM: "keep the rebuild, but stop calling it the draft
+# board — it's the waiver/wire pipeline now. agreed".
+#
+# The draft was 2026-08-22. This file kept the name "Build draft board" for
+# nine days after the thing it was named for stopped existing, and that was not
+# cosmetic: it is why nobody asked what a nightly rebuild was still FOR while
+# it failed to publish for ten days straight (register 433).
+#
+# WHAT IT ACTUALLY REFRESHES, MEASURED over the real 08-26 -> 08-31 delta and
+# not assumed:
+#   * proj_mean, vorp, rank    changed on ZERO of 697 shared players
+#   * adjusted_adp             changed on 691 of 697 (99%)
+#   * membership               31 players in, 8 out
+#
+# So the nightly run is NOT refreshing projections. It refreshes the market and
+# the PLAYER LIST — and the player list is the point now, because those 31
+# arrivals are the waiver pool and every one of them landed carrying a
+# proj_mean. Kill this job and the Tuesday wire goes blind to every player who
+# enters the league from here.
+#
+# THE IN-SEASON CONSUMERS, which are what the gates below now protect:
+#   src/proj_feed.js      reads proj_mean off the board for the weekly
+#                         projection basis ("one scorer, one source of truth")
+#   src/waiver_reco.js    prices the wire against the board
+#   netlify/functions/waiver-reco-cron.js, lineup-reco-cron.js
+#   src/routes/{waivers,memberweek,member,admin,history-data}.js
+#
+# ⚠️ THE ARTIFACT IS STILL `public/draft_data.json` AND THAT IS DELIBERATE.
+# Cory's ruling is about what this job is FOR, not about a path: renaming the
+# file would touch nine server modules, the war room and every test that reads
+# a board, for zero behaviour change. A rename is a separate decision with a
+# real blast radius; the name in the code is not what misled anyone.
+#
+# ⚠️ AND ONE THING IS RULED AND ONE IS NOT. Cory ruled the REFRAMING. He did
+# NOT rule on retiring the seven draft-era artifacts this chain still
+# regenerates nightly — seat_plan, mlv_plan, mlv_recommend, opening_script,
+# room_read, predicted_keepers, position_boards — which between them have ZERO
+# in-season or server-side readers (measured 2026-08-31; only the war room, a
+# draft-day surface, reads two). That question is open and is his.
+#
 # The offline pipeline runs here, not on the site: CI has network access,
 # takes as long as it needs, and commits a static artifact the browser reads.
-# Nothing to pay for and nothing to go down mid-draft.
+# Nothing to pay for and nothing to go down mid-week.
 on:
   schedule:
     # GitHub Actions cron is UTC and does not observe DST, so a schedule
@@ -971,7 +1013,8 @@ jobs:
           git config user.name  "draft-bot"
           git config user.email "actions@github.com"
           git add $EXISTING
-          git commit -m "Draft board: rebuild $(date -u +%Y-%m-%d)"
+          git commit -m "Player board: rebuild $(date -u +%Y-%m-%d)" \
+                     -m "The waiver/wire pipeline (Cory's ruling, 2026-08-31: 'keep the rebuild, but stop calling it the draft board'). What this run refreshes is the market and the player list; the arrivals are the waiver pool. Consumers: proj_feed.js, waiver_reco.js and the two reco crons."
           # PUSH-RACE RETRY (added 2026-08-17): run 32080224084 passed the whole
           # gate, committed the board on the runner, and DIED here — a lane
           # session pushed main between checkout and push, and the fresh board

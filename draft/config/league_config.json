@@ -57,7 +57,7 @@
       "season": "2023"
     }
   ],
-  "imported_at": "2026-08-26T04:01:42Z",
+  "imported_at": "2026-08-31T17:12:33Z",
   "keepers": {
     "cost_model": "top_picks_flat",
     "count": 3,
@@ -334,11 +334,11 @@
         "11620",
         "12015",
         "12512",
-        "13330",
         "13337",
         "2133",
         "3198",
         "5045",
+        "7002",
         "7564",
         "8136",
         "8151",
@@ -347,13 +347,14 @@
         "HOU"
       ],
       "roster_id": 1,
-      "team_name": "My Team Sadiq",
+      "team_name": "Rashee\u2019s Reich",
       "user_id": "434915673219526656"
     },
     {
       "display_name": "ds7mmet",
       "players": [
         "10219",
+        "11581",
         "11583",
         "11584",
         "11604",
@@ -365,7 +366,6 @@
         "4881",
         "7525",
         "8142",
-        "8180",
         "8408",
         "LAR"
       ],
@@ -416,16 +416,16 @@
         "NE"
       ],
       "roster_id": 4,
-      "team_name": "Cook Brown Rice in Rome",
+      "team_name": "Little Fellas",
       "user_id": "440723317066821632"
     },
     {
       "display_name": "B8T3S",
       "players": [
+        "12504",
         "12514",
         "13298",
         "2449",
-        "4035",
         "4046",
         "4227",
         "5012",
@@ -508,7 +508,7 @@
         "KC"
       ],
       "roster_id": 8,
-      "team_name": "Last place",
+      "team_name": "Hillsboro Ford",
       "user_id": "471160336402083840"
     },
     {
@@ -551,7 +551,7 @@
         "7588",
         "8110",
         "8150",
-        "SEA"
+        "LAC"
       ],
       "roster_id": 10,
       "team_name": "The Blacks",

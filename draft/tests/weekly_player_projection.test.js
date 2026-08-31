@@ -331,6 +331,23 @@ function mockStore(seed) {
     ck('player-projection-cron exports a handler', typeof cron.handler === 'function');
     ck('boardIndex keys the board by sleeper player_id',
       cron.boardIndex({ players: [{ player_id: '9221', proj_mean: 344.88 }] })['9221'].proj_mean === 344.88);
+    // Register 437: keepers live in kept_players (register 80's split) and the
+    // index missing them silenced arm 'ours' on all 23 keepers while arm
+    // 'sleeper' covered them — biasing the 09-15 grade against our own model.
+    ck('boardIndex reaches keepers in kept_players (register 437)',
+      cron.boardIndex({ players: [{ player_id: '1' }],
+                        kept_players: [{ player_id: '9226', proj_mean: 310.5 }] })['9226'].proj_mean === 310.5);
+    ck('boardIndex on a board with no kept_players key still works',
+      cron.boardIndex({ players: [{ player_id: '1', proj_mean: 2 }] })['1'].proj_mean === 2);
+    // ON THE REAL BOARD, not just fixtures: every kept player must resolve.
+    {
+      const realBoard = require(path.join(ROOT, 'public', 'draft_data.json'));
+      const idx = cron.boardIndex(realBoard);
+      const kept = realBoard.kept_players || [];
+      const missing = kept.filter((p) => !idx[String(p.player_id)]);
+      ck(`all ${kept.length} kept players resolve in the emitter's board index`,
+        kept.length > 0 && missing.length === 0);
+    }
     const S = require(path.join(ROOT, 'src', 'sleeper.js'));
     ck('sleeper.matchupsForWeek exists (the resolution read)', typeof S.matchupsForWeek === 'function');
     ck('sleeper.players exists (live injury status)', typeof S.players === 'function');
