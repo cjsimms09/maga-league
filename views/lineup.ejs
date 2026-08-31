@@ -8,10 +8,17 @@
 <%
   const money0 = n => '$' + Math.round(Number(n || 0)).toLocaleString('en-US');
   const signed = n => (n >= 0 ? '+' : '') + money0(n);
+  // Register 427 (Tier-0 copy fix; the wiring itself is Tier-2 and waits on
+  // Cory): these two used to promise "live projections drop in" / "a
+  // stopgap until projections land". Sleeper's player feed carries no
+  // per-week projection field at all, so that promise can never be kept —
+  // this basis is what the page runs on for the whole season unless Cory
+  // rules to wire the board's own projection feed in. Honest about being
+  // realized points, not a forecast, without asserting it is about to change.
   const SRC_LABEL = {
     sleeper: 'live projections',
-    'season-avg': "this season's per-game average (live projections drop in when Sleeper supplies them)",
-    'last-week': "last week's points (a stopgap until projections land)",
+    'season-avg': "this season's per-game average — realized points, not a forecast",
+    'last-week': "last week's realized points — not a forecast",
     none: 'no projection data yet',
   };
   const G = (typeof guide !== 'undefined' && guide) || {};
@@ -112,7 +119,7 @@
           <% } %>
           <%- include('partials/_wr_explain', { ex: G.posture }) %>
           <p class="lo-verdict-why"><%= posture.why %></p>
-          <p class="muted lo-src">Projections: <%= SRC_LABEL[projSource] || 'unknown source' %>.<% if (!live.projPending && projSource && projSource !== 'sleeper') { %> <b>Treat the dollar figures as directional, not precise, until live projections land.</b><% } %><% if (!live.projPending && !live.oppKnown) { %> Opponent modelled as a <b>typical team score (<%= Math.round((live.assumptions && live.assumptions.oppMean) || 0) %>)</b> until theirs lands — not the week's winning score, which would make every week look like a long shot.<% } %></p>
+          <p class="muted lo-src">Projections: <%= SRC_LABEL[projSource] || 'unknown source' %>.<% if (!live.projPending && projSource && projSource !== 'sleeper') { %> <b>Treat the dollar figures as directional, not precise — this is realized points, not a forecast.</b><% } %><% if (!live.projPending && !live.oppKnown) { %> Opponent modelled as a <b>typical team score (<%= Math.round((live.assumptions && live.assumptions.oppMean) || 0) %>)</b> until theirs lands — not the week's winning score, which would make every week look like a long shot.<% } %></p>
         </div>
       </div>
     <% } %>
