@@ -59,8 +59,9 @@ jobs:
       # origin/main, which can be arbitrarily far back).
       - uses: actions/checkout@v4
         with:
-          # 2 -> 0, 2026-08-31 (register 430's sweep, while asking why the board
-          # has not published since 08-26). `ci.yml` learned this on 08-17 and
+          # 2 -> 0, 2026-08-31 (register 433, the board-publish stall, found
+          # while asking why the board has not published since 08-26).
+          # `ci.yml` learned this on 08-17 and
           # carries a fifteen-line comment about it; THIS workflow never got the
           # same fix, and it is the one that publishes.
           #
