@@ -211,7 +211,27 @@ def test_the_scan_tool_that_found_this_still_runs():
 # worse, and it comes down as lanes fix them.
 
 WF_DIR = ROOT / ".github" / "workflows"
-_SELF_CHECK = re.compile(r"self[_ -]?check|FIXTURE|known[- ]positive|sanity", re.I)
+#: ⚠️ `CONTROL:` ADDED 2026-08-31 (A, register 443) BECAUSE THE DETECTOR DID NOT
+#: KNOW THIS REPO'S OWN WORD FOR A SELF-CHECK. `week-brief.yml` landed today and
+#: pushed this ratchet to 12, refusing the board publish. But
+#: `draft/tools/build_week_brief.py` has FOUR real controls that refuse and
+#: return non-zero — "🔴 CONTROL: Cory's roster not found or <10 players —
+#: refusing to write" — and the workflow propagates that exit code and does not
+#: commit. That IS the bar this file states in its own words: "BEFORE YOU
+#: COMMIT, RUN SOMETHING THAT CAN SAY NO." The detector missed it only because
+#: it matched on `self_check|FIXTURE|known-positive|sanity` and this project
+#: writes `CONTROL:`.
+#:
+#: MEASURED before changing it, not after: adding `CONTROL:` reclassifies
+#: EXACTLY ONE workflow — `week-brief` — and the count returns to 11. Nothing
+#: else moves, so this is not a widened net, and THE BASELINE IS NOT RAISED.
+#:
+#: ⚠️ AND MY FIRST MEASUREMENT SAID THE OPPOSITE — "15 unverified, it gets
+#: worse" — because I rebuilt the regex and dropped the `re.I`, so `FIXTURE`
+#: and `sanity` stopped matching. Plausible, confident, wrong, and one keystroke
+#: from being written into a register row. Caught only by running all three
+#: variants side by side. Rule 3f, on the probe I wrote to check my own fix.
+_SELF_CHECK = re.compile(r"self[_ -]?check|FIXTURE|known[- ]positive|sanity|CONTROL:", re.I)
 
 
 def _scheduled_committing_workflows():
