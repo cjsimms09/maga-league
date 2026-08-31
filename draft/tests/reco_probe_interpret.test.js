@@ -9,7 +9,7 @@ const SCRIPT = path.join(__dirname, '..', 'tools', 'reco_probe_interpret.sh');
 
 let pass = 0, fail = 0;
 
-/* ⚠️ THE CLOCK IS PINNED ON PURPOSE (register 429). The pre-season verdict is
+/* ⚠️ THE CLOCK IS PINNED ON PURPOSE (register 430). The pre-season verdict is
  * now DATE-DEPENDENT — "cleanly skipping pre-season" stops being OK once week 1
  * has been played — so a suite that let the real clock in would have gone red on
  * 2026-09-12 for no reason anyone could have predicted from reading it. The
@@ -62,7 +62,7 @@ ck('non-JSON garbage fails red, never greens', r.exit === 1, r);
 r = run(200, JSON.stringify({ ok: true, something: 'unexpected' }));
 ck('an unrecognized ok:true shape REFUSES to verify (the 3e trap)', r.exit === 1 && /does not recognize/.test(r.out), r);
 
-// ── the date guard, both arms (register 429) ────────────────────────────────
+// ── the date guard, both arms (register 430) ────────────────────────────────
 /* A capture rail that dies in week 3 answers `skipped: preseason` forever and
  * this script used to call that OK — the identical green line, every week, over
  * an empty store. That is the failure its own header names, so both arms are

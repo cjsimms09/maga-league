@@ -1,0 +1,71 @@
+{
+ "_territory": "TERRITORY: relay (build) \u2014 A rules. P20.",
+ "_design": "see module docstring; walk-forward r, fitted alpha per position",
+ "controls": {
+  "known_positive_alpha": 0.35,
+  "known_positive_pass": true,
+  "known_negative_sd_m": 0.0,
+  "known_negative_pass": true
+ },
+ "fits": {
+  "QB": {
+   "alpha": 0.15,
+   "exceedance": 0.1038,
+   "n": 106,
+   "sd_m": 0.175,
+   "mean_m": 1.3967
+  },
+  "WR": {
+   "alpha": 0.05,
+   "exceedance": 0.0956,
+   "n": 272,
+   "sd_m": 0.2342,
+   "mean_m": 1.6857
+  },
+  "TE": {
+   "alpha": 0.05,
+   "exceedance": 0.0893,
+   "n": 112,
+   "sd_m": 0.2001,
+   "mean_m": 1.7085
+  },
+  "RB": {
+   "alpha": 0.05,
+   "exceedance": 0.1149,
+   "n": 174,
+   "sd_m": 0.2714,
+   "mean_m": 1.6852
+  }
+ },
+ "yoy_spearman_of_r": 0.2799,
+ "yoy_pairs": 866,
+ "sanity": {
+  "QB": {
+   "max_pred": 620.5,
+   "best_ever": 512.4,
+   "ok": false
+  },
+  "WR": {
+   "max_pred": 557.0,
+   "best_ever": 367.0,
+   "ok": false
+  },
+  "TE": {
+   "max_pred": 368.8,
+   "best_ever": 261.3,
+   "ok": false
+  },
+  "RB": {
+   "max_pred": 572.4,
+   "best_ever": 365.6,
+   "ok": false
+  }
+ },
+ "bars": {
+  "calibration": true,
+  "variation_kept": true,
+  "sanity": false
+ },
+ "proposed_grade": "FALSE",
+ "note": "estimation noise alone drags fitted alpha to ~0.33 under pure independence (measured in the control), so alpha<0.5 is NOT by itself evidence of week-correlation; only alpha well below ~0.25 would be"
+}

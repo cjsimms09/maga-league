@@ -5,7 +5,7 @@
  * pre-season skip, which the interpreter script then scores.
  *
  * ⚠️ WHICH skip depends on the MACHINE, and this header used to say otherwise
- * (register 429): "in the sandbox Sleeper is unreachable, so it lands on the
+ * (register 430): "in the sandbox Sleeper is unreachable, so it lands on the
  * clean 'no live week yet' skip". True here, false on GitHub's runners, where
  * Sleeper answers and the gate returns 'preseason' one line later. Both are
  * legal; neither is assumed below.
@@ -45,7 +45,7 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS  ' + n))
     && /waiver or lineup/.test((await r.json()).error || ''), r.status);
 
   /* The real path, both captures. ⚠️ WHAT THIS USED TO ASSERT, AND WHY IT WAS
-   * RED ON EVERY CI RUN ON `main` (register 429): it pinned the literal string
+   * RED ON EVERY CI RUN ON `main` (register 430): it pinned the literal string
    * `'no live week yet'`, which is the skip `autoCaptureContext` returns when
    * Sleeper is UNREACHABLE (line 43 of the cron). On GitHub's runners Sleeper
    * IS reachable, answers `season_type: 'pre'`, and the very next line returns

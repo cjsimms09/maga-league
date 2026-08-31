@@ -1,0 +1,21 @@
+diff --git a/.github/workflows/self-audit.yml b/.github/workflows/self-audit.yml
+index fa679253..72b05c4f 100644
+--- a/.github/workflows/self-audit.yml
++++ b/.github/workflows/self-audit.yml
+@@ -41,7 +41,15 @@ jobs:
+           amber=(); hard=()
+ 
+           echo "== test suites =="
+-          pip install pytest -q
++          # register 427 (D, 2026-08-28): was `pip install pytest -q`, which is the
++          # venv-gap class ci.yml already fixed on 08-18 and documented in its own
++          # comment: without numpy/pandas, pytest ABORTS AT COLLECTION (exit 2) and
++          # every Python suite silently goes unrun. Reproduced: 6 collection errors,
++          # ZERO tests executed, py_ok=0 -> "tests RED". This audit has therefore
++          # reported RED on every run it has ever made (08-17, 08-24, 08-31) while
++          # the suite itself collects 5,217 tests cleanly with the requirements in.
++          # One source of truth, same as ci.yml.
++          pip install -r draft/requirements.txt -q
+           npm install --no-audit --no-fund >/dev/null 2>&1
+           py_ok=1; js_ok=1
+           python -m pytest draft/tests -q || py_ok=0

@@ -18,7 +18,7 @@
 #   captured=0 + note                   -> recorded hold/not-live week (real answer)
 #   anything else / ok!=true / !=200    -> FAIL
 #
-# ── THE DATE TRAP (register 429) ────────────────────────────────────────────
+# ── THE DATE TRAP (register 430) ────────────────────────────────────────────
 # "Cleanly skipping pre-season" is the RIGHT answer on 2026-08-31 and the
 # WORST POSSIBLE answer on 2026-09-10, and until now this script could not
 # tell the two apart. That is the exact failure its own header names: a green
