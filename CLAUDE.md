@@ -21,6 +21,9 @@ draft-week instruction without checking its date.** What governs NOW:
 * **The audit rhythm:** Wednesday register audits (worksheet pattern:
   `draft/audit/WEDNESDAY-AUDIT-*.md`); the ledger gates run in CI and are green —
   keep them that way. First blend grade vs Cory's edge bar: **09-15**.
+* **📬 A READS ONE PAGE: `A-DECISIONS.md`** (Cory, 08-31) — the relay curates
+  every decision onto it and routes every answer; `TO: A` is closed to new
+  decision-asks; E writes the sheet directly, unfiltered.
 * **🪪 THE ROSTER RULE (Cory, 08-31 — sessions kept misstating his players):**
   any statement about Cory's roster, opponent, or matchup cites **`THIS-WEEK.md`**
   (regenerated from LIVE Sleeper Tue/Fri/Sun by `week-brief.yml`; fresh within
