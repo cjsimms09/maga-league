@@ -34,11 +34,17 @@ def open_rows():
     rows = {}
     for m in re.finditer(r"\n\| (\w{1,4}) \|(.*?)(?=\n\| \w{1,4} \||\Z)", t, re.S):
         rid, cell = m.group(1), m.group(2)
-        parts = [p.strip() for p in cell.split("|")]
-        stat = " ".join(parts[2:4]).upper() if len(parts) > 3 else ""
-        if re.search(r"✅ CLOSED|CLOSED 0|CLOSED \d|RESOLVED|ABANDONED|\[2027\] PARKED", stat):
+        # Column-based status parsing is UNRELIABLE here: an unescaped pipe
+        # inside inline code shifts every cell (register 89 documents this),
+        # and on this tool's first run it produced false positives — rows 4t
+        # and 277 surfaced as open while both carry ✅ CLOSED in their real
+        # cells. Detect closure by CONTENT in the row's tail instead, where
+        # closures are appended by convention.
+        tail = cell[-600:].upper()
+        if re.search(r"✅ CLOSED|\[2027\] PARKED|RESOLVED|ABANDONED", tail):
             continue
-        rows[rid] = re.sub(r"\s+", " ", parts[0])[:100]
+        head = cell.split("|")[0]
+        rows[rid] = re.sub(r"\s+", " ", head)[:100]
     return rows
 
 
