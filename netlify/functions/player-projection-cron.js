@@ -35,8 +35,16 @@ const BOARD = require('../../public/draft_data.json');   // esbuild inlines JSON
  * truth, proj_feed's argument), so this function inherits its vintage: the
  * board is rebuilt nightly and shipped at deploy time. */
 function boardIndex(board) {
+  // REGISTER 437 (E, 2026-08-31): keepers live in `kept_players`, not
+  // `players` — register 80's split, eighth recorded consumer to miss it.
+  // Walking `players` alone left boardById null for all 23 keepers, so arm
+  // 'ours' emitted NOTHING for them in weeks 1-2 while arm 'sleeper' covered
+  // them — the 09-15 head-to-head graded on a population biased against our
+  // own model, exactly where the opponent is strongest.
   const out = {};
-  for (const p of (board && board.players) || []) {
+  const rows = ((board && board.players) || [])
+    .concat((board && board.kept_players) || []);
+  for (const p of rows) {
     if (p && p.player_id != null) out[String(p.player_id)] = p;
   }
   return out;
