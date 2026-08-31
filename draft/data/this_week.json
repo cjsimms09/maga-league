@@ -1,6 +1,6 @@
 {
  "_rule": "THE ROSTER RULE: any statement about Cory's roster or matchup cites THIS file (fresh within 3 days) or live Sleeper \u2014 never an older artifact.",
- "generated_at": "2026-08-31T15:47:27+00:00",
+ "generated_at": "2026-08-31T15:49:19+00:00",
  "season": "2026",
  "week": 1,
  "cory": {
@@ -19,7 +19,7 @@
    "team": "KC",
    "starter": true,
    "injury": null,
-   "game": "vs DEN (Tue)",
+   "game": "vs DEN (Mon)",
    "home": true,
    "kickoff_utc": "2026-09-15T00:15:00.000Z"
   },
@@ -52,7 +52,7 @@
    "team": "LAR",
    "starter": true,
    "injury": null,
-   "game": "vs SF (Fri)",
+   "game": "vs SF (Thu)",
    "home": true,
    "kickoff_utc": "2026-09-11T00:35:00.000Z"
   },
@@ -74,7 +74,7 @@
    "team": "KC",
    "starter": false,
    "injury": null,
-   "game": "vs DEN (Tue)",
+   "game": "vs DEN (Mon)",
    "home": true,
    "kickoff_utc": "2026-09-15T00:15:00.000Z"
   },
@@ -85,7 +85,7 @@
    "team": "LAR",
    "starter": true,
    "injury": null,
-   "game": "vs SF (Fri)",
+   "game": "vs SF (Thu)",
    "home": true,
    "kickoff_utc": "2026-09-11T00:35:00.000Z"
   },
@@ -107,7 +107,7 @@
    "team": "DEN",
    "starter": false,
    "injury": null,
-   "game": "at KC (Tue)",
+   "game": "at KC (Mon)",
    "home": false,
    "kickoff_utc": "2026-09-15T00:15:00.000Z"
   },
@@ -140,9 +140,9 @@
    "team": "WAS",
    "starter": false,
    "injury": "Questionable",
-   "game": "BYE",
-   "home": null,
-   "kickoff_utc": null
+   "game": "at PHI (Sun)",
+   "home": false,
+   "kickoff_utc": "2026-09-13T20:25:00.000Z"
   },
   {
    "id": "8151",
@@ -151,7 +151,7 @@
    "team": "KC",
    "starter": true,
    "injury": "Questionable",
-   "game": "vs DEN (Tue)",
+   "game": "vs DEN (Mon)",
    "home": true,
    "kickoff_utc": "2026-09-15T00:15:00.000Z"
   },
@@ -173,7 +173,7 @@
    "team": "SEA",
    "starter": false,
    "injury": "PUP",
-   "game": "vs NE (Thu)",
+   "game": "vs NE (Wed)",
    "home": true,
    "kickoff_utc": "2026-09-10T00:20:00.000Z"
   },
@@ -197,7 +197,7 @@
    "team": "KC",
    "starter": false,
    "injury": null,
-   "game": "vs DEN (Tue)",
+   "game": "vs DEN (Mon)",
    "home": true,
    "kickoff_utc": "2026-09-15T00:15:00.000Z"
   },
@@ -219,7 +219,7 @@
    "team": "DAL",
    "starter": true,
    "injury": null,
-   "game": "at NYG (Mon)",
+   "game": "at NYG (Sun)",
    "home": false,
    "kickoff_utc": "2026-09-14T00:20:00.000Z"
   },
@@ -263,9 +263,9 @@
    "team": "WAS",
    "starter": true,
    "injury": null,
-   "game": "BYE",
-   "home": null,
-   "kickoff_utc": null
+   "game": "at PHI (Sun)",
+   "home": false,
+   "kickoff_utc": "2026-09-13T20:25:00.000Z"
   },
   {
    "id": "6790",
@@ -307,7 +307,7 @@
    "team": "NE",
    "starter": false,
    "injury": null,
-   "game": "at SEA (Thu)",
+   "game": "at SEA (Wed)",
    "home": false,
    "kickoff_utc": "2026-09-10T00:20:00.000Z"
   },
@@ -329,7 +329,7 @@
    "team": "DAL",
    "starter": true,
    "injury": null,
-   "game": "at NYG (Mon)",
+   "game": "at NYG (Sun)",
    "home": false,
    "kickoff_utc": "2026-09-14T00:20:00.000Z"
   },
@@ -351,7 +351,7 @@
    "team": "KC",
    "starter": true,
    "injury": null,
-   "game": "vs DEN (Tue)",
+   "game": "vs DEN (Mon)",
    "home": true,
    "kickoff_utc": "2026-09-15T00:15:00.000Z"
   }
