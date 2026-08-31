@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 437,
+ "next_numeric_id": 442,
  "history": [
   {
    "id": 47,
@@ -1202,27 +1202,6 @@
    "note": "D: self-audit never runs a Python test; renumbered from 427 which main printed first"
   },
   {
-   "id": 429,
-   "claimed_at": "2026-08-31"
-  },
-  {
-   "id": 430,
-   "claimed_at": "2026-08-31",
-   "note": "A: the week-1 capture probe scores a dead rail OK, and its test was red in CI / green in every sandbox. Claimed 429; renumbered because main printed 428 and 429 first (register 186). A standalone next_register_id.js call by A also spent 428 before either row landed — the id was independently claimed on main, so nothing was lost, but the tool's own warning against running it standalone stands."
-  },
-  {
-   "id": 431,
-   "claimed_at": "2026-08-31"
-  },
-  {
-   "id": 432,
-   "claimed_at": "2026-08-31"
-  },
-  {
-   "id": 433,
-   "claimed_at": "2026-08-31"
-  },
-  {
    "id": "137-138",
    "claimed_at": "2026-08-20",
    "note": "A renumbered D two colliding rows (133,134) at merge; A retained 133/134, which are cited from shipped code (mlv.js), three tests and panel_spec.js."
@@ -1273,6 +1252,27 @@
    "note": "A filed 47/48 on main concurrently with the watermark's first claim of 47; A's B0 row took 49; the watermark's row renumbered to 50. Watermark now authoritative from 51."
   },
   {
+   "id": 429,
+   "claimed_at": "2026-08-31"
+  },
+  {
+   "id": 430,
+   "claimed_at": "2026-08-31",
+   "note": "A: the week-1 capture probe scores a dead rail OK, and its test was red in CI / green in every sandbox. Claimed 429; renumbered because main printed 428 and 429 first (register 186). A standalone next_register_id.js call by A also spent 428 before either row landed — the id was independently claimed on main, so nothing was lost, but the tool's own warning against running it standalone stands."
+  },
+  {
+   "id": 431,
+   "claimed_at": "2026-08-31"
+  },
+  {
+   "id": 432,
+   "claimed_at": "2026-08-31"
+  },
+  {
+   "id": 433,
+   "claimed_at": "2026-08-31"
+  },
+  {
    "id": 434,
    "claimed_at": "2026-08-31"
   },
@@ -1282,6 +1282,28 @@
   },
   {
    "id": 436,
+   "claimed_at": "2026-08-31"
+  },
+  {
+   "id": 437,
+   "claimed_at": "2026-08-27",
+   "note": "E: emitter keeper blind spot, renumbered from 435 at merge"
+  },
+  {
+   "id": 438,
+   "claimed_at": "2026-08-31",
+   "note": "A: week 1's lineup recommendation was captured on 2026-08-30, eleven days before week 1's first game, and the capture is one-per-week-ever. Claimed 434; renumbered because main printed E's 434 first (register 186). Third id collision of this session; every `register 434` citation in the code was repointed to 438 in the same commit."
+  },
+  {
+   "id": 439,
+   "claimed_at": "2026-08-31"
+  },
+  {
+   "id": 440,
+   "claimed_at": "2026-08-31"
+  },
+  {
+   "id": 441,
    "claimed_at": "2026-08-31"
   }
  ]

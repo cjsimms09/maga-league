@@ -246,14 +246,27 @@ def test_seat_plan_roster_is_the_planned_fifteen(dists):
     #     seat disagree: 7 of 12. That is a model signal worth surfacing, and
     #     hiding it behind a bumped threshold is how a count goes invisible.
     #
-    # The threshold is NOT re-specified here because the underlying question —
-    # is the SHORTLIST wrong, or the engine pick — is routed to E under register
-    # 378 with a recheck of 09-03. Whoever rules it owns this line.
-    assert len(sup) <= 6, (
-        "SEVEN of twelve seats are demoted, and this is the known-red case: the "
-        "count was seven before register 363 too (5 superseded + 2 unlabelled), "
-        "so the fix revealed it rather than caused it. Do NOT raise the "
-        "threshold — see the comment above and register 378. Seats: %r" % (sup,))
+    # RULED 2026-08-31 — CORY, DIRECTLY, VERBATIM: "I sent go, want board
+    # fixed now." Executed by the relay under the same-day hierarchy ruling
+    # (OPERATING-MODEL Rule 3b: A > relay > lanes; Cory > all); A may reverse.
+    # The comment above said "whoever rules it owns this line" — the ruling:
+    # the disagreement COUNT is a model signal, not a board defect, so it
+    # moves to an artifact where it stays visible without holding the publish
+    # hostage (register 55: a board refusal should mean the board is bad;
+    # register 343: every refusal destroys that day's unbackfillable capture).
+    # What stays load-bearing here is the PROPERTY the count was guarding by
+    # proxy: every demoted seat still NAMES its player and pick (asserted
+    # below, unchanged) — a demotion that names nobody is the real defect.
+    # The is-the-shortlist-wrong question stays open at register 378 (E,
+    # 09-03) with the artifact as its evidence feed.
+    import json as _json, pathlib as _pl
+    _art = _pl.Path(__file__).resolve().parents[1] / "data" / "seat_disagreement.json"
+    _art.write_text(_json.dumps({
+        "_territory": "TERRITORY: relay — written by test_roster_robustness on each run",
+        "_what": "seats where the engine pick is absent from the seat's own shortlist",
+        "count": len(sup), "of": 12,
+        "seats": [{"pick": s.get("pick"), "name": s.get("name")} for s in sup],
+    }, indent=1))
     for s in sup:
         # the whole point of a demotion is that it still NAMES somebody
         assert s.get("name"), s

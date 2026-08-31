@@ -11,7 +11,12 @@
 # The states, exhaustively — an unknown shape FAILS rather than passing,
 # because a probe that greens on garbage is the exact rule-3e trap:
 #   skipped=preseason|no live week yet  -> OK pre-season (wiring proven)
-#                                          ⚠️ ONLY BEFORE KICKOFF — see below
+#   skipped=week not live yet              ⚠️ ONLY BEFORE KICKOFF — see below
+#     (register 438: Sleeper says "week 1" up to eleven days before week 1's
+#      first game, and a capture in that gap burns the week's marker on advice
+#      nobody could have made yet. The crons now refuse it by name; the refusal
+#      is a HEALTHY pre-season answer here and a FAILURE once games are being
+#      played, exactly like the two above.)
 #   skipped=already captured            -> BEST: the SCHEDULED run fired and wrote
 #   captured>=1                         -> scheduled fire missing; the probe just
 #                                          captured as fallback (loud warning)
@@ -69,7 +74,7 @@ captured=$(echo "$body" | jq -r '.captured // empty')
 note=$(echo "$body" | jq -r '.note // empty')
 
 case "$skipped" in
-  preseason|"no live week yet")
+  preseason|"no live week yet"|"week not live yet")
     if [[ "$today" < "$alarm" ]]; then
       echo "OK (pre-season): $fn is wired end-to-end and cleanly skipping ('$skipped'). Kickoff $kickoff, from $kickoff_src; this answer stops being OK on $alarm."
       exit 0

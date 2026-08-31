@@ -101,6 +101,47 @@ def main() -> int:
     if week is None:
         w = st.get("week")
         week = int(w) if w else None
+
+    # ── AND `season_type == 'regular'` IS NOT THE SAME AS THE WEEK EXISTING ──
+    #
+    # The guard above was written for exactly the right reason and keyed on the
+    # wrong field. Sleeper flips `season_type` to `regular` the moment the
+    # preseason ends — 2026-08-30, ELEVEN DAYS before week 1's first game — so
+    # from that day this job asked for week-1 projections that no provider had
+    # published yet, got `7627 rows, 0 with stats`, correctly refused to write
+    # an empty snapshot, and exited 1. Measured, from run 33324693382.
+    #
+    # That is the failure mode the comment above already names, one field over:
+    # red by design for ten days, and then the first real failure looks like the
+    # ten expected ones. Same root cause as register 438, where the same flip
+    # let the reco crons burn week 1's capture marker eleven days early.
+    #
+    # ⚠️ CANNOT-SAY DOES NOT SKIP. `week_is_live` returns None when the schedule
+    # cannot answer, and None falls through to the normal path — a missing
+    # schedule must never become a silent season-long refusal to snapshot the
+    # one input with a real deadline (rule 3e).
+    if week and not any(a == "--week" for a in args):
+        sys.path.insert(0, str(HERE / "tools"))
+        try:
+            from capture_window import week_is_live  # noqa: WPS433
+            season_guess = str(os.environ.get("SEASON") or st.get("season") or "")
+            #: the clock is injectable so BOTH arms are provable in a test today
+            #: rather than only in September (rule 3e — the same override the
+            #: reco probe's date guard uses).
+            now = os.environ.get("PROJ_SNAPSHOT_NOW") or None
+            if week_is_live(season_guess, week, now=now) is False:
+                print(f"week {week} of {season_guess} is not live yet — its games are "
+                      f"more than the capture window away, so a provider that returns "
+                      f"no stats is EXPECTED, not a failure. Exiting CLEAN and "
+                      f"snapshotting nothing. (register 440: `season_type` "
+                      f"flips to 'regular' up to eleven days before week 1's first "
+                      f"game.) ⚠️ Once the window opens, an empty response is a hard "
+                      f"failure again and this job goes red.")
+                return 0
+        except Exception as exc:                       # noqa: BLE001
+            print(f"  ! capture_window unavailable ({type(exc).__name__}: {exc}); "
+                  f"proceeding as before — cannot-say never skips")
+
     if not week:
         # REFUSE rather than snapshot under an unknown week. A snapshot filed
         # under the wrong week is worse than a missing one: January would grade a

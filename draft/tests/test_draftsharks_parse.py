@@ -80,37 +80,96 @@ def test_ligature_corrupted_name_is_fixed():
 
 
 def test_crosswalk_matches_every_player_uniquely():
-    """⚠️ REWRITTEN 2026-08-31 (D, register 435; see also 436). This asserted
-    `n_unmatched == 0`, and from 2026-08-27 it blocked every board publish:
-    Sleeper dropped Nick Chubb and Trey Benson — two unsigned free agents — from
-    its projection universe that morning, board membership requires a Sleeper
-    projection, so a freshly built board has no row for them and their two Draft
-    Sharks rows have nothing to match. `2 == 0`, five days of a stale board.
+    """RULED BY A 2026-08-31 on D's finding (register 436), which found the
+    defect in the fix that was already queued for this test.
 
-    A frozen 250-row PDF joined to a LIVE board universe cannot hold a
-    zero-misses invariant forever, so the invariant is the thing that was wrong.
-    What replaces it keeps every tooth: a row may go unmatched ONLY when the
-    board itself has no candidate for it (see `absence_reason`), the count of
-    such rows is bounded, and every one is named on stderr. A matcher
-    regression leaves its candidate sitting on the board, so it comes back
-    `unexplained` and still fails here.
+    ── WHY THIS CHANGED AT ALL ───────────────────────────────────────────────
+    `D.main()` rebuilds this store against the LIVE board, and the board is
+    rebuilt nightly. `n_unmatched == 0` therefore asserted that tonight's board
+    contains every player Draft Sharks ranks — which stops being true the
+    moment Sleeper drops a free agent. It did: `4988` and `11589` went on
+    2026-08-27 (register 435), and this test has been on the acceptance gate's
+    refusal list every night since, with the board unpublished since 08-26.
+
+    ── AND WHY THE QUEUED FIX WAS NOT ENOUGH ─────────────────────────────────
+    C's branch turned the first line into a 0.95 match-rate floor and kept the
+    uniqueness line "a hard equality" — deliberately. But an UNMATCHED row
+    carries `sleeper_id = None`, so two unmatched rows put two `None`s in that
+    list and the equality fires as `assert 250 == 249`, reporting *"two Draft
+    Sharks rows matched the same player"* when no two rows matched anything.
+    The gate still refuses, and the message sends the next reader hunting a
+    crosswalk bug that does not exist. Found by D; reproduced here in a
+    throwaway worktree with `4988`/`11589` removed — 250 rows, n_unmatched 2,
+    two Nones, naive uniqueness FALSE, uniqueness-over-matched TRUE.
+
+    `None` is not an id. Uniqueness is a claim about the rows that MATCHED.
     """
     doc = D.main()
-    for u in doc["unmatched"]:
-        assert u["reason"] == "absent-from-board", u
-    assert doc["n_unmatched_unexplained"] == 0, doc["unmatched"]
+    ids = [r["sleeper_id"] for r in doc["players"]]
+    matched = [i for i in ids if i is not None]
+    #: Measured 2026-08-31: 250/250 = 1.0 on the committed board, 248/250 =
+    #: 0.992 on the board CI builds. The floor is about the CROSSWALK, which
+    #: is what this test owns; a board that has legitimately shed players is
+    #: not a crosswalk regression.
+    rate = len(matched) / len(ids)
+    assert rate >= 0.95, (
+        f"only {len(matched)}/{len(ids)} = {rate:.4f} of Draft Sharks rows reach "
+        "a board player — that is a crosswalk regression, not board churn")
+    assert len(matched) == len(set(matched)), (
+        "two Draft Sharks rows matched the SAME board player (unmatched rows "
+        "are excluded: they carry sleeper_id None and collide with each other, "
+        "not with a player — register 436)")
 
-    # BOUNDED, so a mass parse failure cannot walk through the exemption. If a
-    # page-break reflow ever garbled many names at once, every garbled row
-    # would look "absent from the board" — true, and still a defect. Five is a
-    # handful of departed free agents; a fortieth is a broken parse.
-    assert doc["n_unmatched_absent_from_board"] <= 5, doc["unmatched"]
 
-    # `sleeper_id` is None on an unmatched row, so two unmatched rows used to
-    # make this line fail as a *duplicate match* — a second, quieter defect in
-    # the old version, and it would have fired the moment the first one did.
-    ids = [r["sleeper_id"] for r in doc["players"] if r["sleeper_id"]]
-    assert len(ids) == len(set(ids)), "two Draft Sharks rows matched the same player"
+def test_the_unmatched_rows_are_unmatched_and_not_silently_zero_filled():
+    """The other half of what `n_unmatched == 0` used to buy: it also meant
+    nobody could ship a row that LOOKED matched and was not. Dropping it for a
+    floor would have lost that, so it is asserted directly instead."""
+    doc = D.main()
+    for r in doc["players"]:
+        if r["sleeper_id"] is None:
+            assert not r.get("name_board"), (
+                f"row {r.get('rank')} has no sleeper_id but carries a board name — "
+                "that is a half-matched row, which is worse than an unmatched one")
+    n_none = sum(1 for r in doc["players"] if r["sleeper_id"] is None)
+    assert n_none == doc["n_unmatched"], (
+        f"the store's own n_unmatched ({doc['n_unmatched']}) disagrees with the "
+        f"rows carrying no sleeper_id ({n_none}) — a miscount, not board churn")
+
+
+def test_the_uniqueness_check_still_fires_on_a_REAL_collision():
+    """⚠️ RULE 3E, AND THE REASON THIS EXISTS IS THAT THE CONTROL SHIPPED WITH
+    THE QUEUED FIX COULD NOT FAIL. It built `broken = dict(doc, n_unmatched=n)`
+    and asserted `1 - n/n < 0.95` — that is `0 < 0.95`, a constant-true
+    comparison that never touches the matcher, the board or the parser. It
+    proves the inequality operator works (D's second finding, register 436).
+
+    This one injects a real duplicate into the real parser output and requires
+    the real assertion to fire — and separately proves that adding a second
+    UNMATCHED row does NOT fire it, which is the exact distinction the change
+    above turns on.
+    """
+    doc = D.main()
+    rows = [dict(r) for r in doc["players"]]
+
+    def uniq(rs):
+        m = [r["sleeper_id"] for r in rs if r["sleeper_id"] is not None]
+        return len(m) == len(set(m))
+
+    assert uniq(rows), "the live store must be clean before the arms mean anything"
+
+    real = [dict(r) for r in rows]
+    donor = next(r for r in real if r["sleeper_id"] is not None)
+    victim = next(r for r in real if r["sleeper_id"] is not None and r is not donor)
+    victim["sleeper_id"] = donor["sleeper_id"]
+    assert not uniq(real), "FAIL ARM — a genuine duplicate sleeper_id must fire"
+
+    nones = [dict(r) for r in rows]
+    for r in nones[:2]:
+        r["sleeper_id"] = None
+    assert uniq(nones), (
+        "CONTROL — two UNMATCHED rows must NOT be read as a collision; that "
+        "false positive is register 436 and it is what kept the board unpublished")
 
 
 def test_same_initial_same_team_same_position_collision_resolves_correctly():

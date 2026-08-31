@@ -32,16 +32,28 @@
  * one row per week, ever, no matter how often the function fires.
  */
 const store = require('../../src/store');
+const WINDOW = require('../../src/capture_window');
 const predledger = require('../../src/predledger');
 const { computeWaiverReco, buildAutoWaiverEntry, buildAutoStreamEntry } = require('../../src/waiver_reco');
 
 /* Pure, exported for the unit test: the season/week/owner gate. Returns
  * { skip: '<reason>' } or { season, week, ownerId, myRid }. */
-function autoCaptureContext(sData, cfg, owners) {
+function autoCaptureContext(sData, cfg, owners, now = Date.now()) {
   const season = String((sData && sData.state && sData.state.season) || '');
   const week = Number(sData && sData.week);
   if (!season || !week) return { skip: 'no live week yet' };
   if ((sData.season_type || 'regular') !== 'regular') return { skip: 'preseason' };
+  /* ⚠️ SLEEPER SAYING "WEEK 1" IS NOT THE SAME AS WEEK 1 BEING NEAR (register
+   * 434). It flipped to regular/week-1 on 2026-08-30, ELEVEN DAYS before the
+   * first game, and the capture is one-per-week-ever — so a fire in that gap
+   * records a recommendation made before the week existed and then suppresses
+   * the real one, while the probe prints its most reassuring line. `weekIsLive`
+   * returns null when the schedule cannot answer, and null must NOT block:
+   * a missing schedule restores the old behaviour rather than inventing a
+   * season-long silent refusal. */
+  if (WINDOW.weekIsLive(season, week, now) === false) {
+    return { skip: WINDOW.SKIP_REASON };
+  }
   const commish = (owners || []).find(o => o.is_commissioner);
   if (!commish) return { skip: 'no commissioner owner' };
   const map = (cfg && cfg.sleeper_map) || {};
@@ -103,8 +115,20 @@ exports.runCapture = async () => {
     // (rmarkKey pattern from claims-cron), and for a "hold" week it IS the
     // record.
     const markKey = `waiverauto:${ctx.season}:${ctx.week}`;
-    if (await store.get(markKey)) {
+    /* ⚠️ A MARKER WRITTEN BEFORE ITS OWN WEEK'S WINDOW OPENED IS NOT A RECORD
+     * OF THAT WEEK'S DECISION (register 438). `lineupauto:2026:1` was written
+     * on 2026-08-30, eleven days before week 1's first game, by the probe's
+     * fallback capture — and without this it would suppress the real Sunday
+     * capture for the whole of week 1 while the probe reported the healthiest
+     * verdict it has. Nothing in a pull request can edit the live store, so the
+     * self-heal has to live here. A marker with no `at` is treated as VALID:
+     * markers predate that field and refusing them would re-capture history. */
+    const mark = await store.get(markKey);
+    if (mark && !WINDOW.markerIsPremature(mark, ctx.season, ctx.week)) {
       return { statusCode: 200, body: JSON.stringify({ ok: true, skipped: 'already captured', week: ctx.week }) };
+    }
+    if (mark) {
+      console.log(`[waiver-reco] marker ${markKey} was written ${mark.at}, before week ${ctx.week}'s capture window opened — recapturing at the real decision moment (register 438)`);
     }
 
     const playersDb = await sleeper.players();

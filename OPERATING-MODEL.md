@@ -179,6 +179,64 @@ never has to explain how to fix it — that is the sender's job.
 
 ## RULE 3b — A DOES NOT LOWER THE BAR, AND DOES NOT DO THE WORK EITHER
 
+**⚖️ UPGRADED TWICE ON 2026-08-31, BOTH CORY'S WORDS.**
+
+**First, THE EXECUTIVE RULE** (*"A is executive who makes decisions, pushes
+back, audits"*): A's outputs are exactly four things — **RULINGS ·
+SEND-BACKS · AUDITS · MERGES**. A never writes a first draft. Work A
+discovers becomes a one-paragraph SPEC (what, where, done-when, which test
+proves it) that any lane claims by writing itself into the owner cell;
+territory is not an executor claim — other lanes work in A's files, and A's
+control point is the MERGE, which A alone holds. "Makes site and model
+better" happens through A's bar, not A's keyboard.
+
+**Third, THE HIERARCHY** (Cory, 08-31, verbatim: *"in terms of authority it
+should go A>Relay>all other sessions... you need to also ensure we are
+building the model correctly and accurately, just like A does"*):
+
+* **A > Relay > every other lane.** The relay holds standing authority over
+  B/C/D/E work — it can redirect, bounce, re-scope, and set defaults without
+  waiting; a lane that disagrees appeals to A via the decision sheet, and
+  A can reverse any relay call (that is what the ">" means).
+* **THE RELAY PRE-AUDITS before anything reaches A.** A row lands on
+  `A-DECISIONS.md` only after the relay has verified its PREMISE against
+  the code or the filesystem (the 3f discipline as a gate, not a habit),
+  confirmed its evidence link opens to what it claims, and run — or
+  demanded — its controls. A should never spend a ruling discovering the
+  question was false; four-of-six stale was the measured cost of skipping
+  this.
+* **THE ANTI-BOG-DOWN GUARDRAIL, so the deputy doesn't become the
+  bottleneck A was:** the pre-audit is a proportional CHECK, not a
+  re-derivation — a ten-second grep for a routine row, a full control-run
+  only when the row would change a number Cory acts on. The relay's own
+  work gets no self-exemption: E red-teams the relay's output exactly as
+  it does A's, and the Wednesday audit reports relay decision-latency
+  beside A's.
+
+**Second, THE CHIEF-OF-STAFF PROTOCOL** (*"shouldnt you own the messaging
+for A? ie A makes decisions, approves or rejects, then you route to where
+it needs to go from there?"*): **the relay owns ALL messaging to and from
+A.** Lanes file decision-asks to the relay; the relay distills each into one
+row on **`A-DECISIONS.md`** — the only page A has to read — with the
+evidence link, a REC, and what each answer triggers. A writes one word per
+row; the relay routes every consequence within a day. `ROUTES → TO: A` is
+closed to new decision-asks. **Two safeties are load-bearing: E writes the
+decision sheet DIRECTLY and unfiltered — a curated red team is a silenced
+one — and the Wednesday audit publishes what the relay bounced, so the
+curation itself stays auditable.** Everything remains on main; A can always
+grep past the sheet — the sheet exists so A never has to.
+
+⚠️ *Process note, recorded because it is the file's own subject: the
+executive-rule text was written and announced on 08-31 afternoon and did
+not actually land — it was stashed during branch surgery and destroyed in
+the recovery reset, while its commit shipped the other files. Caught only
+when the chief-of-staff edit went looking for its anchor. A rule announced
+in chat and absent from the file is exactly what "rules change in files"
+exists to prevent.*
+
+The original rule and its table follow, unchanged.
+
+
 **Cory, 2026-08-17:** *"A is also not to lower its standards! but need to put
 more work back on other sessions if they are able to do it."*
 
