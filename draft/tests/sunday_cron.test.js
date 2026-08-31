@@ -99,8 +99,8 @@ const SQUAD = [['p1', 'QB One', 'QB', 'BUF', 21.4], ['p2', 'RB One', 'RB', 'ATL'
   const srv = createApp().listen(0);
   await new Promise(r => srv.once('listening', r));
   const base = `http://127.0.0.1:${srv.address().port}`;
-  const hit = async key => {
-    const r = await fetch(`${base}/api/sunday-alert?key=${key}`);
+  const hit = async (key, extra = '') => {
+    const r = await fetch(`${base}/api/sunday-alert?key=${key}${extra}`);
     let j = null; try { j = await r.json(); } catch (e) { /* not json */ }
     return { status: r.status, body: j };
   };
@@ -129,8 +129,15 @@ const SQUAD = [['p1', 'QB One', 'QB', 'BUF', 21.4], ['p2', 'RB One', 'RB', 'ATL'
   // in the fall: 15 minutes after the inactives, 75 before kickoff.
   {
     const yml = fs.readFileSync(path.join(ROOT, '.github', 'workflows', 'sunday-alert.yml'), 'utf8');
-    const cron = (yml.match(/cron:\s*'([^']+)'/) || [])[1];
+    const crons = [...yml.matchAll(/cron:\s*'([^']+)'/g)].map(m => m[1]);
+    const cron = crons[0];
     ck('the Sunday alert fires at 15:45 UTC on Sundays', cron === '45 15 * * 0', cron);
+    // The Thursday firing (2026-08-31, Cory's bench-discipline order): TNF
+    // locks three days before the Sunday check, so a second cron covers it.
+    ck('the Thursday TNF check fires at 21:00 UTC on Thursdays',
+       crons.includes('0 21 * * 4'), crons.join(' | '));
+    ck('the workflow derives scope from the day so the two firings stamp apart',
+       /SCOPE=thursday/.test(yml) && /scope=\$SCOPE/.test(yml), null);
     // The arithmetic, restated here rather than trusted: 15:45 UTC in EDT
     // (UTC-4) is 11:45 ET, which must land AFTER the 11:30 inactives and BEFORE
     // the 13:00 kickoff. Computed, not asserted, so a future edit to the cron
@@ -250,6 +257,19 @@ const SQUAD = [['p1', 'QB One', 'QB', 'BUF', 21.4], ['p2', 'RB One', 'RB', 'ATL'
     ck('the SAME week does not send twice', outbox.length === 1 && again.body.sent === 0, { again: again.body, outbox });
     ck('  it names the reason rather than looking like a failure',
       again.body.quiet === true && again.body.reason === 'already-sent-this-week', again.body);
+
+    // ── THE THURSDAY SCOPE STAMPS APART (Cory 08-31, bench discipline) ──────
+    // TNF locks three days before the Sunday check; the Thursday firing must
+    // still send AFTER Sunday's stamp exists, then dedupe against itself.
+    const thu = await hit('test-key', '&scope=thursday');
+    ck('the Thursday scope still sends after the Sunday stamp',
+      outbox.length === 2 && thu.body.sent === 1, { thu: thu.body, outbox: outbox.length });
+    ck('  and the Thursday email says the locks are tonight',
+      /Thursday night locks tonight/.test(outbox[1] || ''), outbox[1]);
+    const thuAgain = await hit('test-key', '&scope=thursday');
+    ck('  the SAME Thursday does not send twice',
+      outbox.length === 2 && thuAgain.body.sent === 0 && thuAgain.body.reason === 'already-sent-this-week',
+      thuAgain.body);
   }
 
   global.fetch = realFetch;

@@ -90,7 +90,7 @@ def test_a_zero_or_negative_ds_projection_cannot_produce_an_infinite_ratio():
 def _ds_store_has(p) -> bool:
     """Is this board player IN the Draft Sharks store at all?
 
-    The distinction register 444 turns on: a player the store does not carry
+    The distinction register 445 turns on: a player the store does not carry
     cannot be evidence that the band RULE failed. Matched by sleeper id first
     and by name second, because the store's own crosswalk is what
     attach_draftsharks joins on and either path landing is enough to say "the
@@ -136,7 +136,7 @@ def test_ON_THE_REAL_BOARD_the_rule_covers_Corys_draftable_scope():
                  key=adp)[:scope]
     banded = [p for p in top if p.get("proj_ceiling_ds") is not None]
 
-    #: ⚠️ SPLIT 2026-08-31 (A, register 444). This was ONE assertion —
+    #: ⚠️ SPLIT 2026-08-31 (A, register 445). This was ONE assertion —
     #: `len(banded) >= 0.9 * scope` — and it conflated two different failures
     #: with two different owners, then refused the board publish for the wrong
     #: one. On the freshly built board it read 179/200 against a floor of 180
@@ -174,7 +174,7 @@ def test_ON_THE_REAL_BOARD_the_rule_covers_Corys_draftable_scope():
         "draft/data/draftsharks_projections_2026.json is a 250-player capture and "
         "the top 200 churns nightly with ADP — refresh it. The standing item is "
         "C's: wire draftsharks_render.js into a weekly cron so the capture stops "
-        "depending on a manual dispatch (register 444).")
+        "depending on a manual dispatch (register 445).")
 
     # and every banded player's per-source ceiling must sit above its own proj
     for p in banded:
