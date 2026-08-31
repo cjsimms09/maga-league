@@ -47,8 +47,10 @@ nothing).
 Every session's first act in any lane: read `CLAUDE.md`'s era banner, then
 this file, then your `TO:` section top-down. You are caught up when:
 
-- **A** — the acceptance gate publishes a board on schedule; both graders run
-  Tuesday; `main` green is believed because it is checked.
+- **A** — THE EXECUTIVE (Cory's 08-31 ruling, OPERATING-MODEL Rule 3b): outputs
+  are RULINGS, SEND-BACKS, AUDITS, MERGES — never first drafts. Caught up =
+  every decision-shaped item in A's inbox answered in a line; the gate
+  publishes because A ruled and merged, not because A burned hours.
 - **B** — the owner site's week-1 surfaces (lineup, matchup, wire, The Book)
   survive a Sunday: register 324's partial-score family closed or ruled.
 - **C** — every capture in go_status's WATCHED list green or its refusal
