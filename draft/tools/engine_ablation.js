@@ -375,12 +375,31 @@ function loadRoom() {
   const myEntry = (KEEPER_FILE.teams || []).find(t => t.draft_slot === MY_SLOT);
   {
     const a = new Set((myEntry ? myEntry.keepers : []).map(k => String(k.player_id)));
-    const b = new Set(board.kept_players.map(k => String(k.player_id)));
+    /* ⚠️ FILTERED TO CORY'S SEAT — see archetype_rooms.js for the full
+     * note (A, 2026-08-24). keepers.json is per-team and this compared
+     * his three against the league's twenty-three, so the refusal below
+     * could never stop firing. */
+    const b = new Set((board.kept_players || [])
+      .filter(k => Number(k.team_slot) === Number(MY_SLOT))
+      .map(k => String(k.player_id)));
     if (a.size !== b.size || [...a].some(id => !b.has(id))) {
       throw new Error('keeper sources disagree: config/keepers.json vs board kept_players');
     }
   }
-  const byId = new Map(ALL.map(p => [String(p.player_id), p]));
+  /* ⚠️ IDENTITY MAP, SO IT SPANS BOTH POOLS — `ALL` stays the DRAFTABLE pool
+   * (A, 2026-08-24, register 300/301). `ALL` is `board.players`, which
+   * post-lock excludes the 23 keepers, so this map could not resolve ANY of
+   * them and the designated-slate loop below threw "designated keeper not on
+   * board: Ashton Jeanty" — another manager's keeper, correctly listed in
+   * keepers.json and correctly absent from the draftable board. Register
+   * 277's lookup shape.
+ *
+   * AUDITED BEFORE WIDENING, because conflating availability with identity is
+   * exactly the mistake I made in withheld_slate_exposure earlier today:
+   * every use of `byId` in this file is a `.get()` for resolution, never an
+   * iteration over the draftable pool. Widening it changes no simulation. */
+  const byId = new Map(ALL.concat(board.kept_players || [])
+    .map(p => [String(p.player_id), p]));
   const OPP_KEEPERS = new Map();
   (KEEPER_FILE.teams || []).forEach(t => {
     if (t.draft_slot === MY_SLOT) return;
@@ -416,8 +435,35 @@ function loadRoom() {
     return out;
   })();
 
+  /* ⚠️ CORY'S KEEPERS, SEAT-FILTERED — register 370, and the THIRD place in
+   * THIS FILE that needed it. The 08-24 pass (register 300/301/303) filtered
+   * the two-source agreement check above and widened `byId`, and left the
+   * ROOM's roster seeding reading `board.kept_players` whole. Post-lock
+   * (08-23) that is the league's twenty-three, so every simulated room handed
+   * Cory ten managers' players as his own starting roster.
+   *
+   * The file's own hardcoded forfeit set is the tell: `slotForfeits(MY_SLOT)`
+   * returns `{1,2,3}` — THREE rounds surrendered for THREE keepers — while the
+   * roster was being seeded with twenty-three. The two numbers sat four lines
+   * apart and disagreed by twenty.
+   *
+   * Availability is NOT this variable's job and never was: opponents' keepers
+   * come off the board through OPP_KEEPERS, exactly as archetype_rooms.js does
+   * it. That separation is what the parity check pins. */
+  const MY_KEEPERS = (board.kept_players || [])
+    .filter(k => Number(k.team_slot) === Number(MY_SLOT));
+  /* REFUSE rather than silently simulate an impossible seat (register 364's
+   * guard, same reasoning): an empty filter, or one that is not a strict
+   * subset of the league slate, means the filter key moved and the room should
+   * stop, not print numbers. */
+  if (!MY_KEEPERS.length || MY_KEEPERS.length >= (board.kept_players || []).length) {
+    throw new Error('MY_KEEPERS filter is wrong: got ' + MY_KEEPERS.length
+      + ' of ' + (board.kept_players || []).length + ' league keepers for slot '
+      + MY_SLOT + ' — refusing to simulate (register 370)');
+  }
+
   return { board, ALL, LEAGUE, PICKS, MY_SLOT, MY_PICKS, WIRE, byId,
-    OPP_KEEPERS, ROOM_PROFILES, PLAN_SLOT,
+    OPP_KEEPERS, MY_KEEPERS, ROOM_PROFILES, PLAN_SLOT,
     TEAMS: LEAGUE.teams || 10, TOTAL_ROUNDS: LEAGUE.rounds || 15 };
 }
 
@@ -498,7 +544,10 @@ function draftRoom(R, seed, arm, oppModel) {
   const teams = {};
   for (let s = 1; s <= R.TEAMS; s++) teams[s] = { roster: [], picksLeft: 0 };
 
-  R.board.kept_players.forEach(k => {
+  // My keepers — CORY'S THREE, seat-filtered where R is built (register 370).
+  // Opponents' keepers come off the board through OPP_KEEPERS just below;
+  // this loop is my ROSTER, not the league's availability.
+  R.MY_KEEPERS.forEach(k => {
     drafted.add(String(k.player_id));
     teams[R.MY_SLOT].roster.push(Object.assign({}, k, { is_keeper: true }));
   });

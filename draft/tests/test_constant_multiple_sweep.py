@@ -222,6 +222,32 @@ KNOWN_PARTICIPANTS = {
     # input being coupled to the blend built from it is construction, not a
     # hidden dependency.
     "proj_sleeper",
+    # INVESTIGATED 2026-08-26 before adding, as this list's own message demands,
+    # and the finding is REAL but is not a rescaling. `tier_drop` is a PER-TIER
+    # quantity carried on a per-player row: every player in a tier shares the
+    # tier's drop. Across the 46 quarterbacks in (QB, 33+) it takes exactly TWO
+    # distinct values -- 8.1 on 45 of them and 51.5 on one -- while its
+    # FantasyPros twin takes three (6.55 x38, 6.59 x7, 40.92 x1). A ratio of two
+    # near-constant columns is trivially near-constant: 8.1/6.55 = 1.2366,
+    # 8.1/6.59 = 1.2291, 51.5/40.92 = 1.2586, giving the cv of 0.0035 the sweep
+    # flagged. Neither field is a rescaled copy of the other; both are tier
+    # constants that happen to sit beside each other.
+    #
+    # The other two cells it fired on are (DEF, 17-32) and (K, 17-32), both at a
+    # multiplier of EXACTLY 1.0 with cv 0, and both with ZERO of their players
+    # covered by FantasyPros -- FantasyPros publishes no kicker or defence
+    # projections at all, which `source_rerank_is_real.test.js` asserts
+    # independently. The suffixed field therefore degrades to the row's own blend
+    # value (the documented "never a fabricated zero" rule), so the ratio is 1 by
+    # construction. That is the alias case this sweep already exempts at global
+    # scope; it simply has no within-cell equivalent.
+    #
+    # SO THE GATE IS RIGHT AND THE WARNING STANDS, just not as a duplicate-field
+    # warning: `tier_drop` must never be weighted PER PLAYER, because it carries
+    # tier-level information and a study that treats it as a player signal will
+    # return a null it did not earn -- the same sentence this list attaches to
+    # `proj_mean_sleeper_only`, for a different reason.
+    "tier_drop", "tier_drop_fantasypros",
     # DELIBERATELY NOT ADDED: opportunity_adj / opportunity_z. Their joining
     # in run 32035071758 was a REAL DEFECT this gate caught — build.py's
     # config rewrite erased the ruled `opportunity_cap: 0.0`, the layer came

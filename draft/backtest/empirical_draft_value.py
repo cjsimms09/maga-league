@@ -65,7 +65,30 @@ STARTER_RANK = {"RB": 24, "WR": 26, "QB": 10, "TE": 10}
 #   replacement IS the STARTER_RANK-th man's projection. Updating one
 #   without the other would leave this study comparing a level taken at
 #   rank 24 against a cliff measured at rank 21.
-BOARD_REPLACEMENT_2026 = {"RB": 168.60, "WR": 170.10, "QB": 350.80, "TE": 141.70}
+BOARD_REPLACEMENT_2026 = {"RB": 181.10, "WR": 170.30, "QB": 350.80, "TE": 141.70}
+# ^ RE-DERIVED 2026-08-27 from the published board (register 378), and this
+#   time the cause is not the market. Previous values
+#   {RB 168.60, WR 170.10, QB 350.80, TE 141.70} were the 08-20 board.
+#
+#   RB MOVED +12.50 AND THAT IS THE 08-23 LEAGUE-WIDE KEEPER LOCK, NOT A
+#   MORNING'S DRIFT. The two prior re-derivations moved these numbers by about
+#   1%; this one moves RB by 7.4% while WR moves 0.12% and QB and TE do not
+#   move at all. That asymmetry is the lock's signature: `kept_players` went
+#   from Cory's 3 to the league's 23, the 23 are DISJOINT from `players`, and
+#   they are disproportionately running backs — so RB's replacement rank now
+#   lands on a materially better player. Register 364 measured the same shape
+#   on the board directly (RB -43.5 in value, the largest of any position).
+#
+#   STARTER_RANK IS UNCHANGED at {RB 24, WR 26, QB 10, TE 10}, verified
+#   against the board rather than assumed, so once again only one of the pair
+#   moved. The comment further down warns the two must be re-derived together;
+#   they were, and the allocation genuinely did not shift.
+#
+#   AND THE STUDY'S CONCLUSIONS STILL DO NOT DEPEND ON THIS — re-checked
+#   rather than inherited from the note below. `BOARD_REPLACEMENT_2026` is
+#   referenced in exactly ONE place besides its own definition, the reported
+#   field `board_replacement_2026_projection_space`, and never enters the
+#   cliff computation, which is built from realized outcomes.
 # ^ RE-DERIVED 2026-08-20 from the published board, on the external
 #   reviewer's red-tests finding. Previous values
 #   {RB 170.47, WR 171.85, QB 350.26, TE 141.45} were the 08-19 board.

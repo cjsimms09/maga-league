@@ -181,7 +181,20 @@ const doc = {
          + 'source and by position (register 107).',
   _own_v6: 'ABSENT ON CORY\'S RULING 2026-08-19 ("lets exclude our own projections"). '
          + 'It is out of the blend, so it is not shown here as a peer either.',
+  /* ⚠️ `built_at` HERE IS THE BOARD'S STAMP, COPIED — not when this artifact was
+   * made, which is what a field of that name reads as. The sweep for this shape
+   * found exactly TWO instances in the repo (`position_boards.js` was the other,
+   * fixed the same day) and every other tool names the field `board_built_at`,
+   * which is honest. Its own generation time and the board's post-processing
+   * time are recorded alongside so "was this built before or after the Draft
+   * Sharks attach" is answerable from the artifact. Register 413.
+   *
+   * The copied field is KEPT rather than renamed: consumers read it, and a
+   * rename is a breaking change for a provenance benefit that the two new
+   * fields already deliver. */
   built_at: BOARD.built_at || null,
+  generated_at: new Date().toISOString(),
+  board_post_processed_at: BOARD.post_processed_at || null,
   board_version: BOARD.version || null,
   sources: SOURCES.map(s => ({ key: s.key, label: s.label, note: s.note || null,
     total: POS.reduce((a, q) => a + coverage[s.key][q], 0) })),

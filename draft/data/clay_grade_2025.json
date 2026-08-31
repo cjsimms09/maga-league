@@ -18,13 +18,13 @@
  "_how_to_read": "spearman is the ordering grade (did Clay rank players correctly); mae is the level grade in fantasy points; bias is signed error (positive = Clay projected too high on average). topN is the fraction of the realized top-N Clay also had in his own top-N, None when the position has fewer than N graded players. `cells` grades SEASON TOTALS (Clay's assumed ~17 games vs however many the player actually played -- includes injury luck no preseason source can predict). `skill_cells` grades PER-GAME RATE instead (Clay's total / his own assumed games, vs realized total / games actually played) -- Cory's own standard elsewhere in this project: grade skill, not luck.",
  "population": {
   "clay_players_2025": 415,
-  "excluded_unmatched_crosswalk": 54,
+  "excluded_unmatched_crosswalk": 53,
   "excluded_no_realized_2025_row": 5,
-  "graded_total": 356,
+  "graded_total": 357,
   "graded_by_position": {
    "QB": 38,
    "RB": 99,
-   "WR": 147,
+   "WR": 148,
    "TE": 72
   },
   "min_n_for_a_measured_cell": 10
@@ -51,11 +51,11 @@
    "top48": 0.8125
   },
   "WR": {
-   "n": 147,
+   "n": 148,
    "status": "measured",
    "spearman": 0.7375,
-   "mae": 42.44,
-   "bias": 15.16,
+   "mae": 42.34,
+   "bias": 15.25,
    "top12": 0.4167,
    "top24": 0.5833,
    "top48": 0.7292
@@ -71,11 +71,11 @@
    "top48": 0.8958
   },
   "ALL": {
-   "n": 356,
+   "n": 357,
    "status": "measured",
-   "spearman": 0.7882,
-   "mae": 44.77,
-   "bias": 16.93,
+   "spearman": 0.788,
+   "mae": 44.72,
+   "bias": 16.96,
    "top12": 0.25,
    "top24": 0.5417,
    "top48": 0.7708
@@ -103,11 +103,11 @@
    "top48": 0.8333
   },
   "WR": {
-   "n": 147,
+   "n": 148,
    "status": "measured",
-   "spearman": 0.8123,
-   "mae": 2.2,
-   "bias": -0.41,
+   "spearman": 0.8119,
+   "mae": 2.19,
+   "bias": -0.4,
    "top12": 0.5833,
    "top24": 0.6667,
    "top48": 0.8125
@@ -123,11 +123,11 @@
    "top48": 0.875
   },
   "ALL": {
-   "n": 356,
+   "n": 357,
    "status": "measured",
-   "spearman": 0.8442,
-   "mae": 2.3,
-   "bias": -0.33,
+   "spearman": 0.844,
+   "mae": 2.29,
+   "bias": -0.32,
    "top12": 0.4167,
    "top24": 0.75,
    "top48": 0.7917

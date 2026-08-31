@@ -19,12 +19,32 @@ Run: python -m pytest draft/tests/test_defect_register.py
 from __future__ import annotations
 
 import os
+import json
 import re
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 REGISTER = os.path.join(ROOT, "DEFECT-REGISTER.md")
 
-STATUSES = {"OPEN", "IN HAND", "WAITING", "CLOSED"}
+# ⚠️ ONE VOCABULARY, READ FROM draft/config/register_status_vocabulary.json,
+# NOT TYPED HERE (register 313, 2026-08-24). This was a literal set and
+# register_recheck_check.js carried a DIFFERENT literal list, so the two guards
+# disagreed about what a status is: `✅ FIXED` matched neither, making the row
+# invisible to THIS file while the recheck chaser counted it open forever.
+# MEASURED at the time: 25 of 295 numbered rows contained none of the four words
+# below and were silently dropped from the owner check, the next-action check,
+# the duplicate-id check and the pipe ratchet -- two of them (95, 69) ORANGE,
+# i.e. live work nothing was tracking. Two lists kept in sync by hand is how
+# they diverged; one file read by both is the fix.
+_VOCAB_PATH = os.path.join(ROOT, "draft", "config", "register_status_vocabulary.json")
+_VOCAB = None
+if os.path.exists(_VOCAB_PATH):
+    with open(_VOCAB_PATH) as _f:
+        _VOCAB = json.load(_f)
+assert _VOCAB, (
+    "register_status_vocabulary.json is missing. REFUSING to fall back to a "
+    "hardcoded list -- a silent fallback is exactly how the two guards drifted "
+    "apart in the first place (register 313).")
+STATUSES = {w.upper() for w in _VOCAB["live"] + _VOCAB["terminal"]}
 PLACEHOLDERS = re.compile(r"\bTBD\b|\bTODO\b|\bt\.b\.d\b|^\s*[-–—?]\s*$", re.I)
 
 
@@ -399,3 +419,55 @@ def test_register_ids_never_pass_the_watermark():
         'register id %d is at/past the watermark next_numeric_id %d — claim ids with '
         'node draft/tools/next_register_id.js (advances the watermark in the same '
         'commit), never by reading the table max. Register 186.' % (m, next_id))
+
+
+def test_no_numbered_row_is_INVISIBLE_to_the_status_vocabulary():
+    """THE DEFECT HERE IS SILENT EXCLUSION, so only counting the excluded catches it.
+
+    Register 313. `rows()` above tracks a row only if some cell contains a
+    vocabulary word. A row whose status uses none of them is not REJECTED — it
+    is never SEEN, and drops out of the owner check, the next-action check, the
+    duplicate-id check and the pipe ratchet at once. Measured 2026-08-24 before
+    the fix: 25 of 295 numbered rows were in that state, two of them ORANGE,
+    i.e. live work nothing was tracking.
+
+    Every other test in this file asserts something ABOUT the tracked rows. This
+    one asserts that the tracked set is the whole set, which is the assumption
+    they all rest on and which nothing checked.
+    """
+    invisible = []
+    for line in open(REGISTER, encoding="utf-8"):
+        if not re.match(r"^\| \d+ \|", line):
+            continue
+        cells = [c.strip() for c in re.split(r"(?<!\\)\|", line.strip().strip("|"))]
+        joined = " ".join(cells).upper()
+        if not any(s in joined for s in STATUSES):
+            rid = cells[0].strip()
+            st = (cells[3] if len(cells) > 3 else "?")[:60]
+            invisible.append(f"{rid}: {st}")
+    assert not invisible, (
+        f"{len(invisible)} numbered row(s) use a status outside "
+        "draft/config/register_status_vocabulary.json, so EVERY check in this "
+        "file silently skips them:\n  " + "\n  ".join(invisible)
+        + "\n\nFix the ROW's status (prefer an existing word) rather than "
+        "widening the vocabulary — widening it loosens every guard at once.")
+
+
+def test_FAIL_ARM_the_invisibility_check_can_actually_fire(tmp_path, monkeypatch):
+    """A check that has only ever passed is an assumption. Feed it a row with a
+    status outside the vocabulary and it must name that row."""
+    fake = tmp_path / "REG.md"
+    fake.write_text(
+        "| 1 | a finding | **A** | 🟠 OPEN | do the thing. recheck 12-31 |\n"
+        "| 2 | another | **A** | ✅ BANANA | nothing |\n", encoding="utf-8")
+    invisible = []
+    for line in open(fake, encoding="utf-8"):
+        if not re.match(r"^\| \d+ \|", line):
+            continue
+        cells = [c.strip() for c in re.split(r"(?<!\\)\|", line.strip().strip("|"))]
+        if not any(s in " ".join(cells).upper() for s in STATUSES):
+            invisible.append(cells[0].strip())
+    assert invisible == ["2"], (
+        "the invisibility check did not fire on a BANANA status — got "
+        f"{invisible}. This is the exact case that passed all sixteen tests on "
+        "2026-08-24 and became register 313.")

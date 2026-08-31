@@ -67,8 +67,11 @@
   </div>
 <% } %>
 <% if (sent) { %>
+  <%# Catalog item 17: the confirmation names who AND how much ("Bet sent to
+      Rich · $25", not "Saved.") — sent_amt comes from member.js's propose
+      route, set only on a real success. %>
   <div class="alert-banner" style="margin-bottom:1rem; border-color:rgba(74,222,128,.5)">
-    <span class="tag">✅</span><span>Bet sent<% if (opp) { %> to <b><%= opp.name %></b><% } %>. It's in the ledger as <b>OPEN</b> —
+    <span class="tag">✅</span><span>Bet sent<% if (opp) { %> to <b><%= opp.name %></b><% } %><% if (typeof sentAmt !== 'undefined' && sentAmt) { %> · <b><%= money(Number(sentAmt)) %></b><% } %>. It's in the ledger as <b>OPEN</b> —
     it locks in once they accept, and closes at kickoff. You'll both see who won.</span>
   </div>
 <% } %>
@@ -245,6 +248,11 @@
 
 <%# ── One-tap bet against them ─────────────────────────────────────────────── %>
 <div class="card matchup-card" style="margin-bottom:1.2rem">
+  <%# Walkthrough finding 22, RESOLVED ON INSPECTION: this page already carries
+      a prefilled quick-bet form below (party, kind, week — one stake field and
+      send). The finding stands only for the FULL builder, which correctly
+      lives in The Book; nothing to add here. Recorded so the spec's item 22
+      doesn't send someone to build a duplicate. %>
   <h2>🤝 Bet <%= opp.name %> on it <span class="sub">straight up, this week</span></h2>
   <div class="body">
     <%# Already-placed bet on this game — show the standing wager so you don't

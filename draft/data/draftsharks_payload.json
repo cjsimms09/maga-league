@@ -3,7 +3,7 @@
  "_what": "locate the real data payload. REPORT ONLY.",
  "url": "https://www.draftsharks.com/rankings/half-ppr",
  "status": 200,
- "bytes": 418011,
+ "bytes": 417614,
  "control_anchors_found": {
   "ok": true,
   "hits": 12,
@@ -33,7 +33,7 @@
   {
    "anchor": "Chase",
    "offset": 133177,
-   "context": "fantasy/points-outlook/omarion-hampton/35318\",\"jobTitle\":\"Running Back\",\"affiliation\":{\"@type\":\"SportsTeam\",\"name\":\"Los Angeles Chargers\"},\"description\":\"Omarion Hampton (RB11) is ranked #23 overall in our 2026 Half-PPR Rankings.\"}},{\"@type\":\"ListItem\",\"position\":24,\"item\":{\"@type\":\"Person\",\"name\":\"Chase Brown\",\"url\":\"https://www.draftsharks.com/fantasy/points-outlook/chase-brown/13586\",\"jobTitle\":\"Running Back\",\"affiliation\":{\"@type\":\"SportsTeam\",\"name\":\"Cincinnati Bengals\"},\"description\":\"Chase Brown (RB12) is ranked #24 overall in our 2026 Half-PPR Rankings.\"}},{\"@type\":\"ListItem\",\"position\":25,"
+   "context": "arks.com/fantasy/points-outlook/rashee-rice/13553\",\"jobTitle\":\"Wide Receiver\",\"affiliation\":{\"@type\":\"SportsTeam\",\"name\":\"Kansas City Chiefs\"},\"description\":\"Rashee Rice (WR11) is ranked #23 overall in our 2026 Half-PPR Rankings.\"}},{\"@type\":\"ListItem\",\"position\":24,\"item\":{\"@type\":\"Person\",\"name\":\"Chase Brown\",\"url\":\"https://www.draftsharks.com/fantasy/points-outlook/chase-brown/13586\",\"jobTitle\":\"Running Back\",\"affiliation\":{\"@type\":\"SportsTeam\",\"name\":\"Cincinnati Bengals\"},\"description\":\"Chase Brown (RB12) is ranked #24 overall in our 2026 Half-PPR Rankings.\"}},{\"@type\":\"ListItem\",\"position\":25,"
   },
   {
    "anchor": "Gibbs",
@@ -47,22 +47,22 @@
   },
   {
    "anchor": "Gibbs",
-   "offset": 219181,
+   "offset": 218832,
    "context": "   <span class=\"sticky-left\">Tier 1</span>\n                    </div>\n                </td>\n            </tr>\n        </tbody>\n    \n    \n<tbody\n    data-player-row\n    data-key=\"13542\"\n    data-tier-overall=\"1\"\n    data-tier-positional=\"1\"\n    data-fantasy-position=\"RB\"\n    data-player-name=\"Jahmyr Gibbs\"\n    data-team-id=\"11\"\n    data-is-rookie=\"false\"\n    data-percent-low=\"19\"\n    data-percent-high=\"15\"\n    class=\"\"\n    x-show=\"isVisibleRow($el)\">\n\n    <tr class=\"player-row\">\n        <td class=\"ds-cell ds-cell--lg rank centered\">\n            <div class=\"column-title rank-index\">\n                <"
   },
   {
    "anchor": "Jefferson",
    "offset": 128735,
-   "context": "sharks.com/fantasy/points-outlook/james-cook/12585\",\"jobTitle\":\"Running Back\",\"affiliation\":{\"@type\":\"SportsTeam\",\"name\":\"Buffalo Bills\"},\"description\":\"James Cook (RB5) is ranked #10 overall in our 2026 Half-PPR Rankings.\"}},{\"@type\":\"ListItem\",\"position\":11,\"item\":{\"@type\":\"Person\",\"name\":\"Justin Jefferson\",\"url\":\"https://www.draftsharks.com/fantasy/points-outlook/justin-jefferson/10586\",\"jobTitle\":\"Wide Receiver\",\"affiliation\":{\"@type\":\"SportsTeam\",\"name\":\"Minnesota Vikings\"},\"description\":\"Justin Jefferson (WR6) is ranked #11 overall in our 2026 Half-PPR Rankings.\"}},{\"@type\":\"ListItem\",\"position\":"
+   "context": "ks.com/fantasy/points-outlook/ceedee-lamb/10590\",\"jobTitle\":\"Wide Receiver\",\"affiliation\":{\"@type\":\"SportsTeam\",\"name\":\"Dallas Cowboys\"},\"description\":\"CeeDee Lamb (WR5) is ranked #10 overall in our 2026 Half-PPR Rankings.\"}},{\"@type\":\"ListItem\",\"position\":11,\"item\":{\"@type\":\"Person\",\"name\":\"Justin Jefferson\",\"url\":\"https://www.draftsharks.com/fantasy/points-outlook/justin-jefferson/10586\",\"jobTitle\":\"Wide Receiver\",\"affiliation\":{\"@type\":\"SportsTeam\",\"name\":\"Minnesota Vikings\"},\"description\":\"Justin Jefferson (WR6) is ranked #11 overall in our 2026 Half-PPR Rankings.\"}},{\"@type\":\"ListItem\",\"position\":"
   },
   {
    "anchor": "Jefferson",
    "offset": 128941,
-   "context": "lf-PPR Rankings.\"}},{\"@type\":\"ListItem\",\"position\":11,\"item\":{\"@type\":\"Person\",\"name\":\"Justin Jefferson\",\"url\":\"https://www.draftsharks.com/fantasy/points-outlook/justin-jefferson/10586\",\"jobTitle\":\"Wide Receiver\",\"affiliation\":{\"@type\":\"SportsTeam\",\"name\":\"Minnesota Vikings\"},\"description\":\"Justin Jefferson (WR6) is ranked #11 overall in our 2026 Half-PPR Rankings.\"}},{\"@type\":\"ListItem\",\"position\":12,\"item\":{\"@type\":\"Person\",\"name\":\"Ashton Jeanty\",\"url\":\"https://www.draftsharks.com/fantasy/points-outlook/ashton-jeanty/35317\",\"jobTitle\":\"Running Back\",\"affiliation\":{\"@type\":\"SportsTeam\",\"name\":\"Las Ve"
+   "context": "lf-PPR Rankings.\"}},{\"@type\":\"ListItem\",\"position\":11,\"item\":{\"@type\":\"Person\",\"name\":\"Justin Jefferson\",\"url\":\"https://www.draftsharks.com/fantasy/points-outlook/justin-jefferson/10586\",\"jobTitle\":\"Wide Receiver\",\"affiliation\":{\"@type\":\"SportsTeam\",\"name\":\"Minnesota Vikings\"},\"description\":\"Justin Jefferson (WR6) is ranked #11 overall in our 2026 Half-PPR Rankings.\"}},{\"@type\":\"ListItem\",\"position\":12,\"item\":{\"@type\":\"Person\",\"name\":\"Saquon Barkley\",\"url\":\"https://www.draftsharks.com/fantasy/points-outlook/saquon-barkley/9994\",\"jobTitle\":\"Running Back\",\"affiliation\":{\"@type\":\"SportsTeam\",\"name\":\"Phila"
   },
   {
    "anchor": "Jefferson",
-   "offset": 266789,
+   "offset": 266230,
    "context": "ue=\"75\" data-attribute=\"dsValue\"><span class=\"column-title ds-cell__fill\">75</span></td>\n    </tr>\n    </tbody>\n\n        \n    \n    \n    \n<tbody\n    data-player-row\n    data-key=\"10586\"\n    data-tier-overall=\"2\"\n    data-tier-positional=\"2\"\n    data-fantasy-position=\"WR\"\n    data-player-name=\"Justin Jefferson\"\n    data-team-id=\"18\"\n    data-is-rookie=\"false\"\n    data-percent-low=\"15\"\n    data-percent-high=\"30\"\n    class=\"\"\n    x-show=\"isVisibleRow($el)\">\n\n    <tr class=\"player-row\">\n        <td class=\"ds-cell ds-cell--lg rank centered\">\n            <div class=\"column-title rank-index\">\n                <"
   },
   {
@@ -77,7 +77,7 @@
   },
   {
    "anchor": "Robinson",
-   "offset": 223668,
+   "offset": 223298,
    "context": "e=\"100\" data-attribute=\"dsValue\"><span class=\"column-title ds-cell__fill\">100</span></td>\n    </tr>\n    </tbody>\n\n        \n    \n    \n    \n<tbody\n    data-player-row\n    data-key=\"13541\"\n    data-tier-overall=\"1\"\n    data-tier-positional=\"1\"\n    data-fantasy-position=\"RB\"\n    data-player-name=\"Bijan Robinson\"\n    data-team-id=\"2\"\n    data-is-rookie=\"false\"\n    data-percent-low=\"15\"\n    data-percent-high=\"17\"\n    class=\"\"\n    x-show=\"isVisibleRow($el)\">\n\n    <tr class=\"player-row\">\n        <td class=\"ds-cell ds-cell--lg rank centered\">\n            <div class=\"column-title rank-index\">\n                <s"
   }
  ],

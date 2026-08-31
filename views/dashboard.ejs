@@ -82,6 +82,36 @@
   </a>
 <% } %>
 
+<%# ── NEEDS YOU — the only aggregation on the site (redesign spec, rule 5):
+    bets waiting on your answer, results waiting on your confirm, ballots
+    waiting on your vote, money you owe. Each row is one tap to the action.
+    Absent entirely when nothing needs you — no empty furniture. %>
+<% const _ny = (typeof needsYou !== 'undefined' && needsYou) ? needsYou : []; %>
+<% if (_ny.length) { %>
+  <div class="card" role="region" aria-label="Needs you" style="border-left:4px solid var(--red, #b91c1c)">
+    <h2 style="display:flex;align-items:center;gap:.5rem">🎯 Needs You
+      <span class="sub"><%= _ny.length %> thing<%= _ny.length === 1 ? '' : 's' %> waiting on you</span></h2>
+    <div class="body" style="padding-top:.35rem">
+      <% for (const it of _ny) { %>
+        <div style="display:flex;align-items:center;gap:.6rem;padding:.5rem .2rem;border-bottom:1px solid var(--line,#e5e7eb)">
+          <a href="<%= it.href %>" style="display:flex;align-items:center;gap:.6rem;flex:1 1 auto;text-decoration:none;color:inherit;min-width:0">
+            <span style="font-size:1.1rem" aria-hidden="true"><%= it.icon %></span>
+            <span style="flex:1 1 auto"><%= it.text %></span>
+          </a>
+          <%# Catalog item 26 — a straight bet offer accepts right here, no
+              tap-through required (Rule 4: actions live on the thing). %>
+          <% if (it.betId) { %>
+            <form class="asis" method="post" action="/sidebets/<%= it.betId %>/accept" style="flex:0 0 auto">
+              <button class="btn small gold" type="submit" style="padding:.3rem .6rem;font-size:.82rem">✓ Accept</button>
+            </form>
+          <% } %>
+          <a href="<%= it.href %>" class="muted" style="white-space:nowrap;font-weight:700;text-decoration:none;flex:0 0 auto"><%= it.cue %></a>
+        </div>
+      <% } %>
+    </div>
+  </div>
+<% } %>
+
 <%# ── RECORDS WATCH — last week's finals that entered the franchise book.
     Dormant when nothing landed (the normal week). League-visible history. %>
 <% const _rb = (typeof recordBanners !== 'undefined' && recordBanners) ? recordBanners : []; %>
@@ -99,14 +129,15 @@
   <%- include('partials/_rivalry_banner', { rivalry: rivalryOfWeek, aName: rivalryOfWeek.pair.a, bName: rivalryOfWeek.pair.b, rivalryRank: rivalryOfWeek.rank }) %>
   <% if (rivalryMore > 0) { %><p class="muted" style="text-align:center; margin:-.7rem 0 1.1rem; font-size:.76rem">+ <%= rivalryMore %> more rivalry game<%= rivalryMore === 1 ? '' : 's' %> on the slate this week</p><% } %>
 <% } %>
-<%# ── THE DISPATCH — transient popups. They appear, get read, get dismissed,
-    and are gone (server-side per owner). With JS this is an overlay that clears
-    instantly; without JS it's a dismissible stack at the top of the page. Never
-    persists once dismissed. Archived elsewhere for the chronicle. %>
+<%# ── THE DISPATCH — transient notices. They appear at the top of the feed,
+    get read, get dismissed, and are gone (server-side per owner). Always an
+    inline dismissible stack — never a blocking overlay; the old modal
+    treatment ambushed the whole home page on load (phone walkthrough,
+    2026-08-24). With JS the ✕ clears without a reload. Archived elsewhere
+    for the chronicle. %>
 <% const _dsp = (typeof dispatches !== 'undefined' && dispatches) ? dispatches : []; %>
 <% if (_dsp.length) { %>
 <div class="dispatch-region" id="dispatch-region" data-count="<%= _dsp.length %>">
-  <div class="dispatch-backdrop" aria-hidden="true"></div>
   <div class="dispatch-stack" role="region" aria-label="League dispatch">
     <div class="dispatch-head">
       <span class="dispatch-kicker">📣 The Dispatch</span>

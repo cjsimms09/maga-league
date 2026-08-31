@@ -274,20 +274,56 @@ const row = (pos, rank, mean) => ({ position: pos, pos_rank: rank, proj_mean: me
    * file's own rule ("if a future board ever breaks the ordering, the
    * barbell becomes a live strategy again and this document's verdict must
    * be revisited"), that revisit is now owed — filed with the v25 sweep. */
-  ['RB', 'WR'].forEach(pos => {
-    const a = p90[pos].ANCHOR, s = p90[pos].SWING;
-    ck('at ' + pos + ' NO swing out-ceilings even the weakest anchor '
-      + '(anchor p90 min ' + Math.min.apply(null, a).toFixed(0)
-      + ', swing p90 max ' + Math.max.apply(null, s).toFixed(0) + ') — the '
-      + 'safe-vs-upside trade-off does not exist here',
-      Math.max.apply(null, s) < Math.min.apply(null, a), { pos });
+  /* ⚠️ WR CROSSED, AND THE LABEL'S OWN ROUNDING HID IT. This asserted no-overlap
+   * at RB and WR both. At WR it now reads anchor p90 min 203.437977 (Jordan
+   * Addison) against swing p90 max 203.490074 (Xavier Worthy) — **a real
+   * overlap of 0.052 points** — but the label printed both with `.toFixed(0)`,
+   * so the failure rendered as "203 vs 203" and read like a tie against a `<`.
+   * A label that rounds two numbers into equality when they differ is how a
+   * crossing gets misfiled as a boundary artifact. Precision raised here.
+   *
+   * THE VERDICT IS NOT RELAXED, IT IS MOVED — this file's own standing rule is
+   * "if a future board ever breaks the ordering, the barbell becomes a live
+   * strategy again and this document's verdict must be revisited", and the
+   * 08-18 note already said that revisit was owed. WR joins QB on the overlap
+   * side; RB keeps the no-overlap assertion and is now the sole control for it.
+   *
+   * ⚠️ AND THE MAGNITUDES ARE REPORTED BECAUSE THEY ARE NOT COMPARABLE:
+   * WR overlaps by 0.05 points on a p90 of 203 — **0.03%**, one player pair at
+   * the boundary — against QB's 37 points on 477, **7.8%**. Both are "the
+   * trade-off exists" by the letter of the test; only one of them is a fact a
+   * drafter could act on, and a pass/fail alone would say they were the same
+   * thing. Register 365. */
+  const fmt = x => x.toFixed(3);
+  {
+    const a = p90.RB.ANCHOR, s = p90.RB.SWING;
+    ck('at RB NO swing out-ceilings even the weakest anchor '
+      + '(anchor p90 min ' + fmt(Math.min.apply(null, a))
+      + ', swing p90 max ' + fmt(Math.max.apply(null, s)) + ') — the '
+      + 'safe-vs-upside trade-off does not exist here, and RB is now the only '
+      + 'position where that holds',
+      Math.max.apply(null, s) < Math.min.apply(null, a), { pos: 'RB' });
+  }
+  ['WR', 'QB'].forEach(pos => {
+    const a = Math.min.apply(null, p90[pos].ANCHOR);
+    const s = Math.max.apply(null, p90[pos].SWING);
+    const pct = (100 * (s - a) / a).toFixed(2);
+    ck('at ' + pos + ' the trade-off DOES exist — a swing out-ceilings the '
+      + 'weakest anchor (swing p90 max ' + fmt(s) + ' > anchor p90 min '
+      + fmt(a) + ', by ' + fmt(s - a) + ' = ' + pct + '%)',
+      s > a, { pos, overlap: +(s - a).toFixed(4), pct: +pct });
   });
-  ck('at QB the per-player tails REOPENED the trade-off (swing p90 max '
-    + Math.max.apply(null, p90.QB.SWING).toFixed(0) + ' > anchor p90 min '
-    + Math.min.apply(null, p90.QB.ANCHOR).toFixed(0) + ') — a volatile swing '
-    + 'can now out-ceiling a steady anchor, which the cell constant made '
-    + 'impossible by construction',
-    Math.max.apply(null, p90.QB.SWING) > Math.min.apply(null, p90.QB.ANCHOR));
+  /* QB's overlap is asserted in the loop above with WR. What is kept here is the
+   * MECHANISM claim, which is separate from the direction: the per-player tails
+   * are what made this possible at all, and under the old per-band cell constant
+   * it could not happen by construction. */
+  ck('CONTROL: QB\'s overlap is the LARGEST of the three, which is what makes it '
+    + 'the mechanism case rather than a boundary one — the per-player tails '
+    + 'reopened a trade-off the cell constant made impossible by construction',
+    (Math.max.apply(null, p90.QB.SWING) - Math.min.apply(null, p90.QB.ANCHOR))
+      > (Math.max.apply(null, p90.WR.SWING) - Math.min.apply(null, p90.WR.ANCHOR)),
+    { qb: +(Math.max.apply(null, p90.QB.SWING) - Math.min.apply(null, p90.QB.ANCHOR)).toFixed(3),
+      wr: +(Math.max.apply(null, p90.WR.SWING) - Math.min.apply(null, p90.WR.ANCHOR)).toFixed(3) });
   ['RB', 'WR'].forEach(pos => {
     ck('at ' + pos + ' no DEAD row reaches replacement at p90 — that IS the '
       + 'definition, checked non-vacuously on n=' + p90[pos].DEAD.length,

@@ -1,0 +1,121 @@
+{
+ "_territory": "TERRITORY: A \u2014 draft/tools/source_composition_power.py",
+ "_answers": "register 403",
+ "_prereg": "P1/P2 are stated in this file's docstring, above the code",
+ "_caveat": "extrapolated from downward subsamples; not a measurement of the past",
+ "controls": {
+  "C1_reproduces_the_lab_at_full_population": {
+   "ok": true,
+   "probe": {
+    "n_shared": 198,
+    "median_delta": -6.5,
+    "null_p05": -8.5
+   },
+   "lab": {
+    "n_shared": 198,
+    "median_delta": -6.5,
+    "null_p05": -9.0
+   },
+   "why": "if this is not the lab's own arithmetic, nothing below is about the assertion that is red"
+  },
+  "P1_band_scales_like_one_over_sqrt_n": {
+   "ok": true,
+   "fitted_exponent": -0.435,
+   "bar": "[-0.75, -0.25]",
+   "why": "the normalised null half-width must shrink with population, or there is no power story to tell"
+  },
+  "P2_effect_does_not_scale_with_n": {
+   "ok": true,
+   "fitted_exponent": -0.141,
+   "bar": "|exponent| < 0.25",
+   "why": "the effect is a property of the two SOURCES; if it moves with population it is not an effect and the crossing means nothing"
+  },
+  "C2_the_band_actually_moves": {
+   "ok": true,
+   "ratio_widest_to_narrowest": 1.548,
+   "why": "if subsampling does not move the band this probe is measuring nothing and the slopes above are noise"
+  }
+ },
+ "controls_all_passed": true,
+ "position": "RB",
+ "null_draws": 2000,
+ "seed": 20260828,
+ "rows": [
+  {
+   "n_shared": 198,
+   "n_pos": 48,
+   "median_delta": -6.5,
+   "null_p05": -8.5,
+   "null_median": 8.75,
+   "of_board": -0.03282828282828283,
+   "band_half_of_board": 0.08712121212121213,
+   "survives": false,
+   "fraction": 1.0
+  },
+  {
+   "n_shared": 168,
+   "n_pos": 42,
+   "median_delta": -4.0,
+   "null_p05": -11.0,
+   "null_median": 5.0,
+   "of_board": -0.023809523809523808,
+   "band_half_of_board": 0.09523809523809523,
+   "survives": false,
+   "fraction": 0.85
+  },
+  {
+   "n_shared": 139,
+   "n_pos": 34,
+   "median_delta": -2.5,
+   "null_p05": -10.0,
+   "null_median": 4.5,
+   "of_board": -0.017985611510791366,
+   "band_half_of_board": 0.10431654676258993,
+   "survives": false,
+   "fraction": 0.7
+  },
+  {
+   "n_shared": 109,
+   "n_pos": 23,
+   "median_delta": -3,
+   "null_p05": -12,
+   "null_median": 2.0,
+   "of_board": -0.027522935779816515,
+   "band_half_of_board": 0.12844036697247707,
+   "survives": false,
+   "fraction": 0.55
+  },
+  {
+   "n_shared": 89,
+   "n_pos": 25,
+   "median_delta": -3,
+   "null_p05": -11,
+   "null_median": 1.0,
+   "of_board": -0.033707865168539325,
+   "band_half_of_board": 0.1348314606741573,
+   "survives": false,
+   "fraction": 0.45
+  },
+  {
+   "n_shared": 69,
+   "n_pos": 17,
+   "median_delta": -2,
+   "null_p05": -3,
+   "null_median": 6.0,
+   "of_board": -0.028985507246376812,
+   "band_half_of_board": 0.13043478260869565,
+   "survives": false,
+   "fraction": 0.35
+  }
+ ],
+ "fitted_band_exponent": -0.43492698995432794,
+ "fitted_effect_exponent": -0.14101601993634555,
+ "crossing_n_shared": 1867.479140984916,
+ "todays_n_shared": 198,
+ "hard_ceiling_n_shared": 228,
+ "source_sizes": {
+  "fantasypros": 338,
+  "ffc": 228
+ },
+ "verdict": "power is NOT the explanation \u2014 the crossing exceeds the hard ceiling on any shared population"
+}

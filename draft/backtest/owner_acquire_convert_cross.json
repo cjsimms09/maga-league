@@ -22,70 +22,70 @@
       "owner": "Schmelley",
       "acquisition_pct": 0.8896,
       "pts_left_per_week": 17.6,
-      "conversion_pct": 0.8316,
+      "conversion_pct": 0.8332,
       "trade_target": true
     },
     {
       "owner": "MarianSaar",
       "acquisition_pct": 0.8774,
       "pts_left_per_week": 19.31,
-      "conversion_pct": 0.7856,
+      "conversion_pct": 0.7853,
       "trade_target": true
     },
     {
       "owner": "coryjsimms",
       "acquisition_pct": 0.8692,
       "pts_left_per_week": 17.33,
-      "conversion_pct": 0.8546,
+      "conversion_pct": 0.8542,
       "trade_target": true
     },
     {
       "owner": "Richard2121",
       "acquisition_pct": 0.8687,
-      "pts_left_per_week": 14.35,
-      "conversion_pct": 0.8454,
+      "pts_left_per_week": 14.34,
+      "conversion_pct": 0.8421,
       "trade_target": false
     },
     {
       "owner": "mhagen",
       "acquisition_pct": 0.8608,
       "pts_left_per_week": 14.09,
-      "conversion_pct": 0.8899,
+      "conversion_pct": 0.8884,
       "trade_target": false
     },
     {
       "owner": "ds7mmet",
       "acquisition_pct": 0.8479,
       "pts_left_per_week": 19.67,
-      "conversion_pct": 0.809,
+      "conversion_pct": 0.8089,
       "trade_target": false
     },
     {
       "owner": "Sadbru",
       "acquisition_pct": 0.8473,
       "pts_left_per_week": 14.57,
-      "conversion_pct": 0.8515,
+      "conversion_pct": 0.848,
       "trade_target": false
     },
     {
       "owner": "Jreis",
       "acquisition_pct": 0.8448,
       "pts_left_per_week": 12.06,
-      "conversion_pct": 0.9073,
+      "conversion_pct": 0.9069,
       "trade_target": false
     },
     {
       "owner": "B8T3S",
       "acquisition_pct": 0.8443,
       "pts_left_per_week": 15.24,
-      "conversion_pct": 0.8265,
+      "conversion_pct": 0.8261,
       "trade_target": false
     },
     {
       "owner": "cashworth",
       "acquisition_pct": 0.8077,
       "pts_left_per_week": 14.92,
-      "conversion_pct": 0.8863,
+      "conversion_pct": 0.8854,
       "trade_target": false
     }
   ]

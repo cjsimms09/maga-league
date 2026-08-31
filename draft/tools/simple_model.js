@@ -419,7 +419,16 @@ const ctl = {
   C2_no_source_mixing: { ok: true, pool: pool.length, excluded_inside_adp200: excluded.length,
     excluded_names: excluded.slice(0, 10),
     why: 'a player with no Draft Sharks line is EXCLUDED, never back-filled with our proj_mean — mixing two sources inside one VONA is the defect this model removes' },
-  C3_band_order_valid: { ok: true, rejected_rows: rejected.length, rejected: rejected.slice(0, 5) },
+  /* ⛔ WAS `ok: true` WITH THE DECIDING NUMBER ON THE SAME LINE. The control is
+   * named "band order valid" and `rejected` is exactly the rows where
+   * `floor <= proj <= ceiling` failed — so the verdict was written rather than
+   * read, one token from the answer. Register 411. Measured when fixed: 0
+   * rejected, so this passes today and goes red the day a source ships a
+   * crossed band, which is the whole point. */
+  C3_band_order_valid: { ok: rejected.length === 0, rejected_rows: rejected.length,
+    rejected: rejected.slice(0, 5),
+    why: 'a band whose floor exceeds its ceiling is a broken row, not a wide one; '
+       + 'these are DROPPED at load and this is the count that were' },
   C4_need_curve_is_the_committed_one: { ok: MN.controls_all_passed === true },
 };
 

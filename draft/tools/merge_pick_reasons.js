@@ -3,14 +3,20 @@
  *
  * The other half of `public/js/draft/pick_reasons.js`. The war room records
  * WHY at the moment of the pick, into localStorage where no network can lose
- * it; this merges that export into `draft_pick_log_2026.jsonl` afterwards,
- * filling `my_deviation_reason` — the field that was null on all 150 rows of
- * the 2026 draft and is the one thing about that night we cannot reconstruct.
+ * it; this folds that export in afterwards, carrying the deviation reason —
+ * the field that was null on all 150 rows of the 2026 draft and is the one
+ * thing about that night we cannot reconstruct.
+ *
+ * ⚠️ IT WRITES A SIDECAR, `pick_reasons_<season>.jsonl`, AND NEVER TOUCHES THE
+ * PICK LOG. It used to rewrite the log in place; the first rehearsal against
+ * the real 2026 capture showed that annotating three picks rewrote all 150
+ * lines and turned `0.0` into `0` in the frozen prediction column. See the
+ * comment at the write step. Join on `pick`.
  *
  * Run:  node draft/tools/merge_pick_reasons.js <reasons.json> [--season 2027]
  *       node draft/tools/merge_pick_reasons.js <reasons.json> --dry-run
  *
- * ── IT REFUSES RATHER THAN GUESSES, in four places ─────────────────────────
+ * ── IT REFUSES RATHER THAN GUESSES, in five places ─────────────────────────
  *
  * A merge tool that half-works is worse than none: it produces a log that
  * looks complete and is wrong about which decisions were which. So:
@@ -24,7 +30,11 @@
  *     decisions and silently attaching one to someone else's pick would
  *     corrupt the only column that grades him;
  *   · an unknown reason code REFUSES, rather than being written through as
- *     free text, so the vocabulary cannot rot by accident.
+ *     free text, so the vocabulary cannot rot by accident;
+ *   · a pick that ALREADY carries a recorded reason REFUSES — the sidecar is
+ *     append-only for the same reason the pick log is, because overwriting a
+ *     stated reason after the fact turns a record of what you thought into a
+ *     record of what you wish you had thought.
  *
  * Nothing is written unless every row passes. Partial merges are how a log
  * ends up half-annotated with no record of which half.
@@ -46,7 +56,12 @@ if (!src) {
   process.exit(2);
 }
 
-const LOG = path.join(ROOT, 'draft', 'data', `draft_pick_log_${SEASON}.jsonl`);
+/* Overridable so a test — and the draft-night dry_run isolation — can exercise
+ * this against a scratch log instead of the one artifact of draft night that
+ * cannot be recaptured. Same env var `log_draft_picks.py` already honours, so
+ * a redirected capture carries its reasons with it. */
+const LOG = process.env.DRAFT_PICK_LOG_PATH
+  || path.join(ROOT, 'draft', 'data', `draft_pick_log_${SEASON}.jsonl`);
 if (!fs.existsSync(LOG)) { console.error('no pick log at ' + LOG); process.exit(2); }
 
 const doc = JSON.parse(fs.readFileSync(src, 'utf8'));
@@ -101,26 +116,75 @@ if (problems.length) {
   process.exit(1);
 }
 
-/* 3. MERGE. */
-const byPickEntry = new Map(entries.map(e => [Number(e.pick), e]));
-let filled = 0;
-const out = rows.map(r => {
-  const e = byPickEntry.get(Number(r.pick));
-  if (!e) return r;
-  filled++;
-  return Object.assign({}, r, {
-    my_actual_pick: r.player_id,
-    my_deviation_reason: e.reason_code,
-    my_deviation_text: e.reason_text || null,
-    my_reason_recorded_at: e.recorded_at || null,
-  });
-});
+/* 3. WRITE A SIDECAR. THE PICK LOG IS NEVER TOUCHED.
+ *
+ * ⚠️ THIS TOOL USED TO REWRITE `draft_pick_log_<season>.jsonl` IN PLACE, AND
+ * THE FIRST REHEARSAL AGAINST THE REAL 2026 LOG SHOWED WHAT THAT COSTS.
+ * Merging three reasons rewrote ALL 150 LINES — 147 of them for picks this
+ * tool was not even asked about — because the log was written by Python's
+ * `json.dumps` and rewritten by JavaScript's `JSON.stringify`, which do not
+ * agree on separators. Worse than whitespace: `"availability_at_my_next_pick":
+ * 0.0` came back as `0`. That column IS the frozen prediction, the one thing
+ * the whole capture exists to hold, and a float silently became an int in
+ * every row carrying a zero.
+ *
+ * And it contradicted the log's own contract outright. `log_draft_picks.py`:
+ * "JSONL, appended. A row, once written, is never rewritten… a correction is
+ * a NEW row with `supersedes`, so both the original claim and the correction
+ * survive." A tool that rewrites 150 rows to annotate three is the opposite of
+ * that, and it would have run for the first time on the one artifact of draft
+ * night that cannot be recaptured.
+ *
+ * So the reasons go to their own append-only sidecar, joined on `pick`. The
+ * capture stays byte-identical; the annotation is a separate, later, clearly
+ * dated claim — which is what it actually is. Reasons known AT capture time
+ * still land directly on the row: `record()` already accepts
+ * `my_deviation_reason` on the entry, and that path is the primary one. This
+ * tool is the fallback for reasons that only ever lived in the browser.
+ */
+const SIDECAR = process.env.DRAFT_PICK_REASONS_PATH
+  || path.join(ROOT, 'draft', 'data', `pick_reasons_${SEASON}.jsonl`);
+const existing = fs.existsSync(SIDECAR)
+  ? fs.readFileSync(SIDECAR, 'utf8').split('\n').filter(Boolean).map(JSON.parse)
+  : [];
+const already = new Set(existing.map(r => Number(r.pick)));
 
-console.log(`reasons: ${entries.length} · matched and validated: ${filled}`);
+const dupes = entries.filter(e => already.has(Number(e.pick)));
+if (dupes.length) {
+  console.error('REFUSING to merge — ' + dupes.length + ' pick(s) already carry a '
+    + 'recorded reason: ' + dupes.map(e => e.pick).join(', '));
+  console.error('\nThe sidecar is append-only for the same reason the pick log '
+    + 'is: overwriting a stated reason after the fact is how a record of what '
+    + 'you thought becomes a record of what you wish you had thought.');
+  process.exit(1);
+}
+
+console.log(`reasons: ${entries.length} · matched and validated: ${entries.length}`);
 const codes = {};
 entries.forEach(e => { codes[e.reason_code] = (codes[e.reason_code] || 0) + 1; });
 Object.keys(codes).sort().forEach(c => console.log(`   ${c.padEnd(16)} ${codes[c]}`));
 
 if (DRY) { console.log('\n--dry-run: nothing written'); process.exit(0); }
-fs.writeFileSync(LOG, out.map(r => JSON.stringify(r)).join('\n') + '\n');
-console.log(`\nwrote ${path.relative(ROOT, LOG)} — ${filled} rows now carry a reason`);
+
+const out = entries.map(e => {
+  const row = byPick.get(Number(e.pick));
+  return {
+    pick: Number(e.pick),
+    player_id: String(e.player_id),
+    player_name: row.player_name,
+    position: row.position,
+    reason_code: e.reason_code,
+    reason_text: e.reason_text || null,
+    recorded_at: e.recorded_at || null,
+    /* Both shas, so a row can be proven to describe this board AND this log. */
+    freeze_sha256: doc.freeze_sha256,
+    merged_at: new Date().toISOString(),
+    /* The annotation is a LATER claim than the pick, and says so rather than
+     * being presented as part of the capture. */
+    _what: 'recorded in the war room at the moment of the pick, folded in '
+      + 'afterwards; joins to draft_pick_log_' + SEASON + '.jsonl on `pick`',
+  };
+});
+fs.appendFileSync(SIDECAR, out.map(r => JSON.stringify(r)).join('\n') + '\n');
+console.log(`\nwrote ${path.relative(ROOT, SIDECAR)} — ${out.length} reason(s) appended`);
+console.log(`${path.relative(ROOT, LOG)} is UNCHANGED (append-only; join on \`pick\`)`);

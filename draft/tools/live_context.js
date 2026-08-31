@@ -106,7 +106,14 @@ function liveContext(opts) {
   // draftable pool, so looking them up by name in `players` finds nothing and
   // hands the engine an empty roster — which is the defect this file's header
   // describes, and the one that produced two wrong answers about the stack term.
-  const keepers = data.kept_players || [];
+  /* ⚠️ FILTERED TO CORY'S SEAT (A, 2026-08-24, register 300/303). This read
+   * `kept_players` whole, and the comment above already says whose roster it
+   * is meant to be. Pre-lock that WAS his three; post-lock (08-23) the board
+   * carries the league's 23, so the plan started from a 23-man roster
+   * belonging to ten managers — which fills every starter seat, zeroes `need`
+   * for everybody and collapses the keeper term. Same correction as
+   * draft_ready.js, archetype_rooms.js and the shared test fixture. */
+  const keepers = myKeepers(data);
   const myPicks = (order.my_picks || []).map(p => p.overall != null ? p.overall : p)
     .filter(n => typeof n === 'number');
   const picksLeft = myPicks.filter(n => n >= o.currentPick).length || null;
@@ -180,4 +187,30 @@ function liveContext(opts) {
   return ctx;
 }
 
-module.exports = { liveContext, productionKeys, loadBoard, interveningFor };
+/* ⚠️ THE ONE PLACE THAT KNOWS WHICH KEEPERS ARE MINE.
+ *
+ * `kept_players` carried Cory's three until the 08-22 keeper lock (`4750fbce`)
+ * and the LEAGUE'S TWENTY-THREE after it. Every tool that builds a ROSTER from
+ * it and did not filter has been starting from a 23-man team belonging to ten
+ * managers — QB1 RB12 TE1 WR9 against twelve remaining picks — which fills
+ * every starter seat, zeroes `need` for everybody and collapses the keeper
+ * term. Registers 276, 300, 303.
+ *
+ * It was fixed by copying the same two lines into `live_context`, `draft_ready`,
+ * `archetype_rooms` and the shared test fixture, and register 276 proposed four
+ * more copies. Eight copies of one predicate is how the ninth tool gets written
+ * without it, so it is exported here instead.
+ *
+ * ⚠️ AND IT IS NOT A BLANKET RULE — do NOT sweep this across every
+ * `kept_players` reader. 22 tools read it without a seat filter and MOST ARE
+ * RIGHT TO: a player -> attribute lookup wants every kept player, because the
+ * question is "who is this player" and not "who is on my team". Only a read
+ * that becomes a ROSTER needs this. Filtering an identity map would break the
+ * lookups to fix the rosters. */
+function myKeepers(data) {
+  const mySlot = Number(((data || {}).league || {}).my_draft_slot);
+  return ((data || {}).kept_players || [])
+    .filter(k => Number(k.team_slot) === mySlot);
+}
+
+module.exports = { liveContext, productionKeys, loadBoard, interveningFor, myKeepers };

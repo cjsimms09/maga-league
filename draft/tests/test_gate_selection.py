@@ -251,9 +251,15 @@ REPO_PARITY_NODES = {
     # BOARD is new rather than the brief is wrong. The brief's other numbers
     # come from committed artifacts and are pinned as ordinary tests that must
     # hold in CI — same split as test_freeze_not_stale, and for the same reason.
-    "draft/tests/test_draft_week_brief_numbers.py::test_the_volatility_coverage_numbers_match_the_live_board",
-    "draft/tests/test_draft_week_brief_numbers.py::test_the_keeper_variance_numbers_match_the_live_board",
-    "draft/tests/test_draft_week_brief_numbers.py::test_the_named_injury_return_adps_match_the_live_board",
+    # Renamed 2026-08-29 (register 417) from ..._match_the_live_board. They no
+    # longer read the live board: DRAFT-WEEK-BRIEF.md was frozen as history on
+    # 08-26 and the board was rebuilt the same day, so they are pinned to the
+    # board of the brief's own era and ask whether it was right WHEN WRITTEN.
+    # They stay repo_parity — they read a board rather than a committed
+    # artifact, and this pin is what caught the rename.
+    "draft/tests/test_draft_week_brief_numbers.py::test_the_volatility_coverage_numbers_matched_the_board_when_the_brief_was_written",
+    "draft/tests/test_draft_week_brief_numbers.py::test_the_keeper_variance_numbers_matched_the_board_when_the_brief_was_written",
+    "draft/tests/test_draft_week_brief_numbers.py::test_the_named_injury_return_adps_matched_the_board_when_the_brief_was_written",
     # Added 2026-08-17, and it is the one member of this set whose exclusion is
     # not about artifact freshness at all — it is about not building a deadlock.
     #

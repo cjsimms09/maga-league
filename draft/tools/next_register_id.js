@@ -80,9 +80,28 @@ function claimNextId(todayIso, registerPath, watermarkPath) {
   return claim;
 }
 
+/* ── THIS TOOL IS NOT A LOOKUP, AND FOUR TIMES IN ONE SESSION IT WAS USED AS ONE
+ *
+ * 2026-08-28: ids 360, 377, 378 and 392 were each spent by someone running this
+ * to SEE what the next number would be, then writing that number into prose
+ * before `file_register_row.js` claimed a different one for the actual row. The
+ * numbering gap is the correct outcome (register 186 — an id is burned once
+ * handed out); the wrong outcome is prose citing an id no row carries.
+ *
+ * The header three screens up says "advances the watermark as a side effect",
+ * and everyone who made this mistake had that sentence available. So it is
+ * printed AT THE MOMENT OF THE CLAIM instead, on STDERR so that
+ * `id=$(node next_register_id.js)` still captures a bare number and nothing
+ * downstream has to change. Register 393. */
 if (require.main === module) {
   const today = new Date().toISOString().slice(0, 10);
   const id = claimNextId(today);
+  process.stderr.write('⚠️  register id ' + id + ' is now BURNED and the watermark is '
+    + 'DIRTY.\n   If you only wanted to know the next number, you have just spent one — '
+    + 'and\n   nothing returns it (register 186). File the row with this id, or record\n'
+    + '   the burn in draft/data/register_id_watermark.json.\n'
+    + '   NORMALLY YOU SHOULD NOT RUN THIS AT ALL: file_register_row.js claims the id\n'
+    + '   itself and tells you which one it used.\n');
   process.stdout.write(String(id) + '\n');
   process.exit(0);
 }

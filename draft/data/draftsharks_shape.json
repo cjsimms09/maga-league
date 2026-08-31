@@ -3,7 +3,7 @@
  "_what": "discovery only: table headers, row counts, sample rows. No board field, no crosswalk, no points.",
  "url": "https://www.draftsharks.com/rankings/half-ppr",
  "status": 200,
- "bytes": 418011,
+ "bytes": 417144,
  "table_count": 2,
  "largest_table_rows": 39,
  "verdict_data_is_present": false,

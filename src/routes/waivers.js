@@ -26,7 +26,11 @@
 'use strict';
 const path = require('path');
 const V = require(path.join(__dirname, '..', '..', 'public', 'js', 'draft', 'valuation.js'));
-const LO = require(path.join(__dirname, '..', '..', 'src', 'routes', 'lineup.js'));
+// STATIC on purpose (2026-08-23): a path.join require of a SIBLING module is
+// invisible to esbuild, so production lacked the file on disk and this line
+// was the next 500 behind the valuation.js one Cory hit live. A static
+// relative require is traced and bundled like every other src module.
+const LO = require('./lineup.js');
 
 // The dollar value of ONE marginal projected point added to my starting lineup,
 // via the SAME model the lineup tool uses: it nudges P(win) (worth matchupValue)
@@ -157,6 +161,30 @@ function lineupPoints(roster, league) {
  * keeps its positive `startable_value`, which breaks the tie. Ranking by "what
  * reaches the field, then by depth" is the honest order.
  */
+/* ONE NORMALISATION OF A SLEEPER INJURY TAG, exported so there is exactly one
+ * (rule 11). `waiver_reco.js`'s injury panel had the only copy; the ranking had
+ * none at all, which is register 321 — `injury_status` is set on every enriched
+ * row at :274 and read ONLY for that display panel, so the claim ranking is
+ * blind to it and the emitted claim carried no injury field for the page to
+ * render either. */
+function injuryTag(p) {
+  return String((p && p.injury_status) || '').toUpperCase().replace(/[^A-Z]/g, '');
+}
+function isOutNow(p) {
+  const raw = injuryTag(p);
+  return !!raw && LO.INACTIVE_INJURY.has(raw);
+}
+
+/* ONE construction of the drop payload — it was built inline in two places
+ * with the same three fields, which is how two shapes of the same object come
+ * to drift (rule 11). Register 321 needed a fourth and fifth field in both. */
+function dropPayload(drop, dropVal) {
+  return { player_id: drop.player.player_id, name: drop.player.name,
+    value: round2(dropVal),
+    injury_status: injuryTag(drop.player) || null,
+    inactive: isOutNow(drop.player) };
+}
+
 function evaluateClaims(freeAgents, myRoster, league, ctx) {
   ctx = ctx || {};
   const drop = dropCandidate(myRoster, league);
@@ -180,18 +208,42 @@ function evaluateClaims(freeAgents, myRoster, league, ctx) {
       why: sv.why,
       startable_value: round2(sv.value),
       net_value: round2(netPoints),
-      drop: drop ? { player_id: drop.player.player_id, name: drop.player.name, value: round2(dropVal) } : null,
+      /* REGISTER 321, drop side — same additive treatment as the claim above.
+       * `dropCandidate` ranks purely on startableValue, which derives from the
+       * frozen board projection and knows nothing about who can play. So the
+       * tool can tell Cory to cut a healthy bench body while a hard-out player
+       * sits beside him, and the payload gave the page no way to mention it. */
+      drop: drop ? dropPayload(drop, dropVal) : null,
       dollars: round2(netPoints * dpp.perPoint),
       consensus_projection: consensus.value == null ? null : round2(consensus.value),
       consensus_label: consensus.label,
       rivals: rivals,                    // teams likely to claim him too
       contested: rivals.length > 0,
+      /* REGISTER 321 — ADDITIVE AND DELIBERATELY RANKING-NEUTRAL.
+       *
+       * `injury_status` has been set on every enriched row since register 277
+       * and read by NOTHING in the valuation — the claim ranking is blind to
+       * it, and the emitted claim carried no injury field at all, so the page
+       * could not have shown it even if it wanted to. A player on IR could sit
+       * at #1 with his full August projection and nothing on screen would say
+       * so.
+       *
+       * ⚠️ THIS DOES NOT ZERO HIM, ON PURPOSE. Reusing the start/sit guard here
+       * would be a different error in the same place: start/sit is a WEEKLY
+       * decision, so zeroing an OUT player is right; a waiver claim is a
+       * REST-OF-SEASON decision, and a player OUT this week can be a perfectly
+       * good stash. Whether IR/PUP/SUS should sink a claim is a football
+       * judgement with a real cost either way, and register 321 carries it as
+       * an explicit ask rather than a guess. What ships here is the end of the
+       * SILENT part. */
+      injury_status: injuryTag(fa) || null,
+      inactive: isOutNow(fa),
     };
   });
   // What reaches the field first, and downgrades now SINK BELOW ZERO instead of
   // piling up at it; depth (A's marginal, untouched) breaks the tie among equals.
   claims.sort((a, b) => (b.net_value - a.net_value) || (b.startable_value - a.startable_value));
-  return { drop: claims.length ? claims[0].drop : (drop ? { player_id: drop.player.player_id, name: drop.player.name, value: round2(dropVal) } : null),
+  return { drop: claims.length ? claims[0].drop : (drop ? dropPayload(drop, dropVal) : null),
            dollars_per_point: round2(dpp.perPoint), claims };
 }
 
@@ -241,7 +293,14 @@ function round2(x) { return Math.round(Number(x || 0) * 100) / 100; }
  */
 function waiverInputsFromBundle(bundle, playersDb, artifact, myRosterId) {
   const byId = {};
-  ((artifact && artifact.players) || []).forEach(p => { byId[String(p.player_id)] = p; });
+  // register 277: KEEPERS TOO. `kept_players` is DISJOINT from `players` on the
+  // post-keeper-lock board -- 0 of 23 kept ids appear in the 680-row pool -- so
+  // indexing `players` alone prices every keeper at proj_mean null / vorp 0.
+  // On Cory's live roster that made Ja'Marr Chase (real proj 271.8) the CHEAPEST
+  // man he owns, and the wire's BEST CLAIM was "drop Ja'Marr Chase".
+  ((artifact && artifact.players) || [])
+    .concat((artifact && artifact.kept_players) || [])
+    .forEach(p => { byId[String(p.player_id)] = p; });
   // positional replacement from the artifact (full-pool), for players it never ranked
   const replByPos = {};
   ((artifact && artifact.players) || []).forEach(p => {
@@ -275,4 +334,5 @@ function waiverInputsFromBundle(bundle, playersDb, artifact, myRosterId) {
 }
 
 module.exports = { evaluateClaims, dropCandidate, whoElseNeeds, dollarsPerPoint,
+                   injuryTag, isOutNow,
                    consensusProjection, waiverInputsFromBundle };

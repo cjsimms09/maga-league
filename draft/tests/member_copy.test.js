@@ -42,7 +42,28 @@ const strip = h => h.replace(/<[^>]*>/g, ' ').replace(/&#39;/g, "'").replace(/&l
       rosters: active.map((o, i) => ({ roster_id: i + 1, owner_id: 'u' + i,
         settings: { wins: 4, losses: 2, fpts: 700 + i } })),
       matchups: active.map((o, i) => ({ roster_id: i + 1, matchup_id: Math.floor(i / 2) + 1, points: 70 + i * 6.3 })),
-      week: 7 },
+      week: 7,
+      /* THE FIELD THE POINTS SIGNAL IS GATED ON (register 369, and the exact
+       * follow-up register 366 predicted: "any other test that hand-builds a
+       * Sleeper bundle carries the same risk").
+       *
+       * `member.js:2922` reads `sData.season_type === 'regular'` before it will
+       * believe a score — the preseason guard, correct on its own terms, since
+       * Sleeper reports preseason points too. Absent the field, EVERY score in
+       * this fixture is ignored, the pick'em slate never locks, and section 3
+       * renders the OPEN slate ("tap a side in every game") instead of the
+       * graded one. The arm below asserts the results copy, so it was reading a
+       * page that structurally cannot contain it — while the arm above it
+       * passed on the ABSENCE of a taunt, which an open slate satisfies for
+       * free. One missing field, one real failure and one vacuous pass.
+       *
+       * Stamped where PRODUCTION stamps it: `sleeper.js:129` writes
+       * `season_type` and `preseason` onto the top level of `data`, not onto
+       * `state` — `state.season_type` is only that computation's INPUT, so
+       * setting it there would look right and change nothing. The write path
+       * always adds both; `bundle()` returns a cached `data` verbatim, which is
+       * why a hand-built cache is the one shape production never produces. */
+      season_type: 'regular', preseason: false },
   };
   await store.set('sleeper-cache', cacheDoc);
 

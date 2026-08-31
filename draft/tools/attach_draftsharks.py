@@ -256,7 +256,13 @@ for p in board["players"]:
 
 # ── re-derive everything that is computed FROM proj_mean ────────────────────
 cfg = board.get("league") or {}
-players, vorp_diag = vorp_mod.apply_vorp(board["players"], cfg)
+# Register 283, AND THIS HALF IS THE ONE THAT WOULD HAVE SILENTLY UNDONE THE FIX:
+# this step runs AFTER build.py in draft-data.yml (line 567 against 217) and
+# re-derives replacement from `board["players"]`, which post-lock excludes the
+# keepers. Fixing only build.py would have produced an identical board in CI.
+players, vorp_diag = vorp_mod.apply_vorp(
+    board["players"], cfg,
+    full_pool=board["players"] + (board.get("kept_players") or []))
 players = vorp_mod.assign_tiers(players)
 board["players"] = players
 

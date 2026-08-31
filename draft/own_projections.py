@@ -259,6 +259,35 @@ def compute_own_projections_v1_walkforward(players: list[dict], cfg: dict, *, se
 
     ids_df = nfl.import_ids()
     crosswalk = crosswalk_gsis_to_sleeper([], ids_df)
+    #: ── register 233: the LAST product-path `nfl.import_ids()` call ─────────
+    #: `id_crosswalk` ends its chain at the dynastyprocess CSV that
+    #: `import_ids()` itself reads, so an upstream rename cannot reach it.
+    #: PREFERRED here, with the flat call above kept as the fallback so this
+    #: path is never WORSE than it was.
+    #:
+    #: ⚠️ EQUIVALENCE MEASURED BEFORE THE SWAP, NOT ASSUMED (rule 3f). The two
+    #: builders normalise sleeper ids differently in the source — one does
+    #: `str(int(float(s)))` and the other does not — which is exactly the kind
+    #: of difference that would move a projection silently. Run on live data
+    #: 2026-08-31: **6,185 pairs each, ZERO keys unique to either, ZERO shared
+    #: keys with a different sleeper id.** Identical, so the swap cannot move a
+    #: number today.
+    #:
+    #: ⚠️ AND THE OLD FAILURE MODE WAS THE BAD ONE: if `import_ids()` returned
+    #: an empty frame, `crosswalk_gsis_to_sleeper` produced an EMPTY dict, every
+    #: player went unmapped, and every prior-season point total silently became
+    #: zero. The helper raises instead. The `except` below keeps the legacy
+    #: result rather than the exception, so behaviour degrades no further than
+    #: today while improving whenever the chain can answer.
+    try:
+        from backtest import id_crosswalk as _XW
+        _mapping, _src, _tried = _XW.crosswalk_with_source()
+        if _mapping:
+            crosswalk = _mapping
+    except Exception as _exc:                      # noqa: BLE001
+        print(f"  ! id_crosswalk unavailable ({type(_exc).__name__}: {_exc}); "
+              f"falling back to the flat import_ids crosswalk "
+              f"({len(crosswalk)} pairs)")
 
     prior_seasons_points: dict[int, dict[str, float]] = {}
     games: dict[int, dict[str, int]] = {}

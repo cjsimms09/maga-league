@@ -268,7 +268,9 @@
     "-c",
     "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport projection_error as PE\ncal = PE.regenerate()\nif cal.get('status') == 'VOID':\n    print(cal.get('reason', 'VOID'), file=sys.stderr)\n    sys.exit(1)\nprint(json.dumps(PE.document(cal)))"
    ],
-   "timeout_s": 1800
+   "timeout_s": 1800,
+   "needs_network": true,
+   "needs_network_reason": "MEASURED 2026-08-29 over all 53 entries: this is the ONLY entry that ERRORs, and it fails fetching the Sleeper player index. Its own error says it \u2014 'a fact about the runner, not about any historical season'. Marked so a scheduled ERROR-only gate does not go red on the network (register 418)."
   },
   {
    "id": "expert_spread_2026",
@@ -277,8 +279,10 @@
    "artifact_path": "public/expert_spread_2026.json",
    "regenerate_command": [
     "python3",
-    "draft/backtest/expert_spread_artifact.py"
-   ]
+    "draft/backtest/expert_spread_artifact.py",
+    "--json"
+   ],
+   "_contract_note": "--json added 2026-08-28 (register 386): default output is a human report, which check_artifact_freshness correctly called ERROR \u2014 'a real bug, not staleness'. Opt-in so readers are safe."
   },
   {
    "id": "market_upside_2026",
@@ -287,8 +291,10 @@
    "artifact_path": "public/market_upside_2026.json",
    "regenerate_command": [
     "python3",
-    "draft/backtest/market_upside_artifact.py"
-   ]
+    "draft/backtest/market_upside_artifact.py",
+    "--json"
+   ],
+   "_contract_note": "--json added 2026-08-28 (register 386): default output is a human report, which check_artifact_freshness correctly called ERROR \u2014 'a real bug, not staleness'. Opt-in so readers are safe."
   },
   {
    "id": "own_attribution_2026",
@@ -297,8 +303,10 @@
    "artifact_path": "draft/backtest/own_attribution_2026.json",
    "regenerate_command": [
     "python3",
-    "draft/backtest/own_attribution.py"
-   ]
+    "draft/backtest/own_attribution.py",
+    "--json"
+   ],
+   "_contract_note": "--json added 2026-08-28 (register 386): default output is a human report, which check_artifact_freshness correctly called ERROR \u2014 'a real bug, not staleness'. Opt-in so readers are safe."
   },
   {
    "id": "age_curve_2026",
@@ -307,8 +315,10 @@
    "artifact_path": "draft/backtest/age_curve_2026.json",
    "regenerate_command": [
     "python3",
-    "draft/backtest/age_curve_fit.py"
-   ]
+    "draft/backtest/age_curve_fit.py",
+    "--json"
+   ],
+   "_contract_note": "--json added 2026-08-28 (register 386): default output is a human report, which check_artifact_freshness correctly called ERROR \u2014 'a real bug, not staleness'. Opt-in so readers are safe."
   },
   {
    "id": "recency_weight_fit",
@@ -317,8 +327,10 @@
    "artifact_path": "draft/backtest/recency_weight_fit.json",
    "regenerate_command": [
     "python3",
-    "draft/backtest/recency_weight_fit.py"
-   ]
+    "draft/backtest/recency_weight_fit.py",
+    "--json"
+   ],
+   "_contract_note": "--json added 2026-08-28 (register 386): the module's default output is a human report, which this tool correctly classified ERROR \u2014 'a real bug, not staleness'. Opt-in flag so existing readers are untouched."
   },
   {
    "id": "ridge_arm_fit",
@@ -327,8 +339,10 @@
    "artifact_path": "draft/backtest/ridge_arm_fit.json",
    "regenerate_command": [
     "python3",
-    "draft/backtest/ridge_arm_fit.py"
-   ]
+    "draft/backtest/ridge_arm_fit.py",
+    "--json"
+   ],
+   "_contract_note": "--json added 2026-08-28 (register 386): default output is a human report, which check_artifact_freshness correctly called ERROR \u2014 'a real bug, not staleness'. Opt-in so readers are safe."
   },
   {
    "id": "variance_inputs_2026",
@@ -351,6 +365,384 @@
     "-c",
     "import sys, json\nsys.path.insert(0, 'draft/backtest')\nsys.path.insert(0, 'draft')\nimport v7_candidate_grade as V\nprint(json.dumps(V.run()))"
    ]
+  },
+  {
+   "id": "need_curve",
+   "description": "The season-basis need curve against the shipped one-week curve (P142/P143), with the rate/basis decomposition and the keeper-population guard.",
+   "owner_module": "draft/tools/need_curve.js",
+   "artifact_path": "draft/data/need_curve.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/need_curve.js",
+    "--json",
+    "{OUT}"
+   ],
+   "regenerate_writes_to": "{OUT}",
+   "timeout_s": 120
+  },
+  {
+   "id": "ceiling_source_recheck",
+   "description": "Register 119 re-measured on the shipped board: where proj_ceiling comes from now, and whether the mid-round WR is still the narrowest band.",
+   "owner_module": "draft/tools/ceiling_source_recheck.js",
+   "artifact_path": "draft/data/ceiling_source_recheck.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/ceiling_source_recheck.js",
+    "--json",
+    "{OUT}"
+   ],
+   "regenerate_writes_to": "{OUT}",
+   "timeout_s": 180
+  },
+  {
+   "id": "vacuous_verdict_sweep",
+   "description": "Named controls whose verdict is the literal true, split into claims and disclosures \u2014 the verdict half of register 23's sweep.",
+   "owner_module": "draft/tools/vacuous_verdict_sweep.js",
+   "artifact_path": "draft/data/vacuous_verdict_sweep.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/vacuous_verdict_sweep.js",
+    "--json",
+    "{OUT}"
+   ],
+   "regenerate_writes_to": "{OUT}",
+   "timeout_s": 120
+  },
+  {
+   "id": "fieldability_probe",
+   "description": "Can each arm's drafted roster fill every starting slot in every bye week, on Cory's real twelve picks.",
+   "owner_module": "draft/tools/fieldability_probe.js",
+   "artifact_path": "draft/data/fieldability_probe.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/fieldability_probe.js",
+    "--json",
+    "{OUT}"
+   ],
+   "regenerate_writes_to": "{OUT}",
+   "timeout_s": 300
+  },
+  {
+   "id": "adp_upside",
+   "description": "Per-player ADP-relative upside rows.",
+   "owner_module": "draft/tools/adp_upside.js",
+   "artifact_path": "draft/data/adp_upside.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/adp_upside.js"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 415) via regenerate_writes_artifact: this tool writes its artifact at a fixed path and prints a human report, so it could satisfy neither the stdout contract nor {OUT}. It is checked by running it in a throwaway git worktree and reading the sandbox copy back; nothing is written into the repo. Verified by running it once \u2014 a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "clay_2025_retrograde",
+   "description": "Clay 2025 retrograde comparison rows.",
+   "owner_module": "draft/tools/clay_2025_retrograde.js",
+   "artifact_path": "draft/data/clay_2025_retrograde.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/clay_2025_retrograde.js"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 415) via regenerate_writes_artifact: this tool writes its artifact at a fixed path and prints a human report, so it could satisfy neither the stdout contract nor {OUT}. It is checked by running it in a throwaway git worktree and reading the sandbox copy back; nothing is written into the repo. Verified by running it once \u2014 a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "FRESH"
+  },
+  {
+   "id": "clay_blend_impact",
+   "description": "Impact of the Clay source on the published blend.",
+   "owner_module": "draft/tools/clay_blend_impact.js",
+   "artifact_path": "draft/data/clay_blend_impact.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/clay_blend_impact.js"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 415) via regenerate_writes_artifact: this tool writes its artifact at a fixed path and prints a human report, so it could satisfy neither the stdout contract nor {OUT}. It is checked by running it in a throwaway git worktree and reading the sandbox copy back; nothing is written into the repo. Verified by running it once \u2014 a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "draft_day_consistency",
+   "description": "Cross-surface consistency checks for draft day.",
+   "owner_module": "draft/tools/draft_day_consistency.js",
+   "artifact_path": "draft/data/draft_day_consistency.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/draft_day_consistency.js"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 415) via regenerate_writes_artifact: this tool writes its artifact at a fixed path and prints a human report, so it could satisfy neither the stdout contract nor {OUT}. It is checked by running it in a throwaway git worktree and reading the sandbox copy back; nothing is written into the repo. Verified by running it once \u2014 a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "FRESH"
+  },
+  {
+   "id": "draftday_checks",
+   "description": "Draft-day readiness check results.",
+   "owner_module": "draft/tools/draftday_checks.js",
+   "artifact_path": "draft/data/draftday_checks.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/draftday_checks.js"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 415) via regenerate_writes_artifact: this tool writes its artifact at a fixed path and prints a human report, so it could satisfy neither the stdout contract nor {OUT}. It is checked by running it in a throwaway git worktree and reading the sandbox copy back; nothing is written into the repo. Verified by running it once \u2014 a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "lineup_drafter",
+   "description": "Lineup-aware drafter arm output.",
+   "owner_module": "draft/tools/lineup_drafter.js",
+   "artifact_path": "draft/data/lineup_drafter.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/lineup_drafter.js"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 415) via regenerate_writes_artifact: this tool writes its artifact at a fixed path and prints a human report, so it could satisfy neither the stdout contract nor {OUT}. It is checked by running it in a throwaway git worktree and reading the sandbox copy back; nothing is written into the repo. Verified by running it once \u2014 a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "lineup_sim",
+   "description": "Lineup simulation rows.",
+   "owner_module": "draft/tools/lineup_sim.js",
+   "artifact_path": "draft/data/lineup_sim.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/lineup_sim.js"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 415) via regenerate_writes_artifact: this tool writes its artifact at a fixed path and prints a human report, so it could satisfy neither the stdout contract nor {OUT}. It is checked by running it in a throwaway git worktree and reading the sandbox copy back; nothing is written into the repo. Verified by running it once \u2014 a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "nothing_computed_goes_unshown",
+   "description": "Sweep: every computed quantity reaches a surface.",
+   "owner_module": "draft/tools/nothing_computed_goes_unshown.js",
+   "artifact_path": "draft/data/unshown.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/nothing_computed_goes_unshown.js"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 415) via regenerate_writes_artifact: this tool writes its artifact at a fixed path and prints a human report, so it could satisfy neither the stdout contract nor {OUT}. It is checked by running it in a throwaway git worktree and reading the sandbox copy back; nothing is written into the repo. Verified by running it once \u2014 a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "reprojection",
+   "description": "In-season reprojection rows.",
+   "owner_module": "draft/tools/reprojection.js",
+   "artifact_path": "draft/data/reprojection.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/reprojection.js"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 415) via regenerate_writes_artifact: this tool writes its artifact at a fixed path and prints a human report, so it could satisfy neither the stdout contract nor {OUT}. It is checked by running it in a throwaway git worktree and reading the sandbox copy back; nothing is written into the repo. Verified by running it once \u2014 a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "roster_builder_replay",
+   "description": "Roster-builder replay output.",
+   "owner_module": "draft/tools/roster_builder_replay.js",
+   "artifact_path": "draft/data/roster_builder_replay.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/roster_builder_replay.js"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 415) via regenerate_writes_artifact: this tool writes its artifact at a fixed path and prints a human report, so it could satisfy neither the stdout contract nor {OUT}. It is checked by running it in a throwaway git worktree and reading the sandbox copy back; nothing is written into the repo. Verified by running it once \u2014 a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "vona_board",
+   "description": "VONA board rows.",
+   "owner_module": "draft/tools/vona_board.js",
+   "artifact_path": "draft/data/vona_board.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/vona_board.js"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 415) via regenerate_writes_artifact: this tool writes its artifact at a fixed path and prints a human report, so it could satisfy neither the stdout contract nor {OUT}. It is checked by running it in a throwaway git worktree and reading the sandbox copy back; nothing is written into the repo. Verified by running it once \u2014 a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "waiver_advisor_paired_harness",
+   "description": "Paired harness for the waiver advisor.",
+   "owner_module": "draft/tools/waiver_advisor_paired_harness.js",
+   "artifact_path": "draft/data/waiver_advisor_paired_harness.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/waiver_advisor_paired_harness.js"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 415) via regenerate_writes_artifact: this tool writes its artifact at a fixed path and prints a human report, so it could satisfy neither the stdout contract nor {OUT}. It is checked by running it in a throwaway git worktree and reading the sandbox copy back; nothing is written into the repo. Verified by running it once \u2014 a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "waiver_realized_level",
+   "description": "Realized level of waiver adds.",
+   "owner_module": "draft/tools/waiver_realized_level.js",
+   "artifact_path": "draft/data/waiver_realized_level.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/waiver_realized_level.js"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 415) via regenerate_writes_artifact: this tool writes its artifact at a fixed path and prints a human report, so it could satisfy neither the stdout contract nor {OUT}. It is checked by running it in a throwaway git worktree and reading the sandbox copy back; nothing is written into the repo. Verified by running it once \u2014 a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "objective_dp",
+   "description": "Exact DP optimum of the construction problem vs the MLV greedy (prereg \u00a712, P142). Report only.",
+   "owner_module": "draft/tools/objective_dp.js",
+   "artifact_path": "draft/data/objective_dp.json",
+   "regenerate_command": [
+    "node",
+    "draft/tools/objective_dp.js"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 400,
+   "_contract_note": "registered 2026-08-29 (register 419) \u2014 excluded from register 415's batch because its control A was failing; the cause was the ungraded 2026 season, not the tool, and it now reproduces +45.84/+29.33.",
+   "_verified_at_registration": "runs clean, control A passes"
+  },
+  {
+   "id": "empirical_draft_value",
+   "description": "Backtest study writing draft/backtest/empirical_draft_value.json; reads league_history.",
+   "owner_module": "draft/backtest/empirical_draft_value.py",
+   "artifact_path": "draft/backtest/empirical_draft_value.json",
+   "regenerate_command": [
+    "python3",
+    "draft/backtest/empirical_draft_value.py"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 420) via regenerate_writes_artifact, to widen what ungraded_season_leak.py can speak about: this module READS league_history.json, so the 2026 unplayed season can reach its numbers (register 419). Verified by running it once before registration; a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "exp_discoverability",
+   "description": "Backtest study writing draft/backtest/exp_discoverability.json; reads league_history.",
+   "owner_module": "draft/backtest/exp_discoverability.py",
+   "artifact_path": "draft/backtest/exp_discoverability.json",
+   "regenerate_command": [
+    "python3",
+    "draft/backtest/exp_discoverability.py"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 420) via regenerate_writes_artifact, to widen what ungraded_season_leak.py can speak about: this module READS league_history.json, so the 2026 unplayed season can reach its numbers (register 419). Verified by running it once before registration; a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "exp_inverse_adjuster",
+   "description": "Backtest study writing draft/backtest/exp_inverse_adjuster.json; reads league_history.",
+   "owner_module": "draft/backtest/exp_inverse_adjuster.py",
+   "artifact_path": "draft/backtest/exp_inverse_adjuster.json",
+   "regenerate_command": [
+    "python3",
+    "draft/backtest/exp_inverse_adjuster.py"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 420) via regenerate_writes_artifact, to widen what ungraded_season_leak.py can speak about: this module READS league_history.json, so the 2026 unplayed season can reach its numbers (register 419). Verified by running it once before registration; a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "exp_strategy_tournament",
+   "description": "Backtest study writing draft/backtest/exp_strategy_tournament.json; reads league_history.",
+   "owner_module": "draft/backtest/exp_strategy_tournament.py",
+   "artifact_path": "draft/backtest/exp_strategy_tournament.json",
+   "regenerate_command": [
+    "python3",
+    "draft/backtest/exp_strategy_tournament.py"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 420) via regenerate_writes_artifact, to widen what ungraded_season_leak.py can speak about: this module READS league_history.json, so the 2026 unplayed season can reach its numbers (register 419). Verified by running it once before registration; a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "FRESH"
+  },
+  {
+   "id": "exp_value_pockets",
+   "description": "Backtest study writing draft/backtest/exp_value_pockets.json; reads league_history.",
+   "owner_module": "draft/backtest/exp_value_pockets.py",
+   "artifact_path": "draft/backtest/exp_value_pockets.json",
+   "regenerate_command": [
+    "python3",
+    "draft/backtest/exp_value_pockets.py"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 420) via regenerate_writes_artifact, to widen what ungraded_season_leak.py can speak about: this module READS league_history.json, so the 2026 unplayed season can reach its numbers (register 419). Verified by running it once before registration; a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "opponent_profiles",
+   "description": "Backtest study writing draft/backtest/opponent_profiles.json; reads league_history.",
+   "owner_module": "draft/backtest/opponent_profiles.py",
+   "artifact_path": "draft/backtest/opponent_profiles.json",
+   "regenerate_command": [
+    "python3",
+    "draft/backtest/opponent_profiles.py"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 420) via regenerate_writes_artifact, to widen what ungraded_season_leak.py can speak about: this module READS league_history.json, so the 2026 unplayed season can reach its numbers (register 419). Verified by running it once before registration; a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "p151_target_share_trend",
+   "description": "Backtest study writing draft/backtest/p151_target_share_trend.json; reads league_history.",
+   "owner_module": "draft/backtest/p151_target_share_trend.py",
+   "artifact_path": "draft/backtest/p151_target_share_trend.json",
+   "regenerate_command": [
+    "python3",
+    "draft/backtest/p151_target_share_trend.py"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 420) via regenerate_writes_artifact, to widen what ungraded_season_leak.py can speak about: this module READS league_history.json, so the 2026 unplayed season can reach its numbers (register 419). Verified by running it once before registration; a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "year2_leap_arm",
+   "description": "Backtest study writing draft/backtest/year2_leap_arm.json; reads league_history.",
+   "owner_module": "draft/backtest/year2_leap_arm.py",
+   "artifact_path": "draft/backtest/year2_leap_arm.json",
+   "regenerate_command": [
+    "python3",
+    "draft/backtest/year2_leap_arm.py"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-29 (register 420) via regenerate_writes_artifact, to widen what ungraded_season_leak.py can speak about: this module READS league_history.json, so the 2026 unplayed season can reach its numbers (register 419). Verified by running it once before registration; a candidate that ERRORed was NOT registered.",
+   "_verified_at_registration": "STALE"
+  },
+  {
+   "id": "variance_inputs",
+   "description": "Variance-portfolio measuring arm: per-class weekly CV and per-player coverage, derived from the board's player set. Goes stale on any rebuild that adds or drops a player.",
+   "owner_module": "draft/tools/variance_portfolio.py",
+   "artifact_path": "draft/data/variance_inputs_2026.json",
+   "regenerate_command": [
+    "python3",
+    "draft/tools/variance_portfolio.py"
+   ],
+   "regenerate_writes_artifact": true,
+   "timeout_s": 300,
+   "_contract_note": "registered 2026-08-31 (register 86). It was NOT in this registry, so the freshness sweep has never been able to see it \u2014 while register 86 named it, by name, as one of the two artifacts that drift on every board rebuild. Its partition test was red on main. `regenerate_writes_artifact` because main() writes OUT directly rather than printing. Determinism verified before registering: two independent runs byte-identical.",
+   "_verified_at_registration": "FRESH (regenerated in the same commit)"
   }
  ],
  "_not_yet_migrated": [

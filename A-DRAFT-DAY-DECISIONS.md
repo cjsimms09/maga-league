@@ -3,17 +3,18 @@
 **Relay, 2026-08-18. One screen. This is a TRIAGE, not a ruling — A can overrule
 any line of it, and the register remains the record.**
 
+> **⏰ THE DEADLINE IN THIS TITLE HAS PASSED** — the draft completed 2026-08-22
+> 23:00 UTC. Kept as the record of what the triage said at the time; what
+> actually happened is `draft/audit/draft_autopsy_2026-08-23.md`.
+
 Cory, twice this week: *"too much finding and not enough fixing and following
-up."* The register has **189 open rows** (re-verified 08-20 by D at merge
-time, `register_recheck_check.js` run directly — not copied from either side
-of this merge: 121 and 130 were each briefly true, neither is now). **The
-count keeps moving because the register keeps working** — the guard test
-refuses a stale write-up, which is what forced this line three times in two
-days (51 → 97 → 121/130 → 189). **Do not quote this without re-running
-`register_recheck_check.js`.** The "Thirty carry a recheck date on or before
-08-22" figure below is from 08-18, not re-derived. Most are owned by A. This
-is not a decision list, it is a backlog wearing one, and reading it four
-days out costs more than it returns.
+up."* The register has **255 open rows** (re-verified 2026-08-23 by A,
+`register_recheck_check.js` run directly against the post-merge register; 189
+was true on 08-20 and is not now). **The count keeps moving because the
+register keeps working** — the guard refuses a stale write-up, which has now
+forced this line four times in five days (51 → 97 → 121/130 → 189 → 255).
+**Do not quote it without re-running `register_recheck_check.js`.** Most are
+owned by A.
 
 So every open row was put to a single question — **can this change a number on
 Cory's screen on 22 August?** — and the answer is *no* for most of them. What
@@ -107,14 +108,13 @@ Everything else open. Named so nobody has to re-derive that it was considered:
   rendered board), the restore button works, the cohort ceilings are marked on
   the board, and BIG BOARD now says *"undrafted"* where it collided with the
   scarcity rail's *"left"*.
-- **🆕 SURFACED TODAY, NOT INVENTED TODAY** — 31, E6 and E15 had all been marked
-  finished with a ✅ that meant *"fixed, verify"*, and the register's own check
-  read any tick as closed, so none of the three was ever chased. E15 is now
-  **A5** above; E6 is B's; **31** is yours but genuinely post-draft — D corrected
-  the headline edge number in four TERRITORY: A files and offered you a SEND
-  BACK, and the ±41.8-point detection floor means a decision is owed on what
-  instrument can grade a change that size at all — now ruled: Q15's
-  paired-within-room estimand (A, 08-18), D builds the harness. `register_check_was_hiding_rows_2026-08-18.md`.
+- **🆕 SURFACED TODAY, NOT INVENTED TODAY** — ~~31~~, E6 and E15 had all been
+  marked finished with a ✅ that meant *"fixed, verify"*, and the register's own
+  check read any tick as closed, so none of the three was ever chased. E15 is now
+  **A5** above; E6 is B's; ~~31~~ was yours — D corrected the headline edge
+  number in four TERRITORY: A files, and the instrument it then waited on was
+  ruled 08-21 (`GRADING-POLICY.md`, the decision-null standard, replacing R\*).
+  Struck 08-29. `register_check_was_hiding_rows_2026-08-18.md`.
 - **Post-draft by construction** — everything with a recheck after 08-22.
 
 ---

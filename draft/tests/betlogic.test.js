@@ -573,6 +573,30 @@ console.log('\n--- the kickoff cutoff on matchup bets ---');
   eq('EST weeks lock at 8:15pm ET too, not an hour off',
     B.weekLockAt(dec).toISOString(), '2026-12-11T01:15:00.000Z');
 }
+{
+  // THE PRESEASON FALSE LOCK, third surface (Cory's phone, 2026-08-24): in
+  // late August "this week's Thursday" is a real past instant, so the pure
+  // calendar clock read week 1 as closed two weeks before week 1 existed.
+  // Week 1's actual kickoff now floors the lock.
+  const aug = new Date('2026-08-24T14:00:00Z');       // Mon, two weeks pre-season
+  const w = B.matchupWindow(null, aug, { seasonStart: '2026-09-10' });
+  ok('late August does NOT close week 1', w.open, w.reason);
+  eq('the lock is week 1 kickoff night, not a past Thursday',
+    w.locks_at.toISOString(), '2026-09-11T00:15:00.000Z');
+  ok('the default seasonStart gives the same answer (live has no config value)',
+    B.matchupWindow(null, aug).open, B.matchupWindow(null, aug).reason);
+  // Preseason fantasy points are artifacts, not games started — the exact
+  // signal that falsely closed the pick'em and bet-accept locks. season_type
+  // is the gate (same as those two fixes); an unknown seasonType still
+  // trusts the points, so the in-season pins above are untouched.
+  ok('preseason points on the board do not close it either',
+    B.matchupWindow({ me: { points: 38.2 }, opp: { points: 11.0 } }, aug,
+      { seasonStart: '2026-09-10', seasonType: 'pre' }).open);
+  // Positive control (rule 3e): the same call CAN close — an early
+  // seasonStart puts week 1 in the past and the lock must fire.
+  const early = B.matchupWindow(null, aug, { seasonStart: '2026-08-13' });
+  ok('control: with the season already started the window closes', !early.open, early.reason);
+}
 
 console.log('\n--- who has money on your team ---');
 {
@@ -638,7 +662,11 @@ console.log('\n--- money riding on a team, for the standings marker ---');
     m[6] && m[6].total === 125 && m[6].mine === 100, JSON.stringify(m[6]));
   ok('and a team on two bets lists both reasons', m[6].notes.length === 2, JSON.stringify(m[6].notes));
   ok('David is on two bets at once — the pool and his own', m[3] && m[3].total === 125, JSON.stringify(m[3]));
-  ok('and the marker explains itself in words', m[2].notes.some(n => /Cory has 100/.test(n)),
+  /* Wording superseded 2026-08-23 (Cory, on his Richard bet: the old
+   * "has $100 on them" read as bet-PER-TEAM when the truth is one
+   * winner-take-all pot). The pin's intent — the marker explains itself in
+   * words, naming the owner and the stake — survives with the honest copy. */
+  ok('and the marker explains itself in words', m[2].notes.some(n => /one of Cory's picks in a \$100 winner-take-all pool/.test(n)),
     JSON.stringify(m[2].notes));
   // 999 would show up on Michael if proposals or settled bets counted.
   ok('a proposal is not money and a settled bet is over', m[4].total === 100, JSON.stringify(m[4]));

@@ -43,8 +43,36 @@ def test_more_weeks_never_uses_future_scores():
 
 
 def test_FAIL_ARM_preseason_live_publish_refuses(monkeypatch, tmp_path):
+    """⚠️ THIS TEST TOOK `monkeypatch` AND `tmp_path` AND USED NEITHER, so when the
+    refusal stopped firing on 2026-08-25 the test did not merely go red — it WROTE
+    A REAL `public/season_forward_live.json` telling all ten seats they had a 100%
+    chance of the playoffs at week 15, before week 1 had been played.
+    `src/routes/member.js` serves that path. Register 341.
+
+    The redirect is now used, so a future regression can only fail this test; it
+    can no longer publish anything while failing it."""
+    monkeypatch.setattr(S, "HERE", tmp_path / "draft" / "backtest")
     with pytest.raises(SystemExit, match="no realized regular-season"):
         S.write_live(2026, n_worlds=10)
+    assert not (tmp_path / "public" / "season_forward_live.json").exists()
+    assert not list(tmp_path.rglob("season_forward_live.json"))
+
+
+def test_A_SCHEDULE_OF_ZEROES_IS_NOT_A_REALIZED_WEEK(monkeypatch, tmp_path):
+    """The mechanism the refusal above rests on, checked directly rather than
+    through its side effect: the 2026 season IS in the store, WITH eighteen weeks
+    of `players_points`, and none of them count."""
+    s = MG.season_of(MG.load_history(), 2026)
+    if s is None:
+        pytest.skip("2026 not in the league history")
+    field = MG.field_weekly_scores(s)
+    assert field, "no weeks at all — a different case than the one 341 describes"
+    realized = [w for w, sc in field.items() if any(float(v) for v in sc.values())]
+    played = any(float(v) for sc in field.values() for v in sc.values())
+    if played:
+        pytest.skip("2026 has real scores now — the hazard is gone")
+    assert realized == [], (
+        "weeks with no football counted as realized: %s" % sorted(realized))
 
 
 def test_FAIL_ARM_week_zero_refuses():

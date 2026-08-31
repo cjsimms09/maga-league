@@ -891,6 +891,84 @@ def test_all_three_comparisons_use_ONE_population():
     assert out["n"] == len(partial), (out["n"], len(partial))
 
 
+def _survives(by_pos):
+    """The shipped split rule, re-implemented from `board_vs_market`'s own
+    constants so these arms exercise the RULE rather than a copy of its answer."""
+    def clears(d):
+        if d["n"] < 3 or d["mfl_vs_board"] is None or d["source_vs_board"] is None:
+            return False
+        crit = 1.96 / ((d["n"] - 1) ** 0.5)
+        return abs(d["mfl_vs_board"]) >= crit and abs(d["source_vs_board"]) >= crit
+    agree = [d for d in by_pos if clears(d)
+             and (d["mfl_vs_board"] < 0) == (d["source_vs_board"] < 0)]
+    tested = len([d for d in by_pos if d["n"] >= 3])
+    return bool(tested and len(agree) > tested / 2.0)
+
+
+def test_THE_SPLIT_RULE_NEEDS_A_SIZE_NOT_JUST_A_SIGN():
+    """REGISTER 346. The split test counted SIGNS and nothing else, and on
+    2026-08-25 that flipped `survives_within_position` to True on two
+    correlations indistinguishable from zero — RB agreeing on mfl_vs_board
+    -0.051 (n=32), WR on -0.151 and -0.029 (n=42). At those sample sizes the
+    sign of a rho that small is a coin flip, and it carried the same vote as
+    RB's -0.55.
+
+    THE PROOF THAT THE RULE WAS BROKEN RATHER THAN THE DATA CHANGED: the old
+    sign-only rule returns True on three positions of PURE NOISE, every |rho|
+    at or under 0.05. That arm is below.
+
+    Four cases, because a rule that only ever answers one way is not a rule.
+    """
+    noise = [{"n": 32, "mfl_vs_board": -0.02, "source_vs_board": -0.03},
+             {"n": 14, "mfl_vs_board": -0.04, "source_vs_board": -0.01},
+             {"n": 42, "mfl_vs_board": -0.05, "source_vs_board": -0.02}]
+    # THE OLD RULE, kept here as the known defect rather than described:
+    old = [d for d in noise if (d["mfl_vs_board"] < 0) == (d["source_vs_board"] < 0)]
+    assert len(old) > len(noise) / 2.0, "the old sign-only rule no longer reproduces"
+    assert _survives(noise) is False, "pure noise still survives the split"
+
+    # the real data at the moment it flipped
+    flipped = [{"n": 32, "mfl_vs_board": -0.051, "source_vs_board": -0.55},
+               {"n": 14, "mfl_vs_board": 0.179, "source_vs_board": -0.582},
+               {"n": 42, "mfl_vs_board": -0.151, "source_vs_board": -0.029}]
+    assert _survives(flipped) is False
+
+    # KNOWN POSITIVE — a real agreement must still be reported, or the fix has
+    # simply made the flag unreachable, which is a different way of being wrong
+    strong = [{"n": 32, "mfl_vs_board": -0.62, "source_vs_board": -0.58},
+              {"n": 14, "mfl_vs_board": 0.10, "source_vs_board": -0.60},
+              {"n": 42, "mfl_vs_board": -0.55, "source_vs_board": -0.49}]
+    assert _survives(strong) is True
+
+    # strong but pointing opposite ways is NOT agreement
+    opposite = [{"n": 32, "mfl_vs_board": 0.62, "source_vs_board": -0.58},
+                {"n": 42, "mfl_vs_board": 0.55, "source_vs_board": -0.49},
+                {"n": 14, "mfl_vs_board": 0.70, "source_vs_board": -0.60}]
+    assert _survives(opposite) is False
+
+
+def test_THE_SHIPPED_RULE_AGREES_WITH_THE_ONE_TESTED_ABOVE():
+    """The arms above run a re-implementation, which is worth nothing if the
+    shipped code has drifted from it. This joins the two on the real board."""
+    import json as _json
+    import external_adp_capture as _CAP
+    b = _json.load(open("public/draft_data.json"))
+    arch = _json.loads(open("draft/data/external_adp_series.json").read())
+    ls = _json.load(open("draft/data/sleeper_league_settings.json"))
+    ids, _r = _CAP.crosswalk_map(arch.get("players") or {}, b["players"],
+                                 kept=b.get("kept_players"),
+                                 positions=_CAP.rostered_positions(ls))
+    mfl = sorted(arch["series"], key=lambda s: str(s.get("observed_at")))[-1]["rows"]
+    ffc = next(e for e in _json.load(open("draft/data/external_source_prices.json"))["series"]
+               if e["source"] == "ffc")["rows"]
+    out = B.market_agreement(ids, mfl, ffc, b)
+    shipped = out["by_variable"]["wopr"]["survives_within_position"]
+    assert shipped is _survives(list(out["by_position"].values())), (
+        "the shipped split rule and this file's re-implementation disagree")
+    # and the diagnostic that says WHY a position did not vote must be emitted
+    assert "positions_with_both_arms_separable" in out["by_variable"]["wopr"]
+
+
 def test_a_POOLED_agreement_that_vanishes_within_position_is_not_a_finding():
     """Simpson's paradox, and it fooled me twice before a control caught it.
     Pooled, both markets show a wopr gradient near -0.39 and agree with each

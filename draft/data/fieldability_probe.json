@@ -1,7 +1,8 @@
 {
+ "arms_checked_distinct": 4,
  "_territory": "TERRITORY: A — draft/tools/fieldability_probe.js",
  "_note": "REPORT ONLY. Room drained in strict ADP order, which the real room will not be — the engine's own tendency, not a forecast of the 22nd (register 67).",
- "board_built_at": "2026-08-19T05:11:30Z",
+ "board_built_at": "2026-08-26T04:02:06Z",
  "starters": {
   "DEF": 1,
   "FLEX": 1,
@@ -24,142 +25,337 @@
  ],
  "arms": {
   "shipped": {
-   "roster_size": 18,
+   "roster_size": 15,
    "counts": {
     "WR": 4,
-    "RB": 10,
+    "RB": 6,
+    "TE": 2,
     "QB": 1,
-    "TE": 1,
-    "K": 1,
-    "DEF": 1
+    "DEF": 1,
+    "K": 1
    },
+   "roster_ids": [
+    "7564",
+    "3198",
+    "8151",
+    "2133",
+    "7553",
+    "421",
+    "1466",
+    "8142",
+    "8136",
+    "4199",
+    "9508",
+    "9753",
+    "8134",
+    "MIN",
+    "12015"
+   ],
+   "roster_names": [
+    "Ja'Marr Chase",
+    "Derrick Henry",
+    "Kenneth Walker",
+    "Davante Adams",
+    "Kyle Pitts",
+    "Matthew Stafford",
+    "Travis Kelce",
+    "Alec Pierce",
+    "Rachaad White",
+    "Aaron Jones",
+    "Tyjae Spears",
+    "Zach Charbonnet",
+    "Khalil Shakir",
+    "Minnesota Vikings",
+    "Harrison Mevis"
+   ],
    "unfieldable_weeks": [
     {
-     "week": 7,
+     "week": 6,
      "unfilled": [
-      "DEF",
-      "QB"
-     ]
-    },
-    {
-     "week": 10,
-     "unfilled": [
-      "TE"
+      "DEF"
      ]
     },
     {
      "week": 11,
      "unfilled": [
-      "K"
+      "K",
+      "QB"
      ]
     }
    ],
    "unfieldable_skill_weeks": [
     {
-     "week": 7,
+     "week": 11,
      "unfilled": [
       "QB"
-     ]
-    },
-    {
-     "week": 10,
-     "unfilled": [
-      "TE"
      ]
     }
    ],
    "weeks": {
     "5": {
-     "ok": true,
-     "unfilled": [],
-     "bodies": 16,
-     "slots": 9
-    },
-    "6": {
      "ok": true,
      "unfilled": [],
      "bodies": 13,
      "slots": 9
     },
-    "7": {
+    "6": {
      "ok": false,
      "unfilled": [
-      "DEF",
-      "QB"
+      "DEF"
      ],
-     "bodies": 14,
+     "bodies": 12,
+     "slots": 9
+    },
+    "7": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 13,
      "slots": 9
     },
     "8": {
      "ok": true,
      "unfilled": [],
-     "bodies": 18,
+     "bodies": 15,
      "slots": 9
     },
     "9": {
      "ok": true,
      "unfilled": [],
-     "bodies": 17,
+     "bodies": 14,
      "slots": 9
     },
     "10": {
-     "ok": false,
-     "unfilled": [
-      "TE"
-     ],
-     "bodies": 17,
-     "slots": 9
-    },
-    "11": {
-     "ok": false,
-     "unfilled": [
-      "K"
-     ],
-     "bodies": 16,
-     "slots": 9
-    },
-    "13": {
      "ok": true,
      "unfilled": [],
      "bodies": 15,
      "slots": 9
     },
+    "11": {
+     "ok": false,
+     "unfilled": [
+      "K",
+      "QB"
+     ],
+     "bodies": 10,
+     "slots": 9
+    },
+    "13": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 13,
+     "slots": 9
+    },
     "14": {
      "ok": true,
      "unfilled": [],
-     "bodies": 18,
+     "bodies": 15,
      "slots": 9
     }
    }
   },
   "slot_aware": {
-   "roster_size": 18,
+   "roster_size": 15,
    "counts": {
-    "WR": 3,
-    "RB": 10,
-    "QB": 1,
-    "TE": 2,
-    "K": 1,
-    "DEF": 1
+    "WR": 5,
+    "RB": 5,
+    "TE": 1,
+    "QB": 2,
+    "DEF": 1,
+    "K": 1
    },
+   "roster_ids": [
+    "7564",
+    "3198",
+    "8151",
+    "2133",
+    "7553",
+    "421",
+    "8142",
+    "12534",
+    "8136",
+    "4199",
+    "11624",
+    "5870",
+    "8134",
+    "MIN",
+    "12015"
+   ],
+   "roster_names": [
+    "Ja'Marr Chase",
+    "Derrick Henry",
+    "Kenneth Walker",
+    "Davante Adams",
+    "Kyle Pitts",
+    "Matthew Stafford",
+    "Alec Pierce",
+    "Kyle Monangai",
+    "Rachaad White",
+    "Aaron Jones",
+    "Xavier Worthy",
+    "Daniel Jones",
+    "Khalil Shakir",
+    "Minnesota Vikings",
+    "Harrison Mevis"
+   ],
    "unfieldable_weeks": [
     {
-     "week": 7,
+     "week": 6,
      "unfilled": [
-      "DEF",
-      "QB"
+      "DEF"
      ]
     },
     {
      "week": 11,
      "unfilled": [
-      "K"
+      "K",
+      "TE"
+     ]
+    }
+   ],
+   "unfieldable_skill_weeks": [
+    {
+     "week": 11,
+     "unfilled": [
+      "TE"
+     ]
+    }
+   ],
+   "weeks": {
+    "5": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 13,
+     "slots": 9
+    },
+    "6": {
+     "ok": false,
+     "unfilled": [
+      "DEF"
+     ],
+     "bodies": 12,
+     "slots": 9
+    },
+    "7": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 13,
+     "slots": 9
+    },
+    "8": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 15,
+     "slots": 9
+    },
+    "9": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 15,
+     "slots": 9
+    },
+    "10": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 14,
+     "slots": 9
+    },
+    "11": {
+     "ok": false,
+     "unfilled": [
+      "K",
+      "TE"
+     ],
+     "bodies": 11,
+     "slots": 9
+    },
+    "13": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 12,
+     "slots": 9
+    },
+    "14": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 15,
+     "slots": 9
+    }
+   }
+  },
+  "need0": {
+   "roster_size": 15,
+   "counts": {
+    "WR": 3,
+    "RB": 8,
+    "QB": 1,
+    "TE": 1,
+    "DEF": 1,
+    "K": 1
+   },
+   "roster_ids": [
+    "7564",
+    "3198",
+    "8151",
+    "12490",
+    "7611",
+    "5967",
+    "8142",
+    "421",
+    "8136",
+    "4199",
+    "11624",
+    "9508",
+    "9480",
+    "MIN",
+    "12015"
+   ],
+   "roster_names": [
+    "Ja'Marr Chase",
+    "Derrick Henry",
+    "Kenneth Walker",
+    "Bhayshul Tuten",
+    "Rhamondre Stevenson",
+    "Tony Pollard",
+    "Alec Pierce",
+    "Matthew Stafford",
+    "Rachaad White",
+    "Aaron Jones",
+    "Xavier Worthy",
+    "Tyjae Spears",
+    "Brenton Strange",
+    "Minnesota Vikings",
+    "Harrison Mevis"
+   ],
+   "unfieldable_weeks": [
+    {
+     "week": 6,
+     "unfilled": [
+      "DEF"
+     ]
+    },
+    {
+     "week": 7,
+     "unfilled": [
+      "TE"
+     ]
+    },
+    {
+     "week": 11,
+     "unfilled": [
+      "K",
+      "QB"
      ]
     }
    ],
    "unfieldable_skill_weeks": [
     {
      "week": 7,
+     "unfilled": [
+      "TE"
+     ]
+    },
+    {
+     "week": 11,
      "unfilled": [
       "QB"
      ]
@@ -169,20 +365,21 @@
     "5": {
      "ok": true,
      "unfilled": [],
-     "bodies": 16,
+     "bodies": 13,
      "slots": 9
     },
     "6": {
-     "ok": true,
-     "unfilled": [],
-     "bodies": 16,
+     "ok": false,
+     "unfilled": [
+      "DEF"
+     ],
+     "bodies": 12,
      "slots": 9
     },
     "7": {
      "ok": false,
      "unfilled": [
-      "DEF",
-      "QB"
+      "TE"
      ],
      "bodies": 12,
      "slots": 9
@@ -190,255 +387,183 @@
     "8": {
      "ok": true,
      "unfilled": [],
-     "bodies": 18,
+     "bodies": 15,
      "slots": 9
     },
     "9": {
      "ok": true,
      "unfilled": [],
-     "bodies": 17,
+     "bodies": 13,
      "slots": 9
     },
     "10": {
      "ok": true,
      "unfilled": [],
-     "bodies": 16,
+     "bodies": 15,
      "slots": 9
     },
     "11": {
      "ok": false,
      "unfilled": [
-      "K"
+      "K",
+      "QB"
      ],
-     "bodies": 15,
+     "bodies": 12,
      "slots": 9
     },
     "13": {
      "ok": true,
      "unfilled": [],
-     "bodies": 16,
-     "slots": 9
-    },
-    "14": {
-     "ok": true,
-     "unfilled": [],
-     "bodies": 18,
-     "slots": 9
-    }
-   }
-  },
-  "need1": {
-   "roster_size": 18,
-   "counts": {
-    "WR": 5,
-    "RB": 9,
-    "TE": 1,
-    "QB": 1,
-    "K": 1,
-    "DEF": 1
-   },
-   "unfieldable_weeks": [
-    {
-     "week": 7,
-     "unfilled": [
-      "DEF"
-     ]
-    },
-    {
-     "week": 10,
-     "unfilled": [
-      "TE"
-     ]
-    },
-    {
-     "week": 11,
-     "unfilled": [
-      "K"
-     ]
-    },
-    {
-     "week": 14,
-     "unfilled": [
-      "QB"
-     ]
-    }
-   ],
-   "unfieldable_skill_weeks": [
-    {
-     "week": 10,
-     "unfilled": [
-      "TE"
-     ]
-    },
-    {
-     "week": 14,
-     "unfilled": [
-      "QB"
-     ]
-    }
-   ],
-   "weeks": {
-    "5": {
-     "ok": true,
-     "unfilled": [],
-     "bodies": 16,
-     "slots": 9
-    },
-    "6": {
-     "ok": true,
-     "unfilled": [],
-     "bodies": 14,
-     "slots": 9
-    },
-    "7": {
-     "ok": false,
-     "unfilled": [
-      "DEF"
-     ],
-     "bodies": 15,
-     "slots": 9
-    },
-    "8": {
-     "ok": true,
-     "unfilled": [],
-     "bodies": 18,
-     "slots": 9
-    },
-    "9": {
-     "ok": true,
-     "unfilled": [],
-     "bodies": 17,
-     "slots": 9
-    },
-    "10": {
-     "ok": false,
-     "unfilled": [
-      "TE"
-     ],
-     "bodies": 17,
-     "slots": 9
-    },
-    "11": {
-     "ok": false,
-     "unfilled": [
-      "K"
-     ],
-     "bodies": 15,
-     "slots": 9
-    },
-    "13": {
-     "ok": true,
-     "unfilled": [],
-     "bodies": 15,
-     "slots": 9
-    },
-    "14": {
-     "ok": false,
-     "unfilled": [
-      "QB"
-     ],
-     "bodies": 17,
-     "slots": 9
-    }
-   }
-  },
-  "auto": {
-   "roster_size": 18,
-   "counts": {
-    "WR": 6,
-    "RB": 6,
-    "TE": 1,
-    "QB": 3,
-    "K": 1,
-    "DEF": 1
-   },
-   "unfieldable_weeks": [
-    {
-     "week": 7,
-     "unfilled": [
-      "DEF"
-     ]
-    },
-    {
-     "week": 11,
-     "unfilled": [
-      "K"
-     ]
-    },
-    {
-     "week": 13,
-     "unfilled": [
-      "TE"
-     ]
-    }
-   ],
-   "unfieldable_skill_weeks": [
-    {
-     "week": 13,
-     "unfilled": [
-      "TE"
-     ]
-    }
-   ],
-   "weeks": {
-    "5": {
-     "ok": true,
-     "unfilled": [],
-     "bodies": 17,
-     "slots": 9
-    },
-    "6": {
-     "ok": true,
-     "unfilled": [],
-     "bodies": 16,
-     "slots": 9
-    },
-    "7": {
-     "ok": false,
-     "unfilled": [
-      "DEF"
-     ],
-     "bodies": 15,
-     "slots": 9
-    },
-    "8": {
-     "ok": true,
-     "unfilled": [],
-     "bodies": 18,
-     "slots": 9
-    },
-    "9": {
-     "ok": true,
-     "unfilled": [],
-     "bodies": 18,
-     "slots": 9
-    },
-    "10": {
-     "ok": true,
-     "unfilled": [],
-     "bodies": 17,
-     "slots": 9
-    },
-    "11": {
-     "ok": false,
-     "unfilled": [
-      "K"
-     ],
-     "bodies": 14,
-     "slots": 9
-    },
-    "13": {
-     "ok": false,
-     "unfilled": [
-      "TE"
-     ],
      "bodies": 13,
      "slots": 9
     },
     "14": {
      "ok": true,
      "unfilled": [],
-     "bodies": 16,
+     "bodies": 15,
+     "slots": 9
+    }
+   }
+  },
+  "auto": {
+   "roster_size": 15,
+   "counts": {
+    "WR": 2,
+    "RB": 7,
+    "TE": 2,
+    "QB": 2,
+    "DEF": 1,
+    "K": 1
+   },
+   "roster_ids": [
+    "7564",
+    "3198",
+    "8151",
+    "12490",
+    "7553",
+    "6806",
+    "8408",
+    "8183",
+    "3163",
+    "5012",
+    "9508",
+    "12474",
+    "MIN",
+    "12015",
+    "10213"
+   ],
+   "roster_names": [
+    "Ja'Marr Chase",
+    "Derrick Henry",
+    "Kenneth Walker",
+    "Bhayshul Tuten",
+    "Kyle Pitts",
+    "J.K. Dobbins",
+    "Jordan Mason",
+    "Brock Purdy",
+    "Jared Goff",
+    "Mark Andrews",
+    "Tyjae Spears",
+    "Woody Marks",
+    "Minnesota Vikings",
+    "Harrison Mevis",
+    "Tre Tucker"
+   ],
+   "unfieldable_weeks": [
+    {
+     "week": 6,
+     "unfilled": [
+      "DEF",
+      "WR"
+     ]
+    },
+    {
+     "week": 11,
+     "unfilled": [
+      "K"
+     ]
+    },
+    {
+     "week": 13,
+     "unfilled": [
+      "WR"
+     ]
+    }
+   ],
+   "unfieldable_skill_weeks": [
+    {
+     "week": 6,
+     "unfilled": [
+      "WR"
+     ]
+    },
+    {
+     "week": 13,
+     "unfilled": [
+      "WR"
+     ]
+    }
+   ],
+   "weeks": {
+    "5": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 14,
+     "slots": 9
+    },
+    "6": {
+     "ok": false,
+     "unfilled": [
+      "DEF",
+      "WR"
+     ],
+     "bodies": 11,
+     "slots": 9
+    },
+    "7": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 14,
+     "slots": 9
+    },
+    "8": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 13,
+     "slots": 9
+    },
+    "9": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 14,
+     "slots": 9
+    },
+    "10": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 14,
+     "slots": 9
+    },
+    "11": {
+     "ok": false,
+     "unfilled": [
+      "K"
+     ],
+     "bodies": 13,
+     "slots": 9
+    },
+    "13": {
+     "ok": false,
+     "unfilled": [
+      "WR"
+     ],
+     "bodies": 12,
+     "slots": 9
+    },
+    "14": {
+     "ok": true,
+     "unfilled": [],
+     "bodies": 15,
      "slots": 9
     }
    }

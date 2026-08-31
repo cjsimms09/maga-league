@@ -1,0 +1,98 @@
+{
+ "_territory": "TERRITORY: A — draft/tools/published_page_freshness.js",
+ "_answers": "register 412",
+ "_generated_at": "2026-08-29T00:04:36.151Z",
+ "_note": "REPORT ONLY. Never writes into public/; generators run in a throwaway worktree.",
+ "generators": [
+  {
+   "tool": "draft/tools/mlv_snapshot.js",
+   "outputs": [
+    "mlv_recommend.json"
+   ]
+  },
+  {
+   "tool": "draft/tools/position_boards.js",
+   "outputs": [
+    "position_boards.json"
+   ]
+  },
+  {
+   "tool": "draft/tools/source_boards.js",
+   "outputs": [
+    "source_boards.json"
+   ]
+  },
+  {
+   "tool": "draft/tools/sources_page.js",
+   "outputs": [
+    "sources.html"
+   ]
+  },
+  {
+   "tool": "draft/tools/strike_page.js",
+   "outputs": [
+    "strike.html"
+   ]
+  }
+ ],
+ "outputs": [
+  {
+   "tool": "draft/tools/mlv_snapshot.js",
+   "output": "public/mlv_recommend.json",
+   "generator_ran": true,
+   "generator_error": null,
+   "committed_bytes": 2937,
+   "regenerated_bytes": 2937,
+   "identical": true,
+   "content_lines_differing": 0,
+   "timestamp_only": false
+  },
+  {
+   "tool": "draft/tools/position_boards.js",
+   "output": "public/position_boards.json",
+   "generator_ran": true,
+   "generator_error": null,
+   "committed_bytes": 363843,
+   "regenerated_bytes": 363940,
+   "identical": false,
+   "content_lines_differing": 2,
+   "timestamp_only": false
+  },
+  {
+   "tool": "draft/tools/source_boards.js",
+   "output": "public/source_boards.json",
+   "generator_ran": true,
+   "generator_error": null,
+   "committed_bytes": 19569,
+   "regenerated_bytes": 19569,
+   "identical": true,
+   "content_lines_differing": 0,
+   "timestamp_only": false
+  },
+  {
+   "tool": "draft/tools/sources_page.js",
+   "output": "public/sources.html",
+   "generator_ran": true,
+   "generator_error": null,
+   "committed_bytes": 77122,
+   "regenerated_bytes": 75162,
+   "identical": false,
+   "content_lines_differing": 6,
+   "timestamp_only": false
+  },
+  {
+   "tool": "draft/tools/strike_page.js",
+   "output": "public/strike.html",
+   "generator_ran": true,
+   "generator_error": null,
+   "committed_bytes": 69989,
+   "regenerated_bytes": 69943,
+   "identical": false,
+   "content_lines_differing": 10,
+   "timestamp_only": false
+  }
+ ],
+ "content_differences": 3,
+ "timestamp_only": 0,
+ "generators_that_failed": 0
+}

@@ -1349,7 +1349,7 @@
     },
     recommendations: {
       what: 'The engine\'s ranked list for THIS pick: every candidate\'s composite '
-        + 'score is a weighted sum of the seven adjuster terms, scored on your roster '
+        + 'score is a weighted sum of the eight adjuster terms, scored on your roster '
         + 'and what the room has already taken.',
       read: 'Take the top name unless the verdict above says SPLIT or TOSS-UP — those '
         + 'mean the ranking alone cannot settle it. A gap under 2 composite points '
@@ -2019,7 +2019,23 @@
      * this REFUSES and keeps the pipeline's value rather than shipping a board
      * that thinks I own three picks I do not. */
     const teams = Number((data.league || {}).teams) || 0;
-    const myKeepers = ((data.kept_players || []).length);
+    /* Post-lock (2026-08-23) kept_players carries the WHOLE league's slate —
+     * counting it raw made expected = 15 − 23 = −8 and this refusal fire on
+     * every seat, its fallback silently masking the check it exists to make.
+     * The BUILT seat's keeper count comes from the built artifact's own two
+     * pick lists — never from league.my_draft_slot (a moved seat rewrites
+     * that config, which is exactly the scenario this refusal guards) and
+     * never from the requested slot (a seat whose keeper count happens to
+     * fit would slip through). Era-robust: both lists exist pre- and
+     * post-lock. */
+    const _before = (data.pick_order || {}).my_picks_before_keepers || [];
+    /* Round 1 of any draft type runs 1..teams, so the built seat IS the
+     * first uncompressed pick number — read from the artifact, immune to a
+     * league.my_draft_slot rewrite. kept_players stays the independent field
+     * the conservation compares against, now scoped to that seat. */
+    const builtSlot = _before.length ? Number(_before[0]) : Number((data.league || {}).my_draft_slot);
+    const myKeepers = ((data.kept_players || [])
+      .filter(k => Number(k.team_slot) === builtSlot).length);
     const rounds = teams ? picks.length / teams : 0;
     if (rounds && Number.isInteger(rounds)) {
       const expected = rounds - myKeepers;
@@ -8287,7 +8303,26 @@
     if (!state.mockMode || !state.data) return null;
     const block = state.data.predicted_keepers;
     if (!block || !block.predictions) return null;
-    const mine = new Set((state.data.kept_players || []).map(k => String(k.player_id)));
+    /* ⚠️ `kept_players` STOPPED MEANING "my slate" ON 2026-08-23 and this line
+     * was not updated with the others. Post-lock it carries the WHOLE league's
+     * confirmed keepers (3 → 23), as the comment at the top of this file's
+     * board-read section already records — so `mine` came to hold every
+     * confirmed keeper in the league, and a predicted opponent keeper that was
+     * ALSO a confirmed one was skipped by the `mine.has(id)` guard below and
+     * left on the rehearsal board. A CONFIRMED opponent keeper is the most
+     * certainly-unavailable player there is; it is the last one that should
+     * survive the filter.
+     *
+     * Filtered by league seat, the same idiom as populateKeepers and the mock
+     * pick_order build. An unknown seat yields an EMPTY set deliberately: my
+     * own predicted keepers are already excluded by owner directly below, so
+     * an empty `mine` removes opponent keepers (this function's whole purpose)
+     * rather than protecting all of them. Register 417. */
+    const rehearsalSeat = (state.mockMode && state.realSlot)
+      ? Number(state.realSlot) : mySlot();
+    const mine = new Set((state.data.kept_players || [])
+      .filter(k => rehearsalSeat && Number(k.team_slot) === Number(rehearsalSeat))
+      .map(k => String(k.player_id)));
     const remove = new Map();
     Object.keys(block.predictions).forEach(owner => {
       if (owner === 'coryjsimms') return;                 // my own keepers are seeded, not removed

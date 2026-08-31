@@ -1,0 +1,129 @@
+{
+ "_territory": "TERRITORY: D \u2014 draft/backtest/opportunity_delta_arm.py",
+ "_what": "P327 opportunity-delta arm: trailing-3-week share CHANGE beyond baseline_pg.",
+ "seasons": [
+  2022,
+  2023,
+  2024,
+  2025
+ ],
+ "first_week": 5,
+ "trail": 3,
+ "n_player_weeks": 9672,
+ "folds": [
+  {
+   "season": 2022,
+   "n": 2332,
+   "mae_baseline": 4.6436,
+   "mae_arm": 4.6359,
+   "alpha": 0.5,
+   "delta_mae": 0.0077,
+   "slopes": {
+    "RB": 8.088,
+    "WR": 4.433,
+    "TE": 3.333
+   }
+  },
+  {
+   "season": 2023,
+   "n": 2401,
+   "mae_baseline": 4.5749,
+   "mae_arm": 4.5402,
+   "alpha": 0.75,
+   "delta_mae": 0.0347,
+   "slopes": {
+    "RB": 9.632,
+    "WR": 2.875,
+    "TE": 2.654
+   }
+  },
+  {
+   "season": 2024,
+   "n": 2421,
+   "mae_baseline": 4.6529,
+   "mae_arm": 4.6144,
+   "alpha": 1.0,
+   "delta_mae": 0.0385,
+   "slopes": {
+    "RB": 8.249,
+    "WR": 3.41,
+    "TE": 3.724
+   }
+  },
+  {
+   "season": 2025,
+   "n": 2518,
+   "mae_baseline": 4.6729,
+   "mae_arm": 4.6615,
+   "alpha": 0.75,
+   "delta_mae": 0.0114,
+   "slopes": {
+    "RB": 8.418,
+    "WR": 3.613,
+    "TE": 2.996
+   }
+  }
+ ],
+ "folds_cleared": 0,
+ "mae_bar": 0.1,
+ "fold_bar": 3,
+ "rho_delta_vs_level": 0.2711,
+ "rho_gate": 0.98,
+ "verdict": "FALSE",
+ "controls": {
+  "C1_coverage": {
+   "ok": true,
+   "worst_join": 0.997,
+   "per_season": {
+    "2022": {
+     "played": 334,
+     "joined": 1.0,
+     "with_a_delta": 291,
+     "window_attrition": 0.129
+    },
+    "2023": {
+     "played": 321,
+     "joined": 0.997,
+     "with_a_delta": 290,
+     "window_attrition": 0.097
+    },
+    "2024": {
+     "played": 321,
+     "joined": 1.0,
+     "with_a_delta": 289,
+     "window_attrition": 0.1
+    },
+    "2025": {
+     "played": 323,
+     "joined": 1.0,
+     "with_a_delta": 292,
+     "window_attrition": 0.096
+    }
+   },
+   "requirement": ">=0.95 of the eligible players who PLAYED must resolve into the share stores; window attrition is reported, not failed on"
+  },
+  "C2_synthetic_recovery": {
+   "ok": true,
+   "mean_slope": 13.161,
+   "delta_mae_by_fold": [
+    0.3981,
+    0.5492,
+    0.6238,
+    0.4628
+   ],
+   "requirement": "a planted +0.30 share step worth 6 pts must give a positive slope and clear the bar in >=3 folds"
+  },
+  "C3_shuffle_null": {
+   "ok": true,
+   "folds_cleared_on_shuffled_deltas": 0,
+   "delta_mae_by_fold": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "requirement": "shuffled deltas must NOT clear the bar in >=3 folds"
+  }
+ },
+ "seed": 20260827
+}

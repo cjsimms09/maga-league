@@ -192,13 +192,26 @@ def run():   # pragma: no cover
     rows = _load_local_rows()
     profiles = build_profiles(rows)
     matched = sum(1 for r in rows if r.get("position"))
+    #: ⚠️ THE SEASON COUNT IS DERIVED, NOT WRITTEN (register 420). This caveat
+    #: said "3 seasons" as a literal. The 2026 draft happened on 08-22 and
+    #: this study reads ONLY PICKS — no realized points anywhere in the file —
+    #: so 2026 is legitimate evidence of how owners draft and is deliberately
+    #: NOT filtered out the way the realized-value studies are. What was wrong
+    #: was the LABEL: the next regeneration takes n_picks 480 -> 630 while the
+    #: text still claimed three seasons. A count that moves with the data
+    #: cannot go stale the way a sentence about it can.
+    seasons = sorted({str(r.get("season")) for r in rows if r.get("season")})
     return {"experiment": "opponent tendency profiles (local: league_history + draft_data, no egress)",
             "n_picks": len(rows), "n_position_matched": matched,
+            "seasons": seasons,
             "profiles": profiles,
             "caveat": ("timing/lean/share only (ADP-free); REACH tendency + which-board-they-draft-from "
-                       "ride exp36_picks.json (adp+owner) in CI. 3 seasons — a lean <0.05 vs field or a "
-                       "single-season pattern is noise, not a tendency. Feeds the survival/room model "
-                       "per-seat + the war-room matchup read. No install."),
+                       "ride exp36_picks.json (adp+owner) in CI. %d season(s) (%s) — a lean <0.05 vs "
+                       "field or a single-season pattern is noise, not a tendency. Includes the current "
+                       "season's draft on purpose: this study reads picks, not outcomes, so a completed "
+                       "draft is evidence even before a game is played (register 420). Feeds the "
+                       "survival/room model per-seat + the war-room matchup read. No install."
+                       % (len(seasons), ", ".join(seasons))),
             "source_tier": "league-primary"}
 
 

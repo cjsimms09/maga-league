@@ -130,5 +130,66 @@ const pickRow = (pid, extra) => Object.assign(
     p3 === '/tmp/y/explicit.jsonl', p3);
 }
 
+/* ── register 273: BOTH orderings, because they are not the same ordering ───
+ *
+ * The display list is score-sorted and THEN has rail-flagged K/DEF sunk to the
+ * bottom by demoteFlaggedOnesies(). `composite_gap` is measured in score space
+ * and `actual_rank_in_tool` in display space, and the row used to emit one of
+ * each with nothing saying so. On Cory's real pick 108 that read rank 439 and
+ * gap 0.146 for the same player — 437 places apart, both correct.
+ *
+ * The fixture below is that pick in miniature: a demoted DEF whose SCORE is
+ * second best on the board but which sits last in the display order. */
+{
+  const DEM = [
+    { player: { player_id: 'k1', name: 'Top RB', position: 'RB' }, score: 50 },
+    { player: { player_id: 'k2', name: 'Mid WR', position: 'WR' }, score: 10 },
+    { player: { player_id: 'd1', name: 'Sunk DEF', position: 'DEF' }, score: 49,
+      demoted: true },
+    { player: { player_id: 'k3', name: 'Unscored', position: 'TE' }, score: null },
+  ];
+  const r = DS.shapeRow(pickRow('d1', { position: 'DEF' }), DEM, null);
+  ck('a DEMOTED pick reports BOTH ranks, and they disagree',
+    r.actual_rank_in_tool === 3 && r.actual_rank_by_score === 2, r);
+  ck('rank_disagreement is display MINUS score, so a sunk onesie reads positive',
+    r.rank_disagreement === 1, r.rank_disagreement);
+  ck('the row says the player itself was demoted, not merely that some were',
+    r.actual_was_demoted === true && r.demoted_count === 1, r);
+  ck('composite_gap is still SCORE space — top 50 minus this DEF 49',
+    r.composite_gap === 1, r.composite_gap);
+  /* ⚠️ THIS CONTROL FAILED ON ITS FIRST RUN AND THE TEST WAS THE THING THAT
+   * WAS WRONG. I first asserted it against the mid WR, expecting score rank 1,
+   * but that player has the LOWEST of the three real scores — its score rank
+   * is 3, and it disagrees with its display rank too, because the sunk DEF
+   * sits between them. The genuinely agreeing case is the man at the top of
+   * both orderings. */
+  ck('CONTROL: a pick at the top of BOTH orderings has them agree, so the '
+    + 'fields above are not just always-different',
+    (() => { const u = DS.shapeRow(pickRow('k1'), DEM, null);
+      return u.actual_rank_in_tool === 1 && u.actual_rank_by_score === 1
+        && u.rank_disagreement === 0 && u.actual_was_demoted === false; })(),
+    DS.shapeRow(pickRow('k1'), DEM, null));
+  ck('and a player BELOW the sunk onesie in score is lifted by the demotion — '
+    + 'the disagreement runs NEGATIVE, not only positive',
+    (() => { const u = DS.shapeRow(pickRow('k2', { position: 'WR' }), DEM, null);
+      return u.actual_rank_in_tool === 2 && u.actual_rank_by_score === 3
+        && u.rank_disagreement === -1; })(), null);
+  ck('the note naming which field lives in which space travels ON the row',
+    /DISPLAY order/.test(r.rank_orderings_note || ''), r.rank_orderings_note);
+  ck('shadow_schema is stamped, so a grader can tell a 2026 row (one ordering) '
+    + 'from a row that carries both',
+    r.shadow_schema === 2, r.shadow_schema);
+}
+
+/* A keeper row has no recommendation at all, so every ranking field must be
+ * NULL rather than absent — an undefined read as a rank is a silent wrong
+ * grade, which is the whole failure mode register 273 describes. */
+{
+  const k = DS.shapeRow(pickRow('z', { is_keeper: true }), null, 'keeper');
+  ck('a keeper row carries the new fields as explicit nulls, never undefined',
+    k.actual_rank_by_score === null && k.rank_disagreement === null
+    && k.actual_was_demoted === null && k.demoted_count === null, k);
+}
+
 console.log('\n%d passed, %d failed', pass, fail);
 process.exitCode = fail ? 1 : 0;

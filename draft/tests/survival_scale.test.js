@@ -57,8 +57,22 @@ ck('CONTROL — the module exports the converter, so this tests the shipped one 
 ck('a board slot converts to the count of SELECTIONS at or before it',
   S.liveIndexOf(33, ctx) === 33 - ROWS.filter(r => r.keeper_slot && r.overall <= 33).length,
   String(S.liveIndexOf(33, ctx)));
-ck('and it agrees with keepers.py live_index_of on my first pick',
-  S.liveIndexOf(33, ctx) === 30, String(S.liveIndexOf(33, ctx)));
+/* ⚠️ THIS WAS `=== 30`, A CONSTANT THAT EXPIRED WITH THE LEAGUE-WIDE KEEPER
+ * SLATE (A, 2026-08-24, register 300). 30 = 33 − 3 assumed only Cory's three
+ * keepers were flagged. Post-lock ALL 23 are, and every one costs a round 1-3
+ * pick, so all 23 sit at or before overall 33 and the correct answer is 10.
+ * `liveIndexOf` was right the whole time; the hardcode was asserting the old
+ * board's shape. Derived now — and note the REAL cross-implementation check is
+ * the python subprocess below, which runs keepers.py itself; this line only
+ * ever restated the assertion above it, which is why replacing the constant
+ * loses nothing. */
+{
+  const expected = 33 - ROWS.filter(r => r.keeper_slot && r.overall <= 33).length;
+  ck('and it agrees with the board\'s own keeper-slot count at my first pick '
+    + '(the keepers.py cross-check is the python arm below)',
+  S.liveIndexOf(33, ctx) === expected,
+  `${S.liveIndexOf(33, ctx)} vs ${expected} (${ROWS.filter(r => r.keeper_slot && r.overall <= 33).length} keeper slots at or before 33)`);
+}
 ck('the two scales genuinely differ, or the fix is a no-op',
   S.liveIndexOf(33, ctx) !== 33);
 ck('it is monotone — a later slot is never fewer selections', (() => {
@@ -75,9 +89,21 @@ ck('the last board slot maps to the number of real SELECTIONS, not 150',
   `${S.liveIndexOf(150, ctx)} vs ${150 - KEEPERS}`);
 
 // ── THE SURVIVAL NUMBERS THEMSELVES ─────────────────────────────────────────
-const allen = DATA.players.find(p => p.name === 'Josh Allen');
+/* ⚠️ THIS WAS `find(p => p.name === 'Josh Allen')` AND HE IS NOW A KEEPER, so
+ * `build.py` moved him to `kept_players`, the find returned undefined, and the
+ * CONTROL failed (A, 2026-08-24, register 300/301). The probe is DERIVED now,
+ * so it survives any keeper slate.
+ *
+ * CHOSEN BY CONSTRUCTION, NOT BY OUTCOME: the player whose adjusted_adp sits
+ * nearest my first pick, because that is where a mis-scaled selection count
+ * moves the answer most — picking whoever maximises the difference would make
+ * the "converting CHANGES the answer" assertion below circular. */
+const allen = DATA.players
+  .filter(p => (p.adjusted_adp || 0) > 0 && (p.adp_sd || 0) > 0)
+  .sort((a, b) => Math.abs(a.adjusted_adp - 33) - Math.abs(b.adjusted_adp - 33))[0];
 ck('CONTROL — the probe player is on the board with a spread',
-  !!allen && allen.adjusted_adp > 0 && allen.adp_sd > 0);
+  !!allen && allen.adjusted_adp > 0 && allen.adp_sd > 0,
+  allen && { who: allen.name, adp: allen.adjusted_adp, sd: allen.adp_sd });
 {
   const withBoard = 1 - S.layer1Taken(allen, 33, ctx);
   const without = 1 - S.layer1Taken(allen, 33, {});
@@ -100,13 +126,24 @@ ck('CONTROL — the probe player is on the board with a spread',
    * genuine cross-language divergence still fails to the tenth. */
   const { execSync } = require('child_process');
   const pyPct = parseFloat(execSync('python3 -', {
-    cwd: ROOT, encoding: 'utf8', input: [
+    cwd: ROOT, encoding: 'utf8',
+    env: Object.assign({}, process.env, { PROBE_NAME: allen.name }),
+    input: [
       'import json, sys',
       "sys.path.insert(0, 'draft')",
       'import keepers as K',
       "data = json.load(open('public/draft_data.json'))",
       "rows = data['pick_order']['picks']",
-      "p = next(x for x in data['players'] if x['name'] == 'Josh Allen')",
+      /* ⚠️ THE PROBE NAME IS PASSED IN, NOT HARDCODED. This line read
+       * `x['name'] == 'Josh Allen'` and raised StopIteration the moment he was
+       * kept — the JS side above was already derived by then, so the two sides
+       * were probing different players until this one crashed. Both sides now
+       * read the SAME derived probe, which is the whole point of a
+       * cross-language check. */
+      "import os",
+      "want = os.environ['PROBE_NAME']",
+      "p = next((x for x in data['players'] if x['name'] == want), None)",
+      "assert p is not None, 'probe %r is not on the board' % want",
       "print(100 * K.survival_probability(float(p['adjusted_adp']), K.live_index_of(33, rows), p.get('adp_sd')))",
     ].join('\n'),
   }));
@@ -115,24 +152,50 @@ ck('CONTROL — the probe player is on the board with a spread',
     `js ${(100 * withBoard).toFixed(2)} vs py ${pyPct.toFixed(2)}`);
 }
 
-// ── THE POST-LOCK CASE, PINNED WHILE IT IS STILL CHEAP ──────────────────────
-// A check that only fires after 20 August is a check that fires too late. The
-// slate is simulated here so the magnitude is asserted now.
+// ── A SLATE BIGGER THAN TODAY'S — THE SCALE MUST KEEP UP ────────────────────
+/* ⚠️ THIS BLOCK WAS WRITTEN TO PRE-PIN A FUTURE, AND THE FUTURE ARRIVED
+ * (A, 2026-08-24, register 300). Its header read "THE POST-LOCK CASE, PINNED
+ * WHILE IT IS STILL CHEAP — a check that only fires after 20 August is a check
+ * that fires too late", and it simulated a big slate by flagging rounds 1-2.
+ * That was exactly right when the live board carried THREE keeper slots. The
+ * lock landed and the live board now carries TWENTY-THREE, all in rounds 1-3 —
+ * so the simulation produced 26 against a real 23 and its own control
+ * ("materially bigger than today's", `> KEEPERS * 3`) correctly said no.
+ *
+ * The post-lock case is no longer hypothetical; it is asserted live by every
+ * check above, on the real board. What is still worth exercising here is the
+ * SENSITIVITY — that the conversion keeps working when the slate grows past
+ * anything we have seen — so the simulation is rebased on TODAY's slate rather
+ * than on a fixed round cutoff, and the control now derives its bar from the
+ * live count instead of from the number 3. */
 {
+  const SIM_ROUNDS = 5;      // 10 teams x 5 rounds = 50 slots, vs today's 23
   const sim = ROWS.map(r => Object.assign({}, r,
-    { keeper_slot: r.keeper_slot || r.round <= 2 }));
+    { keeper_slot: r.keeper_slot || r.round <= SIM_ROUNDS }));
   const simKeepers = sim.filter(r => r.keeper_slot).length;
-  ck('CONTROL — the simulated slate is materially bigger than today\'s',
-    simKeepers > KEEPERS * 3, `${simKeepers} vs ${KEEPERS}`);
+  ck('CONTROL — the simulated slate is materially bigger than TODAY\'s live '
+    + 'one (rebased on the live count, not on the pre-lock 3)',
+  simKeepers >= KEEPERS * 2, `${simKeepers} simulated vs ${KEEPERS} live`);
   const simCtx = { pickBoard: sim };
-  const brown = DATA.players.find(p => p.name === 'A.J. Brown');
+  /* ⚠️ WAS `find(p => p.name === 'A.J. Brown')`, WRAPPED IN `if (brown)`. He is
+   * a keeper now, so the find returned undefined and the assertion SILENTLY
+   * SKIPPED — a vacuous check wearing an if-guard, which is worse than a red
+   * one because nothing reports it. Derived, and the skip is gone: if no
+   * suitable probe exists the control below says so and fails. */
+  const brown = DATA.players
+    .filter(p => (p.adjusted_adp || 0) > 0 && (p.adp_sd || 0) > 0
+      && 1 - S.layer1Taken(p, 33, {}) < 0.05)
+    .sort((a, b) => (1 - S.layer1Taken(b, 33, simCtx)) - (1 - S.layer1Taken(a, 33, simCtx)))[0];
+  ck('CONTROL — some player IS called certainly-gone by the unconverted scale, '
+    + 'or there is no case to test here', !!brown,
+  brown ? { who: brown.name, adp: brown.adjusted_adp } : 'none below 5% unconverted');
   if (brown) {
     const conv = 1 - S.layer1Taken(brown, 33, simCtx);
     const raw = 1 - S.layer1Taken(brown, 33, {});
-    ck('POST-LOCK — a player the unconverted scale calls certainly gone is '
+    ck('BIGGER SLATE — a player the unconverted scale calls certainly gone is '
       + 'mostly available once keepers are counted',
-      conv > 0.5 && raw < 0.05,
-      `converted ${(100 * conv).toFixed(1)}% vs unconverted ${(100 * raw).toFixed(1)}%`);
+    conv > 0.5 && raw < 0.05,
+    `${brown.name}: converted ${(100 * conv).toFixed(1)}% vs unconverted ${(100 * raw).toFixed(1)}%`);
   }
 }
 

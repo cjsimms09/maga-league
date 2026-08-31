@@ -50,8 +50,35 @@ on:
 # NOT CHANGED IN DRAFT WEEK, DELIBERATELY. The fix is a merge cadence — or a
 # scheduled run of `main` — not a YAML edit three days out, and a wrong comment
 # in the file every lane reads is worse than the behaviour it describes.
+# ⚠️ EVERY MAIN COMMIT GETS ITS OWN GROUP, AND THE REASON IS MEASURED
+# (A, 2026-08-24, register 309).
+#
+# This read `group: ci-${{ github.ref }}` for every ref. On a branch that is
+# right: a new push should cancel the stale run, which `cancel-in-progress`
+# does. On MAIN it was quietly catastrophic. `cancel-in-progress: false` does
+# NOT mean "run everything" — it means QUEUE, and GitHub keeps only ONE pending
+# run per group: a newer run entering the group CANCELS the one still waiting.
+#
+# With lanes pushing to main every couple of minutes and a job that takes ~14,
+# almost every run was superseded before it ever started. MEASURED over 91
+# distinct main runs across a 20-hour window (08-23 20:18 -> 08-24 16:21):
+#
+#     73 of 91 CANCELLED — never executed at all         80%
+#     16 produced a verdict                              18%
+#      0 of those 16 were green                           (register 300)
+#
+# So main was not merely red for a week; FOUR IN FIVE COMMITS TO MAIN WERE
+# NEVER TESTED. The register-300 ratchet immediately below is worth very little
+# if the step it guards runs on one commit in five, which is how this was
+# found: my own ratchet commit's run was cancelled 96 seconds after it started
+# queueing.
+#
+# Making the group unique per COMMIT on main removes the supersede entirely —
+# every commit that lands gets its own verdict. Branches keep the old,
+# correct behaviour. The cost is Actions minutes, and this repo is PUBLIC, so
+# they are free (the same argument the lane-branches note above already made).
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.ref }}${{ github.ref == 'refs/heads/main' && format('-{0}', github.sha) || '' }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
@@ -187,11 +214,16 @@ jobs:
             echo "== $t =="
             if ! node draft/tests/$t.test.js; then failed="$failed $t"; fi
           done
+          # ALWAYS export the list, green or red. It used to be written only
+          # inside the failure branch, which meant the red-ratchet step below
+          # could not tell "everything passed" from "the step did not run" —
+          # and on a fully green run it would have reported all 32 baseline
+          # suites as newly fixed, or nothing at all. Register 300.
+          echo "failed=$failed" >> "$GITHUB_OUTPUT"
           if [ -n "$failed" ]; then
             echo "FAILED SUITES:$failed"
             # ALSO to the step output, so the LAST step can restate it at job end.
             # See "Restate the JS failure" below for why the echo above is not enough.
-            echo "failed=$failed" >> "$GITHUB_OUTPUT"
             exit 1
           fi
           echo "all JS suites passed"
@@ -223,6 +255,37 @@ jobs:
       # DO NOT RE-ADD A PER-SUITE STEP. A new `draft/tests/*.test.js` is picked up
       # by the glob the day it lands. Anything that must NOT run belongs in SKIP
       # above, named, with a reason.
+      - name: Red ratchet — is this red NEW, or the standing debt? (register 300)
+        id: ratchet
+        # WHY A SEPARATE STEP RATHER THAN A FIX TO THE ONE ABOVE: main had been
+        # red for over a week (no successful ci.yml run in the last ninety) and
+        # the red had ACCRETED — 1 of 4 sampled suites failing on 08-15, 6 of 6
+        # by 08-22. There was never a commit to revert. Every lane saw a red
+        # build, correctly concluded "it was already red", and landed anyway.
+        # That is what a permanently red signal does to the people reading it.
+        #
+        # This does NOT make the build green — the step above still exits 1
+        # while anything fails, and a green build sitting on 32 broken suites is
+        # precisely the decay this was written about. What it adds is the
+        # ability to say WHICH KIND of red:
+        #
+        #     "32 failing, all known"    the standing debt, tracked, unchanged
+        #     "33 failing, 1 NEW: foo"   you broke something, and here it is
+        #
+        # It also reports suites that have started PASSING, so the baseline can
+        # be tightened — a baseline that only ever grows is the same invisible
+        # count wearing a different hat.
+        #
+        # if: always() so a red JS step cannot skip the thing that explains it.
+        if: always()
+        run: |
+          # The checker spends most of its life printing "all known", which is
+          # indistinguishable from a comparison that detects nothing. So it
+          # proves itself FIRST, on cases with known answers, and CI refuses to
+          # trust its verdict otherwise (Rule 3e).
+          node draft/tools/suite_baseline_check.js --self-test
+          node draft/tools/suite_baseline_check.js "${{ steps.js.outputs.failed }}"
+
       - name: Robot mock draft — the safety net
         # A full snake draft from every seat through the real engine and
         # attribution modules, plus every bug this session as a regression
@@ -478,6 +541,46 @@ jobs:
         if: always()
         run: git fetch --all --quiet && node draft/tools/lane_status.js || true
 
+      - name: Claimed shas — does the evidence point at a commit anyone can see (REPORT ONLY)
+        # Register 254's structural half, built 2026-08-27. The row asked for a
+        # BLOCKING rule ("an item whose text says PUSHED must name a sha that is
+        # an ancestor of main"), and this project's own record says that rule is
+        # wrong three times over: 249 and 254 were both DELIVERED by a different
+        # commit than the one they named, and 204 was the reverse — the files
+        # landed by another route while the guard genuinely had not. So
+        # not-an-ancestor is not not-delivered, and a blocking check would have
+        # reddened main over two finished pieces of work.
+        #
+        # It reports three states instead of one boolean, and the one worth
+        # seeing is UNRESOLVABLE: a sha on no ref at all, which nobody can check
+        # now or later. Measured on the day it was wired: 9 distinct shas, 4 on
+        # main, 1 off it, and FOUR that exist nowhere after fetching every branch.
+        #
+        # `git fetch --all` FIRST and then report — on the first run five read as
+        # unresolvable and one came back once every branch was fetched, so the
+        # bucket is only meaningful against a full clone. `|| true` for the same
+        # reason as the step above: a visibility aid that can redden main becomes
+        # a thing people delete. Its controls are enforced by
+        # draft/tests/claimed_sha_check.test.js, which the JS glob already runs.
+        if: always()
+        run: git fetch --all --quiet && node draft/tools/claimed_sha_check.js || true
+
+      - name: Premise check — is what we pinned still TRUE? (register 385)
+        # The register chases findings by DATE. A date cannot express "void the
+        # moment the ceiling source changes", so a premise that dies between
+        # rechecks stays true-LOOKING until somebody trips on it. On 2026-08-27
+        # nine defects in one session were exactly that, and six of the seven
+        # premises registered here were already dead when it was first run.
+        #
+        # `|| true` for the same reason as the step above, and it matters more
+        # here: this one is EXPECTED to report void entries for as long as the
+        # consequences are being worked through. A visibility aid that can
+        # redden main becomes a thing people delete. Its controls are enforced
+        # by draft/tests/premise_check.test.js, which the JS glob already runs —
+        # so the MECHANISM is gated even though the VERDICTS are not.
+        if: always()
+        run: node draft/tools/premise_check.js || true
+
       - name: Guard — every critical step actually ran (no silent skips)
         if: always()
         # Outcomes are success/failure/skipped/cancelled. A real failure is reported by
@@ -486,7 +589,7 @@ jobs:
         # than run at all — which would otherwise leave the run green-looking.
         run: |
           bad=0
-          for pair in "JS:${{ steps.js.conclusion }}" "Python:${{ steps.py.conclusion }}" "ParityPins:${{ steps.parity_pins.conclusion }}"; do
+          for pair in "JS:${{ steps.js.conclusion }}" "Python:${{ steps.py.conclusion }}" "ParityPins:${{ steps.parity_pins.conclusion }}" "RedRatchet:${{ steps.ratchet.conclusion }}"; do
             name="${pair%%:*}"; res="${pair##*:}"
             if [ "$res" = "skipped" ] || [ "$res" = "cancelled" ] || [ -z "$res" ]; then
               echo "SILENT SKIP: the $name suite did not run (conclusion='$res')"; bad=1

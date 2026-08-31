@@ -120,7 +120,17 @@ function liveBefore(pick) {
 
 /* Cory's keepers, as the board records them — the plan starts from his real roster */
 const keptIds = new Set((BOARD.kept_player_ids || []).map(String));
-const keepers = (BOARD.kept_players || []).map(k => {
+/* ⚠️ FILTERED TO CORY'S SEAT (A, 2026-08-24, register 300/303). This read
+ * `kept_players` whole, and the comment above already says whose roster it
+ * is meant to be. Pre-lock that WAS his three; post-lock (08-23) the board
+ * carries the league's 23, so the plan started from a 23-man roster
+ * belonging to ten managers — which fills every starter seat, zeroes `need`
+ * for everybody and collapses the keeper term. Same correction as
+ * draft_ready.js, archetype_rooms.js and the shared test fixture. */
+const MY_SLOT_FOR_KEEPERS = Number((BOARD.league || {}).my_draft_slot);
+const keepers = (BOARD.kept_players || [])
+  .filter(k => Number(k.team_slot) === MY_SLOT_FOR_KEEPERS)
+  .map(k => {
   const onBoard = pool.find(p => String(p.player_id) === String(k.player_id));
   return onBoard || { player_id: k.player_id, name: k.name, position: k.position,
     proj_mean: k.proj_mean || k.proj || 0 };
@@ -271,7 +281,22 @@ const doc = {
   final_shape: shape,
   vs_top3_finishers: vsTarget,
 };
-fs.writeFileSync(path.join(ROOT, 'public', 'mlv_plan.json'), JSON.stringify(doc, null, 1));
+/* ⚠️ THE OUTPUT PATH IS OVERRIDABLE, AND THE REASON IS A DEPLOY (A, 2026-08-24,
+ * register 315). `public/` is a SERVED path in netlify-ignore.sh, so this file
+ * landing in a commit IS a Netlify build — and Cory capped builds at ~3/day the
+ * same hour. mlv_seat_plan.test.js deliberately re-runs this tool ("regenerate,
+ * so the test grades the CODE and not a stale artifact", which is the RIGHT
+ * design and must not change), so simply running the suite left a modified
+ * served artifact in the tree three times in one session. Twice it blocked a
+ * rebase; once I nearly committed it.
+ *
+ * A `require.main === module` guard — my first idea, and it is in register 315's
+ * action where it is WRONG — would have broken the test's whole point, because
+ * the tool is being executed on purpose rather than imported by accident. An
+ * output override keeps the test grading live code while keeping its writes out
+ * of the working tree. */
+const OUT = process.env.MLV_PLAN_OUT || path.join(ROOT, 'public', 'mlv_plan.json');
+fs.writeFileSync(OUT, JSON.stringify(doc, null, 1));
 
 console.log('\n  WHAT MLV WOULD DRAFT YOU — K and DEF capped at 1 (your rule)\n');
 console.log('  keepers: ' + keepers.map(k => k.name + ' (' + k.position + ')').join(', '));

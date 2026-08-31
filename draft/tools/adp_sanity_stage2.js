@@ -33,14 +33,25 @@ const E = global.DraftEngine;
 
 const BOARD = LC.loadBoard();
 const ALL = BOARD.players;
-const KEEPERS = BOARD.kept_players;
+/* TWO POPULATIONS — see adp_sanity.js for the full note (register 370).
+ * AVAILABILITY wants all 23 league keepers; MY ROSTER wants Cory's three.
+ * One variable served both, and post-08-23 that seeded the walk with a
+ * 23-man roster holding nine other managers' players. */
+const ALL_KEPT = BOARD.kept_players || [];
+const MY_KEPT = ALL_KEPT.filter(
+  k => Number(k.team_slot) === Number(BOARD.league.my_draft_slot));
+if (!MY_KEPT.length || MY_KEPT.length >= ALL_KEPT.length) {
+  throw new Error('MY_KEPT filter is wrong: ' + MY_KEPT.length + ' of '
+    + ALL_KEPT.length + ' for slot ' + BOARD.league.my_draft_slot
+    + ' — refusing to walk (register 370)');
+}
 const MY = (BOARD.pick_order.my_picks || []).slice();
 const adpOf = p => (p.adp == null ? 9999 : Number(p.adp));
 const bestByAdp = pool => pool.reduce((b, p) => (!b || adpOf(p) < adpOf(b)) ? p : b, null);
 
 const drafted = new Set();
-KEEPERS.forEach(k => drafted.add(String(k.player_id)));
-const roster = KEEPERS.map(k => Object.assign({}, k, { is_keeper: true }));
+ALL_KEPT.forEach(k => drafted.add(String(k.player_id)));                      // availability
+const roster = MY_KEPT.map(k => Object.assign({}, k, { is_keeper: true }));   // my roster
 
 const fmt = v => (v >= 0 ? '+' : '') + Number(v).toFixed(2);
 

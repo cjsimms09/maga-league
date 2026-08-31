@@ -182,9 +182,31 @@ ck('NO seat names a plan_player its own shortlist does not contain',
 /* CONTROL: the superseded names must still be CARRIED. Solving the orphan by
  * deleting the information would pass the check above and lose the fact. */
 const sup = D.seats.filter(s => s.superseded_plan_player);
-ck('CONTROL — a superseded plan name is kept and explains itself, not dropped',
-  sup.length === 0 || sup.every(s => /realized wire/i.test(s.superseded_plan_player.why || '')),
-  sup.map(s => s.pick));
+/* ⚠️ THIS MATCHED THE BENCH REASON AS THOUGH IT WERE THE ONLY ONE. It required
+ * every superseded row's `why` to say "realized wire" — true of a bench row,
+ * where the disagreement is realized-wire vs preseason best-undrafted, and
+ * false of a STARTER row, where it is the plan's option value vs raw season
+ * projection. When the demotion was extended to starter seats (register 363,
+ * the same commit) this went red on rows that carry a perfectly good
+ * explanation, just not that phrase.
+ *
+ * The control's purpose is "the fact is CARRIED, not deleted" — the phrase was
+ * a proxy for that and became a constraint on wording. Asserted as the property
+ * instead: a real explanation that names the ranking the plan lost to. The
+ * bench phrasing keeps its own arm, so the wire reason cannot quietly vanish
+ * from the rows it belongs to. */
+ck('CONTROL — a superseded plan name is kept and EXPLAINS ITSELF, not dropped',
+  sup.length === 0 || sup.every(s => {
+    const w = s.superseded_plan_player.why || '';
+    return w.length > 80 && /draft_plan chose him/.test(w)
+      && /(realized wire|season projection)/i.test(w);
+  }),
+  sup.map(s => s.pick + (s.is_starter_seat ? ':starter' : ':bench')));
+ck('...and a BENCH row still gives the realized-wire reason specifically, so '
+  + 'the reason that motivated this field cannot drift out of it',
+  sup.filter(s => !s.is_starter_seat).every(s =>
+    /realized wire/i.test(s.superseded_plan_player.why || '')),
+  sup.filter(s => !s.is_starter_seat).map(s => s.pick));
 const underivable = D.seats.filter(s => {
   if (s.gap_to_second == null || (s.shortlist || []).length < 2) return false;
   const d = Math.round((s.shortlist[0].display_primary - s.shortlist[1].display_primary) * 10) / 10;

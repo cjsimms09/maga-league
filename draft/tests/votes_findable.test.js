@@ -77,16 +77,24 @@ const http = require('http');
   const dashCount = dashMatch ? Number(dashMatch[1]) : null;
 
   const bank = await get('/bank', cookie);
-  const navMatch = bank.body.match(/href="\/votes"[^>]*>[\s\S]{0,250}?tb-badge">(\d+)</);
-  check('the mobile tab-bar badge on Voting Booth matches the dashboard count exactly',
-    navMatch && Number(navMatch[1]) === dashCount, { navMatch, dashCount });
+  /* ⚠️ PLACEMENT SUPERSEDED, Cory 08-23 from his phone: "Nav is a little
+   * crammed at bottom" — seven tabs truncated their own labels, so Votes
+   * moved to the More panel in the nav de-cram (interim of the redesign
+   * spec's map). THE INTENT of the 08-22 ruling survives and is what this
+   * now pins: an open ballot's count is visible ON THE TAB BAR without
+   * opening anything (the More button carries the aggregated badge), and
+   * the Votes row inside More still carries its own exact count. */
+  const moreBadge = bank.body.match(/aria-label="More pages"[\s\S]{0,400}?tb-badge">(\d+)</);
+  check('the ballot count is visible on the tab bar (More button badge covers it)',
+    moreBadge && Number(moreBadge[1]) >= dashCount, { moreBadge, dashCount });
+
+  const moreRow = bank.body.match(/more-links[\s\S]*?href="\/votes"[\s\S]{0,120}?(\d+)/);
+  check('the Votes row in More carries the exact ballot count',
+    moreRow && Number(moreRow[1]) === dashCount, { moreRow, dashCount });
 
   const navBadgeDesktop = bank.body.match(/href="\/votes"[^>]*>Voting Booth<span class="nav-badge">(\d+)</);
   check('the desktop navbar badge on Voting Booth matches the dashboard count exactly',
     navBadgeDesktop && Number(navBadgeDesktop[1]) === dashCount, { navBadgeDesktop, dashCount });
-
-  check('Voting Booth is in the PRIMARY mobile tab bar (not only in More)',
-    /class="tabbar"[\s\S]*?<a href="\/votes"/.test(bank.body));
   check('Voting Booth is in the PRIMARY desktop navbar (not only in nav-more)',
     /class="navbar"[\s\S]*?<a href="\/votes"[^>]*>Voting Booth/.test(bank.body));
 

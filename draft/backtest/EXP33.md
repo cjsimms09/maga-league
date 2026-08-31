@@ -24,7 +24,7 @@ Sources raced: our_blend, naive, ffc_adp, sleeper_proj
 
   | source | MAE | rank_corr | top-decile | in verdict |
   |---|---|---|---|---|
-  | our_blend | 57.08 | 0.581 | 0.413 | yes |
+  | our_blend | 57.06 | 0.581 | 0.413 | yes |
   | naive | 45.59 | 0.704 | 0.587 | yes |
   | ffc_adp | None | 0.378 | 0.312 | yes |
   | sleeper_proj | 33.05 | 0.819 | 0.692 | **NO — leak-suspect** |
@@ -35,13 +35,14 @@ Sources raced: our_blend, naive, ffc_adp, sleeper_proj
 
   | source | MAE | rank_corr | top-decile | in verdict |
   |---|---|---|---|---|
-  | our_blend | 56.69 | 0.608 | 0.413 | yes |
+  | our_blend | 56.66 | 0.607 | 0.413 | yes |
   | naive | 46.25 | 0.704 | 0.565 | yes |
   | ffc_adp | None | 0.446 | 0.222 | yes |
   | sleeper_proj | 35.27 | 0.798 | 0.627 | **NO — leak-suspect** |
 
 ## Caveats
 
+- 2026: realized weekly unavailable; season SKIPPED
 - 2025: realized weekly unavailable; season SKIPPED
 - Sleeper's season projection WAS retrievable but is DISQUALIFIED, not reported as a winner: `/projections/nfl/regular/{season}` is updated in-season, so a past season's stored projection is NOT decision-time-safe. Its ~0.8 rank-corr with realized (vs the real market's ~0.4) is the leak's fingerprint. Its scorecard is shown for transparency and EXCLUDED from the verdict, per the anti-leak pre-registration.
 

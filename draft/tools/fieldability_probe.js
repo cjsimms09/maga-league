@@ -62,7 +62,7 @@ const Fieldable = require(path.join(ROOT, 'public', 'js', 'draft', 'fieldable.js
  * derivation, reused — not a constant retyped into each probe.
  *
  * SEVEN OTHER TOOLS STILL CARRY THE SAME LITERAL (register 95). */
-const SCHED = require(path.join(__dirname, 'draft_plan.js')).SCHED;
+const SCHED = require('./draft_plan.js').SCHED;
 const STARTERS = (DATA.league && DATA.league.starters) || {};
 
 /* THE BYE WEEKS THIS BOARD ACTUALLY CARRIES — discovered, never a hardcoded
@@ -127,17 +127,52 @@ const ARMS = {
              w: E => E.MEASURED_WEIGHTS },
   slot_aware: { flags: { VONA_INCLUDE_SELF: true, VONA_SLOT_AWARE: true },
                 w: E => E.MEASURED_WEIGHTS },
-  need1: { flags: { VONA_INCLUDE_SELF: true, VONA_SLOT_AWARE: false },
-           w: E => Object.assign({}, E.MEASURED_WEIGHTS, { need: 1.0 }) },
+  /* ⛔ THIS ARM WAS `need1` AND HAD BECOME A DUPLICATE OF `shipped`.
+   *
+   * It forced `need: 1.0` over MEASURED_WEIGHTS to show what turning the term on
+   * would do. Cory RULED it on 2026-08-20 and `engine.js:826` has shipped
+   * `need: 1.0` ever since — so the override became a no-op and the probe has
+   * been printing the same run twice under two names. Verified before changing
+   * it: on the 2026-08-26 board `shipped` and `need1` returned the identical
+   * roster {WR 4, RB 6, TE 2, QB 1, DEF 1, K 1} and the identical week-11 QB
+   * hole. Register 405.
+   *
+   * The INFORMATIVE counterfactual is now the other direction: what the roster
+   * looked like BEFORE the ruling. So the arm is `need0`, and C_arms_differ
+   * below refuses to run if any two arms are configured identically again. */
+  need0: { flags: { VONA_INCLUDE_SELF: true, VONA_SLOT_AWARE: false },
+           w: E => Object.assign({}, E.MEASURED_WEIGHTS, { need: 0.0 }) },
   auto: { flags: { VONA_INCLUDE_SELF: true, VONA_SLOT_AWARE: false },
           w: (E, ctx) => { const a = E.autoWeights(ctx); return (a && a.weights) ? a.weights : a; } },
 };
+
+/* ── NO TWO ARMS MAY BE THE SAME RUN (register 405) ────────────────────────
+ * An arm that duplicates another is a comparison against itself, and this probe
+ * carried one for eight days without anyone noticing, because the duplicate was
+ * created by a RULING elsewhere rather than by an edit here. The fingerprint is
+ * the flags plus the weights the arm actually resolves to, so a future ruling
+ * that collapses two arms fails loudly instead of printing twice. */
+/* ONE guard, not four copies — draft/tools/arms_differ.js, register 408. */
+const { assertArmsDiffer } = require('./arms_differ.js');
 
 /* THE WALK ONLY RUNS WHEN THIS FILE IS INVOKED DIRECTLY. Its own test file
  * requires it for `fieldable()`, and a module that drafts four rosters on
  * require() makes that test slow and couples it to the live board. */
 function run() {
+/* The duplicate-arm guard runs FIRST, on a throwaway engine load, so a collapsed
+ * pair refuses before four rosters are drafted rather than after (register 405). */
+const _E0 = loadEngine(ARMS.shipped.flags);
+/* Handed as FUNCTIONS so the helper's own try/catch owns the resolution: the
+ * `auto` arm asks the engine for phase weights and throws on a null context,
+ * and an arm that cannot be resolved must be fingerprinted under its own name
+ * rather than crashing the guard (register 408). */
+const n_arms = assertArmsDiffer('fieldability_probe',
+  Object.fromEntries(Object.keys(ARMS).map(k => [k, () => ({
+    flags: ARMS[k].flags,
+    weights: (typeof ARMS[k].w === 'function' ? ARMS[k].w(_E0, null) : ARMS[k].w),
+  })])));
 const report = {
+  arms_checked_distinct: n_arms,
   _territory: 'TERRITORY: A — draft/tools/fieldability_probe.js',
   _note: 'REPORT ONLY. Room drained in strict ADP order, which the real room '
        + 'will not be — the engine\'s own tendency, not a forecast of the 22nd '

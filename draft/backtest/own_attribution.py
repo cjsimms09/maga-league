@@ -111,6 +111,13 @@ def build() -> dict:
 
 if __name__ == "__main__":
     d = build()
+    # `--json` prints the ARTIFACT, the contract
+    # draft/tools/check_artifact_freshness.py regenerates against
+    # (register 386). OPT-IN: the human report below is what a person
+    # runs this for, so default stdout is deliberately untouched.
+    if "--json" in sys.argv:
+        print(json.dumps(d))
+        raise SystemExit(0)
     named = [r for r in d["players"] if r["name"] == "Christian McCaffrey"]
     print(f"wrote own_attribution_2026.json: {len(d['players'])} players")
     if named:

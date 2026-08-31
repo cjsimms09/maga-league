@@ -118,11 +118,22 @@
         <h2>🔼 What the wire would add
           <span class="sub"><%= claims.length %> claim<%= claims.length === 1 ? '' : 's' %> that reach your lineup<% if (drop) { %> · you would drop <b><%= drop.name %></b><% } %></span></h2>
         <div class="body">
+          <%# Catalog item 14: this tool is the brain, the actual claim happens
+              in Sleeper — one button, not a treasure hunt. Reuses the SAME
+              verified link the lineup-problem NEEDS YOU row already uses
+              (member.js) rather than guessing an unverified sub-path. %>
+          <% if (claims.length && typeof sleeperLink === 'function' && sleeperLink('team')) { %>
+            <p style="margin:0 0 .6rem">
+              <a class="btn small navy" href="<%= sleeperLink('team') %>" target="_blank" rel="noopener">Open in Sleeper to claim →</a>
+            </p>
+          <% } %>
           <%- include('partials/_wr_explain', { ex: G.claims }) %>
           <% claims.forEach((c, i) => { %>
             <div class="lo-call">
               <div class="lo-call-main">
-                <span class="lo-start">▲ Claim <b><%= c.name %></b>
+                <span class="lo-start">▲ Claim <b><%= c.name %></b><%
+                  const _cf = injuryFlag({ inj: c.injury_status }); %><% if (_cf.level) { %>
+                  <span class="mu-flag <%= _cf.level === 'out' ? 'out' : 'q' %>" title="injury designation — check before spending priority"><%= _cf.text %></span><% } %>
                   <span class="muted">(<%= c.position %><% if (c.consensus_projection != null) { %>, <%= c.consensus_label %> <%= c.consensus_projection %><% } %>)</span></span>
                 <span class="lo-sit">▼ drop <b><%= c.drop ? c.drop.name : '—' %></b>
                   <span class="muted"><%= c.why %></span></span>
@@ -196,7 +207,7 @@
         <div class="body" style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap">
           <div>
             <b>Making this claim?</b>
-            <span class="muted" style="font-size:.82rem">Logs it against holding your priority, so the rest of the season can grade the difference.</span>
+            <span class="muted" style="font-size:.82rem">One optional tap records that you're taking the tool's advice — the advice itself is already logged automatically every Tuesday night, and what you actually claim is read from Sleeper.</span>
           </div>
           <input type="hidden" name="week" value="<%= weekNo || '' %>">
           <input type="hidden" name="dollars" value="<%= top.dollars %>">
@@ -227,8 +238,9 @@
             <button class="btn small ghost" type="submit" name="reason" value="unstated">Just record it</button>
           </div>
           <p class="muted" style="margin:.55rem 0 0; font-size:.74rem">
-            What you actually claimed is readable from Sleeper afterwards. What the tool told you
-            <i>right now</i> isn't recoverable from anything, so that's what gets written down.
+            Nothing here is required: the tool's pick is captured automatically every
+            Tuesday night and what you actually claimed is read from Sleeper. These chips
+            add the one thing neither can know — <i>why</i> you went another way.
           </p>
         </div>
       </form>
@@ -301,5 +313,38 @@
       </form>
     </div>
   </div>
+<% } %>
+
+<%# ── BLOCK WATCH (Cory's 08-24 adversarial-waivers mandate) — the best
+    available player at each position an opponent has a startable hole at.
+    In a rolling-priority league a claim can be worth making partly because
+    it DENIES them. Information, priced honestly: what IS measured (their
+    open slots, his projection, your own upgrade value) is shown; whether
+    they would actually claim him is P331's grade, and the panel says so. %>
+<% const _bw = (typeof blockWatch !== 'undefined' && blockWatch) ? blockWatch : []; %>
+<% if (live && !err && _bw.length) { %>
+<div class="card" style="margin-top:1.2rem">
+  <h2>🛡 Block Watch <span class="sub">the adds your rivals need more than you do</span></h2>
+  <div class="body">
+    <% for (const bw of _bw) { %>
+      <div style="display:flex;align-items:baseline;gap:.6rem;padding:.45rem 0;border-bottom:1px solid var(--line,#e5e7eb);flex-wrap:wrap">
+        <b><%= bw.name %></b> <span class="muted"><%= bw.position %> · proj <%= Math.round(bw.proj_mean) %></span>
+        <span style="flex:1 1 auto"></span>
+        <span class="muted" style="font-size:.78rem">fills a startable hole for <b><%= bw.denies_names.join(', ') %></b></span>
+        <% if (bw.my_net_value != null && bw.my_net_value > 0) { %>
+          <span class="muted" style="font-size:.78rem">— and worth <b>+<%= Math.round(bw.my_net_value) %></b> to you outright</span>
+        <% } else { %>
+          <span class="muted" style="font-size:.78rem">— little direct value to you: claiming him is a pure block, priced in priority</span>
+        <% } %>
+      </div>
+    <% } %>
+    <p class="muted" style="margin:.6rem 0 0;font-size:.74rem">
+      What's measured: their open starting slots and his projection. What isn't:
+      whether they'd actually spend their priority — that's on trial (P331), and
+      if flagged players don't get claimed at a higher rate than their peers,
+      this panel retires.
+    </p>
+  </div>
+</div>
 <% } %>
 <%- include('partials/footer') %>

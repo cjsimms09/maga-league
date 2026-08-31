@@ -108,6 +108,11 @@ const cookieFrom = r => r.headers.getSetCookie().map(s => s.split(';')[0]).join(
     terms: 'My QB outpoints yours' });
   await SB.accept(gBet.id, david.id, david.name);
   await SB.settle(gBet.id, [david.id], cory.id, cory.name);
+  // (h) SENT by cory, not yet answered — the "Bets You've Sent" fixture. A
+  // sixth owner (not otherwise used above) so acceptance state stays clean.
+  const sixth = others[5];
+  const hBet = await SB.propose({ proposer_id: cory.id, party_ids: [sixth.id], stake: 15,
+    terms: 'Kicker over 100 yards' });
 
   const server = createApp().listen(0);
   await new Promise(r => server.once('listening', r));
@@ -141,6 +146,44 @@ const cookieFrom = r => r.headers.getSetCookie().map(s => s.split(';')[0]).join(
     ck(`needs-you contains the ${what} bet`, needsSlice.includes(`id="bet-${b.id}"`));
   }
   ck('the merely-live bet is NOT in needs-you', !needsSlice.includes(`id="bet-${eBet.id}"`));
+
+  // 2b. Cory, 2026-08-23: "should be able to easily track your own bets...
+  // site just needs to be a little easier to get around." My Bets groups
+  // Needs You / Who Owes Who / On the Books / Bets You've Sent / Settled,
+  // Yours / Your Side-Bet Ledger as ONE labeled section, ahead of a "Rest of
+  // the Book" divider that fronts the market/builder/tracker/league-wide
+  // content. Pin the grouping, not just that the strings exist somewhere.
+  ck('the "My Bets" heading exists and precedes Needs You',
+    at('My Bets') > 0 && at('My Bets') < at('Needs You'));
+  ck('"On the Books" (live, mine) now precedes "On the Board" (the open market) — '
+     + 'it used to sit AFTER the market, putting other people\'s offers between '
+     + 'you and your own live money',
+    at('On the Books') < at('On the Board'), { books: at('On the Books'), board: at('On the Board') });
+  // The bare phrase also appears in the rules disclosure's prose ("sent again
+  // from Bets You've Sent"), which sits in the Rest of the Book, AFTER On the
+  // Board — so this pins the emoji-prefixed HEADING specifically, using hBet
+  // (proposed by cory, not yet answered) to make sure the section actually
+  // renders rather than passing vacuously.
+  ck('hBet (sent, unanswered) renders in "Bets You\'ve Sent"', html.includes(`id="bet-${hBet.id}"`));
+  ck('"📤 Bets You\'ve Sent" (the heading) precedes "On the Board"',
+    html.includes("📤 Bets You've Sent") && at("📤 Bets You've Sent") < at('On the Board'));
+  ck('"Your Side-Bet Ledger" (the running total) precedes "The Rest of the Book" divider',
+    at('Your Side-Bet Ledger') > 0 && at('Your Side-Bet Ledger') < at('The Rest of the Book'));
+  ck('"The Rest of the Book" divider precedes "On the Board"',
+    at('The Rest of the Book') > 0 && at('The Rest of the Book') < at('On the Board'));
+
+  // 2c. gBet is SETTLED and cory is a party — it must render in "Settled,
+  // Yours" (inside My Bets) and NOT be duplicated into the league-wide
+  // "Settled & declined" section further down (design pass's own rule: every
+  // bet renders in EXACTLY ONE section, now split by whose settled bet it is).
+  {
+    const n = (html.match(new RegExp(`id="bet-${gBet.id}"`, 'g')) || []).length;
+    ck('the settled bet (cory is a party) renders exactly once', n === 1, n);
+    ck('...inside "Settled, Yours", not the league-wide settled section',
+      html.indexOf('Settled, Yours') < at(`id="bet-${gBet.id}"`)
+        && at(`id="bet-${gBet.id}"`) < (html.indexOf('Settled & declined, league-wide') === -1
+              ? Infinity : html.indexOf('Settled & declined, league-wide')));
+  }
 
   // 3. state chips + kind chips.
   for (const s of ['YOUR ANSWER', 'CONFIRM NEEDED', 'READY TO SETTLE', 'YOUR PICK', 'LIVE', 'OPEN — TAKE IT', 'SETTLED']) {

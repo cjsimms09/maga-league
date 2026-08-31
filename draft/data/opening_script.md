@@ -1,55 +1,55 @@
 # OPENING SCRIPT — generated, never typed
 
-_board `2026-08-22T03:43:05Z` · slot **8** (site-claimed — Sleeper draft order pending (regenerates on assignment)) · doctrine: **Balanced Value (the control)** (19b race ran; no archetype cleared the paired CI + even-money band)_
+_board `2026-08-26T04:02:06Z` · slot **8** (site-claimed — Sleeper draft order pending (regenerates on assignment)) · doctrine: **Balanced Value (the control)** (19b race ran; no archetype cleared the paired CI + even-money band)_
 
 My live picks: **33, 48, 53, 68, 73, 88…**
 
 ## PRIMARY — the effective board (designations are facts, predictions fill the rest)
-_9 teams designated on Sleeper (their real slates supersede intel wholesale), 0 still run on predicted slates. Supersessions: Sadbru: freed Kyren Williams, Zay Flowers (predicted kept — actually in the pool); cashworth: freed Javonte Williams (predicted kept — actually in the pool); Jreis: freed Josh Jacobs, Rashee Rice (predicted kept — actually in the pool) · designated id 5859 (prediction missed); MarianSaar: freed Brock Bowers (predicted kept — actually in the pool) · designated id 6794 (prediction missed); Richard2121: designated id 7569, id 8130 (prediction missed)._
+_9 teams designated on Sleeper (their real slates supersede intel wholesale), 0 still run on predicted slates. Supersessions: Sadbru: freed Kyren Williams, Zay Flowers (predicted kept — actually in the pool); cashworth: freed Javonte Williams (predicted kept — actually in the pool); Jreis: freed Josh Jacobs (predicted kept — actually in the pool); MarianSaar: freed Brock Bowers (predicted kept — actually in the pool) · designated id 6794 (prediction missed)._
 
 ### Pick 33
-- **TARGET**: Bhayshul Tuten (RB, VORP 42.0, 56% survives)
-- fallback 1: Jameson Williams (WR, VORP 38.2, 85% survives)
-- fallback 2: Davante Adams (WR, VORP 36.1, 66% survives)
-- fallback 3: Jadarian Price (RB, VORP 30.0, 62% survives)
-- fallback 4: Terry McLaurin (WR, VORP 30.0, 47% survives)
+- **TARGET**: Drake Maye (QB, VORP 23.2, 31% survives)
+- fallback 1: Tyler Warren (TE, VORP 22.2, 28% survives)
+- fallback 2: Joe Burrow (QB, VORP 17.4, 35% survives)
+- fallback 3: Davante Adams (WR, VORP 14.6, 56% survives)
+- fallback 4: Jalen Hurts (QB, VORP 13.2, 71% survives)
 
 ### Pick 48
-- **TARGET**: Jaylen Warren (RB, VORP 25.8, 34% survives)
-- fallback 1: Rhamondre Stevenson (RB, VORP 23.2, 68% survives)
-- fallback 2: Tony Pollard (RB, VORP 21.9, 93% survives)
-- fallback 3: J.K. Dobbins (RB, VORP 19.1, 90% survives)
-- fallback 4: Alec Pierce (WR, VORP 18.0, 100% survives)
+- **TARGET**: Sam LaPorta (TE, VORP 8.6, 49% survives)
+- fallback 1: Harold Fannin (TE, VORP 7.9, 35% survives)
+- fallback 2: Kyle Pitts (TE, VORP 7.6, 65% survives)
+- fallback 3: Dak Prescott (QB, VORP 6.7, 82% survives)
+- fallback 4: Tucker Kraft (TE, VORP 4.8, 35% survives)
 
 ### Pick 53
-- **TARGET**: Rhamondre Stevenson (RB, VORP 23.2, 40% survives)
-- fallback 1: Tony Pollard (RB, VORP 21.9, 72% survives)
-- fallback 2: J.K. Dobbins (RB, VORP 19.1, 81% survives)
-- fallback 3: Alec Pierce (WR, VORP 18.0, 100% survives)
-- fallback 4: Rico Dowdle (RB, VORP 16.5, 62% survives)
+- **TARGET**: Sam LaPorta (TE, VORP 8.6, 42% survives)
+- fallback 1: Kyle Pitts (TE, VORP 7.6, 44% survives)
+- fallback 2: Dak Prescott (QB, VORP 6.7, 57% survives)
+- fallback 3: Brock Purdy (QB, VORP 3.0, 100% survives)
+- fallback 4: Matthew Stafford (QB, VORP 1.4, 99% survives)
 
 ## CONTINGENCY — the predicted-only slates bust
 _Only FACTS removed here (real designations + my three): every keeper we merely predict returns to the pool. If an undesignated team keeps less than predicted, this branch is the board you're actually looking at._
 
 ### Pick 33
-- **TARGET**: Bhayshul Tuten (RB, VORP 42.0, 56% survives)
-- fallback 1: Jameson Williams (WR, VORP 38.2, 85% survives)
-- fallback 2: Davante Adams (WR, VORP 36.1, 66% survives)
-- fallback 3: Jadarian Price (RB, VORP 30.0, 62% survives)
-- fallback 4: Terry McLaurin (WR, VORP 30.0, 47% survives)
+- **TARGET**: Drake Maye (QB, VORP 23.2, 31% survives)
+- fallback 1: Tyler Warren (TE, VORP 22.2, 28% survives)
+- fallback 2: Joe Burrow (QB, VORP 17.4, 35% survives)
+- fallback 3: Davante Adams (WR, VORP 14.6, 56% survives)
+- fallback 4: Jalen Hurts (QB, VORP 13.2, 71% survives)
 
 ### Pick 48
-- **TARGET**: Jaylen Warren (RB, VORP 25.8, 34% survives)
-- fallback 1: Rhamondre Stevenson (RB, VORP 23.2, 68% survives)
-- fallback 2: Tony Pollard (RB, VORP 21.9, 93% survives)
-- fallback 3: J.K. Dobbins (RB, VORP 19.1, 90% survives)
-- fallback 4: Alec Pierce (WR, VORP 18.0, 100% survives)
+- **TARGET**: Sam LaPorta (TE, VORP 8.6, 49% survives)
+- fallback 1: Harold Fannin (TE, VORP 7.9, 35% survives)
+- fallback 2: Kyle Pitts (TE, VORP 7.6, 65% survives)
+- fallback 3: Dak Prescott (QB, VORP 6.7, 82% survives)
+- fallback 4: Tucker Kraft (TE, VORP 4.8, 35% survives)
 
 ### Pick 53
-- **TARGET**: Rhamondre Stevenson (RB, VORP 23.2, 40% survives)
-- fallback 1: Tony Pollard (RB, VORP 21.9, 72% survives)
-- fallback 2: J.K. Dobbins (RB, VORP 19.1, 81% survives)
-- fallback 3: Alec Pierce (WR, VORP 18.0, 100% survives)
-- fallback 4: Rico Dowdle (RB, VORP 16.5, 62% survives)
+- **TARGET**: Sam LaPorta (TE, VORP 8.6, 42% survives)
+- fallback 1: Kyle Pitts (TE, VORP 7.6, 44% survives)
+- fallback 2: Dak Prescott (QB, VORP 6.7, 57% survives)
+- fallback 3: Brock Purdy (QB, VORP 3.0, 100% survives)
+- fallback 4: Matthew Stafford (QB, VORP 1.4, 99% survives)
 
 _Regenerates on: slot assignment · keeper designations landing (picked up by the nightly draft-data rebuild) · every board rebuild. A stale fingerprint announces itself — never trust a script whose board hash is old._

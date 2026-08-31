@@ -1,5 +1,35 @@
 # Every session starts here
 
+## 📅 THE ERA CHANGED — read this before anything below (relay, 2026-08-26)
+
+**The draft happened 2026-08-22. Much of this file below this banner is draft-week
+state, kept as history with corrections riding in place — do not act on a
+draft-week instruction without checking its date.** What governs NOW:
+
+* **⭐ "GO" IS A WORKFLOW (Cory, 08-30) — `GO-RUNBOOK.md` + `draft/tools/go_status.py`:** the
+  sweep every session runs first; its red list is the agenda.
+* **THE SEASON RULING (Cory, 08-24, `ROUTES.md` top):** in-season tools, capture
+  everything, make the model better, find edge — **and keep making the site
+  better for owners** (his same-day amendment, verbatim: *"no, dont stop doing
+  things that make site better for owners.... thats importnat to"*).
+* **⭐ READ `DRAFT-2026-LESSONS.md`** — 18 measured lessons; the build plan with
+  owners and dates is `DRAFT-2027-PROGRAM.md` §7.
+* **`LEARNING-CONSTITUTION.md` is RATIFIED (Cory, 08-25)** — the Tier-0/1/2
+  change-control taxonomy is live authority: any change that alters a number or
+  the ordering/defaults/salience of a decision surface has a tier; check before
+  shipping.
+* **The audit rhythm:** Wednesday register audits (worksheet pattern:
+  `draft/audit/WEDNESDAY-AUDIT-*.md`); the ledger gates run in CI and are green —
+  keep them that way. First blend grade vs Cory's edge bar: **09-15**.
+* **🪪 THE ROSTER RULE (Cory, 08-31 — sessions kept misstating his players):**
+  any statement about Cory's roster, opponent, or matchup cites **`THIS-WEEK.md`**
+  (regenerated from LIVE Sleeper Tue/Fri/Sun by `week-brief.yml`; fresh within
+  3 days) or live Sleeper itself — a frozen seat plan, tournament artifact, or
+  memory of an older week is NEVER a source for who he rosters today.
+* **Week 1 is 09-10.** The dated season calendar lives in `ROUTES.md` and the
+  register; the capture rail (waiver/stream/lineup auto-capture, Tuesday wire,
+  weekly probe) is live and self-verifying.
+
 ## 🪪 WHO OWNS WHAT — you own an OUTCOME, not a checklist
 
 **Cory, 2026-08-17:** *"no one actually owns anything.. even A just grades and
@@ -108,8 +138,95 @@ and loses entirely on **conversion** — 0.740/0.771 against 0.828/0.834 — val
 acquired that never reaches a starting slot. **That is Cory's "roster still not
 normal", in points, and it is worth more than the whole acquisition edge.**
 
-**The mechanism is register 60, which has been open without a cost:** `need` is
-the only roster-aware term and it ships at weight **0**, so nothing penalises a
+**⭐ MEASURED ACROSS ALL SIX ARMS 2026-08-24 — AND THE CONVERSION FIX DID NOT
+MOVE THE PLACE.** `draft/backtest/seat_rank_by_arm_lab.json`, five controls
+green including the one that licenses the rest: the shipped arm recomputed
+there reproduces the committed replay per seat and lands on **7.80**, the
+published number, so the harness is the same one and not a second that agrees
+by luck. Mean rank — **shipped 7.80 · `need1` 7.13 · slot-aware 7.00 · auto
+7.73 · `bye1` and `slot_s0` inert at 7.80 (30/30 seats unchanged, corroborating
+the conversion lab across two labs sharing only `draft_replay_2025`)**.
+**PAIRED against shipped on the same 30 seat-years, which is the only reading
+this file's own rule permits — `need1` +0.667 places, 95% CI [−0.13, +1.47],
+t 1.63, sign p 0.119; slot-aware +0.800, CI [−0.08, +1.68], sign p 0.096. EVERY
+CI SPANS ZERO.** A sign test sits beside the t because a rank is ORDINAL and
+the t treats *10th→9th* and *2nd→1st* as one quantity; they agree, so the
+conclusion does not rest on that assumption. **NO WEIGHT SETTING IS
+DISTINGUISHABLE FROM WHAT SHIPS ON FINISHING POSITION, and all six sit BELOW
+the 30% chance rate on top-3 (10%–17%).** **So conversion was NOT the binding
+constraint on where the tool finishes, and the sentence directly above —
+*"worth more than the whole acquisition edge"* — is true of points and false of
+PLACE.** The next lever is not a weight: six configurations land in the same
+spot, so top-3 has to come from better projections or a different selection
+rule, not from reweighting the same score. ⚠️ **Every recorded arm still
+carries the superseded ceiling weight against the shipped 0.0, so no row is the
+exact live engine.** Register 317.
+
+**⚠️⚠️ CORRECTED 2026-08-24 — EVERY FIGURE IN THE PARAGRAPH ABOVE WAS MEASURED
+AT ~~`need: 0`~~, AND CORY SWITCHED `need` TO 1.0 THE NEXT DAY.**
+`engine_seat_replay.json` stamps its own `engine_meta.weights_values` as
+~~`{value 1, tier 0, need 0, risk 0, ceiling 0.45, keeper 1, bye 0, stack 1}`~~;
+`engine.js:826` ships `need 1.0, ceiling 0.0`, ruled 08-20. So *8th of 10*,
+*0.740/0.771*, *beats 0 of 10 owners* and *SEVEN quarterbacks* describe a
+configuration that has not shipped since. **THIS IS REGISTER 5h FOR THE FOURTH
+TIME AND THE SECOND IN THIS FILE — the paragraph three screens up documents the
+pattern in its own words and this one is a fresh instance of it.**
+**MEASURED, on the arm that was already sitting on disk unread
+(`engine_seat_choices_need1.json`): `need: 1.0` KILLS THE PILEUP. Seats with 3+
+QB fall 8/30 → 2/30, the seven-QB seat falls to ONE, max on any seat 7 → 3.**
+⚠️ **2024 gets worse (1.20 → 1.80) — `need` helps where the defect was and
+hurts where it was not.** ~~⚠️ **AND THAT IS QB COUNTS, NOT CONVERSION: the need1
+arm cannot be scored from these artifacts** (83.1% actuals coverage, and the
+missing 17% is exactly the players it drafted that need0 did not — a
+selection-biased subset)**. So the
+honest headline is that the conversion defect's named mechanism is measurably
+smaller under the shipped weights and the defect itself is UNMEASURED there.
+Re-running the replay at the shipped constant is the highest-value measurement
+available for 2027.**~~
+
+⚠️⚠️ **CORRECTED WITHIN THE HOUR — "CANNOT BE SCORED" WAS FALSE AND I ASSERTED
+IT WITHOUT GREPPING FOR THE TOOL THAT REMOVES THE LIMIT.** I measured coverage
+against `engine_seat_replay.json`, found 83.1%, and wrote down a limit of the
+ARTIFACT as though it were a limit of the QUESTION.
+`draft/backtest/conversion_by_arm_lab.py` scores every arm off the season
+bundles instead — full coverage — **and it had already been run on 08-19, as
+the grade for P127.** **RE-RUN TODAY, three controls green: `need: 1.0` DOES
+NOT MERELY SHRINK THE CONVERSION GAP, IT CLOSES IT AND PASSES THE OWNERS IN TWO
+OF THREE SEASONS — 0.876 / 0.849 / 0.829 against 0.828 / 0.826 / 0.834, a gap
+of +0.049 / +0.023 / −0.004 where the shipped arm read −0.087 / −0.011 /
+−0.062.** **SO THE LOOP WORKED AND I MISREAD IT AS BROKEN:** the gap was
+measured, an arm that closes it was graded, Cory ruled A13 on that evidence on
+08-20, and the weight shipped. **Only the prose decayed — which is register 5h,
+exactly what it says on the tin, and nothing more.** Register 317. **THE REAL
+REMAINING GAP IS SEAT RANK, which is the question Cory actually asked:**
+~~`seat_rank_lab.json` carries NO arm dimension and `seat_rank_lab.py` takes only
+`--json`, so *8th of 10* is the need0 rank and the need1 rank has never been
+computed.~~ ⚠️ **CORRECTED 2026-08-29 — THE need1 RANK WAS COMPUTED ON 08-27 AND
+THIS FILE ALREADY SAYS SO FIFTY-SIX LINES UP.** `seat_rank_by_arm_lab.json`
+carries six arms with `controls_all_passed: true`: **shipped 7.80 · need1 7.13 ·
+slot_s1 7.00 · auto 7.73 · bye1 7.80 · slot_s0 7.80**, and `need1` paired against
+shipped is **+0.667 places, 95% CI [−0.133, +1.466], sign p 0.119, 11 seats
+improved / 4 worsened / 15 unchanged.** *8th of 10* is still the SHIPPED rank —
+that part holds — but "never been computed" was false, and the paragraph
+correcting it is the one beginning *"MEASURED ACROSS ALL SIX ARMS"*. **A reader
+who reached this sentence first would go and re-derive a number that has been
+on disk for two days.** ⚠️ **THIS IS REGISTER 5h FOR THE FIFTH TIME AND THE
+THIRD IN THIS FILE, and it is now a CONTRADICTION rather than mere decay: the
+same document asserts both. Found by working register 87's overdue recheck, not
+by anyone reading here.** ⚠️ **And every recorded arm still carries the superseded ~~`ceiling: 0.45`~~
+while the shipped constant is 0.0, so no artifact yet describes the exact live
+config.** **The mechanism BEHIND the gap, however, is
+now established far more strongly than the audit showed: across 30 seat-years
+QB count vs conversion is r = −0.832 (t = −7.95), monotone at every step
+(QB 1 → 0.824 · 2 → 0.817 · 3 → 0.757 · 4 → 0.679 · 5 → 0.650 · 7 → 0.515),
+with roster size ruled out (r = −0.105) and 10.5% of all roster points stranded
+in QB2+. The audit argued it from three season means and called a
+non-monotone sequence "monotonic"; the seat-level distribution carries it.**
+
+~~**The mechanism is register 60, which has been open without a cost:** `need` is
+the only roster-aware term and it ships at weight **0**~~ — **⚠️ `need` HAS
+SHIPPED AT 1.0 SINCE 2026-08-20; this clause was already false when written
+above.** so nothing penalises a
 pileup and whatever prices best gets taken repeatedly — **one 2023 seat drafted
 SEVEN quarterbacks** in a 1-QB league; the live 2026 board takes ~~**RB10**~~
 **RB7** instead. **⚠️ CORRECTED 2026-08-19 — RB10 CAME OFF AN EIGHTEEN-PICK
@@ -142,9 +259,19 @@ everyone" is the reference implementation's position, not a preference.**
 Register 99. **The simple VONA model he asked for is also already ours:
 `draft/tools/draft_plan.js` — two equations, exact seat assignment, and on his
 real twelve picks it is the ONLY arm of five that draws a second TE and a
-backup QB (QB2/RB5/WR4/TE2). It has never been graded.**
+backup QB (QB2/RB5/WR4/TE2).** ~~It has never been graded.~~ **⚠️ CORRECTED
+2026-08-27 — THAT SENTENCE IS FALSE AND IT WAS RETRACTED EIGHT DAYS AGO, in
+`DUPLICATE-A-REAL-MODEL-2026-08-19.md` §12 (*"⛔ RETRACTION … the grade has been
+on the board all along"*) and in the paragraph three screens up in THIS file,
+which already tells the story as *"an absence asserted without a grep"*.
+`draft_plan.js` has two grades and one of them is in `public/seat_plan.json`,
+which the war room reads — `emit_seat_plan.js:48` requires the module directly.
+Register 102. **THE RETRACTION LANDED IN TWO PLACES AND MISSED A THIRD, and the
+third is the sentence a new session actually acts on** — which is register 5h's
+mechanism applied to a claim instead of a weight. Found by working the recheck
+backlog, not by anyone reading the file.**
 
-**⭐ READ `DRAFT-WEEK-BRIEF.md` FIRST** (written 2026-08-17; draft is 08-22).
+**⭐ ~~READ `DRAFT-WEEK-BRIEF.md` FIRST~~ — SUPERSEDED 08-26: the draft is over; the era banner at the top of this file is the entry point now. The brief stays as history.** (Original line, written 2026-08-17; draft was 08-22.)
 08-17 changed the model's FOUNDATIONS, not its features: every dispersion field
 on the board was `proj_mean x a per-band constant` — zero player-specific
 information — which is the single cause of three conclusions we had believed.
@@ -236,8 +363,27 @@ will. It remains a descriptive tool; never quote R\* without its band.
 **Report the margin in the unit that pays — points left on the bench (league
 15.90/wk; Cory 17.33 ± 1.68 vs the best owner's 12.06 ± 1.43) — and never read
 adjacent ranks as findings; they sit inside one SE.**
+**📋 WHAT THE MODEL LEARNS FROM, AND WHAT IT STILL CANNOT SEE —
+`LEARNING-COVERAGE.md`.** Cory, 08-24: *"I want to make sure our model is set up
+to actually learn ALL the things it can."* The map of every decision he makes
+against whether it is graded. **Four of six are now graded against a null**
+(draft pick · start/sit · waiver add · **the DROP, added 08-24 — 1,026 cuts
+were captured and none were scored, which is how the wire came to recommend
+dropping Ja'Marr Chase**). **Keepers are the real remaining gap** and the
+highest-stakes decision he makes (register 289). **Trades are graded NEVER and
+that is a measurement, not an omission — SIX in three seasons, zero in 2025.**
+
 Structural changes to the grading process go to the OpenAI auditor first;
-routine rows and grades do not. `ADAPTATION-POLICY.md` bottom three sections.
+routine rows and grades do not. **HOW we grade is `GRADING-POLICY.md` (root,
+one screen, the decision-null standard Cory ruled 08-21); HOW a row is FILED
+is `draft/ADAPTATION-POLICY.md` — note the `draft/`, and its §214 records that
+GRADING-POLICY supersedes its skill-design mechanics.** ⚠️ **This line used to
+say `ADAPTATION-POLICY.md` with no path, and I read that as a missing file and
+wrote "DOES NOT EXIST" into this paragraph before checking the repo — it is
+13KB and it is one directory down.** Corrected the same hour. Worth leaving on
+the record because it is the third time in two days that a bare `ls` in the
+wrong directory produced a confident absence (the pick log, register 130, this)
+— **an absence is a claim, and Rule 3i says grep before asserting one.**
 
 **⚙️ HOW THE FOUR OF US WORK — `OPERATING-MODEL.md`, one screen.** **RULE 1c added 08-20 (Cory's order, after six research artifacts sat invisible on a branch while ROUTES rows pointed at them): the relay's research artifacts — preregs, program/policy docs, audit briefs, ledger rows, report-only instruments — publish STRAIGHT TO `main` like mailboxes, via `draft/tools/relay_publish.sh`. Every pointer in ROUTES now resolves on `main`; if one does not, that is a defect, file it.** A is the
 gatekeeper and the only one who merges to `main`; B, C and the relay feed A.

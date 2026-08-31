@@ -475,6 +475,14 @@ const out = {
     + ' simulated rooms. The war room MUST override it with survival.js, which '
     + 'composes ADP with opponent-need Layer 2 and needs live draft context.',
   built_at: BOARD.built_at || null,
+  /* ⚠️ `built_at` ABOVE IS THE BOARD'S STAMP, COPIED — not when this artifact was
+   * made. So a reader cannot tell whether this was generated BEFORE or AFTER the
+   * board's post-processing, and "generated from a pre-Draft-Sharks board" is
+   * precisely the staleness `strike_page`'s C4_freshness control is named for.
+   * Its own time and the board's post-processing time are recorded now, so the
+   * question is answerable from the artifact. Register 411. */
+  generated_at: new Date().toISOString(),
+  board_post_processed_at: BOARD.post_processed_at || null,
   rooms: ROOMS, adjuster_a: A, top_n: TOPN, waiver: WAIVER,
   /* WHERE THE WIRE NUMBER CAME FROM, travelling WITH the numbers rather than
    * living only in a tool nobody opens. `derived:false` is the honest label for

@@ -42,7 +42,16 @@ const med = a => { const s = a.slice().sort((x, y) => x - y); return s.length ? 
 {
   const hist = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data', 'league_history.json'), 'utf8'));
   const holds = [], censored = [];
+  /* AN UNPLAYED SEASON CONTRIBUTES NO HOLD LENGTHS. A hold is `dropWeek -
+   * addWeek`, and where no game has been played there is no elapsed time to
+   * measure — the rule registers 339 and 340 applied to the persistence and
+   * start/sit instruments when the 2026 schedule of zeroes landed. Register 351. */
+  const played = s => Object.values(s.weeks || {}).some(
+    entries => (entries || []).some(e => Number(e && e.points) > 0));
+  let seasonsUsed = 0, addsSeen = 0;
   for (const s of hist.seasons || []) {
+    if (!played(s)) continue;
+    seasonsUsed++;
     const tx = s.transactions || {};
     const weeks = Object.keys(tx).map(Number).filter(Number.isFinite).sort((a, b) => a - b);
     if (!weeks.length) continue;
@@ -52,6 +61,7 @@ const med = a => { const s = a.slice().sort((x, y) => x - y); return s.length ? 
     for (const { week, row } of flat) {
       if (row.status !== 'complete' || ['waiver', 'free_agent'].indexOf(row.type) < 0) continue;
       for (const pid of Object.keys(row.adds || {})) {
+        addsSeen++;
         const rosterId = row.adds[pid];
         let dropWeek = null;
         for (const cand of flat) {
@@ -65,8 +75,18 @@ const med = a => { const s = a.slice().sort((x, y) => x - y); return s.length ? 
       }
     }
   }
-  ck('CONTROL — the hold-length sample is the real 764-add log, not a subset',
-    holds.length + censored.length === 764, { dropped: holds.length, censored: censored.length });
+  /* THIS WAS `=== 764`, AND THE BLOCK HEADER ABOVE ALREADY STATED THE PRINCIPLE
+   * IT BROKE: "re-derived here from the same transactions so the constant cannot
+   * silently outlive its evidence". It outlived it — 2026's adds took the log to
+   * 768 and the control failed for GROWTH rather than for loss. Derived from the
+   * same walk now, with a floor so a COLLAPSE still fails loudly.
+   * MEASURED: excluding the unplayed season returns the count to exactly 764,
+   * the number the original author pinned. Register 351. */
+  ck('CONTROL — the hold-length sample is EVERY add in the played-season log, '
+    + 'not a subset — derived from the same walk, not a constant',
+    holds.length + censored.length === addsSeen && addsSeen >= 700,
+    { dropped: holds.length, censored: censored.length,
+      adds_seen: addsSeen, seasons_used: seasonsUsed });
   const medDropped = med(holds);
   const medAll = med(holds.concat(censored));
   ck('median hold of dropped adds is 1 week; all-adds (censored) median is 2 — the evidence the window cites',

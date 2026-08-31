@@ -19,6 +19,8 @@ stay true:
 """
 import json
 import sys
+
+import pytest
 from pathlib import Path
 
 DRAFT = Path(__file__).resolve().parent.parent
@@ -35,20 +37,83 @@ def _run():
     return _run.cache
 
 
-def test_promoted_path_is_v6_no_market_pre_draft():
+def _market_ranks_for(season=2026):
+    """WHETHER THE MARKET ARM IS LIVE, AND WHICH PLAYERS IT TOUCHES — read from
+    the SAME source `own_projections` reads, never from a date.
+
+    `own_projections` line 158: the market layer goes live "once the season's
+    draft is a record", and `league_draft_picks` RAISES for a season with no
+    completed draft. So this returns {} pre-draft and the real market ranks
+    after, and every phase-aware assertion below keys off it rather than off a
+    calendar — which is what stops these tests becoming stale the way the two
+    below did.
+
+    Returns (market_ranks, arm_is_live).
+    """
+    from own_model_v3 import league_draft_picks, market_ranks
+    positions = {str(p["player_id"]): p.get("position") for p in BOARD["players"]}
+    try:
+        picks = league_draft_picks(season)
+    except ValueError:
+        return {}, False
+    if not picks:
+        return {}, False
+    return market_ranks(picks, positions), True
+
+
+def test_promoted_path_is_v6_and_the_market_arm_MATCHES_THE_PHASE():
+    """⚠️ RENAMED AND MADE PHASE-AWARE (A, 2026-08-25, register 319).
+
+    This asserted `market_arm is False` with the comment "Pre-draft: the 2026
+    league draft is not a record yet". That was correct on 2026-08-16 and became
+    wrong at 23:00Z on 08-22, and the assertion had no expiry — so it failed the
+    acceptance gate on the first board built after the draft, with `assert True
+    is False`, and helped block the publish.
+
+    The BEHAVIOUR is right and deliberate: `own_projections` line 155 says the
+    market layer is "live only once the season's draft is a record". Nothing
+    about the model changed; a pin on a phase outlived the phase.
+
+    That is this week's third instance of one pattern — a condition-bound rule
+    with no expiry, still being applied after its condition ended (the keeper
+    guard, register 319; the keeper-pool ruling, register 283; this). So the fix
+    is not to flip the constant, which would just re-create it pointing the other
+    way. It reads the SAME input the code reads and asserts BOTH phases."""
     proj, diag = _run()
     assert diag["algorithm"] == "own_v6"
     assert diag["prior_years_used"] == [2025, 2024]
     assert diag["fit_transition"] == "2024->2025"
-    # Pre-draft: the 2026 league draft is not a record yet, so the market arm
-    # must be OFF — every player prices through the no-market ensemble.
-    assert diag["market_arm"] is False
+
+    mranks, arm_live = _market_ranks_for(2026)
+    assert diag["market_arm"] is arm_live, (
+        f"diagnostics say market_arm={diag['market_arm']} but the 2026 draft "
+        f"{'IS' if arm_live else 'is NOT'} a record on disk. These must agree: "
+        "the arm is supposed to switch on exactly when the draft becomes a "
+        "record, and a disagreement means one of the two is reading a different "
+        "league_history than the other.")
+
     # The vegas arm must be LIVE: the lines store was extended to 2026 as the
     # §7 deployment prerequisite, and week-1 lines cover all 32 teams.
     assert diag["vegas_arm"] is True
     assert diag["vegas_week1_teams"] == 32
     assert diag["component_priced"] > 300
     assert diag["projected"] > 300
+
+
+def test_the_market_arm_SWITCH_can_go_both_ways_KNOWN_POSITIVE():
+    """RULE 3e. The assertion above compares two things that could both be stuck
+    — if `league_draft_picks` raised for every season, `arm_live` would be False
+    forever, the diagnostic would be False forever, and they would agree forever
+    while testing nothing.
+
+    2025 is a completed season and MUST yield picks. If it does not, the store
+    is broken and the phase test above is vacuous rather than passing."""
+    from own_model_v3 import league_draft_picks
+    picks_2025 = league_draft_picks(2025)
+    assert picks_2025, (
+        "the 2025 draft is not a record on disk — league_draft_picks returns "
+        "nothing for a completed season, so the market-arm switch cannot be "
+        "shown to fire at all and the phase assertion above proves nothing")
 
 
 def test_promoted_path_needs_no_network():
@@ -73,7 +138,27 @@ def test_non_qb_matches_the_graded_v5_ensemble_arithmetic():
     the position's config says so; corr is identity for non-QBs) — with the
     ENSEMBLE arithmetic recomputed BY HAND here from V5_CONFIG, feeding it
     the graded modules' own component opinion. If the live path drifts from
-    the graded construction, this is the tripwire."""
+    the graded construction, this is the tripwire.
+
+    ⚠️ RESTRICTED TO PLAYERS THE MARKET LAYER DOES NOT RANK (A, 2026-08-25).
+    This is a NO-MARKET identity — the docstring above says so — and once the
+    2026 draft became a record the market arm went live and drafted players
+    stopped satisfying it. It failed the acceptance gate on the first
+    post-draft board at ('10219', 'RB', 83.19, 61.69): a 21.5-point gap that is
+    the market layer working, not drift.
+
+    THE TRIPWIRE IS NOT WEAKENED, WHICH IS WHY THIS FIX RATHER THAN A SKIP.
+    `own_model_v3.build_v3` (lines 251-256) sends a player through the market
+    branch ONLY when `mrank` carries him at his own position; everyone else
+    takes `(wv·v2 + wb·b)/(wv+wb)` — the same no-market construction, unchanged.
+    So the exact arithmetic still holds for every undrafted player, and on this
+    board that is the large majority of 680. The check keeps its full strength
+    year-round and simply stops asserting a no-market identity about players the
+    market priced.
+
+    The drafted side is not dropped either — the companion test below requires
+    the market layer to actually MOVE them, so an inert market arm cannot hide
+    in the gap this exclusion opens."""
     from own_model_v2 import season_totals, RECENCY_WEIGHTS
     from own_model_v5 import comp_opinion, V5_CONFIG
     import fetch_component_stats as FCS
@@ -86,6 +171,7 @@ def test_non_qb_matches_the_graded_v5_ensemble_arithmetic():
     comp = comp_opinion(2026, (2024, 2025), positions, ages, implied)
     w1, w2 = RECENCY_WEIGHTS
     tot1, tot2 = season_totals(2025)[0], season_totals(2024)[0]
+    mranks, _arm_live = _market_ranks_for(2026)
     checked = 0
     for pid, val in proj.items():
         pos = positions.get(pid)
@@ -93,6 +179,9 @@ def test_non_qb_matches_the_graded_v5_ensemble_arithmetic():
             continue                       # undampened non-QBs only
         if pid not in comp or pid not in tot1:
             continue
+        entry = mranks.get(pid)
+        if entry is not None and entry[0] == pos:
+            continue        # the market layer priced him; see the docstring
         c = V5_CONFIG[pos]
         wc, wb, _ = c["weights"]
         blend = (w1 * tot1[pid] + w2 * tot2[pid]) if pid in tot2 else tot1[pid]
@@ -102,7 +191,69 @@ def test_non_qb_matches_the_graded_v5_ensemble_arithmetic():
         checked += 1
         if checked >= 10:
             break
-    assert checked >= 5, "too few undampened non-QBs to verify the arithmetic"
+    assert checked >= 5, (
+        "too few undampened, market-unranked non-QBs to verify the arithmetic — "
+        "if the market layer now ranks nearly everyone, this exclusion has eaten "
+        "the test and it needs re-deriving rather than passing")
+
+
+def test_the_market_layer_MOVES_the_players_it_ranks():
+    """THE OTHER SIDE OF THE EXCLUSION ABOVE, so it cannot hide an inert arm.
+
+    The arithmetic test skips players the market layer ranked. If the market
+    layer did nothing, those players would still satisfy the no-market identity,
+    the exclusion would be silently pointless, and a dead market arm would look
+    exactly like a live one — which is the shape this repo keeps getting caught
+    by (rule 3e).
+
+    So: whenever the arm is live, at least some ranked players must DIFFER from
+    the no-market expectation. Pre-draft there is nothing to check and it says so
+    rather than passing quietly."""
+    from own_model_v2 import season_totals, RECENCY_WEIGHTS
+    from own_model_v5 import comp_opinion, V5_CONFIG
+    import fetch_component_stats as FCS
+
+    mranks, arm_live = _market_ranks_for(2026)
+    if not arm_live:
+        pytest.skip("the 2026 draft is not a record on disk yet, so the market "
+                    "arm is off and there is nothing for it to move")
+
+    proj, _ = _run()
+    positions = {str(p["player_id"]): p.get("position") for p in BOARD["players"]
+                 if p.get("position") in ("QB", "RB", "WR", "TE")}
+    ages = {str(p["player_id"]): p.get("age") for p in BOARD["players"]}
+    depth = {str(p["player_id"]): p.get("depth_chart_order") for p in BOARD["players"]}
+    implied = FCS.implied_team_totals(2026, 1, 1)
+    comp = comp_opinion(2026, (2024, 2025), positions, ages, implied)
+    w1, w2 = RECENCY_WEIGHTS
+    tot1, tot2 = season_totals(2025)[0], season_totals(2024)[0]
+
+    ranked, moved = 0, 0
+    for pid, val in proj.items():
+        pos = positions.get(pid)
+        if pos in (None, "QB") or depth.get(pid) not in (None, 1, 2):
+            continue
+        if pid not in comp or pid not in tot1:
+            continue
+        entry = mranks.get(pid)
+        if entry is None or entry[0] != pos:
+            continue
+        ranked += 1
+        c = V5_CONFIG[pos]
+        wc, wb, _ = c["weights"]
+        blend = (w1 * tot1[pid] + w2 * tot2[pid]) if pid in tot2 else tot1[pid]
+        no_market = round(max(0.0, (wc * comp[pid] + wb * blend) / (wc + wb)), 2)
+        if abs(val - no_market) >= 0.02:
+            moved += 1
+
+    assert ranked >= 5, (
+        f"the market arm is live but only {ranked} undampened non-QBs are ranked "
+        "by it — too few to tell a working layer from a broken one")
+    assert moved > 0, (
+        f"the market arm reports LIVE and ranks {ranked} of these players, but "
+        "not one of them differs from the no-market ensemble. An inert market "
+        "layer is indistinguishable from an absent one, and the arithmetic test "
+        "above excludes exactly these players — so this would be a silent hole.")
 
 
 def test_qb_carries_the_availability_correction():

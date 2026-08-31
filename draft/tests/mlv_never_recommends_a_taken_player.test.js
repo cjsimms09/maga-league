@@ -37,12 +37,26 @@ const check = (n, ok, d) => {
 const D = JSON.parse(fs.readFileSync(
   path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
 const board = D.players.filter(p => p.position && p.proj_mean != null);
-const roster = (D.kept_players || []).map(k => ({
-  player_id: k.player_id, name: k.name, position: k.position, proj_mean: k.proj_mean }));
+/* ⚠️ FILTERED TO CORY'S SEAT — the same league-wide-slate correction as
+ * apply_slot_load_path / seat_pick_order / slot_schedule (A, 2026-08-24,
+ * register 300). Post-lock (08-23) `kept_players` holds all 23 of the league's
+ * keepers, and this file feeds `roster` to MLV.recommend as MY roster — so it
+ * was telling the recommender Cory owns twenty-three players including nine
+ * other managers' keepers. The suite says so itself four checks down: "a
+ * player already on Cory's OWN roster". Wrong on the merits, not just for the
+ * assertion: a 23-man roster fills every starter seat, so `need` reads zero
+ * everywhere and the recommendations under test were never the real ones. */
+const MY_SLOT = String((D.league || {}).my_draft_slot);
+const roster = (D.kept_players || [])
+  .filter(k => String(k.team_slot) === MY_SLOT)
+  .map(k => ({
+    player_id: k.player_id, name: k.name, position: k.position, proj_mean: k.proj_mean }));
 const LEAGUE = D.league;
 
 check('CONTROL — a real board and a real roster to work from',
-  board.length > 300 && roster.length === 3, { board: board.length, roster: roster.length });
+  board.length > 300 && roster.length === 3,
+  { board: board.length, roster: roster.length,
+    league_wide_keepers: (D.kept_players || []).length, my_slot: MY_SLOT });
 
 /* ── 1. THE BASELINE: with nothing taken, it recommends normally ─────────── */
 

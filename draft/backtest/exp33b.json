@@ -1,44 +1,54 @@
 {
   "experiment": "33b \u2014 naive as the projection source (tune-vs-replace)",
   "ranking": {
-    "n_picks": 38,
-    "rho_blend": 0.407,
-    "rho_naive": 0.35,
-    "rho_adp": 0.239,
+    "n_picks": 50,
+    "rho_blend": 0.293,
+    "rho_naive": 0.266,
+    "rho_adp": 0.17,
     "naive_minus_blend": {
-      "mean": -0.056,
+      "mean": -0.027,
       "ci95": [
-        -0.115,
-        -0.003
+        -0.076,
+        0.015
       ],
-      "verdict": "negative"
+      "verdict": "inconclusive"
     },
     "naive_minus_adp": {
-      "mean": 0.112,
+      "mean": 0.095,
       "ci95": [
-        -0.012,
-        0.226
+        -0.01,
+        0.195
       ],
       "verdict": "inconclusive"
     },
     "blend_minus_adp": {
-      "mean": 0.168,
+      "mean": 0.123,
       "ci95": [
-        0.084,
-        0.254
+        0.036,
+        0.205
       ],
       "verdict": "positive"
     }
   },
   "dollars_by_season": [
     {
+      "season": 2026,
+      "dollars": {
+        "blend": 925.0,
+        "naive": 925.0,
+        "adp": 925.0
+      },
+      "naive_minus_blend": 0.0,
+      "naive_minus_adp": 0.0
+    },
+    {
       "season": 2025,
       "dollars": {
-        "blend": 100.0,
+        "blend": 0.0,
         "naive": 0.0,
         "adp": 200.0
       },
-      "naive_minus_blend": -100.0,
+      "naive_minus_blend": 0.0,
       "naive_minus_adp": -200.0
     },
     {
@@ -62,9 +72,10 @@
       "naive_minus_adp": -800.0
     }
   ],
-  "dollars_naive_minus_blend_sum": -200.0,
+  "dollars_naive_minus_blend_sum": -100.0,
   "decision": "KEEP/TUNE: naive does not clearly beat the blend on ranking here \u2014 the exp-35 weight reduction is the lever, not replacement. Gate before installing either.",
   "caveats": [
+    "2026: realized from harvest (nflverse unavailable)",
     "2025: realized from harvest (nflverse unavailable)"
   ],
   "install_note": "Ships nothing. A source change is gated on null + leave-one-season-out CV."

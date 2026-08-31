@@ -53,6 +53,24 @@ global.fetch = async (url, opts) => {
   // route that then answers "the draft room is closed" and quietly proves
   // nothing. Use the same selector the route uses.
   const H = require(path.join(ROOT, 'src', 'helpers'));
+  /* ⚠️ AND THE ONE-TIME POST-DRAFT MIGRATION HAS TO BE MARKED DONE FIRST, or it
+   * closes the room again on the first request and this suite tests nothing.
+   * `helpers.loadWorld()` carries a cleanup Cory asked for on 2026-08-23 —
+   * *"draft day alert should be gone..? So should draft spot picker.."* — which
+   * retires the draft-day alerts and sets `draft_open = false` unless
+   * `config.draft2026_closed` is already set. It runs on EVERY page load until
+   * it has run once, so the fixture wrote `draft_open = true` and the very
+   * first request wrote it straight back to false. Measured: `ensureSeeded()`
+   * leaves it true, `loadWorld()` returns it false.
+   *
+   * Marking the flag is the honest move rather than defeating the migration:
+   * production will be in exactly this state forever after — cleanup done, and
+   * whatever `draft_open` is set to afterwards stands. The migration is
+   * one-time and idempotent by that flag, which is what makes this safe.
+   * Register 367. */
+  const cfg = await store.get('config');
+  cfg.draft2026_closed = true;
+  await store.set('config', cfg);
   const seasons = await store.get('seasons');
   const season = H.currentSeason(seasons);
   seasons[String(season.year)].draft_open = true;

@@ -6,8 +6,16 @@ stores, never from the tool's own intermediates: the schedule slice is
 spot-checked against matchups read by hand from the nflverse source at fetch
 time; one defense-position cell is re-derived with EXPLICIT arithmetic
 (scoring values typed out, opponents resolved independently); ranks must be a
-permutation; absent data must be absent, never zeroed; and the committed
-artifact must equal a fresh run of the tool byte-for-byte at the object level.
+permutation; and absent data must be absent, never zeroed.
+
+⚠️ This docstring used to end "...and the committed artifact must equal a fresh
+run of the tool byte-for-byte at the object level" — a guarantee THIS FILE HAS
+NOT MADE SINCE 23fa56d2 (2026-08-16), which moved that check into the artifact
+registry deliberately, for the reason spelled out at the foot of this file: a
+fresh run reads the LIVE board, so equality is a FRESH/STALE report, never a
+pytest gate. Corrected 2026-08-31 (register 430) while regenerating this
+artifact — the sentence survived the commit that made it false, which is the
+same failure the register row above it is about.
 """
 import json
 import sys

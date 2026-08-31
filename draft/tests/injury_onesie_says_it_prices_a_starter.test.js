@@ -46,8 +46,18 @@ const W = (function () {
   return w;
 })();
 
-const keepers = ART.kept_players.map(k => Object.assign({}, k, { is_keeper: true,
-  vorp: Math.round((k.proj_mean - RP[k.position]) * 100) / 100 }));
+/* ⚠️ FILTERED TO CORY'S SEAT (A, 2026-08-24, register 303). Post-lock
+ * `kept_players` is the whole league's 23, and these rows go to
+ * `ctx.currentKeepers`, which composite.js folds into INCUMBENTS —
+ * the men competing for MY keeper slots. Its own comment says "with
+ * three valued keepers the bar is ranked[2]". Twenty-three inflates
+ * that bar and collapses every candidate's keeper value, and `keeper`
+ * ships at weight 1.0. */
+const _mySlot = String((ART.league || {}).my_draft_slot);
+const keepers = ART.kept_players
+  .filter(k => String(k.team_slot) === _mySlot)
+  .map(k => Object.assign({}, k, { is_keeper: true,
+    vorp: Math.round((k.proj_mean - RP[k.position]) * 100) / 100 }));
 const kittle = board.find(p => p.name === 'George Kittle');
 const filler = board.find(p => p.name === 'Chuba Hubbard');
 const byAdp = board.slice().sort((a, b) => (a.adjusted_adp || 9999) - (b.adjusted_adp || 9999));
@@ -66,10 +76,44 @@ function run(status, pick) {
   return { rank: i + 1, s: out.scored[i] };
 }
 
-// ─────────────── 1. the premise: a real PUP starter exists on the live board
-ck('George Kittle really is on the board flagged PUP — this scenario is not '
-  + 'hypothetical', !!kittle && String(kittle.injury_status) === 'PUP',
-kittle && { name: kittle.name, status: kittle.injury_status, proj: kittle.proj_mean });
+// ─────────────── 1. the premise: real unavailable starters exist on the board
+/* ⚠️ WAS PINNED TO ONE MAN'S INJURY REPORT and expired the way an injury report
+ * does: George Kittle came off PUP and reads `Questionable` today, so a check
+ * asking "is this scenario real" went red while the scenario was as real as
+ * ever — 23 players on the live board carry a status the engine's own SERIOUS
+ * set matches (5 PUP, 13 IR, 3 NA, 1 Sus, 1 DNR).
+ *
+ * The premise and the FIXTURE are two different things and were tangled into
+ * one arm. The premise is a fact about the POPULATION and is now derived from
+ * the board against the engine's own regex — read out of the source, so this
+ * file cannot drift from the set the branch actually fires on. The fixture is
+ * Kittle with a status FORCED by `run()`, which is what makes every arm below
+ * deterministic; it needs him to be a real, well-projected TE, not to be hurt
+ * today. Register 353. */
+const SERIOUS_SRC = (fs.readFileSync(
+  path.join(ROOT, 'public', 'js', 'draft', 'engine.js'), 'utf8')
+  .match(/const SERIOUS = (\/\^\([^\n]*?\)\$\/i);/) || [])[1];
+ck('CONTROL: the engine still defines a SERIOUS status set, read from its own '
+  + 'source so this file cannot check a different list than the branch uses',
+  !!SERIOUS_SRC, SERIOUS_SRC);
+// eslint-disable-next-line no-eval
+const SERIOUS = SERIOUS_SRC ? eval(SERIOUS_SRC) : /^$/;
+const unavailable = board.filter(p => p.injury_status
+  && SERIOUS.test(String(p.injury_status).trim()));
+ck('the board really does carry genuinely unavailable players — this scenario '
+  + 'is not hypothetical (derived from the board, not pinned to one name, '
+  + 'because an injury report is the one input guaranteed to change)',
+  unavailable.length > 0,
+  { n: unavailable.length,
+    by_status: unavailable.reduce((m, p) => {
+      m[p.injury_status] = (m[p.injury_status] || 0) + 1; return m; }, {}),
+    sample: unavailable.slice(0, 5).map(p => p.position + ' ' + p.name
+      + ' [' + p.injury_status + ']') });
+ck('and the fixture subject is a real, well-projected TE on the board — his '
+  + 'own status is FORCED by run(), so no arm below depends on today\'s '
+  + 'injury report',
+  !!kittle && kittle.position === 'TE' && Number(kittle.proj_mean) > 100,
+  kittle && { name: kittle.name, status: kittle.injury_status, proj: kittle.proj_mean });
 
 // ─────────────── 2. KNOWN-POSITIVE: the exception fires and is NOT discounted
 const hurt = run('PUP', 73);

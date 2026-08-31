@@ -155,10 +155,37 @@ def test_a_2024_LEFTOVER_IS_CAUGHT_even_though_he_played_recently():
     stopped being the test.
 
     MUTATION: require `not scored_recently` again — both walk back onto the
-    board, and so does every other player who is finished but played last year."""
-    rows = [_row(player_id="4034", name="Played In 2024")]   # a real scoring id
+    board, and so does every other player who is finished but played last year.
+
+    ⚠️ THE FIXTURE ID IS DERIVED, NOT HARDCODED (A, 2026-08-25). It was
+    `player_id="4034"`, chosen once as "a real scoring id" — and at the
+    2026-08-23 keeper lock 4034 BECAME A KEEPER. `dormant()` spares kept players
+    deliberately (`keeper_ids`' docstring records why: a player kept through a
+    two-season injury matches every dormancy condition, and pruning him is how a
+    keeper leaves the board silently), so the detector was right and the fixture
+    had collided with live data. The test failed the acceptance gate reporting
+    `[] == ['Played In 2024']`, which reads like the detector broke.
+
+    Hardcoding a different id would just move the collision to next August. So
+    the id is chosen at run time from the scored set MINUS the keeper set, and
+    the precondition is asserted rather than assumed — if no such id exists the
+    test says so instead of silently testing nothing."""
+    keep = set(BA.keeper_ids()["ids"])
+    scored = BA.scored_ids(BA.RECENT_SEASONS)
+    scored_set = set(map(str, scored["ids"] if isinstance(scored, dict) else scored))
+    free = sorted(scored_set - keep)
+    assert free, (
+        "every player who scored in a recent season is also a keeper — there is "
+        "no id that can exercise 'scored recently AND nobody vouches for him', "
+        "so this test cannot mean anything until the keeper set shrinks")
+    pid = free[0]
+    assert pid not in keep, "the derived fixture id is a keeper; the filter failed"
+
+    rows = [_row(player_id=pid, name="Played In 2024")]
     d = BA.dormant(_synthetic(rows))
-    assert [p["name"] for p in d["rows"]] == ["Played In 2024"], d["rows"]
+    assert [p["name"] for p in d["rows"]] == ["Played In 2024"], (
+        f"id {pid} scored recently and nothing vouches for him, so he must be "
+        f"caught: {d['rows']}")
     assert d["rows"][0]["scored_recently"] is True, (
         "the evidence must still be REPORTED even though it is not the test")
 

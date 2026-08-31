@@ -59,6 +59,20 @@ const SITES = [
   { file: 'draft/tools/draft_model.js', name: 'FLEX_ELIGIBLE', flexOnly: true, lane: 'A' },
   { file: 'draft/tools/simple_model.js', name: 'FLEX_ELIGIBLE', flexOnly: true, lane: 'A' },
   { file: 'draft/tools/average_draft.js', name: 'FLEX_ELIGIBLE', flexOnly: true, lane: 'A' },
+  /* THIRTEENTH, added 2026-08-26. `src/waiver_reco.js` was extracted from the
+   * /waivers route on 08-24 (relay) and declared its own
+   * `FLEX_ELIGIBLE = new Set(['RB','WR','TE'])` — so check 3 fired on a site
+   * that had existed for two days, which is the alarm doing its job on a
+   * schedule nobody had to remember.
+   *
+   * REGISTERED, NOT EXEMPTED, for the third time and the same reason: it AGREES
+   * with the twelve above today, and an ignore list would leave it free to stop
+   * agreeing in silence. It carries FLEX only, so `flexOnly: true`.
+   *
+   * ⚠️ AND THIS ONE IS LIVE ON A CRON, not just a page: the Tuesday-night
+   * waiver-reco capture writes ledger rows from it, so a drift here would be
+   * baked into graded history rather than only shown on screen. Register 353. */
+  { file: 'src/waiver_reco.js', name: 'FLEX_ELIGIBLE', flexOnly: true, lane: 'relay' },
 ];
 
 // Pull the literal out of the source and evaluate it. Reading the SOURCE rather
@@ -100,7 +114,10 @@ for (const s of SITES) {
 {
   const flex = Object.entries(found).map(([f, v]) => [f, (v.norm.FLEX || []).join(',')]);
   const distinct = [...new Set(flex.map(([, v]) => v))];
-  ck('all six agree on what may fill a FLEX', distinct.length === 1,
+  /* ⚠️ THE LABEL SAID "all six" WHILE THIRTEEN SITES WERE REGISTERED — a count
+   * written into a sentence, which is the thing this repo keeps having to
+   * correct. Derived from the population it is actually comparing. */
+  ck('all ' + flex.length + ' agree on what may fill a FLEX', distinct.length === 1,
     Object.fromEntries(flex));
 }
 

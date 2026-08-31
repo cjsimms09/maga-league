@@ -117,7 +117,16 @@ def build() -> dict:
 
 
 if __name__ == "__main__":
+    import sys
     d = build()
-    for pos, c in d["curves"].items():
-        print(f"{pos}: mean best w {c['mean_best_w']} "
-              f"(incumbent 0.7, mean rho gap {c['mean_gap_0.7_to_best']})")
+    # `--json` prints the ARTIFACT, which is the contract
+    # draft/tools/check_artifact_freshness.py regenerates against (register
+    # 386). It is OPT-IN on purpose: this module's human report is what a
+    # person runs it for, and silently swapping stdout to JSON would break
+    # every existing reader to satisfy a tool. Default output is untouched.
+    if "--json" in sys.argv:
+        print(json.dumps(d))
+    else:
+        for pos, c in d["curves"].items():
+            print(f"{pos}: mean best w {c['mean_best_w']} "
+                  f"(incumbent 0.7, mean rho gap {c['mean_gap_0.7_to_best']})")

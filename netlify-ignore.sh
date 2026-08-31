@@ -108,7 +108,56 @@ fi
 # reports) does NOT rebuild the site — that is the batching that protects the budget.
 if printf '%s' "$RANGE_FILES" | grep -qE '^(views/|public/|src/|server-app\.js|package(-lock)?\.json|netlify\.toml|netlify/functions/)'; then
   n="$(printf '%s' "$RANGE_FILES" | grep -cE '^(views/|public/|src/|server-app\.js|package(-lock)?\.json|netlify\.toml|netlify/functions/)')"
-  log "range touches ${n} served file(s) — BUILDING (opt-out: served changes auto-deploy)"
+
+  # ── CORY'S CADENCE RULING, 2026-08-24 ──────────────────────────────────────
+  # "I want things updated but we shouldn't deploy 100x a day, 2-3xs a day is
+  # enough."
+  #
+  # MEASURED THE SAME HOUR, because "100x" deserved a number rather than
+  # agreement: 170 commits landed on main in 24 hours; the served-file gate
+  # above already suppressed 143 of them, and 27 would have built. So the gate
+  # is working — 84% suppressed — and 27/day is still ten times what he asked
+  # for. The remaining volume is not bot noise; it is real product commits
+  # (bet edit, Venmo prefill, phone nav, the waivers page), each individually
+  # worth shipping and collectively far too frequent.
+  #
+  # A TIME WINDOW, NOT A RETURN TO OPT-IN. The gate's own header records why
+  # opt-in was abandoned: it "raced three times: reading the marker on the TIP
+  # only meant whoever pushed last silently decided whether anything shipped,
+  # and a buried marker never built." Batching by TIME keeps the opt-out
+  # property — every served change still ships, and nothing needs a marker —
+  # while capping how often. A change made inside the window is not dropped; it
+  # rides the next build, together with everything else queued behind it.
+  #
+  # THREE ESCAPE HATCHES, all pre-existing and all still ahead of this check:
+  # a build hook, a tag, and [deploy] anywhere in the range — so anything
+  # urgent ships immediately by saying so.
+  #
+  # VISIBILITY IS ALREADY BUILT: site-check.yml and the Sunday self-audit
+  # compare the deployed commit against main HEAD and report "prod is N commits
+  # behind", hard-failing when a stranded release includes served files. That
+  # alarm is what makes a delay safe to have; without it this would be silent
+  # stranding, which is the failure the opt-in gate had.
+  WINDOW_HOURS="${DEPLOY_WINDOW_HOURS:-8}"   # 8h => at most 3 builds/day
+  last_ts="$(git show -s --format=%ct "${CACHED_COMMIT_REF}" 2>/dev/null || true)"
+  now_ts="$(date +%s 2>/dev/null || true)"
+  if [ -n "$last_ts" ] && [ -n "$now_ts" ] && [ "$WINDOW_HOURS" -gt 0 ] 2>/dev/null; then
+    age_h=$(( (now_ts - last_ts) / 3600 ))
+    if [ "$age_h" -lt "$WINDOW_HOURS" ]; then
+      log "range touches ${n} served file(s), but the last deploy was ${age_h}h ago"
+      log "and the window is ${WINDOW_HOURS}h (Cory's 2-3x/day ruling, 2026-08-24)"
+      log "— SKIPPING. Nothing is lost: this change ships with the next build."
+      log "  Force it now with [deploy] in a commit message, a tag, or a build hook."
+      exit 0
+    fi
+    log "range touches ${n} served file(s) and the last deploy was ${age_h}h ago"
+    log "(window ${WINDOW_HOURS}h) — BUILDING"
+    exit 1
+  fi
+  # Could not establish when the last build was — BUILD, same conservative
+  # direction as the un-diffable case above. A cadence cap must never become a
+  # reason the site silently stops updating.
+  log "range touches ${n} served file(s); last-deploy time unavailable — BUILDING (conservative)"
   exit 1
 fi
 

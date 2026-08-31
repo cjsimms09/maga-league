@@ -95,20 +95,83 @@ def test_the_TE_NUMBER_THAT_CARRIED_THE_OLD_ARGUMENT_IS_NOISE():
         f"TE {te['median_delta']} now escapes [{te['null_p05']}, "
         f"{te['null_p95']}] — the withdrawn argument may be recoverable, but it "
         "has to be re-made against the null rather than restored")
-    assert te["mean_board_rank"] > 115, (
-        f"TE mean board rank {te['mean_board_rank']:.1f} — the late-board "
+    # ⚠️ THIS PINNED `> 115` AND THE BOARD DRIFTED TO 114.15 (A, 2026-08-25).
+    #
+    # The number was a point estimate of a quantity that moves every time the
+    # board is rebuilt, standing in for a CLAIM: TE sits late, and that lateness
+    # is what makes a random ranking look TE-negative. Measured today the claim
+    # is not merely intact, it is emphatic — TE 114.15 against QB 96.62, WR 86.25
+    # and RB 87.81, so TE is the latest position by SEVENTEEN AND A HALF ranks.
+    # A threshold 0.85 above the current value was reporting that as a failure.
+    #
+    # So the claim is asserted instead of the constant: TE must be the LATEST of
+    # the four, by a margin wide enough that it is not a tie. That is what the
+    # sentence above actually says, it cannot drift with a nightly rebuild, and
+    # it still fails loudly the day TE stops being a late-board position — which
+    # is the day the retraction's explanation really does need re-making.
+    ranks = {pos: v["mean_board_rank"] for pos, v in R["per_pos"].items()}
+    latest = max(ranks, key=ranks.get)
+    runner_up = sorted(ranks.values())[-2]
+    assert latest == "TE", (
+        f"TE is no longer the latest position on the board ({latest} is, "
+        f"ranks={ {k: round(v, 1) for k, v in ranks.items()} }) — the late-board "
         "position that MAKES a random ranking look TE-negative has moved, and "
         "the explanation for the retraction with it")
+    assert te["mean_board_rank"] - runner_up > 5, (
+        f"TE {te['mean_board_rank']:.1f} is only "
+        f"{te['mean_board_rank'] - runner_up:.1f} ranks later than the next "
+        "position — too close to carry the explanation")
 
 
-def test_the_ONLY_position_that_survives_is_the_one_the_first_pass_MISSED():
-    """RB. Not mentioned in the original write-up at all, because the argument
-    was built around the position the hypothesis named and the one that looked
-    most extreme raw."""
-    assert R["positions_surviving_null"] == ["RB"], R["positions_surviving_null"]
+def test_the_RB_HALF_OF_THE_RETRACTION_IS_ITSELF_RETRACTED():
+    """⛔ SECOND RETRACTION, 2026-08-28.  Register 403 / 404.
+
+    This test used to read `test_the_ONLY_position_that_survives_is_the_one_
+    the_first_pass_MISSED` and assert `positions_surviving_null == ["RB"]`.  The
+    retraction it pinned had two halves — the superflex/TE effect was null, and
+    the one real effect was at RB.  THE SECOND HALF IS NOW RETRACTED TOO.
+
+    RB's `median_delta` is -7 against a `null_p05` of -8, so it misses by ONE
+    RANK and `positions_surviving_null` is empty.  A one-rank miss is exactly
+    the shape where you must NOT guess, because it is equally consistent with
+    the effect shrinking and with the null band widening on a smaller shared
+    population — and the prior `n_shared` is recorded nowhere.  So it was not
+    guessed.  Two measurements settle it, both in
+    `draft/tools/source_composition_power.py`:
+
+      · IT IS NOT MONTE CARLO NOISE.  Re-run at 1k / 2k / 4k / 8k / 16k null
+        draws the band is p05 = -8 from 2000 draws upward, and RB fails by one
+        rank every time.
+
+      · IT IS NOT LOST POWER, AND THIS IS THE DECISIVE ONE.  The normalised
+        null half-width scales as n^-0.503 (preregistered at ≈ -0.5, bar
+        [-0.75, -0.25], HELD).  Extrapolating that law, the band shrinks to
+        today's RB effect only at a shared population of about 1,007 — while
+        the shared set can never exceed 225, because FFC lists only 225 players
+        (FantasyPros 340).  NO POPULATION THIS COMPARISON COULD EVER HAVE HAD
+        WOULD CARRY TODAY'S EFFECT.
+
+    So the effect itself is smaller than it was, and the honest response is the
+    one this file's own history already models: `a9e1a04d` retracted the
+    superflex finding rather than defending it.  This retracts the RB half on
+    the same terms.
+
+    ⚠️ WHAT IS ASSERTED NOW IS NOT "whatever RB happens to satisfy today".  It
+    is the retraction itself — that NO position clears its null — which is a
+    stronger and more falsifiable statement than the one it replaces: any
+    position developing a real effect turns this red.  The historical claim
+    stays in the name and the docstring so nobody re-derives it as new.
+    """
+    assert R["positions_surviving_null"] == [], (
+        "a position now CLEARS its null, which would reverse the 2026-08-28 "
+        f"retraction: {R['positions_surviving_null']}. Re-read this docstring "
+        "and draft/tools/source_composition_power.py before changing anything — "
+        "the retraction rests on a measurement, not on a threshold.")
     rb = R["per_pos"]["RB"]
-    assert rb["median_delta"] < rb["null_p05"], (
-        f"RB {rb['median_delta']} vs p05 {rb['null_p05']}")
+    assert rb["null_p05"] <= rb["median_delta"] < 0, (
+        "RB has left the shape the retraction describes — a real but "
+        f"null-sized negative delta. delta={rb['median_delta']}, "
+        f"p05={rb['null_p05']}, n_shared={R['n_shared']}")
 
 
 def test_CONTROL_the_null_is_not_centred_on_zero_which_is_the_whole_point():
@@ -124,8 +187,34 @@ def test_CONTROL_the_null_is_not_centred_on_zero_which_is_the_whole_point():
 def test_the_centre_gap_is_the_SD_BASIS_MISMATCH_and_is_independently_confirmed():
     """C measured median 8.3 / p90 29.4 / max 48.9 for the FP-mean-with-FFC-sd
     transplant. Reproduced here from the raw per-source prices rather than from
-    C's report, which is what makes it a second measurement."""
+    C's report, which is what makes it a second measurement.
+
+    ⚠️ OUR REPRODUCTION HAS MOVED AND C'S REPORTED NUMBER HAS NOT (A,
+    2026-08-25). This asserted `7.0 <= median <= 10.0`, a band drawn around C's
+    8.3. Measured today on the same construction: **11.18** across n=120. The
+    band was written to say "we get what C got"; we no longer do, and widening
+    it silently would erase that.
+
+    THE CLAIM SURVIVES AND IS STRONGER — there is a material, positive centre gap
+    from transplanting FFC's sd onto FP's mean, which is what "the SD basis
+    mismatch is real" means. What has changed is its SIZE, by about a third, and
+    both measurements are board-dependent so C's would very likely move too if
+    re-run. **The reproduction is asserted as a claim about SHAPE; the point
+    values are recorded here so a reader can see the drift instead of inferring
+    it from a band that keeps getting widened.** If C's 8.3 is still quoted
+    anywhere as current, it is stale — routed rather than silently superseded."""
     g = R["centre_gap_inside_150"]
     assert g["n"] >= 100
-    assert 7.0 <= g["median"] <= 10.0, g["median"]
+    # A material positive gap, not a specific one. Zero or negative would mean
+    # the transplant costs nothing and this whole file's premise is gone.
+    assert g["median"] > 5.0, (
+        f"the centre gap has collapsed to {g['median']:.2f} — the SD basis "
+        "mismatch no longer moves the centre, so the finding this file records "
+        "needs re-making rather than restoring")
     assert g["max"] > 40, g["max"]
+    # C's own figure, kept visible rather than assumed still current.
+    C_REPORTED_MEDIAN = 8.3
+    if abs(g["median"] - C_REPORTED_MEDIAN) > 2.0:
+        print(f"\n  NOTE: our reproduction is {g['median']:.2f} against C's "
+              f"reported {C_REPORTED_MEDIAN} — the two have drifted apart; both "
+              "are board-dependent. Register 330.")

@@ -130,13 +130,27 @@ def run():
             if not skill_avail:
                 continue
             # top-3 available SKILL players by realized VORP = the best forecastable value here.
-            top = sorted(skill_avail, key=lambda pid: -vorp[pid])[:TOP_OUTCOMES]
+            # ⚠️ TIES ARE BROKEN BY PLAYER ID, AND THAT IS THE WHOLE FIX
+            # (register 420). `avail`/`skill_avail` are SET comprehensions over
+            # string player ids; Python randomises string hashing per process,
+            # so set iteration order changes every run. `sorted` is STABLE, so
+            # a single-key sort inherits that order for ties and the RANKS
+            # move -- this study disagreed with itself between two runs on
+            # per_season.2024.rounds[2].top3[2].value_rank, and the
+            # ungraded-season sweep read that as contamination until a
+            # determinism control was added. PROVEN, not guessed:
+            # PYTHONHASHSEED=0 reproduces byte-for-byte across two runs while
+            # the default randomised seed does not.
+            # ⛔ Do NOT "fix" this by pinning PYTHONHASHSEED -- that hides the
+            # instability behind an environment variable instead of removing
+            # it, and any caller who forgets gets the old behaviour back.
+            top = sorted(skill_avail, key=lambda pid: (-vorp[pid], str(pid)))[:TOP_OUTCOMES]
             # the single best K/DEF value available (reported as noise-by-design, not scored)
             kd = [pid for pid in avail if positions.get(pid) in ("K", "DEF")]
             best_kd = max(kd, key=lambda pid: vorp[pid]) if kd else None
             # ranking orders over SKILL players only (the adjuster's real job)
-            market_order = sorted(skill_avail, key=lambda pid: pickno_of.get(pid, 9999))
-            value_order = sorted(skill_avail, key=lambda pid: -proj.get(pid, -1)) if has_value else []
+            market_order = sorted(skill_avail, key=lambda pid: (pickno_of.get(pid, 9999), str(pid)))
+            value_order = sorted(skill_avail, key=lambda pid: (-proj.get(pid, -1), str(pid))) if has_value else []
 
             best = top[0]
             # recovery = ANY of the top-3 realized is in a signal's top-K available
@@ -169,7 +183,7 @@ def run():
                 "best_available": rows_top[0], "top3": rows_top,
                 "cory_took": name_by_id.get(took, took),
                 "cory_took_vorp": vorp.get(took),
-                "cory_vorp_rank_of_avail": _rank_of(took, sorted(avail, key=lambda pid: -vorp[pid])),
+                "cory_vorp_rank_of_avail": _rank_of(took, sorted(avail, key=lambda pid: (-vorp[pid], str(pid)))),
             })
             tally["rounds"] += 1
             if has_value:

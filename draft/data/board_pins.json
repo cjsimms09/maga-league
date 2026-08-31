@@ -55,50 +55,104 @@
    "n_players": 677,
    "built_at": "2026-08-15T17:52:22Z",
    "recover_with": "git show 5ae8d9fa257e5bcebf0baf50a998e383d8b69852:public/draft_data.json"
+  },
+  {
+   "observed_at": "2026-08-25",
+   "commit": "a8af2e5911cb24ec76c9332f1c13cb7de8ec5659",
+   "path": "public/draft_data.json",
+   "sha256": "adbef404274263eba77c932e9497db5a82dd2be4e140ff19f4f79fa5115af6c9",
+   "n_players": 680,
+   "built_at": "2026-08-22T03:43:05Z",
+   "recover_with": "git show a8af2e5911cb24ec76c9332f1c13cb7de8ec5659:public/draft_data.json"
+  },
+  {
+   "observed_at": "2026-08-26",
+   "commit": "c807c82269470f33653e34c903343f8188450fc5",
+   "path": "public/draft_data.json",
+   "sha256": "cb878b703bb0e7fd84af4f75675084a8d89322325ecc9771dd459d32f93b784f",
+   "n_players": 705,
+   "built_at": "2026-08-26T04:02:06Z",
+   "recover_with": "git show c807c82269470f33653e34c903343f8188450fc5:public/draft_data.json"
+  },
+  {
+   "observed_at": "2026-08-27",
+   "commit": "17e04c005dc65fecc1bf8820d55ae060ae2c9fae",
+   "path": "public/draft_data.json",
+   "sha256": "cb878b703bb0e7fd84af4f75675084a8d89322325ecc9771dd459d32f93b784f",
+   "n_players": 705,
+   "built_at": "2026-08-26T04:02:06Z",
+   "recover_with": "git show 17e04c005dc65fecc1bf8820d55ae060ae2c9fae:public/draft_data.json"
+  },
+  {
+   "observed_at": "2026-08-28",
+   "commit": "8b0aca303f380d3a625040642b1da6cdc45af6ab",
+   "path": "public/draft_data.json",
+   "sha256": "cb878b703bb0e7fd84af4f75675084a8d89322325ecc9771dd459d32f93b784f",
+   "n_players": 705,
+   "built_at": "2026-08-26T04:02:06Z",
+   "recover_with": "git show 8b0aca303f380d3a625040642b1da6cdc45af6ab:public/draft_data.json"
+  },
+  {
+   "observed_at": "2026-08-29",
+   "commit": "fcd782a0791e7a07c165237ae48c0eaa3d6ad0d1",
+   "path": "public/draft_data.json",
+   "sha256": "cb878b703bb0e7fd84af4f75675084a8d89322325ecc9771dd459d32f93b784f",
+   "n_players": 705,
+   "built_at": "2026-08-26T04:02:06Z",
+   "recover_with": "git show fcd782a0791e7a07c165237ae48c0eaa3d6ad0d1:public/draft_data.json"
+  },
+  {
+   "observed_at": "2026-08-30",
+   "commit": "b113f9d6df2a92f6863d0e31b3516c0dd80c8ee1",
+   "path": "public/draft_data.json",
+   "sha256": "cb878b703bb0e7fd84af4f75675084a8d89322325ecc9771dd459d32f93b784f",
+   "n_players": 705,
+   "built_at": "2026-08-26T04:02:06Z",
+   "recover_with": "git show b113f9d6df2a92f6863d0e31b3516c0dd80c8ee1:public/draft_data.json"
   }
  ],
  "population": {
   "version": "field-population/v1",
-  "rows": 6,
+  "rows": 12,
   "fields": {
    "observed_at": {
-    "present": 6,
+    "present": 12,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "commit": {
-    "present": 6,
+    "present": 12,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "path": {
-    "present": 6,
+    "present": 12,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "sha256": {
-    "present": 6,
+    "present": 12,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "n_players": {
-    "present": 6,
+    "present": 12,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "built_at": {
-    "present": 6,
+    "present": 12,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "recover_with": {
-    "present": 6,
+    "present": 12,
     "null": 0,
     "missing": 0,
     "pct": 100.0

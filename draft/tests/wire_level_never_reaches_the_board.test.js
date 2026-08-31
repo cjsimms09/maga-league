@@ -68,11 +68,72 @@ ck('THE JOIN LANDED: the published board carries a top-level `wire_level`',
 ck('...for all four offensive positions, as numbers',
   ['QB', 'RB', 'WR', 'TE'].every(q => typeof (ART.wire_level || {})[q] === 'number'),
   ART.wire_level);
-ck('...and the board AGREES with the measured artifact it was joined from — a '
-  + 'join that lands with different numbers is worse than no join',
-  ['QB', 'RB', 'WR', 'TE'].every(q =>
-    Math.abs(ART.wire_level[q] - WL.per_week[q]) < 0.01),
-  { board: ART.wire_level, artifact: WL.per_week });
+/* ⚠️ THIS CHECK ASKED TWO QUESTIONS AND REPORTED THEM AS ONE, and only one of
+ * them is a join defect. It compared the board's flat `wire_level` against the
+ * COMMITTED FILE ON DISK TODAY, and called any difference "a join that lands
+ * with different numbers" — the sentence for a broken join. But the file on disk
+ * can legitimately move AFTER a board is built, and when it does this printed
+ * that sentence about a join that was perfect at build time.
+ *
+ * IT IS NOT A HYPOTHETICAL — it is what happened on 2026-08-26 and it is
+ * STRUCTURAL, not decay. `build.py` writes `draft/data/player_positions.json` as
+ * a UNION THAT MAY ONLY GROW ("written BEFORE the activity filter so the wire
+ * sample cannot shrink", build.py ~1232), so every board build can add ids;
+ * `wire_level.js` resolves its 2023-25 wire adds through that record; so the
+ * measured sample GROWS BY DESIGN and any snapshot of it goes stale on its own.
+ * Measured: one id (4080, a 2023 week-2 WR add worth 0.0) gained a position
+ * record between the 08-17 build and the 08-25 one, taking the WR sample 114 ->
+ * 115 and the pooled median from the even-n midpoint of (10.60, 11.10) = 10.85
+ * to the odd-n order statistic 10.60. QB, RB and TE did not move by a cent.
+ * ROUTES already recorded the SAME event one iteration earlier — "stale by one
+ * player", n 113 vs 114 — which is what shows this is a mechanism and not a bug.
+ *
+ * SO THE TWO QUESTIONS ARE ASKED SEPARATELY, same split as register 348:
+ *
+ *   · THE JOIN — is the flat map the board serves the same numbers as the
+ *     provenance block it was built from? That is checkable INSIDE the board,
+ *     needs no file on disk, and is true or false forever once the board is
+ *     written. A mismatch here really is worse than no join.
+ *   · THE STALENESS — has the measurement moved since this board was built?
+ *     That is a REBUILD question, not a join question, and it has a direction:
+ *     the sample may only grow. A board behind the artifact is expected between
+ *     a build and the next one; the artifact SHRINKING is the alarm, because
+ *     build.py's union is written specifically so it cannot.
+ *
+ * Register 351 ③. */
+ck('THE JOIN: the flat `wire_level` the board serves is the same numbers as the '
+  + '`wire_level_source` provenance block it was built from — a join that lands '
+  + 'with different numbers is worse than no join',
+  ART.wire_level_source && ART.wire_level_source.per_week
+    && ['QB', 'RB', 'WR', 'TE'].every(q =>
+      Math.abs(ART.wire_level[q] - ART.wire_level_source.per_week[q]) < 0.01),
+  { board: ART.wire_level,
+    provenance: (ART.wire_level_source || {}).per_week });
+
+{
+  /* STALENESS, with the direction that makes it readable. `n` travels on both
+   * sides, so this compares SAMPLES rather than medians — a median can move
+   * either way on one added observation (it just did), but the sample itself is
+   * monotone by construction. */
+  const bn = ((ART.wire_level_source || {}).n) || {};
+  const an = WL.n || {};
+  const POS = ['QB', 'RB', 'WR', 'TE'];
+  const shrunk = POS.filter(q => typeof bn[q] === 'number' && typeof an[q] === 'number'
+    && an[q] < bn[q]);
+  const behind = POS.filter(q => typeof bn[q] === 'number' && typeof an[q] === 'number'
+    && an[q] > bn[q]);
+  ck('STALENESS: the committed measurement has not SHRUNK below the sample this '
+    + 'board was built from — build.py\'s position record is a union that may '
+    + 'only grow, so a smaller sample means that guarantee broke',
+    shrunk.length === 0, { shrunkAt: shrunk, board_n: bn, artifact_n: an });
+  if (behind.length) {
+    console.log('NOTE  the committed measurement has GROWN past this board at '
+      + behind.join('/') + ' (board ' + JSON.stringify(bn) + ' -> artifact '
+      + JSON.stringify(an) + '). Expected between a wire_level.json regeneration '
+      + 'and the next board rebuild; the next build picks it up. Not a join '
+      + 'defect — see the header.');
+  }
+}
 ck('...and it ships its own provenance, so nobody has to trust the number '
   + 'because it is present',
   ART.wire_level_source && ART.wire_level_source.per_week
@@ -106,8 +167,18 @@ ck('...and it ships its own provenance, so nobody has to trust the number '
 {
   const RP = ART.replacement.replacement_points;
   const board = ART.players;
-  const keepers = ART.kept_players.map(k => Object.assign({}, k, { is_keeper: true,
-    vorp: Math.round((k.proj_mean - RP[k.position]) * 100) / 100 }));
+  /* ⚠️ FILTERED TO CORY'S SEAT (A, 2026-08-24, register 303). Post-lock
+   * `kept_players` is the whole league's 23, and these rows go to
+   * `ctx.currentKeepers`, which composite.js folds into INCUMBENTS —
+   * the men competing for MY keeper slots. Its own comment says "with
+   * three valued keepers the bar is ranked[2]". Twenty-three inflates
+   * that bar and collapses every candidate's keeper value, and `keeper`
+   * ships at weight 1.0. */
+  const _mySlot = String((ART.league || {}).my_draft_slot);
+  const keepers = ART.kept_players
+    .filter(k => String(k.team_slot) === _mySlot)
+    .map(k => Object.assign({}, k, { is_keeper: true,
+      vorp: Math.round((k.proj_mean - RP[k.position]) * 100) / 100 }));
   const burrow = board.find(p => p.name === 'Joe Burrow');
   const byAdp = board.slice().sort((a, b) => (a.adjusted_adp || 9999) - (b.adjusted_adp || 9999));
   const PB = ART.pick_order.picks, MY = ART.pick_order.my_picks;

@@ -64,12 +64,41 @@ def assess(changed_paths, deployed_commit=None, head_commit=None, behind=None):
     head = (head_commit or '?')[:8]
     n = f'{behind} commit(s)' if behind is not None else 'some commits'
 
-    if draft:
-        return {'level': 'red', 'draft': draft, 'served': served, 'inert': inert,
-                'message': (f'THE WAR ROOM ON THE LIVE SITE IS STALE — {len(draft)} '
-                            f'undeployed draft-path file(s) (deployed {dep}, main {head}). '
+    # ⚠️ STALE CODE AND A STALE BOARD ARE NOT THE SAME EMERGENCY, and this
+    # returned one message for both. Register 348.
+    #
+    # `DRAFT_PREFIXES` is war-room CODE (`public/js/draft/`); `DRAFT_FILES` is
+    # the nightly board DATA (`public/draft_data.json`). Measured 2026-08-25:
+    # the ONLY undeployed draft-path file was the board, and the alarm said
+    # "Rehearsing a mock against this is rehearsing the wrong code" — a false
+    # sentence, because no code was stale. Under Cory's 8-hour deploy cadence
+    # (2026-08-24) the board is EXPECTED to sit undeployed for up to a window
+    # after every nightly rebuild, so that sentence would print most days.
+    #
+    # THE LEVEL IS DELIBERATELY UNCHANGED — both stay `red`. Downgrading an
+    # alarm because it fires often is how a real alarm gets muted, and whether a
+    # routine window-lag should be red is Cory's severity call, not this
+    # function's. What changes is only that the message now says WHICH of the
+    # two happened. `draft` still carries both, so every existing consumer and
+    # guard reads exactly what it did before.
+    code = [p for p in draft if p.startswith(DRAFT_PREFIXES)]
+    data = [p for p in draft if p not in code]
+    if code:
+        return {'level': 'red', 'draft': draft, 'code': code, 'data': data,
+                'served': served, 'inert': inert,
+                'message': (f'THE WAR ROOM ON THE LIVE SITE IS STALE — {len(code)} '
+                            f'undeployed war-room CODE file(s) (deployed {dep}, main {head}). '
                             f'Rehearsing a mock against this is rehearsing the wrong code. '
                             f'Deploy with [deploy] before the next mock.')}
+    if data:
+        return {'level': 'red', 'draft': draft, 'code': code, 'data': data,
+                'served': served, 'inert': inert,
+                'message': (f'the live site is serving an OLDER BOARD — {len(data)} '
+                            f'undeployed board file(s) (deployed {dep}, main {head}). '
+                            f'The war-room code is current; the numbers on it are not. '
+                            f'Expected for up to one 8h deploy window after a nightly '
+                            f'rebuild (Cory, 2026-08-24); force it now with [deploy], a '
+                            f'tag or a build hook.')}
     if served:
         return {'level': 'red', 'draft': draft, 'served': served, 'inert': inert,
                 'message': (f'the live site is behind the repo on {len(served)} served '

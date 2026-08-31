@@ -30,6 +30,77 @@
     about has already started. Nobody's money moved.</span>
   </div>
 <% } %>
+<% if (typeof stale_terms !== 'undefined' && stale_terms) { %>
+  <div class="alert-banner alert-warning" style="margin-bottom:1rem">
+    <span class="tag">✎</span><span><b>That offer changed while you were looking at it.</b>
+    Nothing was accepted — read the current terms below (marked ✎ edited) and
+    accept those if you still want it.</span>
+  </div>
+<% } %>
+<% if (typeof edited !== 'undefined' && edited) { %>
+  <div class="alert-banner alert-info" style="margin-bottom:1rem">
+    <span class="tag">✎</span><span>Offer updated — the card now shows the new terms,
+    and the old ones stay one tap away on it.</span>
+  </div>
+<% } %>
+<% if (typeof countered !== 'undefined' && countered) { %>
+  <div class="alert-banner alert-info" style="margin-bottom:1rem">
+    <span class="tag">↩</span><span>Counter sent — their original offer is closed and
+    yours is in front of them now.</span>
+  </div>
+<% } %>
+<% if (typeof nudged !== 'undefined' && nudged) { %>
+  <div class="alert-banner alert-info" style="margin-bottom:1rem">
+    <span class="tag">🔔</span><span>Called out in the Locker Room — the whole league
+    just saw who's sitting on your offer.</span>
+  </div>
+<% } %>
+<%# Catalog item 17 ("confirmation toasts that say the thing — 'Bet sent to
+    Rich · $25' not 'Saved.'"): set only by the propose route's own success
+    path (member.js), never guessed here — same discipline as matchup.ejs's
+    sibling banner, which learned the hard way that a confirmation for a bet
+    that never happened is worse than none. Named justSent, not sent — this
+    file already has its OWN `const sent` below (the "Bets You've Sent"
+    array), and reusing the name would TDZ-crash the whole page. %>
+<% if (typeof justSent !== 'undefined' && justSent) { %>
+  <div class="alert-banner alert-info" style="margin-bottom:1rem; border-color:rgba(74,222,128,.5)">
+    <span class="tag">✅</span><span>Bet sent<% if (typeof sentTo !== 'undefined' && sentTo) { %> to <b><%= sentTo %></b><% } %><% if (typeof sentAmt !== 'undefined' && sentAmt) { %> · <b><%= money(Number(sentAmt)) %></b><% } %>.
+    It's in the ledger as <b>OPEN</b> — it locks in once they accept.</span>
+  </div>
+<% } %>
+<% if (typeof rerun !== 'undefined' && rerun) { %>
+  <div class="alert-banner alert-info" style="margin-bottom:1rem">
+    <span class="tag">🔁</span><span>It's back on the table — same bet, fresh offer,
+    waiting on them to accept.</span>
+  </div>
+<% } %>
+
+<%# ── THE OFFER SHEET (commissioner-only; Cory's 08-24 mandate) — the +EV
+    bets worth ORIGINATING this week, priced by the same arithmetic the edge
+    advisor uses on incoming bets (src/betoffers.js → betedge.priceCondition).
+    Absent when the model sees nothing ≥55% — an honest quiet week, and absent
+    for everyone but the commissioner (analysis is his; ACCESS-RULE.md). %>
+<% const _os = (typeof offerSheet !== 'undefined' && offerSheet && owner.is_commissioner) ? offerSheet : []; %>
+<% if (_os.length) { %>
+<div class="card" style="margin-bottom:1.2rem; border-left:3px solid var(--gold)">
+  <h2>📤 Offers Worth Sending <span class="sub">even-money bets the model prices in your favor — P333 grades this sheet all season</span></h2>
+  <div class="body">
+    <% for (const of_ of _os.slice(0, 3)) { %>
+      <div style="padding:.45rem 0;border-bottom:1px solid var(--line,#e5e7eb)">
+        <b><%= of_.terms %></b>
+        <div class="muted" style="font-size:.78rem;margin-top:.15rem">
+          model: <b><%= Math.round(of_.p * 100) %>%</b> your way · worth ~<b>$<%= of_.edge_per_10.toFixed(2) %></b> per $10 staked · <%= of_.line %>
+        </div>
+      </div>
+    <% } %>
+    <p class="muted" style="margin:.6rem 0 0;font-size:.74rem">
+      Model prices, not gospel — the 55% bar exists because 52% is noise. Every week's
+      sheet is snapshotted and graded at season end: if the ≥55% offers don't win ≥55%,
+      the sheet retires. Send one via <b>Start a bet → Season finish</b> below.
+    </p>
+  </div>
+</div>
+<% } %>
 <%
   const myId = owner.id;
   const inIt = b => (b.parties || []).some(p => p.owner_id === myId);
@@ -46,6 +117,23 @@
   const sbMoney = n => (n == null ? '—' : (n > 0 ? '+$' + n : (n < 0 ? '−$' + Math.abs(n) : '$0')));
   const sbCls = n => (n == null ? 'sb-dash' : (n > 0 ? 'sb-pos' : (n < 0 ? 'sb-neg' : 'sb-zero')));
   const fmtDL = d => new Date(d).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + ' ET';
+
+  // ── HEAD-TO-HEAD, the trash-talk stat (Little Things Catalog item 6) ─────
+  // "lifetime W-L and net $ against them, one tap from every bet card." No
+  // new settlement math (Rule 11) — sbLedger already carries every bet I'm
+  // in with its settled/unsettled delta, computed the same way the ledger
+  // table and the hero P&L are; this just groups those SAME rows down to
+  // one-on-one bets against a single opponent.
+  const h2hVs = oppId => {
+    const rows = sbLedger.rows.filter(r => r.bet.parties.length === 2
+      && r.bet.parties.some(p => Number(p.owner_id) === Number(oppId)));
+    const settled = rows.filter(r => r.delta != null);
+    const wins = settled.filter(r => r.delta > 0).length;
+    const losses = settled.filter(r => r.delta < 0).length;
+    const pushes = settled.filter(r => r.delta === 0).length;
+    const net = Math.round(settled.reduce((s, r) => s + (r.delta || 0), 0) * 100) / 100;
+    return { rows, wins, losses, pushes, net, settledCount: settled.length };
+  };
 
   // ── The four ways a bet can need YOU ─────────────────────────────────────
   const needsAccept  = b => b.status === 'proposed' && (b.parties || []).some(p => p.owner_id === myId && !p.accepted);
@@ -190,7 +278,28 @@ function betCard(b, opts) {
     </div>
 
     <%# WHAT'S THE BET — one plain-English line, always first. %>
-    <div class="bc-what"><%= b.terms %></div>
+    <div class="bc-what"><%= b.terms %><% if ((b.terms_version || 1) > 1 && b.edits && b.edits.length) { %>
+      <details style="display:inline-block;font-size:.74rem;margin-left:.4rem;vertical-align:middle">
+        <summary class="muted" style="cursor:pointer;display:inline">✎ edited</summary>
+        <span class="muted">was: $<%= b.edits[b.edits.length - 1].stake %> — <%= b.edits[b.edits.length - 1].terms %></span>
+      </details>
+    <% } %><%
+      /* LIFETIME HEAD-TO-HEAD (catalog item 6) — on any two-party bet I'm in,
+         the running score against exactly this opponent. Guarded: only the
+         bank render supplies the map; other includes render without it. */
+      const _h2h = (typeof h2h !== 'undefined' && h2h) ? h2h : {};
+      const _opp = (b.parties || []).length === 2 && inIt(b)
+        ? (b.parties.find(p => p.owner_id !== myId) || null) : null;
+      const _rec = _opp ? _h2h[_opp.owner_id] : null; %>
+    <% if (_rec) { %>
+      <span class="muted" style="font-size:.72rem;margin-left:.4rem;white-space:nowrap"
+            title="every settled two-person bet between you two, all seasons">📊 lifetime vs <%= betNames(_opp.owner_id) %>:
+        <b><%= _rec.aWins %>–<%= _rec.bWins %><%= _rec.pushes ? '–' + _rec.pushes : '' %></b><%= _rec.aNet ? ' · ' + (_rec.aNet > 0 ? '+$' : '−$') + Math.abs(_rec.aNet) : '' %></span>
+    <% } %><% if (b.countered_from) { %>
+      <span class="muted" style="font-size:.72rem;margin-left:.4rem">↩ counter-offer — replaces an earlier one</span>
+    <% } %><% if (b.countered_to) { %>
+      <span class="muted" style="font-size:.72rem;margin-left:.4rem">↩ answered with a counter — see the new offer</span>
+    <% } %></div>
     <% if (sentence(b) || (b.format === 'prop' && b.conditions.length > 1)) { %>
       <div class="bc-rule">📐 <%= sentence(b) || b.terms %><% if (b.format === 'prop' && b.conditions.length > 1) { %>
         <span class="muted">(<%= b.logic === 'any' ? 'any one of them' : 'all of them' %>, for <%= betNames(b.for_id) %>)</span><% } %></div>
@@ -315,6 +424,35 @@ function betCard(b, opts) {
           </li>
         <% } %>
       </ul>
+    <% } %>
+
+    <%# ── HEAD-TO-HEAD (item 6): the trash-talk stat, one tap from every
+        one-on-one card. Answer first (the record), detail behind a tap (the
+        game list) — the redesign spec's rule 1. Silent when there's no
+        settled history yet; a 0-0 chip is furniture, not information. %>
+    <% if (b.parties.length === 2 && inIt(b)) {
+         const opp = b.parties.find(p => p.owner_id !== myId);
+         const h2h = opp ? h2hVs(opp.owner_id) : null;
+    %>
+      <% if (h2h && h2h.settledCount > 0) { %>
+        <details class="bc-h2h">
+          <summary>vs <%= betNames(opp.owner_id) %>: <b><%= h2h.wins %>-<%= h2h.losses %><%= h2h.pushes ? '-' + h2h.pushes : '' %></b>
+            <span class="<%= h2h.net >= 0 ? 'money-up' : 'money-down' %>"><%= h2h.net >= 0 ? '+$' + h2h.net : '−$' + Math.abs(h2h.net) %></span> all-time</summary>
+          <ul class="bc-h2h-list">
+            <% for (const r of h2h.rows) { %>
+              <li>
+                <span class="bc-h2h-terms"><%= r.bet.terms %></span>
+                <span class="<%= r.delta == null ? 'muted' : r.delta > 0 ? 'money-up' : r.delta < 0 ? 'money-down' : 'muted' %>">
+                  <%= r.delta == null
+                        ? (r.bet.status === 'locked' ? 'live' : r.bet.status === 'open' ? 'posted' : r.bet.status === 'proposed' ? 'pending' : r.bet.status)
+                        : r.delta === 0 ? 'push'
+                        : (r.delta > 0 ? '+$' : '−$') + Math.abs(r.delta) %>
+                </span>
+              </li>
+            <% } %>
+          </ul>
+        </details>
+      <% } %>
     <% } %>
 
     <%# ── THE SCORE BUG — the engine's live read on a running bet. Headline
@@ -449,11 +587,17 @@ function betCard(b, opts) {
       <% if (opts.withAccept && needsAccept(b)) { %>
         <form method="post" action="/sidebets/<%= b.id %>/accept" class="accept-form grow"
               data-handshake="<%= esc(b.terms) %>"
+              data-terms-version="<%= b.terms_version || 1 %>"
               data-stake="<%= money(b.stake) %>"
               data-with="<%= esc(b.parties.filter(p => p.owner_id !== owner.id).map(p => betNames(p.owner_id)).join(', ')) %>">
-          <% if (b.format === 'pool') { %>
+          <% if (b.format === 'pool' && b.pool && b.pool.recorded) { %>
+            <p class="muted" style="margin:.1rem 0 .2rem; font-size:.74rem">The split is already recorded —
+              your teams: <b><%= (b.parties.find(p => p.owner_id === owner.id) || {}).picks.map(betNames).join(', ') || '—' %></b>.
+              Accepting confirms it.</p>
+          <% } else if (b.format === 'pool') { %>
             <p class="muted" style="margin:.1rem 0 .2rem; font-size:.74rem">Accepting opens the franchise draft — you pick your teams there, turn by turn.</p>
           <% } %>
+          <input type="hidden" name="terms_version" value="<%= b.terms_version || 1 %>">
           <% if (!deadlines[b.id] || deadlines[b.id].open) { %>
             <button class="btn small gold" type="submit">Accept — it's on</button>
           <% } else { %>
@@ -463,6 +607,22 @@ function betCard(b, opts) {
         <form class="asis" method="post" action="/sidebets/<%= b.id %>/decline">
           <button class="btn small ghost" type="submit">Decline</button>
         </form>
+        <%# COUNTER (catalog item 3) — answer with your own price instead of a
+            flat yes/no. Two-party props only; the server refuses the rest. %>
+        <% if (b.format === 'prop' && (b.parties || []).length === 2 && b.proposer_id !== owner.id) { %>
+          <details class="sb-counter" style="flex-basis:100%">
+            <summary class="btn small ghost" style="display:inline-block;cursor:pointer">↩ Counter</summary>
+            <form method="post" action="/sidebets/<%= b.id %>/counter"
+                  style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin-top:.5rem">
+              <label style="font-size:.76rem">$ <input type="number" name="stake" min="1" step="1"
+                     value="<%= b.stake %>" style="width:5.5rem"></label>
+              <input type="text" name="terms" maxlength="400" value="<%= b.terms %>"
+                     style="flex:1 1 12rem;font-size:.82rem">
+              <button class="btn small navy" type="submit">Send counter</button>
+              <span class="muted" style="flex-basis:100%;font-size:.72rem">This declines their offer and sends yours back — they accept, decline, or counter again.</span>
+            </form>
+          </details>
+        <% } %>
       <% } %>
       <% if (opts.withTake && b.status === 'open' && !inIt(b)) { %>
         <form method="post" action="/sidebets/<%= b.id %>/take" class="take-form grow"
@@ -508,6 +668,16 @@ function betCard(b, opts) {
           <button class="btn small ghost" title="Undo the result">↺ Undo</button>
         </form>
       <% } %>
+      <%# RUN IT BACK (catalog item 4) — a finished two-person bet re-proposes
+          in one tap: same words, same stake, roles set by who tapped. Stale
+          week-bound conditions are dropped server-side with the reason. %>
+      <% if (['settled', 'declined', 'void'].includes(b.status) && inIt(b)
+             && b.format === 'prop' && (b.parties || []).length === 2) { %>
+        <form class="asis" method="post" action="/sidebets/<%= b.id %>/rerun">
+          <button class="btn small ghost" type="submit"
+                  title="Offer this exact bet again — same terms, same stake">🔁 Run it back</button>
+        </form>
+      <% } %>
       <% if (['proposed', 'open'].includes(b.status) && b.proposer_id === owner.id) { %>
         <% const _dl = deadlines[b.id]; %>
         <% if (_dl && !_dl.open && _dl.stale) { %>
@@ -516,15 +686,52 @@ function betCard(b, opts) {
           </form>
         <% } %>
         <% if (b.status === 'proposed') { %>
+          <%# TRUE EDIT (Cory, 08-23): change the offer in place while nobody
+              has accepted. SB.edit versions the terms; an accept of the old
+              version refuses, so nobody can be bound to words they never saw. %>
+          <details class="asis" style="display:inline-block">
+            <summary class="btn small ghost" style="list-style:none;cursor:pointer">✎ Edit</summary>
+            <form method="post" action="/sidebets/<%= b.id %>/edit"
+                  style="display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;margin-top:.4rem">
+              <label class="muted" style="font-size:.76rem">$
+                <input name="stake" type="number" min="1" step="1" value="<%= b.stake %>" style="width:5.5rem"></label>
+              <input name="terms" value="<%= esc(b.terms) %>" maxlength="1200" style="flex:1 1 14rem">
+              <button class="btn small gold" type="submit">Save changes</button>
+            </form>
+          </details>
           <form class="asis" method="post" action="/sidebets/<%= b.id %>/delete"
                 onsubmit="return confirm('Pull this bet back? Nobody will be able to accept it.')">
             <button class="btn small ghost" type="submit">Rescind</button>
           </form>
+          <%# THE NUDGE (catalog 5) — poke whoever's sitting on it, publicly,
+              in the Locker Room. Once per day per bet; the cooldown shows. %>
+          <% const _nAge = b.nudged_at ? Date.now() - Date.parse(b.nudged_at) : null;
+             const _nHours = _nAge != null ? Math.floor(_nAge / 3600000) : null; %>
+          <% if (_nAge == null || _nAge >= 24 * 3600000) { %>
+            <form class="asis" method="post" action="/sidebets/<%= b.id %>/nudge">
+              <button class="btn small ghost" type="submit"
+                      title="Call them out in the Locker Room — public, once a day">🔔 Nudge</button>
+            </form>
+          <% } else { %>
+            <span class="muted" style="font-size:.72rem" title="one nudge per day per bet">🔔 nudged <%= _nHours < 1 ? 'just now' : _nHours + 'h ago' %></span>
+          <% } %>
         <% } %>
       <% } %>
     </div>
   </div>
 <% } %>
+
+<%# ══════════════════════════════════════════════════════════════════════════
+    🎲 MY BETS — one screen (Cory, 2026-08-23: "should be able to easily
+    track your own bets... site just needs to be a little easier to get
+    around"). Everything below this heading, down to the "Rest of the Book"
+    divider, is about YOU and only you: what needs you, what's live, what
+    you've sent, what's settled, and the running total. Nothing here is new
+    logic or a new card grammar — every section already existed on this page
+    (2026-08-15 design pass); they were just interleaved with the market,
+    the builder and the league-wide record so "my stuff" never read as one
+    place. This groups them and nothing else. ════════════════════════════ %>
+<h2 class="sb-section-title">🎲 My Bets <span class="sub">everything that's yours, in one place</span></h2>
 
 <%# ══ THE HERO — your book at a glance ═════════════════════════════════════ %>
 <div class="hero" style="margin-bottom:1.2rem">
@@ -586,10 +793,14 @@ function betCard(b, opts) {
           <%# You owe: the winner's Venmo with the amount ready — pay and mark
               sent in the same breath. Loud when there's no handle on file. %>
           <% if (r.net < 0) { const cred = owners.find(o => o.name === r.name);
-               const h = cred && cred.venmo ? String(cred.venmo).replace(/^@/, '') : null; %>
-            <% if (h) { %>
-              <a class="btn small gold" href="https://venmo.com/u/<%= h %>" target="_blank" rel="noopener"
-                 title="Pay <%= r.name %> the <%= money(Math.abs(r.net)) %> you owe">💸 Venmo <%= r.name %> <%= money(Math.abs(r.net)) %></a>
+               // venmoLink prefills the pay screen with the amount and a note
+               // naming the bet, so the tap is the whole payment — catalog
+               // item 8. Falls back loud when no handle is on file.
+               const vUrl = cred ? venmoLink(cred, { amount: Math.abs(r.net),
+                 note: 'MFGA side bet — ' + (r.legs[0] ? r.legs[0].bet.terms.slice(0, 60) : 'settle up') }) : null; %>
+            <% if (vUrl) { %>
+              <a class="btn small gold" href="<%= vUrl %>" target="_blank" rel="noopener"
+                 title="Pay <%= r.name %> the <%= money(Math.abs(r.net)) %> you owe — amount and note prefilled">💸 Venmo <%= r.name %> <%= money(Math.abs(r.net)) %></a>
             <% } else { %>
               <span class="owe-novenmo">no Venmo on file for <%= r.name %></span>
             <% } %>
@@ -629,17 +840,10 @@ function betCard(b, opts) {
 </div>
 <% } %>
 
-<%# ══ 3. THE BOARD — open bets you can take. ═══════════════════════════════ %>
-<% if (market.length) { %>
-<div class="card" style="margin-bottom:1.2rem; border-color:rgba(37,99,235,.45)">
-  <h2>📢 On the Board <span class="sub">posted open — take the other side and it's on</span></h2>
-  <div class="body"><% for (const b of market) { betCard(b, { withTake: true }); } %></div>
-</div>
-<% } %>
-
-<%- include('_bet_builder') %>
-
-<%# ══ 4. THE BOOK — money riding right now. ════════════════════════════════ %>
+<%# ══ 3. THE BOOK — money riding right now. ═════════════════════════════════
+    Moved up next to Needs You / Who Owes Who (still yours, still "My Bets") —
+    it used to sit AFTER the market and the builder, which put someone else's
+    open offers between you and your own live money. ══════════════════════ %>
 <% if (live.length) { %>
 <div class="card" style="margin-bottom:1.2rem">
   <h2>🔥 On the Books <span class="sub"><%= live.length %> live — money riding</span></h2>
@@ -647,7 +851,7 @@ function betCard(b, opts) {
 </div>
 <% } %>
 
-<%# ══ 5. YOUR OUTBOX — offers of yours still waiting for an answer. ════════ %>
+<%# ══ 4. YOUR OUTBOX — offers of yours still waiting for an answer. ════════ %>
 <% if (sent.length) { %>
 <div class="card" style="margin-bottom:1.2rem">
   <h2>📤 Bets You've Sent <span class="sub">waiting on an answer — pull them back any time</span></h2>
@@ -655,30 +859,35 @@ function betCard(b, opts) {
 </div>
 <% } %>
 
-<% if (proposedOthers.length) { %>
-<div class="card" style="margin-bottom:1.2rem">
-  <h2>⏳ Proposed <span class="sub">not a bet until everyone agrees</span></h2>
-  <div class="body"><% for (const b of proposedOthers) { betCard(b, {}); } %></div>
-</div>
+<%# ══ 5. SETTLED, YOURS — Cory's fifth "MY BETS" ingredient. Filtered to bets
+    you're actually a party to; everyone else's settled book stays down in
+    the whole-league record so a bet still renders in EXACTLY ONE section
+    (the design pass's own rule) — never here AND in "Settled & declined". %>
+<% const doneMine = done.filter(inIt), deadMine = dead.filter(inIt); %>
+<% if (doneMine.length || deadMine.length) { %>
+<details class="card entry-card" style="margin-bottom:1.2rem">
+  <%# THE SEASON BOOK LINE (redesign spec, The Book): the one number a bettor
+      wants over their own settled pile — am I up or down? ledgerFor already
+      keeps the running total; this says it right where YOUR settled bets
+      live, not on the league-wide pile below (that number is about you, not
+      about everyone, so it belongs on "Settled, Yours"). %>
+  <% const _net = sbLedger ? Math.round(sbLedger.net || 0) : 0; %>
+  <summary>✅ Settled, Yours <span class="sub"><%= doneMine.length %> settled<% if (deadMine.length) { %>, <%= deadMine.length %> never happened<% } %></span>
+    <% if (doneMine.length) { %>
+      <span class="<%= _net >= 0 ? 'money-up' : 'money-down' %>" style="font-weight:800;margin-left:.4rem">
+        your book: <%= _net >= 0 ? '+$' + _net : '−$' + Math.abs(_net) %></span>
+    <% } %>
+  </summary>
+  <div class="body">
+    <% for (const b of doneMine) { betCard(b, {}); } %>
+    <% for (const b of deadMine) { betCard(b, {}); } %>
+  </div>
+</details>
 <% } %>
 
-<details class="sb-rules" style="margin-bottom:1.2rem">
-  <summary>⏱ How long a bet offer stays live</summary>
-  <ul>
-    <li><b>On one week's games</b> — until the first point is scored that week.
-      After that nobody can take it, because they'd be betting on a score they
-      can already see.</li>
-    <li><b>Offered mid-week, with games under way</b> — <b>3 hours</b>. Live
-      betting is fine, you're both watching. Leaving a live offer lying around
-      is not, because the price moves while it sits.</li>
-    <li><b>Season-long bets and pools</b> — <b>10 days</b> to answer, and dead
-      once the playoffs start either way.</li>
-  </ul>
-  <p>Expired offers can be sent again from <b>Bets You've Sent</b>. They don't
-  renew on their own — if you still want the bet, you have to still want it.</p>
-</details>
-
-<%# ══ 6. THE RECORDS — your ledger, the tracker grid, the standings. ═══════ %>
+<%# ══ 6. THE RECORDS — your ledger. Moved up with the rest of My Bets; the
+    tracker grid and the league-wide standings stay below, past the divider,
+    because those are about everyone, not you. ═══════════════════════════ %>
 <div class="card" style="margin-bottom:1.2rem">
   <h2>📒 Your Side-Bet Ledger <span class="sub">every bet you're in, with a running total</span></h2>
   <div class="body tight scroll-x">
@@ -722,6 +931,46 @@ function betCard(b, opts) {
     <% } %>
   </div>
 </div>
+
+<%# ══════════════════════════════════════════════════════════════════════════
+    🌐 THE REST OF THE BOOK — everything past here is NOT about you specifically:
+    the open market anyone can take, the tool that builds a new bet, other
+    people's still-negotiating offers, the league-wide tracker and standings.
+    "My Bets" ended at the ledger above. ═══════════════════════════════════ %>
+<h2 class="sb-section-title sb-section-title-alt">🌐 The Rest of the Book <span class="sub">the open market, the tools, the league-wide record</span></h2>
+
+<%# ══ 7. THE BOARD — open bets you can take. ═══════════════════════════════ %>
+<% if (market.length) { %>
+<div class="card" style="margin-bottom:1.2rem; border-color:rgba(37,99,235,.45)">
+  <h2>📢 On the Board <span class="sub">posted open — take the other side and it's on</span></h2>
+  <div class="body"><% for (const b of market) { betCard(b, { withTake: true }); } %></div>
+</div>
+<% } %>
+
+<%- include('_bet_builder') %>
+
+<% if (proposedOthers.length) { %>
+<div class="card" style="margin-bottom:1.2rem">
+  <h2>⏳ Proposed <span class="sub">not a bet until everyone agrees</span></h2>
+  <div class="body"><% for (const b of proposedOthers) { betCard(b, {}); } %></div>
+</div>
+<% } %>
+
+<details class="sb-rules" style="margin-bottom:1.2rem">
+  <summary>⏱ How long a bet offer stays live</summary>
+  <ul>
+    <li><b>On one week's games</b> — until the first point is scored that week.
+      After that nobody can take it, because they'd be betting on a score they
+      can already see.</li>
+    <li><b>Offered mid-week, with games under way</b> — <b>3 hours</b>. Live
+      betting is fine, you're both watching. Leaving a live offer lying around
+      is not, because the price moves while it sits.</li>
+    <li><b>Season-long bets and pools</b> — <b>10 days</b> to answer, and dead
+      once the playoffs start either way.</li>
+  </ul>
+  <p>Expired offers can be sent again from <b>Bets You've Sent</b>. They don't
+  renew on their own — if you still want the bet, you have to still want it.</p>
+</details>
 
 <%# The tracker grid — the long war, owners × years. Drill-downs render at the
     top of the page (you tapped to get there); the grid itself lives with the
@@ -799,12 +1048,16 @@ function betCard(b, opts) {
   </div>
 </div>
 
-<% if (done.length || dead.length) { %>
+<%# Everyone ELSE's settled/declined bets — yours already rendered above in
+    "Settled, Yours" (My Bets); this keeps the "exactly one section" rule the
+    design pass established, now that settled bets are split by whose they are. %>
+<% const doneOthers = done.filter(b => !inIt(b)), deadOthers = dead.filter(b => !inIt(b)); %>
+<% if (doneOthers.length || deadOthers.length) { %>
 <details class="card entry-card">
-  <summary>📜 Settled &amp; declined <span class="sub"><%= done.length %> settled, <%= dead.length %> never happened</span></summary>
+  <summary>📜 Settled &amp; declined, league-wide <span class="sub"><%= doneOthers.length %> settled, <%= deadOthers.length %> never happened</span></summary>
   <div class="body">
-    <% for (const b of done) { betCard(b, {}); } %>
-    <% for (const b of dead) { betCard(b, {}); } %>
+    <% for (const b of doneOthers) { betCard(b, {}); } %>
+    <% for (const b of deadOthers) { betCard(b, {}); } %>
   </div>
 </details>
 <% } %>

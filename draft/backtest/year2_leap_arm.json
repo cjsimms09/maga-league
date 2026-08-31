@@ -1,0 +1,56 @@
+{
+ "_territory": "TERRITORY: D \u2014 draft/backtest/year2_leap_arm.py",
+ "_what": "P326 year-2 leap arm, priced against our own draft market's round curve.",
+ "seasons": [
+  2023,
+  2024,
+  2025
+ ],
+ "counts": {
+  "vet": 322,
+  "year2": 51,
+  "rookie": 45
+ },
+ "pairs": 51,
+ "mean_paired_diff": -11.89,
+ "ci95": [
+  -39.07,
+  14.88
+ ],
+ "paired_sd": 100.64,
+ "mde_80pct": 39.46,
+ "verdict": "FALSE \u2014 CI includes zero",
+ "controls": {
+  "C1_known_positive_round1_beats_late": {
+   "ok": true,
+   "gap_pts": 67.9,
+   "n_r1": 40,
+   "n_late": 238
+  },
+  "C2_shuffle_null_is_centred_and_the_observed_is_not_extreme": {
+   "ok": true,
+   "shuffled_mean": -1.25,
+   "shuffled_sd": 6.23,
+   "n": 200,
+   "observed": -11.89,
+   "two_sided_p_vs_shuffle": 0.06
+  },
+  "C3_pairs_are_real": {
+   "ok": true,
+   "pairs": 51,
+   "year2": 51
+  },
+  "C4_population_and_the_reason_it_shrank": {
+   "ok": true,
+   "drafted": 54,
+   "scorable": 51,
+   "dropped": 3,
+   "dropped_positions": [
+    "K"
+   ],
+   "why": "nflverse_weekly_points does not score kickers; any OTHER position dropping means the join broke, not that a filter worked"
+  }
+ },
+ "seed": 20260827,
+ "boot": 5000
+}

@@ -102,7 +102,17 @@ if (['designated', 'mine-only'].indexOf(KEEPER_MODE) < 0) throw new Error('bad -
 
 const board = LC.loadBoard();
 const ALL = board.players;
-const MY_KEEPERS = board.kept_players;
+/* ⚠️ FILTERED TO CORY'S SEAT (A, 2026-08-24, register 300/303). This read
+ * `board.kept_players` whole. Pre-lock that WAS his three; post-lock (08-23)
+ * it is the league's 23 — so a variable named MY_KEEPERS held ten managers'
+ * players, and it is used below both as the two-source agreement check AND as
+ * his roster. The check threw "keeper sources disagree: config/keepers.json vs
+ * board kept_players" comparing his 3 against all 23, which is a refusal that
+ * could never stop being true. Same shape as draft/tools/draft_ready.js and
+ * draft/tests/_empty_roster_fiction_precondition.js, both corrected the same
+ * day. MY_SLOT is read inline because it is declared a few lines BELOW this. */
+const MY_KEEPERS = (board.kept_players || []).filter(
+  k => Number(k.team_slot) === Number(board.league.my_draft_slot));
 const LEAGUE = board.league;
 const PICKS = (board.pick_order || {}).picks || [];
 const MY_SLOT = LEAGUE.my_draft_slot;
@@ -148,7 +158,20 @@ const myEntry = (KEEPER_FILE.teams || []).find(t => t.draft_slot === MY_SLOT);
     throw new Error('keeper sources disagree: config/keepers.json vs board kept_players');
   }
 }
-const byId = new Map(ALL.map(p => [String(p.player_id), p]));
+/* ⚠️ IDENTITY MAP, SO IT SPANS BOTH POOLS — `ALL` stays the DRAFTABLE pool
+ * (A, 2026-08-24, register 300/301). `ALL` is `board.players`, which
+ * post-lock excludes the 23 keepers, so this map could not resolve ANY of
+ * them and the designated-slate loop below threw "designated keeper not on
+ * board: Ashton Jeanty" — another manager's keeper, correctly listed in
+ * keepers.json and correctly absent from the draftable board. Register
+ * 277's lookup shape.
+ *
+ * AUDITED BEFORE WIDENING, because conflating availability with identity is
+ * exactly the mistake I made in withheld_slate_exposure earlier today:
+ * every use of `byId` in this file is a `.get()` for resolution, never an
+ * iteration over the draftable pool. Widening it changes no simulation. */
+const byId = new Map(ALL.concat(board.kept_players || [])
+  .map(p => [String(p.player_id), p]));
 // slot -> { keeperRows: [player rows], forfeitRounds: Set }
 const OPP_KEEPERS = new Map();
 if (KEEPER_MODE === 'designated') {
@@ -310,7 +333,14 @@ function runRoom(seed, armName) {
       t.roster.forEach(p => { posCounts[p.position] = (posCounts[p.position] || 0) + 1; });
       const chosen = AP.choosePick(armName, recs,
         { round, picksLeft: MY_PICKS.length - myPickIndex, posCounts,
-          planSlot: PLAN_SLOT[overall] || null, classOf: UC.classify });
+          planSlot: PLAN_SLOT[overall] || null, classOf: UC.classify,
+          /* P322: a deterministic per-pick stream for the constructed-null arm,
+           * derived PURELY from the room seed and the pick number. It draws
+           * NOTHING from `rng` on purpose — consuming from the shared stream
+           * would shift every later opponent pick and silently unpair this arm
+           * from the control, which is the failure the paired design exists to
+           * avoid. */
+          pickSeed: (seed * 2654435761 + overall) >>> 0 });
       if (chosen !== recs[0]) overlayDiverged++;
       const p = chosen.player;
       // The upside class of BOTH the taken player and the engine's own top

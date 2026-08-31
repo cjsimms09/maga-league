@@ -28,6 +28,11 @@ from scoring import (DEF_PROJ_TD_ALIASES, normalize_def_stat_line,  # noqa: E402
 EVIDENCE = json.loads(
     (ROOT / "draft" / "audit" / "proj_correctness_evidence_2026-08-16.json").read_text())
 BOARD = json.loads((ROOT / "public" / "draft_data.json").read_text())
+
+#: The commit that gave `vorp.replacement_levels` its `full_pool=` argument, so
+#: replacement is ranked over everyone who STARTS rather than everyone who can
+#: be DRAFTED. Boards built before this carry the pre-fix levels by construction.
+REPLACEMENT_POOL_FIX_LANDED = "2026-08-25T00:00:00Z"
 SCORING = BOARD["league"]["scoring"]
 DEF_ROWS = EVIDENCE["sleeper"]["def_rows"]
 BOARD_DEFS = {str(p["player_id"]): p for p in BOARD["players"]
@@ -192,10 +197,52 @@ def test_EVERY_position_replacement_is_the_Nth_best_not_just_DEF():
     This is the check that would have caught register 148 (two replacement
     tables in this repo disagreeing by 2x at RB and WR) from the board side:
     whatever table produced these numbers, each one must still be the N-th best
-    projection at its own position on the board that ships."""
+    projection at its own position on the board that ships.
+
+    ⚠️ RANKED OVER `players` + `kept_players`, AND IT USED TO RANK `players`
+    ALONE — which made this test an ASSERTION OF REGISTER 283'S DEFECT.
+
+    Kept players are removed from `players` at the keeper lock because they
+    cannot be DRAFTED, but they start all season, and `starter_counts` stays at
+    its league-wide values. Replacement is the N-th best projection among
+    everyone who STARTS, so the ranking pool has to include them; ranking the
+    draftable pool alone walks the marker one place deeper per keeper lost at
+    that position. Corrected 2026-08-25 (A) with `vorp.replacement_levels`'s
+    `full_pool=`.
+
+    It was this test that made the correction visible: it PASSED on the
+    committed pre-fix board and FAILED on the first fresh board built with the
+    fix, blocking the publish. Measured on the 08-22 board, the two pools give
+    different answers at four of six positions, which is the defect's size:
+
+        pos   published (correct)   Nth of players ONLY
+        RB               181.10                  137.6
+        WR               170.30                  151.6
+        QB               350.80                  347.8
+        TE               141.70                  138.0
+        DEF              100.50                  100.5   (no keepers)
+        K                125.90                  125.9   (no keepers)
+
+    DEF and K agree because no keeper plays those positions — which is the
+    tell that this is about the POOL and not about the arithmetic.
+
+    ⚠️ SCOPED TO BOARDS BUILT AFTER THE FIX, and that is what makes it useful
+    rather than permanently red. The board committed today was built before it
+    and carries the pre-fix numbers by construction; asserting against that would
+    pin a stale artifact as a failure forever. The board the ACCEPTANCE GATE
+    checks is the freshly built candidate, which is post-fix — so this enforces
+    exactly where publishing is decided, and the stale case is handled by
+    `test_the_draftable_pool_alone_would_give_a_DIFFERENT_answer` below, which
+    turns it into a known positive instead of a skip."""
     rep = BOARD["replacement"]
+    if str(BOARD.get("built_at") or "") < REPLACEMENT_POOL_FIX_LANDED:
+        pytest.skip(
+            f"board built {BOARD.get('built_at')}, before the register-283 pool "
+            f"fix ({REPLACEMENT_POOL_FIX_LANDED}) — it carries the pre-fix "
+            "replacement levels by construction. The companion test below "
+            "asserts that, so this is not an unchecked gap.")
     by_pos = {}
-    for p in BOARD["players"]:
+    for p in BOARD["players"] + (BOARD.get("kept_players") or []):
         if p.get("proj_mean") is None:
             continue
         by_pos.setdefault(p["position"], []).append(p["proj_mean"])
@@ -211,6 +258,65 @@ def test_EVERY_position_replacement_is_the_Nth_best_not_just_DEF():
         checked += 1
     #: non-vacuous — a board that lost its starter_counts would pass trivially
     assert checked >= 5, f"only {checked} positions were actually checked"
+
+
+def test_the_draftable_pool_alone_would_give_a_DIFFERENT_answer():
+    """RULE 3e — the known positive for the test above.
+
+    That test now ranks `players` + `kept_players`, and if the two pools happened
+    to agree everywhere it would be passing for a reason that has nothing to do
+    with the correction. So: on a board that HAS keepers, ranking the draftable
+    pool alone must give a materially different number at the positions where
+    keepers were lost. If this ever stops being true, either the keeper lock
+    stopped removing players from `players` or the board carries no keepers, and
+    in both cases the test above needs re-deriving rather than trusting.
+
+    It also states the defect's direction: the draftable-pool-only answer is
+    always LOWER (the marker sits deeper), which is what OVERSTATES vorp."""
+    kept = BOARD.get("kept_players") or []
+    if not kept:
+        pytest.skip("no keepers on this board — the two pools cannot differ")
+
+    rep = BOARD["replacement"]
+    pre_fix = str(BOARD.get("built_at") or "") < REPLACEMENT_POOL_FIX_LANDED
+    draftable = {}
+    for p in BOARD["players"]:
+        if p.get("proj_mean") is None:
+            continue
+        draftable.setdefault(p["position"], []).append(p["proj_mean"])
+
+    kept_positions = {k["position"] for k in kept}
+    differing = []
+    for pos, n in rep["starter_counts"].items():
+        if pos not in kept_positions:
+            continue
+        ranked = sorted(draftable.get(pos, []), reverse=True)
+        published = rep["replacement_points"].get(pos)
+        if published is None or len(ranked) < n:
+            continue
+        if published != pytest.approx(ranked[n - 1]):
+            differing.append(pos)
+            assert ranked[n - 1] < published, (
+                f"{pos}: the draftable-pool-only marker ({ranked[n - 1]}) is not "
+                f"BELOW the published one ({published}) — register 283's defect "
+                "understates replacement, so this direction is part of the claim")
+
+    if pre_fix:
+        # THE STALE BOARD IS THE KNOWN POSITIVE. It was built by the old code, so
+        # its published levels ARE the draftable-pool-only ones and the two pools
+        # must AGREE. If they disagreed, this board did not come from the code we
+        # think it did.
+        assert not differing, (
+            f"board built {BOARD.get('built_at')} predates the fix, so its "
+            f"published levels should be exactly the draftable-pool-only ones — "
+            f"but {differing} disagree. Its provenance is not what it claims.")
+        return
+
+    assert differing, (
+        "ranking the draftable pool alone gave the SAME answer at every position "
+        f"that lost a keeper ({sorted(kept_positions)}) — so the test above is "
+        "not actually exercising the correction and proves nothing about it"
+    )
 
 
 def test_aggregate_wins_components_dropped():

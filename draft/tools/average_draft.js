@@ -163,11 +163,21 @@ function zOf(p) {
 const sigmaOf = p => (p.proj_ceiling != null && p.proj_mean != null)
   ? Math.max(0, (+p.proj_ceiling - +p.proj_mean) / Z128) : 0;
 
-/* dispersion at each position's WIRE rank -- the alternative body's range */
+/* dispersion at each position's WIRE rank -- the alternative body's range.
+ *
+ * ── THE RANK IS LEAGUE-WIDE, SO THE POOL MUST BE TOO (register 397) ────────
+ * `WIRE_RANK` is this room's revealed consumption per 150-pick draft (see the
+ * WAIVER block above): the wire body is the (N+1)th best at his position IN THE
+ * LEAGUE. Ranking that over `DATA.players` alone reads it 23 bodies deep, since
+ * the 2026-08-23 lock emptied every keeper out of `players`. Fourth hand-rolled
+ * copy of register 283's arithmetic, after the two register 394 retired, so it
+ * shares `draft_plan.starterPool()` rather than becoming a fifth.
+ * MEASURED on the 08-26 board, pre-DS column: RB wire sigma 17.42 -> 16.76 and
+ * WR 9.54 -> 5.14. Small against the other two, and real. */
 const WIRE_RANK = { QB: 17, RB: 48, WR: 53, TE: 15, K: 11, DEF: 11 };
 const SIGMA_WIRE = {};
 POS.forEach(q => {
-  const v = DATA.players.filter(p => p.position === q && p.proj_mean != null)
+  const v = PLAN.starterPool().filter(p => p.position === q && p.proj_mean != null)
     .sort((a, b) => +b.proj_mean - +a.proj_mean);
   const r = WIRE_RANK[q] || 1;
   const win = v.slice(Math.max(0, r - 4), r + 3).map(sigmaOf).sort((a, b) => a - b);
@@ -228,9 +238,14 @@ function weightOf(pos, held, flexOwner, lam) {
   return (d === null) ? lam : d;
 }
 
-function runRoom() {
+/* `jitter` is the scale on the ADP noise. It is 1 for every simulated room and
+ * 0 for the DETERMINISTIC run — the straight ADP order, no noise, same board,
+ * same rules, same everything else. It exists so control C5 can compute the
+ * n=1 result instead of quoting one (register 395). */
+function runRoom(jitter) {
+  const J = jitter == null ? 1 : jitter;
   /* the room's order: adp jittered by the board's own adp_sd */
-  const order = pool.map(p => ({ p, k: adpOf(p) + gauss() * sdOf(p) }))
+  const order = pool.map(p => ({ p, k: adpOf(p) + (J ? gauss() * sdOf(p) : 0) }))
     .sort((a, b) => a.k - b.k).map(x => String(x.p.player_id));
   const held = {};
   PLAN.keep.forEach(k => { held[k.position] = (held[k.position] || 0) + 1; });
@@ -342,6 +357,9 @@ function runRoom() {
 
 const rows = [];
 for (let r = 0; r < ROOMS; r++) rows.push(runRoom());
+/* THE DETERMINISTIC RUN — straight ADP order, no jitter. Taken AFTER the rooms
+ * so the RNG sequence above is untouched (register 395). */
+const DET = runRoom(0);
 
 const mean = a => a.reduce((x, y) => x + y, 0) / a.length;
 const sd = a => { const m = mean(a); return Math.sqrt(a.reduce((x, y) => x + (y - m) ** 2, 0) / (a.length - 1)); };
@@ -372,19 +390,61 @@ const ctl = {
     why: 'reported, not silently defaulted' },
   C3_same_picks_and_keepers_every_room: { ok: SCHED.length === 12 && PLAN.keep.length === 3,
     sched: SCHED, keepers: PLAN.keep.map(k => k.position) },
-  C4_sources_passed_their_controls: { ok: true },
+  /* ⛔ WAS `{ ok: true }` — the one control in this file that asserted its
+   * property instead of reading it, while the flags it is about are loaded
+   * twenty lines from the top. Register 410. */
+  C4_sources_passed_their_controls: {
+    ok: MN.controls_all_passed === true && ST.controls_all_passed === true
+        && FLEXX.controls_all_passed === true,
+    measured_need_curve: MN.controls_all_passed,
+    streamability: ST.controls_all_passed,
+    flex_exposure: FLEXX.controls_all_passed,
+    why: 'this run is only as good as the three artifacts it drives on; the file '
+       + 'REFUSES at load if any of them failed, and this reads the same flags '
+       + 'rather than restating the conclusion' },
   C6_gate_never_leaves_a_slot_empty: (() => {
     const bad = rows.filter(r => !r.legal).length;
     return { ok: bad === 0, rooms_with_an_unfilled_starting_slot: bad,
       why: 'if the reservation arithmetic is wrong the gate can strand a slot; '
          + 'that would make the whole idea fail and it must be zero' };
   })(),
+  /* ── C5 WAS NOT WHAT ITS NAME SAID, AND I MIS-CREDITED IT TO CORY (reg 118)
+   *
+   * It read `const det = { QB: 2, RB: 3, WR: 4, TE: 1, K: 1, DEF: 1 }` — the
+   * P144 arm's result of 2026-08-19, frozen in as a literal. So it did not
+   * check "the n=1 run falls inside the simulated range"; it checked whether
+   * the CURRENT arm still resembles an arm from earlier that day. It would go
+   * green on any future arm that happened to look like P144 while missing a
+   * genuinely broken noise model, and I told Cory "C5 caught the bug" when what
+   * it had caught was divergence from a stale constant.
+   *
+   * It is computed now: the same board, the same rules, the same everything,
+   * with the ADP jitter scaled to ZERO. That IS the n=1 deterministic run, and
+   * it moves when the arm moves. Run AFTER the 300 rooms and with `jitter: 0`,
+   * which takes no `gauss()` draws at all, so the simulated sequence above is
+   * byte-for-byte unchanged. Register 395. */
   C5_deterministic_run_inside_the_distribution: (() => {
-    /* the n=1 ADP-order result was QB2 RB3 WR4 TE1 K1 DEF1 */
-    const det = { QB: 2, RB: 3, WR: 4, TE: 1, K: 1, DEF: 1 };
-    const inside = POS.every(q => det[q] >= stat[q].min && det[q] <= stat[q].max);
-    return { ok: inside, deterministic: det,
-      why: 'if the n=1 result is outside the simulated range, the noise model is wrong' };
+    const det = DET.counts;
+    const outside = POS.filter(q => (det[q] || 0) < stat[q].min || (det[q] || 0) > stat[q].max);
+    return { ok: outside.length === 0,
+      deterministic: Object.fromEntries(POS.map(q => [q, det[q] || 0])),
+      deterministic_roster: Object.fromEntries(POS.map(q => [q, DET.roster[q] || 0])),
+      simulated_range: Object.fromEntries(POS.map(q => [q, [stat[q].min, stat[q].max]])),
+      positions_outside: outside,
+      why: 'the n=1 ADP-order run is COMPUTED here, not quoted. If it falls '
+         + 'outside the simulated range the noise model is wrong. It was a '
+         + 'hardcoded literal until register 395 and could only ever have said '
+         + 'whether the current arm resembles the P144 arm of 2026-08-19.' };
+  })(),
+  /* THE KNOWN NEGATIVE C5 NEVER HAD. A control that only ever reports agreement
+   * cannot be told from a stub, so prove the deterministic run is a DIFFERENT
+   * object from the simulated mean — if it lands exactly on every mean, `jitter`
+   * is not reaching the order and both sides are the same run. */
+  C5b_the_deterministic_run_is_actually_a_different_run: (() => {
+    const gap = POS.reduce((a, q) => a + Math.abs((DET.counts[q] || 0) - stat[q].mean), 0);
+    return { ok: gap > 0.01, total_abs_gap_vs_simulated_mean: +gap.toFixed(2),
+      why: 'if this reads 0 the jitter is not reaching the draft order and C5 is '
+         + 'comparing a run against itself' };
   })(),
 };
 const allOk = Object.values(ctl).every(c => c.ok);
@@ -392,7 +452,16 @@ const allOk = Object.values(ctl).every(c => c.ok);
 console.log('THE AVERAGE DRAFT — ' + ROOMS + ' simulated rooms   (P158)\n');
 Object.entries(ctl).forEach(([k, c]) => console.log('  ' + (c.ok ? 'OK ' : '!! ') + k));
 if (!allOk) console.log('\n  !! A CONTROL FAILED. Nothing below is a measurement.\n');
-console.log('\n  rooms differ: ' + JSON.stringify(ctl.C1_rooms_actually_differ.players_gone_by_pick_33));
+/* PRINTED `undefined` FOR AS LONG AS IT HAS EXISTED: the key is
+ * `players_differing_from_room_0` — `players_gone_by_pick_33` was renamed when
+ * C1 was fixed (the gone.size defect it documents) and this line was not.
+ * The exact shape `nothing_computed_goes_unshown.js` exists for. Register 395. */
+console.log('\n  rooms differ: ' + JSON.stringify(ctl.C1_rooms_actually_differ.players_differing_from_room_0)
+  + '   distinct players ever gone by pick ' + SCHED[0] + ': '
+  + ctl.C1_rooms_actually_differ.distinct_players_ever_gone_by_pick_33);
+console.log('  deterministic run (no ADP jitter): '
+  + POS.map(q => q + ' ' + (DET.counts[q] || 0)).join(' ')
+  + '   roster ' + POS.map(q => q + ' ' + (DET.roster[q] || 0)).join(' '));
 /* ⛔ P158 WAS GRADED ON THE DRAFTED COUNT AND CORY'S BAND IS A ROSTER BAND.
  * He keeps Chase, Henry and Walker, so "RB 3.94 drafted" IS a SIX-back roster
  * -- literally the thing he rejected ("i dont want 6 rb 5wr"). The gate below

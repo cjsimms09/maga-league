@@ -96,6 +96,7 @@ function normalize(b) {
   b.pool ??= null;
   b.draft ??= null;
   for (const p of b.parties || []) { p.position ??= ''; p.picks ??= []; }
+  b.terms_version ??= 1;   // true-edit versioning (Cory's ruling, 2026-08-23)
   if (b.status === STATUS.SETTLED && !b.legs) b.legs = buildLegs(b);
   b.legs ??= [];
   // Payer's I-paid claim (receiver-confirms model) — default at read time so a
@@ -140,7 +141,7 @@ async function propose({
   position = '', picks = [], resolves = '', week = null,
   format = 'prop', conditions = [], logic = 'all', pool_rules = [], picks_required = 0,
   open_slots = 0, kind = '',
-  pool_teams = [], pool_wins = '',
+  pool_teams = [], pool_wins = '', party_picks = null,
 }) {
   const others = [...new Set(party_ids.map(Number))].filter(id => id && id !== Number(proposer_id));
   const slots = Math.min(Math.max(Number(open_slots) || 0, 0), MAX_OPEN_SLOTS);
@@ -173,6 +174,7 @@ async function propose({
     // nothing is picked until both sides are in — a pool bet is a draft, not a form.
     pool: format === 'pool'
       ? { team_pool: [...new Set((pool_teams || []).map(Number))].filter(Boolean),
+          recorded: !!(party_picks && Object.keys(party_picks).length),
           wins: String(pool_wins || 'holds the league champion').slice(0, 200) }
       : null,
     draft: null,
@@ -184,7 +186,13 @@ async function propose({
     status: slots ? STATUS.OPEN : STATUS.PROPOSED,
     parties: [
       mkParty(proposer_id, true, { position, picks }),
-      ...others.map(id => mkParty(id, false)),
+      /* RECORD MODE (Cory, 08-23, the Richard bet: "we shouldn't have to
+       * draft on the site.. we picked them"): when the split already
+       * happened offline, the proposer records BOTH sides' picks and
+       * accepting confirms the done deal — pool.recorded makes the accept
+       * path skip startPoolDraft. Route-validated disjoint + counted. */
+      ...others.map(id => mkParty(id, false,
+        party_picks && party_picks[id] ? { picks: party_picks[id] } : {})),
     ],
     winner_ids: [],
     legs: [],
@@ -201,11 +209,21 @@ function isParty(bet, owner_id) {
 }
 
 /** Accepting is the handshake. Once the last party accepts, the bet is on. */
-async function accept(id, owner_id, by_name, { position = '', picks = null } = {}) {
+async function accept(id, owner_id, by_name, { position = '', picks = null, expected_version = null } = {}) {
   const bet = await get(id);
   if (!bet || bet.status !== STATUS.PROPOSED) return null;
   const party = (bet.parties || []).find(p => p.owner_id === Number(owner_id));
   if (!party || party.accepted) return bet;
+  /* THE EDIT SAFETY RULE (Cory's true-edit ruling, 2026-08-23): an accept
+   * binds you to the terms YOU WERE LOOKING AT. The form carries the
+   * terms_version it rendered; if the proposer edited in between, this
+   * refuses rather than binding you to words you never saw. A form that
+   * sends no version (older cached page) is treated as stale the moment any
+   * edit exists — refusing is the safe direction. */
+  if ((bet.terms_version || 1) > 1
+      && Number(expected_version || 1) !== (bet.terms_version || 1)) {
+    return { stale_terms: true, id: bet.id, terms_version: bet.terms_version };
+  }
 
   if (position) party.position = String(position).slice(0, MAX_POSITION);
   if (picks) party.picks = [...new Set(picks.map(Number))].filter(Boolean);
@@ -762,8 +780,12 @@ function moneyOnTeams(bets, viewer_id, nameOf) {
       // Everyone in the pool is rooting for their own picks.
       for (const p of b.parties || []) {
         for (const teamId of p.picks || []) {
+          /* Item 21 (Cory: "the way the bet is listed says bet per team? What
+           * does that mean"): the full stake is NOT riding on each team — one
+           * winner-take-all pot, decided by whoever holds the champion. Say
+           * that, never a dollar figure per team. */
           bump(teamId, p.owner_id, b.stake,
-            `${nameOf(p.owner_id)} has ${b.stake} on them — ${b.terms.slice(0, 60)}`);
+            `one of ${nameOf(p.owner_id)}'s picks in a $${b.stake} winner-take-all pool — ${b.terms.slice(0, 60)}`);
         }
       }
       continue;
@@ -864,6 +886,64 @@ function betYear(b) {
 }
 
 /** One party's dollar delta on a bet: +winnings or −stake. 0 unless settled. */
+/**
+ * LIFETIME HEAD-TO-HEAD (redesign catalog item 6, 2026-08-24): the record
+ * between two owners across every SETTLED two-party bet they were both in —
+ * "you're 3–1 lifetime vs Richard" on the card, from data nobody typed.
+ * Pushes count as games played, never as wins; net is from a's side.
+ */
+function pairRecord(bets, aId, bId) {
+  const a = Number(aId), b2 = Number(bId);
+  let aWins = 0, bWins = 0, pushes = 0, aNet = 0;
+  for (const bet of bets || []) {
+    if (bet.status !== STATUS.SETTLED) continue;
+    const ids = (bet.parties || []).map(p => Number(p.owner_id));
+    if (ids.length !== 2 || !ids.includes(a) || !ids.includes(b2)) continue;
+    if (bet.push) { pushes++; continue; }
+    aNet += partyDelta(bet, a);
+    if ((bet.winner_ids || []).map(Number).includes(a)) aWins++; else bWins++;
+  }
+  return { games: aWins + bWins + pushes, aWins, bWins, pushes, aNet: r2(aNet) };
+}
+
+/**
+ * RUN IT BACK (redesign catalog item 4): one tap re-proposes a finished
+ * two-party prop — same words, same stake, same opponent, roles set by who
+ * tapped. The new bet is a first-class proposal (expiry clock, accept flow).
+ *
+ * WEEK-BOUND CONDITIONS ARE DROPPED, DELIBERATELY: a condition naming week 4
+ * re-run in week 9 would grade on a week that already happened — silently
+ * wrong in exactly the way the engine exists to prevent. The words survive in
+ * `terms`; the audit says what was dropped and why, and the bet settles by
+ * hand like any handshake unless conditions are re-added fresh.
+ */
+async function rerun(id, owner_id) {
+  const bet = await get(id);
+  if (!bet) return null;
+  if (![STATUS.SETTLED, STATUS.DECLINED, STATUS.VOID].includes(bet.status)) {
+    return { refused: 'not_finished' };
+  }
+  if (!isParty(bet, owner_id)) return { refused: 'not_yours' };
+  if (bet.format !== 'prop' || (bet.parties || []).length !== 2) {
+    return { refused: 'not_two_party_prop' };
+  }
+  const other = bet.parties.find(p => Number(p.owner_id) !== Number(owner_id));
+  const weekBound = (bet.conditions || []).some(c => c.when === 'week' && c.week);
+  const next = await propose({
+    proposer_id: owner_id, party_ids: [other.owner_id],
+    terms: bet.terms, stake: bet.stake, resolves: bet.resolves,
+    conditions: weekBound ? [] : (bet.conditions || []),
+    logic: bet.logic, kind: bet.kind,
+  });
+  next.rerun_of = bet.id;
+  next.audit.push({ at: now(), by: Number(owner_id),
+    what: 'Run it back — same bet, fresh offer' + (weekBound
+      ? ' (week-bound conditions dropped: their week has passed — settles by hand unless re-added)'
+      : '') });
+  await store.set(KEY(next.id), next);
+  return next;
+}
+
 function partyDelta(b, owner_id) {
   if (b.status !== STATUS.SETTLED || b.push) return 0;
   const won = (b.winner_ids || []).includes(Number(owner_id));
@@ -992,9 +1072,97 @@ function disputed(bets, owner_id) {
   return bets.filter(b => b.status === STATUS.DISPUTED && isParty(b, me));
 }
 
+/**
+ * TRUE EDIT of an unaccepted offer — Cory, 2026-08-23: "I didn't say bet
+ * withdrawal I said edit." Same card, same thread, no withdraw-and-resend
+ * noise. Allowed ONLY while the bet is a proposal and nobody but the
+ * proposer has accepted; every edit bumps terms_version (see accept's
+ * stale-terms refusal), keeps the prior terms in `edits` so the card can
+ * show what changed, and writes the audit line. Once anyone else accepts,
+ * editing is over — that is what accepted means.
+ */
+async function edit(id, owner_id, { stake = null, terms = null } = {}) {
+  const bet = await get(id);
+  if (!bet) return null;
+  if (bet.status !== STATUS.PROPOSED) return { refused: 'not_editable' };
+  if (Number(bet.proposer_id) !== Number(owner_id)) return { refused: 'not_yours' };
+  if ((bet.parties || []).some(p => p.accepted && Number(p.owner_id) !== Number(owner_id)))
+    return { refused: 'already_accepted' };
+  const nextTerms = terms != null && String(terms).trim() !== ''
+    ? String(terms).slice(0, MAX_TERMS) : bet.terms;
+  const nextStake = stake != null && String(stake).trim() !== ''
+    ? Math.abs(Number(stake) || 0) : bet.stake;
+  if (nextTerms === bet.terms && nextStake === bet.stake) return bet;   // no-op
+  bet.edits = bet.edits || [];
+  bet.edits.push({ terms: bet.terms, stake: bet.stake, version: bet.terms_version || 1, at: now() });
+  bet.terms = nextTerms;
+  bet.stake = nextStake;
+  bet.terms_version = (bet.terms_version || 1) + 1;
+  bet.audit.push({ at: now(), by: Number(owner_id),
+    what: `Edited (v${bet.terms_version}): $${bet.stake} — ${bet.terms.slice(0, 80)}` });
+  await store.set(KEY(bet.id), bet);
+  return bet;
+}
+
+/**
+ * COUNTER-OFFER (redesign catalog item 3, 2026-08-24): "I'd take this bet at a
+ * different price." The recipient of a PROPOSED two-party prop answers with
+ * their own numbers instead of a flat yes/no.
+ *
+ * Mechanically a counter is DECLINE + RE-PROPOSE WITH ROLES SWAPPED, linked
+ * both ways — deliberately, because both halves already have correct
+ * semantics: the original dies on the record (its proposer sees why), and the
+ * counter is a first-class proposal (auto-accepted by its proposer, expiry
+ * clock, terms_version 1) that lands in the ORIGINAL proposer's NEEDS YOU.
+ * They can accept, decline, or counter back — a negotiation is just this,
+ * repeated, and every offer in the chain stays auditable.
+ *
+ * Guardrails: PROPOSED only · a named party only · not the proposer (they
+ * EDIT, they don't counter themselves) · not after you already accepted
+ * (that's a handshake, not a negotiation) · two-party props only — a
+ * multi-party or pool counter would silently renegotiate other people's
+ * agreement, so it refuses with the reason.
+ */
+async function counter(id, owner_id, by_name, { stake = null, terms = null } = {}) {
+  const bet = await get(id);
+  if (!bet) return null;
+  if (bet.status !== STATUS.PROPOSED) return { refused: 'not_counterable' };
+  if (!isParty(bet, owner_id)) return { refused: 'not_yours' };
+  if (Number(bet.proposer_id) === Number(owner_id)) return { refused: 'own_offer' };
+  if (bet.format !== 'prop' || (bet.parties || []).length !== 2) return { refused: 'not_two_party_prop' };
+  const me = bet.parties.find(p => Number(p.owner_id) === Number(owner_id));
+  if (me && me.accepted) return { refused: 'already_accepted' };
+
+  const nextTerms = terms != null && String(terms).trim() !== ''
+    ? String(terms).slice(0, MAX_TERMS) : bet.terms;
+  const nextStake = stake != null && String(stake).trim() !== ''
+    ? Math.abs(Number(stake) || 0) : bet.stake;
+  if (nextTerms === bet.terms && nextStake === bet.stake) return { refused: 'no_change' };
+
+  const next = await propose({
+    proposer_id: owner_id,
+    party_ids: [bet.proposer_id],
+    terms: nextTerms, stake: nextStake,
+    resolves: bet.resolves, week: bet.week,
+    conditions: bet.conditions, logic: bet.logic, kind: bet.kind,
+  });
+  next.countered_from = bet.id;
+  next.audit.push({ at: now(), by: Number(owner_id),
+    what: `Counter-offer: was $${bet.stake} — now $${nextStake}` });
+  await store.set(KEY(next.id), next);
+
+  bet.status = STATUS.DECLINED;
+  bet.countered_to = next.id;
+  bet.audit.push({ at: now(), by: Number(owner_id),
+    what: `${by_name || 'Someone'} countered — see the new offer` });
+  await store.set(KEY(bet.id), bet);
+  return { bet, next };
+}
+
 module.exports = {
   STATUS, MAX_OPEN_SLOTS,
-  all, get, propose, accept, take, decline, settle, reopen, remove,
+  all, get, propose, accept, take, decline, settle, reopen, remove, edit, counter,
+  pairRecord, rerun,
   declareResult, confirmResult, disputeResult,
   startPoolDraft, poolDraftPick, snakeTurn,
   setPosition, markLeg, isParty, offerBuyout, acceptBuyout, clearBuyout, resend,

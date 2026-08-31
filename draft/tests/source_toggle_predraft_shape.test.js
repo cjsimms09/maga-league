@@ -40,7 +40,34 @@ const ck = (n, c, d) => {
 
 const my = ((data.pick_order || {}).my_picks) || [];
 const keptIds = ((data.kept_player_ids) || []).map(String);
-const kept = (data.kept_players) || [];
+
+/* ⚠️ MY ROSTER IS MY SEAT'S KEEPERS, NOT THE LEAGUE'S. This line read
+ * `const kept = data.kept_players` and handed the whole array in below as both
+ * `roster` and `currentKeepers`. That was CORRECT until 2026-08-23: before the
+ * league-wide keeper lock `kept_players` carried Cory's three, so "all of
+ * kept_players" and "my roster" were the same set. After the lock it carries
+ * all 23 keepers across 9 seats, and this file went on calling them mine.
+ *
+ * WHAT IT DID, MEASURED 2026-08-26. A 23-player roster of 12 RB / 9 WR / 1 TE /
+ * 1 QB is stuffed everywhere and empty at DEF and K, and `need` ships at weight
+ * 1.0 (engine.js:826), so the pre-draft board floated the best-priced defense it
+ * could find into the top 20 — `DEF Los Angeles Rams` under Sleeper, the ONE
+ * view that has a defense worth floating (Sleeper alone prices LAR as DEF1:
+ * proj 132 against its own DEF replacement 103, vorp 29, where the blend has it
+ * DEF4 at vorp 7.4). Every other view stayed clean, which is why this read for
+ * days as "a Sleeper board-shape defect" rather than as a wrong roster.
+ *
+ * CONTROL, both directions: with the roster emptied the intrusion disappears on
+ * all nine views; with the roster seat-filtered as below it disappears on all
+ * nine AND the FAIL ARM at the bottom still fires. So the check is not being
+ * satisfied by being switched off.
+ *
+ * The seat lookup is `app.js:7441`'s, verbatim in effect: `kept_players.team_slot`
+ * is stamped with the LEAGUE seat, so it is read against `league.my_draft_slot`.
+ * Register 351 ⑤. */
+const MY_SEAT = Number((data.league || {}).my_draft_slot);
+const leagueKept = (data.kept_players) || [];
+const kept = leagueKept.filter(k => Number(k.team_slot) === MY_SEAT);
 const base = data.players.filter(p => !keptIds.includes(String(p.player_id)));
 
 function view(srcKey, pre) {
@@ -98,6 +125,23 @@ const pools = VIEWS.map(v => view(v.key, true).pool.length);
 ck('CONTROL: the source views are genuinely different pools, so the checks '
   + 'below are five measurements rather than one repeated five times',
 new Set(pools).size >= 3, { pools: pools, labels: VIEWS.map(v => v.label) });
+
+/* CONTROL: the seat filter above must be REAL and must be MINE. Not a count —
+ * a count is the thing that expired. Two properties that cannot both hold if
+ * anyone reverts to the league-wide slate, and neither of which moves when
+ * Cory's keeper set changes size:
+ *   · it selected something (a filter that matches nothing would hand the
+ *     engine an empty roster and every check below would pass vacuously)
+ *   · it selected strictly less than the league's, and every row is my seat
+ * Nine of ten seats carry keepers today, so a revert cannot slip through by
+ * the two sets happening to coincide. */
+ck('CONTROL: the roster handed to the engine is MY seat\'s keepers, not the '
+  + 'league\'s 23 — the premise that expired at the 2026-08-23 keeper lock',
+kept.length > 0 && kept.length < leagueKept.length
+  && kept.every(k => Number(k.team_slot) === MY_SEAT),
+{ mySeat: MY_SEAT, mine: kept.map(k => k.position + ' ' + k.name),
+  leagueWide: leagueKept.length,
+  seatsWithKeepers: new Set(leagueKept.map(k => Number(k.team_slot))).size });
 
 VIEWS.forEach(v => {
   const r = view(v.key, true);

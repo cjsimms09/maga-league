@@ -107,13 +107,46 @@ const POS = ['QB', 'RB', 'WR', 'TE'];
    * understated the RB starter line by ~5.6% — flattering the wire at exactly
    * the position where the wire is worst. */
   const EXP = { QB: 15.5, RB: 14.2, WR: 15.0, TE: 14.8 };
+  /* ── AND THE POOL IT IS RANKED OVER IS THE LEAGUE, NOT THE DRAFT (register 394)
+   *
+   * This block used to recompute the expected line from `PLAN.pool` alone, which
+   * since the 2026-08-23 league-wide keeper lock is the DRAFTABLE pool with all
+   * 23 kept players removed. `slots` is `per x teams` — a league-wide count — so
+   * ranking it over the draftable pool walks the marker 23 bodies deeper. The
+   * test therefore encoded the defect and would have gone green forever.
+   *
+   * MEASURED when the fix landed: RB's line moves 9.61 -> 11.96 pts/wk (+24.5%)
+   * and the RB hold-or-stream ratio moves 61.4% -> 49.3%, a 12.1-point error in
+   * the direction that says a running back is easier to replace than he is. */
+  const BOARD = JSON.parse(fs.readFileSync(
+    path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
+  const inPool = new Set(PLAN.pool.map(x => String(x.player_id)));
+  const STARTER_POOL = PLAN.pool.concat((BOARD.kept_players || [])
+    .filter(x => x.position && Number.isFinite(+x.proj_mean)
+      && !inPool.has(String(x.player_id))));
+  ck('the starter line is ranked over the LEAGUE, keepers included — not the '
+    + 'draftable pool the keeper lock left behind',
+    STARTER_POOL.length > PLAN.pool.length,
+    { draftable: PLAN.pool.length, league: STARTER_POOL.length });
   POS.forEach(p => {
-    const s = PLAN.pool.filter(x => x.position === p && Number.isFinite(+x.proj_mean))
+    const s = STARTER_POOL.filter(x => x.position === p && Number.isFinite(+x.proj_mean))
       .map(x => +x.proj_mean / EXP[p]).sort((a, b) => b - a);
     const want = s[VS[p].slots - 1];
     ck('the ' + p + ' starter line matches a per-position games divisor',
       Math.abs(VS[p].starter - want) < 0.35, { got: VS[p].starter, want: want });
   });
+  /* FAIL ARM — the population change must be VISIBLE, or the four arms above
+   * are satisfied by a tolerance rather than by the fix. Recompute RB the OLD
+   * way and require it to come out materially lower; if this ever reads ~0 the
+   * keepers have stopped reaching the ranking and the arms above went green on
+   * a coincidence. Register 394. */
+  const rbOld = PLAN.pool.filter(x => x.position === 'RB' && Number.isFinite(+x.proj_mean))
+    .map(x => +x.proj_mean / EXP.RB).sort((a, b) => b - a)[VS.RB.slots - 1];
+  ck('FAIL ARM — the draftable-pool-only RB line is materially LOWER, which is '
+    + 'the defect reproduced rather than remembered',
+    VS.RB.starter - rbOld > 1.0,
+    { league: +VS.RB.starter.toFixed(2), draftable_only: +rbOld.toFixed(2),
+      understated_by_pct: +(100 * (VS.RB.starter - rbOld) / VS.RB.starter).toFixed(1) });
 }
 
 // ── 4. IT STILL REFUSES RATHER THAN GUESSING ────────────────────────────

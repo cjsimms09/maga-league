@@ -30,20 +30,25 @@
 <% } %>
 <% for (const v of open) { %>
 <div class="card vote-card" id="vote-<%= v.id %>">
-  <h2><%= v.question %> <span class="badge open">Open</span></h2>
+  <h2><%= v.question %> <% if (v.edited_at) { %><span class="muted" style="font-size:.7rem" title="Edited after it was proposed">(edited)</span><% } %> <span class="badge open">Open</span></h2>
   <div class="body">
     <p class="pass-note" style="margin:0 0 .4rem">Proposed by <b><%= v.proposer_name %></b></p>
     <% if (v.description) { %><p style="margin-top:0"><%= v.description %></p><% } %>
+    <p class="pass-note"><%= v.cast %> of <%= electorate %> votes in — needs <%= threshold %> YES to pass<%= v.passed ? ' — ✅ currently passing' : '' %></p>
+    <%# THE SPLIT AND THE ROLL CALL, BEHIND ONE TAP (Cory, 08-23: "don't have
+        to show who voted for what on votes, can have a click in to see that").
+        This SUPERSEDES the 08-16 always-visible roll call: the 08-16 intent —
+        the names are league-public, never secret — survives one tap down,
+        and the card face stays clean: the question, the quorum line, your
+        buttons. %>
+    <details class="ledger-history">
+      <summary>🗳 See the votes — <%= v.yes %> yes / <%= v.no %> no</summary>
+      <div style="padding:.55rem .2rem 0">
     <div class="tally-bar" title="<%= v.yes %> yes / <%= v.no %> no">
       <% const tot = Math.max(v.cast, 1); %>
       <div class="yes" style="width:<%= (v.yes / tot) * 100 %>%"><%= v.yes ? 'YES ' + v.yes : '' %></div>
       <div class="no" style="width:<%= (v.no / tot) * 100 %>%"><%= v.no ? 'NO ' + v.no : '' %></div>
     </div>
-    <p class="pass-note"><%= v.cast %> of <%= electorate %> votes in — needs <%= threshold %> YES to pass<%= v.passed ? ' — ✅ currently passing' : '' %></p>
-    <%# THE ROLL CALL (Cory, 2026-08-16: "see how everyone voted for everyone").
-        Open ballots were always server-known and never secret by design — the
-        tally bar printed the counts; this prints the names behind them, plus
-        the holdouts, which is what actually gets a measure over the line. %>
     <div class="roll-call" style="font-size:.78rem; margin:.2rem 0 .5rem; line-height:1.5">
       <div><b style="color:var(--green)">YES (<%= v.yes %>):</b>
         <%= v.ballots.filter(b => b.choice === 'yes').map(b => b.name).sort().join(', ') || '—' %></div>
@@ -53,6 +58,8 @@
         <div class="muted">Yet to vote (<%= v.not_voted.length %>): <%= v.not_voted.join(', ') %></div>
       <% } %>
     </div>
+      </div>
+    </details>
     <div class="vote-actions">
       <form class="asis" method="post" action="/votes/<%= v.id %>/ballot">
         <input type="hidden" name="choice" value="yes">
@@ -68,13 +75,31 @@
           <button class="btn small ghost" type="submit" title="Withdraw your ballot — back to not-voted">↩ Withdraw my vote</button>
         </form>
       <% } %>
+      <%# WITHDRAW THE MEASURE (catalog 10) — proposer only, and only before
+          anyone ELSE has weighed in; once the league engages, the record
+          stands and the button disappears rather than refusing. %>
+      <% if (v.proposer_id === owner.id
+             && !v.ballots.some(b => b.owner_id !== owner.id)) { %>
+        <details class="asis" style="display:inline-block">
+          <summary style="list-style:none;cursor:pointer" class="btn small ghost" title="Fix a typo — same rule as withdraw, only before anyone else has voted">✎ Edit</summary>
+          <form method="post" action="/votes/<%= v.id %>/edit" style="display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.4rem">
+            <input type="text" name="question" maxlength="200" required value="<%= v.question %>" style="flex:2 1 220px">
+            <input type="text" name="description" maxlength="1000" value="<%= v.description || '' %>" placeholder="Make your case (optional)" style="flex:2 1 220px">
+            <button class="btn small gold" type="submit">Save</button>
+          </form>
+        </details>
+        <form class="asis" method="post" action="/votes/<%= v.id %>/withdraw"
+              onsubmit="return confirm('Pull this measure off the ballot? It disappears — you can always propose it again.')">
+          <button class="btn small ghost" type="submit" title="Take your question off the ballot — nobody has voted on it yet">🗑 Withdraw the measure</button>
+        </form>
+      <% } %>
     </div>
     <details class="ledger-history" <%= v.comments.length ? '' : '' %>>
       <summary>💬 <%= v.comments.length %> comment<%= v.comments.length === 1 ? '' : 's' %> — talk your talk</summary>
       <div style="padding:.7rem 1rem">
         <% for (const c of v.comments) { %>
           <p style="margin:.35rem 0"><b style="color:var(--gold-bright)"><%= c.name %></b>
-            <span class="muted" style="font-size:.7rem"><%= (c.created_at || '').slice(0, 10) %></span><br><%= c.text %></p>
+            <span class="muted" style="font-size:.7rem" title="<%= c.created_at %>"><%= timeago(c.created_at) %></span><br><%= c.text %></p>
         <% } %>
         <% if (!v.comments.length) { %><p class="muted" style="margin:.3rem 0">No takes yet. Cowards.</p><% } %>
         <form method="post" action="/votes/<%= v.id %>/comment" class="inline-form" style="margin-top:.5rem">
@@ -118,7 +143,7 @@
       <div style="padding:.7rem 1rem">
         <% for (const c of v.comments) { %>
           <p style="margin:.35rem 0"><b style="color:var(--gold-bright)"><%= c.name %></b>
-            <span class="muted" style="font-size:.7rem"><%= (c.created_at || '').slice(0, 10) %></span><br><%= c.text %></p>
+            <span class="muted" style="font-size:.7rem" title="<%= c.created_at %>"><%= timeago(c.created_at) %></span><br><%= c.text %></p>
         <% } %>
         <% if (!v.comments.length) { %><p class="muted" style="margin:.3rem 0">No takes yet. Cowards.</p><% } %>
         <form method="post" action="/votes/<%= v.id %>/comment" class="inline-form" style="margin-top:.5rem">

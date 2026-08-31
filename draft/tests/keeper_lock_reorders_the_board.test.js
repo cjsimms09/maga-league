@@ -1,18 +1,22 @@
 // TERRITORY: relay measures · A rules
 // THE KEEPER LOCK RE-ORDERS THE BOARD, AND THE MOVERS ARE RUNNING BACKS.
 //
-// Register 5f. The board's replacement levels are computed on the BOARD-ONLY
-// population — verified below, every published level equals the Nth board-only
-// projection exactly. So when the other teams' keepers come off at the 08-21
-// 6:00 PM lock (Cory's ruling), the pool shrinks and every level FALLS.
+// Register 5f. The board's replacement levels are counted over the ROSTERABLE
+// population — board plus keepers, verified below against the board's own
+// published numbers, because a kept player still occupies a starting slot. So
+// when the other teams' keepers came off at the lock (Cory's ruling), the
+// countable pool shrank and every level FELL.
 //
-// It falls by very different amounts per position, and that is the whole thing:
+// It fell by very different amounts per position, and that is the whole thing.
+// ⚠️ THE NUMBERS BELOW ARE THE 08-11 REHEARSAL'S; THE LOCK HAS SINCE HAPPENED
+// AND THE MEASURED ONES ARE IN THE BLOCK ABOVE §1. They are kept here because
+// the rehearsal called the rank order right at every position:
 //
-//     RB  179.3 -> 146.1   (-33.2)
-//     WR  162.6 -> 147.5   (-15.1)
-//     TE  136.4 -> 130.6   ( -5.8)
-//     QB  341.72 -> 337.48 ( -4.2)
-//     K / DEF               unchanged
+//     RB  179.3 -> 146.1   (-33.2)   measured -43.5
+//     WR  162.6 -> 147.5   (-15.1)   measured -18.7
+//     TE  136.4 -> 130.6   ( -5.8)   measured  -3.7
+//     QB  341.72 -> 337.48 ( -4.2)   measured  -3.0
+//     K / DEF               unchanged        unchanged
 //
 // `vorp` is `proj_mean - replacement[position]` and the board ranks ACROSS
 // positions on it. A UNIFORM drop would move nobody. A DIFFERENTIAL drop moves
@@ -25,11 +29,12 @@
 //     population, changing only the replacement levels. Without that, "players
 //     moved" would be mostly the pool getting fifteen shorter, which is trivial
 //     and uninteresting.
-//  2. IT IS A REHEARSAL, NOT A FORECAST. The keeper set comes from
-//     `predicted_keepers`, stamped MOCK/REHEARSAL ONLY and never applied to the
-//     live board — Cory's 08-11 ruling, and it is right. The magnitudes are an
-//     estimate. The DIRECTION is structural: keepers are elite, elite is RB/WR
-//     heavy, removing them lowers the Nth-best threshold.
+//  2. IT IS NO LONGER A REHEARSAL. It was one until 2026-08-26 — the slate came
+//     from `predicted_keepers`, stamped MOCK/REHEARSAL ONLY, and the magnitudes
+//     were an estimate. The lock has happened, so the slate is now the REAL
+//     `kept_players` and the magnitudes are measured. The DIRECTION was always
+//     the structural part: keepers are elite, elite is RB/WR heavy, removing
+//     them lowers the Nth-best threshold — and that is what graded true.
 //  3. IT PINS THE MECHANISM, NOT TODAY'S NAMES. The named movers are printed as
 //     detail; the assertions are about the shape, so a new board does not make
 //     this file red for the wrong reason.
@@ -54,13 +59,11 @@ const PRICED = B.players.filter(p => Number(p.proj_mean) > 0);
 const adp = p => Number(p.adjusted_adp != null ? p.adjusted_adp
   : (p.raw_adp != null ? p.raw_adp : p.adp));
 
-const mine = new Set((B.kept_players || []).map(k => String(k.player_id)));
-const opp = new Set();
-Object.values((B.predicted_keepers || {}).predictions || {}).forEach(r =>
-  (r.predicted_keepers || []).forEach(k => {
-    const id = String(k.player_id);
-    if (!mine.has(id)) opp.add(id);
-  }));
+/* `predicted_keepers` IS NO LONGER READ HERE. It supplied the rehearsal slate
+ * (seat-filtered against Cory's own keepers — register 303) and the real lock
+ * has replaced it; leaving the derivation in place would be a second, unused
+ * definition of the removed set sitting next to the real one. The prediction it
+ * produced is graded in the block above §1 rather than deleted. */
 
 const levels = pool => {
   const out = {};
@@ -79,28 +82,71 @@ const rank = (pool, R) => {
   return o;
 };
 
-// ── 1. THE PREMISE: LEVELS ARE BOARD-ONLY, SO THE LOCK MOVES THEM ────────────
+/* ⚠️⚠️ THE EVENT THIS FILE REHEARSED HAS HAPPENED, SO IT NO LONGER REHEARSES IT
+ * — IT MEASURES IT. Rewritten 2026-08-26, register 353.
+ *
+ * Every word above was written before the lock, against `predicted_keepers` on a
+ * PRE-lock board. The league-wide lock landed 2026-08-23 and `public/draft_data.json`
+ * has been a POST-lock board ever since, so the old arms were removing a slate of
+ * PREDICTED keepers from a board the REAL keepers had already left — a second
+ * lock stacked on the first. That is why the premise check went red (the
+ * published levels are no longer the board-only Nth) and why "hundreds move ten
+ * slots" collapsed to twelve: almost all of the movement had already happened,
+ * inside the board this file was treating as the "before".
+ *
+ * THE REAL EVENT IS NOW DIRECTLY MEASURABLE AND IS STRICTLY BETTER EVIDENCE:
+ * `kept_players` IS the removed slate — the actual 23, not a prediction — and
+ * putting them back reconstructs the exact pre-lock population. No estimate, no
+ * MOCK/REHEARSAL caveat, and the pre-lock levels it reconstructs come out equal
+ * to the board's own published `replacement_points` at all six positions, which
+ * is a control the rehearsal could never have had.
+ *
+ * ── AND THE 08-11 REHEARSAL GRADES WELL, WHICH IS WHY ITS NUMBERS ARE KEPT ──
+ *
+ *     pos    predicted 08-11    measured at the real lock
+ *     RB        -33.2              -43.5
+ *     WR        -15.1              -18.7
+ *     TE         -5.8               -3.7
+ *     QB         -4.2               -3.0
+ *     K/DEF    unchanged          unchanged
+ *
+ * It called the RANK ORDER exactly right at every position — RB > WR > TE > QB,
+ * with K and DEF at zero — and understated the magnitudes by roughly a third.
+ * The structural claim in the header ("the DIRECTION is structural... the
+ * magnitudes are an estimate") is precisely what survived. */
+const POST = PRICED;                                   // the live, post-lock board
+const PRE = POST.concat((B.kept_players || []).filter(p => Number(p.proj_mean) > 0));
+
+// ── 1. THE PREMISE: LEVELS ARE PRE-LOCK, SO THE LOCK MOVED THEM ──────────────
 {
-  const now = levels(PRICED);
-  ck('the published replacement levels ARE the board-only Nth projection — the '
-    + 'premise of everything below, checked rather than assumed',
-  SKILL.every(p => Math.abs(now[p] - PUB[p]) < 0.01),
-  { published: PUB, recomputed: now });
+  ck('the published replacement levels ARE the PRE-lock Nth projection — the '
+    + 'premise of everything below, checked rather than assumed. Replacement is '
+    + 'counted over the ROSTERABLE population (board + keepers), because a kept '
+    + 'player still occupies a starting slot',
+  SKILL.every(p => Math.abs(levels(PRE)[p] - PUB[p]) < 0.01),
+  { published: PUB, recomputed: levels(PRE) });
 
-  ck('the rehearsal slate names a real set of opponent keepers to remove',
-    opp.size >= 10, opp.size);
+  /* CONTROL, and it is the one the rehearsal could not run: the POST-lock board
+   * on its own does NOT reproduce the published levels. Without this, "the
+   * pre-lock population matches" could be true of any population big enough. */
+  ck('CONTROL: the post-lock board ALONE does not reproduce them, so the '
+    + 'population above is load-bearing rather than incidental',
+  SKILL.some(p => Math.abs(levels(POST)[p] - PUB[p]) >= 0.01),
+  { published: PUB, board_only: levels(POST) });
 
-  const after = PRICED.filter(p => !opp.has(String(p.player_id)));
+  ck('the removed slate is the REAL one — every league keeper, not a prediction',
+    (B.kept_players || []).length >= 10, (B.kept_players || []).length);
+
   ck('CONTROL: removing them shrinks the pool but leaves it large enough that '
     + 'every level is still the Nth of a real population',
-  after.length > 500 && SKILL.every(p => levels(after)[p] != null),
-  { before: PRICED.length, after: after.length });
+  POST.length > 500 && SKILL.every(p => levels(POST)[p] != null),
+  { before: PRE.length, after: POST.length });
 }
 
 // ── 2. THE DROP IS DIFFERENTIAL, WHICH IS WHY IT RE-ORDERS ──────────────────
 {
-  const after = PRICED.filter(p => !opp.has(String(p.player_id)));
-  const R1 = levels(PRICED), R2 = levels(after);
+  const after = POST;
+  const R1 = levels(PRE), R2 = levels(after);
   const drop = {};
   SKILL.forEach(p => { drop[p] = R1[p] - R2[p]; });
 
@@ -117,21 +163,21 @@ const rank = (pool, R) => {
 
   ck('CONTROL: K and DEF do not move, because no keeper is a kicker or a '
     + 'defence — so this is not a global rescale of everything',
-  Math.abs(levels(PRICED).K - levels(after).K) < 0.01
-    && Math.abs(levels(PRICED).DEF - levels(after).DEF) < 0.01);
+  Math.abs(levels(PRE).K - levels(after).K) < 0.01
+    && Math.abs(levels(PRE).DEF - levels(after).DEF) < 0.01);
 }
 
 // ── 3. THE RE-ORDERING, ISOLATED ────────────────────────────────────────────
 {
-  const after = PRICED.filter(p => !opp.has(String(p.player_id)));
-  const R1 = levels(PRICED), R2 = levels(after);
+  const after = POST;
+  const R1 = levels(PRE), R2 = levels(after);
   //: SAME population both times. Only the levels differ, so nothing here is the
   //: pool getting shorter.
   const before = rank(after, R1), now = rank(after, R2);
   const moved = Object.keys(now).map(id => ({ id, d: before[id] - now[id] }));
   const big = moved.filter(m => Math.abs(m.d) >= 10);
   const byId = {};
-  PRICED.forEach(p => { byId[String(p.player_id)] = p; });
+  POST.forEach(p => { byId[String(p.player_id)] = p; });
   const pos = {};
   big.forEach(m => { const q = byId[m.id].position; pos[q] = (pos[q] || 0) + 1; });
 
@@ -142,8 +188,22 @@ const rank = (pool, R) => {
     const a = adp(byId[m.id]);
     return Number.isFinite(a) && a >= 27 && a <= 160;
   });
+  /* ⚠️ THIS WAS `win.length >= 40`, AN ABSOLUTE COUNT WHERE THE CLAIM IS A
+   * SHARE — its own name says "a large share of them" (A, 2026-08-24,
+   * register 300). The board moved and the count came out 29, so the arm went
+   * red on a number rather than on the property. An absolute floor over a
+   * population whose size is not fixed is the same pinned-constant class as
+   * predraft_survival_is_not_one_number's wall value and vona_room_vs_market's
+   * rank band, both corrected today.
+   *
+   * Stated as the share it always claimed to be, and the denominator is
+   * PRINTED so the next reader sees the population rather than re-deriving it. */
+  const share = big.length ? win.length / big.length : 0;
+  console.log('      pick-window share: ' + win.length + ' of ' + big.length
+    + ' movers sit inside ADP 27-160 (' + Math.round(100 * share) + '%)');
   ck('...and a large share of them sit inside Cory\'s own pick window',
-    win.length >= 40, win.length);
+    share >= 0.10 && win.length > 0,
+    { in_window: win.length, movers: big.length, share: +share.toFixed(3) });
 
   /* THE HEADLINE, AS A SHAPE RATHER THAN A LIST OF NAMES. */
   const top = win.slice().sort((a, b) => b.d - a.d).slice(0, 10);

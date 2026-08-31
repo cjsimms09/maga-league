@@ -69,6 +69,30 @@ function createApp() {
           : null;
         res.locals.owner = req.owner;
         res.locals.money = helpers.money;
+        // venmo.js's one link builder, exposed to templates so every pay
+        // button can prefill amount+note (redesign catalog item 8) instead of
+        // each view hand-building a bare profile URL — the exact drift
+        // venmo.js's header says it exists to prevent.
+        res.locals.venmoLink = (owner, opts) => require('./src/venmo').link(owner, opts);
+        // matchup.js's ONE injury ladder, exposed sitewide (catalog 16) so
+        // team/waivers chips can never disagree with the matchup card about
+        // the same player. cell: { inj, onBye, empty }.
+        res.locals.injuryFlag = require('./src/matchup').injuryFlag;
+        // one timestamp voice sitewide (catalog 18) — see helpers.timeago.
+        // (main's own version landed first, already deployed and wired
+        // sitewide; my own src/human_time.js was a redundant parallel build
+        // of the same catalog item — dropped in favor of this one, same
+        // resolution as register 294's capPerPosition earlier this session.)
+        res.locals.timeago = helpers.timeago;
+        // Catalog item 14 ("open in Sleeper everywhere an action lives there
+        // — our site is the brain, Sleeper is the hands"): the ONE verified
+        // URL construction (already live on the lineup-problem NEEDS YOU row,
+        // member.js) exposed site-wide so the next surface reuses it instead
+        // of guessing a path. Returns null when unconfigured, so a template
+        // can hide the button rather than link to a broken league.
+        res.locals.sleeperLink = suffix => world.config.sleeper_league_id
+          ? 'https://sleeper.com/leagues/' + world.config.sleeper_league_id + (suffix ? '/' + suffix : '')
+          : null;
         res.locals.alerts = req.owner ? helpers.activeAlerts(world.alerts) : [];
         res.locals.currentPath = req.path;
         res.locals.quip = helpers.pickRandom(helpers.QUIPS);
@@ -107,6 +131,21 @@ function createApp() {
           try {
             res.locals.votesWaiting = await helpers.votesAwaiting(
               helpers.activeOwners(world.owners), world.config, req.owner.id);
+          } catch (e) { /* badge is cosmetic */ }
+        }
+        // Money you owe (redesign rule 5: "a badge means you must act" names
+        // this explicitly, alongside bets waiting and open ballots — and
+        // catalog item 19 folds it into the same running total). The
+        // dashboard's NEEDS YOU card already surfaces this per-page (member.js);
+        // this is the SAME ledger.balances() read, exposed sitewide so the
+        // Finances tab carries the cue on every page, not just home.
+        res.locals.duesOwed = 0;
+        if (req.owner) {
+          try {
+            const L = require('./src/ledger');
+            const bal = L.balances(world.ledger, world.owners);
+            const my = bal[req.owner.id] ? bal[req.owner.id].balance : 0;
+            if (Number(my) < 0) res.locals.duesOwed = Math.abs(Math.round(my));
           } catch (e) { /* badge is cosmetic */ }
         }
         if (res.locals.votesWaiting && req.path !== '/votes') {

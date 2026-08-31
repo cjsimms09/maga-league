@@ -171,6 +171,19 @@ jobs:
           set -euo pipefail
           git config user.name lab-bot
           git config user.email lab-bot@users.noreply.github.com
+          # THE DIRECTORY MAY NOT EXIST and that is a NORMAL outcome, not an
+          # error: every preseason run skips before writing anything, and git
+          # cannot add a directory that was never created. Without this guard
+          # `git add` exits 128 and the whole run reads FAILURE on a
+          # bookkeeping step — which is exactly what happened on every run
+          # before 2026-08-26 (e.g. run of 08-20: fetch step printed its clean
+          # preseason skip, then this step killed the job). A red that fires
+          # every quiet Thursday trains its reader to ignore the one red that
+          # matters on 09-10.
+          if [ ! -d draft/data/props ]; then
+            echo "draft/data/props/ does not exist (nothing fetched this run) — nothing to commit"
+            exit 0
+          fi
           git add draft/data/props/
           if git diff --cached --quiet; then
             echo "no change (identical snapshot, or nothing written) — nothing to commit"

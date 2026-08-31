@@ -98,7 +98,7 @@
  * that is cheap to move from one that is wired to a lot. */
 const PANELS = [
   // ── DECIDES ───────────────────────────────────────────────────────────
-  { fn: 'renderRecommendations', weight: 'DECIDES', lines: 392,
+  { fn: 'renderRecommendations', weight: 'DECIDES', lines: 422,
     question: 'Who should I take right now?',
     means: 'A ranked list of available players scored on projection, positional '
       + 'scarcity and what survives to my next pick. The top row is the model\'s pick.',
@@ -166,7 +166,7 @@ const PANELS = [
       + 'button sit behind the disclosure, so the headline stays the only name '
       + 'above the fold.' },
 
-  { fn: 'renderProjSource', weight: 'CONTEXT', lines: 118,
+  { fn: 'renderProjSource', weight: 'CONTEXT', lines: 95,
     question: 'What does ONE source say, instead of the blend — and does Draft '
       + 'Sharks agree with the board?',
     means: 'the same board priced by a single source\'s projection, with that '
@@ -186,7 +186,7 @@ const PANELS = [
       + 'not carry is MISSING, not worthless. Display only: nothing here feeds '
       + 'engine.js and the war room ranking is unchanged.',
   },
-  { fn: 'renderSourceBoards', weight: 'CONTEXT', lines: 58,
+  { fn: 'renderSourceBoards', weight: 'CONTEXT', lines: 82,
     question: 'Who does each projection source have as their best available, right now?',
     means: 'each source\'s OWN ranking walked past everyone already drafted. Six '
       + 'outside sources plus the blend the board actually uses.',
@@ -200,7 +200,7 @@ const PANELS = [
       + 'blend is the readable payload; the names are the detail. Our own '
       + 'projections are absent on Cory\'s ruling, not by oversight.',
   },
-  { fn: 'renderPositionBoardsPanel', weight: 'TIMES', lines: 22,
+  { fn: 'renderPositionBoardsPanel', weight: 'TIMES', lines: 42,
     question: 'Who is the best available at EACH position, right now — not just one recommendation?',
     means: 'Per-position VONA and surplus-over-the-wire, six columns (RB/WR/QB/TE/K/DEF), '
       + 'the same shortlist depth (top 5-10) at every position at once rather than one '
@@ -212,7 +212,7 @@ const PANELS = [
       + 'compared across the six columns (P196) — that cross-position question belongs to '
       + 'the roster builder panel below, not this one.',
   },
-  { fn: 'renderPosTakenCounts', weight: 'CONTEXT', lines: 24,
+  { fn: 'renderPosTakenCounts', weight: 'CONTEXT', lines: 23,
     question: 'How many players are off the board at each position, league-wide?',
     means: 'A tally of state.drafted by position — live picks AND keepers together, since '
       + 'a kept player is off the board from the first render just as much as a drafted one.',
@@ -225,7 +225,7 @@ const PANELS = [
       + 'was never "available"), so a naive scan of that array alone silently counts every '
       + 'keeper as zero; state.data.kept_players is unioned in for exactly that reason.',
   },
-  { fn: 'renderSeatPlan', weight: 'DECIDES', lines: 121,
+  { fn: 'renderSeatPlan', weight: 'DECIDES', lines: 252,
     question: 'Which SEAT am I filling at this pick — and what is the plan for the rest?',
     means: 'The plan solves all twelve of my picks at once and assigns each a ROLE '
       + '(fill TE, fill FLEX). The engine then picks the player for that role.',
@@ -240,7 +240,7 @@ const PANELS = [
       + '-25% to +15% and the NAMES did not, so twelve names billed as a plan would '
       + 'be a confident list of the least robust thing in the file.' },
 
-  { fn: 'renderPositionRecs', weight: 'CONTEXT', lines: 35,
+  { fn: 'renderPositionRecs', weight: 'CONTEXT', lines: 37,
     question: 'Who is the best man left at each position?',
     means: 'Top few per position, so a positional decision does not require '
       + 'scrolling the whole board.',
@@ -251,7 +251,7 @@ const PANELS = [
       + 'verdict block now occupies the decision fold. Two panels answering one '
       + 'question cannot both be DECIDES — the strip glances, this one details.' },
 
-  { fn: 'renderQueue', weight: 'DECIDES', lines: 52,
+  { fn: 'renderQueue', weight: 'DECIDES', lines: 56,
     question: 'Who have I pre-decided to take?',
     means: 'My own shortlist, in my order — the one panel that is my judgement '
       + 'rather than the model\'s.',
@@ -259,7 +259,7 @@ const PANELS = [
     reads: ['state.queue'] },
 
   // ── TIMES ─────────────────────────────────────────────────────────────
-  { fn: 'renderSurvival', weight: 'TIMES', lines: 112,
+  { fn: 'renderSurvival', weight: 'TIMES', lines: 134,
     question: 'Will he still be there at my next pick?',
     means: 'Probability each player LASTS until my next turn, from ADP and the '
       + 'number of picks in between. 86% means he is STILL THERE 86% of the time. '
@@ -280,28 +280,28 @@ const PANELS = [
       + 'wrong. Pinned in draft/tests/panel_spec.test.js against the shipped '
       + 'header rather than against prose.' },
 
-  { fn: 'renderRuns', weight: 'TIMES', lines: 19,
+  { fn: 'renderRuns', weight: 'TIMES', lines: 28,
     question: 'Is the room emptying a position faster than expected?',
     means: 'Picks at a position versus its ADP rate. 1.42x means it is going 42% faster.',
     changes_it: 'the last few picks',
     reads: ['recentPicks', 'adjusted_adp'],
     note: 'ALREADY SELF-EXPLAINS in one sentence and is the model for the rest.' },
 
-  { fn: 'renderThreats', weight: 'TIMES', lines: 98,
+  { fn: 'renderThreats', weight: 'TIMES', lines: 135,
     question: 'Who picks between now and my turn, and what do they need?',
     means: 'The managers between me and my next pick, with the positions their '
       + 'history says they take.',
     changes_it: 'the pick on the clock',
     reads: ['manager_profiles', 'pick_order', 'slot_to_roster_id'] },
 
-  { fn: 'renderLRM', weight: 'TIMES', lines: 33,
+  { fn: 'renderLRM', weight: 'TIMES', lines: 32,
     question: 'What is the LAST pick I can still get this position at?',
     means: 'The latest turn at which a startable player at each position is '
       + 'likely to survive.',
     changes_it: 'players at that position leaving',
     reads: ['survival', 'pick_order.my_picks'] },
 
-  { fn: 'renderByes', weight: 'TIMES', lines: 27,
+  { fn: 'renderByes', weight: 'TIMES', lines: 26,
     question: 'Am I stacking too many players on one bye week?',
     means: 'Bye-week counts across my roster.',
     changes_it: 'me taking a player',
@@ -367,7 +367,7 @@ const PANELS = [
   { fn: 'renderPicksFeed', weight: 'CONTEXT', lines: null,
     question: 'What just happened?', means: 'Recent picks, newest first.',
     changes_it: 'any pick', reads: ['recentPicks'] },
-  { fn: 'renderPlan', weight: 'CONTEXT', lines: 12,
+  { fn: 'renderPlan', weight: 'CONTEXT', lines: 11,
     question: 'Which doctrine is enrolled?',
     means: 'The strategy the tournament picked, and its measured edge.',
     changes_it: 'a rebuild re-running the race', reads: ['doctrine'] },

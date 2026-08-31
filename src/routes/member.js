@@ -208,6 +208,26 @@ router.get('/api/weekly-recap', aw(async (req, res) => {
                       note: (r && (r.error || r.note)) || 'the mailer declined to send' }) });
 }));
 
+/* THE RECO-PROBE ROUTE (register 287's week-1 verification). Netlify
+ * SCHEDULED functions are not HTTP-invocable — the probe's first live run
+ * answered an edge 403 with an empty body and proved it — so CI verifies the
+ * capture THROUGH the app function instead, which shares the same store and
+ * the same bundled modules. Calling this runs the capture: marker-idempotent,
+ * so on a day the schedule already fired it answers 'already captured' (the
+ * proof), and on a day it didn't, this IS the fallback emitter. Same secret
+ * family as the sibling cron routes. */
+router.get('/api/reco-probe/:which', aw(async (req, res) => {
+  const secret = process.env.SUNDAY_ALERT_KEY || process.env.CRON_SECRET;
+  if (!cronAuthorized(req, secret)) return res.status(403).json({ ok: false, error: 'forbidden' });
+  const which = req.params.which === 'lineup' ? 'lineup' : req.params.which === 'waiver' ? 'waiver' : null;
+  if (!which) return res.status(400).json({ ok: false, error: 'which must be waiver or lineup' });
+  const mod = which === 'lineup'
+    ? require('../../netlify/functions/lineup-reco-cron')
+    : require('../../netlify/functions/waiver-reco-cron');
+  const out = await mod.runCapture();
+  return res.status(out.statusCode || 200).type('application/json').send(out.body);
+}));
+
 router.get('/api/sunday-alert', aw(async (req, res) => {
   const secret = process.env.SUNDAY_ALERT_KEY || process.env.CRON_SECRET;
   if (!cronAuthorized(req, secret)) return res.status(403).json({ ok: false, error: 'forbidden' });
@@ -288,7 +308,11 @@ router.get('/api/sunday-alert', aw(async (req, res) => {
 
   const r = await notify.sundayAlert(world.owners, alert).catch(e => ({ error: String((e && e.message) || e) }));
   const sent = (r && !r.skipped && !r.error) ? 1 : 0;
-  if (sent) await setDoc(stampKey, { at: new Date().toISOString(), calls: alert.calls.length, dead: alert.dead.length });
+  if (sent) await setDoc(stampKey, { at: new Date().toISOString(), calls: alert.calls.length, dead: alert.dead.length,
+    // The exact recommendation the email showed, kept so the one-tap WHY
+    // (/lineup/why) can attach what Cory was actually looking at when he
+    // decided — not a re-derivation that may have moved by Tuesday.
+    todo: (alert.lineupKnown ? (alert.changes || []) : (alert.calls || [])).slice(0, 4) });
   res.json({ ok: true, sent, quiet: false, emailConfigured, week: weekNo,
     hasCalls: alert.hasCalls, dead: alert.dead.length,
     changes: alert.changes.length, lineupKnown: alert.lineupKnown,
@@ -550,6 +574,37 @@ router.get('/', aw(async (req, res) => {
   // this same helper now (helpers.js, Cory 2026-08-22) so there is one
   // definition of "an open vote you haven't cast", not two that can drift.
   const unvoted = await H.votesAwaiting(owners, world.config, req.owner.id);
+  /* NEEDS YOU — the one aggregation on the site (owner-site redesign spec,
+   * rule 5: a badge means "you must act"). Everything below already existed
+   * somewhere two taps deep; this surfaces it in one card. */
+  const needsYou = [];
+  try {
+    const _nameOf = id => (H.ownerById(owners, id) || {}).name || 'Someone';
+    for (const bb of await SB.all()) {
+      const mine = (bb.parties || []).find(pp => pp.owner_id === req.owner.id);
+      if (!mine) continue;
+      if (bb.status === SB.STATUS.PROPOSED && !mine.accepted) {
+        const from = (bb.parties || []).find(pp => pp.accepted);
+        needsYou.push({ icon: '🤝', href: `/bank?section=sidebets#bet-${bb.id}`,
+          text: `${_nameOf(from && from.owner_id)} sent you a $${bb.stake} bet`, cue: 'accept or decline →',
+          // Catalog item 26: "NEEDS YOU on home carries it with the Accept
+          // inline" — a straight bet needs nothing else to accept, so it gets
+          // a real inline button. A pool bet's accept also assigns franchise
+          // positions (SB.accept's position/picks fields), which has no home
+          // for that UI here — it keeps the tap-through instead of a button
+          // that would silently accept with no positions chosen.
+          betId: bb.format !== 'pool' ? bb.id : null });
+      }
+      if (bb.status === SB.STATUS.AWAITING_CONFIRM && bb.declared && bb.declared.by !== req.owner.id) {
+        needsYou.push({ icon: '⚖️', href: `/bank?section=sidebets#bet-${bb.id}`,
+          text: `${_nameOf(bb.declared.by)} declared a result on your $${bb.stake} bet`, cue: 'confirm or dispute →' });
+      }
+    }
+  } catch (e) { /* the card degrades to fewer rows, never breaks the page */ }
+  if (unvoted && unvoted.length) {
+    needsYou.push({ icon: '🗳', href: '/votes',
+      text: `${unvoted.length} open ballot${unvoted.length === 1 ? '' : 's'} waiting on your vote`, cue: 'cast it →' });
+  }
 
   // THE DRAFT-DAY ANNOUNCEMENT — derived from config (date/time/place) so it's
   // one source of truth for the front-page banner AND the pinned site-wide alert.
@@ -644,7 +699,14 @@ router.get('/', aw(async (req, res) => {
         if (Array.isArray(res.locals.alerts)) {
           res.locals.alerts = res.locals.alerts.filter(a => !isKeeperAlert(a));
         }
-      } else if (!pinned) {
+      } else if (!pinned && !keeperInfo.passed) {
+        // The !passed guard matters: keeperInfo.message is built whether or not
+        // the deadline is in the past, and on a store with no pinned row (fresh
+        // seed, or a wiped alerts doc) this branch used to CREATE an active
+        // "KEEPER DEADLINE" alert days after the deadline — it then showed on
+        // every non-dashboard page until the next home visit deactivated it
+        // (found on the 08-24 phone walkthrough: Aug 21 banner still up on
+        // /votes on Aug 24).
         const created = { id: 'keeperdeadline', message: keeperInfo.message, level: 'urgent', active: true, created_at: now() };
         await mutateDoc('alerts', [], as => {
           if (as.find(isKeeperAlert)) return undefined;
@@ -766,6 +828,18 @@ router.get('/', aw(async (req, res) => {
         const oppOwner = myGame.opp.owner;
         weekHero.prev = oppOwner ? MW.previewFor(req.owner.name, oppOwner.name) : null;
       } catch (e) { weekHero.prev = null; }
+      // EMPTY-SLOT ALARM (redesign catalog 15): a dead starter is the one
+      // error that costs points with CERTAINTY, so it outranks every other
+      // needs-you row — unshifted to the top, cueing straight to Sleeper
+      // where the fix actually happens (catalog 14's deep-link rule).
+      if (weekHero.lineupWarn) {
+        const w = weekHero.lineupWarn;
+        needsYou.unshift({ icon: '🚨',
+          href: res.locals.sleeperLink('team') || '#',
+          text: 'Lineup problem: ' + w.items.map(i => i.text).join(', ')
+            + (w.count > w.items.length ? ' +' + (w.count - w.items.length) + ' more' : ''),
+          cue: 'fix on Sleeper →' });
+      }
     }
   }
 
@@ -865,6 +939,10 @@ router.get('/', aw(async (req, res) => {
   // with a box to reply — is the difference between a chat and a ghost town.
   const chatLatest = (await H.chatFeed(owners, CHAT_ON_HOME));
   const myBalance = bal[req.owner.id] ? bal[req.owner.id].balance : 0;
+  if (Number(myBalance) < 0) {
+    needsYou.push({ icon: '💸', href: '/bank',
+      text: `You owe $${Math.abs(Math.round(myBalance))}`, cue: 'square up →' });
+  }
   // Which teams have side-bet money riding on them, so the standings can say so.
   const betMoney = SB.moneyOnTeams(await SB.all(), req.owner.id,
     id => (H.ownerById(owners, id) || {}).name || '?');
@@ -921,7 +999,7 @@ router.get('/', aw(async (req, res) => {
     // check the scores screen while games are actually live.
     gameNight: WW.primetimeWindow(),
     season, payouts: H.payoutTable(season), buyins, weekly, awards, standings, draft,
-    unvoted, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance, draftInfo, keeperInfo, weekHero,
+    unvoted, needsYou, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance, draftInfo, keeperInfo, weekHero,
     liveStale: await liveFreshness(),
     // The money scoreboard: banked dollars + rank this season, from the ledger.
     moneyBoard: L.moneyStandings(world.ledger, owners, season), meId: req.owner.id,
@@ -1327,6 +1405,16 @@ router.get('/bank', aw(async (req, res) => {
     owners.map(o => ({ owner_id: o.id, name: o.name, net: bal[o.id] ? bal[o.id].balance : 0 })),
     id => { const o = H.ownerById(owners, id); const h = o && V.handle(o); return h ? { handle: h, url: `https://venmo.com/u/${h}` } : null; },
     bankId != null ? bankId : null);
+  // Prefill each Square Up button with ITS transfer's amount and a note
+  // (catalog item 8): the callback above only sees an owner id, but the
+  // amount belongs to the transfer, so it attaches here — V.link is the one
+  // builder (venmo.js), the same one the side-bet owe rows use.
+  for (const t of (settlement && settlement.transfers) || []) {
+    if (t.venmo && t.venmo.handle) {
+      t.venmo.url = V.link({ venmo: t.venmo.handle },
+        { amount: t.amount, note: `MFGA league settle-up — ${t.from} to ${t.to}` });
+    }
+  }
 
   // Whose ledger sits at the top. Yours by default; clicking a name in the
   // league ledger below swaps it, which is how you get from "who owes what" to
@@ -1379,6 +1467,15 @@ router.get('/bank', aw(async (req, res) => {
   const sbOwed = SB.settlementsFor(bets, viewCard ? viewCard.owner.id : req.owner.id, nameOf);
   // The side-bet tab is always about YOU, even if you are looking at somebody
   // else's ledger card on the money tab. Two different questions, two objects.
+  // LIFETIME HEAD-TO-HEAD (catalog item 6): my record vs each opponent, from
+  // the same settled bets the tracker grid reads. Nine cheap passes, view-only.
+  const h2h = {};
+  for (const o of owners) {
+    if (o.id === req.owner.id) continue;
+    const r = SB.pairRecord(bets, req.owner.id, o.id);
+    if (r.games > 0) h2h[o.id] = r;
+  }
+
   const sbOwedMine = viewCard && viewCard.owner.id !== req.owner.id
     ? SB.settlementsFor(bets, req.owner.id, nameOf) : sbOwed;
   // The pool board wants the live standings order so "who picked whom" reads
@@ -1407,6 +1504,7 @@ router.get('/bank', aw(async (req, res) => {
   // and the bracket itself is the honest source by then.
   const poolAdvice = {};
   const betEdges = {};
+  let offerSheet = [];
   if (req.owner.is_commissioner) {
     const PA = require('./pooladvisor');
     const CH = require('./champodds');
@@ -1427,6 +1525,18 @@ router.get('/bank', aw(async (req, res) => {
         // honest, free-text bets say "can't price" rather than guessing).
         const ectx = BE.contextFromRows(rows, Math.max(0, pwStart - week), { weekNow: week });
         if (ectx) {
+          // THE OFFER SHEET (Cory's 08-24 mandate): the +EV bets worth
+          // ORIGINATING, priced through the same priceCondition as the
+          // reactive advisor. Snapshotted once per week (register 290: an
+          // instruction nobody scores is where defects live — P333 grades
+          // whether the sheet's ≥55% offers actually win ≥55%).
+          try {
+            offerSheet = require('../betoffers').suggestOffers(ectx, req.owner.id, owners);
+            const okey = `betoffers:${String(season.year || season)}:${week}`;
+            if (offerSheet.length && !(await getDoc(okey, null))) {
+              await setDoc(okey, { at: now(), week, offers: offerSheet });
+            }
+          } catch (e) { offerSheet = []; }
           for (const b of bets) {
             const actionable = b.status === SB.STATUS.OPEN ? !SB.isParty(b, req.owner.id)
               : [SB.STATUS.PROPOSED, SB.STATUS.LOCKED].includes(b.status) && SB.isParty(b, req.owner.id);
@@ -1480,15 +1590,28 @@ router.get('/bank', aw(async (req, res) => {
   } catch (e) { career = null; /* reference numbers are a bonus, never break the page */ }
 
   res.render('bank', {
-    poolAdvice, betEdges, career,
+    poolAdvice, betEdges, offerSheet, career,
     // Propose-from-anywhere: a ?betvs=<id> link (matchup, standings, franchise)
     // pre-selects that opponent in the bet builder.
     prefillParty: Number(req.query.betvs) || null,
     cards, season, totalOwedToLeague, totalLeagueOwes, viewCard, leagueEntries, settlement,
     TYPE_LABELS: L.TYPE_LABELS,
-    section, bets, tallies, owners, betNames, sbLedger, sbOwed, sbOwedMine, verdicts, liveOrder,
+    section, bets, tallies, owners, betNames, sbLedger, sbOwed, sbOwedMine, verdicts, liveOrder, h2h,
     sbGrid, sbView, sbDrill,
     deadlines, late: req.query.late === '1',
+    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1', rerun: req.query.rerun === '1', nudged: req.query.nudged === '1',
+    // Catalog item 17 ("confirmation toasts that say the thing — 'Bet sent
+    // to Rich · $25' not 'Saved.'"): set only by the propose route's own
+    // success path (never guessed here) — same discipline as matchup.ejs's
+    // sibling banner, which learned the hard way that confirming a bet that
+    // never happened is worse than confirming nothing.
+    // Named justSent, not sent: `_side_bets.ejs` already declares its OWN
+    // `const sent` (the "Bets You've Sent" array) in this same template
+    // scope, and EJS compiles a whole file into one function body, so a
+    // same-named local here would throw a TDZ ReferenceError the moment
+    // this flag's `typeof` check runs above that declaration. Found by the
+    // test actually rendering the page, not by the file compiling clean.
+    justSent: req.query.sent === '1', sentTo: req.query.sent_to || '', sentAmt: req.query.sent_amt || '',
     betFail: betFailMessage(req.query.betfail),
     currentWeek: (await sleeper.bundle(world.config.sleeper_league_id) || {}).week || 1,
     BL, payDirectory: owners.filter(o => o.venmo || o.paypal || o.cashapp || o.zelle),
@@ -1687,6 +1810,13 @@ function betFailMessage(code) {
   if (c === 'stake-zero') return 'A stake has to be more than $0.';
   if (c === 'nobody') return "Nobody's on the other side. Name at least one opponent, or post it to the board with open slots so someone can take it.";
   if (c.startsWith('rejected:')) return 'The bet was refused: ' + c.slice(9) + '. Nothing was written — fix it and send again.';
+  // Counter-offer refusals (SB.counter) — each names what to do instead.
+  if (c === 'not_counterable') return 'That offer is no longer open, so there is nothing to counter.';
+  if (c === 'own_offer') return "It's your own offer — use ✎ Edit on it instead of countering yourself.";
+  if (c === 'not_two_party_prop') return 'Counters only work on two-person bets — for pools and group bets, decline and propose fresh.';
+  if (c === 'already_accepted') return "You already accepted this one — that's a handshake, not a negotiation.";
+  if (c === 'no_change') return "Your counter matched their offer exactly — that's an accept. Tap Accept instead.";
+  if (c === 'not_finished') return 'That bet is still live — run it back once it has settled.';
   return 'That bet was not created (' + c + '). Nothing was written — fix it and send again.';
 }
 
@@ -1721,19 +1851,37 @@ router.post('/sidebets', aw(async (req, res) => {
     : !(ids.length || openSlots) ? 'nobody'
     : null;
   let failed = why;
+  // Catalog item 17 ("confirmation toasts that say the thing"): who the bet
+  // went to and for how much, set only on a REAL success — same discipline as
+  // the matchup redirect below, which learned this the hard way (see its own
+  // comment: a confirmation for a bet that never happened is worse than none).
+  let sentInfo = null;
   if (!why) {
     try {
       // A pool bet is a DRAFT: every league franchise is in play and NOBODY
       // picks at propose time — the alternating draft opens on accept. So the
       // teams-in-play are all active owners, and the proposer's picks are ignored.
       const poolTeams = format === 'pool' ? owners.map(o => o.id) : [];
+      // RECORD MODE: filled checkboxes = the split already happened offline.
+      // Empty = the live snake draft opens on accept, exactly as before.
+      const recMine = format === 'pool' ? picksFrom(req.body) : [];
+      const recTheirs = format === 'pool'
+        ? [].concat(req.body.picks_theirs || []).map(Number).filter(Boolean) : [];
+      const recording = !!(recMine.length || recTheirs.length);
+      if (recording) {
+        const need = Number(req.body.picks_required) || recMine.length;
+        if (ids.length !== 1) throw new Error('record-one-opponent');
+        if (recMine.some(t => recTheirs.includes(t))) throw new Error('record-overlap');
+        if (recMine.length !== need || recTheirs.length !== need) throw new Error('record-count');
+      }
       const poolWins = format === 'pool'
         ? (String(req.body.pool_outcome || '').trim() || 'holds the eventual league champion')
         : '';
       const bet = await SB.propose({
         proposer_id: req.owner.id, party_ids: ids, terms, stake,
         position: String(req.body.position || '').trim(),
-        picks: format === 'pool' ? [] : picksFrom(req.body),
+        picks: format === 'pool' ? recMine : picksFrom(req.body),
+        party_picks: recording ? { [ids[0]]: recTheirs } : null,
         resolves: String(req.body.resolves || '').trim(),
         format, conditions, logic: req.body.logic, kind: String(req.body.kind || ''),
         // Ordered: the first rule that separates the field wins, the rest are
@@ -1749,6 +1897,7 @@ router.post('/sidebets', aw(async (req, res) => {
       // removing rather than assumed: server-app.js already banners "N side bets
       // waiting on you" at the top of EVERY page plus a nav badge, which is
       // louder than the email was.
+      sentInfo = { to: targets.map(o => o.name), stake: bet.stake };
     } catch (e) {
       // Carry the reason, don't swallow it. Truncated and query-escaped; the
       // page renders it as text, never as markup.
@@ -1762,11 +1911,18 @@ router.post('/sidebets', aw(async (req, res) => {
     // whether or not a bet existed — a confirmation for something that never
     // happened, which is worse than saying nothing at all.
     const opp = req.body.party ? '&opp=' + Number(req.body.party) : '';
+    const amt = sentInfo ? '&sent_amt=' + encodeURIComponent(sentInfo.stake) : '';
     return res.redirect(failed
       ? '/matchup?betfail=' + encodeURIComponent(failed) + opp
-      : '/matchup?sent=1' + opp);
+      : '/matchup?sent=1' + opp + amt);
   }
-  res.redirect('/bank?section=sidebets' + (failed ? '&betfail=' + encodeURIComponent(failed) : ''));
+  if (failed) return res.redirect('/bank?section=sidebets&betfail=' + encodeURIComponent(failed));
+  // Catalog item 17: "Bet sent to Rich · $25" not "Saved." — every POST
+  // already knows what it did; this is the door most bets leave through
+  // (matchup's own ?sent=1 above already said this, /bank never did).
+  const sentTo = sentInfo ? encodeURIComponent(sentInfo.to.join(', ')) : '';
+  const sentAmt = sentInfo ? encodeURIComponent(sentInfo.stake) : '';
+  res.redirect(`/bank?section=sidebets&sent=1&sent_to=${sentTo}&sent_amt=${sentAmt}`);
 }));
 
 /**
@@ -1804,13 +1960,56 @@ async function tooLate(bet, req) {
   // Anybody scoring anywhere means the week is under way. Not just this
   // matchup — a bet between two people whose players all play Sunday is still
   // a bet on a week that started on Thursday.
-  const anyScore = (sData && Array.isArray(sData.matchups))
+  /* PRESEASON POINTS ARE NOISE, NOT KICKOFF — found live 2026-08-23, the
+   * day after the draft (Cory: bets on week 1 closed "because week 1 has
+   * started"). The weekend's preseason games put real player points into
+   * Sleeper's matchup rows, and points-on-the-board was read as the week
+   * being under way. A week can only be under way in the REGULAR season —
+   * Sleeper's own state says which it is. */
+  const inRegularSeason = !!(sData && sData.season_type === 'regular');
+  const anyScore = inRegularSeason && (sData && Array.isArray(sData.matchups))
     && sData.matchups.some(m => (m.points || 0) > 0);
   if (anyScore && !(bet.created_at && new Date(bet.created_at) > BL.kickoffOf(earliest, world.config.season_start))) {
     return `Week ${earliest} is under way — there are points on the board. This one had to be accepted before anybody scored.`;
   }
   return null;
 }
+
+router.post('/sidebets/:id/edit', aw(async (req, res) => {
+  // TRUE EDIT (Cory's ruling, 2026-08-23) — proposer only, unaccepted only;
+  // SB.edit enforces both and versions the terms so a stale accept refuses.
+  const out = await SB.edit(req.params.id, req.owner.id, {
+    stake: req.body.stake, terms: req.body.terms,
+  });
+  if (out && out.refused) {
+    return res.redirect('/bank?section=sidebets&betfail=' + out.refused + '#bet-' + req.params.id);
+  }
+  return res.redirect('/bank?section=sidebets&edited=1#bet-' + req.params.id);
+}));
+
+router.post('/sidebets/:id/counter', aw(async (req, res) => {
+  // COUNTER-OFFER (catalog item 3) — decline + re-propose with roles swapped,
+  // linked both ways; SB.counter enforces every guardrail and names refusals.
+  const out = await SB.counter(req.params.id, req.owner.id, req.owner.name, {
+    stake: req.body.stake, terms: req.body.terms,
+  });
+  if (!out || out.refused) {
+    return res.redirect('/bank?section=sidebets&betfail=' + ((out && out.refused) || 'gone')
+      + '#bet-' + req.params.id);
+  }
+  return res.redirect('/bank?section=sidebets&countered=1#bet-' + out.next.id);
+}));
+
+router.post('/sidebets/:id/rerun', aw(async (req, res) => {
+  // RUN IT BACK (catalog item 4) — one tap re-proposes a finished two-party
+  // prop; SB.rerun owns the guardrails and drops stale week-bound conditions.
+  const out = await SB.rerun(req.params.id, req.owner.id);
+  if (!out || out.refused) {
+    return res.redirect('/bank?section=sidebets&betfail=' + ((out && out.refused) || 'gone')
+      + '#bet-' + req.params.id);
+  }
+  return res.redirect('/bank?section=sidebets&rerun=1#bet-' + out.id);
+}));
 
 router.post('/sidebets/:id/accept', aw(async (req, res) => {
   const bet = await SB.get(req.params.id);
@@ -1822,10 +2021,17 @@ router.post('/sidebets/:id/accept', aw(async (req, res) => {
   const accepted = await SB.accept(req.params.id, req.owner.id, req.owner.name, {
     position: String(req.body.position || '').trim(),
     picks: picksFrom(req.body),
+    expected_version: req.body.terms_version,
   });
+  if (accepted && accepted.stale_terms) {
+    // The proposer edited while this page was open — show the CURRENT terms
+    // and let them accept those, never the ones that no longer exist.
+    return res.redirect('/bank?section=sidebets&stale_terms=1#bet-' + req.params.id);
+  }
   // A pool bet is a DRAFT: the moment both are in, open the franchise draft with
   // the order computed from the prior season's finish (higher finisher first).
   if (accepted && accepted.format === 'pool' && accepted.status === SB.STATUS.LOCKED
+      && !(accepted.pool && accepted.pool.recorded)
       && !accepted.draft && accepted.parties.length >= 2) {
     const owners = H.activeOwners(req.world.owners);
     const [aId, bId] = accepted.parties.map(p => p.owner_id);
@@ -2019,6 +2225,34 @@ router.post('/profile/contact', aw(async (req, res) => {
 
 // ---------- buying out of a live bet ----------
 // Re-offer a proposal whose ten days ran out. Proposer only.
+// THE NUDGE (redesign catalog 5): the proposer pokes whoever is sitting on
+// their offer — as a PUBLIC 🔔 in the Locker Room, which is exactly the
+// pressure this league runs on, lands in everyone's chat badge, and needs no
+// email plumbing. Once per bet per 24 hours; the audit trail records each.
+router.post('/sidebets/:id/nudge', aw(async (req, res) => {
+  const bet = await SB.get(req.params.id);
+  const dayMs = 24 * 60 * 60 * 1000;
+  if (bet && bet.status === 'proposed'
+      && Number(bet.proposer_id) === Number(req.owner.id)
+      && !(bet.nudged_at && Date.now() - Date.parse(bet.nudged_at) < dayMs)) {
+    const waitingOn = (bet.parties || [])
+      .filter(p => !p.accepted && Number(p.owner_id) !== Number(req.owner.id))
+      .map(p => (H.ownerById(req.world.owners, p.owner_id) || {}).name || '?');
+    if (waitingOn.length) {
+      await setDoc(`chat:${newId()}`, { owner_id: req.owner.id,
+        text: `🔔 ${req.owner.name} is waiting on ${waitingOn.join(' and ')}: `
+          + `"${String(bet.terms || '').slice(0, 120)}" — $${bet.stake} on the table. `
+          + `Answer it in The Book.`,
+        created_at: now() });
+      bet.nudged_at = now();
+      bet.audit.push({ at: now(), by: req.owner.id,
+        what: `Nudged ${waitingOn.join(' and ')} in the Locker Room` });
+      await H.store.set(`sidebet:${bet.id}`, bet);
+    }
+  }
+  res.redirect('/bank?section=sidebets&nudged=1#bet-' + req.params.id);
+}));
+
 router.post('/sidebets/:id/resend', aw(async (req, res) => {
   await SB.resend(req.params.id, req.owner.id, req.owner.name);
   res.redirect('/bank?section=sidebets');
@@ -2210,6 +2444,51 @@ router.post('/votes/:id/ballot', aw(async (req, res) => {
 // "no": not-voted and voted-no read differently on the roll call and in the
 // cast count the threshold sentence quotes. Closed measures refuse: the
 // record of a decided vote is a record.
+// WITHDRAW A MEASURE (redesign catalog 10): the proposer pulls their own
+// question off the ballot — but only while the league has not engaged.
+// Once any OTHER owner has cast, the measure belongs to the electorate and
+// the record stands; the proposer's own ballot never blocks their own
+// withdrawal. Withdrawn measures leave both lists (status 'withdrawn') —
+// nobody engaged, so there is nothing to memorialize; the doc survives.
+router.post('/votes/:id/withdraw', aw(async (req, res) => {
+  const vote = await getDoc(`vote:${req.params.id}`, null);
+  if (vote && vote.status === 'open' && Number(vote.proposer_id) === Number(req.owner.id)) {
+    const bKeys = await H.store.listKeys(`ballot:${vote.id}:`);
+    const others = bKeys.filter(k => Number(k.split(':')[2]) !== Number(req.owner.id));
+    if (!others.length) {
+      vote.status = 'withdrawn';
+      vote.withdrawn_at = now();
+      await setDoc(`vote:${vote.id}`, vote);
+    }
+  }
+  res.redirect('/votes');
+}));
+
+// EDIT AN UNVOTED PROPOSAL (redesign catalog 10, the other half of withdraw):
+// "same rule as bets: until anyone has acted on it, the author owns it.
+// Typo'd ballots currently live forever." Same guard as withdraw above —
+// open, proposer, and nobody else has cast yet — so this is strictly a
+// smaller version of "pull it and re-propose", not a new risk: a measure
+// nobody else has engaged with cannot be stale under anyone but its author.
+// No terms-version bump (register 294/bet-edit's reason for one): a ballot
+// is a fresh yes/no read at cast time, not an accept against a snapshot, and
+// the guard already forbids editing once a single other ballot exists.
+router.post('/votes/:id/edit', aw(async (req, res) => {
+  const vote = await getDoc(`vote:${req.params.id}`, null);
+  const question = String(req.body.question || '').trim().slice(0, 200);
+  if (vote && vote.status === 'open' && Number(vote.proposer_id) === Number(req.owner.id) && question) {
+    const bKeys = await H.store.listKeys(`ballot:${vote.id}:`);
+    const others = bKeys.filter(k => Number(k.split(':')[2]) !== Number(req.owner.id));
+    if (!others.length) {
+      vote.question = question;
+      vote.description = String(req.body.description || '').trim().slice(0, 1000);
+      vote.edited_at = now();
+      await setDoc(`vote:${vote.id}`, vote);
+    }
+  }
+  res.redirect('/votes');
+}));
+
 router.post('/votes/:id/rescind', aw(async (req, res) => {
   const vote = await getDoc(`vote:${req.params.id}`, null);
   if (vote && vote.status === 'open') {
@@ -2237,7 +2516,7 @@ router.get('/team', aw(async (req, res) => {
   // This week's game, so the page answers "who am I playing" before it answers
   // "who is on my bench" — and so a bet against that opponent is one tap away.
   const matchup = sleeper.myMatchup(sData, world.config.sleeper_map || {}, viewOwner.id, owners);
-  const betWindow = BL.matchupWindow(matchup);
+  const betWindow = BL.matchupWindow(matchup, new Date(), { seasonStart: world.config.season_start, seasonType: sData && sData.season_type });
   const nameOf = id => (H.ownerById(owners, id) || {}).name || '?';
   const allBets = await SB.all();
   // Bets your opponent has put in front of you for this week.
@@ -2269,10 +2548,17 @@ router.get('/team', aw(async (req, res) => {
 
   res.render('team', { viewOwner, owners, roster, matchup, betWindow, trend,
     matchupPending, aboutMe, late: req.query.late === '1',
+    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1', rerun: req.query.rerun === '1', nudged: req.query.nudged === '1',
     // Roster is the default — it is what this page has always been, and it is
     // the half that works without a live matchup.
     section: req.query.section === 'week' ? 'week' : 'roster',
     weekNo: (matchup && matchup.week) || (sData && sData.week) || 1,
+    // Catalog item 16 ("injury chips on every player name, site-wide, one
+    // component"): the SAME classifier matchup.ejs already uses, not a
+    // second ladder — this page's own ad-hoc Status column (raw r.inj text,
+    // "healthy" for a bye-week player) was exactly the drift that comment
+    // warns about.
+    injuryFlag: MU.injuryFlag,
     configured: !!world.config.sleeper_league_id });
 }));
 
@@ -2400,7 +2686,7 @@ router.get('/matchup', aw(async (req, res) => {
   if (!opp && oppParam && oppParam !== me.id) opp = H.ownerById(owners, oppParam) || null;
 
   const weekNo = (liveMatchup && liveMatchup.week) || (sData && sData.week) || 1;
-  const betWindow = BL.matchupWindow(liveMatchup);
+  const betWindow = BL.matchupWindow(liveMatchup, new Date(), { seasonStart: world.config.season_start, seasonType: sData && sData.season_type });
 
   // ── WEEK NAVIGATION (member-site pass, 2026-08-16) ────────────────────────
   // "Matchup tracking, this week and other weeks" — ?week=N opens any past
@@ -2634,7 +2920,11 @@ router.get('/matchup', aw(async (req, res) => {
     injuryFlag: MU.injuryFlag,
     goatId: MK.goatOwnerId(sData, world.config.sleeper_map || {}),
     configured: !!world.config.sleeper_league_id,
-    late: req.query.late === '1', sent: req.query.sent === '1',
+    late: req.query.late === '1',
+    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1', rerun: req.query.rerun === '1', nudged: req.query.nudged === '1', sent: req.query.sent === '1',
+    // Catalog item 17: the confirmation names how much too, not just who
+    // (opp, above) — set only by the propose route's own success path.
+    sentAmt: req.query.sent_amt || '',
     betFail: betFailMessage(req.query.betfail),
     nameOf,
   });
@@ -2660,7 +2950,8 @@ async function pickemContext(world, me, { wantBoards = true } = {}) {
 
   const sData = await sleeper.bundle(leagueId);
   const weekNo = (sData && sData.week) || 1;
-  const anyScore = PE.anyScoreOnBoard(sData);
+  // Same preseason gate as the bet clock: preseason points must not lock picks.
+  const anyScore = !!(sData && sData.season_type === 'regular') && PE.anyScoreOnBoard(sData);
   const locked = PE.isLocked({ week: weekNo, seasonStart, anyScore });
   const lockAt = PE.lockAt(weekNo, seasonStart);
 
@@ -2753,6 +3044,7 @@ router.get('/pickem', aw(async (req, res) => {
   res.render('pickem', {
     me: req.owner, ...c,
     saved: req.query.saved === '1', late: req.query.late === '1',
+    stale_terms: req.query.stale_terms === '1', edited: req.query.edited === '1', countered: req.query.countered === '1', rerun: req.query.rerun === '1', nudged: req.query.nudged === '1',
   });
 }));
 
@@ -3310,8 +3602,23 @@ async function liveOptimizeFor(world, owners, me) {
     // are a 64% favourite. Now: a typical TEAM score, with the FIELD's spread,
     // which is what an unknown opponent's uncertainty actually is.
     let oppMean = 0, oppKnown = false, oppSd;
-    if (matchup && matchup.opp && matchup.opp.points > 0) { oppMean = matchup.opp.points; oppKnown = true; }
-    else {
+    // Register 324: this used to switch to the LIVE matchup.opp.points the
+    // moment it went above zero — a PARTIAL mid-game score, not a final one.
+    // Measured on one real Sunday, same roster and projections throughout:
+    // pre-kick "protect, coin flip" ($44.77) -> mid-Sunday, opponent's early
+    // score substituted whole, "start your studs, no chase" ($113.69) -> every
+    // game finished, "protect" again ($43.10). The headline advice flipped and
+    // flipped back, driven entirely by the clock on a roster Cory never
+    // touched. Same false alarm the matchup card's win-odds line already
+    // refuses to make once anyScoreOnBoard() is true (this file, the
+    // requireCommissioner /matchup route above: "an unmoving pre-kick number
+    // next to a live score would be a STALE CLAIM ... A refusal renders
+    // NOTHING, never a guess") — same rule, other direction: a MOVING partial
+    // total is not a final one either. Hold the pre-kick estimate for the
+    // whole live window instead of chasing a score that has not finished; by
+    // the time it IS final, the lineup can no longer be changed, so a
+    // "known" opponent score was never actionable input for this tool.
+    {
       const typical = LO.typicalTeamScore();
       oppMean = typical.median || band.median;
       oppSd = typical.sd || undefined;
@@ -3331,6 +3638,14 @@ async function liveOptimizeFor(world, owners, me) {
     // Flag it so the view shows a calm "projections pending" state instead of a
     // 0%-to-win doom read off an all-zero board.
     live.projPending = projSource === 'none' || Number(live.ev.mean || 0) < 1;
+    // Register 324, E's follow-up: holding the pre-kick estimate stops the
+    // headline from FLIPPING, but the page still asserts it with the same
+    // confidence whether it was computed five minutes ago or five days ago —
+    // "the page does not know it is gone" (the live opponent number). Say so:
+    // once any score is on the board this week, the call on screen was set
+    // pre-kick and has not moved since, which is a fact worth one line rather
+    // than a silent held number that could pass for fresh.
+    live.midGame = PE.anyScoreOnBoard(sData);
   }
   const weekNo = (matchup && matchup.week) || (sData && sData.week) || 1;
   return { live, roster, matchup, projSource, band, weekNo };
@@ -3369,7 +3684,7 @@ router.get('/waivers', requireCommissioner, aw(async (req, res) => {
   const W = require('./waivers');
 
   let claims = [], drop = null, perPoint = 0, weekNo = null, err = null, live = false;
-  let streamClaims = [], currentKD = [];
+  let streamClaims = [], currentKD = [], blockWatch = [];
   try {
     const sData = await sleeper.bundle(world.config.sleeper_league_id);
     if (sData && Array.isArray(sData.rosters) && sData.rosters.length) {
@@ -3403,46 +3718,30 @@ router.get('/waivers', requireCommissioner, aw(async (req, res) => {
           process.env.DRAFT_DATA_PATH
             || path.join(__dirname, '..', '..', 'public', 'draft_data.json'), 'utf8'));
       } catch (e) { artifact = {}; }
-      const inputs = W.waiverInputsFromBundle(sData, playersDb, artifact, myRid);
-      if (inputs && inputs.myRoster.length) {
-        live = true;
-        const band = LO.weeklyHighBand();
-        // The league's own slot template, not a default — a wrong template
-        // prices every claim against a lineup we do not play.
-        const template = (sData.league && sData.league.roster_positions) || null;
-        const league = { teams: (sData.league && sData.league.total_rosters) || owners.length,
-                         starters: template ? LO.slotsFromTemplate(template) : LO.DEFAULT_SLOTS };
-        // Rank by what reaches the field, and only look at the top of the wire —
-        // a full FA pool is thousands of names and the tail is all zeros.
-        const typical = LO.typicalTeamScore();
-        const res2 = W.evaluateClaims(inputs.freeAgents, inputs.myRoster, league, {
-          band, lineupMean: typical.median, lineupSd: typical.sd, oppMean: typical.median,
-          leagueRosters: Object.fromEntries((sData.rosters || [])
-            .filter(r => String(r.roster_id) !== String(myRid))
-            .map(r => [r.roster_id, (r.players || []).map(pid => {
-              const info = (playersDb && playersDb.players && playersDb.players[pid]) || {};
-              return { player_id: pid, position: info.pos, proj_mean: null };
-            }).filter(p => p.position)])),
-        });
-        drop = res2.drop; perPoint = res2.dollars_per_point;
-        claims = res2.claims.filter(c => c.net_value > 0).slice(0, 8);
-        // STREAMING (K/DEF), same underlying valuation, different decision shape.
-        // A stream is a FREE weekly swap, not a priority-costly claim — the
-        // counterfactual is "kept who I have", not "held priority". Uses the SAME
-        // tested net_value ranking as the claims above (no new scoring logic,
-        // that gate stays closed this close to the draft) with the limitation
-        // stated honestly on the page: season-value, not matchup-tuned.
-        streamClaims = res2.claims.filter(c => (c.position === 'K' || c.position === 'DEF')
-          && c.net_value > 0).slice(0, 2);
-        currentKD = (inputs.myRoster || [])
-          .filter(p => p.position === 'K' || p.position === 'DEF')
-          .map(p => ({ player_id: p.player_id, name: p.name, position: p.position }));
-      }
+      /* THE COMPUTATION MOVED to src/waiver_reco.js (2026-08-24) so the page
+       * and the Tuesday-night auto-capture cron (waiver-reco-cron) share ONE
+       * recommendation — the graded ledger row is definitionally what this
+       * page shows, because both call the same function on the same inputs.
+       * Cory: "you should be logging and grading ALL recommendations
+       * everywhere even if I don't do them." */
+      const reco = require('../waiver_reco').computeWaiverReco(
+        sData, playersDb, artifact, myRid, owners.length);
+      live = reco.live;
+      drop = reco.drop; perPoint = reco.perPoint;
+      claims = reco.claims; streamClaims = reco.streamClaims;
+      currentKD = reco.currentKD;
+      // BLOCK WATCH rows carry roster ids; name them here (map: rid → owner)
+      // so the card says WHO a claim denies, not a number.
+      const ridName = rid => {
+        const oid = Number((world.config.sleeper_map || {})[String(rid)]);
+        return (H.ownerById(owners, oid) || {}).name || `team ${rid}`;
+      };
+      blockWatch = (reco.blockWatch || []).map(bw => ({ ...bw, denies_names: bw.denies.map(ridName) }));
     }
   } catch (e) { err = String((e && e.message) || e); }
 
   res.render('waivers', {
-    me, season, weekNo, live, err, claims, drop, perPoint, streamClaims, currentKD,
+    me, season, weekNo, live, err, claims, drop, perPoint, streamClaims, currentKD, blockWatch,
     liveStale: await liveFreshness(),
     captureError: req.query.captureError === '1',
     // The explainer contract (what/read/do/src per panel) — view-model only.
@@ -3930,6 +4229,101 @@ router.post('/lineup/log', requireCommissioner, aw(async (req, res) => {
 // Sleeper afterwards, the final played lineup can differ, and the resolution
 // grades what was set at the decision moment, which is the decision-time
 // record this whole ledger exists to keep.
+// ── ONE-TAP WHY FROM THE SUNDAY ALERT (A's ranked item 3, 2026-08-24:
+// "Capture WHY, weekly, at the moment of the call... One tap, at decision
+// time — not a text box on Tuesday.") The email's reason chips link here.
+//
+// GET with a side effect, deliberately and guardedly: a tap in a mail client
+// is a GET, and requireCommissioner means only Cory's logged-in browser can
+// record — a mail client prefetching links carries no cookie and bounces off
+// the login wall writing nothing. One record per week (marker), so a re-tap
+// says "already noted" instead of stacking rows. The recommendation attached
+// is the exact snapshot the email showed (stored on the send stamp), not a
+// re-derivation that may have moved since.
+router.get('/lineup/why', requireCommissioner, aw(async (req, res) => {
+  const season = String(H.currentSeason(req.world.seasons).year || new Date().getUTCFullYear());
+  const week = parseInt(req.query.week, 10) || null;
+  const REASONS = ['doing it', 'injury news', "don't buy the projection", 'riding my guy'];
+  const reason = REASONS.includes(String(req.query.reason)) ? String(req.query.reason) : 'unstated';
+  const page = (title, sub) => res.send(
+    `<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1">`
+    + `<body style="font-family:system-ui;max-width:26rem;margin:3rem auto;padding:0 1rem;text-align:center">`
+    + `<div style="font-size:2.2rem">📝</div><h2 style="margin:.4rem 0">${title}</h2>`
+    + `<p style="color:#3c4a60">${sub}</p>`
+    + `<a href="/lineup" style="display:inline-block;margin-top:.6rem;background:#1b2c4d;color:#fff;`
+    + `text-decoration:none;font-weight:800;padding:.7rem 1.2rem;border-radius:8px">Open the optimizer</a></body>`);
+  if (!week) return page('Missing the week', 'This link came without a week number — open the optimizer instead.');
+  const markKey = `sundaywhy:${season}:${week}`;
+  const already = await getDoc(markKey, null);
+  if (already) {
+    return page('Already on the record',
+      `Week ${week} is noted as “${already.reason}”. One call per week — the season grades what's written.`);
+  }
+  const stamp = await getDoc(`sunday-alert-sent:${season}:${week}`, null);
+  const todo = (stamp && stamp.todo) || [];
+  try {
+    const predledger = require('../predledger');
+    await predledger.append(store, {
+      kind: 'inseason_override',
+      method: 'sunday-why-v1',
+      season,
+      payload: {
+        key: decisionKey('override:sunday', season, week, req.owner.id),
+        owner_id: req.owner.id,
+        week,
+        // What the email actually showed at decision time.
+        recommended: todo,
+        counterfactual: todo,
+        // The final lineup is knowable only after kickoff; the resolver's
+        // fill-actual-from-Sleeper extension is routed to A (register 290's
+        // owner). Until then this row is a captured WHY, honestly pending.
+        actual: null,
+        reason,
+        followed: reason === 'doing it',
+      },
+    });
+    await setDoc(markKey, { reason, at: now() });
+  } catch (e) {
+    return page('That didn’t save', 'The tap reached the site but the record failed — try once more, or log it on the optimizer page.');
+  }
+  return page(reason === 'doing it' ? 'Noted — you’re on the tool' : 'Noted — you went your own way',
+    `Week ${week}: “${reason}”. That's the whole tap — the season grades it from here.`);
+}));
+
+// ── RECO-CAPTURE HEALTH (A's ranked item 1, 2026-08-24: "a cron that has
+// never emitted a row hasn't been tested, only scheduled. A green run and an
+// empty store look identical. Week 1 must produce a real graded row, checked
+// by hand.") This is the hand-check surface: the week markers each auto-
+// capture cron writes, plus the actual latest ledger row per auto method —
+// so "marker exists but no row" and "no marker at all" are both visible in
+// one commissioner-gated read of the LIVE store.
+router.get('/admin/api/reco-capture-health', requireCommissioner, aw(async (req, res) => {
+  const season = String(req.query.season || H.currentSeason(req.world.seasons).year || new Date().getUTCFullYear());
+  const markers = {};
+  for (const fam of ['waiverauto', 'lineupauto']) {
+    markers[fam] = {};
+    try {
+      const keys = await store.listKeys(`${fam}:${season}:`);
+      for (const k of keys.sort()) markers[fam][k.split(':').pop()] = await store.get(k);
+    } catch (e) { markers[fam] = { error: String(e && e.message || e) }; }
+  }
+  const AUTO_METHODS = ['waiver-auto-v1', 'stream-auto-v1', 'lineup-auto-v1', 'sunday-why-v1'];
+  const latest = Object.fromEntries(AUTO_METHODS.map(m => [m, null]));
+  let ledgerRows = 0;
+  try {
+    const keys = (await store.listKeys(`pred:${season}:`)).sort();
+    ledgerRows = keys.length;
+    for (const k of keys) {
+      const e = await store.get(k);
+      if (e && AUTO_METHODS.includes(e.method)) {
+        latest[e.method] = { key: e.payload && e.payload.key, week: e.payload && e.payload.week, at: e.at || e.created_at || null };
+      }
+    }
+  } catch (e) { /* reported via ledgerRows staying 0 */ }
+  res.json({ ok: true, season, ledger_rows: ledgerRows, markers, latest_auto_row: latest,
+    read_me: 'A week with a marker but no matching row means the cron ran and emitted nothing — read the marker (none:true is an honest hold week, anything else is a defect).' });
+}));
+
 router.post('/lineup/override', requireCommissioner, aw(async (req, res) => {
   const season = String(H.currentSeason(req.world.seasons).year || new Date().getUTCFullYear());
   const predledger = require('../predledger');
@@ -3970,20 +4364,64 @@ router.post('/lineup/override', requireCommissioner, aw(async (req, res) => {
 }));
 
 // ---------- the locker room ----------
+// You can fix a typo or take back a message for five minutes; after that it
+// is the record (redesign catalog 12 — "Permanent. No takebacks." stays true
+// of anything old enough that somebody has read it).
+const CHAT_EDIT_WINDOW_MS = 5 * 60 * 1000;
+const chatEditable = m => m && Date.now() - Date.parse(m.created_at || 0) < CHAT_EDIT_WINDOW_MS;
+
 router.get('/chat', aw(async (req, res) => {
   const owners = H.activeOwners(req.world.owners);
   const feed = await H.chatFeed(owners);
   await setDoc(`chat-seen:${req.owner.id}`, { at: now() });
-  res.render('chat', { feed });
+  // Reply-to (catalog 13), no-JS: the ↩ link carries ?reply=<id>, the GET
+  // resolves it to the message being answered, the composer quotes it.
+  const replyTo = req.query.reply
+    ? feed.find(m => m.key === 'chat:' + req.query.reply) || null : null;
+  res.render('chat', { feed, replyTo, editWindowMs: CHAT_EDIT_WINDOW_MS });
 }));
 
 router.post('/chat', aw(async (req, res) => {
   const text = String(req.body.text || '').trim().slice(0, 500);
-  if (text) await setDoc(`chat:${newId()}`, { owner_id: req.owner.id, text, created_at: now() });
+  if (text) {
+    const msg = { owner_id: req.owner.id, text, created_at: now() };
+    // The quote is a SNAPSHOT, not a pointer: if the original is later edited
+    // or deleted, the reply still shows what was actually being answered.
+    if (req.body.reply_key) {
+      const orig = await getDoc('chat:' + String(req.body.reply_key), null);
+      if (orig) {
+        const origOwner = H.ownerById(req.world.owners, orig.owner_id);
+        msg.reply = { name: (origOwner && origOwner.name) || '?',
+                      text: String(orig.text || '').slice(0, 90) };
+      }
+    }
+    await setDoc(`chat:${newId()}`, msg);
+  }
   // Posting from the home page returns you to the home page. Being teleported
   // into a different tab because you replied to a message is how people learn
   // not to reply.
   res.redirect(req.body.back === 'home' ? '/#locker' : '/chat#end');
+}));
+
+router.post('/chat/:id/edit', aw(async (req, res) => {
+  const key = 'chat:' + req.params.id;
+  const msg = await getDoc(key, null);
+  const text = String(req.body.text || '').trim().slice(0, 500);
+  if (msg && Number(msg.owner_id) === Number(req.owner.id) && chatEditable(msg) && text) {
+    msg.text = text;
+    msg.edited_at = now();
+    await setDoc(key, msg);
+  }
+  res.redirect('/chat#end');
+}));
+
+router.post('/chat/:id/delete', aw(async (req, res) => {
+  const key = 'chat:' + req.params.id;
+  const msg = await getDoc(key, null);
+  if (msg && Number(msg.owner_id) === Number(req.owner.id) && chatEditable(msg)) {
+    await H.store.del(key);
+  }
+  res.redirect('/chat#end');
 }));
 
 router.get('/rules', aw(async (req, res) => {
@@ -4008,3 +4446,9 @@ router.get('/rules', aw(async (req, res) => {
 }));
 
 module.exports = router;
+// The lineup auto-capture cron (netlify/functions/lineup-reco-cron.js) runs
+// the SAME optimizer call the /lineup page renders from, so the graded row is
+// definitionally what the page showed — register 287, the volunteered-data
+// gap. Attached to the router object rather than moved: 100+ lines of
+// battle-tested computation stay where their history is.
+module.exports.liveOptimizeFor = liveOptimizeFor;

@@ -21,7 +21,7 @@ and it stays detectable when a future study invents a fourth shape.
 ── HONEST SCOPE, BECAUSE THE FIRST VERSION OF THIS CLAIM WAS TOO BROAD ──────
 
 It checks every dict that carries BOTH a two-element CI and a verdict string AS
-SIBLINGS. Measured: 42 such pairs across 6 artifacts (cory-conditional, exp33b,
+SIBLINGS. Measured 2026-08-25: 40 such pairs across 6 artifacts (cory-conditional, exp33b,
 exp34, exp_participation, frontier, stack-sweep).
 
 It does NOT cover the 21 other artifacts that carry a `ci95` somewhere: those
@@ -70,8 +70,48 @@ def pairs(obj, path=""):
             yield from pairs(v, f"{path}[{i}]")
 
 
+#: A verdict whose LEADING label is one of these makes no separability claim at
+#: all — it says the instrument cannot answer the question. Leading only: a
+#: refusal word buried mid-sentence must not exempt a verdict that then goes on
+#: to claim separation.
+REFUSAL_HEAD = re.compile(r"^\s*(INSTRUMENT-LIMITED|not separable|inconclusive|"
+                          r"unmeasurable|VOID)\b", re.I)
+#: Text inside parentheses is an ASIDE, not this row's claim. See below.
+PARENTHETICAL = re.compile(r"\([^()]*\)")
+
+
 def inconsistency(ci, verdict):
-    """The false claim, or None. Zero is inside [lo, hi] only when lo <= 0 <= hi."""
+    """The false claim, or None. Zero is inside [lo, hi] only when lo <= 0 <= hi.
+
+    ⚠️ THE DETECTOR READ A CROSS-REFERENCE AS A CLAIM, and it took a moving
+    interval to expose it. `exp_participation.build_up_from_core.stack` has
+    carried the same verdict since 08-18:
+
+        "INSTRUMENT-LIMITED — grade_room has no within-team weekly correlation —
+         the stack mechanism is absent, so this arm can't reward it. Sound
+         instrument = exp6/stack_sweep (WINNER +$196 @ dose 0.5)."
+
+    That is an honest refusal about THIS arm plus a pointer to a DIFFERENT study.
+    The `WINNER` belongs to `exp6/stack_sweep`. But the detector matched
+    `SAYS_EXCLUDES` anywhere in the string, so it read the borrowed word as this
+    row's claim — and stayed quiet for a week only because the interval happened
+    to exclude zero and agree with it: **[-49.75, -11.62] -> [-22.88, -7.44] ->
+    [-17.56, 9.75]**, straddling zero for the first time in the 08-25 Lab report.
+    Register 342.
+
+    So two things are excluded from the SEPARABILITY check, and only from it —
+    `SAYS_CONTAINS` still scans the whole string, because "parked: CI includes $0"
+    puts its false claim in the tail:
+
+      * a LEADING refusal label, which by construction makes no claim to separate
+      * text inside parentheses, which is an aside and not the row's verdict
+
+    WHAT THIS GIVES UP, stated rather than glossed: a verdict that leads with
+    INSTRUMENT-LIMITED and then genuinely claims separation is no longer caught.
+    That is the label lying, not the interval, and this file cannot see it — the
+    docstring at the top already says this is a proof about co-located pairs and
+    not about every stored claim in the repo.
+    """
     lo, hi = ci
     if not isinstance(lo, (int, float)) or not isinstance(hi, (int, float)):
         return None
@@ -79,9 +119,14 @@ def inconsistency(ci, verdict):
     if SAYS_CONTAINS.search(verdict) and not contains:
         return "claims 0 is INSIDE an interval that excludes it"
     # "not separable"/"inconclusive" are the honest words for containing zero;
-    # only a positive claim of separation is wrong when zero is inside.
-    if (SAYS_EXCLUDES.search(verdict) and contains
-            and not re.search(r"not separable|inconclusive", verdict)):
+    # only a positive claim of separation is wrong when zero is inside. They now
+    # exempt only as a LEADING label: the old test searched them ANYWHERE, so
+    # "WINNER — dose pays, though not separable elsewhere" escaped. MEASURED
+    # before tightening — 0 of the 40 stored pairs relied on the anywhere-match,
+    # so closing it costs nothing on the real population. Register 342.
+    own_claim = PARENTHETICAL.sub(" ", verdict)
+    if (SAYS_EXCLUDES.search(own_claim) and contains
+            and not REFUSAL_HEAD.search(verdict)):
         return "claims separability for an interval that CONTAINS 0"
     return None
 
@@ -118,6 +163,33 @@ def test_CONTROL_the_detector_passes_correct_labels():
     assert inconsistency([-10.0, 10.0], "parked: CI includes $0") is None
     assert inconsistency([266.46, 422.29], "WINNER — dose pays") is None
     assert inconsistency([-10.0, 10.0], "not separable (CI includes 0)") is None
+
+
+def test_CONTROL_a_cross_reference_is_not_this_rows_claim():
+    """Register 342, both directions. The exemptions must be exactly as narrow as
+    they are described, or they are a hole rather than a fix."""
+    cited = ("INSTRUMENT-LIMITED — grade_room has no within-team weekly "
+             "correlation — the stack mechanism is absent, so this arm can't "
+             "reward it. Sound instrument = exp6/stack_sweep (WINNER +$196 @ "
+             "dose 0.5).")
+    # the real row: an honest refusal quoting somebody else's WINNER
+    assert inconsistency([-17.56, 9.75], cited) is None
+    # ...and the SAME row must still be caught claiming 0 is inside when it is not
+    assert inconsistency([-49.75, -11.62], "INSTRUMENT-LIMITED — parked: CI "
+                         "includes $0")
+
+    # A REFUSAL WORD MID-SENTENCE MUST NOT EXEMPT ANYTHING. Leading only.
+    assert inconsistency([-10.0, 10.0],
+                         "WINNER — dose pays, though not separable elsewhere"), \
+        "a refusal phrase mid-sentence exempted a real separability claim"
+    assert inconsistency([-10.0, 10.0], "WINNER — dose pays; instrument-limited "
+                         "in the 2023 arm"), \
+        "a refusal word buried mid-sentence exempted a real separability claim"
+
+    # A PARENTHETICAL IS AN ASIDE; A BARE CLAIM IS NOT.
+    assert inconsistency([-10.0, 10.0], "dose pays (WINNER in exp6)") is None
+    assert inconsistency([-10.0, 10.0], "dose pays — WINNER in exp6"), \
+        "stripping parentheses must not swallow an unparenthesised claim"
 
 
 def test_CONTROL_the_sweep_actually_reaches_the_artifacts():

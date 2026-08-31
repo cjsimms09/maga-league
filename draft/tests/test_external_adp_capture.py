@@ -2344,9 +2344,33 @@ def test_the_REAL_config_yields_the_REAL_BOARD_DEPTH():
         "the board is %d x %d deep; %s says %s"
         % (teams, rounds, d["basis"], d["last_pick"]))
     # AND THE OTHER QUANTITY, NAMED, so a future reader cannot mistake one for
-    # the other. 147 is how many SELECTIONS happen, not how deep the draft is.
-    assert po["live_picks"] == 147
+    # the other: live_picks is how many SELECTIONS happen, not how deep the
+    # draft is.
+    #
+    # ⚠️ THE HARDCODED `147` IS GONE (A, 2026-08-25). It was 150 - 3 forfeited
+    # picks, written when Cory's three keepers were the only ones the board
+    # carried. At the 2026-08-23 league-wide keeper lock the slate CONFIRMED and
+    # the board began carrying all ten teams' keepers, so forfeited went 3 -> 23
+    # and live_picks 147 -> 127. The number was right and is now wrong, and
+    # nothing about the draft's depth changed.
+    #
+    # THE INVARIANT BELOW IS THE ACTUAL CHECK and it never moved: selections =
+    # depth - forfeited, whatever the keeper count. Pinning 147 next to it added
+    # no coverage the invariant did not already give, and did add a value that
+    # goes stale every time the league keeps a different number of players.
+    # That is once a year, in August, which is the worst possible time to be
+    # reading a diff.
     assert po["live_picks"] == d["last_pick"] - len(po["forfeited"])
+    # ...and the two quantities must still be DIFFERENT, which is the confusion
+    # this test exists to prevent. Asserted structurally rather than by pinning
+    # either side: a league that kept nobody would legitimately make them equal,
+    # so this is conditioned on there being keepers at all.
+    if po["forfeited"]:
+        assert po["live_picks"] != d["last_pick"], (
+            "live_picks equals the draft depth while %d pick(s) are forfeited — "
+            "the two quantities have collapsed into one again, which is the "
+            "state this file was in when 147 was reported as the draft's length"
+            % len(po["forfeited"]))
 
 # ── THE SAME INVARIANT, ONE LAYER UP: INSIDE THE FETCH ─────────────────────
 #

@@ -583,7 +583,8 @@
     "note": "6-pt is our era-correct scoring; 4-pt is the ADP source's world. A gap means the market's QB order is being judged against a different currency than it was set in \u2014 the underpricing the late-QB verdict compounds."
   },
   "caveats": [
-    "[2025] NOT recovered: pbp disagreed with the library on 2024",
+    "pbp unavailable for [2025, 2026] (NameError)",
+    "2026: realized weekly unavailable; season SKIPPED",
     "2025: realized weekly unavailable; season SKIPPED"
   ],
   "note": "Points-reliability surface (per-player dollars are not a clean quantity; the money-graded companion is exp 34's dollar arm + exp 39). Efficiency = within-cell Spearman; thin cells (n<floor) contribute no shrinkage and default to full market anchoring. Multi-source + composite pending a second reachable board (FFC confirmed; Sleeper/Underdog probed, not assumed)."

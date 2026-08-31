@@ -59,7 +59,26 @@ jobs:
       # origin/main, which can be arbitrarily far back).
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          # 2 -> 0, 2026-08-31 (register 433, the board-publish stall, found
+          # while asking why the board has not published since 08-26).
+          # `ci.yml` learned this on 08-17 and
+          # carries a fifteen-line comment about it; THIS workflow never got the
+          # same fix, and it is the one that publishes.
+          #
+          # MEASURED: every scheduled rebuild since 08-21 has been REFUSED, and
+          # from 08-29 the refusal list carries
+          # `test_draft_week_brief_numbers::test_the_era_board_is_reachable_so_
+          # the_pinned_tests_are_not_silently_skipping`. That test is a CONTROL:
+          # it reads `public/draft_data.json` at the pinned pre-draft sha and
+          # fails loudly if the blob is unreachable, precisely so a shallow
+          # clone cannot turn three pinned tests into three quiet skips. At
+          # depth 2 the blob is unreachable BY CONSTRUCTION, so the control was
+          # correct and the checkout was wrong — it passes in `ci.yml`, which
+          # already fetches full history, and failed only here.
+          #
+          # ⚠️ This is ONE of the six tests blocking the publish, not all six.
+          # Fixing it does not by itself republish the board.
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
@@ -179,6 +198,42 @@ jobs:
         working-directory: .
         run: python draft/gen_keepers_json.py
       - name: Export league history
+        # ⚠️ THIS STEP NEVER RAN ON A SCHEDULE (A, 2026-08-24, register below).
+        # The condition was `github.event.inputs.export_history == 'true'` alone,
+        # and on a `schedule` trigger `github.event.inputs` does not exist — the
+        # comparison is null == 'true', which is false on every scheduled run.
+        # So league_history.json was refreshed ONLY when a human dispatched the
+        # workflow with the box ticked. Its committed `built_at` was 16 days
+        # stale when this was found.
+        #
+        # WHY THAT MATTERS MORE THAN A STALE FILE: league_history.json is what
+        # ALL FIVE decision graders read (start/sit, waiver, drop, keeper, draft
+        # pick — draft/backtest/*_vs_random.py). Left alone, they would have run
+        # green every Tuesday of the season and graded 2023-25 forever, never
+        # seeing a single 2026 decision. A grader that reports the same
+        # historical number all season is indistinguishable from one that is
+        # working, which is the whole failure this project calls "a grade that
+        # moved nothing".
+        #
+        # FIXED, THEN SUPERSEDED THE SAME DAY BY A BETTER FIX — and the second
+        # half is the one worth reading. My first change made this step also run
+        # on the Tuesday 11:00 cron. That was correct and INERT: this step sits
+        # at position 11 of 23 with no `if: always()`, so it is skipped whenever
+        # anything earlier fails, and this workflow has failed on EVERY
+        # scheduled run since 2026-08-19 (register 319). The commit step is at
+        # position 22, so even a step that ran would not have landed.
+        #
+        # The real defect was the hostage relationship, not the condition. The
+        # board build legitimately fails after a draft — the keeper refresh two
+        # steps up reads live designations and a completed draft consumes them
+        # (run 110, 14h pre-draft, passed it; run 111, 9.5h post-draft, failed
+        # it) — and none of that has anything to do with exporting history.
+        #
+        # So the scheduled export now lives in `league-history-export.yml`, on
+        # its own legs, with its own landed-not-just-ran assertions. This step
+        # stays DISPATCH-ONLY on purpose: it is the "rebuild everything by hand"
+        # path, and giving it the same Tuesday 11:00 cron would put two writers
+        # on one file at the same minute.
         if: github.event.inputs.export_history == 'true'
         working-directory: draft
         run: python history_export.py "${{ github.event.inputs.league_id || '1374848328470102016' }}"
@@ -423,12 +478,31 @@ jobs:
         # investigated by hand many hours later. The gate's DECISION was correct
         # (don't ship a broken board); its SILENCE was the actual defect.
         #
-        # `if: failure()` — runs ONLY when the acceptance gate above just failed,
-        # and does not change whether the job ends up red (it still does; see the
-        # unconditioned steps below, which stay skipped exactly as before). Opens
-        # (or updates, if already open — one tracking issue, not one per night) a
-        # labeled GitHub issue with the exact failing test names, so a human is
-        # notified same-day instead of by accident.
+        # `if: failure()` — ⚠️ AND THAT IS *ANY* FAILURE IN THE JOB, NOT JUST THE
+        # GATE'S, WHICH IS THE DEFECT FIXED HERE (A, 2026-08-25, register 319).
+        #
+        # The comment above said "runs ONLY when the acceptance gate above just
+        # failed". It does not. When the job dies EARLIER — as it did on runs 111,
+        # 112 and 113, at step 10, `gen_keepers_json` — the gate never runs,
+        # /tmp/board_gate_output.txt is never created, and this step still fired
+        # and posted, verbatim:
+        #
+        #   "The nightly board rebuild ran at ... and refused to publish"
+        #   Failing tests: see run log, no FAILED lines parsed
+        #
+        # Both halves false. No board was built, so none was refused, and there
+        # were no failing tests because the suite never ran. `grep` printed
+        # "No such file or directory" into the log and the notice went out anyway.
+        #
+        # THAT IS WHY SIX DAYS OF FAILURES READ AS ONE UNDIFFERENTIATED RED. The
+        # alarm fired every night with the same contentless body, so the ONE thing
+        # that would have located the fault — that the failure moved from the gate
+        # to the keeper step on 08-23 — was the one thing it could not say. A
+        # notification that cannot distinguish two different faults trains its
+        # reader to stop opening it.
+        #
+        # So the notice now says which of the two actually happened, and the
+        # pre-gate case names the step that failed rather than guessing.
         if: failure() && github.event.inputs.snapshot != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -436,16 +510,33 @@ jobs:
           LABEL="board-rebuild-broken"
           gh label create "$LABEL" --color B60205 --description "Nightly board rebuild refused to publish" 2>/dev/null || true
           EXISTING=$(gh issue list --label "$LABEL" --state open --json number --jq '.[0].number' 2>/dev/null || echo "")
-          FAILING=$(grep -oE "^FAILED [A-Za-z0-9_./:-]+" /tmp/board_gate_output.txt | sed 's/^FAILED //' | sort -u || true)
           RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           BODY_FILE=$(mktemp)
-          {
-            printf 'The nightly board rebuild ran at %s and refused to publish — the previously published board is still live, untouched.\n\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            printf '**Failing tests:**\n\x60\x60\x60\n'
-            printf '%s\n' "${FAILING:-see run log, no FAILED lines parsed}"
-            printf '\x60\x60\x60\n\nRun: %s\n\n' "$RUN_URL"
-            printf 'This issue stays open until a rebuild passes clean; it will auto-close then, not before.\n'
-          } > "$BODY_FILE"
+          if [ -f /tmp/board_gate_output.txt ]; then
+            # THE GATE RAN AND REFUSED. This is the case the step was written for.
+            FAILING=$(grep -oE "^FAILED [A-Za-z0-9_./:-]+" /tmp/board_gate_output.txt | sed 's/^FAILED //' | sort -u || true)
+            {
+              printf 'The board rebuild ran at %s, BUILT a candidate board, and the acceptance gate REFUSED to publish it — the previously published board is still live, untouched.\n\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+              printf '**Failing tests:**\n\x60\x60\x60\n'
+              printf '%s\n' "${FAILING:-the gate ran but printed no FAILED lines — read the run log, this is itself odd}"
+              printf '\x60\x60\x60\n\nRun: %s\n\n' "$RUN_URL"
+              printf 'This issue stays open until a rebuild passes clean; it will auto-close then, not before.\n'
+            } > "$BODY_FILE"
+          else
+            # THE JOB DIED BEFORE THE GATE. No board was built. Name the step.
+            STEP=$(gh run view "${{ github.run_id }}" --json jobs \
+                     --jq '.jobs[].steps[] | select(.conclusion=="failure") | .name' 2>/dev/null \
+                   | paste -sd '; ' - || true)
+            {
+              printf 'The board rebuild FAILED BEFORE THE ACCEPTANCE GATE at %s. **No candidate board was built, so none was refused** — the previously published board is still live and is now another day staler.\n\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+              printf '**Failing step:**\n\x60\x60\x60\n'
+              printf '%s\n' "${STEP:-could not read the step name from the API — open the run}"
+              printf '\x60\x60\x60\n\n'
+              printf 'This is a DIFFERENT fault from a refused publish: the suite never ran, so there are no failing tests to list. If this body used to say "refused to publish" with an empty test list, that was this same case reported wrongly (register 319).\n\n'
+              printf 'Run: %s\n\n' "$RUN_URL"
+              printf 'This issue stays open until a rebuild passes clean; it will auto-close then, not before.\n'
+            } > "$BODY_FILE"
+          fi
           if [ -n "$EXISTING" ]; then
             gh issue comment "$EXISTING" --body-file "$BODY_FILE"
           else
@@ -617,6 +708,34 @@ jobs:
           # for Cory's own running backs. It runs BEFORE the consistency check
           # below, or that check fails on an artifact this step was meant to fix.
           python3 draft/backtest/conditional_value.py
+          # ── REGISTER 86, FIXED HERE AFTER THREE HAND-REGENERATIONS ─────────
+          # `playoff_sos_2026.json` and `variance_inputs_2026.json` are derived
+          # from the board's PLAYER SET, so any rebuild that adds or drops a
+          # player breaks their partition tests. That row has been open since
+          # 08-19 with the fix already written down -- "regenerate them INSIDE
+          # draft-data.yml right after the board is written, as a build step, so
+          # they cannot drift from the board they describe" -- and deferred with
+          # the reason "it belongs after the draft". The draft was 08-22.
+          #
+          # It bit again on 08-31: the board rebuilt 08-26, the SOS artifact was
+          # still the 08-16 one, and test_playoff_sos went red on `main` -- and
+          # the staleness was not cosmetic. THREE players had CHANGED TEAMS in
+          # between (Boutte NE->HOU, Zamir White SF->NO, Roydell Williams
+          # IND->DET), so the artifact was serving the wrong playoff opponents
+          # and the wrong softness for all three.
+          #
+          # Placed HERE, after the blend/DS chain and before the consistency
+          # join, so both describe the board that is actually about to be
+          # committed. Both regenerators are DETERMINISTIC (measured 08-31: two
+          # independent runs byte-identical each), so a no-drift rebuild leaves
+          # them untouched and this step costs seconds.
+          #
+          # NOT `|| true`: these feed the war room, and a derived artifact that
+          # cannot be rebuilt from the board it claims to describe is exactly
+          # the "screenshot with a current-looking timestamp" the seat-plan note
+          # above is about.
+          python3 draft/tools/playoff_sos.py
+          python3 draft/tools/variance_portfolio.py
           # AND THEN PROVE IT, rather than trusting that running the steps was
           # enough. This joins every artifact the war room reads BACK to the
           # freshly built board and compares the VALUES -- not the timestamps,
@@ -836,7 +955,13 @@ jobs:
           # workflow (so the gate stopped failing on a stale census) but not into
           # this list — so CI graded a fresh census and committed the old one, and
           # the repo's copy stayed one rebuild behind for every consumer but the gate.
-          PATHS="public/draft_data.json public/mlv_plan.json public/board_ds.json public/board_sleeper.json public/board_own.json public/board_fp.json public/source_boards.json public/seat_plan.json public/position_boards.json public/mlv_recommend.json public/conditional_value_2026.json draft/data/conditional_value_2026.json public/opponent_need_2026.json draft/data/blended_projection.json draft/config/keepers.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md draft/data/adp_series.json draft/data/proj_series.json draft/data/room_read.md draft/data/room_read.json draft/data/player_positions.json draft/backtest/projection_coverage_census.json draft/data/roster_state_series.json public/world_state_override.json draft/data/draft_day_consistency.json"
+          PATHS="public/draft_data.json public/mlv_plan.json public/board_ds.json public/board_sleeper.json public/board_own.json public/board_fp.json public/source_boards.json public/seat_plan.json public/position_boards.json public/mlv_recommend.json public/conditional_value_2026.json draft/data/conditional_value_2026.json public/opponent_need_2026.json draft/data/blended_projection.json draft/config/keepers.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md draft/data/adp_series.json draft/data/proj_series.json draft/data/room_read.md draft/data/room_read.json draft/data/player_positions.json draft/backtest/projection_coverage_census.json draft/data/roster_state_series.json public/world_state_override.json draft/data/draft_day_consistency.json draft/data/playoff_sos_2026.json draft/data/variance_inputs_2026.json"
+          # ⬆️ The last two ADDED 2026-08-31 with the step that regenerates them
+          # (register 86). Added IN THE SAME EDIT deliberately: the note above
+          # records that wiring a regeneration in here without adding its output
+          # to this list made CI grade a fresh artifact and commit the stale one,
+          # and that is a trap you fall into once by forgetting and twice by not
+          # reading your own warning.
           EXISTING=""
           for p in $PATHS; do [ -e "$p" ] && EXISTING="$EXISTING $p"; done
           if [ -z "$EXISTING" ] || git diff --quiet -- $EXISTING; then
@@ -876,6 +1001,80 @@ jobs:
             echo "served=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: RESCUE the unbackfillable daily series even when the board is refused
+        # REGISTER 343 — AND THIS ONE IS A RATCHET, WHICH IS WHY IT OUTRANKS THE
+        # THREE TIMES THIS DEFECT HAS ALREADY BEEN FIXED IN THIS FILE.
+        #
+        # `proj_series.json` and `adp_series.json` are APPEND-ONLY DAILY CAPTURES.
+        # The daily job writes today's row during the build, well before the gate
+        # runs. When the gate refuses, `exit 1` kills the job, the publish step
+        # below never runs, and the row is discarded with the runner. exp33 says
+        # these series CANNOT BE BACKFILLED — the prices are gone.
+        #
+        # That alone is register 155/170/325's shape ("a capture thrown away by an
+        # unrelated failure"). What makes it a RATCHET is what the gap then does:
+        #
+        #   1. the gate refuses  ->  today's row is discarded
+        #   2. tomorrow's run appends tomorrow's row, so today becomes an INTERIOR
+        #      gap in the span
+        #   3. `test_proj_series_completeness` fails on the interior gap
+        #   4. the gate refuses  ->  go to 1, with one more permanent hole
+        #
+        # MEASURED 2026-08-25, runs per day against series coverage:
+        #   08-22  1 success  ->  captured
+        #   08-23  0 of 2     ->  MISSING, permanently
+        #   08-24  0 of 1     ->  MISSING, permanently
+        #   08-25  0 of 5     ->  would have been the third
+        # The two blocking failures on run 118 were 08-23 and 08-24 — days the
+        # gate itself caused to be missing. It is refusing the board over its own
+        # exhaust, and each refused day makes the next run strictly worse.
+        #
+        # This is also exactly why those two tests pass locally and fail only in
+        # CI: locally the series ends 08-22, so 08-23/24 sit OUTSIDE the span and
+        # are invisible. CI appends today's row first, which puts them inside it.
+        #
+        # `always()` and not a bare `if:` — a bare `if:` gets `success()` ANDed, so
+        # it would be SKIPPED by the very failure it exists to survive (register
+        # 319, same file). `always()` also covers a job that dies before the gate:
+        # if the series was never written the diff is empty and this no-ops.
+        #
+        # ⚠️ POSITION MATTERS AND I GOT IT WRONG FIRST. This step must sit AFTER
+        # the publish step, not before it. Placed before, `steps.publish.outcome`
+        # is the empty string on every run — publish has not run yet — so
+        # `!= 'success'` is TRUE and the rescue would fire on GREEN runs too,
+        # committing and pushing the series separately from the board it belongs
+        # to. Caught by reading the condition against the step order rather than
+        # by the YAML parsing, which was perfectly happy with it.
+        #
+        # ONLY THE TWO SERIES FILES. `git add` is given explicit paths, so the
+        # refused board sitting dirty in the working tree is never staged. A
+        # refused board must not publish; a good capture must not be destroyed by
+        # it. Those are different questions and this step answers only the second.
+        if: always() && steps.publish.outcome != 'success' && github.event.inputs.snapshot != 'true'
+        run: |
+          SERIES="draft/data/proj_series.json draft/data/adp_series.json draft/data/roster_state_series.json"
+          EXISTING=""
+          for p in $SERIES; do [ -e "$p" ] && EXISTING="$EXISTING $p"; done
+          if [ -z "$EXISTING" ] || git diff --quiet -- $EXISTING; then
+            echo "series rescue: nothing new to save (build may not have reached the capture)"
+            exit 0
+          fi
+          echo "::warning::Board was NOT published, but rescuing today's unbackfillable series rows."
+          git config user.name  "draft-bot"
+          git config user.email "actions@github.com"
+          git add $EXISTING
+          git commit -m "Rescue the daily capture from a refused board [skip deploy]" \
+                     -m "The board did not publish. These series are append-only daily captures that cannot be backfilled (exp33), and discarding them is what makes the NEXT run fail on an interior gap. Register 343."
+          for attempt in 1 2 3; do
+            git push && { echo "series rescued"; exit 0; }
+            [ "$attempt" = 3 ] && break
+            git pull --rebase --autostash origin main || break
+          done
+          # Never mask the real verdict: the job is already failing on the gate,
+          # and a lost rescue must be visible rather than swallowed.
+          echo "::error::SERIES RESCUE FAILED TO PUSH — today's capture is lost and tomorrow's run will see a new interior gap. Register 343."
+          exit 0
+
       - name: Verify the deploy actually shipped this board
         # THE ONE DEPLOY NOBODY VERIFIED, found by the 2026-08-15 macro audit.
         # deploy-verify.yml triggers on push — but this workflow pushes with
@@ -891,6 +1090,48 @@ jobs:
           SITE: ${{ vars.SITE_URL || 'https://makefbgreatagain.netlify.app' }}
         run: |
           WANT="$(git rev-parse HEAD)"
+
+          # ⚠️ ASK THE DEPLOY GATE WHETHER A BUILD WAS EVEN EXPECTED, BEFORE
+          # DEMANDING ONE. Register 347.
+          #
+          # This step used to poll for ten minutes and fail the job whenever a
+          # served file moved. It knew nothing about `netlify-ignore.sh`, which
+          # is the thing that actually decides whether Netlify builds — and that
+          # gate has THREE reasons to skip, the third added after this step was
+          # written: **an 8-hour minimum window between deploys, from Cory's
+          # 2-3x/day ruling of 2026-08-24.**
+          #
+          # MEASURED on run 120: the board published correctly, the gate said
+          #   "range touches 11 served file(s), but the last deploy was 4h ago
+          #    and the window is 8h — SKIPPING. Nothing is lost: this change
+          #    ships with the next build."
+          # ...and this step then failed the job, logged "the deploy did not
+          # land", and commented on the board-rebuild-broken issue. **Every
+          # rebuild inside an 8-hour window was a guaranteed false red.**
+          #
+          # That is worse than noise: a red here is indistinguishable from a
+          # REAL deploy failure, which is the one thing this step exists to
+          # catch — and register 217 already records a false red from this same
+          # verifier costing a lane an urgent escalation the night before the
+          # draft.
+          #
+          # The gate is the single source of truth (register 313's ruling
+          # applied to deploys). The live stamp names the last successfully
+          # deployed commit, which is exactly the CACHED_COMMIT_REF the gate
+          # needs, so the range it evaluates here is the range Netlify saw.
+          LIVE="$(curl -fsS --max-time 20 "$SITE/build-stamp.json" 2>/dev/null \
+                  | python3 -c 'import json,sys; print(json.load(sys.stdin).get("commit",""))' 2>/dev/null || echo '')"
+          if [ -z "$LIVE" ]; then
+            echo "::warning::could not read the live build-stamp — verifying without the gate's opinion"
+          elif CACHED_COMMIT_REF="$LIVE" COMMIT_REF="$WANT" BRANCH=main \
+                 bash netlify-ignore.sh; then
+            # exit 0 from the gate means SKIP: Netlify was never going to build.
+            echo "deploy DELIBERATELY DEFERRED by the cadence gate — not a failure."
+            echo "  live is ${LIVE:0:12}, main is ${WANT:0:12}; this board ships with the next build."
+            echo "  site-check.yml owns the separate 'prod is N commits behind' alarm."
+            exit 0
+          fi
+
           echo "polling $SITE/build-stamp.json for ${WANT:0:12} (Netlify builds usually land in 1-3 min)"
           deadline=$(( $(date +%s) + 600 ))
           while [ "$(date +%s)" -lt "$deadline" ]; do
@@ -903,5 +1144,5 @@ jobs:
             echo "  live stamp: ${GOT:0:12} — waiting"
             sleep 30
           done
-          echo "::error::the board was pushed 10 minutes ago and the live site still reports '${GOT:-nothing}' — the deploy did not land. Check Netlify build minutes/status BEFORE trusting the live board."
+          echo "::error::the board was pushed 10 minutes ago, the deploy gate said BUILD, and the live site still reports '${GOT:-nothing}' — the deploy did not land. Check Netlify build minutes/status BEFORE trusting the live board."
           exit 1

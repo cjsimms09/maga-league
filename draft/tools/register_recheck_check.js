@@ -98,11 +98,114 @@ function rows(text) {
  * rows that were still live, and this one held open rows that were already dead.
  * **The status cell is the single most misread field in the register**, which is
  * why every rule about it is a WORD LIST rather than a symbol or a substring. */
-const TERMINAL = /\b(closed|resolved|ruled|withdrawn|superseded|retracted)\b/i;
+/* ⚠️ ONE VOCABULARY, READ FROM draft/config/register_status_vocabulary.json
+ * (register 313, 2026-08-24). This was a literal regex and
+ * test_defect_register.py carried a DIFFERENT literal set, so the two guards
+ * disagreed about what a status is. A row reading `✅ FIXED` matched NEITHER:
+ * invisible to that file's owner/action/pipe checks, and counted OPEN forever
+ * here. 25 of 295 numbered rows were in that gap, two of them ORANGE — live
+ * work nothing was tracking. Two lists kept in sync by hand is how they
+ * diverged; one file read by both is the fix.
+ *
+ * REFUSES rather than falling back to a literal. A silent fallback is precisely
+ * how the drift happened, and a guard that quietly reverts to its old
+ * vocabulary would hide the next divergence exactly as well as this one hid. */
+const TERMINAL = (() => {
+  const fsv = require('fs');
+  const pv = require('path').join(__dirname, '..', 'config',
+    'register_status_vocabulary.json');
+  let doc;
+  try { doc = JSON.parse(fsv.readFileSync(pv, 'utf8')); }
+  catch (e) {
+    console.error('REGISTER RECHECKS: cannot read register_status_vocabulary.json ('
+      + e.message + '). REFUSING to fall back to a hardcoded status list — a '
+      + 'silent fallback is how the two guards drifted apart (register 313).');
+    process.exit(2);
+  }
+  const words = (doc.terminal || []).map(w => String(w).toLowerCase());
+  if (!words.length) {
+    console.error('REGISTER RECHECKS: the vocabulary carries no `terminal` words.');
+    process.exit(2);
+  }
+  return new RegExp('\\b(' + words.join('|') + ')\\b', 'i');
+})();
 
 function isClosed(r) {
   return TERMINAL.test(r.status);
 }
+
+/* ── "FIXED" IS NOT "CLOSED", AND THE BACKLOG COULD NOT SHOW THE DIFFERENCE ──
+ *
+ * The vocabulary has always said `FIXED` / `BUILT` / `DIAGNOSED` describe work
+ * done rather than a row closed, and that is right: a fixed defect can still
+ * owe a test, a note, or a follow-up row. But this report lumped those rows in
+ * with rows nobody had touched, so the two looked identical from outside.
+ *
+ * MEASURED 2026-08-28: 10 of 118 overdue rows carried a done-word and no
+ * terminal word, and the first three examined (143, 144, 146) closed on the
+ * spot — one of them carrying an "Open" clause that had been stale for eight
+ * days because the thing it asked for was already in the code. THEY ARE
+ * ROUTINELY THE CHEAPEST ROWS IN THE BACKLOG and they were the hardest to see.
+ *
+ * Report only. They are still open, still overdue, still counted; they simply
+ * get their own heading now. Register 398. */
+const CLAIMED_DONE = (() => {
+  const fsv = require('fs');
+  const pv = require('path').join(__dirname, '..', 'config',
+    'register_status_vocabulary.json');
+  let doc;
+  try { doc = JSON.parse(fsv.readFileSync(pv, 'utf8')); }
+  catch (e) {
+    console.error('REGISTER RECHECKS: cannot read register_status_vocabulary.json ('
+      + e.message + ').');
+    process.exit(2);
+  }
+  const words = (doc.claimed_done || []).map(w => String(w).toLowerCase());
+  /* No refusal here, unlike TERMINAL: this list only SPLITS a report. An older
+   * vocabulary without the key must not stop the check from running — the
+   * bucket simply comes back empty and says so. */
+  return words.length ? new RegExp('\\b(' + words.join('|') + ')\\b', 'i') : null;
+})();
+
+/* ⚠️ A STATUS THAT ALSO SAYS "OPEN" IS NOT CLAIMING DONE. The first cut matched
+ * the word anywhere in the cell and pulled in five rows whose status reads
+ * `🟠 OPEN — measured, NOT acted on` and the like: the done-word is prose inside
+ * a sentence that plainly says the row is live. A row stating a `live` word is
+ * telling you it is open, whatever else the sentence contains, so it belongs in
+ * the ordinary overdue list. That cut the bucket from 12 to the 6 that really do
+ * read as "the work is done, nobody closed it" — measured 2026-08-28.
+ *
+ * The known positive and negative for this rule are in CLAIMED_DONE_TEST below,
+ * taken VERBATIM from live register rows rather than invented (register 121). */
+const LIVE = (() => {
+  const fsv = require('fs');
+  const pv = require('path').join(__dirname, '..', 'config',
+    'register_status_vocabulary.json');
+  let doc;
+  try { doc = JSON.parse(fsv.readFileSync(pv, 'utf8')); } catch (e) { return null; }
+  const w = (doc.live || []).map(x => String(x).toLowerCase());
+  return w.length ? new RegExp('\\b(' + w.join('|') + ')\\b', 'i') : null;
+})();
+
+function claimsDone(r) {
+  if (!CLAIMED_DONE || isClosed(r)) return false;
+  if (LIVE && LIVE.test(r.status)) return false;
+  return CLAIMED_DONE.test(r.status);
+}
+
+/* Verbatim status cells from the live register on 2026-08-28. */
+const CLAIMED_DONE_TEST = [
+  ['✅ FIXED 08-22', true],                                   // row 253
+  ['✅ **FIXED, tested, awaiting review**', true],            // row E37
+  ['🟠 MEASURED 08-19 — fix built, graded, CI-clear POSITIVE, deliberately '
+    + 'NOT shipped', true],                                   // row 56
+  // KNOWN NEGATIVES — a done-word inside a sentence that says the row is OPEN
+  ['🟠 OPEN — measured, NOT acted on.', false],               // row 68
+  ['🟠 OPEN — 5 suites FIXED, 23 left to A\'s judgement', false], // row E21
+  ['🔴 ⏳ WAITING ON CORY (A14)', false],                     // row 76
+  // and a genuinely closed row is never in this bucket, whatever it claims
+  ['✅ CLOSED — fixed in abc1234', false],
+];
 
 /* "recheck 08-19" / "recheck 2026-08-19" — the register uses MM-DD.
  *
@@ -230,6 +333,12 @@ function selfTest() {
     const got = recheckOf({ all: text });
     if (got !== want) bad.push(`  "${text}" -> ${got} (expected ${want})`);
   }
+  /* The claimed-done split, same discipline: a report bucket that has never
+   * been shown to separate anything is a heading, not a measurement. */
+  for (const [status, want] of CLAIMED_DONE_TEST) {
+    const got = claimsDone({ status: status });
+    if (got !== want) bad.push(`  claimsDone("${status.slice(0, 50)}") -> ${got} (expected ${want})`);
+  }
   if (bad.length) {
     console.error('⛔ recheck PARSER SELF-TEST FAILED — refusing to audit, because a\n' +
       '   broken parser reports "0 rows without a date" exactly like a healthy one:');
@@ -244,7 +353,10 @@ function audit(text, today) {
   const dated = open.map(r => ({ r, due: recheckOf(r) })).filter(x => x.due);
   const overdue = dated.filter(x => x.due < today);
   const undated = open.filter(r => !recheckOf(r));
-  return { all, open, dated, overdue, undated, dupes: nearDuplicates(open) };
+  const claimedDone = overdue.filter(x => claimsDone(x.r));
+  const untouched = overdue.filter(x => !claimsDone(x.r));
+  return { all, open, dated, overdue, claimedDone, untouched, undated,
+    dupes: nearDuplicates(open) };
 }
 
 /* ── TWO OPEN ROWS, ONE FINDING (added 2026-08-18, on three at once) ────────
@@ -311,6 +423,18 @@ function main() {
     process.exitCode = 1;
   }
 
+  if (a.claimedDone.length) {
+    console.log('  🟡 THE WORK IS CLAIMED DONE AND THE ROW IS NOT CLOSED — '
+      + a.claimedDone.length + ' row(s).');
+    console.log('     These say FIXED / BUILT / GRADED / DIAGNOSED / MEASURED and carry no');
+    console.log('     terminal word, so they are open, correctly. They are also usually the');
+    console.log('     CHEAPEST rows here: verify the claim, then write "✅ CLOSED — fixed in');
+    console.log('     <sha>". On 2026-08-28 the first three examined closed on the spot, and');
+    console.log('     one was asking for something already in the code (register 398).\n');
+    a.claimedDone.sort((x, y) => (x.due < y.due ? -1 : 1)).forEach(x =>
+      console.log(`     ${x.r.id.padEnd(5)} due ${x.due}   ${String(x.r.status).slice(0, 40)}`));
+    console.log('');
+  }
   if (a.overdue.length) {
     console.log('  🔴 PAST ITS OWN RECHECK DATE AND STILL OPEN:\n');
     a.overdue.sort((x, y) => (x.due < y.due ? -1 : 1)).forEach(x =>
@@ -336,4 +460,4 @@ function main() {
 }
 
 if (require.main === module) process.exitCode = main();
-module.exports = { audit, rows, isClosed, recheckOf, nearDuplicates, normalise };
+module.exports = { audit, rows, isClosed, claimsDone, recheckOf, nearDuplicates, normalise };

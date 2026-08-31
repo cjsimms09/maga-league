@@ -15,8 +15,13 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS ' + n)) : (fail++, cons
 
 // ── owners for the pure tests ──────────────────────────────────────────────────
 const O = [{ id: 1, name: 'Cory' }, { id: 2, name: 'Rich' }, { id: 3, name: 'Mike' }, { id: 4, name: 'Dave' }];
+// season_type declared explicitly (2026-08-23): pickemContext now ignores
+// points unless Sleeper says the REGULAR season is running — the weekend's
+// preseason games put real points into matchups and locked week-1 bets/picks
+// on the live site. These fixtures simulate regular-season weeks and say so.
 const bundle = (week, pairs) => ({
-  week, state: { week }, users: [], rosters: [],
+  season_type: 'regular',
+  week, state: { week, season_type: 'regular' }, users: [], rosters: [],
   // pairs: [[rosterA, rosterB, ptsA, ptsB], ...]
   matchups: pairs.flatMap(([ra, rb, pa, pb], i) => ([
     { roster_id: ra, matchup_id: i + 1, points: pa },
@@ -184,6 +189,19 @@ const MAP = { '1': 1, '2': 2, '3': 3, '4': 4 };   // roster_id -> owner_id
   ck('post-lock, the split line shows', /took /.test(locked.body), 'no split line');
   ck('post-lock, "your pick" is marked', /your pick/.test(locked.body));
 
+  // ── THE PRESEASON CONTROL — the live bug of 2026-08-23, pinned. The weekend's
+  // preseason games put REAL points into Sleeper matchups and week-1 bets/picks
+  // locked the day after the draft. Same points, season_type 'pre': must NOT lock.
+  const preBundle = bundleReal(3, cory.id, rich.id, others, smap, true);
+  preBundle.season_type = 'pre';
+  preBundle.state.season_type = 'pre';
+  await store.set('sleeper-cache', {
+    league_id: 'TESTLEAGUE', fetched_at: Date.now(), data: preBundle,
+  });
+  const pre = await get('/pickem', cc);
+  ck('PRESEASON CONTROL — points on the board do NOT lock the week',
+    !/took /.test(pre.body), 'locked on preseason points');
+
   server.close();
   console.log(`\n${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);
@@ -201,7 +219,9 @@ function bundleReal(week, coryId, richId, others, smap, scored) {
     [Number(inv[others[0].id]), Number(inv[others[1].id]), scored ? 95 : 0, scored ? 97 : 0],
   ];
   return {
-    week, state: { week }, league: {}, users, rosters,
+    // regular season declared — preseason points no longer lock (2026-08-23)
+    season_type: 'regular',
+    week, state: { week, season_type: 'regular' }, league: {}, users, rosters,
     matchups: pairs.flatMap(([ra, rb, pa, pb], i) => ([
       { roster_id: ra, matchup_id: i + 1, points: pa },
       { roster_id: rb, matchup_id: i + 1, points: pb },

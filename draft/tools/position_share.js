@@ -8,7 +8,14 @@ global.window=global;
 ['survival','composite','engine','needrule'].forEach(m=>require(path.join(ROOT,'public/js/draft',m+'.js')));
 const LC=require(path.join(ROOT,'draft/tools/live_context.js'));
 const E=global.DraftEngine;
-const b=LC.loadBoard(), ALL=b.players, K=b.kept_players, MY=b.pick_order.my_picks.slice();
+/* register 276: MY SEAT ONLY. `kept_players` carries all ten teams' keepers
+ * since the 08-22 board rebuild (`4750fbce`); the bare read made `roster`
+ * 23 players -- QB1 RB12 TE1 WR9 -- against 12 remaining picks.
+ * The predicate lives in live_context.myKeepers, not inline: this was the
+ * fifth through eighth copy of it, and the ninth tool is the one that gets
+ * written without it. */
+const b=LC.loadBoard(), ALL=b.players,
+  K=LC.myKeepers(b), MY=b.pick_order.my_picks.slice();
 const drafted=new Set(); K.forEach(k=>drafted.add(String(k.player_id)));
 const roster=K.map(k=>Object.assign({},k,{is_keeper:true}));
 function opp(pool){let best=null;for(const p of pool){const a=p.adp==null?9999:+p.adp;if(!best||a<best._a){best=p;best._a=a;}}return best;}

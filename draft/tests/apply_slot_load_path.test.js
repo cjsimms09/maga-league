@@ -76,10 +76,15 @@ const clone = () => JSON.parse(JSON.stringify(DATA));
 
 // ── THE TRUTH, from the shared module, for MY seat ──────────────────────────
 const league = DATA.league;
-const KEEPERS = (DATA.kept_players || []).length
-  ? DATA.kept_players
-  : ((DATA.pick_order || {}).forfeited || []);
 const MYSLOT = Number(league.my_draft_slot);
+/* Post-lock (2026-08-23) kept_players carries the WHOLE league's slate; the
+ * truth call below charges keepers to MY seat, so feeding it all 23 forfeits
+ * 23 of my 15 rounds and "truth" collapses to []. Filter to my seat —
+ * entries have carried team_slot in both eras. */
+const KEEPERS = ((DATA.kept_players || []).length
+  ? DATA.kept_players
+  : ((DATA.pick_order || {}).forfeited || []))
+  .filter(k => Number(k.team_slot) === MYSLOT);
 const truth = K.buildTruePickOrder({
   teams: league.teams, rounds: league.rounds,
   draft_type: league.draft_type || 'snake', my_draft_slot: MYSLOT,
@@ -147,9 +152,22 @@ ck('CONTROL — my seat actually forfeits rounds, or this board cannot '
     + 'assertions above are load-bearing',
     JSON.stringify(naive) !== JSON.stringify(truth),
     `naive ${naive.length} picks vs truth ${truth.length}`);
-  ck('FAIL ARM — and the difference is exactly the keeper slots',
-    naive.length - truth.length === (DATA.pick_order.picks || [])
-      .filter(p => p.keeper_slot).length);
+  /* ⚠️ THE SLOT FILTER WAS ADDED FOR `KEEPERS` ABOVE ON 08-23 AND MISSED HERE
+   * (A, 2026-08-24, register 300). Post-lock `pick_order.picks` flags all 23
+   * league keeper slots, so this compared my 15 − 12 = 3 against 23 and the
+   * arm went red — an inert FAIL ARM, which is the worst kind: the assertions
+   * above stop being demonstrably load-bearing. Same one-line correction the
+   * KEEPERS derivation already carries. */
+  const myKeeperSlots = (DATA.pick_order.picks || [])
+    .filter(p => p.keeper_slot && Number(p.slot) === MYSLOT);
+  ck('CONTROL — the keeper_slot flags really are LEAGUE-WIDE, so filtering to '
+    + 'my seat is load-bearing here too',
+  (DATA.pick_order.picks || []).filter(p => p.keeper_slot).length > myKeeperSlots.length,
+  { league_wide: (DATA.pick_order.picks || []).filter(p => p.keeper_slot).length,
+    mine: myKeeperSlots.length });
+  ck('FAIL ARM — and the difference is exactly the keeper slots AT MY SEAT',
+    naive.length - truth.length === myKeeperSlots.length,
+    { delta: naive.length - truth.length, mine: myKeeperSlots.length });
   ck('FAIL ARM — the old first pick was 25 slots early, which is the reported '
     + 'survival-window error',
     truth[0] - naive[0] === 25, `${naive[0]} -> ${truth[0]}`);

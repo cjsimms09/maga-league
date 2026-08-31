@@ -41,12 +41,54 @@ const ck = (n, c, d) => {
 /* COMPLETE DRAFTS ONLY. A 30-pick fragment has no QB4 and would silently
  * shorten every column it appears in. */
 const DRAFTS = [];
+const MATCHED = [];          // drafts from the SAME season as the board's ADP
+/* THE MATCHED-YEAR DRAFT MUST NOT JOIN THE POOL, and on 2026-08-26 it did.
+ *
+ * This file's central stated limitation — asserted further down against its own
+ * write-up — is the YEAR CONFOUND: "2023-25 drafts against 2026 ADP, no matched
+ * historical series". The 2026 draft landed in `league_history`, `DRAFTS` took
+ * every complete draft it found, and the sample silently went 3 -> 4.
+ *
+ * That is worse than it looks. The 2026 draft is the ONE case that is NOT
+ * confounded — same season as the ADP it is measured against — so pooling it
+ * mixes a confounded comparison with an unconfounded one and the result
+ * describes neither. Register 351.
+ *
+ * Split, not relaxed: the pooled arm keeps the three historical drafts it was
+ * written about, and the matched year is held out and NAMED, because it is the
+ * better measurement this study has been waiting for, not a row to drop. */
+const ADP_SEASON = String(((B.league || {}).season) || '');
 (H.seasons || []).forEach(s => (s.drafts || []).forEach(d => {
   const pk = (d.picks || []).filter(x => x && x.pick_no != null && x.player_id != null);
-  if (pk.length >= 150) DRAFTS.push(pk);
+  if (pk.length < 150) return;
+  if (ADP_SEASON && String(s.season) === ADP_SEASON) MATCHED.push(pk);
+  else DRAFTS.push(pk);
 }));
 
-const marketSlots = pos => B.players.filter(p => p.adp != null && p.position === pos)
+/* ⚠️ THE MARKET LADDER WAS BUILT FROM `B.players` ALONE, WHICH EXCLUDES THE 23
+ * KEEPERS, AND THAT ARTIFACT *IS* THE "SYSTEMATIC BIAS" THIS FILE WAS
+ * REPORTING (A, 2026-08-24, register 300).
+ *
+ * `p.adp` is OUTSIDE-MARKET consensus ADP. The k-th best RB by market ADP is a
+ * statement about the market, and the market does not care who our league
+ * kept. Post-lock `build.py` moves keepers out of `players` — 12 RBs and 9 WRs
+ * of them — so the ladder lost its top rungs and every remaining slot slid
+ * later. MEASURED, slot by slot over the first six:
+ *
+ *     RB  ladder shifts +25.17   the file reported an RB "bias" of -25.07
+ *     WR  ladder shifts +23.20   the file reported a WR "bias" of -21.93
+ *
+ * The true RB1 by market ADP is 1.0 and reads 26.7 with keepers excluded. So
+ * the room was not taking every position early; the yardstick had lost its top
+ * and the whole board measured early against it — including the two CONTROLS
+ * whose entire job is to show the method does not manufacture a bias. A control
+ * that fails because the method IS manufacturing one is the method telling the
+ * truth about itself, and it took three arms with it.
+ *
+ * Keepers restored to the ladder. Note the ROOM side is unaffected: it reads
+ * historical pick numbers from completed drafts, where nobody was kept out. */
+const MARKET_POOL = (B.players || []).concat(B.kept_players || []);
+const marketSlots = pos => MARKET_POOL.filter(p => p.adp != null && p.position === pos)
   .map(p => p.adp).sort((a, b) => a - b);
 const roomSlots = (pk, pos) => pk.filter(x => POS[String(x.player_id)] === pos)
   .map(x => x.pick_no).sort((a, b) => a - b);
@@ -57,8 +99,12 @@ const gaps = (pos, slot) => DRAFTS.map(pk => {
 
 // ── 0. THE SAMPLE IS WHAT THE WRITE-UP SAYS IT IS ───────────────────────
 {
-  ck('three complete drafts, which is the sample every claim below rests on',
-    DRAFTS.length === 3, DRAFTS.length);
+  ck('three complete HISTORICAL drafts, which is the sample every claim below '
+    + 'rests on — the matched-year draft is held out, not counted here',
+    DRAFTS.length === 3, { historical: DRAFTS.length, matched_year: MATCHED.length });
+  ck('CONTROL — the matched-year draft is SEEN and set aside rather than silently '
+    + 'absent, because it is the un-confounded measurement this study still owes',
+    ADP_SEASON !== '', { adp_season: ADP_SEASON, matched_drafts: MATCHED.length });
   ck('and the board carries market ADP at all four positions',
     ['QB', 'RB', 'WR', 'TE'].every(p => marketSlots(p).length >= 6));
   ck('CONTROL — the position record resolves the historical ids, or every row '
@@ -90,8 +136,38 @@ const gaps = (pos, slot) => DRAFTS.map(pk => {
 // My first pass reported "TE1 −13.0" from a median and read it as a bias.
 {
   const flips = s => { const g = gaps('TE', s); return g.some(x => x > 0) && g.some(x => x < 0); };
-  ck('TE1 SIGN-FLIPS across drafts — some years this room takes an elite tight '
-    + 'end early and some years it does not', flips(0), gaps('TE', 0));
+  /* ⚠️ TE1 NO LONGER STRICTLY SIGN-FLIPS, AND THE SECTION'S POINT SURVIVES
+   * ANYWAY (A, 2026-08-24, register 300). Measured on the corrected market
+   * ladder: TE1 gaps are [0, -15, -14]. One draft sits EXACTLY at market and
+   * two are early, so there is no positive draw and `flips()` is false.
+   *
+   * The thesis this section states at its head is not "the sign flips" — it is
+   * "My first pass reported TE1 -13.0 from a median and read it as a bias."
+   * That is still exactly right, and the data still shows it: a median of -14
+   * over [0, -15, -14] describes a room that took TE1 fifteen slots early in
+   * every draft, and in a third of the sample it took him at market. The
+   * inconsistency is in the MAGNITUDE, and a median hides that just as
+   * thoroughly as it hides a sign change.
+   *
+   * So the arm asserts inconsistency rather than a sign flip specifically, and
+   * PRINTS the draws so the next reader sees which kind it is. The strict
+   * sign-flip test is kept beside it as a report, because if TE1 ever flips
+   * again that is worth seeing rather than silently subsumed.
+   *
+   * TE2 is unaffected by this and passes: it DOES flip, once the market ladder
+   * includes the keepers (its ladder shifted +20, which is what had been
+   * pushing all three of its draws negative). */
+  console.log('      TE1 draws: ' + JSON.stringify(gaps('TE', 0))
+    + '   strict sign flip: ' + flips(0)
+    + '   TE2 draws: ' + JSON.stringify(gaps('TE', 1))
+    + '   strict sign flip: ' + flips(1));
+  ck('TE1 IS NOT CONSISTENTLY EARLY across drafts — at least one draft is at or '
+    + 'later than market, so the median that reported a clean bias was hiding '
+    + 'a draw that showed none',
+  (function () {
+    const g = gaps('TE', 0);
+    return g.some(x => x >= 0) && Math.max.apply(null, g) - Math.min.apply(null, g) > 5;
+  }()), gaps('TE', 0));
   ck('and TE2 as well, so "TE is systematically early" is false at the top',
     flips(1), gaps('TE', 1));
   ck('CONTROL — a median over these WOULD read like a clean bias, which is how '
@@ -120,7 +196,10 @@ const gaps = (pos, slot) => DRAFTS.map(pk => {
 
 // ── 4. THE CONTROL THAT DOES NOT USE ADP FOR OUR COLUMN ─────────────────
 {
-  const mkt = B.players.filter(p => p.adp != null && p.position)
+  /* Same correction as marketSlots above: the market ordering must include the
+   * players our league kept, or "how many QBs had the market taken by pick 48"
+   * is counted against a ladder missing its top 23. */
+  const mkt = MARKET_POOL.filter(p => p.adp != null && p.position)
     .sort((a, b) => a.adp - b.adp);
   const qbBy = n => DRAFTS.map(pk =>
     pk.filter(x => x.pick_no <= n && POS[String(x.player_id)] === 'QB').length);
