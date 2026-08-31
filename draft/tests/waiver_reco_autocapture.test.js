@@ -17,6 +17,7 @@ const { autoCaptureContext } = require(path.join(ROOT, 'netlify', 'functions', '
 const predledger = require(path.join(ROOT, 'src', 'predledger'));
 const store = require(path.join(ROOT, 'src', 'store'));
 const FG = require(path.join(ROOT, 'src', 'forecast_grade'));
+const WINDOW = require(path.join(ROOT, 'src', 'capture_window'));
 
 let pass = 0, fail = 0;
 const ok = (name, cond, detail) => {
@@ -55,14 +56,93 @@ const ok = (name, cond, detail) => {
   const owners = [{ id: 1, name: 'Cory', is_commissioner: true }, { id: 2, name: 'Rich' }];
   const cfg = { sleeper_map: { '8': 1, '3': 2 } };
   const liveS = { state: { season: '2026' }, week: 3, season_type: 'regular' };
-  const c1 = autoCaptureContext(liveS, cfg, owners);
+  /* ⚠️ THE CLOCK IS EXPLICIT FROM HERE ON (register 434). The gate now also
+   * asks whether week N's games are NEAR, so a fixture claiming week 3 is only
+   * a live capture when `now` is inside week 3's window — and these two arms
+   * went red the moment the gate landed, which is the gate working. Week 3's
+   * first game is 2026-09-25T00:15Z. */
+  const IN_WK3 = Date.parse('2026-09-23T00:10:00Z');   // the real Wednesday cron
+  const c1 = autoCaptureContext(liveS, cfg, owners, IN_WK3);
   ok('happy path finds the commissioner\'s roster',
     c1.season === '2026' && c1.week === 3 && c1.ownerId === 1 && c1.myRid === '8', c1);
   ok('preseason is a clean skip (the third false-lock surface taught us why)',
-    autoCaptureContext({ state: { season: '2026' }, week: 1, season_type: 'pre' }, cfg, owners).skip === 'preseason');
-  ok('no live week is a clean skip', autoCaptureContext(null, cfg, owners).skip === 'no live week yet');
+    autoCaptureContext({ state: { season: '2026' }, week: 1, season_type: 'pre' }, cfg, owners, IN_WK3).skip === 'preseason');
+  ok('no live week is a clean skip', autoCaptureContext(null, cfg, owners, IN_WK3).skip === 'no live week yet');
   ok('unmapped commissioner is a named skip, not a crash',
-    /not mapped/.test(autoCaptureContext(liveS, { sleeper_map: {} }, owners).skip || ''));
+    /not mapped/.test(autoCaptureContext(liveS, { sleeper_map: {} }, owners, IN_WK3).skip || ''));
+
+  // ── register 434: Sleeper saying "week N" is not week N being near ────────
+  /* THE INCIDENT, from the live probe's own log: on 2026-08-30 Sleeper had
+   * flipped to regular/week-1 and the probe's fallback captured
+   * `lineup_auto|2026|w1|1` — ELEVEN DAYS before week 1's first game
+   * (2026-09-10T00:20Z) — and the capture is one-per-week-ever, so the real
+   * Sunday would have answered "already captured". */
+  const wk1 = { state: { season: '2026' }, week: 1, season_type: 'regular' };
+  ok('KNOWN POSITIVE — the exact moment it happened is now REFUSED by name',
+    autoCaptureContext(wk1, cfg, owners, Date.parse('2026-08-30T17:42:00Z')).skip === 'week not live yet',
+    autoCaptureContext(wk1, cfg, owners, Date.parse('2026-08-30T17:42:00Z')));
+  ok('  and so is the 09-02 waiver probe that would have burned the next marker',
+    autoCaptureContext(wk1, cfg, owners, Date.parse('2026-09-02T01:00:00Z')).skip === 'week not live yet');
+  ok('CONTROL — week 1\'s REAL Wednesday waiver cron still captures, so the gate '
+     + 'did not just switch the rail off',
+    !autoCaptureContext(wk1, cfg, owners, Date.parse('2026-09-09T00:10:00Z')).skip);
+  ok('CONTROL — week 1\'s REAL Sunday lineup cron still captures',
+    !autoCaptureContext(wk1, cfg, owners, Date.parse('2026-09-13T12:50:00Z')).skip);
+  ok('CONTROL — a missing schedule CANNOT SAY, and cannot-say must not block '
+     + '(rule 3e: it restores the old behaviour instead of a silent season-long refusal)',
+    WINDOW.weekIsLive('2026', 1, Date.parse('2026-08-30T17:42:00Z'), '/nonexistent/schedule.json') === null);
+  ok('  so the gate itself lets the capture through when the schedule is unreadable',
+    WINDOW.weekIsLive('2026', 1, Date.parse('2026-08-30T00:00:00Z')) === false);
+
+  // the marker self-heal: the row already burned on 08-30 must not suppress week 1
+  ok('KNOWN POSITIVE — the marker written on 2026-08-30 is judged PREMATURE, so '
+     + 'week 1 recaptures at the real decision moment',
+    WINDOW.markerIsPremature({ key: 'lineup_auto|2026|w1|1', at: '2026-08-30T17:42:39Z' }, '2026', 1));
+  ok('CONTROL — a marker written INSIDE the window is not premature',
+    !WINDOW.markerIsPremature({ at: '2026-09-13T12:50:00Z' }, '2026', 1));
+  ok('CONTROL — a marker with no `at` is valid, because markers predate that '
+     + 'field and refusing them would re-capture history',
+    !WINDOW.markerIsPremature({ key: 'x' }, '2026', 1));
+
+  /* ⭐ THE CONTROL THAT LICENSES THE WHOLE GATE: it must not switch the rail
+   * off in some week nobody looked at. For EVERY week of the real 2026
+   * schedule, the waiver cron's actual firing (Wednesday 00:10 UTC) and the
+   * lineup cron's actual firing (Sunday 12:50 UTC) must fall INSIDE that
+   * week's window. A fix that quietly stops a November capture is worse than
+   * the defect it replaces, and a lead constant chosen by eye rather than
+   * measured is exactly how that happens.
+   *
+   * ⚠️ WEEK 18 IS EXCLUDED, AND WHY IS ON THE RECORD RATHER THAN IN A COMMENT
+   * NOBODY READS: its schedule row is degenerate — `first === last`, one
+   * timestamp for sixteen games — so its Wednesday lands outside. This
+   * league's fantasy season ends at week 17 (playoff weeks are 15-17), so
+   * there is no week-18 decision to capture, and widening the window to
+   * satisfy a bad row would tune the predicate to the data's defect. */
+  {
+    const sched = JSON.parse(require('fs').readFileSync(
+      path.join(ROOT, 'draft', 'data', 'nfl_schedule_2026.json'), 'utf8')).weeks;
+    const DAY = 86400000;
+    const misses = [];
+    for (let w = 1; w <= 17; w++) {
+      const first = Date.parse(sched[String(w)].first);
+      // the last Wednesday 00:10 UTC strictly before the week's first game
+      let d = new Date(first); d.setUTCHours(0, 10, 0, 0);
+      while (d.getTime() >= first || d.getUTCDay() !== 3) d = new Date(d.getTime() - DAY);
+      const wed = d.getTime();
+      // the first Sunday 12:50 UTC at or after it
+      d = new Date(first); d.setUTCHours(12, 50, 0, 0);
+      while (d.getTime() < first || d.getUTCDay() !== 0) d = new Date(d.getTime() + DAY);
+      const sun = d.getTime();
+      if (WINDOW.weekIsLive('2026', w, wed) !== true) misses.push(`w${w} wed`);
+      if (WINDOW.weekIsLive('2026', w, sun) !== true) misses.push(`w${w} sun`);
+    }
+    ok('⭐ EVERY week 1-17: both crons\' real firing times fall inside their own '
+       + 'week\'s window, so the gate cannot silently stop a capture in November',
+      misses.length === 0, misses);
+    ok('CONTROL — the same probe DOES report a miss when one exists, so the zero '
+       + 'above is a measurement and not a blind loop',
+      WINDOW.weekIsLive('2026', 1, Date.parse('2026-08-01T00:00:00Z')) === false);
+  }
 
   // ── the control: the row survives validation AND the real resolver ───────
   const appended = await predledger.append(store, entry);
