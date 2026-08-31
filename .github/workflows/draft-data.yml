@@ -59,7 +59,25 @@ jobs:
       # origin/main, which can be arbitrarily far back).
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          # 2 -> 0, 2026-08-31 (register 430's sweep, while asking why the board
+          # has not published since 08-26). `ci.yml` learned this on 08-17 and
+          # carries a fifteen-line comment about it; THIS workflow never got the
+          # same fix, and it is the one that publishes.
+          #
+          # MEASURED: every scheduled rebuild since 08-21 has been REFUSED, and
+          # from 08-29 the refusal list carries
+          # `test_draft_week_brief_numbers::test_the_era_board_is_reachable_so_
+          # the_pinned_tests_are_not_silently_skipping`. That test is a CONTROL:
+          # it reads `public/draft_data.json` at the pinned pre-draft sha and
+          # fails loudly if the blob is unreachable, precisely so a shallow
+          # clone cannot turn three pinned tests into three quiet skips. At
+          # depth 2 the blob is unreachable BY CONSTRUCTION, so the control was
+          # correct and the checkout was wrong — it passes in `ci.yml`, which
+          # already fetches full history, and failed only here.
+          #
+          # ⚠️ This is ONE of the six tests blocking the publish, not all six.
+          # Fixing it does not by itself republish the board.
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
