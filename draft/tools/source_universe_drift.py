@@ -100,15 +100,20 @@ BOARD = ROOT / "public" / "draft_data.json"
 OUT = ROOT / "draft" / "data" / "source_universe_drift.json"
 
 
-def load_series() -> dict[str, list[tuple[str, set[str]]]]:
-    """{source: [(date, {player_id, ...}), ...]} in date order."""
+def load_series():
+    """({source: [(date, {player_id, ...}), ...]}, {source: {date: {id: points}}}),
+    both in date order. The second is what the archive actually FROZE, and it is
+    what the classifier reads — see `classify` for why today's board is the
+    wrong thing to consult about a transition that happened last week."""
     rows = json.loads(SERIES.read_text())["series"]
     by_source: dict[str, list[tuple[str, set[str]]]] = {}
+    proj_by_day: dict[str, dict[str, dict[str, float]]] = {}
     for r in rows:
         by_source.setdefault(r["source"], []).append((r["date"], set(r["proj"])))
+        proj_by_day.setdefault(r["source"], {})[r["date"]] = r["proj"]
     for v in by_source.values():
         v.sort(key=lambda p: p[0])
-    return by_source
+    return by_source, proj_by_day
 
 
 def board_ids() -> set[str]:
@@ -137,38 +142,58 @@ def board_names() -> dict[str, str]:
     return out
 
 
-def classify(pid: str, on_board: set[str], proj: dict[str, float]) -> str:
+def classify(last_seen_proj: float | None) -> str:
     """Why is this player gone? Only `real` is news.
 
-    A player the board still prices ABOVE zero cannot have been reshuffled out
-    by a tie at the truncation boundary, and sits far enough above the cut that
-    the cut is not the explanation either — Nick Chubb and Trey Benson were at
-    projection ranks 401 and 399 of 728 when they went, some three hundred
-    places clear of it. That leaves the population itself changing, which is
-    what downstream joins actually feel.
+    A player the archive was pricing ABOVE zero on the day before they vanished
+    cannot have been reshuffled out by a tie at the truncation boundary, and
+    sits far enough above the cut that the cut is not the explanation either —
+    Nick Chubb and Trey Benson were at projection ranks 401 and 399 of 728 the
+    day they went, some three hundred places clear of it. That leaves the
+    population itself changing, which is what downstream joins actually feel.
+
+    ⚠️ IT READS THE ARCHIVE'S OWN FROZEN NUMBER, NOT TODAY'S BOARD, AND THE
+    FIRST VERSION DID THE OPPOSITE — caught by this file's own C1 within a day
+    of writing it. The board republished on 2026-08-31 and no longer carries
+    Chubb, Benson, Jerome Ford or Ty Chandler at all, so a board-reading
+    classifier lost the projections it needed and re-labelled all four of them
+    `off-board`: a 2026-08-27 finding silently rewritten by a 2026-08-31
+    rebuild. That is register 382's defect exactly — a harness pinned to what
+    was on disk the day it was written — in a file whose entire job is to
+    describe the past.
+
+    The archive is append-only and carries the projection it froze, so the
+    classification of a historical transition is now fixed forever, as a
+    statement about the past ought to be. Whether we STILL price the player is
+    a separate and genuinely useful axis, so it is reported alongside rather
+    than folded in.
     """
-    if pid not in on_board:
-        return "off-board"          # already gone from our own board; inert
-    p = proj.get(pid)
-    if p is None or p <= 0.0:
+    if last_seen_proj is None or last_seen_proj <= 0.0:
         return "tie-truncated"      # zero projection: our own cut, reshuffled
     return "real"
 
 
-def transitions(source_days, on_board: set[str], proj: dict[str, float]):
+def transitions(source_days, on_board: set[str], proj_by_day=None):
+    """`source_days` is [(date, {id, ...})]. `proj_by_day` maps date -> {id: points}
+    as the archive froze it; without it every departure reads as tie-noise, so
+    the caller passes it and `self`-comparisons in the controls do not need it."""
+    proj_by_day = proj_by_day or {}
     out = []
     for (d0, s0), (d1, s1) in zip(source_days, source_days[1:]):
         left, joined = sorted(s0 - s1), sorted(s1 - s0)
-        byclass: dict[str, list[str]] = {"real": [], "tie-truncated": [], "off-board": []}
+        byclass: dict[str, list[str]] = {"real": [], "tie-truncated": []}
         for pid in left:
-            byclass[classify(pid, on_board, proj)].append(pid)
+            byclass[classify(proj_by_day.get(d0, {}).get(pid))].append(pid)
         out.append({
             "from": d0, "to": d1,
             "n_before": len(s0), "n_after": len(s1),
             "n_entrants": len(joined), "n_departures": len(left),
             "departures_real": byclass["real"],
             "departures_tie_truncated": byclass["tie-truncated"],
-            "departures_off_board": byclass["off-board"],
+            # An independent axis, not a class: do we STILL price the player? A
+            # real departure we still price is a live join waiting to break; one
+            # we no longer price is a population change we have absorbed.
+            "departures_real_still_priced": [p for p in byclass["real"] if p in on_board],
             "entrants": joined,
         })
     return out
@@ -182,7 +207,7 @@ def ds_matched_ids() -> set[str]:
             if r.get("sleeper_id")}
 
 
-def controls(by_source, on_board, proj) -> tuple[bool, list[str]]:
+def controls(by_source, on_board, proj_by_day) -> tuple[bool, list[str]]:
     lines, ok = [], True
 
     def chk(label, cond, detail=""):
@@ -201,17 +226,24 @@ def controls(by_source, on_board, proj) -> tuple[bool, list[str]]:
         left = days["2026-08-26"] - days["2026-08-27"]
         chk("C1 the register-435 pair is among that morning's departures",
             {"4988", "11589"} <= left, f"got {sorted(left)}")
+        pd = proj_by_day.get("sleeper", {}).get("2026-08-26", {})
         chk("C1 every one of them is a REAL departure, not tie-noise",
-            all(classify(p, on_board, proj) == "real" for p in left),
-            {p: classify(p, on_board, proj) for p in left})
+            all(classify(pd.get(p)) == "real" for p in left),
+            {p: (pd.get(p), classify(pd.get(p))) for p in left})
         ds = ds_matched_ids()
         if ds:
             chk("C1 exactly two of them are in the Draft Sharks 250 — which is "
                 "why the crosswalk lost two rows and not four",
                 left & ds == {"4988", "11589"}, f"got {sorted(left & ds)}")
-        chk("C4 both classify on-board, which is why the crosswalk reached for them",
-            {"4988", "11589"} <= on_board,
-            f"off-board: {sorted({'4988', '11589'} - on_board)}")
+        # ⚠️ NOT "are they on the board today". They were on 2026-08-26 --
+        # which is why the crosswalk reached for them and the gate refused --
+        # and they are NOT on the board republished 2026-08-31, which is the
+        # direct confirmation register 435 could only reach by reproducing CI's
+        # arithmetic. Asserting today's membership would make this control
+        # flip with the next rebuild; asserting the frozen price does not.
+        chk("C1 the archive was pricing both of them the day before they went",
+            all((pd.get(p) or 0) > 0 for p in ("4988", "11589")),
+            {p: pd.get(p) for p in ("4988", "11589")})
 
     have2 = "2026-08-12" in days and "2026-08-13" in days
     chk("C2 the 08-13 mass entrance is present", have2)
@@ -224,17 +256,18 @@ def controls(by_source, on_board, proj) -> tuple[bool, list[str]]:
 
     if sleeper:
         d, s = sleeper[-1]
-        self_t = transitions([(d, s), (d, set(s))], on_board, proj)[0]
+        self_t = transitions([(d, s), (d, set(s))], on_board)[0]
         chk("C3 a day against itself reports nothing on either side",
             self_t["n_entrants"] == 0 and self_t["n_departures"] == 0, str(self_t))
 
-    chk("C4 an id the board has never carried classifies off-board",
-        classify("____never_a_player____", on_board, proj) == "off-board")
+    chk("C4 a departure the archive never priced classifies as tie-noise",
+        classify(None) == "tie-truncated" and classify(0.0) == "tie-truncated"
+        and classify(25.4) == "real")
 
     # C5 THE NOISE IS REAL AND THE FILTER EARNS ITS KEEP. If this ever stops
     # holding, the classifier has become decoration and the raw diff would do.
     noisy = [t for src in by_source
-             for t in transitions(by_source[src], on_board, proj)
+             for t in transitions(by_source[src], on_board, proj_by_day.get(src))
              if t["departures_tie_truncated"]]
     chk("C5 tie-truncation noise exists, so classifying is not decoration",
         len(noisy) >= 3, f"only {len(noisy)} transitions carry tie-noise")
@@ -242,9 +275,9 @@ def controls(by_source, on_board, proj) -> tuple[bool, list[str]]:
 
 
 def main(argv) -> int:
-    by_source = load_series()
+    by_source, proj_by_day = load_series()
     on_board, names, proj = board_ids(), board_names(), board_proj()
-    ok, control_lines = controls(by_source, on_board, proj)
+    ok, control_lines = controls(by_source, on_board, proj_by_day)
 
     report = {
         "_territory": "TERRITORY: D — source_universe_drift.py",
@@ -257,7 +290,7 @@ def main(argv) -> int:
         "sources": {},
     }
     for source, days in by_source.items():
-        report["sources"][source] = transitions(days, on_board, proj)
+        report["sources"][source] = transitions(days, on_board, proj_by_day.get(source))
 
     if "--json" in argv:
         print(json.dumps(report, indent=1))
@@ -272,10 +305,32 @@ def main(argv) -> int:
                 tag = "" if not noise else f"  (+{noise} tie-truncation noise, ignored)"
                 print(f"  {t['from']} → {t['to']}  {t['n_before']} → {t['n_after']}"
                       f"   +{t['n_entrants']} / −{t['n_departures']}{tag}")
+                still = set(t["departures_real_still_priced"])
                 for pid in real:
-                    print(f"      ⚠️  LEFT THE ARCHIVE WHILE STILL PRICED ON OUR "
-                          f"BOARD: {names.get(pid, pid)}  [{pid}]  "
-                          f"proj {proj.get(pid)}")
+                    froze = proj_by_day.get(source, {}).get(t["from"], {}).get(pid)
+                    mark = "STILL PRICED" if pid in still else "and we no longer price them"
+                    print(f"      ⚠️  LEFT THE ARCHIVE — {names.get(pid, pid)}  "
+                          f"[{pid}]  froze at {froze}  ({mark})")
+        # THE HEADLINE, because a report nobody can read is a report nobody
+        # reads. FantasyPros is not truncated and its universe genuinely moves,
+        # so the per-transition detail above runs to a couple of hundred lines
+        # across twenty days — true, and not an agenda. What is an agenda is a
+        # player the archive stopped pricing while OUR BOARD still prices them:
+        # that is a live join waiting to break on the next rebuild, which is
+        # exactly what took the board down from 08-27 to 08-31.
+        live = []
+        for source, ts in report["sources"].items():
+            for t in ts:
+                if t["departures_real_still_priced"]:
+                    live.append((t["to"], source, t["departures_real_still_priced"]))
+        print("\n■ STILL PRICED BY US, NO LONGER IN THE ARCHIVE — the joins at risk")
+        if not live:
+            print("  (none)")
+        for date, source, pids in sorted(live)[-8:]:
+            who = ", ".join(names.get(p, p) for p in pids[:4])
+            more = "" if len(pids) <= 4 else f" +{len(pids) - 4} more"
+            print(f"  {date}  {source:12} {len(pids):3}  {who}{more}")
+
         print("\nCONTROLS")
         for l in control_lines:
             print(l)
