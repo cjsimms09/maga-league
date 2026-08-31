@@ -146,8 +146,11 @@ def test_ON_THE_REAL_BOARD_the_rule_covers_Corys_draftable_scope():
     #: MEASURED before splitting it: of the 17 top-200 players carrying no DS
     #: band, **ZERO are in the Draft Sharks store**. The rule reaches 100% of
     #: what Draft Sharks actually covers. The shortfall is entirely the STORE:
-    #: 250 players captured 2026-08-25, against a top 200 that churns every
-    #: night as ADP moves.
+    #: 250 players captured 2026-08-19 (from Cory's PDF exports — the 08-25
+    #: commit on the store was the Bijan/Brian join fix, not a recapture; the
+    #: store's own `_captured_at` is the authority), against a top 200 that
+    #: churns every night as ADP moves. Refresh path is another export from
+    #: Cory (CORY-ASKS A22): the Actions renderer only receives 25 rows.
     #:
     #: So the rule's reach — the thing this test's own docstring is about, and
     #: the only one of the two that can make a board WRONG — is now asserted at
@@ -171,10 +174,12 @@ def test_ON_THE_REAL_BOARD_the_rule_covers_Corys_draftable_scope():
     assert len(banded) >= 0.75 * scope, (
         f"Draft Sharks bands reach only {len(banded)} of Cory's top {scope}. The "
         "rule is fine (checked above); the STORE has collapsed. "
-        "draft/data/draftsharks_projections_2026.json is a 250-player capture and "
-        "the top 200 churns nightly with ADP — refresh it. The standing item is "
-        "C's: wire draftsharks_render.js into a weekly cron so the capture stops "
-        "depending on a manual dispatch (register 445).")
+        "draft/data/draftsharks_projections_2026.json is a 250-player capture "
+        "(2026-08-19, Cory's PDF exports) and the top 200 churns nightly with "
+        "ADP — refresh it. The refresh is CORY'S (CORY-ASKS A22, a fresh PDF "
+        "export): a cron cannot do it, draftsharks_render.js only receives the "
+        "first 25 rows from the server (register 120). C's standing half is to "
+        "crack the pagination/XHR or measure that it cannot be (register 445).")
 
     # and every banded player's per-source ceiling must sit above its own proj
     for p in banded:
