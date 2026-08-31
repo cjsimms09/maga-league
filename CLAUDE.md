@@ -6,6 +6,8 @@
 state, kept as history with corrections riding in place — do not act on a
 draft-week instruction without checking its date.** What governs NOW:
 
+* **⭐ "GO" IS A WORKFLOW (Cory, 08-30) — `GO-RUNBOOK.md` + `draft/tools/go_status.py`:** the
+  sweep every session runs first; its red list is the agenda.
 * **THE SEASON RULING (Cory, 08-24, `ROUTES.md` top):** in-season tools, capture
   everything, make the model better, find edge — **and keep making the site
   better for owners** (his same-day amendment, verbatim: *"no, dont stop doing
