@@ -46,6 +46,7 @@ WATCHED = [
     ("external-adp-capture.yml",  "nightly ADP snapshot"),
     ("ffanalytics-probe.yml",     "nightly multi-source projections"),
     ("weekly-proj-snapshot.yml",  "the 2027-gradeable proj freeze"),
+    ("week-brief.yml",            "THIS-WEEK roster fact sheet (the roster rule's target)"),
 ]
 
 
