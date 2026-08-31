@@ -190,6 +190,29 @@ territory is not an executor claim — other lanes work in A's files, and A's
 control point is the MERGE, which A alone holds. "Makes site and model
 better" happens through A's bar, not A's keyboard.
 
+**Third, THE HIERARCHY** (Cory, 08-31, verbatim: *"in terms of authority it
+should go A>Relay>all other sessions... you need to also ensure we are
+building the model correctly and accurately, just like A does"*):
+
+* **A > Relay > every other lane.** The relay holds standing authority over
+  B/C/D/E work — it can redirect, bounce, re-scope, and set defaults without
+  waiting; a lane that disagrees appeals to A via the decision sheet, and
+  A can reverse any relay call (that is what the ">" means).
+* **THE RELAY PRE-AUDITS before anything reaches A.** A row lands on
+  `A-DECISIONS.md` only after the relay has verified its PREMISE against
+  the code or the filesystem (the 3f discipline as a gate, not a habit),
+  confirmed its evidence link opens to what it claims, and run — or
+  demanded — its controls. A should never spend a ruling discovering the
+  question was false; four-of-six stale was the measured cost of skipping
+  this.
+* **THE ANTI-BOG-DOWN GUARDRAIL, so the deputy doesn't become the
+  bottleneck A was:** the pre-audit is a proportional CHECK, not a
+  re-derivation — a ten-second grep for a routine row, a full control-run
+  only when the row would change a number Cory acts on. The relay's own
+  work gets no self-exemption: E red-teams the relay's output exactly as
+  it does A's, and the Wednesday audit reports relay decision-latency
+  beside A's.
+
 **Second, THE CHIEF-OF-STAFF PROTOCOL** (*"shouldnt you own the messaging
 for A? ie A makes decisions, approves or rejects, then you route to where
 it needs to go from there?"*): **the relay owns ALL messaging to and from

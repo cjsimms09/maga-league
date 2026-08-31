@@ -45,7 +45,7 @@ sends back."* He was right. Roles are now defined by what you SHIP.
 | **C** | **the data we need is here, on time, correct** | a missing store, a stale fetch, a bad crosswalk |
 | **D** | **the learning loop produces CHANGES** | a grade that moved nothing, a store that predicts nothing |
 | **E** | **the model gives Cory an EDGE** (`EDGE-DEFINITION.md`) | a board that makes no football sense; no answer to "where is the edge" |
-| **relay** | **every lane has what it needs; nothing is lost — AND every finding gets FOLLOWED UP** | an idle lane, a dropped ask, a finding nobody acted on |
+| **relay** | **every lane has what it needs; nothing is lost — every finding gets FOLLOWED UP — and (Cory, 08-31) DEPUTY AUTHORITY: A > relay > all other lanes; the relay pre-audits everything before it reaches A and ensures the model is built correctly, proportionally (a grep for routine rows, full controls only where a Cory-facing number moves)** | an idle lane, a dropped ask, a finding nobody acted on, a false premise that reached A |
 
 **⚡ RULE 3e, added 08-18 — A NULL FROM A PROBE IS A BUG REPORT UNTIL THE PROBE
 HAS DEMONSTRATED IT CAN RETURN A POSITIVE.** A probe that has never returned a
