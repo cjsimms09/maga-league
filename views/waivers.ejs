@@ -65,7 +65,10 @@
             <% if (top.contested) { %><span class="wrv-chip split">⚔ CONTESTED</span><% } %>
           </div>
           <div class="wv-name" style="margin-top:.35rem">
-            Claim <b><%= top.name %></b> <span class="muted" style="font-size:.9rem">(<%= top.position %>)</span>
+            Claim <b><%= top.name %></b><%
+              const _topCf = injuryFlag({ inj: top.injury_status }); %><% if (_topCf.level) { %>
+              <span class="mu-flag <%= _topCf.level === 'out' ? 'out' : 'q' %>" title="injury designation — check before spending priority"><%= _topCf.text %></span><% } %>
+            <span class="muted" style="font-size:.9rem">(<%= top.position %>)</span>
             <% if (top.drop) { %>— drop <b><%= top.drop.name %></b><% } %>
           </div>
           <p style="margin:.4rem 0 0; font-size:1.02rem">
