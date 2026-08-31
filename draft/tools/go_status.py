@@ -84,7 +84,11 @@ def main():
                  "draft/tools/register_recheck_check.js"):
         p = subprocess.run(["node", tool], capture_output=True, text=True)
         ok = p.returncode == 0
-        tail = (p.stdout.strip().splitlines() or ["(no output)"])[-1]
+        # prediction_ledger_check prints failures to STDERR — reading stdout
+        # alone printed "(no output)" beside a red gate, an alarm with no
+        # information (caught by the first GO sweep, commit a2e5f3d2).
+        combined = (p.stdout + "\n" + p.stderr).strip()
+        tail = (combined.splitlines() or ["(no output)"])[-1]
         print(f" {'✅' if ok else '🔴'} {tool.split('/')[-1]:30} {tail[:90]}")
         if not ok:
             red.append(f"{tool}: exit {p.returncode} — {tail[:120]}")
