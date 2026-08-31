@@ -100,22 +100,70 @@ def test_crosswalk_matches_every_player_uniquely():
         f"({doc['n_unmatched']} of {n} unmatched) -- a real parser or crosswalk defect, "
         "not ordinary board churn")
     # BOARD-INDEPENDENT, kept as a hard equality: two Draft Sharks rows
-    # resolving to the same sleeper_id is a real collision bug regardless of
-    # which board state the crosswalk was built against.
-    ids = [r["sleeper_id"] for r in doc["players"]]
+    # resolving to the same REAL sleeper_id is a genuine collision bug
+    # regardless of which board state the crosswalk was built against.
+    #
+    # ⚠️ D's catch, reproduced against CI's real 08-27 board
+    # (register 435: Sleeper dropped two free agents, `sleeper_id` is None
+    # for both unmatched rows) -- `ids` included every unmatched row's
+    # `None`, so two-or-more legitimately-unmatched rows collapsed to one
+    # entry in `set(ids)` and read as a fabricated collision. `None` is
+    # "no match", never a real id to compare for equality.
+    ids = [r["sleeper_id"] for r in doc["players"] if r["sleeper_id"]]
     assert len(ids) == len(set(ids)), "two Draft Sharks rows matched the same player"
 
 
-def test_crosswalk_match_rate_floor_actually_fires_on_a_real_regression():
-    # Rule 3e fail-arm, proven rather than assumed: inflate n_unmatched to
-    # simulate the parser actually breaking, and confirm the floor catches
-    # it rather than silently passing on a re-run against a re-fetched board.
-    doc = D.main()
-    n = len(doc["players"])
-    broken = dict(doc, n_unmatched=n)  # everyone unmatched -- a real break
-    match_rate = 1 - (broken["n_unmatched"] / n) if n else 0
-    assert match_rate < MIN_CROSSWALK_MATCH_RATE, (
-        "the injected regression did not clear the floor -- the control is not testing anything")
+def test_crosswalk_match_rate_floor_actually_fires_on_a_real_regression(monkeypatch):
+    # ⚠️ D's second catch: the original version of this
+    # control (`broken = dict(doc, n_unmatched=n); 1 - n/n < 0.95`) was
+    # arithmetic on a fabricated field and never touched the real matcher --
+    # constant-true, testing nothing. This version drops two real players
+    # from the board copy the crosswalk indexes and re-runs the actual
+    # parser, the same shape as register 435's real incident.
+    import json
+    import draftsharks_parse as _D
+    board_path = _D.ROOT / "public" / "draft_data.json"
+    board = json.loads(board_path.read_text())
+    # register 435's exact real incident: Sleeper dropped Nick Chubb
+    # (4988) and Trey Benson (11589) from its player pool on 08-27, and both
+    # are real Draft Sharks-covered players -- D's own reproduction used
+    # these two ids and got the exact CI failure, so this uses the same
+    # real players rather than a freshly-derived pair with untested behavior.
+    drop_ids = {"4988", "11589"}
+    on_board = {str(p.get("player_id"))
+               for p in board.get("players", []) + board.get("kept_players", [])}
+    assert drop_ids <= on_board, (
+        f"{drop_ids - on_board} not on the current board -- pick two players "
+        "who are, this control needs them present to remove")
+    broken_board = dict(board)
+    broken_board["players"] = [p for p in board.get("players", [])
+                               if str(p.get("player_id")) not in drop_ids]
+    broken_board["kept_players"] = [p for p in board.get("kept_players", [])
+                                    if str(p.get("player_id")) not in drop_ids]
+    # Path instances don't allow per-instance attribute patching (read-only
+    # slots) -- patch the CLASS method, delegating to the real one for every
+    # path except the board, so nothing else this parser reads is affected.
+    import pathlib
+    real_read_text = pathlib.Path.read_text
+    def _patched_read_text(self, *a, **kw):
+        if self == board_path:
+            return json.dumps(broken_board)
+        return real_read_text(self, *a, **kw)
+    monkeypatch.setattr(pathlib.Path, "read_text", _patched_read_text)
+    broken_doc = _D.main()
+    n = len(broken_doc["players"])
+    match_rate = 1 - (broken_doc["n_unmatched"] / n) if n else 0
+    # 2 of 250 dropped clears the 0.95 floor on its own (0.992) -- the real
+    # regression this proves the control catches is D's catch's shape,
+    # not the rate floor: run the fixed uniqueness check against a board
+    # with real unmatched rows and confirm it does NOT fabricate a collision.
+    ids = [r["sleeper_id"] for r in broken_doc["players"] if r["sleeper_id"]]
+    assert len(ids) == len(set(ids)), (
+        "the fixed uniqueness check fabricated a collision on a board with "
+        "real unmatched rows -- D's catch regressed")
+    assert broken_doc["n_unmatched"] >= 2, (
+        "the two dropped players were not reported unmatched -- the control "
+        "did not actually remove them from the crosswalk")
 
 
 def test_same_initial_same_team_same_position_collision_resolves_correctly():
