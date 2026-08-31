@@ -7,13 +7,13 @@ by hand, so it cannot quietly stop being true.
 Two questions, measured:
 **is anyone answering**, and **is any finished work invisible from `main`**.
 
-_Last measured: 2026-08-30 17:28 UTC_
+_Last measured: 2026-08-31 14:32 UTC_
 
 ```
 ============================================================================
 ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
-  920 items · 330 open · 266 of those carry a DEFAULT (silence resolves them)
+  921 items · 331 open · 267 of those carry a DEFAULT (silence resolves them)
   64 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
   of 64 open item(s) with no default: 5 SAY they ask for nothing · 0 are BROADCASTS (same
   header in 3+ inboxes — a rule, not four decisions) · 59 declare NEITHER, so nobody
@@ -23,21 +23,21 @@ ROUTES RESPONSE CHECK — is anyone answering?
   rewording is precisely what stops it matching.
 
   waiting on:
-      18    11d oldest   A
-      10    11d oldest   E
-      10    10d oldest   B
-       9    11d oldest   D
-       4     7d oldest   Cory
-       3     6d oldest   relay
-       3    10d oldest   C
-       2    10d oldest   A/B
+      18    12d oldest   A
+      10    12d oldest   E
+      10    11d oldest   B
+       9    12d oldest   D
+       4     8d oldest   Cory
+       3     7d oldest   relay
+       3    11d oldest   C
+       2    11d oldest   A/B
 
   the five oldest:
-    11d  2026-08-19 · E → A · 🔴 **REPLY TO `ROSTER-CONSTRUCTION-CALL.md`: RELAXING TE'S CAP TO AN ALREAD
-    11d  2026-08-19 · C → D · 🎯 **CORY RULED ON THE ROSTER-CONSTRUCTION TARGET — verbatim: "We should be
-    11d  2026-08-19 · C → E · 🎯 **CORY RULED ON THE ROSTER-CONSTRUCTION TARGET — verbatim: "We should be
-    10d  2026-08-20 · relay → A · 🔬 **AUDIT-PACKAGE ADDENDUM: question 2 (the friction constant) now has
-    10d  2026-08-20 · relay → A · 🚂 **FULL STEAM — **CORY, VERBATIM (08-20): "everyones full task list s
+    12d  2026-08-19 · E → A · 🔴 **REPLY TO `ROSTER-CONSTRUCTION-CALL.md`: RELAXING TE'S CAP TO AN ALREAD
+    12d  2026-08-19 · C → D · 🎯 **CORY RULED ON THE ROSTER-CONSTRUCTION TARGET — verbatim: "We should be
+    12d  2026-08-19 · C → E · 🎯 **CORY RULED ON THE ROSTER-CONSTRUCTION TARGET — verbatim: "We should be
+    11d  2026-08-20 · relay → A · 🔬 **AUDIT-PACKAGE ADDENDUM: question 2 (the friction constant) now has
+    11d  2026-08-20 · relay → A · 🚂 **FULL STEAM — **CORY, VERBATIM (08-20): "everyones full task list s
 
   DOES THE LOOP VISIBLY CLOSE? — ticked share by sender→recipient
   (a low rate is a QUESTION: real backlog, or answered and never ticked?)
@@ -58,7 +58,7 @@ ROUTES RESPONSE CHECK — is anyone answering?
     A → C                     35 items    91% ticked    0 open with NO default
     C → C                     14 items    93% ticked    0 open with NO default
     A → B                     74 items    93% ticked    1 open with NO default
-    C → A                    134 items    96% ticked    0 open with NO default
+    C → A                    135 items    95% ticked    0 open with NO default
     session E (red team) → A  13 items   100% ticked    0 open with NO default
     this session → A           6 items   100% ticked    0 open with NO default
     E (red team) → A          28 items   100% ticked    0 open with NO default
@@ -80,8 +80,8 @@ ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
 LANE STATUS — work that exists but `main` cannot see
 ============================================================================
-  ⚠️   57 commits    36h old  claude/external-ingest-program-1xfinj
-  ⚠️   50 commits    72h old  claude/red-team-fantasy-football-97otna
+  ⚠️   57 commits    57h old  claude/external-ingest-program-1xfinj
+  ⚠️   50 commits    93h old  claude/red-team-fantasy-football-97otna
 
   ⚠️  2 branch(es) look STRANDED — 3+ commits, 12h+ old, unmerged.
      ROUTES.md cannot show you these: it lists what a lane WROTE DOWN,
