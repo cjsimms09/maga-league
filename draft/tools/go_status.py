@@ -25,7 +25,7 @@ acts on each line.
 
 Run:  python3 draft/tools/go_status.py          (network: api.github.com only)
 """
-import json, subprocess, sys, urllib.request
+import json, math, subprocess, sys, urllib.request
 from datetime import datetime, timezone
 
 REPO = "cjsimms09/maga-league"
@@ -49,6 +49,66 @@ WATCHED = [
     ("weekly-proj-snapshot.yml",  "the 2027-gradeable proj freeze"),
     ("week-brief.yml",            "THIS-WEEK roster fact sheet (the roster rule's target)"),
 ]
+
+
+# ── BOARD FRESHNESS, AS A PURE FUNCTION (A, 2026-09-01, register 460) ────────
+#
+# ⚠️ THIS CHECK HAD NO TEST AT ALL, AND ITS STALE ARM HAS NEVER FIRED. It was
+# written into `main()`, which shells out to `git log origin/main` — so there
+# was no seam to hand it a stale log through, and the only verdict anyone had
+# ever seen it produce was the green one. That is the same hole registers 458
+# and 459 closed on the three captures, in the tool whose entire job is to say
+# whether the board is stale.
+#
+# It also carries a defect worth pinning FOREVER rather than remembering:
+# `git log --grep` matched the whole commit MESSAGE, body included, so a PROSE
+# commit whose body merely quotes "Player board: rebuild" was returned as the
+# publish. Caught 2026-08-31 (register 447) only because I happened to have
+# written such a commit that same day, which means it gave the right answer BY
+# LUCK. Matching the SUBJECT in code is the fix; the known-negative below is
+# what keeps it fixed.
+#
+# Returns (line, days, problem). `problem` is None when the board is fresh, and
+# a human-readable reason otherwise — so the caller never re-derives the rule.
+SUBJECTS = ("Draft board: rebuild", "Player board: rebuild")
+STALE_AFTER_DAYS = 2
+
+
+def board_freshness(log_text, now):
+    """The publish commit is the FIRST line of `git log --format=%ci\t%s` whose
+    SUBJECT starts with a publish subject — first because git log is
+    reverse-chronological, subject because a body is not a publish.
+
+    ⚠️ BOTH SUBJECTS ARE REQUIRED. Cory ruled the rebuild is "the waiver/wire
+    pipeline now" on 2026-08-31 and the subject became "Player board: rebuild";
+    every publish before that says "Draft board: rebuild" and those are the
+    answer until the next run. Matching only the new string would report "no
+    publish commit found" on a repo that has simply not rebuilt today.
+    """
+    hit = next((ln for ln in (log_text or "").splitlines()
+                if ln.split("\t", 1)[-1].startswith(SUBJECTS)
+                and "\t" in ln), "")
+    line = hit.replace("\t", " ").strip() or "no publish commit found"
+    if not hit:
+        return line, None, "no publish commit found in origin/main's history"
+    try:
+        parts = line.split(" ")
+        pub = datetime.fromisoformat(parts[0] + "T" + parts[1] + parts[2])
+    except Exception:
+        return line, None, f"board freshness unparseable: {line[:60]}"
+    #: TOTAL SECONDS, NOT `.days` — `timedelta.days` TRUNCATES, so a board 47
+    #: hours old reported "1 day" and sat one hour short of the alarm for a
+    #: whole extra day. Measured in days as a float, compared at the same bar.
+    age = (now - pub.astimezone(timezone.utc)).total_seconds() / 86400.0
+    #: FLOORED, NOT ROUNDED. `round(1.958, 1)` is 2.0, so a 47-hour-old board
+    #: printed "✅ 2.0 day(s) old" against a documented 2-day bar — a reader
+    #: would reasonably conclude the alarm was broken. Flooring keeps the
+    #: DISPLAYED age at or below the age the DECISION used, so the number and
+    #: the verdict can never contradict each other.
+    days = math.floor(age * 10) / 10.0
+    if age >= STALE_AFTER_DAYS:
+        return line, days, f"board is {days} days stale (last publish: {line[:40]})"
+    return line, days, None
 
 
 def last_run(workflow, attempts=2):
@@ -141,23 +201,15 @@ def main():
     #: of "the last N" could miss a publish from this morning and report a
     #: fresh board as missing — a guard that fires on ordinary work is a guard
     #: somebody deletes (registers 388, 417, 422).
-    SUBJECTS = ("Draft board: rebuild", "Player board: rebuild")
     log = subprocess.run(["git", "log", "--format=%ci\t%s", "origin/main"],
                          capture_output=True, text=True).stdout
-    hit = next((ln for ln in log.splitlines()
-                if ln.split("\t", 1)[-1].startswith(SUBJECTS)), "")
-    line = hit.replace("\t", " ").strip() or "no publish commit found"
+    line, days, problem = board_freshness(log, now)
     print(f"   last published board: {line[:100]}")
-    try:
-        pub = datetime.fromisoformat(line.split(" ")[0] + "T" + line.split(" ")[1] + line.split(" ")[2])
-        days = (now - pub.astimezone(timezone.utc)).days
-        if days >= 2:
-            red.append(f"board is {days} days stale (last publish: {line[:40]})")
-            print(f"   🔴 {days} days stale")
-        else:
-            print(f"   ✅ {days} day(s) old")
-    except Exception:
-        red.append(f"board freshness unparseable: {line[:60]}")
+    if problem:
+        red.append(problem)
+        print(f"   🔴 {problem}")
+    else:
+        print(f"   ✅ {days} day(s) old")
 
     print("\n── VERDICT ─────────────────────────────────────────────────")
     if red:
