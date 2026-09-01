@@ -21,7 +21,9 @@ draft-week instruction without checking its date.** What governs NOW:
 * **The audit rhythm:** Wednesday register audits (worksheet pattern:
   `draft/audit/WEDNESDAY-AUDIT-*.md`); the ledger gates run in CI and are green —
   keep them that way. First blend grade vs Cory's edge bar: **09-15**.
-* **📬 A READS ONE PAGE: `A-DECISIONS.md`** (Cory, 08-31) — the relay curates
+* **💵 WHERE THE IN-SEASON EDGE IS, RANKED BY MEASURED DOLLARS — `IN-SEASON-EDGE-PLAN-2026.md`** (Cory, 09-01: *"Make our model better... make me more money"*; the props arm beats the live champion at all four positions in the 2025 backtest, register 463 — ship it first; the $1,500 weekly-high pot is a variance question; zero-point starts and Tuesday waiver speed are the behaviors that pay).
+
+**📬 A READS ONE PAGE: `A-DECISIONS.md`** (Cory, 08-31) — the relay curates
   every decision onto it and routes every answer; `TO: A` is closed to new
   decision-asks; E writes the sheet directly, unfiltered.
 * **🪪 THE ROSTER RULE (Cory, 08-31 — sessions kept misstating his players):**
