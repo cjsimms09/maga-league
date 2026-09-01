@@ -36,9 +36,41 @@ const WINDOW = require('../../src/capture_window');
 const predledger = require('../../src/predledger');
 const { computeWaiverReco, buildAutoWaiverEntry, buildAutoStreamEntry } = require('../../src/waiver_reco');
 
+/* ── THE CLOCK IS INJECTABLE, AND THAT IS A DEADLINE FIX (register 458) ─────
+ *
+ * Week 1's capture window opens 2026-09-06. Until it does, EVERY path through
+ * this file lands in a skip arm, and every test of it asserts a skip — the
+ * route test's own header says so: "lands on a clean pre-season skip". So the
+ * branch that actually writes the row Cory cannot backfill has never once been
+ * demonstrated to write one. That is rule 3e exactly: a probe that has never
+ * returned a positive is untested, not passing.
+ *
+ * `runCapture` took no clock, so there was no seam to open the window through.
+ * `RECO_CAPTURE_NOW` is that seam, and it follows the pattern this repo already
+ * uses twice (`PROJ_SNAPSHOT_NOW` in weekly_proj_snapshot.py, `RECO_PROBE_TODAY`
+ * in reco_probe_interpret.sh). Unset in production, so this is inert there.
+ *
+ * ⚠️ AN UNPARSEABLE VALUE THROWS RATHER THAN FALLING BACK TO THE REAL CLOCK.
+ * A silent fallback would run an open-window test at today's real time, land in
+ * the skip arm, and pass — proving nothing while looking like proof. That is the
+ * same failure the seam exists to remove, so it must not be reachable by typo. */
+function captureNow() {
+  const raw = process.env.RECO_CAPTURE_NOW;
+  if (!raw) return Date.now();
+  const t = Date.parse(raw);
+  if (!Number.isFinite(t)) {
+    throw new Error(`RECO_CAPTURE_NOW is set to '${raw}', which is not a parseable `
+      + 'date. Refusing rather than using the real clock: a typo that silently ran at '
+      + 'the real time would make an open-window test pass in the SKIP arm and prove '
+      + 'nothing (register 458).');
+  }
+  return t;
+}
+exports.captureNow = captureNow;
+
 /* Pure, exported for the unit test: the season/week/owner gate. Returns
  * { skip: '<reason>' } or { season, week, ownerId, myRid }. */
-function autoCaptureContext(sData, cfg, owners, now = Date.now()) {
+function autoCaptureContext(sData, cfg, owners, now = captureNow()) {
   const season = String((sData && sData.state && sData.state.season) || '');
   const week = Number(sData && sData.week);
   if (!season || !week) return { skip: 'no live week yet' };
@@ -59,7 +91,17 @@ function autoCaptureContext(sData, cfg, owners, now = Date.now()) {
   const map = (cfg && cfg.sleeper_map) || {};
   const myRid = Object.keys(map).find(rid => Number(map[rid]) === Number(commish.id));
   if (!myRid) return { skip: 'commissioner not mapped to a Sleeper roster' };
-  return { season, week, ownerId: commish.id, myRid };
+  /* ⚠️ THE CLOCK TRAVELS WITH THE DECISION (register 458). The marker written
+   * downstream is read back by `markerIsPremature`, which compares its `at`
+   * against this same window — so if the stamp comes from a DIFFERENT clock
+   * than the gate, the two can disagree and the self-heal re-fires the capture
+   * on every run, writing a duplicate ledger row each time.
+   *
+   * That is not hypothetical: it is exactly what `capture_opens_and_writes.js`
+   * caught the first time the open-window arm was ever executed — the gate said
+   * "inside the window", `new Date()` stamped the marker outside it, and the
+   * next run re-captured. One decision, one clock (rule 11). */
+  return { season, week, ownerId: commish.id, myRid, now };
 }
 
 exports.autoCaptureContext = autoCaptureContext;
@@ -149,7 +191,7 @@ exports.runCapture = async () => {
     let captured = 0, note = null;
     if (!entries.length) {
       await store.set(markKey, { none: true, live: reco.live,
-        blockWatch: (reco && reco.blockWatch) || [], at: new Date().toISOString() });
+        blockWatch: (reco && reco.blockWatch) || [], at: new Date(ctx.now).toISOString() });
       note = reco.live ? 'tool says hold — recorded as the week marker' : 'reco not live';
     } else {
       for (const entry of entries) await predledger.append(store, entry);
@@ -157,7 +199,7 @@ exports.runCapture = async () => {
       // actually get claimed by the owners they were flagged for, and that
       // grade needs the Tuesday-night snapshot, not a re-derivation.
       await store.set(markKey, { keys: entries.map(e => e.payload.key),
-        blockWatch: reco.blockWatch || [], at: new Date().toISOString() });
+        blockWatch: reco.blockWatch || [], at: new Date(ctx.now).toISOString() });
       captured = entries.length;
     }
 
@@ -179,6 +221,9 @@ exports.runCapture = async () => {
       else if (await store.get(wireStamp)) emailNote = 'already sent this week';
       else {
         const r = await notify.tuesdayWire(owners, payload);
+        /* real clock ON PURPOSE: this records when an inbox was actually
+         * touched, not which week's decision was captured, and nothing reads
+         * it through markerIsPremature (register 458). */
         if (r && r.sent) { emailed = 1; await store.set(wireStamp, { at: new Date().toISOString() }); }
         else emailNote = (r && (r.reason || r.error)) || 'send skipped';
       }
