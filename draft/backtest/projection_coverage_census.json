@@ -8,15 +8,15 @@
  },
  "universes": {
   "fantasypros": 420,
-  "own_weekly_v1": 489,
+  "own_weekly_v1": 490,
   "sleeper": 700
  },
  "silently_dropped_by_price_week": {
-  "n": 162,
+  "n": 163,
   "why": "no proj_ownmodel on the board row; price_week skips them and does not count or name them anywhere in the snapshot",
-  "on_board_skill": 651,
+  "on_board_skill": 653,
   "by_position": {
-   "WR": 70,
+   "WR": 71,
    "RB": 43,
    "TE": 33,
    "QB": 16
@@ -31,6 +31,7 @@
    "11616",
    "12467",
    "12511",
+   "13264",
    "13423",
    "13425"
   ],
@@ -75,70 +76,70 @@
     "name": "Will Howard",
     "position": "QB",
     "proj_mean": 24.5,
-    "adp": 452.0
+    "adp": 453.0
    },
    {
     "player_id": "2078",
     "name": "Odell Beckham",
     "position": "WR",
     "proj_mean": 23.0,
-    "adp": 463.0
+    "adp": 464.0
    },
    {
     "player_id": "11292",
     "name": "Tommy DeVito",
     "position": "QB",
     "proj_mean": 13.38,
-    "adp": 507.0
+    "adp": 508.0
    },
    {
     "player_id": "11616",
     "name": "Jacob Cowing",
     "position": "WR",
     "proj_mean": 1.2,
-    "adp": 630.0
+    "adp": 632.0
    },
    {
-    "player_id": "13423",
-    "name": "Eli Heidenreich",
-    "position": "RB",
+    "player_id": "13264",
+    "name": "Dohnte Meyers",
+    "position": "WR",
     "proj_mean": 0.0,
     "adp": 939.0
    }
   ]
  },
  "shared_population": {
-  "n": 386,
+  "n": 385,
   "by_position": {
-   "WR": 145,
+   "WR": 144,
    "TE": 98,
    "RB": 81,
    "QB": 62
   },
-  "share_of_sleeper": 0.5514,
-  "share_of_fantasypros": 0.919,
-  "share_of_ours": 0.7894
+  "share_of_sleeper": 0.55,
+  "share_of_fantasypros": 0.9167,
+  "share_of_ours": 0.7857
  },
  "nesting": {
   "fantasypros_subset_of_sleeper": false,
   "fantasypros_subset_of_ours": false,
   "ours_subset_of_sleeper": false,
   "in_ours_not_fantasypros": {
-   "n": 102,
+   "n": 104,
    "by_position": {
-    "WR": 46,
+    "WR": 47,
     "RB": 29,
-    "TE": 16,
+    "TE": 17,
     "QB": 11
    }
   },
   "in_fantasypros_not_ours": {
-   "n": 33,
+   "n": 34,
    "by_position": {
     "null": 22,
     "QB": 4,
     "RB": 4,
-    "WR": 3
+    "WR": 4
    }
   },
   "in_fantasypros_not_sleeper": {
@@ -205,11 +206,11 @@
  },
  "recommended_grading_populations": {
   "primary_three_way": {
-   "n": 386,
+   "n": 385,
    "why": "the only set all three sources price; nested, so no partial-overlap adjudication is needed"
   },
   "secondary_two_way_vs_sleeper": {
-   "n": 489,
+   "n": 490,
    "why": "what the wider universe does, where FantasyPros cannot follow. Reported beside the primary, never instead of it."
   }
  }

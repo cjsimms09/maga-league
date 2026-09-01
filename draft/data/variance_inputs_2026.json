@@ -2243,6 +2243,14 @@
    "source_season": 2024,
    "position": "RB"
   },
+  "7536": {
+   "mean": 0.75,
+   "sd": 1.082,
+   "cv": 1.4432,
+   "n_weeks": 10,
+   "source_season": 2025,
+   "position": "TE"
+  },
   "7543": {
    "mean": 14.475,
    "sd": 6.584,
@@ -3065,10 +3073,10 @@
   },
   "WR": {
    "measured": 152,
-   "fallback": 109
+   "fallback": 110
   },
   "TE": {
-   "measured": 86,
+   "measured": 87,
    "fallback": 61
   }
  }
