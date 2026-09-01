@@ -1,7 +1,7 @@
 {
  "_territory": "TERRITORY: relay \u2014 written by test_roster_robustness on each run",
  "_what": "seats where the engine pick is absent from the seat's own shortlist",
- "count": 7,
+ "count": 6,
  "of": 12,
  "seats": [
   {
@@ -9,12 +9,8 @@
    "name": "Davante Adams"
   },
   {
-   "pick": 48,
-   "name": "Rhamondre Stevenson"
-  },
-  {
-   "pick": 73,
-   "name": "Kenny Gainwell"
+   "pick": 53,
+   "name": "Tony Pollard"
   },
   {
    "pick": 108,
@@ -30,7 +26,7 @@
   },
   {
    "pick": 148,
-   "name": "Keenan Allen"
+   "name": "Calvin Ridley"
   }
  ]
 }

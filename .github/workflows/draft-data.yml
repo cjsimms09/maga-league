@@ -35,12 +35,29 @@ name: Rebuild the player board (the waiver/wire pipeline)
 # a board, for zero behaviour change. A rename is a separate decision with a
 # real blast radius; the name in the code is not what misled anyone.
 #
-# ⚠️ AND ONE THING IS RULED AND ONE IS NOT. Cory ruled the REFRAMING. He did
-# NOT rule on retiring the seven draft-era artifacts this chain still
-# regenerates nightly — seat_plan, mlv_plan, mlv_recommend, opening_script,
-# room_read, predicted_keepers, position_boards — which between them have ZERO
-# in-season or server-side readers (measured 2026-08-31; only the war room, a
-# draft-day surface, reads two). That question is open and is his.
+# ── THE SEVEN DRAFT-ERA ARTIFACTS ARE GONE FROM THIS CHAIN (register 448) ───
+#
+# Cory, 2026-09-01, on the recommendation and its two alternatives: "Do what
+# you think is best." So option ① shipped — MOVE, DO NOT DELETE.
+#
+# seat_plan, mlv_plan, mlv_recommend, opening_script, room_read,
+# predicted_keepers and position_boards have ZERO in-season or server-side
+# readers (measured 2026-08-31; five are read by nothing at all, two only by
+# the war room — a draft-day surface). They ran inside this job's
+# `set -euo pipefail` chain, so any one of them failing REFUSED THE PUBLISH of
+# the board the Tuesday wire depends on. That is not theoretical: two of the
+# eight things blocking the board for ten days were artifacts of this family
+# (registers 443, 445).
+#
+# They now run WEEKLY in draft-artifacts-weekly.yml, against the board this job
+# commits. They keep accumulating for the 2027 draft — which the season ruling
+# requires — and they can no longer take the wire down.
+#
+# ⚠️ WHAT DID NOT CHANGE: draft_day_consistency.js still MEASURES all four of
+# them it watches, every night, and still prints their drift. Only their vote
+# on this job's exit code is withheld (`--cadence nightly`). A skipped artifact
+# and a clean artifact print the same thing, and that is the failure this
+# repo's oldest register rows are made of.
 #
 # The offline pipeline runs here, not on the site: CI has network access,
 # takes as long as it needs, and commits a static artifact the browser reads.
@@ -359,17 +376,23 @@ jobs:
               print(f"proj_series {today}: complete ({sorted(got)})")
           PYEOF
 
-      - name: Regenerate the opening script + predicted slates from the fresh board
+      - name: Regenerate the in-season derived stores from the fresh board
         # The regeneration hook made mechanical: every artifact rebuild (which
         # includes slot-assignment and keeper-designation changes flowing into
-        # the board) re-derives the predicted slates and the opening script, so
-        # their fingerprints always match the board they claim to describe.
+        # the board) re-derives the artifacts, so their fingerprints always
+        # match the board they claim to describe.
+        #
+        # ── MOVED OUT 2026-09-01 (register 448) ──────────────────────────────
+        # `predict_keepers.py`, `opening_script.py` and `room_read.py` used to
+        # run here. They are DRAFT-ERA and they now live in
+        # draft-artifacts-weekly.yml. `opening_script.py` in particular carried
+        # no `|| echo` guard, so a draft-morning script nothing in-season reads
+        # could refuse the publish of the board the Tuesday wire depends on.
+        # They are moved, NOT deleted — they are the 2027 draft's institutional
+        # memory and the season ruling says draft learnings accumulate.
         if: github.event.inputs.snapshot != 'true'
         run: |
-          python draft/predict_keepers.py || echo "predicted slates unchanged/skipped"
           python draft/backtest/cory_conditional.py || echo "19b race skipped"
-          python draft/opening_script.py
-          python draft/room_read.py || echo "room read unchanged/skipped"
           # The census is a snapshot OF the board just built — regenerate it
           # here or its committed copy is one nightly behind and the gate's
           # on_board_skill cross-check reds on correct board growth
@@ -707,14 +730,24 @@ jobs:
           # projections did not match it. Regenerating moved 4 of his 12 planned
           # picks. An artifact that derives from the board must be rebuilt WITH
           # the board or it is a screenshot with a current-looking timestamp.
-          node draft/tools/emit_seat_plan.js
-          node draft/tools/position_boards.js
-          node draft/tools/mlv_snapshot.js
-          # The whole-draft MLV plan Cory asked for. It runs AFTER emit_seat_plan
-          # because it reads that file's `my_picks` rather than retyping his
-          # schedule -- register 98 was an eighteen-pick artifact quoted for hours
-          # after his real twelve were known.
-          node draft/tools/mlv_seat_plan.js
+          # ── MOVED OUT 2026-09-01 (register 448) ───────────────────────────
+          # emit_seat_plan.js, position_boards.js, mlv_snapshot.js and
+          # mlv_seat_plan.js used to run here, inside `set -euo pipefail`, so
+          # any one of them failing REFUSED THE PUBLISH of the board the
+          # Tuesday wire reads — and twice did (registers 443, 445), during the
+          # ten days the board did not publish at all. Measured before moving
+          # them: seat_plan is read by the war room only, position_boards and
+          # mlv_recommend by NOTHING, nine days after the draft.
+          #
+          # They now run in draft-artifacts-weekly.yml against the committed
+          # board. Moved, not deleted: these are the 2027 draft's institutional
+          # memory, and deleting them to speed up a nightly job would trade a
+          # 2027 input for runtime.
+          #
+          # The order they need is preserved THERE, not lost here:
+          # mlv_seat_plan.js reads emit_seat_plan.js's `my_picks` rather than
+          # retyping Cory's schedule (register 98 was an eighteen-pick artifact
+          # quoted for hours after his real twelve were known).
           # KEEPER VORP PARITY -- are Cory's keepers priced on the SAME
           # replacement table as every other row on his board? They were not:
           # kept_players are copied out of `players` before apply_vorp runs on
@@ -786,7 +819,14 @@ jobs:
           # stamps and disagreed on their numbers). Exit 1 on draft-critical
           # drift, so a board that would mislead Cory fails the build instead of
           # being published.
-          node draft/tools/draft_day_consistency.js
+          # `--cadence nightly` (register 448): the four DRAFT-ERA artifacts in
+          # its watch list are regenerated weekly now, so drift against a board
+          # that rebuilt tonight is EXPECTED and must not refuse the publish.
+          # They are still measured and still printed there — only their vote on
+          # the exit code is withheld. Pinned in four arms, including the one
+          # that matters most: a NIGHTLY artifact still blocks
+          # (draft/tests/draft_day_consistency_cadence.test.js).
+          node draft/tools/draft_day_consistency.js --cadence nightly
           # AND THEN: is any of it actually ON A SCREEN? Cory, 2026-08-20:
           # "All the things we figure out here have to be implemented on the
           # war room or it was all for nothing!!" He said it after finding that
@@ -875,15 +915,18 @@ jobs:
           # own controls fail, so a broken join cannot reach the board.
           python3 draft/tools/attach_multisource.py
           python3 draft/tools/alt_source_rankings.py
-          # position_boards.js already ran ~140 lines above, BEFORE the attach
-          # step wrote proj_cbs/espn/fftoday/clay onto the board — so its
-          # covered_by_source was 0 for all four at every position and the war
-          # room printed a dash for their VONA (register 253, found on the
-          # live 2026-08-22 post-lock board). Re-run it here, against the
-          # board as it will actually publish. Re-running is the safe fix:
-          # moving the attach step earlier would reorder steps across the
-          # publish gate.
-          node draft/tools/position_boards.js
+          # ── ALSO MOVED OUT 2026-09-01 (register 448) ──────────────────────
+          # `node draft/tools/position_boards.js` ran here, and the reason it
+          # ran HERE is the constraint the weekly job inherits: it must see the
+          # board AFTER attach_multisource.py writes proj_cbs/espn/fftoday/clay,
+          # or its covered_by_source is 0 for all four at every position and the
+          # war room prints a dash for their VONA (register 253, found on the
+          # live 2026-08-22 post-lock board).
+          #
+          # THE WEEKLY JOB SATISFIES THAT BY CONSTRUCTION rather than by
+          # remembering it: it runs against the COMMITTED board, which is the
+          # fully post-processed one this chain publishes. There is no earlier
+          # board for it to see.
           # ⚠️ AND THIS LINE IS WHY conditional_value.py RUNS TWICE.
           #
           # alt_source_rankings.py WRITES public/draft_data.json (it adds the
@@ -997,7 +1040,7 @@ jobs:
           # workflow (so the gate stopped failing on a stale census) but not into
           # this list — so CI graded a fresh census and committed the old one, and
           # the repo's copy stayed one rebuild behind for every consumer but the gate.
-          PATHS="public/draft_data.json public/mlv_plan.json public/board_ds.json public/board_sleeper.json public/board_own.json public/board_fp.json public/source_boards.json public/seat_plan.json public/position_boards.json public/mlv_recommend.json public/conditional_value_2026.json draft/data/conditional_value_2026.json public/opponent_need_2026.json draft/data/blended_projection.json draft/config/keepers.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md draft/data/adp_series.json draft/data/proj_series.json draft/data/room_read.md draft/data/room_read.json draft/data/player_positions.json draft/backtest/projection_coverage_census.json draft/data/roster_state_series.json public/world_state_override.json draft/data/draft_day_consistency.json draft/data/playoff_sos_2026.json draft/data/variance_inputs_2026.json"
+          PATHS="public/draft_data.json public/board_ds.json public/board_sleeper.json public/board_own.json public/board_fp.json public/source_boards.json public/conditional_value_2026.json draft/data/conditional_value_2026.json public/opponent_need_2026.json draft/data/blended_projection.json draft/config/keepers.json draft/config/league_config.json draft/data/league_history.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md draft/data/adp_series.json draft/data/proj_series.json draft/data/player_positions.json draft/backtest/projection_coverage_census.json draft/data/roster_state_series.json public/world_state_override.json draft/data/draft_day_consistency.json draft/data/playoff_sos_2026.json draft/data/variance_inputs_2026.json"
           # ⬆️ The last two ADDED 2026-08-31 with the step that regenerates them
           # (register 86). Added IN THE SAME EDIT deliberately: the note above
           # records that wiring a regeneration in here without adding its output

@@ -4,6 +4,13 @@
  "_source": "https://www.draftsharks.com/rankings/half-ppr",
  "_captured_via": "user-provided PDF export (site blocked at CONNECT from both the agent sandbox and, unverified, GitHub Actions)",
  "_captured_at": "2026-08-19",
+ "_frozen": {
+  "at": "2026-08-31",
+  "by": "Cory",
+  "ruling": "ignore draft sharks and remove from data, I won't be uploading more \u2014 freeze rather than delete",
+  "means": "no further captures. Coverage decays as the board turns over and that is expected. Do not file a freshness defect against this store; do not build a capture cron for it.",
+  "if_this_is_ever_untrue": "someone resumed uploading \u2014 delete this key in the same commit, or the gates that were retired on its word stay wrongly off."
+ },
  "_join_note": "The two source exports were captured minutes apart and the live ranking shifted for a handful of marginal players in between (verified, not assumed: the same identities appear in both files, reordered) -- rows are joined on (team, position, position_rank), not on matching rank number across files. `rank` is the ceiling/floor export's own order (the file with the data Cory actually asked for); the pts-category export's rank for the same player can differ where they disagree. See join_mismatches for every row affected.",
  "n_players": 250,
  "n_parse_errors_pts_file": 0,
@@ -92,12 +99,10 @@
    "note": "matched by identity, not rank -- the two captures disagree on order here"
   }
  ],
- "n_matched": 250,
- "n_unmatched": 0,
- "n_unmatched_absent_from_board": 0,
- "n_unmatched_unexplained": 0,
+ "n_matched": 248,
+ "n_unmatched": 2,
  "match_methods": {
-  "first-initial+pos": 198,
+  "first-initial+pos": 196,
   "first-initial+pos+closest-rank": 2,
   "last-name+pos+team": 1,
   "first-initial+pos+team": 4,
@@ -105,7 +110,20 @@
   "def-team": 21,
   "initials+pos": 1
  },
- "unmatched": [],
+ "unmatched": [
+  {
+   "rank": 227,
+   "name": "T Benson",
+   "team": "ARI",
+   "position": "RB"
+  },
+  {
+   "rank": 242,
+   "name": "N Chubb",
+   "team": "UNS",
+   "position": "RB"
+  }
+ ],
  "players": [
   {
    "rank": 1,
@@ -4871,8 +4889,8 @@
    "pts_rec": 20,
    "pts_kick": 0,
    "pts_def": 0,
-   "sleeper_id": "11589",
-   "match_method": "first-initial+pos"
+   "sleeper_id": null,
+   "match_method": null
   },
   {
    "rank": 228,
@@ -5186,8 +5204,8 @@
    "pts_rec": 9,
    "pts_kick": 0,
    "pts_def": 0,
-   "sleeper_id": "4988",
-   "match_method": "first-initial+pos"
+   "sleeper_id": null,
+   "match_method": null
   },
   {
    "rank": 243,

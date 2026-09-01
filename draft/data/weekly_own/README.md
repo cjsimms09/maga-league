@@ -53,6 +53,7 @@ same inputs, zero extra fetch cost:
 | `v1_tilt050` | tilt term ×0.5 — is it too strong? |
 | `v1_notilt` | `proj_ownmodel/17` flat — is the tilt earning anything at all? |
 | `v1_pg16` | `proj_ownmodel/16` with the v1 tilt — is /17 too low a per-game bar? |
+| `v1_pull3` | `(3·v1 + Σ realized) / (3 + n)` — the v1 rate pulled toward the player's own graded in-season points, 3 pseudo-weeks of prior (the site's rule). **Added 2026-09-01 from the 2025 backtest, register 463:** best full-coverage arm on pooled 2025 MAE and on the start/sit metric at RB/WR/TE. Equals v1 in week 1. |
 
 The Tuesday grader also grades **provider study arms**: `sleeper` and
 `fantasypros` wherever the Thursday provider archive

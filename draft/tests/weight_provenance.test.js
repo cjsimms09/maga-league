@@ -39,11 +39,30 @@ ck('WEIGHT_PROVENANCE is exported at all', P && typeof P === 'object');
 
 // ── COVERAGE — no weight may be silent about where it came from ─────────────
 {
-  const wk = Object.keys(W).sort(), pk = Object.keys(P || {}).sort();
+  const wk = Object.keys(W).sort();
+  /* `_`-prefixed keys are METADATA ABOUT the table, not entries in it — the
+   * same convention every store in this repo uses (`_what`, `_territory`,
+   * `_frozen`). Added 2026-09-01 with `_measured_on` (register 455), which
+   * stamps the board the blast-radius figures were taken on: the draft was
+   * 08-22 and those strings read as present tense.
+   *
+   * ⚠️ THE EXEMPTION IS ONE CHARACTER WIDE ON PURPOSE. This guard caught
+   * `_measured_on` on its first run, which is exactly what it is for, and a
+   * wider exemption ("skip anything that is not a weight") would have made it
+   * blind to the real defect: a provenance entry for a weight that was renamed
+   * or deleted, which then documents a term nothing computes. */
+  const meta = Object.keys(P || {}).filter(k => k.charAt(0) === '_').sort();
+  const pk = Object.keys(P || {}).filter(k => k.charAt(0) !== '_').sort();
   ck('every weight has a provenance entry',
     wk.every(k => pk.indexOf(k) >= 0), wk.filter(k => pk.indexOf(k) < 0));
   ck('  and no provenance entry names a weight that does not exist',
     pk.every(k => wk.indexOf(k) >= 0), pk.filter(k => wk.indexOf(k) < 0));
+  ck('  CONTROL — the exemption did not swallow the whole table: real entries remain',
+    pk.length === wk.length && pk.length >= 8, { entries: pk.length, weights: wk.length });
+  ck('  the blast-radius figures are STAMPED with the board they were measured on '
+     + '(register 455 — the draft was 2026-08-22 and they read as present tense)',
+    meta.indexOf('_measured_on') >= 0 && /PRE-DRAFT BOARD/.test(String(P._measured_on)),
+    { meta: meta, stamp: String(P._measured_on || '').slice(0, 80) });
 }
 
 // ── THE UNMEASURED WEIGHTS STAY DECLARED ───────────────────────────────────

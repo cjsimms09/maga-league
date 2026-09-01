@@ -108,6 +108,82 @@ def test_CONTROL_every_named_gate_actually_exists():
     assert len(GATES) >= 7, f"the gate list shrank to {len(GATES)} — was that deliberate?"
 
 
+#: ── DOES CI ACTUALLY READ THE GATE'S ANSWER? (A, 2026-09-01, register 461) ──
+#:
+#: A gate whose exit code is discarded is a gate that cannot refuse anything, no
+#: matter how good its fail arm is. Requiring a fail arm from such a tool is
+#: theatre in the other direction: the test file gets written, the check stays
+#: inert, and the row above reads green.
+#:
+#: FOUND BY DERIVING THE GATE SET FROM THE WORKFLOWS instead of trusting the
+#: hand-maintained list: `lane_status.js` is named in GATES and CI runs it in
+#: TWO places — ci.yml:542 and inbox-health.yml:64 — and BOTH end in `|| true`.
+#: Its refusal has never been able to stop anything.
+#:
+#: That is not necessarily wrong; a lane report may be informational on purpose.
+#: What is wrong is it being indistinguishable from an enforced gate. So the
+#: distinction is DECLARED and then CHECKED against the workflows, the same way
+#: SELF_CHECKED is checked against the tool's source.
+REPORT_ONLY = {
+    "lane_status.js": "branch/lane inventory — informational, and CI runs it "
+                      "`|| true` in ci.yml and inbox-health.yml. Kept in GATES "
+                      "so it still needs a fail arm (the tool should be correct "
+                      "about what it reports), but nothing may claim its exit "
+                      "code stops a build.",
+}
+
+
+def _workflow_invocations(tool):
+    """(enforced, report_only) counts of this tool across .github/workflows."""
+    enforced = reported = 0
+    pat = re.compile(r"(?:node|python3?|bash)\s+draft/tools/" + re.escape(tool) + r"([^\n]*)")
+    for wf in sorted((ROOT / ".github" / "workflows").glob("*.yml")):
+        for m in pat.finditer(wf.read_text(errors="ignore")):
+            rest = m.group(1)
+            if "|| true" in rest or "|| echo" in rest:
+                reported += 1
+            else:
+                enforced += 1
+    return enforced, reported
+
+
+def test_a_gate_whose_exit_code_CI_discards_is_declared_not_silent():
+    """⚠️ THE HALF THE FAIL-ARM CHECK CANNOT SEE. A tool can have a perfect fail
+    arm and still be unable to refuse anything, because every workflow that runs
+    it appends `|| true`. Both states print the same in a green CI run.
+
+    So each gate is classified from the WORKFLOWS, not from anybody's memory,
+    and a gate that CI never enforces must say so in REPORT_ONLY with a reason.
+    """
+    undeclared, wrongly_declared = [], []
+    for tool in GATES:
+        enforced, reported = _workflow_invocations(tool)
+        if enforced == 0 and tool not in REPORT_ONLY:
+            undeclared.append(f"{tool}: {reported} invocation(s), ALL `|| true` — "
+                              "CI never reads its answer, and nothing here said so")
+        if enforced > 0 and tool in REPORT_ONLY:
+            wrongly_declared.append(f"{tool}: declared REPORT_ONLY but CI reads its "
+                                    f"exit code in {enforced} place(s) — the "
+                                    "exemption is now false and hides a real gate")
+    assert not undeclared, "\n  ".join([""] + undeclared)
+    assert not wrongly_declared, "\n  ".join([""] + wrongly_declared)
+
+
+def test_CONTROL_the_invocation_scan_can_tell_the_two_apart():
+    """Rule 3e: the scan above is asserted to find nothing, and a scan that
+    classifies everything the same way would pass forever. Prove it separates
+    real cases in this repo — at least one gate CI enforces, and at least one it
+    does not."""
+    enforced_any = [g for g in GATES if _workflow_invocations(g)[0] > 0]
+    report_any = [g for g in GATES if _workflow_invocations(g)[0] == 0
+                  and _workflow_invocations(g)[1] > 0]
+    assert enforced_any, ("no gate at all reads its exit code — the scan is "
+                          "matching nothing and every arm above is vacuous")
+    assert report_any, ("no gate is report-only; if that became true the "
+                        "REPORT_ONLY exemption should be deleted, not left "
+                        "standing as an unused escape hatch")
+
+
 def test_every_gate_has_a_test_that_has_seen_it_refuse():
     """The bar is a FAIL ARM, not the existence of a test file."""
     bad = []
@@ -296,3 +372,55 @@ def test_THE_LIMIT_OF_THIS_CHECK_IS_STATED_NOT_HIDDEN():
         assert not found, (
             f"{wf} now invokes a named script {found} — re-check whether it is really "
             "unverified, because the reason it was counted so no longer applies")
+
+
+def test_THE_GATES_LIST_IS_HAND_MAINTAINED_AND_THAT_LIMIT_IS_MEASURED():
+    """⚠️ THE HONEST SIZE OF WHAT THIS FILE DOES NOT COVER (register 461).
+
+    `GATES` is seven names typed by hand. Derived from the workflows instead —
+    every `node|python3|bash draft/tools/X` whose exit code is READ (no
+    `|| true`) — there are FIFTY-EIGHT such tools. Six of the seven listed are
+    among them; the other fifty-two are not covered by the fail-arm rule above.
+
+    THAT IS NOT FIFTY-TWO DEFECTS AND MUST NOT BE READ AS ONE. Most are
+    PRODUCERS — `attach_draftsharks.py`, `emit_seat_plan.js`,
+    `blended_projection.js` — whose non-zero exit means "it crashed", not "it
+    refused". Demanding a fail arm from a producer is the vacuous shape wearing
+    a gate's clothes, and a check that fires on a fifty-two-item pre-existing
+    pile is a check people learn to skip (registers 388, 417, 422 are all that
+    story).
+
+    What IS a defect is that the list cannot notice its own growth: every one of
+    the four "only ever seen its green arm" tools found on 2026-09-01 —
+    waiver-reco-cron, lineup-reco-cron, weekly_proj_snapshot.py and
+    go_status.py — was outside it, and the list gave no signal about any of them.
+
+    So the number is pinned as a MEASUREMENT with a wide band, not as a target:
+    it moves when the workflows change, and a large jump is a prompt to look
+    rather than a failure. Splitting gates from producers needs a discriminator
+    I cannot yet defend, and inventing one to make this number smaller would be
+    fitting a taxonomy to a metric.
+    """
+    pat = re.compile(r"(?:node|python3?|bash)\s+(draft/tools/[\w./-]+)([^\n]*)")
+    enforced = set()
+    for wf in sorted(WF_DIR.glob("*.yml")):
+        for m in pat.finditer(wf.read_text(errors="ignore")):
+            if "|| true" in m.group(2) or "|| echo" in m.group(2):
+                continue
+            enforced.add(m.group(1).rsplit("/", 1)[-1])
+
+    assert len(enforced) >= 40, (
+        f"only {len(enforced)} enforced draft/tools invocations found — the scan "
+        "is matching far less than it did (58 on 2026-09-01), so it is probably "
+        "broken rather than the repo having shrunk")
+    assert len(enforced) <= 90, (
+        f"{len(enforced)} enforced draft/tools invocations, up from 58 on "
+        "2026-09-01. Not a failure in itself — but the fail-arm rule above still "
+        "covers seven hand-listed names, so re-read whether any of the new ones "
+        "is a real GATE that nobody has watched refuse.")
+
+    covered = enforced & set(GATES)
+    assert len(covered) >= 6, (
+        f"only {len(covered)} of the hand-listed GATES are enforced in a "
+        f"workflow: {sorted(covered)}. The list has drifted away from what CI "
+        "runs, which is how it stops meaning anything.")

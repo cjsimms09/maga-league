@@ -7,6 +7,8 @@ The known-positive/known-negative shapes here matter more than the exact
 numbers: a future re-run against a fresh PDF export should still trip these
 if the same reflow patterns recur.
 """
+import json
+import re
 import sys
 from pathlib import Path
 
@@ -17,6 +19,60 @@ import draftsharks_parse as D  # noqa: E402
 
 def _players():
     return {r["rank"]: r for r in D.main()["players"]}
+
+
+# ── THE SECOND, INDEPENDENT PATH (register 452) ─────────────────────────────
+# Deliberately dumb and deliberately not shared with the thing it checks: it
+# reads `public/draft_data.json` straight off disk and keys on (first initial,
+# surname, position) with its own suffix list. It imports nothing from
+# `adp`, does not call `build_board_index`, and does not know the matcher
+# exists. That is the whole point — if the index build, the normaliser or the
+# matcher regresses, this path still finds the player and the gate fires.
+_SCAN_SUFFIXES = {"jr", "sr", "ii", "iii", "iv", "v"}
+
+
+def _scan_key(name: str, position: str):
+    toks = [t for t in re.sub(r"[^a-z ]", " ", (name or "").lower()).split()
+            if t not in _SCAN_SUFFIXES]
+    if len(toks) < 2:
+        return None
+    return (toks[0][0], toks[-1], (position or "").upper())
+
+
+def _independent_board_scan() -> dict:
+    board = json.loads((Path(__file__).resolve().parents[2]
+                        / "public" / "draft_data.json").read_text())
+    idx: dict = {}
+    for p in board.get("players", []) + board.get("kept_players", []):
+        k = _scan_key(p.get("name"), p.get("position"))
+        if k:
+            idx.setdefault(k, []).append(p.get("name"))
+    return idx
+
+
+def test_the_independent_scan_can_actually_find_players():
+    """⚠️ RULE 3E — the scan above is a NULL DETECTOR, and a null detector that
+    has never returned a positive is untested, not passing. "No Draft Sharks
+    row was lost by the matcher" and "my scan finds nobody, ever" are the same
+    output from outside.
+
+    So: every row the matcher DID match must be re-findable by the scan. That
+    is 248 demonstrated positives on the 08-31 board (250 on 08-26), which is
+    what licenses reading the scan's silence on the unmatched rows as a real
+    "these players are gone" rather than as a broken probe.
+    """
+    doc = D.main()
+    scan = _independent_board_scan()
+    assert scan, "the scan indexed nothing at all — it cannot report an absence"
+    matched = [r for r in doc["players"] if r["sleeper_id"] is not None]
+    assert matched, "no rows matched; the arm below would be vacuous"
+    missed = [(r["rank"], r["name"], r["position"]) for r in matched
+              if not scan.get(_scan_key(r["name"], r["position"]))]
+    assert not missed, (
+        f"{len(missed)} rows the MATCHER found cannot be re-found by the "
+        f"independent scan: {missed[:8]}. The scan is the weaker path here, so "
+        "this is a defect in the scan (a name shape it mishandles) and it must "
+        "be fixed before its silence on an unmatched row means anything.")
 
 
 def test_all_250_ranks_present_no_gaps():
@@ -103,22 +159,61 @@ def test_crosswalk_matches_every_player_uniquely():
     two Nones, naive uniqueness FALSE, uniqueness-over-matched TRUE.
 
     `None` is not an id. Uniqueness is a claim about the rows that MATCHED.
+
+    ── AND WHY THE 0.95 FLOOR IS GONE TOO (A, 2026-08-31, register 452) ──────
+    Cory froze this source: *"Let's ignore draft sharks and remove from data, I
+    won't be uploading more"* — freeze, not delete. So the store is now 250
+    FIXED rows measured against a board that keeps turning over, which makes
+    the match rate a MONOTONICALLY DECAYING quantity and any floor on it a
+    dated claim wearing a threshold's clothes. Measured across four committed
+    board versions: 250/250 on 08-22, 08-25 and 08-26, then 248/250 on 08-31.
+    Two losses in the one interval that moved — Trey Benson and Nick Chubb,
+    both off Sleeper's board. At that rate 0.95 (which trips at 13 unmatched)
+    is reached inside the season, and it would fire on exactly the thing this
+    test's own comment said it was not measuring.
+
+    ⚠️ ONE INTERVAL IS NOT A SLOPE (rule 3i) — three intervals lost nothing and
+    one lost two, so the DATE is a guess. The DIRECTION is not: a frozen store
+    cannot gain coverage on a board it is not re-parsed for.
+
+    WHAT REPLACES IT IS STRICTLY STRONGER, not weaker. A floor tolerates twelve
+    silent crosswalk failures; this tolerates none. Every unmatched row must be
+    unmatched BECAUSE THE PLAYER IS NOT ON THE BOARD, proven by a second,
+    independent path — a raw scan of `public/draft_data.json` on (first
+    initial, surname, position) that shares no code with `build_board_index`,
+    `adp.normalize_name` or the matcher's index (rule 3e: two independent paths
+    that check each other). If the scan CAN find a row the matcher lost, that
+    is a crosswalk regression and it fails on the first one.
+
+    Both arms measured on two board versions: on 08-31, 248/248 matched rows
+    are re-findable by the scan (so it has 248 demonstrated positives) and 0/2
+    unmatched rows are; on the 08-26 board, 250 matched, 0 unmatched, 0
+    not-refindable.
     """
     doc = D.main()
     ids = [r["sleeper_id"] for r in doc["players"]]
     matched = [i for i in ids if i is not None]
-    #: Measured 2026-08-31: 250/250 = 1.0 on the committed board, 248/250 =
-    #: 0.992 on the board CI builds. The floor is about the CROSSWALK, which
-    #: is what this test owns; a board that has legitimately shed players is
-    #: not a crosswalk regression.
-    rate = len(matched) / len(ids)
-    assert rate >= 0.95, (
-        f"only {len(matched)}/{len(ids)} = {rate:.4f} of Draft Sharks rows reach "
-        "a board player — that is a crosswalk regression, not board churn")
     assert len(matched) == len(set(matched)), (
         "two Draft Sharks rows matched the SAME board player (unmatched rows "
         "are excluded: they carry sleeper_id None and collide with each other, "
         "not with a player — register 436)")
+
+    scan = _independent_board_scan()
+    lost = [(r["rank"], r["name"], r["position"], scan.get(_scan_key(r["name"], r["position"])))
+            for r in doc["players"]
+            if r["sleeper_id"] is None and scan.get(_scan_key(r["name"], r["position"]))]
+    assert not lost, (
+        f"{len(lost)} Draft Sharks row(s) went unmatched even though an "
+        f"independent scan of the raw board finds a player with the same first "
+        f"initial, surname and position: {lost[:5]}. That is a CROSSWALK "
+        "REGRESSION, not board churn — the board still has these players and "
+        "the matcher stopped reaching them (register 452).")
+
+    #: DISCLOSURE, not a gate — the number is real and decaying, and a reader
+    #: who never sees it cannot notice the day the source stops being useful.
+    print(f"\n  Draft Sharks (FROZEN 2026-08-25): {len(matched)}/{len(ids)} rows "
+          f"reach a board player; {len(ids) - len(matched)} of their players have "
+          f"left the board since capture. This number only falls.")
 
 
 def test_the_unmatched_rows_are_unmatched_and_not_silently_zero_filled():

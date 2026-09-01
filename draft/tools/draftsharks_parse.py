@@ -629,6 +629,35 @@ def main() -> dict:
         "_captured_via": "user-provided PDF export (site blocked at CONNECT from both "
                           "the agent sandbox and, unverified, GitHub Actions)",
         "_captured_at": "2026-08-19",
+        # ⚠️ FROZEN BY CORY'S RULING, 2026-08-31, VERBATIM: "Let's ignore draft
+        # sharks and remove from data, I won't be uploading more." Asked how far
+        # to take it out, he chose FREEZE rather than delete — and the reason is
+        # measured, not stylistic: this store feeds `proj_mean` on 513 board
+        # players (median move 3.0 pts, max 117.5) and supplies the floor/ceiling
+        # RATIO that every other source's band is derived from, which is his own
+        # 2026-08-20 ruling ("for every source that doesn't offer ceilings, make
+        # the ceiling AND floor the same % away from their proj as draft
+        # sharks"). Deleting it would have moved 513 projections and reversed
+        # that ruling as a side effect.
+        #
+        # SO THE STORE STAYS AND STOPS BEING CHASED. Its coverage will decay as
+        # the board turns over — 250 rows captured 08-19 against a board that
+        # gained 31 players in five days — and THAT DECAY IS EXPECTED, NOT A
+        # DEFECT. Every gate that treated DS freshness as a failure is retired
+        # in the same commit (registers 445, 451); what stays hard is that the
+        # band rule reaches 100% of whatever the frozen store DOES cover.
+        "_frozen": {
+            "at": "2026-08-31",
+            "by": "Cory",
+            "ruling": "ignore draft sharks and remove from data, I won't be "
+                      "uploading more — freeze rather than delete",
+            "means": "no further captures. Coverage decays as the board turns "
+                     "over and that is expected. Do not file a freshness defect "
+                     "against this store; do not build a capture cron for it.",
+            "if_this_is_ever_untrue": "someone resumed uploading — delete this "
+                                      "key in the same commit, or the gates that "
+                                      "were retired on its word stay wrongly off.",
+        },
         "_join_note": "The two source exports were captured minutes apart and the "
                        "live ranking shifted for a handful of marginal players in "
                        "between (verified, not assumed: the same identities appear "

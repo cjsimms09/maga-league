@@ -68,12 +68,12 @@ exports.runCapture = async () => {
 
     const entry = buildAutoLineupEntry(live, band, ctx.season, ctx.week, ctx.ownerId);
     if (!entry) {
-      await store.set(markKey, { none: true, live: !!live, at: new Date().toISOString() });
+      await store.set(markKey, { none: true, live: !!live, at: new Date(ctx.now).toISOString() });
       return { statusCode: 200, body: JSON.stringify({ ok: true, week: ctx.week,
         captured: 0, note: 'optimizer not live — recorded as the week marker' }) };
     }
     await predledger.append(store, entry);
-    await store.set(markKey, { key: entry.payload.key, at: new Date().toISOString() });
+    await store.set(markKey, { key: entry.payload.key, at: new Date(ctx.now).toISOString() });
     return { statusCode: 200, body: JSON.stringify({ ok: true, week: ctx.week,
       captured: 1, key: entry.payload.key }) };
   } catch (e) {

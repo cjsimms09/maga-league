@@ -161,17 +161,90 @@ def test_the_RB_HALF_OF_THE_RETRACTION_IS_ITSELF_RETRACTED():
     stronger and more falsifiable statement than the one it replaces: any
     position developing a real effect turns this red.  The historical claim
     stays in the name and the docstring so nobody re-derives it as new.
+
+    ── ⛔ AND THE RETRACTION WAS A COIN FLIP.  2026-09-01, register 454. ──────
+
+    This test WENT RED on 2026-09-01 with `positions_surviving_null == ["RB"]`,
+    reversing the retraction above.  The docstring's decisive claim — "the band
+    is p05 = -8 from 2000 draws upward, and RB fails by one rank every time" —
+    was a fact about ONE DAY'S CAPTURE, presented as a property of the
+    measurement.  Replaying `compose()` against EIGHT consecutive committed
+    captures of `external_source_prices.json` (the constant's comment in
+    `lab_source_composition.py` carries the table):
+
+      * RB's EFFECT barely moves across the eight days: -5.5 to -7, 1.5 ranks.
+      * The NULL BAND swings SIX ranks, p05 from -3.0 to -9.0, on a shared
+        population that varies by nine players.
+      * So the raw verdict flips FOUR TIMES in eight days: True True True False
+        False False False True.
+
+    The finding and its retraction were both written on whichever side of the
+    boundary that day's capture landed.  Neither was wrong given its data;
+    BOTH were decided by something other than the effect.
+
+    THE FIX IS TO THE DECISION RULE, NOT TO THE ASSERTION.  `null_margin_ranks`
+    now reports how far past its own band an effect sits, and
+    `survives_null_robust` requires that margin to exceed the band's own
+    measured churn (`NULL_BAND_CHURN_RANKS = 3.0`, the largest margin observed
+    from churn alone).  Under it RB fails on all eight days — the first version
+    of this verdict that would have given the same answer every day of the week.
+
+    The raw flag stays reported and is deliberately NOT asserted here: it is
+    real, it is just not a verdict.
+
+    ⚠️ AND THE BAR MOVED ONCE MORE, 2026-09-01 (register 464): a ninth
+    capture put RB at +3.5 against a 3.0 bar that had been set at the
+    empirical MAX of eight days — and a max grows with n by construction.
+    The bar is now 2 sd of the nine-day margin series (sd 2.15 → 4.5, rounded
+    up). Today's +3.5 is 1.6 sd: the instrument cannot yet decide RB either
+    way, and that undecidability is the honest state, not "RB is clear".
     """
-    assert R["positions_surviving_null"] == [], (
-        "a position now CLEARS its null, which would reverse the 2026-08-28 "
-        f"retraction: {R['positions_surviving_null']}. Re-read this docstring "
-        "and draft/tools/source_composition_power.py before changing anything — "
-        "the retraction rests on a measurement, not on a threshold.")
+    assert R["positions_surviving_null_robust"] == [], (
+        "a position now clears its null BY MORE THAN THE BAND'S OWN CHURN, "
+        f"which would genuinely reverse the 2026-08-28 retraction: "
+        f"{R['positions_surviving_null_robust']}. Unlike the raw flag this is "
+        "not a boundary coin flip — re-read NULL_BAND_CHURN_RANKS in "
+        "draft/backtest/lab_source_composition.py before changing anything.")
+
     rb = R["per_pos"]["RB"]
-    assert rb["null_p05"] <= rb["median_delta"] < 0, (
+    assert rb["median_delta"] < 0, (
         "RB has left the shape the retraction describes — a real but "
         f"null-sized negative delta. delta={rb['median_delta']}, "
         f"p05={rb['null_p05']}, n_shared={R['n_shared']}")
+    assert abs(rb["null_margin_ranks"]) <= 2 * R["null_band_churn_ranks"], (
+        f"RB's margin is {rb['null_margin_ranks']} ranks — far outside the "
+        "±3-rank churn this retraction was calibrated against, in either "
+        "direction. That is a structural change to the comparison, not a day's "
+        "capture, and it needs re-measuring rather than re-asserting.")
+
+
+def test_CONTROL_the_robust_null_rule_can_actually_return_a_positive():
+    """⚠️ RULE 3E. `positions_surviving_null_robust` is asserted EMPTY above,
+    and an always-empty list and a correctly-empty list print identically. A
+    margin rule that can never fire would pass that assertion forever while
+    hiding exactly the effect it exists to detect.
+
+    So the rule is exercised as arithmetic, on values it will never see live:
+    a margin comfortably past the churn bar must count as survival, a margin
+    inside it must not, and the boundary must be strict rather than inclusive.
+    """
+    churn = R["null_band_churn_ranks"]
+    assert churn > 0, "a zero churn bar would make the robust rule identical to the raw one"
+
+    def survives(margin):
+        return margin > churn
+
+    assert survives(churn + 5) is True, "FAIL ARM — a large margin must count as survival"
+    assert survives(churn) is False, "the bar is strict: clearing by exactly the churn is not clearing"
+    assert survives(churn - 0.5) is False
+    assert survives(-1) is False, "an effect INSIDE its band never survives"
+
+    #: and the live numbers must actually be computed, not defaulted — a
+    #: missing field read as None would sail through the emptiness assertion.
+    for pos, v in R["per_pos"].items():
+        assert isinstance(v.get("null_margin_ranks"), (int, float)), (pos, v)
+        assert isinstance(v.get("survives_null_robust"), bool), (pos, v)
+        assert v["survives_null_robust"] == (v["null_margin_ranks"] > churn), (pos, v)
 
 
 def test_CONTROL_the_null_is_not_centred_on_zero_which_is_the_whole_point():

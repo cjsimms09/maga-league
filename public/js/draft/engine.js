@@ -827,8 +827,36 @@
     keeper: 1.0, bye: 0.0, stack: 1.0 };
 
   /* Which zeros are measured and which are merely defaults, as data rather than
-   * as prose, so the panel and any future gate read the same answer. */
+   * as prose, so the panel and any future gate read the same answer.
+   *
+   * ── ⚠️ EVERY "BLAST RADIUS" BELOW IS A PRE-DRAFT MEASUREMENT (register 455)
+   *
+   * They read as present tense — "his #1 at pick 33 moves from RB Breece Hall
+   * to WR Zay Flowers", "switching it off moves 8 of his 12 picks" — and the
+   * war-room panel shows them that way. THE DRAFT WAS 2026-08-22. Cory owns a
+   * roster; there is no pick 33 to move, and `public/draft_data.json` is the
+   * waiver/wire board now, not the board those numbers were taken on.
+   *
+   * NOT re-measured, DELIBERATELY, and the reason is the stronger half of this
+   * note: the tool that produces these numbers cannot currently be quoted.
+   * `need_weight_pick_diff.js` run 2026-09-01 says need 1.0 vs 0.0 changes 8
+   * of 12 picks and drafts EIGHT QUARTERBACKS in a one-QB league; E measured
+   * ZERO of 12 on 2026-08-27; and an independent rebuild of the tool's own
+   * context on the same day disagrees with the tool about EVERY PICK, taking
+   * no quarterbacks at all. Three answers, and the honest count of trustworthy
+   * ones is zero (rule 3f — the second path is what caught it).
+   *
+   * So these strings are STAMPED with the board they describe rather than
+   * replaced with a number I cannot reproduce. Writing a fresh figure over an
+   * unreproducible one is how the original defect happens twice — which is
+   * register 293's own instruction, followed.
+   */
+  const WEIGHT_PROVENANCE_MEASURED_ON =
+    'PRE-DRAFT BOARD (on or before 2026-08-22). The blast-radius figures in the '
+    + 'entries below describe the board Cory drafted from, not today\'s '
+    + 'waiver/wire board. Register 455.';
   const WEIGHT_PROVENANCE = {
+    _measured_on: WEIGHT_PROVENANCE_MEASURED_ON,
     value: 'measured', keeper: 'measured', stack: 'measured (D10 ruling)',
     tier: 'measured',
     /* ⚠️ REWRITTEN 2026-08-20 WITH THE WEIGHT ITSELF. This entry still read

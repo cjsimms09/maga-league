@@ -221,11 +221,28 @@ const { baseline, doctrines } = DL.scoreAll();
    * late_qb still costs real points: waiting forever remains wrong. */
   const eqDeadlinePick = SS.SCHED[DL.shapeOf('early_qb').deadlines[0].byPickIdx];
   const qbPlanPick = (baseline.plan.find(p => p.slot === 'QB') || {}).pick;
-  ck('early_qb now costs ZERO because the value plan already satisfies it — the '
-    + 'QB comes by the deadline unconstrained, so the doctrine prices as '
-    + 'non-binding, not as an endorsement',
-  c('early_qb') === 0 && qbPlanPick <= eqDeadlinePick,
-  { early_qb: c('early_qb'), qb_pick: qbPlanPick, deadline_pick: eqDeadlinePick });
+  /* ⚠️ THE COMMENT ABOVE ALREADY NAMED THE DURABLE PROPERTY AND THE CODE PINNED
+   * ONE SIDE OF IT (A, 2026-08-31, register 449). It says, verbatim, "the pin
+   * that survives a board move is the RELATIONSHIP: a doctrine costs zero
+   * exactly when the unconstrained plan already satisfies it — asserted both
+   * ways below, so a pricer that returned zero for a binding constraint (or a
+   * cost for a satisfied one) still fails." What was asserted was
+   * `cost === 0 && planPick <= deadline` — the SATISFIED branch, hardcoded.
+   *
+   * So it was a re-pin, not a relationship, and it survived only while the
+   * plan kept taking the QB inside the deadline. The 08-31 rebuild moved the
+   * QB to pick 73 against a deadline of 53: the constraint BINDS again, the
+   * pricer correctly returns 0.8, and the assertion went red for the pricer
+   * being right. Asserted as the IFF the comment describes, which is what it
+   * meant and is strictly stronger — it now fails on a zero for a binding
+   * constraint too, which the old form could never see. */
+  const eqSatisfied = qbPlanPick <= eqDeadlinePick;
+  ck('ZERO-IFF-SATISFIED: early_qb costs nothing exactly when the unconstrained '
+    + 'plan already takes the QB by the deadline — and costs something exactly '
+    + 'when it does not',
+  (c('early_qb') === 0) === eqSatisfied,
+  { early_qb: c('early_qb'), qb_pick: qbPlanPick, deadline_pick: eqDeadlinePick,
+    satisfied: eqSatisfied });
   ck('FAIL ARM — zero-iff-satisfied holds in BOTH directions: late_qb, which the '
     + 'plan does NOT satisfy, still costs real points — waiting is right, '
     + 'waiting forever still is not', c('late_qb') > 0,

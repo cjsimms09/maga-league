@@ -15,6 +15,7 @@ not the two or three we would guess at in August.
 
 Run: python3 -m pytest draft/tests/test_weekly_proj_snapshot.py
 """
+import json
 import os
 import sys
 
@@ -208,3 +209,83 @@ def test_CANNOT_SAY_never_skips(monkeypatch, capsys):
     out = capsys.readouterr().out
     assert "not live yet" not in out, out
     assert "snapshotting week 1 of 2099" in out, out
+
+
+def test_KNOWN_POSITIVE_inside_the_window_it_ACTUALLY_WRITES_A_SNAPSHOT(monkeypatch, tmp_path):
+    """⚠️ THE ARM THAT WAS MISSING (register 458's follow-up, register 459).
+
+    The control above proves main() gets PAST the skip — and then lands on the
+    provider being unreachable in this sandbox, which is "a LATER, DIFFERENT
+    refusal" in its own words. So every existing arm of this file ends in a
+    refusal or a skip, and the branch that WRITES the row nobody can backfill
+    had never been executed. That is the same hole the two reco crons had, found
+    the same day and fixed there first (register 458): the wiring was proven and
+    the write was not.
+
+    This is the one input with a real deadline — providers overwrite weekly
+    numbers in place, so a week missed in September cannot be recovered in
+    January. It is worth a test that goes all the way to the file.
+
+    ⚠️ WRITES TO A TEMP PATH, NEVER THE TRACKED ARTIFACT (registers 58/65/109 —
+    never mutate-and-restore a committed store).
+    """
+    W = _import_module()
+    out = tmp_path / "proj_series.json"
+    monkeypatch.setattr(W, "OUT", out)
+    monkeypatch.setattr(W, "nfl_state",
+                        lambda: {"season": "2026", "season_type": "regular", "week": 1})
+    monkeypatch.setattr(W.sys, "argv", ["prog"])
+    monkeypatch.setenv("PROJ_SNAPSHOT_NOW", "2026-09-13T12:50:00Z")
+    monkeypatch.setenv("SEASON", "2026")
+
+    #: A provider response in the real shape: {player_id: {"stats": {...}}}.
+    #: Two players so "it wrote something" cannot pass on a single row that the
+    #: scorer happened to keep.
+    monkeypatch.setattr(W.SI, "fetch_projections", lambda season, week=None: {
+        "4046": {"stats": {"rec": 5.0, "rec_yd": 62.0, "rec_td": 0.5}},
+        "9509": {"stats": {"rush_att": 14.0, "rush_yd": 71.0, "rush_td": 0.6}},
+    })
+
+    rc = W.main()
+    assert rc == 0, "inside the window with a responding provider, main() must SUCCEED"
+    assert out.exists(), "no snapshot file was written at all"
+
+    doc = json.loads(out.read_text())
+    weekly = [s for s in doc["series"] if s.get("week") is not None]
+    assert len(weekly) == 1, weekly
+    snap = weekly[0]
+    assert snap["week"] == 1 and snap["source"] == "sleeper_weekly", snap
+    assert set(snap["proj"]) == {"4046", "9509"}, snap["proj"]
+    assert all(v > 0 for v in snap["proj"].values()), snap["proj"]
+
+    #: THE RAW STAT LINE MUST TRAVEL WITH THE POINTS (TERRITORY-GRANT: C).
+    #: The scoring table is versioned; a stored total alone cannot be re-scored
+    #: under a corrected table later, and re-scoring is the whole reason the raw
+    #: line is archived.
+    #: ⚠️ THE FIELD IS `raw`, NOT `raw_by_id` — `raw_by_id` is the PARAMETER name
+    #: on append_snapshot, and asserting it here failed on my first run. The
+    #: code was right and the test was wrong; recorded because the next person
+    #: reading append_snapshot's signature will reach for the same wrong name.
+    assert snap.get("raw"), "the raw stat lines were dropped — a point total alone cannot be un-scored"
+    assert set(snap["raw"]) == {"4046", "9509"}, snap["raw"]
+    assert snap["raw"]["4046"]["rec_yd"] == 62.0, snap["raw"]
+
+
+def test_FAIL_ARM_an_empty_provider_response_inside_the_window_REFUSES(monkeypatch, tmp_path):
+    """CONTROL on the arm above: it must be the PROVIDER's rows that produced
+    the snapshot, not the mere fact of being inside the window. An empty
+    response must still refuse and write nothing — an empty week reads as "the
+    projections were empty", which is a claim; a missing week reads as "we did
+    not get one"."""
+    W = _import_module()
+    out = tmp_path / "proj_series.json"
+    monkeypatch.setattr(W, "OUT", out)
+    monkeypatch.setattr(W, "nfl_state",
+                        lambda: {"season": "2026", "season_type": "regular", "week": 1})
+    monkeypatch.setattr(W.sys, "argv", ["prog"])
+    monkeypatch.setenv("PROJ_SNAPSHOT_NOW", "2026-09-13T12:50:00Z")
+    monkeypatch.setenv("SEASON", "2026")
+    monkeypatch.setattr(W.SI, "fetch_projections", lambda season, week=None: {})
+
+    assert W.main() == 1, "an empty provider response inside the window must REFUSE"
+    assert not out.exists(), "nothing may be written when the provider returned nothing"

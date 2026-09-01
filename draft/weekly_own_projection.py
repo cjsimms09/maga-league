@@ -127,6 +127,16 @@ DEFAULT_ARMS = [
     {"name": "v1_tilt050", "divisor": 17, "tilt_scale": 0.5},
     {"name": "v1_notilt",  "divisor": 17, "tilt_scale": 0.0},
     {"name": "v1_pg16",    "divisor": 16, "tilt_scale": 1.0},
+    #: ── ADDED 2026-09-01 FROM THE 2025 BACKTEST (register 463) ─────────────
+    #: The v1 rate PULLED toward the player's own realized in-season points,
+    #: weighted as `pull` pseudo-weeks of prior — the rule the SITE already
+    #: shows (src/weekly_player_projection.js, PRIOR_PSEUDO_WEEKS = 3). Over
+    #: all of 2025 with strictly-prior inputs it was the best full-coverage
+    #: arm on pooled MAE (4.655 vs v1's 4.853) and on Cory's pairwise
+    #: start/sit metric at RB, WR and TE. Week 1 has no realized points, so
+    #: it equals v1 exactly there and full-population coverage is preserved.
+    #: The realized points come from the grades ledger — zero extra fetch.
+    {"name": "v1_pull3",   "divisor": 17, "tilt_scale": 1.0, "pull": 3},
 ]
 DEFAULT_CHAMPION = {"version": FORMULA_VERSION_V1, "arm": "v1", "since_week": None}
 
@@ -255,6 +265,10 @@ def implied_for_week(week: int, season: int, odds_path: Path,
 def arm_formula(arm: dict) -> str:
     """The arm's formula, stated plainly — this string travels in every
     snapshot and grade so no reader ever reverse-engineers an arm."""
+    if arm.get("pull"):
+        k = arm["pull"]
+        return (f"({k}*proj_ownmodel/{arm['divisor']}*tilt + sum(realized)) / ({k} + n_realized), "
+                "tilt as v1, realized = this season's graded actual points before this week")
     if not arm["tilt_scale"]:
         return f"proj_ownmodel/{arm['divisor']} (no vegas tilt)"
     scale = ("" if arm["tilt_scale"] == 1.0
@@ -263,8 +277,35 @@ def arm_formula(arm: dict) -> str:
             "*(implied_team-mean_implied)/mean_implied), vg from V5_CONFIG")
 
 
+def realized_from_ledger(ledger_path: Path, week: int) -> dict:
+    """{pid: [actual points in each GRADED week before `week`]} from the
+    grades ledger — the store the Tuesday grader already writes, read back on
+    Thursday. A pid with no stat row in a graded week is ABSENT from that
+    week's rows, so it contributes nothing (absent, never zero). No ledger
+    yet, or nothing graded before this week, means an empty map and the pull
+    arm equals v1 — which is exactly right for week 1."""
+    if not ledger_path.exists():
+        return {}
+    try:
+        doc = json.loads(ledger_path.read_text())
+    except ValueError:
+        return {}
+    out: dict[str, list] = {}
+    for wk, entry in (doc.get("weeks") or {}).items():
+        try:
+            if int(wk) >= week:
+                continue
+        except (TypeError, ValueError):
+            continue
+        for pid, row in (entry.get("rows") or {}).items():
+            a = row.get("actual")
+            if isinstance(a, (int, float)):
+                out.setdefault(str(pid), []).append(float(a))
+    return out
+
+
 def price_week(players: list, week: int, implied: dict,
-               arms: list | None = None) -> dict:
+               arms: list | None = None, realized: dict | None = None) -> dict:
     """Price every arm for one week. Returns
     {"means": {arm_name: {pid: mean}}, "meta": {pid: {"team","pos","name"}},
      "byes": [pid...], "no_line": {"players": [pid...], "teams": [...]},
@@ -303,7 +344,12 @@ def price_week(players: list, week: int, implied: dict,
             tilt = 1.0
             if delta is not None and a["tilt_scale"]:
                 tilt = 1.0 + a["tilt_scale"] * VG[pos] * delta
-            means[a["name"]][pid] = round(max(0.0, base * tilt), 2)
+            val = max(0.0, base * tilt)
+            k = a.get("pull")
+            if k:
+                hist = (realized or {}).get(pid) or []
+                val = (k * val + sum(hist)) / (k + len(hist))
+            means[a["name"]][pid] = round(val, 2)
         meta[pid] = {"team": team, "pos": pos, "name": p.get("name")}
     return {
         "means": means,
@@ -317,7 +363,7 @@ def price_week(players: list, week: int, implied: dict,
 
 def build_snapshot(players: list, week: int, season: int, implied: dict,
                    lines_source: str, date: str, champion: dict | None = None,
-                   arms: list | None = None) -> dict:
+                   arms: list | None = None, realized: dict | None = None) -> dict:
     """The committed snapshot document: _territory first, champion under
     `projections` ({pid: {mean, team, pos}} — the graded contract), challenger
     columns beside it, diagnostics naming season/week/lines source/populations/
@@ -327,7 +373,7 @@ def build_snapshot(players: list, week: int, season: int, implied: dict,
     champ_name = champion["arm"]
     if champ_name not in {a["name"] for a in arms}:
         raise ValueError(f"champion arm {champ_name!r} not in the active arm set")
-    priced = price_week(players, week, implied, arms)
+    priced = price_week(players, week, implied, arms, realized)
     champ_means = priced["means"][champ_name]
     projections = {pid: {"mean": champ_means[pid],
                          "team": priced["meta"][pid]["team"],
@@ -352,6 +398,8 @@ def build_snapshot(players: list, week: int, season: int, implied: dict,
             "champion_arm": champ_name,
             "arms": {a["name"]: arm_formula(a) for a in arms},
             "lines_source": lines_source,
+            "realized_players": len(realized or {}),
+            "realized_weeks_max": max((len(v) for v in (realized or {}).values()), default=0),
             "teams_with_lines": len(implied),
             "mean_implied": priced["mean_implied"],
             "players_priced": len(champ_means),
@@ -500,8 +548,9 @@ def main(argv: list | None = None) -> int:
               f"{controls['champion_override']!r} but no active arm has that "
               "name — IGNORED (pricing under the ledger champion instead of a "
               "formula nobody defined)")
+    realized = realized_from_ledger(ledger_path, week)
     doc = build_snapshot(players, week, season, implied, source,
-                         today.isoformat(), champion, arms)
+                         today.isoformat(), champion, arms, realized)
     if overridden:
         doc["diagnostics"]["champion_override"] = True
     out_dir.mkdir(parents=True, exist_ok=True)

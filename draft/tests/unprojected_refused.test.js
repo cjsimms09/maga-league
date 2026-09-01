@@ -92,12 +92,51 @@ function at(pick) {
     refused.every(x => x.score_error && /no projection/.test(x.score_error.reason)));
 
   /* THE ONE THAT MATTERS. Refusal must not quietly hide somebody the market
-   * expects in the middle rounds. Pearsall (ADP ~107) is currently the only
-   * unprojected player inside the draftable range; if that count grows, the
-   * board has an ingest problem this suite should surface rather than absorb. */
-  const inRange = refused.filter(x => adpOf(x.player) <= 250);
-  ck('at most ONE unprojected player sits inside ADP 250',
-    inRange.length <= 1, inRange.map(x => x.player.name + ' @' + Math.round(adpOf(x.player))));
+   * expects in the middle rounds.
+   *
+   * ⛔ REWRITTEN 2026-09-01 (register 457). This read `adpOf <= 250` with
+   * `inRange.length <= 1`, calibrated when Pearsall at ADP ~107 was the single
+   * case. It went RED ON `main` today on Kyron Drones (ADP 238) and Jacob Clark
+   * (ADP 244) — two rookie QUARTERBACKS sitting 88 and 94 picks PAST THE END OF
+   * THIS LEAGUE'S DRAFT. This file's own header says it pins "the invariant,
+   * not the counts"; the line below was a count, and the range it counted over
+   * was a proxy nobody re-derived when the board grew.
+   *
+   * MEASURED before changing it, at five cutoffs: 0 unprojected players inside
+   * ADP 150, 175 or 200; 2 inside 250 and the same 2 inside 300. So the defect
+   * the assertion exists for — an unprojected man where Cory might draft him —
+   * IS NOT HAPPENING, and the gate was refusing the board over players no seat
+   * in a 10-team, 15-round league can reach.
+   *
+   * THE RANGE IS NOW DERIVED FROM THE LEAGUE, not hardcoded: teams x rounds is
+   * the last pick anybody makes, and it moves with the config instead of
+   * needing a human to remember. The bar inside it is ZERO, which is STRICTER
+   * than the "at most one" it replaces — no unprojected player may sit anywhere
+   * a pick can reach.
+   *
+   * The tail beyond the draft is DISCLOSED rather than asserted. It is real
+   * ingest information and it is not a publish-blocking fault, and printing it
+   * is what stops the next person rediscovering these two by watching the board
+   * go red. */
+  const depth = (+L.teams || 10) * (+L.rounds || 15);
+  const draftable = refused.filter(x => adpOf(x.player) <= depth);
+  ck('NO unprojected player sits anywhere a pick in this league can reach '
+     + '(ADP <= teams x rounds = ' + depth + ')',
+    draftable.length === 0,
+    draftable.map(x => x.player.name + ' @' + Math.round(adpOf(x.player))));
+
+  /* CONTROL, rule 3e: the line above is asserted to find NOTHING, which is the
+   * shape that hides a filter matching nothing. Prove the population it draws
+   * from is real and that the ADP field it reads is populated. */
+  ck('  CONTROL — refused players carry a usable ADP, so the range filter is '
+     + 'reading a real field rather than defaulting everyone out of range',
+    refused.filter(x => adpOf(x.player) < 9999).length >= 10,
+    refused.filter(x => adpOf(x.player) < 9999).length);
+
+  const tail = refused.filter(x => adpOf(x.player) > depth && adpOf(x.player) <= 300);
+  console.log('  · DISCLOSURE: ' + tail.length + ' unprojected player(s) between pick '
+    + depth + ' and ADP 300 — past this league\'s draft, so not blocking: '
+    + (tail.map(x => x.player.name + ' @' + Math.round(adpOf(x.player))).join(', ') || 'none'));
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

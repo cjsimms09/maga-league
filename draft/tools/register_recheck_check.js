@@ -347,6 +347,41 @@ function selfTest() {
   }
 }
 
+/* ── ONE ROW, ONE LIVE DATE (added 2026-09-01, register 456) ────────────────
+ *
+ * `recheckOf` takes the LAST date in the cell, deliberately and with its own
+ * known-positive above. That precedence is correct and it is also a trap: an
+ * owner who rolls a date and leaves the OLD one in place has changed nothing if
+ * the old one happens to sit later in the prose. Which date governs then
+ * depends on cell ORDERING rather than on anybody's intent, and the roll is
+ * silent either way.
+ *
+ * That is not hypothetical. Row 307 was rolled 08-31 -> 09-04 with the old date
+ * left live (CLAUDE.md records it), and sweeping the whole register on
+ * 2026-09-01 found FOUR more rows carrying two DIFFERENT live dates — 147
+ * (08-27 and 09-08), 193 (08-31 and 09-15), 400 (three dates), 404 (09-03 and
+ * 09-05). All four are now resolved by demoting the superseded ones to
+ * `recheck WAS`, which is the register's existing convention for a date that
+ * has been replaced.
+ *
+ * So this is a RATCHET ON A CLEAN STATE, not a fix for a live breakage: the
+ * count is zero as it lands, and it goes red on the day the next one appears
+ * rather than whenever somebody happens to sweep. Rows with the SAME date
+ * repeated are left alone — a quoted date is not an ambiguous one.
+ */
+function multiLiveDates(open) {
+  const g = /recheck\s+(?!WAS\b)(?:(2026)-)?(\d{2})-(\d{2})/gi;
+  const bad = [];
+  open.forEach(r => {
+    const found = new Set();
+    let m;
+    g.lastIndex = 0;
+    while ((m = g.exec(r.all)) !== null) found.add(`${m[1] || YEAR}-${m[2]}-${m[3]}`);
+    if (found.size > 1) bad.push({ r, dates: [...found].sort() });
+  });
+  return bad;
+}
+
 function audit(text, today) {
   const all = rows(text);
   const open = all.filter(r => !isClosed(r));
@@ -356,6 +391,7 @@ function audit(text, today) {
   const claimedDone = overdue.filter(x => claimsDone(x.r));
   const untouched = overdue.filter(x => !claimsDone(x.r));
   return { all, open, dated, overdue, claimedDone, untouched, undated,
+    ambiguous: multiLiveDates(open),
     dupes: nearDuplicates(open) };
 }
 
@@ -456,7 +492,15 @@ function main() {
       + '\n     cannot ever fire for them. Reported, not failed — see the comment in'
       + '\n     this file for why, and what closes that hole.');
   }
-  return a.overdue.length ? 1 : 0;
+  if (a.ambiguous.length) {
+    console.log(`\n  🔴 ${a.ambiguous.length} OPEN row(s) carry MORE THAN ONE live recheck date,`
+      + '\n     so which one governs depends on where it sits in the prose rather than'
+      + '\n     on what anyone decided. Demote the superseded one to `recheck WAS <date>`:');
+    a.ambiguous.forEach(x =>
+      console.log(`     ${x.r.id.padEnd(5)} ${x.dates.join('  and  ')}`));
+  }
+
+  return (a.overdue.length || a.ambiguous.length) ? 1 : 0;
 }
 
 if (require.main === module) process.exitCode = main();

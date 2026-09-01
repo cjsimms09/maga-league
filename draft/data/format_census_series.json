@@ -3,6 +3,109 @@
  "version": "format-census-series/v1",
  "series": [
   {
+   "observed_at": "2026-09-01",
+   "season": 2025,
+   "examined": null,
+   "readable_leagues": 121,
+   "matched": 0,
+   "teams": {
+    "12": 54,
+    "10": 24,
+    "8": 8,
+    "14": 7,
+    "16": 6,
+    "20": 2,
+    "48": 2,
+    "6": 2,
+    "5": 2,
+    "4": 2,
+    "17": 2,
+    "32": 1,
+    "7": 1,
+    "28": 1,
+    "27": 1,
+    "196": 1,
+    "33": 1,
+    "40": 1,
+    "243": 1,
+    "24": 1,
+    "30": 1
+   },
+   "reception_points": {
+    "0.9-1.1 (full PPR)": 68,
+    "0 (standard)": 19,
+    "0.4-0.6 (half-PPR)": 7,
+    "split/TE-premium QB=0.5,RB=0.5,TE=0.75,WR=0.5": 2,
+    "other:2.0": 2,
+    "other:3.0": 2,
+    "(no reception rule)": 2,
+    "split/TE-premium QB=1.0,RB=1.0,TE=1.5,WR=1.0": 2,
+    "split/TE-premium QB=1.0,RB=1.0,TE=1.75,WR=1.25": 1,
+    "split/TE-premium QB=1.5,RB=0.5,TE=1.5,WR=1.0": 1,
+    "other:0.1": 1,
+    "split/TE-premium QB=0.5,RB=0.5,TE=1.0,WR=0.5": 1,
+    "other:0.2": 1,
+    "split/TE-premium RB=1.0,TE=1.5,WR=1.0": 1,
+    "other:5.0": 1,
+    "split/TE-premium RB=0.5,TE=1.5,WR=1.0": 1,
+    "other:20.0": 1,
+    "split/TE-premium QB=1.0,RB=1.5,TE=2.0,WR=1.0": 1,
+    "split/TE-premium RB=1.0,TE=2.0,WR=2.0": 1,
+    "split/TE-premium CB=1.0,DE=1.0,DT=1.0,LB=1.0,PK=1.0,QB=1.0,RB=1.0,S=1.0,TE=1.5,WR=1.0": 1,
+    "split/TE-premium QB=0.25,RB=0.5,TE=0.5,WR=0.5": 1,
+    "split/TE-premium RB=0.3,TE=1.0,WR=0.3": 1,
+    "split/TE-premium PK=1.0,QB=1.0,RB=0.5,TE=1.0,WR=0.75": 1,
+    "split/TE-premium QB=1.0,RB=1.0,TE=1.75,WR=1.0": 1,
+    "split/TE-premium RB=1.0,TE=6.0,TMPK=1.0,WR=1.0": 1
+   },
+   "pass_td_points": {
+    "4 (market standard)": 50,
+    "6 (OURS)": 31,
+    "other:0.0": 15,
+    "(no passing-TD rule read)": 14,
+    "5": 6,
+    "other:3.0": 4,
+    "other:10.0": 1
+   },
+   "superflex": {
+    "False": 94,
+    "True": 27
+   },
+   "draft_type": {
+    "(absent)": 111,
+    "snake": 10
+   },
+   "keeper_type": {
+    "(absent)": 99,
+    "dynasty": 12,
+    "keeper": 9,
+    "none": 1
+   },
+   "rejected_by_reason": {
+    "F1.scoring_not_half_ppr": 63,
+    "F4.draft_type_absent": 1,
+    "F4.no_qb_slot_count": 1,
+    "F4.draft_type_unrecognised:SAME": 3,
+    "F1.teams": 43,
+    "F4.no_scoring_rules": 9,
+    "F1.starting_skill_slots": 2,
+    "F1.te_premium_or_split_ppr:WR=1.0,TE=1.5": 2,
+    "F1.te_premium_or_split_ppr:TE=0.75": 1,
+    "F1.te_premium_or_split_ppr:RB=1.0,WR=1.0,TE=1.5": 3,
+    "F1.qb_slots": 3,
+    "F4.draft_type_unrecognised:SDRAFT": 1,
+    "F4.fetch_failed:league: http 429 Too Many Requests": 2,
+    "F1.te_premium_or_split_ppr:RB=0.3,WR=0.3,TE=1.0": 1,
+    "F4.fetch_failed:draftResults: http 429 Too Many Requests; rules: http 429 Too Many Requests": 1,
+    "F1.te_premium_or_split_ppr:WR=0.75,TE=1.0": 1,
+    "F1.te_premium_or_split_ppr:RB=1.0,WR=1.0,TE=1.75": 1,
+    "F1.te_premium_or_split_ppr:RB=1.0,WR=1.0,TE=6.0": 1,
+    "F4.fetch_failed:draftResults: http 429 Too Many Requests; league: http 429 Too Many Requests": 1,
+    "F4.fetch_failed:draftResults: http 429 Too Many Requests": 2
+   },
+   "crosswalk_pooled_rate": 0.825
+  },
+  {
    "observed_at": "2026-08-12",
    "season": 2026,
    "examined": null,
@@ -107,82 +210,82 @@
  ],
  "population": {
   "version": "field-population/v1",
-  "rows": 1,
+  "rows": 2,
   "fields": {
    "observed_at": {
-    "present": 1,
+    "present": 2,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "season": {
-    "present": 1,
+    "present": 2,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "examined": {
     "present": 0,
-    "null": 1,
+    "null": 2,
     "missing": 0,
     "pct": 0.0
    },
    "readable_leagues": {
-    "present": 1,
+    "present": 2,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "matched": {
-    "present": 1,
+    "present": 2,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "teams": {
-    "present": 1,
+    "present": 2,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "reception_points": {
-    "present": 1,
+    "present": 2,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "pass_td_points": {
-    "present": 1,
+    "present": 2,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "superflex": {
-    "present": 1,
+    "present": 2,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "draft_type": {
-    "present": 1,
+    "present": 2,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "keeper_type": {
-    "present": 1,
+    "present": 2,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "rejected_by_reason": {
-    "present": 1,
+    "present": 2,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "crosswalk_pooled_rate": {
-    "present": 1,
+    "present": 2,
     "null": 0,
     "missing": 0,
     "pct": 100.0
@@ -190,14 +293,16 @@
    "_key_provenance": {
     "present": 1,
     "null": 0,
-    "missing": 0,
-    "pct": 100.0
+    "missing": 1,
+    "pct": 50.0
    }
   },
   "empty": [
    "examined"
   ],
-  "partial": [],
+  "partial": [
+   "_key_provenance"
+  ],
   "absent_fields": [],
   "note": "Field population measured at write time from the bytes actually committed. `empty` fields are DECLARED BY THE PRODUCER AND NEVER DELIVERED \u2014 ask why before concluding the source has no such data."
  }
