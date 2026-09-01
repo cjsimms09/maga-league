@@ -100,3 +100,52 @@ def pytest_configure(config):
         "the check -- if you mark a test here, add it there in the same "
         "commit.",
     )
+
+
+def pytest_terminal_summary(terminalreporter, exitstatus, config):
+    """A RED RUN MUST SAY WHETHER THE MACHINE IS THE PROBLEM (register 457).
+
+    Register 378 exists because a `ModuleNotFoundError` renders in a pytest
+    summary EXACTLY like a defect — same red FAILED line, same node id — and on
+    2026-08-27 that cost an hour and eight false findings. The fix shipped then
+    was `check_python_env.py`, plus a session-start hook that runs it.
+
+    ⚠️ THAT WAS NOT ENOUGH, AND 2026-09-01 IS THE PROOF. The hook ran at session
+    start and printed "✅ every declared distribution is installed". The
+    container later lost FIVE of them, and the next suite run produced eight red
+    tests whose names promise pure logic — `test_best_table_REJECTS_a_small_-
+    table`, `test_regenerate_ON_AN_EMPTY_PLAYER_INDEX_IS_ALSO_VOID`. I read them
+    as churn-sensitivity findings and had started writing them up as such.
+
+    A check that runs only at session start answers a question that can stop
+    being true an hour later. So the answer now travels WITH the red run, in the
+    same output, at the moment somebody is looking at it — which is the only
+    moment it matters.
+
+    Deliberately silent on a green run: a healthy suite needs no environment
+    footnote, and a banner nobody needs is a banner everybody learns to skip.
+    """
+    if not terminalreporter.stats.get("failed") and not terminalreporter.stats.get("error"):
+        return
+    try:
+        import subprocess
+        import sys as _sys
+        from pathlib import Path as _Path
+        tool = _Path(__file__).resolve().parents[1] / "tools" / "check_python_env.py"
+        if not tool.exists():
+            return
+        out = subprocess.run([_sys.executable, str(tool)], capture_output=True,
+                             text=True, timeout=30).stdout
+        if "MISSING" not in out:
+            return
+        terminalreporter.write_sep("=", "ENVIRONMENT, NOT NECESSARILY CODE", red=True)
+        terminalreporter.write_line(out.strip())
+        terminalreporter.write_line(
+            "  ⚠️  Some or all of the failures above may be this, not a defect. "
+            "Install and re-run BEFORE reading any of them as a finding "
+            "(register 378, and register 457 for why this prints here rather "
+            "than only at session start).")
+    except Exception:
+        # This is a diagnostic. It must never turn a green run red or add a
+        # second failure to a red one.
+        return

@@ -68,15 +68,55 @@ ok('the LIVE register parses, and is green today', () => {
 });
 
 ok('CONTROL — the LIVE register DOES go red at a future date, so it is not vacuous', () => {
+  /* ⛔ THIS CONTROL WAS ITSELF A DATED CLAIM, AND IT EXPIRED ON 2026-09-01
+   * (register 457). It read:
+   *
+   *     const later = R.audit(text, '2026-09-01');
+   *     assert(later.overdue.length > 0, 'by 2026-09-01 every recheck date in
+   *       the register has passed, so this MUST report overdue rows.'
+   *
+   * Two assumptions, both true when it was written and one of them temporary:
+   * that a hardcoded date is far enough ahead, and that the register would
+   * still be carrying overdue rows when it arrived. On 2026-09-01 I worked the
+   * whole overdue backlog to zero — and this control went red for doing exactly
+   * what the register wants done. A guard that fails when the repo gets
+   * HEALTHIER is a guard someone deletes.
+   *
+   * That is the same defect class this session spent the day on — an assertion
+   * pinned to a live, changing quantity — sitting INSIDE a rule-3e control
+   * written to prevent it.
+   *
+   * THE FIX IS TO STOP ASKING THE LIVE FILE. What this control is for is
+   * "the checker can fire on a register-shaped file", and the live register's
+   * contents were only ever a convenient carrier for that. A date derived from
+   * the file's own latest recheck date proves the same thing and cannot expire:
+   * whatever the furthest-out row is, one day past it must be overdue. If the
+   * register is ever legitimately empty of dated open rows, that is stated as
+   * its own refusal rather than passing silently. */
   const fs = require('fs');
   const path = require('path');
   const text = fs.readFileSync(
     path.join(__dirname, '..', '..', 'DEFECT-REGISTER.md'), 'utf8');
-  const later = R.audit(text, '2026-09-01');
+
+  const today = R.audit(text, new Date().toISOString().slice(0, 10));
+  assert(today.dated.length > 0,
+    'no OPEN row carries a recheck date at all, so there is nothing this check '
+    + 'could ever fire on. That is a real finding about the register, not a '
+    + 'reason to pass.');
+
+  const furthest = today.dated.map(x => x.due).sort().pop();
+  const dayAfter = new Date(Date.parse(furthest + 'T00:00:00Z') + 86400000)
+    .toISOString().slice(0, 10);
+  const later = R.audit(text, dayAfter);
   assert(later.overdue.length > 0,
-    'by 2026-09-01 every recheck date in the register has passed, so this MUST '
-    + 'report overdue rows. If it does not, the check cannot fire on the real '
-    + 'file and its green today means nothing.');
+    `one day past the furthest recheck date in the register (${furthest}) every `
+    + `dated open row must be overdue, and this reported ${later.overdue.length}. `
+    + 'If it reports none, the check cannot fire on the real file and its green '
+    + 'today means nothing.');
+  assert.strictEqual(later.overdue.length, today.dated.length,
+    'at one day past the LAST date, EVERY dated open row should be overdue — '
+    + `${later.overdue.length} of ${today.dated.length} were, so some rows carry `
+    + 'a date this checker parses differently from the sort above.');
 });
 
 
