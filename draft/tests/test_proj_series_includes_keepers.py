@@ -119,3 +119,64 @@ def test_the_truncation_does_not_evict_a_keeper_to_make_room(artifact, tmp_path)
     assert len(frozen["proj"]) == min(len(priced), PS.TOP_N), (
         len(frozen["proj"]), len(priced), PS.TOP_N)
     assert not (kept - set(frozen["proj"])), "the cut evicted a keeper"
+
+
+def test_the_newest_capture_is_never_keeper_blind(artifact):
+    """FORWARD-LOOKING, and the reason it exists is that the last time this
+    broke, nothing noticed for EIGHT capture-days. The completeness check in
+    `draft-data.yml` asks whether each source wrote a row and printed
+    `complete` on every one of them, truthfully.
+
+    This asks the question that would have caught it on day one: does the newest
+    captured day carry any keeper at all, on each source. It is deliberately a
+    weak bar — ANY keeper, not all 23 — so ordinary churn cannot redden it while
+    a writer that stops looking at the whole population still does.
+    """
+    import sys as _sys
+    _sys.path.insert(0, str(ROOT / "draft" / "tools"))
+    from proj_series_gradeable import population_by_day, systematic_absences
+
+    kept = _kept_ids(artifact)
+    if not kept:
+        pytest.skip("board is pre-keeper-lock")
+    series_path = ROOT / "draft" / "data" / "proj_series.json"
+    if not series_path.exists():
+        pytest.skip("no archive in this checkout")
+    series = json.loads(series_path.read_text())["series"]
+
+    for source in ("sleeper", "fantasypros"):
+        days = population_by_day(series, source)
+        if not days:
+            continue
+        newest = sorted(days)[-1]
+        blind = {d for run in systematic_absences(series, source, kept) for d in run}
+        assert newest not in blind, (
+            f"{source}'s newest capture ({newest}) carries not one of the {len(kept)} "
+            "kept players — the archive has stopped seeing a whole population, and "
+            "preseason projections cannot be refetched (exp33). Register 444.")
+
+
+def test_CONTROL_the_blind_run_detector_finds_the_one_we_already_had(artifact):
+    """RULE 3E. The test above is a null-returning check, and a null from a
+    detector that has never returned a positive is a bug report rather than a
+    finding. This is its positive: register 444's own eight-day run, still
+    sitting in the archive, must be found — so if the detector ever goes blind,
+    it says so here instead of quietly passing up there forever.
+    """
+    import sys as _sys
+    _sys.path.insert(0, str(ROOT / "draft" / "tools"))
+    from proj_series_gradeable import systematic_absences
+
+    kept = _kept_ids(artifact)
+    if not kept:
+        pytest.skip("board is pre-keeper-lock")
+    series_path = ROOT / "draft" / "data" / "proj_series.json"
+    if not series_path.exists():
+        pytest.skip("no archive in this checkout")
+    series = json.loads(series_path.read_text())["series"]
+
+    runs = systematic_absences(series, "sleeper", kept)
+    assert any(len(r) >= 5 for r in runs), (
+        "the register-444 keeper-blind run is no longer detectable in the archive. "
+        "Either history was rewritten, or this detector has stopped working — and "
+        "if it has, the forward-looking test beside it is passing on nothing.")
