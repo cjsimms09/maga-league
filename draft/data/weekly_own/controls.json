@@ -1,6 +1,7 @@
 {
- "_territory": "TERRITORY: A — read by draft/weekly_own_projection.py and draft/weekly_own_grade.py",
- "_note": "Cory's adaptation controls for the weekly own-projection loop. auto_adapt=false holds mechanical promotions (grading continues); champion_override pins the champion column to a named active arm and pauses the rule while it stands. Contract: draft/data/weekly_own/README.md. Change by commit, on Cory's word — the commit IS the record.",
+ "_territory": "TERRITORY: A \u2014 read by draft/weekly_own_projection.py and draft/weekly_own_grade.py",
+ "_note": "Cory's adaptation controls for the weekly own-projection loop. auto_adapt=false holds mechanical promotions (grading continues); champion_override pins the champion column to a named active arm and pauses the rule while it stands. Contract: draft/data/weekly_own/README.md. Change by commit, on Cory's word \u2014 the commit IS the record.",
  "auto_adapt": true,
- "champion_override": null
+ "champion_override": "v1_pull3",
+ "_ruling_2026-09-01": "Cory, 2026-09-01, on A's recommendation from the 2025 backtest (register 463): \"Do all of these!!\" \u2014 item 1: set the week-1 champion to v1_pull3. In week 1 it equals v1 exactly; from week 2 it pulls toward the player's own graded points. v1 stays graded as a challenger column and remains P298's frozen no-learning baseline. Forward prediction: PREDICTION-LEDGER P353 (grade-by 10-13). Mechanical promotions PAUSE while this override stands (README contract); remove the override to resume them."
 }

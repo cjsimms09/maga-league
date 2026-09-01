@@ -62,8 +62,10 @@ on:
   # (ledger P92 predicts exactly that; this line is what falsifies it).
   # Scheduled runs derive week/date themselves and SKIP cleanly before week 1 —
   # a job that goes red every preseason Thursday is a job we learn to ignore.
-  schedule:
-    - cron: '0 12 * * 4'
+  # SCHEDULE REMOVED 2026-09-01 — CORY'S STANDING RULING: "We don't need odds api
+  # remember!! We get free props from bovada, ball don't lie, etc!!" The paid key
+  # is never renewed and this must never spend on a timer again. dispatch-only.
+  # The weekly props arm reads the FREE Bovada capture (P299). See CLAUDE.md.
     # SUNDAY CLOSING SNAPSHOT: DISARMED 08-21 hours after the relay added it —
     # C verified the write path and a second weekly run would SILENTLY CLOBBER
     # Thursday's snapshot (same season+week filename, no time-of-week tag).

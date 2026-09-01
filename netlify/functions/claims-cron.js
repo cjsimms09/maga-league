@@ -182,6 +182,17 @@ exports.buildClaims = buildClaims;
 exports.buildResolutions = buildResolutions;
 exports.buildDecisionResolutions = buildDecisionResolutions;
 exports.decisionWeeksNeeded = decisionWeeksNeeded;
+/* Every forecast_key the ledger already has a resolution for — pure, tested. */
+function alreadyResolvedKeys(entries) {
+  const out = new Set();
+  for (const e of entries || []) {
+    if (e && e.kind === 'forecast_resolution' && (e.payload || {}).forecast_key) {
+      out.add(String(e.payload.forecast_key));
+    }
+  }
+  return out;
+}
+exports.alreadyResolvedKeys = alreadyResolvedKeys;
 exports.mergePlayersPoints = mergePlayersPoints;
 
 exports.handler = async (event) => {
@@ -293,10 +304,26 @@ exports.handler = async (event) => {
        * is never graded on weeks that do not exist. */
       const FINAL_WEEK = 18;
       const weeklyPoints = {};
+      /* Cory's REAL starters per week, off the same matchup rows — the human
+       * side of the auto-derived tool-vs-actual grade (2026-09-01, item 5 of
+       * Cory's ruling). His roster is the one the auto lineup rows name by
+       * owner_id, mapped back through sleeper_map. */
+      const actualStarters = {};
+      const smap = (sData && sData.sleeper_map) || cfg.sleeper_map || {};
+      const autoOwner = (allRows.find(e => e && e.kind === 'lineup_call'
+        && e.method === 'lineup-auto-v1' && (e.payload || {}).owner_id != null) || { payload: {} }).payload.owner_id;
+      const myRid = autoOwner == null ? null
+        : Object.keys(smap).find(rid => Number(smap[rid]) === Number(autoOwner));
       for (const w of decisionWeeksNeeded(allRows, week, FINAL_WEEK)) {
         const rows = await sleeper.matchupsForWeek(leagueId, w);
         const merged = mergePlayersPoints(rows);
         if (Object.keys(merged).length) weeklyPoints[String(w)] = merged;
+        if (myRid != null) {
+          const mine = (rows || []).find(r => String(r.roster_id) === String(myRid));
+          if (mine && Array.isArray(mine.starters) && mine.starters.length) {
+            actualStarters[String(w)] = mine.starters.map(String);
+          }
+        }
       }
       /* The wire baseline for hold-priority waiver claims — the committed,
        * measured artifact (draft/tools/emit_wire_level.js), shipped with this
@@ -309,10 +336,16 @@ exports.handler = async (event) => {
       } catch (e) { wire = null; }
       const opts = {
         finalWeek: FINAL_WEEK,
+        actualStarters,
         wire: wire ? { per_week: wire.per_week,
           ongoing_per_week: wire.ongoing && wire.ongoing.per_week } : null,
       };
+      /* `|vs_actual` rows carry their own key, so unresolvedDecisionEntries
+       * cannot dedupe them — do it here against what the ledger already holds,
+       * or every Sunday would append another copy of last week's grade. */
+      const already = alreadyResolvedKeys(allRows);
       for (const r of buildDecisionResolutions(allRows, weeklyPoints, opts)) {
+        if (already.has(String(r.payload.forecast_key))) continue;
         await predledger.append(store, { kind: 'forecast_resolution',
           method: r.method || 'inseason-resolution-v1', season, payload: r.payload });
         decisionsResolved.push(r.payload.forecast_key);

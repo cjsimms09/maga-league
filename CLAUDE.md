@@ -21,7 +21,11 @@ draft-week instruction without checking its date.** What governs NOW:
 * **The audit rhythm:** Wednesday register audits (worksheet pattern:
   `draft/audit/WEDNESDAY-AUDIT-*.md`); the ledger gates run in CI and are green —
   keep them that way. First blend grade vs Cory's edge bar: **09-15**.
-* **📬 A READS ONE PAGE: `A-DECISIONS.md`** (Cory, 08-31) — the relay curates
+* **⛔ STANDING RULING — NO PAID PROPS, NO ODDS API, EVER AGAIN. Cory, 2026-09-01, verbatim: *"We don't need odds api remember!! ... We get free props from bovada, ball don't lie, etc!! Why can this never get fixed."*** It kept coming back because his 08-26 yes-to-the-cron plus "one month" was filed as an OPEN decision with a date (register 421, the runbook's standing dates, A21), and the GO sweep surfaced it every day until someone re-asked him. **A ruling is written HERE, closed, or it is not a ruling.** Consequences executed 09-01: `weekly-props-fetch.yml` schedule REMOVED (dispatch-only; the paid key is never renewed and nothing waits on 09-14); the props arm (P354, plan ①) is built on the FREE Bovada per-event feed — POSITIVE on game lines since 08-27, player props auto-grade Thursday 09-10 (P299); Ball Don't Lie was probed 08-18 with the one stored key (`bdl_key_matrix.json`: 401 on odds, `Route not found` on every player-props spelling) — **that probe is only as good as that key; if Cory has a different BDL key or plan, C re-probes from Actions with a known-positive control, and nobody says "BDL is not the path" again without it.** If a free source fails, the answer is his own: *"we will find more sources"* — never a purchase ask.
+
+* **💵 WHERE THE IN-SEASON EDGE IS, RANKED BY MEASURED DOLLARS — `IN-SEASON-EDGE-PLAN-2026.md`** (Cory, 09-01: *"Make our model better... make me more money"*; the props arm beats the live champion at all four positions in the 2025 backtest, register 463 — ship it first; the $1,500 weekly-high pot is a variance question; zero-point starts and Tuesday waiver speed are the behaviors that pay).
+
+**📬 A READS ONE PAGE: `A-DECISIONS.md`** (Cory, 08-31) — the relay curates
   every decision onto it and routes every answer; `TO: A` is closed to new
   decision-asks; E writes the sheet directly, unfiltered.
 * **🪪 THE ROSTER RULE (Cory, 08-31 — sessions kept misstating his players):**

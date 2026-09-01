@@ -93,8 +93,7 @@ residuals to chew.)
 
 week 1 kickoff **09-10** · Bovada free-props auto-grade **09-10** (P299) ·
 capture-content hand-checks **09-13/09-15** · first blend grade vs Cory's
-edge bar **09-15** · Odds API renew-or-free decision **09-14** (register
-421) · keeper grader + instruction sweep **09-20** (registers 289/290).
+edge bar **09-15** · free props path confirmed on the 09-10 Thursday capture (P299; **no paid props — Cory's 09-01 standing ruling, CLAUDE.md**) · keeper grader + instruction sweep **09-20** (registers 289/290).
 
 *Filed 2026-08-31 by the relay on Cory's order. Amend through a commit that
 changes behavior, never only in chat.*

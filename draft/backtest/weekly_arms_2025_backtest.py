@@ -341,6 +341,13 @@ def main() -> int:
         p_arm, p_diag = props_arm(D["props"].get(w, {}), D["names"], tp, D["scoring"])
         props_diag[w] = p_diag
         act_w = D["act"][w]
+        #: ── THE PREREGISTERED TIER-2 BLEND (Cory, 2026-09-01: "Do all of these") ──
+        #: props where a line exists, the pull arm everywhere else. FULL coverage
+        #: by construction, so it enters the full-coverage comparison. This is
+        #: its 2025 PRIOR ART; it enters the live grader on 10-08 per
+        #: BLEND-SEARCH-DESIGN §5, not before.
+        pull_full = arms.get("site_ours") or arms["own_v6:v1"]
+        arms["blend_props_pull"] = {pid: p_arm.get(pid, pull_full[pid]) for pid in pull_full}
 
         # ── grade 1: MAE on the shared population of the FULL-coverage arms
         full = {k: v for k, v in arms.items()}
@@ -461,6 +468,9 @@ def main() -> int:
                           {VEGAS_TO_STATS.get(t, t) for t in byes[w]}, w))
             if w >= 2:
                 arms_w.update(realized_arms(D["act"], D["priors"], tpw, w))
+            pa, _ = props_arm(D["props"].get(w, {}), D["names"], tpw, D["scoring"])
+            pf = arms_w.get("site_ours") or arms_w["own_v6:v1"]
+            arms_w["blend_props_pull"] = {pid: pa.get(pid, pf[pid]) for pid in pf}
             if name not in arms_w:
                 continue                       # realized arms start at week 2
             pop = shared_population(arms_w, act_w, tpw)
