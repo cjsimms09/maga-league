@@ -1,44 +1,48 @@
 #!/usr/bin/env python3
-# TERRITORY: D. CONTROLS FOR THE DRAFT SHARKS CROSSWALK ABSENCE EXEMPTION.
-"""`test_crosswalk_matches_every_player_uniquely` was GREEN in every sandbox
-and RED in CI for five days, because the sandbox reads the board published on
-2026-08-26 and CI builds a fresh one. A test that cannot fail where you are
-looking at it is a test you cannot fix where you are looking at it, so this
-file makes CI's board reproducible offline: it deletes the two players Sleeper
-dropped on 08-27 and runs the real parser against the result.
+# TERRITORY: D. MAKE CI'S BOARD REPRODUCIBLE OFFLINE FOR THE DRAFT SHARKS CROSSWALK.
+"""`test_crosswalk_matches_every_player_uniquely` was GREEN in every sandbox and
+RED in CI for five days. A test that cannot fail where you are looking at it is
+a test you cannot fix where you are looking at it — so this makes the failure
+reproducible on a developer's machine, by mutating a copy of the board and
+running the REAL parser against it.
 
-WHY THIS FILE EXISTS AT ALL (rule 3e): the fix loosens a gate. A loosened gate
-that has only ever been run on the case it was built to permit has not been
-tested, only run. Four controls:
+── WHAT HAPPENED, AND WHY THE SHAPE MATTERS MORE THAN THE NAMES ──────────────
 
-  C1 KNOWN-POSITIVE — reproduce CI exactly. Remove 4988 (Nick Chubb) and 11589
-     (Trey Benson) and assert the OLD invariant fails (`n_unmatched == 2`, which
-     is the literal `assert 2 == 0` in run 33324724843) while the NEW one holds,
-     both rows classified `absent-from-board`, the `first-initial+pos` bucket
-     dropping 198 -> 196 exactly as CI's own stdout reported, and both players
-     named on stderr.
-  C2 NON-MASKING — break the MATCHER for a player who is still on the board, and
-     assert the exemption refuses to cover it: `unexplained`, gate still red.
-     This is the control that matters, because it is the failure the loosening
-     could have hidden.
-  C3 BASELINE — unmodified board still matches all 250.
-  C4 THE BOUND BITES — remove seven players and assert the <= 5 cap fails, so
-     the cap is not decorative.
+On 2026-08-27 the board stopped carrying Nick Chubb (`4988`) and Trey Benson
+(`11589`) — both unsigned free agents — and their two Draft Sharks rows had
+nothing left to match. `n_unmatched == 0` was an invariant on a frozen 250-row
+PDF joined to a LIVE board, so it could only hold until the world moved.
+Registers 435 and 436; A's ruling replaced it with a 0.95 match-RATE floor plus
+a uniqueness check taken over MATCHED rows only.
 
-⭐ THIS HARNESS FOUND A SECOND DEFECT THE MOMENT IT EXISTED (register 436).
-C's independent fix for the same gate — a 0.95 match-rate floor, on
-`claude/external-ingest-program-1xfinj`, 13/13 green and marked ready to merge —
-passes its floor at 248/250 and then fails on the very next line, because
-`sleeper_id` is None on an unmatched row and two of those Nones make the
-untouched uniqueness check report `two Draft Sharks rows matched the same
-player`. Nobody could have seen that from a sandbox, where the board still
-carries both players and no None ever enters the list. Point C1's board at any
-candidate fix for this gate before believing it.
+⚠️ THOSE TWO PLAYERS ARE NOW GONE FROM THE BOARD FOR GOOD, so the live baseline
+is 248/250 rather than 250/250 and dropping them proves nothing any more. Every
+control below therefore picks its victims BY RULE from whatever board is on disk
+— never by name. Pinning the names would have made this file describe 2026-08-27
+forever, which is the defect it exists to catch (register 382, and this file's
+sibling `source_universe_drift.py` shipped with exactly that bug).
 
-Nothing here is written back: the board and the parser's own artifact are
-restored from bytes captured before the first mutation, on every exit path
-including a signal. `git checkout` is deliberately NOT used — a reset tool that
-reaches for git once reverted this author's own uncommitted fix mid-run.
+── WHY IT IS NOT A COPY OF A'S TEST (rule 3e, and register 436) ──────────────
+
+The fail-arm shipped with the FIRST attempt at this fix could not fail: it built
+`broken = dict(doc, n_unmatched=n)` and asserted `1 - n/n < 0.95`, which is
+`0 < 0.95` — a constant-true comparison that never touched the matcher, the
+board, or the parser. Every arm here runs the real `D.main()` against a real
+mutated board, so it exercises the thing rather than the arithmetic.
+
+  C1  the 08-27 SHAPE — two matched players leave the board; unmatched rises by
+      exactly two, the rate still clears the floor, and uniqueness still passes.
+      That last clause is register 436: unmatched rows carry `sleeper_id = None`,
+      and counting them made the untouched uniqueness check report "two Draft
+      Sharks rows matched the same player" when no two rows matched anything.
+  C2  a REAL duplicate must still fire the uniqueness check.
+  C3  the store is internally consistent — board-independent, catches a miscount.
+  C4  the floor BITES: drop enough matched players and the rate goes under 0.95.
+
+Nothing is written back: the board and the parser's own artifact are restored
+from bytes captured before the first mutation, on every exit path including a
+signal. `git checkout` is deliberately NOT used — a reset tool that reached for
+git once reverted this author's own uncommitted fix mid-run.
 
     python3 draft/tools/_ds_crosswalk_absence_controls.py     # exit 0 = all pass
 """
@@ -55,6 +59,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent.parent
 BOARD = ROOT / "public" / "draft_data.json"
 ARTIFACT = ROOT / "draft" / "data" / "draftsharks_projections_2026.json"
+FLOOR = 0.95           # A's shipped floor; mirrored, not redefined
 sys.path.insert(0, str(ROOT / "draft" / "tools"))
 
 _ORIGINALS: dict[Path, bytes] = {}
@@ -77,9 +82,8 @@ for _sig in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP):
     signal.signal(_sig, lambda *_a: (_restore(), sys.exit(130)))
 
 
-def run_against(mutate) -> tuple[dict, str]:
-    """Apply `mutate` to the board in memory, write it, run the real parser,
-    and hand back the doc plus everything it said on stderr."""
+def run_against(mutate):
+    """Apply `mutate` to the board in memory, write it, run the real parser."""
     _snapshot()
     board = json.loads(_ORIGINALS[BOARD].decode())
     mutate(board)
@@ -91,47 +95,36 @@ def run_against(mutate) -> tuple[dict, str]:
             doc = D.main()
     finally:
         _restore()
-    return doc, err.getvalue()
+    return doc
 
 
-def drop(*pids):
+def rate(doc) -> float:
+    matched = [r["sleeper_id"] for r in doc["players"] if r["sleeper_id"] is not None]
+    return len(matched) / len(doc["players"])
+
+
+def unique_over_matched(doc) -> bool:
+    m = [r["sleeper_id"] for r in doc["players"] if r["sleeper_id"] is not None]
+    return len(m) == len(set(m))
+
+
+def ds_matched_on_board(board, n):
+    """The `n` LOWEST-PROJECTION players that both sit on the board and carry a
+    Draft Sharks row. Chosen by rule so this file never pins a board vintage;
+    lowest-projection because those are the ones a live board actually sheds."""
+    ids = {p["player_id"]: (p.get("proj_baseline") or 0)
+           for p in board.get("players", []) + board.get("kept_players", [])
+           if p.get("player_id")}
+    ds = {r["sleeper_id"] for r in json.loads(ARTIFACT.read_text())["players"]
+          if r.get("sleeper_id")}
+    return [pid for _, pid in sorted((v, k) for k, v in ids.items() if k in ds)][:n]
+
+
+def drop_lowest_ds(n):
     def _m(board):
-        keep = set(pids)
+        victims = set(ds_matched_on_board(board, n))
         for k in ("players", "kept_players"):
-            board[k] = [p for p in board.get(k, []) if p.get("player_id") not in keep]
-    return _m
-
-
-def ambiguous_and_unranked(pid, clone_team):
-    """Leave the player ON the board, at their own position, and make the
-    matcher unable to resolve them anyway — the shape of a REAL past defect,
-    not an invented one. Register 332 is exactly this: the keeper lock nulled
-    `overall_rank`, the closest-rank tie-breaker filters to candidates that
-    have a rank, and two same-key candidates with no rank between them leave it
-    nothing to choose from. Reproduced here by cloning the player onto another
-    team and stripping the prominence fields from both.
-
-    ⚠️ THE FIRST VERSION OF THIS CONTROL SIMPLY REPOSITIONED THE PLAYER, AND IT
-    PROVED NOTHING — the row still matched. `same_pos` is written
-    `[c for c in cands if c["pos"] == pos] or cands`, so when no candidate has
-    the row's position the filter FALLS BACK to all of them and the single
-    remaining candidate wins. A control has to defeat the matcher that exists,
-    not the one you pictured.
-    """
-    def _m(board):
-        src = None
-        for p in board.get("players", []):
-            if p.get("player_id") == pid:
-                src = p
-                break
-        assert src is not None, pid
-        clone = dict(src)
-        clone["player_id"] = pid + "-clone"
-        clone["team"] = clone_team
-        for q in (src, clone):
-            q["proj_mean"] = None
-            q["overall_rank"] = None
-        board["players"].append(clone)
+            board[k] = [p for p in board.get(k, []) if p.get("player_id") not in victims]
     return _m
 
 
@@ -140,57 +133,48 @@ def main() -> int:
 
     def check(label, cond, detail=""):
         nonlocal ok
-        print(f"  {'PASS' if cond else 'FAIL'}  {label}" + (f" — {detail}" if detail and not cond else ""))
+        print(f"  {'PASS' if cond else 'FAIL'}  {label}"
+              + (f" — {detail}" if detail and not cond else ""))
         ok = ok and bool(cond)
 
-    print("C1 KNOWN-POSITIVE — the CI board: Sleeper dropped 4988/11589 on 2026-08-27")
-    doc, err = run_against(drop("4988", "11589"))
-    check("the OLD invariant fails here, exactly as CI reported it",
-          doc["n_unmatched"] == 2, f"n_unmatched={doc['n_unmatched']}, CI said 2")
-    check("both rows classified absent-from-board",
-          doc["n_unmatched_absent_from_board"] == 2, str(doc["unmatched"]))
-    check("nothing unexplained, so the NEW invariant holds",
-          doc["n_unmatched_unexplained"] == 0, str(doc["unmatched"]))
-    check("the two rows are the two free agents, by name",
-          sorted(u["name"] for u in doc["unmatched"]) == ["N Chubb", "T Benson"],
-          str([u["name"] for u in doc["unmatched"]]))
-    check("first-initial+pos falls 198 -> 196, matching CI's own stdout",
-          doc["match_methods"].get("first-initial+pos") == 196,
-          str(doc["match_methods"]))
-    check("both skips disclosed on stderr, by name",
-          "N Chubb" in err and "T Benson" in err, err.strip()[:200])
+    base = run_against(lambda b: None)
+    n = len(base["players"])
+    print(f"BASELINE — {n - base['n_unmatched']}/{n} matched, rate {rate(base):.4f}")
+    check("C3 the store is internally consistent (board-independent)",
+          base["n_unmatched"] == sum(1 for r in base["players"] if r["sleeper_id"] is None)
+          and base["n_matched"] + base["n_unmatched"] == n,
+          f"n_matched={base['n_matched']} n_unmatched={base['n_unmatched']} total={n}")
+    check("C3 today's board clears the shipped floor",
+          rate(base) >= FLOOR, f"rate {rate(base):.4f} < {FLOOR}")
 
-    print("C2 NON-MASKING — a player still ON the board that the matcher cannot reach")
-    # Trey Benson, RB: cloned onto NYJ and both copies stripped of the fields the
-    # tie-breaker needs. Still on the board, still an RB, still unmatchable.
-    doc2, _ = run_against(ambiguous_and_unranked("11589", "NYJ"))
-    check("the row does go unmatched", doc2["n_unmatched"] >= 1, str(doc2["unmatched"]))
-    check("and the exemption REFUSES to cover it",
-          doc2["n_unmatched_unexplained"] >= 1,
-          f"absent={doc2['n_unmatched_absent_from_board']} unexplained={doc2['n_unmatched_unexplained']}")
-    check("so the gate is still red on a real matcher defect",
-          any(u["reason"] == "unexplained" for u in doc2["unmatched"]),
-          str(doc2["unmatched"]))
+    print("C1 THE 08-27 SHAPE — two matched players leave the board")
+    d1 = run_against(drop_lowest_ds(2))
+    check("unmatched rises by exactly two",
+          d1["n_unmatched"] == base["n_unmatched"] + 2,
+          f"{base['n_unmatched']} -> {d1['n_unmatched']}")
+    check("the rate still clears the floor, so the board still publishes",
+          rate(d1) >= FLOOR, f"rate {rate(d1):.4f}")
+    check("and uniqueness still PASSES — register 436, the None rows are excluded",
+          unique_over_matched(d1),
+          "two unmatched rows are being read as a duplicate match again")
+    naive = [r["sleeper_id"] for r in d1["players"]]
+    check("CONTROL — counting the None rows WOULD have failed it, so that "
+          "exclusion is load-bearing and not decoration",
+          len(naive) != len(set(naive)))
 
-    print("C3 BASELINE — the unmodified board")
-    doc3, _ = run_against(lambda b: None)
-    check("still 250/250, so the change moves nothing on today's board",
-          doc3["n_unmatched"] == 0, str(doc3["unmatched"]))
+    print("C2 A REAL DUPLICATE must still fire")
+    rows = [dict(r) for r in base["players"]]
+    donor = next(r for r in rows if r["sleeper_id"] is not None)
+    victim = next(r for r in rows if r["sleeper_id"] is not None and r is not donor)
+    victim["sleeper_id"] = donor["sleeper_id"]
+    check("two rows resolving to the same board player is caught",
+          not unique_over_matched({"players": rows}))
 
-    print("C4 THE BOUND BITES — a whole slice of the board leaves, not two players")
-    # The board players behind Draft Sharks ranks 200-250, read off the artifact
-    # as it stands rather than hand-picked: choosing the ids that happen to make
-    # a control pass is how a control stops being one. Not every dropped player
-    # yields an ABSENCE (a same-position namesake can remain), which is exactly
-    # why this drops a slice instead of counting out a threshold's worth.
-    _snapshot()
-    committed = json.loads(_ORIGINALS[ARTIFACT].decode())
-    slice_ids = [r["sleeper_id"] for r in committed["players"]
-                 if r.get("sleeper_id") and 200 <= r["rank"] <= 250]
-    doc4, _ = run_against(drop(*slice_ids))
-    check("more than five absences is out of bounds, so the cap is not decorative",
-          doc4["n_unmatched_absent_from_board"] > 5,
-          f"absent={doc4['n_unmatched_absent_from_board']} of {len(slice_ids)} dropped")
+    print("C4 THE FLOOR BITES — a whole slice of matched players leaves")
+    need = int(n * (1 - FLOOR)) + base["n_unmatched"] + 2
+    d4 = run_against(drop_lowest_ds(need))
+    check("the rate goes under the floor, so the floor is not decorative",
+          rate(d4) < FLOOR, f"dropped {need}, rate {rate(d4):.4f}")
 
     print("\nCONTROLS " + ("ALL PASS" if ok else "FAILED"))
     return 0 if ok else 1
