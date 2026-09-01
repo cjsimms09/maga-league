@@ -992,8 +992,38 @@ def test_a_POOLED_agreement_that_vanishes_within_position_is_not_a_finding():
                if e["source"] == "ffc")["rows"]
     out = B.market_agreement(ids, mfl, ffc, b)
     w = out["by_variable"]["wopr"]
-    assert w["markets_agree_board_differs"] is True, w      # the pooled read
-    assert w["survives_within_position"] is False, w        # and the correction
+
+    # ── THE PARADOX RULE, ON FIXTURES (register 454) ────────────────────────
+    # This block used to read `assert w["markets_agree_board_differs"] is True`
+    # against the live capture, and on 2026-09-01 IT FAILED: mfl_vs_source had
+    # drifted from ~0.04 to 0.206 against a bar of min(0.417, 0.390)/2 = 0.195,
+    # so the pooled flag went False BY ELEVEN THOUSANDTHS and this test went red
+    # for a reason with nothing to do with Simpson's paradox.
+    #
+    # The pooled flag being True was never the point — it was scenery for the
+    # point, which is that the flag MUST NOT SHIP WITHOUT THE SPLIT. So the rule
+    # is now exercised where it can be held still, and the historical values the
+    # docstring quotes are pinned as the fixture they always were.
+    assert B.pooled_markets_agree(-0.39, -0.39, 0.04) is True, (
+        "the pooled discrimination no longer fires on the very numbers this "
+        "test was written about — that is a change to the RULE, not to the data")
+    assert B.pooled_markets_agree(-0.417, -0.390, 0.206) is False, (
+        "today's live values (2026-09-01) must read as NOT agreeing — 0.206 is "
+        "past min(0.417,0.390)/2 = 0.195. If this flips, the bar moved.")
+    assert B.pooled_markets_agree(-0.39, 0.39, 0.04) is False, (
+        "FAIL ARM — opposite signs are not two markets agreeing")
+    assert B.pooled_markets_agree(None, -0.39, 0.04) is False, (
+        "FAIL ARM — a missing arm must never read as agreement")
+
+    # ── AND THE CORRECTION, ON THE LIVE DATA, WHICH IS THE ACTUAL CLAIM ─────
+    # `survives_within_position` is asserted live and unconditionally: whatever
+    # the pooled figure does on any given night, the gradient must not survive
+    # inside the positions. A position developing a real, separable effect turns
+    # this red, which is the finding this file exists to raise.
+    assert w["survives_within_position"] is False, w
     assert w["positions_tested"] >= 3, w
     # the decomposition must ship WITH the pooled figure, never separately
+    assert "markets_agree_board_differs" in w, (
+        "the pooled flag stopped being reported at all — the paradox can no "
+        "longer be checked because half the comparison is gone")
     assert "by_position" in out and {"WR", "RB", "TE"} <= set(out["by_position"]), out

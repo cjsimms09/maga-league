@@ -106,6 +106,42 @@ ROOT = Path(__file__).resolve().parents[2]
 SUPERFLEX_THRESHOLD = -9.7
 DYNASTY_THRESHOLD = 0.25
 
+#: ── HOW MUCH THE NULL BAND MOVES ON ITS OWN, MEASURED (register 454) ────────
+#:
+#: `survives_null` is a boundary test, and on 2026-09-01 the RB verdict FLIPPED
+#: BACK ON, reversing the 2026-08-28 retraction that `test_source_composition`
+#: pins. Replaying `compose()` against EIGHT consecutive committed captures of
+#: `external_source_prices.json` shows why, and it is not what the flip looks
+#: like:
+#:
+#:   date     n_shared  RB median_delta  null_p05  survives
+#:   08-25a      203        -5.5           -3.0      True
+#:   08-25b      204        -7             -5        True
+#:   08-26       202        -7             -4        True
+#:   08-27       195        -7             -8        False   <- the retraction
+#:   08-28       198        -6.5           -9.0      False      was written here
+#:   08-29       202        -6.5           -7.5      False
+#:   08-30       203        -6.5           -7.5      False
+#:   08-31       204        -7             -6        True
+#:
+#: THE EFFECT BARELY MOVES (-5.5 to -7, 1.5 ranks). THE NULL BAND SWINGS SIX
+#: RANKS (-3.0 to -9.0) on a shared population that varies by nine players. So
+#: the verdict is a property of the band's day-to-day churn, not of the effect,
+#: and BOTH the original finding and its retraction were written on whichever
+#: side of the boundary that day's capture happened to land.
+#:
+#: The margin (how far past its own p05/p95 an effect sits) ranged from -2.5 to
+#: +3.0 across those eight days from churn ALONE. So an effect that clears by
+#: less than 3 ranks has not cleared anything. That is where this constant comes
+#: from — MEASURED from the observed churn, not chosen — and under it RB fails
+#: on all eight days, which is the first version of this verdict that would have
+#: given the same answer every day of the week.
+#:
+#: ⚠️ IF THE SHARED POPULATION EVER GROWS MUCH BEYOND ~225 (FFC's whole list),
+#: RE-MEASURE THIS. The band narrows as n^-0.503, so a bigger population earns a
+#: smaller constant, and leaving it at 3 would then be hiding a real effect.
+NULL_BAND_CHURN_RANKS = 3.0
+
 
 def load():
     prices = json.loads((ROOT / "draft" / "data" / "external_source_prices.json").read_text())
@@ -172,6 +208,14 @@ def compose(primary: str = "fantasypros", reference: str = "ffc",
         v["null_median"] = st.median(dd)
         v["null_p05"], v["null_p95"] = lo, hi
         v["survives_null"] = v["median_delta"] < lo or v["median_delta"] > hi
+        # ── HOW FAR INSIDE OR OUTSIDE, IN RANKS (register 454) ─────────────
+        # `survives_null` is a boundary test on an INTEGER quantity, and it was
+        # being read as a verdict when it is really a coin flip near the edge.
+        # The margin is reported so a reader can see the difference between
+        # "clears by one rank" and "clears by twelve" without recomputing.
+        v["null_margin_ranks"] = round(
+            max(lo - v["median_delta"], v["median_delta"] - hi), 3)
+        v["survives_null_robust"] = v["null_margin_ranks"] > NULL_BAND_CHURN_RANKS
         v["mean_board_rank"] = st.mean(
             br[p] for p in shared if meta[p].get("position") == pos)
 
@@ -189,6 +233,9 @@ def compose(primary: str = "fantasypros", reference: str = "ffc",
             < per_pos.get("QB", {}).get("null_p95", 0),
         "positions_surviving_null": [k for k, v in per_pos.items()
                                      if v.get("survives_null")],
+        "positions_surviving_null_robust": [k for k, v in per_pos.items()
+                                           if v.get("survives_null_robust")],
+        "null_band_churn_ranks": NULL_BAND_CHURN_RANKS,
         "dynasty_fires": rho > DYNASTY_THRESHOLD,
         # THE DISCRIMINATOR. Superflex moves QUARTERBACKS. If some other
         # position moved further, the QB number is not measuring superflex
