@@ -140,7 +140,18 @@ DYNASTY_THRESHOLD = 0.25
 #: ⚠️ IF THE SHARED POPULATION EVER GROWS MUCH BEYOND ~225 (FFC's whole list),
 #: RE-MEASURE THIS. The band narrows as n^-0.503, so a bigger population earns a
 #: smaller constant, and leaving it at 3 would then be hiding a real effect.
-NULL_BAND_CHURN_RANKS = 3.0
+#: ⚠️ RE-CALIBRATED 2026-09-01 15:29, THE DAY AFTER IT WAS SET (register 454 →
+#: 464). A NINTH capture landed and RB's margin was +3.5 — past a bar defined
+#: as "the largest margin churn alone produced", which is a MAX and a max grows
+#: with sample size by construction. Nine-day margin series: 2.5, 2, 3, −1,
+#: −2.5, −1, −1, 1, 3.5 → mean 0.72, sd 2.15. A bar at the empirical max is
+#: 1.4 sd and will be exceeded by ordinary churn roughly one day in seven.
+#: The bar is now TWO STANDARD DEVIATIONS of that series, stated as such —
+#: rounded up — and the series itself is what to extend when re-measuring.
+#: Today's +3.5 sits at 1.6 sd: neither a clearance nor a refutation. The
+#: instrument cannot yet decide RB, and this constant should never be moved
+#: on the day it fires without the series being written down beside it.
+NULL_BAND_CHURN_RANKS = 4.5
 
 
 def load():

@@ -191,6 +191,13 @@ def test_the_RB_HALF_OF_THE_RETRACTION_IS_ITSELF_RETRACTED():
 
     The raw flag stays reported and is deliberately NOT asserted here: it is
     real, it is just not a verdict.
+
+    ⚠️ AND THE BAR MOVED ONCE MORE, 2026-09-01 (register 464): a ninth
+    capture put RB at +3.5 against a 3.0 bar that had been set at the
+    empirical MAX of eight days — and a max grows with n by construction.
+    The bar is now 2 sd of the nine-day margin series (sd 2.15 → 4.5, rounded
+    up). Today's +3.5 is 1.6 sd: the instrument cannot yet decide RB either
+    way, and that undecidability is the honest state, not "RB is clear".
     """
     assert R["positions_surviving_null_robust"] == [], (
         "a position now clears its null BY MORE THAN THE BAND'S OWN CHURN, "

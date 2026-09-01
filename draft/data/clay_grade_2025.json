@@ -16,9 +16,9 @@
   "why": "the printed date is on/after this year's season start, so the date alone cannot prove a clean preseason forecast -- checked whether the season opener's two teams show a full game count instead"
  },
  "_crosswalked_through_board": {
-  "built_at": "2026-09-01T01:36:55Z",
-  "post_processed_at": "2026-09-01T01:45:46Z",
-  "players": 728,
+  "built_at": "2026-09-01T15:29:04Z",
+  "post_processed_at": "2026-09-01T15:38:18Z",
+  "players": 730,
   "why_it_matters": "Clay's rows are matched to players THROUGH this board, so its churn changes which 2025 rows can be graded at all. A different board here means a different graded_total (register 462)."
  },
  "_how_to_read": "spearman is the ordering grade (did Clay rank players correctly); mae is the level grade in fantasy points; bias is signed error (positive = Clay projected too high on average). topN is the fraction of the realized top-N Clay also had in his own top-N, None when the position has fewer than N graded players. `cells` grades SEASON TOTALS (Clay's assumed ~17 games vs however many the player actually played -- includes injury luck no preseason source can predict). `skill_cells` grades PER-GAME RATE instead (Clay's total / his own assumed games, vs realized total / games actually played) -- Cory's own standard elsewhere in this project: grade skill, not luck.",

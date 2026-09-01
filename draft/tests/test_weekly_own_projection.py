@@ -216,7 +216,7 @@ def test_snapshot_territory_first_and_contract_shape():
     assert doc["diagnostics"]["players_priced"] == 2
     # challenger columns present, champion not duplicated among them
     assert set(doc["challengers"]) == {"v1_tilt150", "v1_tilt050",
-                                       "v1_notilt", "v1_pg16"}
+                                       "v1_notilt", "v1_pg16", "v1_pull3"}
     assert doc["names"]["1"] == "Test Player"
 
 
@@ -391,3 +391,52 @@ def test_own_weekly_workflow_yamls_parse_and_carry_dry_run():
         assert "workflow_dispatch" in on
         assert "dry_run" in on["workflow_dispatch"]["inputs"]
         assert {"cron": cron} in on["schedule"]
+
+
+
+# ── the pull arm (register 463) ──────────────────────────────────────────────
+
+def test_pull_arm_equals_v1_when_nothing_is_realized_yet():
+    """Week 1: no graded actuals exist, so the pull arm must be v1 exactly —
+    the full-population guarantee every challenger column relies on."""
+    implied = {"DET": 27.0, "CHI": 18.0}
+    priced = WP.price_week([_player("1", team="DET")], week=1, implied=implied)
+    assert priced["means"]["v1_pull3"]["1"] == priced["means"]["v1"]["1"] == 11.0
+
+
+def test_pull_arm_arithmetic_by_hand():
+    """(3*v1 + sum(realized)) / (3 + n): v1 is 11.0 for this player; two
+    realized weeks of 20 and 26 -> (33 + 46) / 5 = 15.8."""
+    implied = {"DET": 27.0, "CHI": 18.0}
+    priced = WP.price_week([_player("1", team="DET")], week=3, implied=implied,
+                           realized={"1": [20.0, 26.0]})
+    assert priced["means"]["v1_pull3"]["1"] == 15.8
+    assert priced["means"]["v1"]["1"] == 11.0            # v1 itself is untouched
+
+
+def test_pull_arm_keeps_the_population_identical_to_v1():
+    implied = {"DET": 27.0, "CHI": 18.0}
+    players = [_player("1"), _player("2", team="CHI", bye=3), _player("3", team=None)]
+    priced = WP.price_week(players, week=3, implied=implied,
+                           realized={"1": [9.0], "999": [50.0]})   # 999 not on the board
+    assert set(priced["means"]["v1_pull3"]) == set(priced["means"]["v1"])
+
+
+def test_realized_from_ledger_reads_the_graders_shape_and_is_strictly_prior(tmp_path):
+    """The ledger the Tuesday grader writes: weeks[wk].rows[pid].actual. Only
+    weeks BEFORE the priced week count, and an absent row is absent."""
+    ledger = tmp_path / "grades_2026.json"
+    ledger.write_text(json.dumps({"weeks": {
+        "1": {"rows": {"1": {"actual": 20.0}, "2": {"actual": 5.5}}},
+        "2": {"rows": {"1": {"actual": 26.0}}},              # pid 2 absent (no stat row)
+        "3": {"rows": {"1": {"actual": 99.0}}},              # the week being priced — excluded
+    }}))
+    r = WP.realized_from_ledger(ledger, week=3)
+    assert r == {"1": [20.0, 26.0], "2": [5.5]}
+    assert WP.realized_from_ledger(tmp_path / "missing.json", week=3) == {}
+
+
+def test_pull_arm_formula_string_names_its_inputs():
+    arm = next(a for a in WP.DEFAULT_ARMS if a["name"] == "v1_pull3")
+    f = WP.arm_formula(arm)
+    assert "3*proj_ownmodel/17" in f and "sum(realized)" in f and "n_realized" in f
