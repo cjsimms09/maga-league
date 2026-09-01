@@ -1,6 +1,6 @@
 # THIS WEEK — coryjsimms, week 1 (2026)
 
-**Generated 2026-08-31T15:49:19+00:00 from LIVE Sleeper. THE ROSTER RULE: any statement about
+**Generated 2026-09-01T17:21:35+00:00 from LIVE Sleeper. THE ROSTER RULE: any statement about
 Cory's roster or matchup cites this file (fresh within 3 days) or live
 Sleeper — a frozen seat plan or tournament artifact is never a source for
 who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
