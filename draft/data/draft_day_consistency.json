@@ -3,8 +3,8 @@
  "_what": "Does every artifact the war room reads still agree with the live board about the same players?",
  "_why_content_not_timestamps": "register 143: the stale artifact and the fresh board agreed on their provenance stamps and disagreed on their numbers. A timestamp check is exactly what failed.",
  "board": {
-  "built_at": "2026-09-01T13:35:05Z",
-  "post_processed_at": "2026-09-01T13:44:31Z",
+  "built_at": "2026-09-01T15:29:04Z",
+  "post_processed_at": "2026-09-01T15:38:18Z",
   "post_processed_by": "draft/tools/attach_draftsharks.py",
   "players": 730
  },
