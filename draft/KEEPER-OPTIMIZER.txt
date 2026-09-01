@@ -1,16 +1,16 @@
 K0 KEEPER OPTIMIZER — real roster, cost_model=top_picks_flat (PROVISIONAL pending D2 top_picks_flat)
-artifact built_at 2026-08-26T04:02:06Z · adp_source fantasypros
+artifact built_at 2026-09-01T01:36:55Z · adp_source fantasypros
 
-RECOMMENDED: keep 3 — Derrick Henry, Ja'Marr Chase, Kenneth Walker  (total surplus 163.4)
+RECOMMENDED: keep 3 — Derrick Henry, Ja'Marr Chase, Kenneth Walker  (total surplus 168.4)
 
 every option (surplus = keeper VORP minus what the forfeited pick returns):
   keep 0: (draft normally)                         surplus    +0.0
-  keep 1: Ja'Marr Chase                            surplus   +65.6
-      Ja'Marr Chase      WR  VORP 102  costs R1  pick returns 36  -> surplus +66
-  keep 2: Derrick Henry, Ja'Marr Chase             surplus  +114.9
-      Ja'Marr Chase      WR  VORP 102  costs R1  pick returns 36  -> surplus +66
-      Derrick Henry      RB  VORP 78  costs R2  pick returns 29  -> surplus +49
-  keep 3: Derrick Henry, Ja'Marr Chase, Kenneth Walker surplus  +163.4
-      Ja'Marr Chase      WR  VORP 102  costs R1  pick returns 36  -> surplus +66
-      Derrick Henry      RB  VORP 78  costs R2  pick returns 29  -> surplus +49
-      Kenneth Walker     RB  VORP 53  costs R3  pick returns 4  -> surplus +48
+  keep 1: Ja'Marr Chase                            surplus   +70.7
+      Ja'Marr Chase      WR  VORP 102  costs R1  pick returns 31  -> surplus +71
+  keep 2: Derrick Henry, Ja'Marr Chase             surplus  +119.2
+      Ja'Marr Chase      WR  VORP 102  costs R1  pick returns 31  -> surplus +71
+      Derrick Henry      RB  VORP 78  costs R2  pick returns 30  -> surplus +48
+  keep 3: Derrick Henry, Ja'Marr Chase, Kenneth Walker surplus  +168.4
+      Ja'Marr Chase      WR  VORP 102  costs R1  pick returns 31  -> surplus +71
+      Derrick Henry      RB  VORP 78  costs R2  pick returns 30  -> surplus +48
+      Kenneth Walker     RB  VORP 53  costs R3  pick returns 4  -> surplus +49

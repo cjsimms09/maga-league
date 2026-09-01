@@ -15,17 +15,23 @@
   "players_short_a_game": [],
   "why": "the printed date is on/after this year's season start, so the date alone cannot prove a clean preseason forecast -- checked whether the season opener's two teams show a full game count instead"
  },
+ "_crosswalked_through_board": {
+  "built_at": "2026-09-01T01:36:55Z",
+  "post_processed_at": "2026-09-01T01:45:46Z",
+  "players": 728,
+  "why_it_matters": "Clay's rows are matched to players THROUGH this board, so its churn changes which 2025 rows can be graded at all. A different board here means a different graded_total (register 462)."
+ },
  "_how_to_read": "spearman is the ordering grade (did Clay rank players correctly); mae is the level grade in fantasy points; bias is signed error (positive = Clay projected too high on average). topN is the fraction of the realized top-N Clay also had in his own top-N, None when the position has fewer than N graded players. `cells` grades SEASON TOTALS (Clay's assumed ~17 games vs however many the player actually played -- includes injury luck no preseason source can predict). `skill_cells` grades PER-GAME RATE instead (Clay's total / his own assumed games, vs realized total / games actually played) -- Cory's own standard elsewhere in this project: grade skill, not luck.",
  "population": {
   "clay_players_2025": 415,
-  "excluded_unmatched_crosswalk": 53,
+  "excluded_unmatched_crosswalk": 57,
   "excluded_no_realized_2025_row": 5,
-  "graded_total": 357,
+  "graded_total": 353,
   "graded_by_position": {
    "QB": 38,
-   "RB": 99,
-   "WR": 148,
-   "TE": 72
+   "RB": 95,
+   "WR": 147,
+   "TE": 73
   },
   "min_n_for_a_measured_cell": 10
  },
@@ -41,41 +47,41 @@
    "top48": null
   },
   "RB": {
-   "n": 99,
+   "n": 95,
    "status": "measured",
-   "spearman": 0.7383,
-   "mae": 45.46,
-   "bias": 13.24,
+   "spearman": 0.7427,
+   "mae": 45.11,
+   "bias": 11.54,
    "top12": 0.75,
    "top24": 0.75,
-   "top48": 0.8125
+   "top48": 0.7917
   },
   "WR": {
-   "n": 148,
+   "n": 147,
    "status": "measured",
-   "spearman": 0.7375,
-   "mae": 42.34,
-   "bias": 15.25,
+   "spearman": 0.7428,
+   "mae": 42.21,
+   "bias": 14.93,
    "top12": 0.4167,
    "top24": 0.5833,
    "top48": 0.7292
   },
   "TE": {
-   "n": 72,
+   "n": 73,
    "status": "measured",
-   "spearman": 0.7781,
-   "mae": 28.08,
-   "bias": 3.26,
+   "spearman": 0.7864,
+   "mae": 27.72,
+   "bias": 3.21,
    "top12": 0.4167,
    "top24": 0.7083,
    "top48": 0.8958
   },
   "ALL": {
-   "n": 357,
+   "n": 353,
    "status": "measured",
-   "spearman": 0.788,
-   "mae": 44.72,
-   "bias": 16.96,
+   "spearman": 0.7934,
+   "mae": 44.44,
+   "bias": 16.37,
    "top12": 0.25,
    "top24": 0.5417,
    "top48": 0.7708
@@ -93,41 +99,41 @@
    "top48": null
   },
   "RB": {
-   "n": 99,
+   "n": 95,
    "status": "measured",
-   "spearman": 0.8116,
-   "mae": 2.4,
-   "bias": -0.45,
+   "spearman": 0.8159,
+   "mae": 2.43,
+   "bias": -0.52,
    "top12": 0.75,
    "top24": 0.7083,
-   "top48": 0.8333
+   "top48": 0.8125
   },
   "WR": {
-   "n": 148,
+   "n": 147,
    "status": "measured",
-   "spearman": 0.8119,
+   "spearman": 0.8166,
    "mae": 2.19,
-   "bias": -0.4,
+   "bias": -0.42,
    "top12": 0.5833,
    "top24": 0.6667,
    "top48": 0.8125
   },
   "TE": {
-   "n": 72,
+   "n": 73,
    "status": "measured",
-   "spearman": 0.8082,
-   "mae": 1.74,
-   "bias": -0.99,
+   "spearman": 0.8155,
+   "mae": 1.71,
+   "bias": -0.98,
    "top12": 0.5833,
    "top24": 0.7083,
-   "top48": 0.875
+   "top48": 0.8958
   },
   "ALL": {
-   "n": 357,
+   "n": 353,
    "status": "measured",
-   "spearman": 0.844,
+   "spearman": 0.8481,
    "mae": 2.29,
-   "bias": -0.32,
+   "bias": -0.35,
    "top12": 0.4167,
    "top24": 0.75,
    "top48": 0.7917
