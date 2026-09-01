@@ -208,13 +208,15 @@ def props_arm(props_w, names, tp, scoring_table):
                 continue
         pid = cands[0]
         mp = {STAT_TO_MARKET[k]: v for k, v in lines.items() if k in STAT_TO_MARKET}
-        #: any_td is a PROBABILITY, not a line, and has no additive stat — it
-        #: is folded in as expected TDs at the player's position: a rush/rec TD
-        #: for skill players. Pass TDs already come as their own line.
+        #: any_td (EXPECTED TDs in the historical store) is folded by
+        #: `implied_points` itself since register 467 — one rush/rec TD per
+        #: expected TD, skipped when a per-type TD line is quoted. This file
+        #: used to fold it here, by hand, for RB/WR/TE only, while the live
+        #: converter dropped it entirely: two arms sharing one name. Now the
+        #: live and backtested arms are the same function. CONTROL K6 below:
+        #: RB/WR/TE prices are unchanged by the move; QBs gain their rushing-
+        #: TD expectation, which the hand fold had excluded.
         pts, _line = implied_points(mp, scoring_table) if mp else (None, {})
-        if "any_td" in lines and tp[pid][1] in ("RB", "WR", "TE"):
-            td_pts = SCORING.score_stat_line({"rush_td": 1.0}, scoring_table) * float(lines["any_td"])
-            pts = (pts or 0.0) + td_pts
         if pts is not None:
             out[pid] = round(pts, 2)
     return out, {"unmatched_names": unmatched, "ambiguous": ambiguous, "priced": len(out)}
@@ -406,6 +408,45 @@ def main() -> int:
     known = next((pid for pid, nm in D["names"].items() if nm == "Josh Allen"), None)
     controls.append({"id": "K4", "what": "props arm priced Josh Allen in week 1 from his lines",
                      "ok": bool(known and known in p1), "value": p1.get(known) if known else None})
+    # K6 — the any_td fold moved from this file's hand arithmetic into the
+    # SHARED converter (register 467). Recompute week 1 the old way, in
+    # process: RB/WR/TE must price identically (the graded arm is unchanged
+    # where it was graded), and every QB with an anytime line must gain
+    # EXACTLY one rush-TD's points per expected TD (the hand fold excluded
+    # QBs; the converter has no position and folds their rushing scores).
+    # Rule 3f: the control is run on the population, not quoted from a story.
+    per_td = SCORING.score_stat_line({"rush_td": 1.0}, D["scoring"])
+    old_way, qb_gain = {}, []
+    idx1 = {}
+    for pid, nm in D["names"].items():
+        if nm and pid in tp1:
+            idx1.setdefault(normalize_name(nm), []).append(pid)
+    for nm, lines in D["props"][1].items():
+        cands = idx1.get(normalize_name(nm)) or []
+        if len(cands) > 1:
+            cands = [c for c in cands if tp1[c][1] in POSITIONS]
+        if len(cands) != 1:
+            continue
+        pid = cands[0]
+        mp = {STAT_TO_MARKET[k]: v for k, v in lines.items()
+              if k in STAT_TO_MARKET and k != "any_td"}
+        pts, _ = implied_points(mp, D["scoring"]) if mp else (None, {})
+        if "any_td" in lines and tp1[pid][1] in ("RB", "WR", "TE"):
+            pts = (pts or 0.0) + per_td * float(lines["any_td"])
+        if pts is not None:
+            old_way[pid] = round(pts, 2)
+        if "any_td" in lines and tp1[pid][1] == "QB" and pid in p1:
+            qb_gain.append(round(p1[pid] - (pts or 0.0) - per_td * float(lines["any_td"]), 2))
+    skill_same = [pid for pid in old_way if tp1[pid][1] in ("RB", "WR", "TE")
+                  and abs(old_way[pid] - p1.get(pid, float("nan"))) < 0.011]
+    skill_all = [pid for pid in old_way if tp1[pid][1] in ("RB", "WR", "TE")]
+    controls.append({"id": "K6", "what": "shared any_td fold == the hand fold at RB/WR/TE (week 1); "
+                                         "QBs gain exactly rush_td x any_td",
+                     "ok": bool(skill_all) and len(skill_same) == len(skill_all)
+                           and bool(qb_gain) and max(abs(g) for g in qb_gain) < 0.011,
+                     "skill_players": len(skill_all), "skill_identical": len(skill_same),
+                     "qb_with_any_td": len(qb_gain),
+                     "qb_max_abs_residual": max((abs(g) for g in qb_gain), default=None)})
     # ── pooled grades ─────────────────────────────────────────────────────────
     arm_names = sorted({k for wk in weekly.values() for k in wk["mae"]})
     pooled = {}
