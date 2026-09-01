@@ -510,6 +510,40 @@ function buildInseasonResolutions(entries, weeklyPoints, opts) {
       if (!rec || !cf) continue;                       // not the lineup-array shape this resolves
       push(key, sideValue(rec, pts), sideValue(cf, pts), 'weekly realized points');
 
+      /* ── THE TOOL vs WHAT CORY ACTUALLY STARTED, WITH NO BUTTON (2026-09-01) ──
+       * Cory ruled ("Do all of these!!", item 5): where the tool and his gut
+       * disagree, the disagreement is a graded decision. The existing
+       * `inseason_override` row captures that only when he CLICKS override —
+       * a disagreement he never logs is a decision nobody grades. This derives
+       * it every week from two things already fetched: the Sunday auto-capture
+       * of the tool's lineup (method lineup-auto-v1) and his real starters off
+       * the matchup rows (opts.actualStarters[week]). Same points, same week,
+       * paired — the delta is the disagreement alone.
+       *
+       * A DISTINCT forecast_key on purpose: unresolvedDecisionEntries keys on
+       * forecast_key alone, so reusing the decision's key would either be
+       * skipped as already-resolved or mark it resolved before the primary
+       * row landed. `|vs_actual` joins to nothing by design; it carries its
+       * own outcome and is read through toolVsActualSummary(). */
+      const starters = o.actualStarters && o.actualStarters[String(week)];
+      if (e.method === 'lineup-auto-v1' && Array.isArray(starters) && starters.length) {
+        const toolIds = rec.map(pidOf).filter(Boolean).map(String);
+        const humanIds = starters.map(String);
+        const tool = sideValue(rec, pts);
+        const human = sideValue(humanIds.map(id => ({ id })), pts);
+        const toolOnly = toolIds.filter(id => humanIds.indexOf(id) < 0);
+        const humanOnly = humanIds.filter(id => toolIds.indexOf(id) < 0);
+        out.push({
+          kind: 'forecast_resolution', method: 'inseason-resolution-vs-actual-v1',
+          payload: { forecast_key: key + '|vs_actual', week: Number(week),
+            realized_chosen: r2(tool), realized_counterfactual: r2(human),
+            outcome: r2(tool - human),
+            disagreement: { n: toolOnly.length, tool_only: toolOnly, human_only: humanOnly },
+            source: 'weekly realized points, tool recommendation vs the lineup the human '
+                  + 'actually started (auto-derived from matchup starters, no button)' },
+        });
+      }
+
     } else if (e.kind === 'stream_call') {
       const pts = weekPts(week);
       if (!pts) continue;
@@ -596,6 +630,38 @@ function buildInseasonResolutions(entries, weeklyPoints, opts) {
  * resolution every Sunday would stack duplicates the graders then tiebreak
  * silently. Pure: pass the whole ledger, get back only the decision entries
  * whose join key has no forecast_resolution yet. */
+/* THE READ SIDE OF THE vs-actual ROWS — pure, so a page or a test can call it.
+ * Paired over weeks: mean tool-minus-human, its SE, weeks better/worse/tied,
+ * mean number of players that differed. A week where they agreed is a real
+ * data point (delta 0), not a skip. */
+function toolVsActualSummary(entries) {
+  const r2 = x => Math.round(Number(x) * 100) / 100;
+  const rows = (entries || []).filter(e => e && e.kind === 'forecast_resolution'
+    && e.method === 'inseason-resolution-vs-actual-v1' && e.payload);
+  const seen = new Set();
+  const d = [], dis = [];
+  for (const e of rows) {
+    const k = e.payload.forecast_key;
+    if (seen.has(k)) continue;                 // one row per week counts
+    seen.add(k);
+    d.push(Number(e.payload.outcome) || 0);
+    dis.push(Number((e.payload.disagreement || {}).n) || 0);
+  }
+  if (!d.length) return { weeks: 0, note: 'no auto-derived tool-vs-actual rows yet' };
+  const mean = d.reduce((a, b) => a + b, 0) / d.length;
+  const sd = d.length > 1 ? Math.sqrt(d.reduce((a, b) => a + (b - mean) ** 2, 0) / (d.length - 1)) : null;
+  return {
+    weeks: d.length,
+    tool_minus_human_per_week: r2(mean),
+    se: sd == null ? null : r2(sd / Math.sqrt(d.length)),
+    season_total: r2(d.reduce((a, b) => a + b, 0)),
+    weeks_tool_better: d.filter(x => x > 0).length,
+    weeks_human_better: d.filter(x => x < 0).length,
+    weeks_tied: d.filter(x => x === 0).length,
+    mean_players_disagreed: r2(dis.reduce((a, b) => a + b, 0) / dis.length),
+  };
+}
+
 function unresolvedDecisionEntries(entries) {
   const resolved = new Set();
   for (const e of entries || []) {
@@ -669,6 +735,6 @@ function decisionByWeek(decisions) {
 }
 
 module.exports = { gradeForecasts, gradeDecisions, INSEASON_DECISION_KINDS,
-  buildDraftResolutions, buildInseasonResolutions, unresolvedDecisionEntries,
+  buildDraftResolutions, buildInseasonResolutions, unresolvedDecisionEntries, toolVsActualSummary,
   decisionJoinKey, decisionByKind, decisionByWeek, WAIVER_WINDOW_WEEKS,
   pair, reliabilityTable, isForward };
