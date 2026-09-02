@@ -92,6 +92,7 @@ def market_of(label: str) -> str | None:
         return None
     if s in SLEEPER_STAT_KEYS:
         return SLEEPER_STAT_KEYS[s]
+    s = s.replace("_", " ")          # 'receiving_yards' / 'anytime_touchdowns' spellings
     for pat, key in _LABEL_RULES:
         if re.search(pat, s):
             return key
