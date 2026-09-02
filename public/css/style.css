@@ -3746,6 +3746,7 @@ body.is-champ .tabbar { box-shadow: inset 0 2px 0 rgba(245, 196, 69, .5), 0 -8px
 .pk-board tr.pk-mine td { background: rgba(245,196,69,.08); font-weight: 700; }
 .pk-board tr.pk-worst td { background: rgba(255,70,85,.09); }
 .pk-board tr.pk-worst td:first-child { box-shadow: inset 3px 0 0 var(--red); }
+.pk-board tr.pk-model td { font-style: italic; }
 
 /* Hall of Shame callout */
 .pk-shame-card { border-color: rgba(255,70,85,.45); background:

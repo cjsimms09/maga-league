@@ -3089,6 +3089,29 @@ router.get('/matchup', aw(async (req, res) => {
 // worst picker — sit right here where the league already argues. The engine is
 // src/routes/pickem.js; this is the HTTP surface, same split as the optimizer.
 
+// SITE-REVIEW-2026-09-02 item ⑦ — "owners vs the machine is an engagement
+// hook we already have the data for." The data is `MW.matchupOdds()`, the
+// SAME pre-kick win-probability call `/scoreboard` and `/matchup` already
+// use — this is not a new model, just a new consumer of one. A synthetic,
+// non-owner participant so it can never collide with a real owner_id.
+const PICKEM_MODEL = { id: -1, name: 'The Model' };
+
+// The model's pick per game: the side MW.matchupOdds() favors. Honest
+// refusal, not a guess, when odds can't be computed (missing starters) —
+// same convention matchupOdds itself uses.
+function computeModelPicks(games, week, startersByOwner) {
+  const picks = {};
+  for (const g of games) {
+    const sa = startersByOwner[String(g.a.id)], sb = startersByOwner[String(g.b.id)];
+    if (!sa || !sb) continue;
+    try {
+      const o = MW.matchupOdds(sa, sb, { week });
+      if (o && o.ok) picks[g.id] = o.pWin >= 0.5 ? g.a.id : g.b.id;
+    } catch (e) { /* no pick — honest refusal, not a guess */ }
+  }
+  return picks;
+}
+
 // Everything the pick'em pages need, gathered once. Shared by GET /pickem and
 // the compact strip the matchup page shows.
 async function pickemContext(world, me, { wantBoards = true } = {}) {
@@ -3118,12 +3141,29 @@ async function pickemContext(world, me, { wantBoards = true } = {}) {
   // Live points for THIS week, straight off the scoreboard — provisional game
   // leaders while the week is in play (final grading uses the cached week points).
   let livePts = null;
+  const startersByOwner = {};
   if (sData && Array.isArray(sData.matchups)) {
     livePts = {};
     for (const m of sData.matchups) {
       const oid = map[String(m.roster_id)];
       if (oid != null) livePts[String(oid)] = Math.round((m.points || 0) * 100) / 100;
+      if (oid != null && Array.isArray(m.starters) && m.starters.length) startersByOwner[String(oid)] = m.starters;
     }
+  }
+
+  // THE MODEL'S PICKS (item ⑦) — computed and frozen ONCE, the first time
+  // anyone loads this page after lock, off the starters AT LOCK TIME (same
+  // "freeze so scoring never depends on re-reaching Sleeper" rule the slate
+  // itself follows a few lines up). mutateDoc makes the freeze atomic: a race
+  // between two owners loading /pickem right at kickoff can only compute the
+  // same deterministic picks once, never overwrite an already-frozen card.
+  let modelPicks = null;
+  if (locked) {
+    const mKey = `pickem-model:${seasonYear}:${weekNo}`;
+    const mDoc = await mutateDoc(mKey, null, cur =>
+      cur ? undefined  // already frozen -- deliberate no-write, resolves to the existing doc
+          : { picks: computeModelPicks(games, weekNo, startersByOwner), computed_at: now() });
+    modelPicks = mDoc.picks;
   }
 
   // The split + who-backed-whom is public only after lock — before that a pick
@@ -3145,6 +3185,7 @@ async function pickemContext(world, me, { wantBoards = true } = {}) {
     configured: !!leagueId, nameOf,
     picksMade: Object.keys(myPicks).length,
     goatId: MK.goatOwnerId(sData, map),
+    modelPicks, modelId: PICKEM_MODEL.id,
   };
   if (!wantBoards) return ctx;
 
@@ -3167,7 +3208,18 @@ async function pickemContext(world, me, { wantBoards = true } = {}) {
     if (wp && Object.keys(wp).length) { try { await setDoc(frozenKey(seasonYear, w), wp); } catch (e) { /* freeze is best-effort */ } }
     return wp;
   };
-  const sb = await PE.seasonBoard(seasonYear, weekNo, owners, finalOnly);
+  // THE MODEL, RANKED ON THE SAME BOARD (item ⑦) — a synthetic participant,
+  // not backfilled: it only has a card for weeks from whenever this shipped
+  // forward (no historical starters to derive past weeks' picks from), so it
+  // starts exactly the way a new pick'em entrant would.
+  const modelParticipant = [{
+    ...PICKEM_MODEL,
+    picksFor: async w => {
+      const doc = await getDoc(`pickem-model:${seasonYear}:${w}`, null);
+      return doc ? doc.picks : null;
+    },
+  }];
+  const sb = await PE.seasonBoard(seasonYear, weekNo, owners, finalOnly, modelParticipant);
 
   // All-time: every season with pick'em data, summed forever. The resolver reads
   // FROZEN points for any season (so prior years survive the rollover), falling

@@ -309,9 +309,17 @@ async function ensureSlate(season, week, liveGames, { locked } = {}) {
  * + stored picks, all of which persist. `weekPointsFor(week)` is injected so the
  * caller controls how points are fetched (and cached).
  *
+ * `extraParticipants` (site review 2026-09-02, item 7 — "owners vs the
+ * machine"): optional non-owner rows ranked in the SAME rankBoard() call as
+ * everyone else, so a synthetic picker (the model) is graded on the SAME
+ * board through the SAME scoreWeek() call, not a second derivation.
+ * `{ id, name, picksFor(week) }` — picksFor may be async and returns a
+ * `{gameId: winnerOwnerId}` map, or null/undefined for a week it has no
+ * card for (skipped entirely — not counted as 0-for-N).
+ *
  * @returns { board, weeksGraded, slateSize }
  */
-async function seasonBoard(season, upToWeek, owners, weekPointsFor) {
+async function seasonBoard(season, upToWeek, owners, weekPointsFor, extraParticipants = []) {
   const nameOf = id => (owners.find(o => o.id === Number(id)) || {}).name || `#${id}`;
   const perOwner = [];
   let weeksGraded = 0, slateSizeSum = 0, slateSizeN = 0;
@@ -329,6 +337,13 @@ async function seasonBoard(season, upToWeek, owners, weekPointsFor) {
       const s = scoreWeek(mine ? mine.picks : {}, games, wp);
       if (s.graded > 0) anyGraded = true;
       perOwner.push({ owner_id: o.id, name: o.name, correct: s.correct, graded: s.graded });
+    }
+    for (const ep of extraParticipants) {
+      const picks = await ep.picksFor(w);
+      if (picks == null) continue;                    // no card this week -- not scored, not counted
+      const s = scoreWeek(picks, games, wp);
+      if (s.graded > 0) anyGraded = true;
+      perOwner.push({ owner_id: ep.id, name: ep.name, correct: s.correct, graded: s.graded });
     }
     if (anyGraded) weeksGraded += 1;
   }
