@@ -95,7 +95,12 @@ SEASON = int(sys.argv[sys.argv.index("--season") + 1]) if "--season" in sys.argv
 #: writes weekly_arms_2024_backtest.json. The 2025 run is the control: it must
 #: be byte-identical before and after this parameterisation (it was).
 #: The three claims a fold must answer are fixed HERE, before the 2024 fold
-#: was read (BLEND-SEARCH-DESIGN: no arm is invented per fold):
+#: was read (BLEND-SEARCH-DESIGN: no arm is invented per fold).
+#: ⛔ BEFORE READING ANY NEW (season, arm) FOLD: grep PREDICTION-LEDGER.md for
+#: an OPEN prereg that holds that fold blind. The 2024 read on 09-02 spent a
+#: fold D's P347 was holding blind (register 472); 2023 is the last blind
+#: fold for the props arm and this file must not be pointed at it without
+#: D's grade landing first.
 REPLICATION_CLAIMS = (
     ("props_beats_v1_startsit_3of4", "props beats own_v6:v1 on pairwise start/sit at >= 3 of 4 positions (shared population)"),
     ("pull_beats_v1_mae", "site_ours (the pull rule) beats own_v6:v1 on pooled MAE"),
