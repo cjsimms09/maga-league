@@ -188,6 +188,24 @@ function myAddsByWeek(txs, myRid) {
   return out.sort((a, b) => a.created - b.created);
 }
 
+/* Which player Cory started in each SLOT: Sleeper's matchup `starters` array
+ * is ordered to the league's roster_positions with BN/IR removed, so the K
+ * slot's starter is starters[index of 'K' among the non-bench slots]. The
+ * human side of the tool-vs-actual STREAM grade (register 466 ①): the
+ * streamed K/DEF vs the K/DEF he actually fielded. Pure. */
+function startersBySlot(starters, rosterPositions) {
+  if (!Array.isArray(starters) || !Array.isArray(rosterPositions)) return null;
+  const slots = rosterPositions.filter(p => p !== 'BN' && p !== 'IR' && p !== 'TAXI');
+  const out = {};
+  slots.forEach((slot, i) => {
+    if (i >= starters.length) return;
+    const pid = starters[i] == null ? null : String(starters[i]);
+    // a Sleeper empty slot is "0"; only single-position slots are keyed (K, DEF)
+    if (slot === 'K' || slot === 'DEF') out[slot] = (pid && pid !== '0') ? pid : null;
+  });
+  return out;
+}
+
 function mergePlayersPoints(matchupRows) {
   const out = {};
   for (const m of matchupRows || []) {
@@ -215,6 +233,7 @@ function alreadyResolvedKeys(entries) {
 exports.alreadyResolvedKeys = alreadyResolvedKeys;
 exports.mergePlayersPoints = mergePlayersPoints;
 exports.myAddsByWeek = myAddsByWeek;
+exports.startersBySlot = startersBySlot;
 
 exports.handler = async (event) => {
   store.initBlobs(event);
@@ -334,6 +353,8 @@ exports.handler = async (event) => {
        * /wire page formats, read raw. A week the feed cannot supply is absent
        * from the map => the waiver vs_actual row waits, never grades a hold. */
       const actualAdds = {};
+      const actualStartersBySlot = {};
+      const rosterPositions = (sData && sData.league && sData.league.roster_positions) || null;
       const smap = (sData && sData.sleeper_map) || cfg.sleeper_map || {};
       const autoOwner = (allRows.find(e => e && e.kind === 'lineup_call'
         && e.method === 'lineup-auto-v1' && (e.payload || {}).owner_id != null) || { payload: {} }).payload.owner_id;
@@ -347,6 +368,8 @@ exports.handler = async (event) => {
           const mine = (rows || []).find(r => String(r.roster_id) === String(myRid));
           if (mine && Array.isArray(mine.starters) && mine.starters.length) {
             actualStarters[String(w)] = mine.starters.map(String);
+            const bySlot = startersBySlot(mine.starters, rosterPositions);
+            if (bySlot) actualStartersBySlot[String(w)] = bySlot;
           }
         }
         if (myRid != null && typeof sleeper.transactionsForWeek === 'function') {
@@ -367,6 +390,7 @@ exports.handler = async (event) => {
         finalWeek: FINAL_WEEK,
         actualStarters,
         actualAdds,
+        actualStartersBySlot,
         wire: wire ? { per_week: wire.per_week,
           ongoing_per_week: wire.ongoing && wire.ongoing.per_week } : null,
       };

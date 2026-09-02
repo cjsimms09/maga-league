@@ -554,6 +554,31 @@ function buildInseasonResolutions(entries, weeklyPoints, opts) {
       push(key, chosen, cf, cfEmpty
         ? 'weekly realized points; counterfactual slot was empty (0 by construction)'
         : 'weekly realized points, chosen vs held');
+      /* ── THE STREAMED K/DEF vs THE ONE CORY ACTUALLY FIELDED (register 466 ①,
+       * 2026-09-02) — the stream twin of the lineup and waiver vs_actual rows.
+       * opts.actualStartersBySlot[week] = {K: pid|null, DEF: pid|null}, built by
+       * claims-cron from his matchup starters and the league's slot order. An
+       * empty slot is a real answer (0). Only the auto capture is graded. */
+      const bySlot = o.actualStartersBySlot && o.actualStartersBySlot[String(week)];
+      const spos = p.chosen && (p.chosen.position || p.chosen.pos);
+      if (e.method === 'stream-auto-v1' && bySlot && spos && (spos in bySlot)) {
+        const chosenPid = String(pidOf(p.chosen));
+        const humanPid = bySlot[spos] == null ? null : String(bySlot[spos]);
+        const human = humanPid ? delivered(pts, humanPid) : 0;
+        const agree = humanPid === chosenPid;
+        out.push({
+          kind: 'forecast_resolution', method: 'inseason-resolution-vs-actual-v1',
+          payload: { forecast_key: key + '|vs_actual', week: Number(week), decision_kind: 'stream_call',
+            realized_chosen: r2(chosen), realized_counterfactual: r2(human),
+            outcome: r2(chosen - human), position: spos,
+            human_started: humanPid, slot_empty: humanPid == null,
+            disagreement: { n: agree ? 0 : 1, tool_only: agree ? [] : [chosenPid],
+              human_only: agree || !humanPid ? [] : [humanPid] },
+            source: 'weekly realized points, the tool\'s streamed ' + spos + ' vs the ' + spos
+                  + ' the human actually started (auto-derived from matchup starters by slot; '
+                  + 'empty slot = 0)' },
+        });
+      }
 
     } else if (e.kind === 'inseason_override') {
       // Only the post-fix capture shape resolves: payload.actual is what the
@@ -707,6 +732,12 @@ function toolVsActualSummary(entries) {
     const w = pool(waiver);
     w.weeks_human_held = waiver.filter(e => e.payload.held).length;
     out.waiver = w;
+  }
+  const stream = rows.filter(e => kindOf(e) === 'stream_call');
+  if (stream.length) {
+    const st = pool(stream);
+    st.weeks_slot_empty = stream.filter(e => e.payload.slot_empty).length;
+    out.stream = st;
   }
   return out;
 }
