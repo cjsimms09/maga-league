@@ -1,0 +1,374 @@
+{
+ "_territory": "relay census; C consumes for the free props writer (ROUTES TO: C, 09-01)",
+ "_ask": "Cory 2026-09-01: make sure we are getting all the prop bets we need; look for more free sources if needed",
+ "_need": [
+  "player_pass_yds",
+  "player_pass_tds",
+  "player_pass_interceptions",
+  "player_rush_yds",
+  "player_rush_tds",
+  "player_receptions",
+  "player_reception_yds",
+  "player_reception_tds",
+  "player_anytime_td"
+ ],
+ "captured_at": "2026-09-02T00:02:28.520832Z",
+ "sources": {
+  "bovada": {
+   "status": 200,
+   "bytes": 967344,
+   "raw_head": "[{\"path\":[{\"id\":\"241\",\"link\":\"/football/nfl\",\"description\":\"NFL\",\"type\":\"LEAGUE\",\"sportCode\":\"FOOT\",\"order\":2,\"leaf\":true,\"current\":true},{\"id\":\"1\",\"link\":\"/football\",\"description\":\"Football\",\"type\":\"SPORT\",\"sportCode\":\"FOOT\",\"order\":6,\"leaf\":false,\"current\":false}],\"events\":[{\"id\":\"25568702\",\"descr",
+   "by_market": {
+    "player_anytime_td": 70,
+    "player_pass_yds": 6,
+    "player_rush_yds": 14,
+    "player_receptions": 18,
+    "player_reception_yds": 18
+   },
+   "samples": [
+    {
+     "market": "player_anytime_td",
+     "player": "Kayshon Boutte (NE)",
+     "line": null,
+     "label": "Anytime Touchdown Scorer"
+    },
+    {
+     "market": "player_anytime_td",
+     "player": "David Montgomery (HOU)",
+     "line": null,
+     "label": "Anytime Touchdown Scorer"
+    },
+    {
+     "market": "player_anytime_td",
+     "player": "Josh Palmer (BUF)",
+     "line": null,
+     "label": "Anytime Touchdown Scorer"
+    }
+   ],
+   "notes": [],
+   "control_game_line": true,
+   "events_found": 18,
+   "players_total": 103
+  },
+  "draftkings": {
+   "status": 403,
+   "bytes": 0,
+   "raw_head": "",
+   "by_market": {},
+   "samples": [],
+   "notes": []
+  },
+  "prizepicks": {
+   "status": 403,
+   "bytes": 0,
+   "raw_head": "",
+   "by_market": {},
+   "samples": [],
+   "notes": []
+  },
+  "underdog": {
+   "status": 200,
+   "bytes": 21312606,
+   "raw_head": "{\"appearances\":[{\"id\":\"2ed3b582-a21a-448b-b8c7-73e34617305c\",\"badges\":[],\"lineup_status_id\":null,\"match_id\":438,\"match_type\":\"Series\",\"multiple_picks_allowed\":true,\"player_id\":\"ac512ae7-2edd-458d-9ae5-2b4eb949a3b6\",\"position_id\":\"30f5b4f6-5306-5722-997c-a2255f44225b\",\"sort_by\":null,\"team_id\":\"5ce78c",
+   "by_market": {
+    "player_reception_yds": 309,
+    "player_reception_tds": 93,
+    "player_pass_yds": 83,
+    "player_pass_tds": 81,
+    "player_rush_yds": 173,
+    "player_rush_tds": 66,
+    "player_anytime_td": 773,
+    "player_pass_interceptions": 73,
+    "player_receptions": 224
+   },
+   "samples": [
+    {
+     "market": "player_reception_yds",
+     "player": "Denzel Boston  O/U",
+     "line": "499.5",
+     "label": "Season Receiving Yards"
+    },
+    {
+     "market": "player_reception_yds",
+     "player": "Germie Bernard  O/U",
+     "line": "375.5",
+     "label": "Season Receiving Yards"
+    },
+    {
+     "market": "player_reception_yds",
+     "player": "Kenyon Sadiq  O/U",
+     "line": "454.5",
+     "label": "Season Receiving Yards"
+    }
+   ],
+   "notes": [],
+   "stat_types_seen": {
+    "Rush + Rec TDs": 772,
+    "First TD Scorer": 475,
+    "Goals": 317,
+    "Receiving Yards": 289,
+    "1H Rush + Rec TDs": 279,
+    "Longest Reception": 256,
+    "Assists": 255,
+    "Goals + Assists": 230,
+    "Receptions": 224,
+    "1Q Rush + Rec TDs": 208,
+    "Kills on Maps 1+2": 196,
+    "1st Set Games Won": 164,
+    "Games Played": 161,
+    "Rush Yards": 153,
+    "Aces": 150,
+    "Kills on Maps 1+2+3": 146,
+    "Longest Rush": 144,
+    "Fantasy Points": 138,
+    "1Q Rec Yards": 118,
+    "1H Rec Yards": 118,
+    "1Q Receptions": 117,
+    "1H Receptions": 117,
+    "Headshots on Maps 1+2": 117,
+    "Hits + Runs + RBIs": 108,
+    "Home Runs": 108
+   },
+   "players_total": 790
+  },
+  "kalshi": {
+   "status": 200,
+   "bytes": 5712226,
+   "raw_head": "{\"series\":[{\"additional_prohibitions\":[\"Current and former players, coaches, and staff of the league, association, or organization(s) governing the event. For college leagues/associations specifically, or where otherwise appropriate (as identified by the Exchange), this applies to current and former",
+   "by_market": {
+    "player_pass_tds": 33,
+    "player_receptions": 9
+   },
+   "samples": [
+    {
+     "market": "player_pass_tds",
+     "player": "Patrick Mahomes",
+     "line": 39.5,
+     "label": "Will Patrick Mahomes record 40+ passing touchdowns during the 2026-27 Pro Footba"
+    },
+    {
+     "market": "player_pass_tds",
+     "player": "Lamar Jackson",
+     "line": 39.5,
+     "label": "Will Lamar Jackson record 40+ passing touchdowns during the 2026-27 Pro Football"
+    },
+    {
+     "market": "player_pass_tds",
+     "player": "Justin Herbert",
+     "line": 39.5,
+     "label": "Will Justin Herbert record 40+ passing touchdowns during the 2026-27 Pro Footbal"
+    }
+   ],
+   "notes": [],
+   "player_series": [
+    {
+     "ticker": "KXNFLSEASONPASSTDS",
+     "title": "Passing Touchdowns"
+    },
+    {
+     "ticker": "KXNFLSEASONRUSHYDS",
+     "title": "Rushing Yards"
+    },
+    {
+     "ticker": "KXNFLREC",
+     "title": "Pro Football Player Receptions"
+    },
+    {
+     "ticker": "KXNFLGAMETD",
+     "title": "Pro Football Touchdowns"
+    },
+    {
+     "ticker": "KXNFLRECYDSRECORD",
+     "title": "NFL Regular Season Receiving Yards Record"
+    },
+    {
+     "ticker": "KXNFLLONGESTTD",
+     "title": "Pro Football Longest Touchdown"
+    },
+    {
+     "ticker": "KXNFLTEAMYDS",
+     "title": "Pro Football Team Yards"
+    },
+    {
+     "ticker": "KXNFLANYTD",
+     "title": "Pro Football Anytime Touchdown"
+    },
+    {
+     "ticker": "KXNFLHIRECOACH",
+     "title": "NFL hire coach"
+    },
+    {
+     "ticker": "KXNFLWEEKMOSTPASSYDS",
+     "title": "Weekly Most Passing Yards"
+    },
+    {
+     "ticker": "KXNFLLONGESTREC",
+     "title": "Longest Reception"
+    },
+    {
+     "ticker": "KXNFLLONGREC",
+     "title": "Longest Reception"
+    },
+    {
+     "ticker": "KXNFLNONQBPASS",
+     "title": "Pro Football Non-QB Passes"
+    },
+    {
+     "ticker": "KXNFL2TD",
+     "title": "Pro Football Multiple Touchdowns"
+    },
+    {
+     "ticker": "KXNFLPASSATT",
+     "title": "Pro Football Passing Attempts"
+    },
+    {
+     "ticker": "KXNFLPASSINT",
+     "title": "Pro Football Passing Interceptions"
+    },
+    {
+     "ticker": "KXNFLFIRSTTDTEAM",
+     "title": "Pro Football First Team to Score a Touchdown"
+    },
+    {
+     "ticker": "KXNFLNEXTTD",
+     "title": "Pro Football Next TD scorer"
+    },
+    {
+     "ticker": "KXNFLSZNRECORD",
+     "title": "Will single season record be broken?"
+    },
+    {
+     "ticker": "KXNFLRRYDS",
+     "title": "Pro Football Rush and Receiving Yards"
+    }
+   ],
+   "players_total": 42
+  },
+  "polymarket": {
+   "status": 200,
+   "bytes": 6489489,
+   "raw_head": "[{\"id\":\"87239\",\"ticker\":\"tush-push-banned-for-2026-nfl-season\",\"slug\":\"tush-push-banned-for-2026-nfl-season\",\"title\":\"Tush Push banned for 2026 NFL Season?\",\"description\":\"This market will resolve to \\\"Yes\\\" if the NFL officially announces a rule change that prohibits, limits, or penalizes the \u201ctu",
+   "by_market": {
+    "player_pass_yds": 1,
+    "player_rush_yds": 1,
+    "player_reception_yds": 1,
+    "player_receptions": 1,
+    "player_rush_tds": 1,
+    "player_pass_tds": 1,
+    "player_reception_tds": 1,
+    "player_pass_interceptions": 1
+   },
+   "samples": [
+    {
+     "market": "player_pass_yds",
+     "player": "Pro Football",
+     "line": null,
+     "label": "Pro Football: 2026-27 Passing Yards Leader"
+    },
+    {
+     "market": "player_rush_yds",
+     "player": "Pro Football",
+     "line": null,
+     "label": "Pro Football: 2026-27 Rushing Yards Leader"
+    },
+    {
+     "market": "player_reception_yds",
+     "player": "Pro Football",
+     "line": null,
+     "label": "Pro Football: 2026-27 Receiving Yards Leader"
+    }
+   ],
+   "notes": [],
+   "players_total": 1
+  },
+  "balldontlie": {
+   "status": null,
+   "bytes": 0,
+   "raw_head": "",
+   "by_market": {},
+   "samples": [],
+   "notes": [
+    "nfl/v1/odds?season=2026&week=1: 401 ''",
+    "nfl/v1/player_props?season=2026&week=1: 404 ''",
+    "nfl/v1/props?season=2026&week=1: 404 ''"
+   ],
+   "key_present": true
+  }
+ },
+ "controls": {
+  "C1_reachability_bovada_game_line": true,
+  "C2_any_source_named_player_numeric_line": true
+ },
+ "need_table": {
+  "player_pass_yds": {
+   "carriers": {
+    "underdog": 83,
+    "bovada": 6,
+    "polymarket": 1
+   },
+   "best": 83
+  },
+  "player_pass_tds": {
+   "carriers": {
+    "underdog": 81,
+    "kalshi": 33,
+    "polymarket": 1
+   },
+   "best": 81
+  },
+  "player_pass_interceptions": {
+   "carriers": {
+    "underdog": 73,
+    "polymarket": 1
+   },
+   "best": 73
+  },
+  "player_rush_yds": {
+   "carriers": {
+    "underdog": 173,
+    "bovada": 14,
+    "polymarket": 1
+   },
+   "best": 173
+  },
+  "player_rush_tds": {
+   "carriers": {
+    "underdog": 66,
+    "polymarket": 1
+   },
+   "best": 66
+  },
+  "player_receptions": {
+   "carriers": {
+    "underdog": 224,
+    "bovada": 18,
+    "kalshi": 9,
+    "polymarket": 1
+   },
+   "best": 224
+  },
+  "player_reception_yds": {
+   "carriers": {
+    "underdog": 309,
+    "bovada": 18,
+    "polymarket": 1
+   },
+   "best": 309
+  },
+  "player_reception_tds": {
+   "carriers": {
+    "underdog": 93,
+    "polymarket": 1
+   },
+   "best": 93
+  },
+  "player_anytime_td": {
+   "carriers": {
+    "underdog": 773,
+    "bovada": 70
+   },
+   "best": 773
+  }
+ },
+ "verdict": "COVERED \u2014 every needed market has a free carrier"
+}
