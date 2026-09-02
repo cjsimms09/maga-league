@@ -335,6 +335,34 @@ def build_snapshot(result: dict, season: int, week: int, date: str) -> dict:
     }
 
 
+def merge_with_existing(new_doc: dict, existing: dict | None) -> dict:
+    """MERGE, NEVER CLOBBER (register 172's lesson, P299's cadence note). A
+    player quoted in the new run gets the new row; a player who was priced
+    earlier this week but is no longer quoted (his game kicked off, or the
+    book pulled the line) KEEPS the earlier row, stamped `carried_from` with
+    the date it was priced — so a Thursday refresh after a Wednesday opener
+    cannot erase the opener's players, and a pre-kickoff line is never
+    replaced by silence."""
+    if not existing or existing.get("season") != new_doc.get("season") or existing.get("week") != new_doc.get("week"):
+        return new_doc
+    old_players = existing.get("players") or {}
+    merged = dict(new_doc["players"])
+    carried = 0
+    for pid, row in old_players.items():
+        if pid not in merged and row.get("points") is not None:
+            r = dict(row)
+            r.setdefault("carried_from", existing.get("date"))
+            merged[pid] = r
+            carried += 1
+    out = dict(new_doc)                                   # never mutate the input
+    out["players"] = merged
+    prov = dict(new_doc.get("provenance") or {})
+    prov["counts"] = {**(prov.get("counts") or {}), "carried_from_earlier_run": carried}
+    prov["merge"] = "players no longer quoted keep their earlier row (carried_from); quoted players take the new line"
+    out["provenance"] = prov
+    return out
+
+
 # ── IO ───────────────────────────────────────────────────────────────────────
 
 def _get(url, headers=None, timeout=40):
@@ -380,6 +408,14 @@ def main(argv=None) -> int:
         return 1
     doc = build_snapshot(result, int(season), int(week), _dt.date.today().isoformat())
     path = props_snapshot_path(out_dir, int(season), int(week))
+    existing = None
+    if path.exists():
+        try:
+            existing = json.loads(path.read_text())
+        except ValueError:
+            existing = None
+    doc = merge_with_existing(doc, existing)
+    print(f"merge: carried {doc['provenance']['counts'].get('carried_from_earlier_run', 0)} earlier-priced players; {len(doc['players'])} total")
     if args.dry_run:
         print(f"dry run — would write {path} ({len(doc['players'])} players)")
         return 0

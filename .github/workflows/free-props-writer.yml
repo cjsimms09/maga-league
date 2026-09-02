@@ -15,7 +15,8 @@ on:
         required: false
         default: ''
   schedule:
-    - cron: '20 12 * * 4'
+    - cron: '0 20 * * 3'   # Wednesday 20:00 UTC — before a Wednesday/short-week opener (week 1: SEA-NE)
+    - cron: '20 12 * * 4'  # Thursday 12:20 UTC — the main pre-TNF snapshot; merges, never clobbers
 permissions:
   contents: write
 jobs:

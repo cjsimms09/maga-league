@@ -126,3 +126,23 @@ def test_REFUSAL_ARM_no_sleeper_qb_or_too_few_players_writes_nothing():
     r = ffp.build_week([sp_row("2", "receptions", 5.5)], ud_doc([]), BOARD, SCORING)
     bad = ffp.self_check(r)
     assert any("QB" in b for b in bad) and any("Underdog" in b for b in bad) and any("<30" in b for b in bad)
+
+
+def test_MERGE_NOT_CLOBBER_a_player_whose_line_vanished_keeps_his_earlier_row():
+    """Week-1 opener kicks off before the Thursday run: the refresh must not
+    erase the opener's players (register 172's clobber lesson)."""
+    rows = [sp_row("1", "passing_yards", 245.5, pos="QB")] + [sp_row(str(100 + i), "receptions", 4.5) for i in range(30)]
+    board = {"players": BOARD["players"] + [{"player_id": str(100 + i), "name": f"P{i}", "position": "WR", "team": "PHI"} for i in range(30)]}
+    doc_wed = ud_doc([("Saquon Barkley", "Rush Yards", "88.5", "-112", "-112", "NE @ PHI")])
+    wed = ffp.build_snapshot(ffp.build_week(rows, doc_wed, board, SCORING), 2026, 1, "2026-09-09")
+    assert "3" in wed["players"]
+    # Thursday: Barkley's game already kicked off — Underdog no longer quotes him; P0 got a new line
+    rows_thu = [sp_row("1", "passing_yards", 251.5, pos="QB")] + [sp_row(str(100 + i), "receptions", 5.5 if i == 0 else 4.5) for i in range(30)]
+    thu = ffp.build_snapshot(ffp.build_week(rows_thu, ud_doc([]), board, SCORING), 2026, 1, "2026-09-10")
+    merged = ffp.merge_with_existing(thu, wed)
+    assert merged["players"]["3"]["carried_from"] == "2026-09-09" and merged["players"]["3"]["points"] == wed["players"]["3"]["points"]
+    assert merged["players"]["100"]["lines"]["player_receptions"] == 5.5           # quoted players take the new line
+    assert merged["players"]["1"]["lines"]["player_pass_yds"] == 251.5
+    assert merged["provenance"]["counts"]["carried_from_earlier_run"] == 1
+    # a different week never merges
+    assert ffp.merge_with_existing(dict(thu, week=2), wed)["players"].get("3") is None
