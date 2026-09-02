@@ -34,7 +34,8 @@ on:
         description: 'NFL week override (blank = computed from the date; preseason is a clean skip)'
         required: false
   schedule:
-    - cron: '0 14 * * 4'   # Thursdays 14:00 UTC, after the 12:00 odds capture
+    - cron: '0 20 * * 3'   # Wednesdays 20:00 UTC — BEFORE a Wednesday-night opener (week 1 kicks off 00:20Z Thu; register 477)
+    - cron: '0 14 * * 4'   # Thursdays 14:00 UTC, after the 12:00 odds capture; FROZEN (exit 0) once the week's first game has kicked off
 
 permissions:
   contents: write
