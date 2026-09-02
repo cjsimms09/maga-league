@@ -15,7 +15,11 @@ on:
         required: false
         default: ''
   schedule:
-    - cron: '0 20 * * 3'   # Wednesday 20:00 UTC — before a Wednesday/short-week opener (week 1: SEA-NE)
+    # Wednesday 19:30 UTC — before a Wednesday/short-week opener (week 1: SEA-NE)
+    # AND before own-weekly-proj.yml's 20:00Z snapshot, whose props second
+    # opinion READS this file: at 20:00 both fired together and the snapshot
+    # raced a write that had not been pushed yet (relay, 09-02).
+    - cron: '30 19 * * 3'
     - cron: '20 12 * * 4'  # Thursday 12:20 UTC — the main pre-TNF snapshot; merges, never clobbers
 permissions:
   contents: write
