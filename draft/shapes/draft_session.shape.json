@@ -1,0 +1,48 @@
+{
+ "_territory": "TERRITORY: A \u2014 the declared SHAPE of public/js/draft/draft_session.js (the persisted war-room session; commitment item 18).",
+ "module": "public/js/draft/draft_session.js",
+ "global": "DraftSession",
+ "exports": {
+  "KEY": "string",
+  "VERSION": "number",
+  "serialize": "function",
+  "restore": "function",
+  "save": "function",
+  "load": "function",
+  "clear": "function",
+  "isResumable": "function"
+ },
+ "outputs": {
+  "serialize(state, meta)": {
+   "keys": [
+    "v",
+    "saved_at",
+    "built_at",
+    "mode",
+    "mockMode",
+    "mySlot",
+    "drafted",
+    "rosters",
+    "myRoster",
+    "recentPicks",
+    "lastPickSeen",
+    "pickContextId",
+    "clockMode",
+    "clockIndex"
+   ]
+  },
+  "restore(saved, board, opts)": {
+   "keys_on_failure": [
+    "ok",
+    "reason",
+    "warnings"
+   ],
+   "keys_on_success": [
+    "ok",
+    "state",
+    "warnings",
+    "stats"
+   ]
+  }
+ }
+}

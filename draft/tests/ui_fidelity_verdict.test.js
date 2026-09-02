@@ -201,17 +201,61 @@ const ALL = ART.players.filter(p => p.proj_mean > 0)
   const out = E.onTheClock(ctx, { targets: [], avoid: [] });
   const v = V.derive({ cfg: CFG, scored: out.scored, confidence: out.confidence });
   ck('REAL BOARD: a verdict derives at pick 33', v.verdict !== 'NONE' && !!v.pick, v.verdict);
-  ck('  the backed pick IS the engine\'s top (no rule lens passed)',
-    v.pick.player_id === out.scored[0].player.player_id,
-    { backed: v.pick.name, top: out.scored[0].player.name });
-  ck('  gap_pts equals the engine\'s gap_to_second to 0.1',
-    v.gap_pts === Number(out.scored[0].gap_to_second.toFixed(1)),
-    { chip: v.gap_pts, engine: out.scored[0].gap_to_second });
+  /* ⚠️ REWRITTEN 2026-08-31 (A, register 449). These two asserted the
+   * PRE-RULING behaviour — that the backed pick is the COMPOSITE top,
+   * `out.scored[0]` — and Cory ruled otherwise on 2026-08-21, in words
+   * `verdict.js` quotes at the branch that implements it:
+   *
+   *     "the pick should show the player with highest VONA for the source
+   *      selected."   ...   "Ship it — pure top-VONA headline."
+   *
+   * They were green for eleven days ON A COINCIDENCE. That module's own note
+   * says the composite verdict and the top-VONA player name the same man in
+   * only 11 of 54 measured cells (20%) — and on the 08-26 board pick 33 was
+   * one of them: composite top David Montgomery, top VONA David Montgomery.
+   * The 08-31 rebuild ended the coincidence (composite top Jameson Williams,
+   * top VONA still Montgomery) and these went red.
+   *
+   * MEASURED BOTH WAYS BEFORE ANYTHING WAS CHANGED: on BOTH boards the page
+   * backs the top-VONA player, which is exactly what was ruled. The code was
+   * right on both; the assertion encoded a superseded ruling.
+   *
+   * ⚠️ AND I READ THE FAILURE THE WRONG WAY ROUND FIRST — filed it as "the
+   * war room backs a player who is not the model's top pick", which is the
+   * shape of a real defect and was not one. Checking whether an assertion
+   * encodes a ruling that has since changed costs one grep of the module it
+   * guards. Register 5h, from the other side. */
+  const vonaTop = out.scored.reduce((best, s) => {
+    const vv = s.components ? s.components.vona : null;
+    return (vv != null && (!best || vv > best.vona)) ? { vona: vv, s } : best;
+  }, null);
+  ck('  the backed pick is the TOP-VONA player — Cory\'s ruling 2026-08-21, '
+     + 'not the composite top',
+    !!vonaTop && String(v.pick.player_id) === String(vonaTop.s.player.player_id),
+    { backed: v.pick.name, vonaTop: vonaTop && vonaTop.s.player.name,
+      compositeTop: out.scored[0].player.name });
+  //: and when the two answers differ, the page must SAY so by name rather than
+  //: printing one number that quietly dropped need/keeper/stack.
+  const compDiffers = String(out.scored[0].player.player_id) !== String(v.pick.player_id);
+  ck('  when the composite disagrees with the VONA headline, `why` names the '
+     + 'disagreement (it is silent when they agree)',
+    compDiffers ? /full model/i.test(v.why || '') : true,
+    { compDiffers, why: (v.why || '').slice(0, 120) });
   ck('  alternatives are priced as SIGNED distance to the BACKED pick, and never list it',
-    v.alternatives.every((a, i) =>
-      a.delta_pts === Number((out.scored[i + 1].score - out.scored[0].score).toFixed(1))
-      && a.player.player_id !== v.pick.player_id),
+    (() => {
+      const ref = out.scored.find(s =>
+        String(s.player.player_id) === String(v.pick.player_id));
+      const others = out.scored.filter(s =>
+        String(s.player.player_id) !== String(v.pick.player_id)).slice(0, 4);
+      return ref && v.alternatives.every((a, i) =>
+        a.delta_pts === Number((others[i].score - ref.score).toFixed(1))
+        && String(a.player.player_id) !== String(v.pick.player_id));
+    })(),
     v.alternatives.map(a => a.delta_pts));
+  //: ⚠️ A POSITIVE delta is CORRECT and is not a bug — verdict.js: "positive =
+  //: scores HIGHER than the pick ... the honest price of following the rule,
+  //: shown rather than hidden". I flagged the live +2.2 as alarming before
+  //: reading that line.
   ck('  the confidence note is the engine\'s message verbatim',
     v.confidence_note === out.confidence.message);
   ck('  units are LABELED — "composite pts", never a bare number',

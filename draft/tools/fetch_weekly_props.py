@@ -42,7 +42,13 @@ matched," never a wrong number silently written.
 
 THE CONVERSION. An Over/Under `point` IS the market's implied value for that
 stat that week (e.g. `player_pass_yds` point=275.5 means the market's implied
-275.5 passing yards). Markets combine ADDITIVELY into ONE implied stat line
+275.5 passing yards). The one PRICE-quoted market, `player_anytime_td`, has
+no point: its yes/no odds are de-vigged and converted to EXPECTED touchdowns
+by fetch_historical_props.py's converter (the same code that priced the 2023-
+25 stores the backtest graded), and scored as one rushing/receiving TD each
+unless a per-type TD line is on the row (register 467, 2026-09-01 — before
+that the live arm silently dropped every TD price and was not the arm the
+backtest scored). Markets combine ADDITIVELY into ONE implied stat line
 per player (same shape fetch_component_stats.py already uses for team implied
 totals, applied per-player per-week instead), then that stat line is scored
 under the league's OWN frozen scoring table via `scoring.score_stat_line` —
@@ -92,6 +98,11 @@ sys.path.insert(0, str(DRAFT))
 
 from adp import normalize_name  # noqa: E402 — the repo's one name matcher, not retyped
 from weekly_own_projection import TEAM_NAME_TO_CODE  # noqa: E402 — one team-name map, not retyped
+# ONE odds→probability→expected-TD conversion in the repo (rule 11): the
+# historical fetcher's, which priced 35,326 player-weeks of 2023-25 anytime-TD
+# lines and carries the decimal-odds refusal. Never retyped here.
+from fetch_historical_props import (  # noqa: E402
+    PRICE_MARKETS, parse_price_market)
 
 FORMULA_VERSION = "props_weekly_v1"
 
@@ -108,10 +119,31 @@ MARKET_TO_STAT = {
     "player_receptions": "rec",
     "player_reception_yds": "rec_yd",
     "player_reception_tds": "rec_td",
+    # ⚠️ ADDED 2026-09-01 (register 467). The live converter dropped every
+    # touchdown line that is quoted as a PRICE rather than an over/under
+    # point, while the arm that scored .853/.799/.792 against the champion
+    # at RB/WR/TE in the 2025 backtest (register 463) FOLDS THEM IN. Without
+    # this key the live arm and the backtested arm are two different
+    # formulas sharing a name. `any_td` is EXPECTED TOUCHDOWNS (Poisson
+    # −ln(1−p) of the de-vigged anytime price, fetch_historical_props.py:295),
+    # not a probability and not a line; `implied_points` scores it as one
+    # rushing/receiving TD's worth of points per expected TD, and only when
+    # no per-type TD line was quoted, so it can never double-count. The
+    # historical fetch found `player_rush_tds` a phantom market (185 anytime
+    # rows vs 0 rush-TD rows on the same event) — anytime TD is the coarser
+    # signal that is actually quoted.
+    "player_anytime_td": "any_td",
 }
 DEFAULT_MARKETS = tuple(MARKET_TO_STAT)
-#: independently re-verified live on the confirmed door (see module docstring)
-CONFIRMED_MARKETS = frozenset({"player_pass_yds"})
+#: Stat keys `implied_points` scores as one touchdown each — the anytime-TD
+#: market prices rushing AND receiving scores, and under the league's table
+#: both are worth the same (frozen at 6.0; `rush_td` is read, never retyped).
+ANY_TD_SCORED_AS = "rush_td"
+PER_TYPE_TD_KEYS = ("rush_td", "rec_td")
+#: independently re-verified live on the confirmed door (see module docstring).
+#: `player_anytime_td`: key-probe run 31970300788 on the same historical
+#: endpoint — 185 outcome rows returned for one event (fetch_historical_props.py).
+CONFIRMED_MARKETS = frozenset({"player_pass_yds", "player_anytime_td"})
 
 #: the-odds-api.com's documented historical-odds pricing model.
 CREDITS_PER_MARKET_REGION = 10
@@ -168,6 +200,17 @@ def extract_event_props(odds_doc: dict, markets=DEFAULT_MARKETS) -> dict:
             mk = m.get("key")
             if mk not in markets:
                 continue
+            if mk in PRICE_MARKETS:
+                # Quoted as a PRICE on a yes/no outcome, not a line — there
+                # is no `point`, so the branch below would silently drop
+                # every row (which is exactly what happened before register
+                # 467). One expected-TD value per (bookmaker, player) via the
+                # historical fetcher's converter; the cross-book median below
+                # then treats it exactly like a line.
+                for name, exp_td in parse_price_market(m).items():
+                    seen.setdefault(str(name), {}).setdefault(mk, []).append(
+                        round(exp_td, 4))
+                continue
             # ONE point per (bookmaker, market, player): Over and Under quote
             # the SAME point, so counting both outcomes would double-weight
             # any book that lists both sides against a book that lists one —
@@ -194,7 +237,17 @@ def implied_points(market_points: dict, scoring_table: dict):
     """(points, stat_line) for ONE player from their {market_key: point} dict
     — markets combine ADDITIVELY into one stat line, scored under the
     league's own table. (None, {}) when no requested market maps to a
-    scoring key (never a zero)."""
+    scoring key (never a zero).
+
+    `any_td` (expected touchdowns from the anytime-TD price) is the one key
+    the scoring table does not name. It is scored as `ANY_TD_SCORED_AS`
+    points per expected TD — one rushing/receiving score — and ONLY when no
+    per-type TD line (`rush_td`/`rec_td`) is on the stat line, because a
+    quoted rush-TD line already prices those scores and adding the anytime
+    signal on top would count them twice. The stat line keeps `any_td` when
+    it was scored and drops it when a finer line superseded it, so the
+    written row says which happened. This is the fold the 2025 backtest
+    graded (register 463); the live converter dropping it was register 467."""
     import scoring as scoring_mod
     stat_line: dict = {}
     for mk, val in market_points.items():
@@ -204,7 +257,16 @@ def implied_points(market_points: dict, scoring_table: dict):
         stat_line[key] = round(stat_line.get(key, 0.0) + val, 3)
     if not stat_line:
         return None, {}
+    any_td = stat_line.get("any_td")
+    if any_td is not None and any(k in stat_line for k in PER_TYPE_TD_KEYS):
+        del stat_line["any_td"]          # a finer TD line is on the row
+        any_td = None
+    if not stat_line:
+        return None, {}
     pts = scoring_mod.score_stat_line(stat_line, scoring_table)
+    if any_td is not None:
+        per_td = scoring_mod.score_stat_line({ANY_TD_SCORED_AS: 1.0}, scoring_table)
+        pts = round(pts + per_td * float(any_td), 2)
     return pts, stat_line
 
 
@@ -331,6 +393,10 @@ def build_snapshot(result: dict, season: int, week: int, date: str,
             "markets_requested": list(markets),
             "markets_confirmed_live": sorted(CONFIRMED_MARKETS & set(markets)),
             "markets_assumed": sorted(set(markets) - CONFIRMED_MARKETS),
+            "any_td_rule": ("any_td = expected touchdowns (Poisson of the "
+                            "de-vigged anytime price), scored as one "
+                            + ANY_TD_SCORED_AS + " each, skipped when a "
+                            "rush_td/rec_td line is quoted — register 467"),
             "regions": DEFAULT_REGIONS,
             "events_processed": n_events,
             "players_priced": len(result["players"]),

@@ -442,3 +442,113 @@ def test_null_failure_is_named_not_swallowed(monkeypatch):
     rec = WG.decide_promotion(champion, weeks, arms)
     assert rec is not None                                # promotion unharmed
     assert rec["best_of_k"]["status"].startswith("FAILED to run")
+
+
+# ── the SHADOW start/sit rule (register 470): report-only, named beside MAE ──
+
+def _ranked_weeks(n_weeks=3, champ_wrong_at=("QB", "RB", "WR"), n_per_pos=14,
+                  chall="v1_notilt", champ_mae=5.0, chall_mae=4.0):
+    """Rows where the challenger orders every position perfectly and the
+    champion orders `champ_wrong_at` backwards (ties elsewhere). Actuals are
+    4 apart so no pair falls under the 3-point decision floor:
+    C(14,2)=91 pairs per position per week, 273 over three weeks > MIN_PAIRS."""
+    weeks = {}
+    for w in range(1, n_weeks + 1):
+        rows = {}
+        for q in ("QB", "RB", "WR", "TE"):
+            for i in range(n_per_pos):
+                actual = 4.0 * i + 1
+                right = actual
+                wrong = 4.0 * (n_per_pos - i)
+                rows[f"{q}{i}"] = {"pos": q, "actual": actual,
+                                   "proj": {"v1": wrong if q in champ_wrong_at else right,
+                                            chall: right}}
+        weeks[str(w)] = {"champion_arm": "v1", "rows": rows,
+                         "own_arms": {"v1": {"mae": champ_mae, "spearman": 0.6, "n": 56},
+                                      chall: {"mae": chall_mae, "spearman": 0.6, "n": 56}}}
+    return weeks
+
+
+def test_startsit_shadow_fires_when_the_challenger_orders_better():
+    ss = WG.decide_promotion_startsit(CHAMPION, _ranked_weeks(), ARMS)
+    assert ss is not None and ss["arm"] == "v1_notilt"
+    assert ss["weeks_used"] == [1, 2, 3] and ss["recent_wins"] == "3 of last 3"
+    assert ss["positions_won"] == 3                      # TE tied, not won
+    assert ss["per_position"]["QB"]["challenger"] == 1.0
+    assert ss["per_position"]["QB"]["champion"] == 0.0
+    assert ss["per_position"]["TE"]["won"] is False
+    assert ss["per_position"]["QB"]["n_pairs"] == 273
+
+
+def test_startsit_shadow_holds_when_the_champion_orders_better():
+    weeks = _ranked_weeks()
+    for e in weeks.values():                              # swap the columns
+        for r in e["rows"].values():
+            r["proj"] = {"v1": r["proj"]["v1_notilt"], "v1_notilt": r["proj"]["v1"]}
+    assert WG.decide_promotion_startsit(CHAMPION, weeks, ARMS) is None
+
+
+def test_startsit_shadow_needs_three_weeks_and_three_positions():
+    assert WG.decide_promotion_startsit(CHAMPION, _ranked_weeks(n_weeks=2), ARMS) is None
+    # ahead at only two positions -> refused, even though pooled accuracy leads
+    two = _ranked_weeks(champ_wrong_at=("QB", "RB"))
+    assert WG.decide_promotion_startsit(CHAMPION, two, ARMS) is None
+
+
+def test_startsit_shadow_is_absent_not_a_crash_without_rows():
+    assert WG.decide_promotion_startsit(CHAMPION, _weeks([5, 5, 5], [4, 4, 4]), ARMS) is None
+
+
+def test_promotion_shadow_names_a_disagreement_instead_of_averaging_it():
+    # start/sit says promote; MAE (champion 4 < challenger 5) says hold
+    weeks = _ranked_weeks(champ_mae=4.0, chall_mae=5.0)
+    sh = WG.promotion_shadow(CHAMPION, weeks, ARMS, 3, dt.date(2026, 9, 29))
+    assert sh["mae_rule"] is None and sh["startsit_rule"] == "v1_notilt"
+    assert sh["agree"] is False and "DISAGREE" in sh["note"]
+    assert "plan-⑥" in sh["note"]
+    # both agree -> said so
+    sh2 = WG.promotion_shadow(CHAMPION, _ranked_weeks(), ARMS, 3, dt.date(2026, 9, 29))
+    assert sh2["agree"] is True and sh2["mae_rule"] == sh2["startsit_rule"] == "v1_notilt"
+
+
+def test_main_writes_the_shadow_verdict_even_while_an_override_holds_the_wheel(tmp_path):
+    own, actuals, series = _setup_dir(tmp_path)
+    env = _env(own, actuals, series, tmp_path)
+    Path(env["OWN_WEEKLY_CONTROLS"]).write_text(
+        json.dumps({"champion_override": "v1_pg16"}))
+    assert _run_main(["--date", "2026-09-15"], env) == 0
+    ledger = json.loads((own / "grades_2026.json").read_text())
+    sh = ledger["promotion_shadow"]
+    assert sh["as_of_week"] == 1 and sh["champion"] == "v1"
+    assert sh["mae_rule"] is None and sh["startsit_rule"] is None   # 3 players: nothing fires
+    assert sh["agree"] is True
+    assert ledger["promotion_shadow_history"][-1]["note"] == sh["note"]
+    assert ledger["promotions"] == [ledger["promotions"][0]]        # override only, no promotion
+
+
+def test_promotion_alert_carries_the_shadow_line(tmp_path):
+    own, actuals, series = _setup_dir(tmp_path, weeks=(1, 2, 3))
+    doc = json.loads(Path(actuals).read_text())
+    for w in doc["weeks"].values():
+        w["players"]["1"] = 9.0
+        w["players"]["2"] = 21.0
+    Path(actuals).write_text(json.dumps(doc))
+    env = _env(own, actuals, series, tmp_path)
+    assert _run_main(["--date", "2026-09-29"], env) == 0
+    ledger = json.loads((own / "grades_2026.json").read_text())
+    rec = ledger["promotions"][0]
+    assert rec["shadow"]["startsit_rule"] is None                    # too few pairs
+    assert rec["shadow"]["agree"] is False                           # MAE promoted, start/sit held
+    body = (tmp_path / "issue" / "promotion_body.md").read_text()
+    assert "Shadow start/sit rule (report-only):" in body and "DISAGREE" in body
+
+
+def test_startsit_shadow_tolerates_an_arm_added_mid_season():
+    # v1_notilt has no column in week 1 (added later); weeks 2-4 carry it.
+    # A rule demanding every arm in every week would blank week 1 for all
+    # arms AND lose the challenger's own three weeks. It must still fire.
+    weeks = _ranked_weeks(n_weeks=4)
+    for r in weeks["1"]["rows"].values():
+        del r["proj"]["v1_notilt"]
+    ss = WG.decide_promotion_startsit(CHAMPION, weeks, ARMS)
+    assert ss is not None and ss["weeks_used"] == [2, 3, 4]

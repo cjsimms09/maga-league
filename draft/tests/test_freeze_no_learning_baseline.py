@@ -74,12 +74,50 @@ def test_the_artifact_says_in_its_own_text_that_it_must_not_be_tuned():
 
 # ── the verifier: it must FIRE, not just pass ─────────────────────────────
 
-def test_KNOWN_NEGATIVE_a_freshly_taken_freeze_reports_ZERO_drift():
+def test_KNOWN_NEGATIVE_a_freshly_taken_freeze_reports_ZERO_drift(tmp_path):
     """The tuple-vs-list regression. If this breaks, the control reports
-    permanent false drift and real drift becomes invisible."""
-    r = F.verify(FREEZE)
+    permanent false drift and real drift becomes invisible.
+
+    ⛔ REWRITTEN 2026-09-01 (A, register 465) — THIS CONTROL WAS ITSELF A DATED
+    CLAIM. It verified the COMMITTED 08-21 freeze against LIVE code and required
+    zero drift. That was true on the day the freeze was taken and became false
+    the moment any arm changed — which it did today, when `v1_pull3` was added
+    as a challenger (register 463). The verifier's own docstring says drift from
+    live is "EXPECTED and healthy as the season learns; reported, never fixed".
+    So the test was asserting the opposite of the tool's contract, and would
+    have gone red on the first legitimate change of the season.
+
+    "Freshly taken" means taken NOW. A freeze built from live state seconds
+    ago must verify with zero drift — that is the tuple-vs-list regression's
+    real shape, and it cannot expire.
+    """
+    payload = F.build_payload()
+    doc = dict(payload)
+    doc["_sha256_of_payload"] = F._sha({k: v for k, v in doc.items() if k != "_sha256_of_payload"})
+    p = tmp_path / "fresh.json"
+    p.write_text(json.dumps(doc))
+    r = F.verify(p)
     assert r["exists"] and r["hash_ok"]
-    assert r["drift"] == {}, f"false drift: {r['drift_keys']}"
+    assert r["drift"] == {}, f"false drift on a freeze taken seconds ago: {r['drift_keys']}"
+
+
+def test_KNOWN_POSITIVE_the_committed_08_21_freeze_reports_TODAYS_real_drift():
+    """The other half, and the one the old control could not express: the
+    COMMITTED freeze is the 08-21 state and live code has legitimately moved
+    (`v1_pull3`, register 463). The verifier must SEE that — as drift in
+    `arms`, with the hash intact — because a control that reports zero here is
+    a control that has quietly become a competitor."""
+    r = F.verify(FREEZE)
+    assert r["exists"] and r["hash_ok"], "the committed freeze itself must be untampered"
+    assert "arms" in r["drift_keys"], r["drift_keys"]
+    frozen = {a["name"] for a in r["drift"]["arms"]["frozen"]}
+    live = {a["name"] for a in r["drift"]["arms"]["live"]}
+    assert "v1_pull3" in live - frozen, (live - frozen)
+    #: and the FROZEN ARM ITSELF is unchanged — the challenger was added beside
+    #: it, not to it. That is the line P298 actually draws.
+    fv1 = next(a for a in r["drift"]["arms"]["frozen"] if a["name"] == "v1")
+    lv1 = next(a for a in r["drift"]["arms"]["live"] if a["name"] == "v1")
+    assert fv1 == lv1, "the no-learning arm's own definition moved — that is the real violation"
 
 
 def test_KNOWN_POSITIVE_the_verifier_DETECTS_a_changed_weight(tmp_path):

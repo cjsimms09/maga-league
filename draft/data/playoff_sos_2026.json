@@ -4,7 +4,7 @@
  "provenance": {
   "method": "For each 2025 player-week in the component store, fantasy points under the league's own scoring table (public/draft_data.json league.scoring) are credited AGAINST that week's opponent defense, derived from the vegas store's complete 2025 pairings (272 games; the component store carries team but not opponent). Per-game = total / games the defense actually played. A team's playoff softness at a position = mean of its 2026 week-15/16/17 opponents' per-game allowed; rank 1 = softest, ties broken by team code A-Z. Team codes normalized through adp.TEAM_ALIASES (board vocabulary, LA->LAR).",
   "sources": {
-   "board": "public/draft_data.json (built_at 2026-08-31T17:12:50Z)",
+   "board": "public/draft_data.json (built_at 2026-09-01T15:29:04Z)",
    "components": "draft/backtest/component_stats_2025.json (fetched 2026-08-18)",
    "pairings": "draft/backtest/vegas_lines_2021_2026.json (fetched 2026-08-18)",
    "schedule": "draft/data/playoff_sched_2026.json (fetched 2026-08-16)"
@@ -28,8 +28,8 @@
     17
    ]
   },
-  "players_ranked": 523,
-  "players_absent": 128
+  "players_ranked": 537,
+  "players_absent": 116
  },
  "defense_allowed_2025": {
   "ARI": {
@@ -8067,6 +8067,23 @@
    "avg_allowed_per_game": 9.45,
    "softness_rank": 24
   },
+  "12457": {
+   "name": "Jaydon Blue",
+   "position": "RB",
+   "team": "PHI",
+   "opponents": {
+    "15": "SEA",
+    "16": "HOU",
+    "17": "SF"
+   },
+   "opp_allowed_per_game": {
+    "15": 16.09,
+    "16": 17.59,
+    "17": 20.82
+   },
+   "avg_allowed_per_game": 18.17,
+   "softness_rank": 30
+  },
   "7587": {
    "name": "Dyami Brown",
    "position": "WR",
@@ -8339,6 +8356,23 @@
    "avg_allowed_per_game": 23.94,
    "softness_rank": 24
   },
+  "7536": {
+   "name": "Quintin Morris",
+   "position": "TE",
+   "team": "JAX",
+   "opponents": {
+    "15": "HOU",
+    "16": "DAL",
+    "17": "WAS"
+   },
+   "opp_allowed_per_game": {
+    "15": 9.72,
+    "16": 9.7,
+    "17": 13.36
+   },
+   "avg_allowed_per_game": 10.93,
+   "softness_rank": 15
+  },
   "8135": {
    "name": "Treylon Burks",
    "position": "WR",
@@ -8406,6 +8440,23 @@
    },
    "avg_allowed_per_game": 10.13,
    "softness_rank": 22
+  },
+  "13846": {
+   "name": "Jack Velling",
+   "position": "TE",
+   "team": "ATL",
+   "opponents": {
+    "15": "WAS",
+    "16": "TB",
+    "17": "NO"
+   },
+   "opp_allowed_per_game": {
+    "15": 13.36,
+    "16": 12.86,
+    "17": 9.86
+   },
+   "avg_allowed_per_game": 12.03,
+   "softness_rank": 5
   },
   "13411": {
    "name": "Zavion Thomas",
@@ -9597,6 +9648,23 @@
    "avg_allowed_per_game": 21.55,
    "softness_rank": 4
   },
+  "5970": {
+   "name": "Greg Dortch",
+   "position": "WR",
+   "team": "BUF",
+   "opponents": {
+    "15": "CHI",
+    "16": "DEN",
+    "17": "MIA"
+   },
+   "opp_allowed_per_game": {
+    "15": 30.32,
+    "16": 21.18,
+    "17": 24.25
+   },
+   "avg_allowed_per_game": 25.25,
+   "softness_rank": 15
+  },
   "12541": {
    "name": "Dont'e Thornton",
    "position": "WR",
@@ -9923,19 +9991,19 @@
   "7039": {
    "name": "Cody White",
    "position": "WR",
-   "team": "SEA",
+   "team": "LV",
    "opponents": {
-    "15": "PHI",
-    "16": "LAR",
-    "17": "CAR"
+    "15": "DEN",
+    "16": "TEN",
+    "17": "ARI"
    },
    "opp_allowed_per_game": {
-    "15": 21.51,
-    "16": 25.65,
-    "17": 21.64
+    "15": 21.18,
+    "16": 29.55,
+    "17": 24.58
    },
-   "avg_allowed_per_game": 22.93,
-   "softness_rank": 28
+   "avg_allowed_per_game": 25.1,
+   "softness_rank": 17
   },
   "13150": {
    "name": "Darius Cooper",
@@ -10004,6 +10072,23 @@
    },
    "avg_allowed_per_game": 24.75,
    "softness_rank": 18
+  },
+  "8129": {
+   "name": "Dameon Pierce",
+   "position": "RB",
+   "team": "PHI",
+   "opponents": {
+    "15": "SEA",
+    "16": "HOU",
+    "17": "SF"
+   },
+   "opp_allowed_per_game": {
+    "15": 16.09,
+    "16": 17.59,
+    "17": 20.82
+   },
+   "avg_allowed_per_game": 18.17,
+   "softness_rank": 30
   },
   "13347": {
    "name": "Demond Claiborne",
@@ -10277,6 +10362,23 @@
    "avg_allowed_per_game": 28.84,
    "softness_rank": 1
   },
+  "3269": {
+   "name": "Chris Moore",
+   "position": "WR",
+   "team": "BAL",
+   "opponents": {
+    "15": "PIT",
+    "16": "CLE",
+    "17": "CIN"
+   },
+   "opp_allowed_per_game": {
+    "15": 28.97,
+    "16": 21.74,
+    "17": 21.11
+   },
+   "avg_allowed_per_game": 23.94,
+   "softness_rank": 24
+  },
   "12542": {
    "name": "Efton Chism",
    "position": "WR",
@@ -10327,6 +10429,23 @@
    },
    "avg_allowed_per_game": 19.81,
    "softness_rank": 19
+  },
+  "5154": {
+   "name": "Trent Sherfield",
+   "position": "WR",
+   "team": "BUF",
+   "opponents": {
+    "15": "CHI",
+    "16": "DEN",
+    "17": "MIA"
+   },
+   "opp_allowed_per_game": {
+    "15": 30.32,
+    "16": 21.18,
+    "17": 24.25
+   },
+   "avg_allowed_per_game": 25.25,
+   "softness_rank": 15
   },
   "11994": {
    "name": "Kameron Johnson",
@@ -10651,6 +10770,23 @@
    "avg_allowed_per_game": 24.0,
    "softness_rank": 23
   },
+  "13264": {
+   "name": "Dohnte Meyers",
+   "position": "WR",
+   "team": "CIN",
+   "opponents": {
+    "15": "CAR",
+    "16": "IND",
+    "17": "BAL"
+   },
+   "opp_allowed_per_game": {
+    "15": 21.64,
+    "16": 29.42,
+    "17": 29.46
+   },
+   "avg_allowed_per_game": 26.84,
+   "softness_rank": 7
+  },
   "14020": {
    "name": "Dean Patterson",
    "position": "WR",
@@ -10736,6 +10872,23 @@
    "avg_allowed_per_game": 23.67,
    "softness_rank": 26
   },
+  "13696": {
+   "name": "Ja'Mori Maclin",
+   "position": "WR",
+   "team": "BUF",
+   "opponents": {
+    "15": "CHI",
+    "16": "DEN",
+    "17": "MIA"
+   },
+   "opp_allowed_per_game": {
+    "15": 30.32,
+    "16": 21.18,
+    "17": 24.25
+   },
+   "avg_allowed_per_game": 25.25,
+   "softness_rank": 15
+  },
   "13674": {
    "name": "Chris Hilton",
    "position": "WR",
@@ -10752,6 +10905,23 @@
    },
    "avg_allowed_per_game": 25.17,
    "softness_rank": 16
+  },
+  "13670": {
+   "name": "Harrison Wallace",
+   "position": "WR",
+   "team": "ARI",
+   "opponents": {
+    "15": "NYJ",
+    "16": "NO",
+    "17": "LV"
+   },
+   "opp_allowed_per_game": {
+    "15": 25.08,
+    "16": 22.54,
+    "17": 26.62
+   },
+   "avg_allowed_per_game": 24.75,
+   "softness_rank": 18
   },
   "13392": {
    "name": "Jeff Caldwell",
@@ -10838,6 +11008,23 @@
    "avg_allowed_per_game": 22.71,
    "softness_rank": 29
   },
+  "13313": {
+   "name": "Emmanuel Henderson",
+   "position": "WR",
+   "team": "SEA",
+   "opponents": {
+    "15": "PHI",
+    "16": "LAR",
+    "17": "CAR"
+   },
+   "opp_allowed_per_game": {
+    "15": 21.51,
+    "16": 25.65,
+    "17": 21.64
+   },
+   "avg_allowed_per_game": 22.93,
+   "softness_rank": 28
+  },
   "14037": {
    "name": "Rashad Rochelle",
    "position": "WR",
@@ -10905,6 +11092,23 @@
    },
    "avg_allowed_per_game": 22.71,
    "softness_rank": 29
+  },
+  "13343": {
+   "name": "Vinny Anthony",
+   "position": "WR",
+   "team": "ATL",
+   "opponents": {
+    "15": "WAS",
+    "16": "TB",
+    "17": "NO"
+   },
+   "opp_allowed_per_game": {
+    "15": 28.85,
+    "16": 25.61,
+    "17": 22.54
+   },
+   "avg_allowed_per_game": 25.67,
+   "softness_rank": 13
   },
   "13890": {
    "name": "Michael Briscoe",
@@ -11280,6 +11484,23 @@
    "avg_allowed_per_game": 21.55,
    "softness_rank": 4
   },
+  "8207": {
+   "name": "Tyler Goodson",
+   "position": "RB",
+   "team": "ATL",
+   "opponents": {
+    "15": "WAS",
+    "16": "TB",
+    "17": "NO"
+   },
+   "opp_allowed_per_game": {
+    "15": 23.89,
+    "16": 19.85,
+    "17": 19.13
+   },
+   "avg_allowed_per_game": 20.96,
+   "softness_rank": 7
+  },
   "13946": {
    "name": "Jamal Haynes",
    "position": "RB",
@@ -11466,6 +11687,23 @@
    },
    "avg_allowed_per_game": 21.39,
    "softness_rank": 5
+  },
+  "13595": {
+   "name": "Cash Jones",
+   "position": "RB",
+   "team": "ATL",
+   "opponents": {
+    "15": "WAS",
+    "16": "TB",
+    "17": "NO"
+   },
+   "opp_allowed_per_game": {
+    "15": 23.89,
+    "16": 19.85,
+    "17": 19.13
+   },
+   "avg_allowed_per_game": 20.96,
+   "softness_rank": 7
   },
   "14041": {
    "name": "Anderson Castle",
@@ -12389,12 +12627,6 @@
    "team": "FA",
    "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
   },
-  "12457": {
-   "name": "Jaydon Blue",
-   "position": "RB",
-   "team": "FA",
-   "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
-  },
   "7946": {
    "name": "Jack Stoll",
    "position": "TE",
@@ -12415,12 +12647,6 @@
   },
   "8885": {
    "name": "Tucker Fisk",
-   "position": "TE",
-   "team": "FA",
-   "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
-  },
-  "13846": {
-   "name": "Jack Velling",
    "position": "TE",
    "team": "FA",
    "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
@@ -12551,12 +12777,6 @@
    "team": "FA",
    "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
   },
-  "5970": {
-   "name": "Greg Dortch",
-   "position": "WR",
-   "team": "FA",
-   "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
-  },
   "11588": {
    "name": "Jawhar Jordan",
    "position": "RB",
@@ -12605,12 +12825,6 @@
    "team": "FA",
    "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
   },
-  "8129": {
-   "name": "Dameon Pierce",
-   "position": "RB",
-   "team": "FA",
-   "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
-  },
   "6853": {
    "name": "Van Jefferson",
    "position": "WR",
@@ -12647,20 +12861,8 @@
    "team": "FA",
    "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
   },
-  "3269": {
-   "name": "Chris Moore",
-   "position": "WR",
-   "team": "FA",
-   "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
-  },
   "4040": {
    "name": "JuJu Smith-Schuster",
-   "position": "WR",
-   "team": "FA",
-   "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
-  },
-  "5154": {
-   "name": "Trent Sherfield",
    "position": "WR",
    "team": "FA",
    "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
@@ -12685,12 +12887,6 @@
   },
   "3200": {
    "name": "Sterling Shepard",
-   "position": "WR",
-   "team": "FA",
-   "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
-  },
-  "13904": {
-   "name": "Jacob De Jesus",
    "position": "WR",
    "team": "FA",
    "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
@@ -12755,18 +12951,6 @@
    "team": "FA",
    "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
   },
-  "13696": {
-   "name": "Ja'Mori Maclin",
-   "position": "WR",
-   "team": "FA",
-   "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
-  },
-  "13670": {
-   "name": "Harrison Wallace",
-   "position": "WR",
-   "team": "FA",
-   "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
-  },
   "12966": {
    "name": "Moose Muhammad",
    "position": "WR",
@@ -12785,14 +12969,14 @@
    "team": "FA",
    "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
   },
-  "13313": {
-   "name": "Emmanuel Henderson",
+  "13776": {
+   "name": "Hank Beatty",
    "position": "WR",
    "team": "FA",
    "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
   },
-  "13776": {
-   "name": "Hank Beatty",
+  "13904": {
+   "name": "Jacob De Jesus",
    "position": "WR",
    "team": "FA",
    "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
@@ -12805,12 +12989,6 @@
   },
   "13760": {
    "name": "Jaden Bradley",
-   "position": "WR",
-   "team": "FA",
-   "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
-  },
-  "13343": {
-   "name": "Vinny Anthony",
    "position": "WR",
    "team": "FA",
    "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
@@ -12911,12 +13089,6 @@
    "team": "FA",
    "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
   },
-  "8207": {
-   "name": "Tyler Goodson",
-   "position": "RB",
-   "team": "FA",
-   "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
-  },
   "6659": {
    "name": "Craig Reynolds",
    "position": "RB",
@@ -12991,12 +13163,6 @@
   },
   "13328": {
    "name": "Anthony Hankerson",
-   "position": "RB",
-   "team": "FA",
-   "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
-  },
-  "13595": {
-   "name": "Cash Jones",
    "position": "RB",
    "team": "FA",
    "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
@@ -13091,12 +13257,6 @@
    "team": "FA",
    "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
   },
-  "13221": {
-   "name": "Brett Gabbert",
-   "position": "QB",
-   "team": "FA",
-   "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
-  },
   "13599": {
    "name": "Kyron Drones",
    "position": "QB",
@@ -13105,6 +13265,12 @@
   },
   "13802": {
    "name": "Jacob Clark",
+   "position": "QB",
+   "team": "FA",
+   "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
+  },
+  "13221": {
+   "name": "Brett Gabbert",
    "position": "QB",
    "team": "FA",
    "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"

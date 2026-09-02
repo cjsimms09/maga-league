@@ -212,14 +212,26 @@ const CHECKS = {
    * has seen fire is the failure class this whole program exists to catch, and a
    * report-only tool is especially easy to ship inert. */
   'constant-spike-detector': () => {
-    const tool = readText('draft/tools/constant_spike.js');
-    if (tool === null) return { code: 1, why: 'draft/tools/constant_spike.js does not exist' };
+    /* ⚠️ BUILT 2026-08-18 AS PYTHON (draft/tools/constant_spike_scan.py +
+     * draft/tests/test_constant_spike_scan.py, commit 9c137c59) and this
+     * verify read "does not exist" for two weeks because it was pinned to a
+     * .js file name. The commitment is the DETECTOR, not the language —
+     * either implementation counts, and both arms must be present in
+     * whichever one exists (register 452's class, the second instance in
+     * this file today; see analyzer-claims-caller). */
+    const cands = [
+      { tool: 'draft/tools/constant_spike.js', suite: 'draft/tests/constant_spike.test.js' },
+      { tool: 'draft/tools/constant_spike_scan.py', suite: 'draft/tests/test_constant_spike_scan.py' },
+    ];
+    const found = cands.map(c => ({ ...c, src: readText(c.tool) })).filter(c => c.src !== null);
+    if (!found.length) return { code: 1, why: 'neither draft/tools/constant_spike.js nor constant_spike_scan.py exists' };
+    const tool = found[0].src;
     if (!/ratio/i.test(tool) || !/spike/i.test(tool)) {
       return { code: 1, why: 'the tool exists but does not implement BOTH arms '
         + '(value spike and ratio lock) — the ratio arm is the one that would have '
         + 'caught proj_ceiling = 1.35 * proj_mean' };
     }
-    const suite = readText('draft/tests/constant_spike.test.js');
+    const suite = readText(found[0].suite);
     if (suite === null) {
       return { code: 1, why: 'no suite — a report-only detector that nobody has '
         + 'watched fire is indistinguishable from one that reports nothing' };
@@ -269,11 +281,27 @@ const CHECKS = {
     catch (e) { return { code: 2, why: 'cannot read .github/workflows' }; }
     const callers = files.filter(f => /analyzerClaims|analyzer_claims|analyzer-claims/
       .test(fs.readFileSync(path.join(dir, f), 'utf8')));
-    if (!callers.length) {
-      return { code: 1, why: 'no workflow invokes analyzerClaims — the rail has no caller' };
+    /* ⚠️ THE CALLER IS A NETLIFY SCHEDULED FUNCTION, NOT A WORKFLOW — and this
+     * verify only ever looked in .github/workflows, so it read "no caller" on
+     * 2026-09-02 while netlify/functions/analyzer-cron.js had carried
+     * `schedule = "5 13 * * 0"` in netlify.toml since 08-24. A verify pinned
+     * to one of the two places a schedule can live is the register-452 class
+     * (an assertion pinned to a condition that moved). Both places count;
+     * the function must actually require the rail, not merely be named like it. */
+    const toml = readText('netlify.toml') || '';
+    const netlifyScheduled = [];
+    const blockRe = /\[functions\."([^"]+)"\]([\s\S]*?)(?=\n\[|$)/g;
+    let m;
+    while ((m = blockRe.exec(toml))) {
+      if (!/^\s*schedule\s*=/m.test(m[2])) continue;
+      const src = readText('netlify/functions/' + m[1] + '.js') || '';
+      if (/analyzer_claims|analyzerClaims/.test(src)) netlifyScheduled.push(m[1] + ' (netlify.toml)');
+    }
+    if (!callers.length && !netlifyScheduled.length) {
+      return { code: 1, why: 'no workflow or scheduled Netlify function invokes analyzerClaims — the rail has no caller' };
     }
     const scheduled = callers.filter(f =>
-      /cron:/.test(fs.readFileSync(path.join(dir, f), 'utf8')));
+      /cron:/.test(fs.readFileSync(path.join(dir, f), 'utf8'))).concat(netlifyScheduled);
     return scheduled.length
       ? { code: 0, why: 'scheduled caller(s): ' + scheduled.join(', ') }
       : { code: 1, why: 'analyzerClaims is invoked by ' + callers.join(', ')

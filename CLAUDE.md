@@ -21,7 +21,11 @@ draft-week instruction without checking its date.** What governs NOW:
 * **The audit rhythm:** Wednesday register audits (worksheet pattern:
   `draft/audit/WEDNESDAY-AUDIT-*.md`); the ledger gates run in CI and are green —
   keep them that way. First blend grade vs Cory's edge bar: **09-15**.
-* **📬 A READS ONE PAGE: `A-DECISIONS.md`** (Cory, 08-31) — the relay curates
+* **⛔ STANDING RULING — NO PAID PROPS, NO ODDS API, EVER AGAIN. Cory, 2026-09-01, verbatim: *"We don't need odds api remember!! ... We get free props from bovada, ball don't lie, etc!! Why can this never get fixed."*** It kept coming back because his 08-26 yes-to-the-cron plus "one month" was filed as an OPEN decision with a date (register 421, the runbook's standing dates, A21), and the GO sweep surfaced it every day until someone re-asked him. **A ruling is written HERE, closed, or it is not a ruling.** Consequences executed 09-01: `weekly-props-fetch.yml` schedule REMOVED (dispatch-only; the paid key is never renewed and nothing waits on 09-14); the props arm (P354, plan ①) is built on FREE sources — **Underdog, measured 09-02: game-week lines for every needed market across all 16 games, keyless (`free_props_census_2026.json`)** — with Bovada as the Thursday complement (P299); Ball Don't Lie was probed 08-18 with the one stored key (`bdl_key_matrix.json`: 401 on odds, `Route not found` on every player-props spelling) — **that probe is only as good as that key; if Cory has a different BDL key or plan, C re-probes from Actions with a known-positive control, and nobody says "BDL is not the path" again without it.** If a free source fails, the answer is his own: *"we will find more sources"* — never a purchase ask.
+
+* **💵 WHERE THE IN-SEASON EDGE IS, RANKED BY MEASURED DOLLARS — `IN-SEASON-EDGE-PLAN-2026.md`** (Cory, 09-01: *"Make our model better... make me more money"*; the props arm beats the live champion at all four positions in the 2025 backtest, register 463 — ship it first; the $1,500 weekly-high pot is a variance question; zero-point starts and Tuesday waiver speed are the behaviors that pay).
+
+**📬 A READS ONE PAGE: `A-DECISIONS.md`** (Cory, 08-31) — the relay curates
   every decision onto it and routes every answer; `TO: A` is closed to new
   decision-asks; E writes the sheet directly, unfiltered.
 * **🪪 THE ROSTER RULE (Cory, 08-31 — sessions kept misstating his players):**
@@ -29,6 +33,7 @@ draft-week instruction without checking its date.** What governs NOW:
   (regenerated from LIVE Sleeper Tue/Fri/Sun by `week-brief.yml`; fresh within
   3 days) or live Sleeper itself — a frozen seat plan, tournament artifact, or
   memory of an older week is NEVER a source for who he rosters today.
+* **📈 SHIPPED 09-02 (A) — four self-learning instruments, all report-only where they touch a rule:** ① the live props converter now prices anytime-TD lines the way the backtest did (register 467; `fetch_weekly_props.implied_points`, one converter for both paths); ② the Tuesday grader runs the START/SIT promotion rule as a SHADOW beside the live MAE rule and writes both verdicts to `grades_2026.json` every week, override or not (register 470; P358 predicts they disagree by week 5 — Cory rules plan-⑥ on that evidence); ③ the 2025 weekly backtest replicates on 2024 with the claims fixed before the fold was read (register 471: props beats the champion at 4 of 4 positions again, blend best on every grade) — **and a fold another lane's prereg holds blind is now REFUSED at the harness door** (`draft/data/blind_folds.json`, register 472; 2023 is P347's, do not read it); ④ the tool's Tuesday waiver claim is graded against what Cory ACTUALLY claimed, no button (register 466 ①), which found register 473. **Read before quoting a weight or a fold: `engine.js:826` and `blind_folds.json`.**
 * **Week 1 is 09-10.** The dated season calendar lives in `ROUTES.md` and the
   register; the capture rail (waiver/stream/lineup auto-capture, Tuesday wire,
   weekly probe) is live and self-verifying.

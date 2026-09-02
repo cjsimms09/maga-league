@@ -1,0 +1,170 @@
+name: Draft-era artifacts (weekly, for 2027)
+
+# ── WHY THIS FILE EXISTS ────────────────────────────────────────────────────
+#
+# Register 448. Cory, 2026-09-01, on the recommendation and its alternatives:
+# "Do what you think is best." Option ① shipped: MOVE, DO NOT DELETE.
+#
+# Seven artifacts — seat_plan, mlv_plan, mlv_recommend, opening_script,
+# room_read, predicted_keepers, position_boards — regenerated on every nightly
+# board build, inside `set -euo pipefail`, so ANY ONE OF THEM FAILING REFUSED
+# THE PUBLISH of the board the Tuesday wire depends on. Two of the eight things
+# that kept the board unpublished for ten days were artifacts of this family
+# (registers 443, 445).
+#
+# MEASURED 2026-08-31, by grepping every reader across src/, netlify/, views/
+# and the war room — not assumed:
+#
+#   seat_plan.json          0 server / 1 war-room
+#   mlv_plan.json           0 / 0
+#   mlv_recommend.json      0 / 0
+#   opening_script.json     0 / 0
+#   room_read.json          0 / 0
+#   predicted_keepers.json  0 / 0
+#   position_boards.json    0 / 3 war-room
+#
+# Five are read by NOTHING AT ALL; the other two only by the war room, a
+# draft-day surface, nine days after the draft.
+#
+# ⚠️ THE ARGUMENT AGAINST DELETING THEM IS THE REASON THIS FILE EXISTS RATHER
+# THAN A DIFF THAT REMOVES THEM. These are the 2027 draft's institutional
+# memory. `predicted_keepers` and `opening_script` are the only running record
+# of how the pre-draft model saw the league; `room_read` and `mlv_plan` encode
+# the opponent modelling Cory asked for by name; and the season ruling says
+# draft learnings ACCUMULATE for 2027. Deleting them to make a nightly job
+# faster would trade a 2027 input for runtime.
+#
+# So the question was never "are these worthless". It was "must they run
+# NIGHTLY, INSIDE THE PUBLISH GATE, to keep accumulating". They must not.
+#
+# ── WHAT THIS JOB DOES NOT DO ───────────────────────────────────────────────
+#
+# It does NOT build a board. It regenerates artifacts FROM the committed board,
+# which is the fully post-processed one draft-data.yml publishes. That is not
+# an incidental detail: `position_boards.js` must see the board AFTER
+# attach_multisource.py has written proj_cbs/espn/fftoday/clay, or its
+# covered_by_source is 0 for all four at every position (register 253). Running
+# against the committed board satisfies that BY CONSTRUCTION rather than by
+# remembering to order two steps correctly — there is no earlier board here to
+# accidentally read.
+#
+# ── AND IT STILL HAS TO BE CORRECT ──────────────────────────────────────────
+#
+# Weekly does not mean unguarded. This job runs draft_day_consistency.js at
+# `--cadence all`, where these four artifacts DO vote on the exit code — so a
+# regeneration that silently produced a board-inconsistent artifact fails HERE,
+# loudly, on a job whose failure costs nobody a waiver. The nightly job runs
+# the same check at `--cadence nightly`: it still measures and prints their
+# drift, it just cannot be blocked by it.
+
+on:
+  schedule:
+    # 15:00 UTC Wednesday = 10:00 CDT. Wednesday on purpose: it is the repo's
+    # existing audit day (draft/audit/WEDNESDAY-AUDIT-*.md), and it is AFTER
+    # Tuesday's waiver run, so this job can never be the thing sitting between
+    # the wire and the board it needs. UTC deliberately — a cron written as a
+    # local time silently slides an hour at every DST boundary.
+    - cron: '0 15 * * 3'
+  workflow_dispatch:
+
+# Two runs regenerating and pushing the same files would race. The nightly
+# board job is not in this group: it commits a DISJOINT set of paths (the split
+# was made in the same edit that created this file), and its push-race retry
+# handles concurrent pushes on its own.
+concurrency:
+  group: draft-artifacts-weekly
+  cancel-in-progress: false
+
+jobs:
+  artifacts:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history for the same reason draft-data.yml needs it (register
+          # 433): tests and tools in this repo read blobs at pinned shas, and a
+          # shallow clone turns those into silent skips rather than failures.
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r draft/requirements.txt
+
+      - name: Regenerate the draft-era artifacts from the committed board
+        # NOT `|| true`, and not `set +e`. The whole point of the move is that
+        # this job is allowed to fail: its failure costs a stale 2027 input for
+        # a week, not a missed waiver. A silent-success chain here would
+        # recreate the "screenshot with a current-looking timestamp" that
+        # register 143 is about, one cadence slower and harder to notice.
+        run: |
+          set -euo pipefail
+          # ORDER IS LOAD-BEARING: mlv_seat_plan.js reads emit_seat_plan.js's
+          # `my_picks` rather than retyping Cory's schedule — register 98 was an
+          # eighteen-pick artifact quoted for hours after his real twelve were
+          # known.
+          node draft/tools/emit_seat_plan.js
+          node draft/tools/mlv_seat_plan.js
+          node draft/tools/mlv_snapshot.js
+          node draft/tools/position_boards.js
+          python draft/predict_keepers.py
+          python draft/opening_script.py
+          python draft/room_read.py
+
+      - name: Prove the regenerated artifacts agree with the board they describe
+        # `--cadence all`: here the four weekly artifacts DO vote. Drift at this
+        # point does not mean "the board moved since Wednesday" — the artifacts
+        # were regenerated from that board seconds ago — it means the
+        # regeneration itself is wrong, which is the one thing this job exists
+        # to catch.
+        run: node draft/tools/draft_day_consistency.js --cadence all
+
+      - name: Commit
+        run: |
+          # Exactly the paths the step above writes, and DISJOINT from
+          # draft-data.yml's list — the two were split in the same edit. That
+          # matters: draft-data.yml's own comments record the same defect three
+          # times, a regeneration wired in without its output added to the
+          # commit list, so CI graded a fresh artifact and committed the stale
+          # one. Here the inverse would be worse: a path in BOTH lists lets two
+          # jobs fight over one file.
+          #
+          # ⚠️ `draft/data/draft_day_consistency.json` is DELIBERATELY ABSENT,
+          # even though the step above rewrites it. draft-data.yml commits that
+          # file, and its copy is the one that describes the board actually
+          # published — two jobs writing one artifact is precisely the fight
+          # this split exists to prevent. This job's verdict lives in its step
+          # EXIT CODE, which is what makes it a gate; the detail is in the run
+          # log. Discarded rather than left dirty so the rebase below has
+          # nothing ambiguous to autostash.
+          git checkout -- draft/data/draft_day_consistency.json || true
+          PATHS="public/seat_plan.json public/mlv_plan.json public/mlv_recommend.json public/position_boards.json draft/data/predicted_keepers.json draft/data/opening_script.json draft/data/opening_script.md draft/data/room_read.json draft/data/room_read.md"
+          EXISTING=""
+          for p in $PATHS; do [ -e "$p" ] && EXISTING="$EXISTING $p"; done
+          if [ -z "$EXISTING" ] || git diff --quiet -- $EXISTING; then
+            echo "no change — the board did not move these artifacts this week"
+            exit 0
+          fi
+          git config user.name  "draft-bot"
+          git config user.email "actions@github.com"
+          git add $EXISTING
+          git commit -m "Draft-era artifacts: weekly refresh $(date -u +%Y-%m-%d)" \
+                     -m "Regenerated from the committed board and joined back to it at --cadence all. These are 2027 draft inputs with no in-season readers (register 448); they run here so they can no longer refuse the publish of the board the Tuesday wire depends on."
+          # Same push-race retry as the board job: a lane session pushing main
+          # between checkout and push cost run 32080224084 an entire built
+          # board. This commit touches only files this job regenerates, so
+          # taking the incoming rebuild's side on a rebase conflict is correct.
+          for attempt in 1 2 3; do
+            git push && break
+            [ "$attempt" = 3 ] && { echo "push still racing after 3 rebases"; exit 1; }
+            if ! git pull --rebase --autostash origin main; then
+              git checkout --theirs -- $EXISTING || true
+              git add $EXISTING
+              GIT_EDITOR=true git rebase --continue
+            fi
+          done

@@ -1010,6 +1010,47 @@ def _rho_on(keys, var, a, b, info):
     return _spearman(xs, ys), len(xs)
 
 
+def pooled_markets_agree(mb, sb, ms) -> bool:
+    """THE POOLED DISCRIMINATION, AS A NAMED FUNCTION OF THREE NUMBERS.
+
+    True when the two markets agree with each other and both differ from us —
+    the signature that locates the disagreement in OUR column.
+
+    ⚠️ EXTRACTED FROM `market_agreement` 2026-09-01 (register 454) BECAUSE IT
+    WAS ONLY EVER TESTED THROUGH THE LIVE DATA, AND THE LIVE DATA CROSSED THE
+    BAR. The test that pins this rule asserted the flag was True on today's
+    capture; on 2026-09-01 `mfl_vs_source` had drifted from ~0.04 to 0.206
+    against a bar of `min(0.417, 0.390)/2 = 0.195`, so the flag went False by
+    ELEVEN THOUSANDTHS and the test failed for a reason that had nothing to do
+    with the defect it guards (Simpson's paradox shipping as a finding).
+
+    A rule reachable only through a daily capture is a rule whose known
+    positives expire. As a pure function of (mb, sb, ms) it takes fixtures, so
+    both arms are provable on any day — including the exact historical values
+    the docstring of that test still quotes.
+    """
+    if mb is None or sb is None or ms is None:
+        return False
+    return abs(ms) < min(abs(mb), abs(sb)) / 2.0 and (mb < 0) == (sb < 0)
+
+
+def position_arms_separable(d) -> bool:
+    """Both of a position's arms distinguishable from zero AT ITS OWN n.
+
+    |rho| >= 1.96/sqrt(n-1), the large-sample 95% critical value — DERIVED, not
+    fitted: 0.352 at n=32, 0.306 at n=42, 0.544 at n=14, so a small position
+    has to show more to count, which is the correct direction. Register 346.
+
+    Extracted alongside `pooled_markets_agree` for the same reason (register
+    454): a threshold that can only be exercised by whatever the market did
+    last night is a threshold nobody can write a fixture for.
+    """
+    if d["n"] < 3 or d["mfl_vs_board"] is None or d["source_vs_board"] is None:
+        return False
+    crit = 1.96 / ((d["n"] - 1) ** 0.5)
+    return abs(d["mfl_vs_board"]) >= crit and abs(d["source_vs_board"]) >= crit
+
+
 def market_agreement(mfl_ids: dict, mfl_rows: dict, source_rows: dict, board,
                      top_n=DRAFT_RANGE, variables=AGREEMENT_VARS) -> dict:
     """Do two INDEPENDENT DRAFT MARKETS agree with each other, or with our board?
@@ -1148,10 +1189,7 @@ def market_agreement(mfl_ids: dict, mfl_rows: dict, source_rows: dict, board,
             # THE DISCRIMINATION, AS A FLAG RATHER THAN AS PROSE. True when the
             # two markets agree with each other and both differ from us — the
             # signature that locates the disagreement in OUR column.
-            "markets_agree_board_differs": bool(
-                mb is not None and sb is not None and ms is not None
-                and abs(ms) < min(abs(mb), abs(sb)) / 2.0
-                and (mb < 0) == (sb < 0)),
+            "markets_agree_board_differs": pooled_markets_agree(mb, sb, ms),
         }
         # ⚠ AND WHETHER IT SURVIVES THE SPLIT, because the flag above is TRUE on
         # this data and the finding is nevertheless composition. A pooled
@@ -1178,14 +1216,7 @@ def market_agreement(mfl_ids: dict, mfl_rows: dict, source_rows: dict, board,
         # docstring's claim ("the gradient evaporates inside every position") is
         # true again for a reason rather than by luck. Register 346.
         if var == "wopr":
-            def _clears(d):
-                """Both arms separable from zero at this position's own n."""
-                if d["n"] < 3 or d["mfl_vs_board"] is None or d["source_vs_board"] is None:
-                    return False
-                crit = 1.96 / ((d["n"] - 1) ** 0.5)
-                return (abs(d["mfl_vs_board"]) >= crit
-                        and abs(d["source_vs_board"]) >= crit)
-
+            _clears = position_arms_separable
             agreeing = [d for d in by_pos.values()
                         if _clears(d)
                         and (d["mfl_vs_board"] < 0) == (d["source_vs_board"] < 0)]

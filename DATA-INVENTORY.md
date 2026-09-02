@@ -1,10 +1,10 @@
 # nflverse data inventory & reachability
 
-_Probed 2026-08-08T01:02Z in CI (schema season 2024). Draft-day scope: none._
+_Probed 2026-09-01T12:50Z in CI (schema season 2024). Draft-day scope: none._
 
 | dataset | status | rows | columns / error |
 |---|---|---|---|
-| `import_ids` | REACHABLE | 12470 | draft_ovr,rotoworld_id,stats_id,fleaflicker_id,draft_pick,merge_name,nfl_id,stats_global_id,age,rotowire_id,draft_round,swish_id,fantasy_data_id,name,pfr_id,position |
+| `import_ids` | REACHABLE | 12484 | pfr_id,espn_id,draft_round,stats_id,birthdate,college,sportradar_id,pff_id,rotowire_id,fleaflicker_id,fantasy_data_id,rotoworld_id,mfl_id,draft_ovr,merge_name,ktc_id |
 | `import_pbp_data[2024]` | REACHABLE | 49492 | play_id,game_id,old_game_id_x,home_team,away_team,season_type,week,posteam,posteam_type,defteam,side_of_field,yardline_100,game_date,quarter_seconds_remaining,half_seconds_remaining,game_seconds_remaining |
 | `import_weekly_data[2024]` | REACHABLE | 5597 | player_id,player_name,player_display_name,position,position_group,headshot_url,recent_team,season,week,season_type,opponent_team,completions,attempts,passing_yards,passing_tds,interceptions |
 | `import_ngs_data[passing]` | REACHABLE | 614 | season,season_type,week,player_display_name,player_position,team_abbr,avg_time_to_throw,avg_completed_air_yards,avg_intended_air_yards,avg_air_yards_differential,aggressiveness,max_completed_air_distance,avg_air_yards_to_sticks,attempts,pass_yards,pass_touchdowns |

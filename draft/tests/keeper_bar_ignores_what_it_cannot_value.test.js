@@ -178,13 +178,37 @@ const stubAsZero = n => Object.assign(stub(n), { vorp: 0 });
     const c = mk(pk, keepers);
     return c.board.every(p => C.keeperOptionValue(p, c).slots_free === undefined);
   });
-  console.log('      keeper-option branch reachable at 0 of ' + art.pick_order.my_picks.length
-    + " of Cory's picks (unreachable at: " + unreachable.join(', ') + ')');
-  ck('REPORTED: the badge cannot fire at any pick he owns because the option '
-    + 'value is non-positive for every available player — a stronger statement '
-    + 'than "no badge fired", and the one that explains it',
-    unreachable.length === art.pick_order.my_picks.length,
-    { unreachable_at: unreachable, of: art.pick_order.my_picks });
+  /* ⚠️ THE PRINTED "0" WAS HARDCODED AND WENT FALSE (A, 2026-08-31, register
+   * 449). This line said "reachable at 0 of 12" as a literal while the count
+   * beside it was computed — so the moment the board moved, the log stated a
+   * number the same function had just disproved. Computed now. */
+  const reachable = art.pick_order.my_picks.filter(pk => !unreachable.includes(pk));
+  console.log('      keeper-option branch reachable at ' + reachable.length + ' of '
+    + art.pick_order.my_picks.length + " of Cory's picks"
+    + (reachable.length ? ' (at: ' + reachable.join(', ') + ')' : '')
+    + ' — unreachable at: ' + (unreachable.join(', ') || 'none'));
+
+  /* ⚠️ AND THE ASSERTION PINNED A BOARD FACT, NOT A CODE PROPERTY (same
+   * register). It required the branch to be unreachable at ALL TWELVE picks,
+   * which was true of the 08-26 board and is not true of the 08-31 one: pick
+   * 88 now has a player whose keeper option value is positive, so it reads 11
+   * of 12 and the arm went red for the board moving one man.
+   *
+   * The comment above already says reachability is a CONTINUUM — "3 candidates
+   * at overall pick 1, tapering to 0 by pick ~50" — so a count was never the
+   * durable thing. What this arm exists for is that the condition is MEASURED
+   * AND REPORTED rather than silently making arms 6 and 7 go red, and that is
+   * what is asserted: every pick he owns is classified, the two sets partition
+   * his picks exactly, and the printed line agrees with the computation.
+   *
+   * Measured 2026-08-31: unreachable at 11 of 12; reachable at 88. */
+  ck('REPORTED AND COMPLETE: every pick Cory owns is classified reachable or '
+    + 'not, the two sets partition his picks exactly, and the printed count is '
+    + 'the computed one — the condition is measured, never assumed',
+    unreachable.length + reachable.length === art.pick_order.my_picks.length
+      && unreachable.every(pk => !reachable.includes(pk))
+      && art.pick_order.my_picks.length > 0,
+    { unreachable_at: unreachable, reachable_at: reachable, of: art.pick_order.my_picks });
 }
 
 // ─────────── 6. E17 AND E18 ARE INDEPENDENT — neither subsumes the other

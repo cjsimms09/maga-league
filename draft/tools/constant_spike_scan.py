@@ -65,6 +65,45 @@ KNOWN_LOCKED_PAIRS = {
 }
 
 
+#: Spellings of ONE Draft Sharks field (attach_draftsharks.py writes both; the
+#: alt-source ranker reads one). A copy is not a lock.
+_DS_SPELLINGS = [{"proj_ds", "proj_draftsharks"}, {"proj_ds_floor", "proj_floor_ds"},
+                 {"proj_ds_ceiling", "proj_ceiling_ds"}]
+
+
+def copy_by_construction(a, b, mean_ratio):
+    """A reason when field b is a COPY of field a by construction (or the
+    reverse), so a ratio lock at exactly 1.0 is an alias, not the 08-17
+    class. Added 2026-09-02 after the scan reported sixteen 1.0× locks on the
+    live board and every one was a copy: alt_source_rankings.py writes
+    `proj_used_<src>` = that source's own `proj_mean` for covered rows
+    (`row["proj_used"] = sp.get("proj_mean")`, :99), attach_draftsharks.py
+    writes `proj_ds` and `proj_draftsharks` from one `ds_proj`, and
+    `proj_mean_sleeper_only`/`proj_sleeper` are the baseline source. A rule,
+    not a list, so a new source's `proj_used_` column is explained the day it
+    lands — and ONLY at ratio 1.0: a copy that is not 1.0× is not a copy, and
+    a 1.35× lock is exactly what this scan exists to catch (tested)."""
+    if abs(float(mean_ratio) - 1.0) > 1e-3:
+        return None
+    x, y = sorted((a, b))
+    fam = lambda n: n[len("proj_used_"):] if n.startswith("proj_used_") else None  # noqa: E731
+    for used, other in ((a, b), (b, a)):
+        k = fam(used)
+        if k is None:
+            continue
+        if other in ("proj_" + k, "proj_mean_" + k + "_only") or other.startswith("proj_used_"):
+            return f"proj_used_{k} is the {k} source's own projection on covered rows (alt_source_rankings.py:99)"
+        if k == "sleeper" and other in ("proj_baseline", "proj_sleeper", "proj_mean_sleeper_only"):
+            return "sleeper is the baseline source; proj_used_sleeper copies it"
+        if k == "ds" and other in ("proj_ds", "proj_draftsharks"):
+            return "proj_used_ds copies Draft Sharks' own projection (one ds_proj, two spellings)"
+    if {x, y} in _DS_SPELLINGS:
+        return "two spellings of one Draft Sharks field (attach_draftsharks.py:182-186)"
+    if {x, y} <= {"proj_mean_sleeper_only", "proj_sleeper", "proj_baseline"}:
+        return "sleeper IS the baseline source (three spellings of it)"
+    return None
+
+
 def numeric_fields(players):
     fields = set()
     for p in players[:200]:
@@ -115,8 +154,9 @@ def scan(players):
         if cv < LOCK_CV:
             hit = {"pair": [a, b], "mean_ratio": round(m, 4),
                    "cv": round(cv, 5), "n": len(ratios)}
-            if (a, b) in KNOWN_LOCKED_PAIRS:
-                hit["legitimate_because"] = KNOWN_LOCKED_PAIRS[(a, b)]
+            why = KNOWN_LOCKED_PAIRS.get((a, b)) or copy_by_construction(a, b, m)
+            if why:
+                hit["legitimate_because"] = why
                 findings["known_locked_hits"].append(hit)
             else:
                 findings["ratio_locks"].append(hit)

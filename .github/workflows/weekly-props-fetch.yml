@@ -21,21 +21,26 @@ name: Weekly player-props fetch (The Odds API historical, budget-aware)
 # x (markets requested) x (regions requested) PER EVENT (game) CALL,
 # regardless of how many players' lines that call returns.
 #
-#   ONE WEEK, default 8 markets (pass yds/tds/int, rush yds/tds, receptions,
-#   reception yds/tds), 1 region (us):
-#     8 markets x 1 region x 10 credits = 80 credits PER GAME
-#     ~14-16 games/week (fewer on bye-heavy weeks) => ~1,120-1,280 credits/week
+#   ONE WEEK, default 9 markets (pass yds/tds/int, rush yds/tds, receptions,
+#   reception yds/tds, anytime TD — the ninth added 2026-09-01, register 467,
+#   so the live arm prices the TD lines the backtested arm scored), 1 region (us):
+#     9 markets x 1 region x 10 credits = 90 credits PER GAME
+#     ~14-16 games/week (fewer on bye-heavy weeks) => ~1,260-1,440 credits/week
+#   (⚠️ MOOT ON A TIMER since Cory's 09-01 ruling — no paid props; this
+#   workflow is dispatch-only and the live arm runs on the free Bovada writer,
+#   which emits the same contract through the same converter.)
 #
 #   A FULL HISTORICAL BACKTEST, 2023-2025 regular seasons (272 games/season,
 #   32 teams x 17 games / 2, x 3 seasons = 816 games total), same market set:
-#     816 games x 80 credits/game = 65,280 credits TOTAL
+#     816 games x 90 credits/game = 73,440 credits TOTAL
 #     (against a ~100,000-credit/mo balance — a full 3-season backtest at the
 #     default market set is MOST of one month's budget in a single dispatch;
 #     narrowing --markets, or backtesting a subset of weeks first, are the
 #     two cheap levers if that number is too big)
 #
-# Only `player_pass_yds` is independently CONFIRMED present on this plan (the
-# key-probe run above); the other 7 default markets are the-odds-api.com's
+# Only `player_pass_yds` and `player_anytime_td` are independently CONFIRMED
+# present on this plan (the key-probe runs fetch_weekly_props.py cites); the
+# other 7 default markets are the-odds-api.com's
 # documented market-key convention for the same endpoint, assumed not
 # reconfirmed one by one — a real dispatch's own log is the first place that
 # gets checked market by market (fetch_weekly_props.py's provenance records
@@ -49,7 +54,7 @@ name: Weekly player-props fetch (The Odds API historical, budget-aware)
 #
 # SCHEDULED SINCE 2026-08-18, ON CORY'S PRIORITY-1 ORDER (relayed via the
 # loop-breadth finding): Thursdays 12:00 UTC, real fetch, in-season only —
-# ~1,120-1,280 credits/week against the ~100k/mo pool, per the budget above.
+# ~1,260-1,440 credits/week against the ~100k/mo pool, per the budget above.
 # The old rule ("a human decides when the real fetch is worth making") applied
 # to one-off historical backtests and still does — the weekly in-season fetch
 # is now a standing decision, made once, by the owner.
@@ -62,8 +67,10 @@ on:
   # (ledger P92 predicts exactly that; this line is what falsifies it).
   # Scheduled runs derive week/date themselves and SKIP cleanly before week 1 —
   # a job that goes red every preseason Thursday is a job we learn to ignore.
-  schedule:
-    - cron: '0 12 * * 4'
+  # SCHEDULE REMOVED 2026-09-01 — CORY'S STANDING RULING: "We don't need odds api
+  # remember!! We get free props from bovada, ball don't lie, etc!!" The paid key
+  # is never renewed and this must never spend on a timer again. dispatch-only.
+  # The weekly props arm reads the FREE Bovada capture (P299). See CLAUDE.md.
     # SUNDAY CLOSING SNAPSHOT: DISARMED 08-21 hours after the relay added it —
     # C verified the write path and a second weekly run would SILENTLY CLOBBER
     # Thursday's snapshot (same season+week filename, no time-of-week tag).
@@ -92,7 +99,7 @@ on:
         default: ''
         type: string
       markets:
-        description: 'Comma-separated market keys (default: the 8 markets fetch_weekly_props.py knows how to price)'
+        description: 'Comma-separated market keys (default: the 9 markets fetch_weekly_props.py knows how to price)'
         required: false
         default: 'player_pass_yds,player_pass_tds,player_pass_interceptions,player_rush_yds,player_rush_tds,player_receptions,player_reception_yds,player_reception_tds'
         type: string

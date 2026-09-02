@@ -43,6 +43,24 @@ OUT = DRAFT / "data" / "clay_grade_2025.json"
 POSITIONS = ("QB", "RB", "WR", "TE")
 
 
+
+def _board_stamp():
+    """The board this grade's crosswalk ran against — see register 462."""
+    try:
+        b = json.loads((ROOT / "public" / "draft_data.json").read_text())
+        return {
+            "built_at": b.get("built_at"),
+            "post_processed_at": b.get("post_processed_at"),
+            "players": len(b.get("players") or []),
+            "why_it_matters": "Clay's rows are matched to players THROUGH this "
+                              "board, so its churn changes which 2025 rows can "
+                              "be graded at all. A different board here means a "
+                              "different graded_total (register 462).",
+        }
+    except Exception as exc:  # noqa: BLE001
+        #: An unreadable board is reported, never silently omitted — a missing
+        #: stamp and a stamp saying "no board" must not print the same.
+        return {"error": f"{type(exc).__name__}: {exc}"}
 def main() -> dict:
     clay_doc = build_store(2025)
 
@@ -107,6 +125,24 @@ def main() -> dict:
         "_reused": "season_totals (exp_fp_hist_proj.py) and cell (sleeper_vs_fp_grade.py), "
                    "both TERRITORY: A, imported read-only per rule 11 -- not re-derived.",
         "_version_gate": gate,
+        #: ── WHICH BOARD THIS 2025 GRADE WAS CROSSWALKED THROUGH (register 462)
+        #:
+        #: ⚠️ A GRADE OF LAST SEASON MOVES WHEN THIS WEEK'S BOARD CHURNS, AND
+        #: NOTHING SAID SO. Clay's rows are matched to players through the LIVE
+        #: 2026 board, so a free agent Sleeper drops in September falls out of a
+        #: 2025 grade whose ground truth has been fixed since January.
+        #:
+        #: MEASURED 2026-09-01, from one nightly rebuild: graded_total 357 -> 353
+        #: and excluded_unmatched_crosswalk 53 -> 57. The four are Jerome Ford,
+        #: Trey Benson, Nick Chubb and Ty Chandler — and Benson and Chubb are the
+        #: same two players register 452 found leaving the board that morning.
+        #:
+        #: THE FIX IS NOT THIS STAMP — it is crosswalking a retrospective grade
+        #: through a season-appropriate universe rather than a forward-looking
+        #: board, which is C's call and a larger change. What the stamp does is
+        #: make the dependence VISIBLE, so the number cannot be quoted as "the
+        #: 2025 grade" without the board it was computed against.
+        "_crosswalked_through_board": _board_stamp(),
         "_how_to_read": "spearman is the ordering grade (did Clay rank players correctly); "
                         "mae is the level grade in fantasy points; bias is signed error "
                         "(positive = Clay projected too high on average). topN is the "

@@ -82,6 +82,52 @@ def egress_main():   # pragma: no cover  (CI only)
                  for pid in missing_top]
 
     top_cov = len(covered_top) / max(1, len(top150))
+# ── THE VERDICT THAT COULD NOT FAIL (register 19b, fixed 2026-09-01) ────────
+#
+# The line this replaces emitted, for ANY value of rho:
+#
+#     f"rho={rho} vs FFC means the swap MOVES picks (not cosmetic)."
+#
+# Two defects in one f-string. It had no branch, so it said "MOVES picks"
+# whatever the correlation was — and the reading was BACKWARDS anyway: rho = 1.0
+# is IDENTICAL ORDERING, which is maximally cosmetic, the exact opposite of what
+# it claimed. The probe that produced it read rho = 1.0000 (register 19: it had
+# compared FantasyPros to FantasyPros), so the one number it ever printed was
+# the one its own sentence described worst.
+#
+# Four branches, on the pattern of `stack_sweep.verdict_for`, which was itself
+# written after the same class of bug was found three times.
+RHO_IDENTICAL = 0.995
+RHO_NEAR = 0.95
+RHO_MODERATE = 0.80
+
+
+def rho_reading(rho) -> str:
+    """What a Spearman rho between two ADP sources MEANS for a board swap.
+
+    Higher rho = more similar orderings = LESS movement from swapping. That
+    direction is the whole point and it is asserted in the tests.
+    """
+    if rho is None:
+        return ("rho could not be computed (no overlap, or one side empty), so "
+                "NOTHING is known about whether the swap moves picks. This is "
+                "not a null result — it is a missing measurement.")
+    if rho >= RHO_IDENTICAL:
+        return (f"rho={rho}: the two sources order players IDENTICALLY. A swap is "
+                f"COSMETIC — it cannot move a pick. ALSO CHECK THAT THIS IS REAL: "
+                f"rho at 1.0 is what comparing a source to ITSELF produces "
+                f"(register 19).")
+    if rho >= RHO_NEAR:
+        return (f"rho={rho}: near-identical ordering. A swap moves picks only at "
+                f"the margins; treat any downstream difference as small.")
+    if rho >= RHO_MODERATE:
+        return (f"rho={rho}: the orderings differ materially. A swap MOVES picks "
+                f"and the difference is worth measuring rather than assuming.")
+    return (f"rho={rho}: the two sources substantially DISAGREE. A swap changes "
+            f"the board's shape, not just its edges — do not treat the anchor "
+            f"choice as a detail.")
+
+
     out = {
         "experiment": "FantasyPros 2026 board-coverage go/no-go probe",
         "fp_rows_parsed": len(fp_rows), "fp_url": fp_url,
@@ -91,10 +137,11 @@ def egress_main():   # pragma: no cover  (CI only)
         "ffc_vs_fp_spearman_on_overlap": rho,
         "top150_missing_from_fp": miss_names,
         "fetch_diag": {k: diag.get(k) for k in ("api_ok", "bundle_key_found")} if diag else None,
+        "rho_reading": rho_reading(rho),
         "verdict": (
             f"WIRE FP as primary anchor (FFC fallback for the {round((1-top_cov)*100)}% top-150 gap): "
-            f"FP 2026 parsed {len(fp_rows)} rows, covers {round(top_cov*100)}% of the top 150, and "
-            f"ρ={rho} vs FFC means the swap MOVES picks (not cosmetic)."
+            f"FP 2026 parsed {len(fp_rows)} rows, covers {round(top_cov*100)}% of the top 150. "
+            f"{rho_reading(rho)}"
             if len(fp_rows) >= 150 and top_cov >= 0.90 else
             f"DO NOT wire FP as primary — top-150 coverage only {round(top_cov*100)}% "
             f"({len(fp_rows)} rows parsed). Keep FFC anchor; the FP finding stays directional/recorded. "

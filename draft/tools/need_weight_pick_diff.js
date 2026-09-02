@@ -94,8 +94,28 @@ const NEED0=Object.assign({},E.MEASURED_WEIGHTS,{need:0.0});
 require('./arms_differ.js').assertArmsDiffer('need_weight_pick_diff',
   { shipped: E.MEASURED_WEIGHTS, need0: NEED0 });
 const B=walk(NEED0);
+/* ⚠️ THE BOARD STAMP IS NOT DECORATION (register 455). This tool's answer is a
+ * function of the board it ran on, and after the draft that board is rebuilt
+ * every night out of a churning free-agent pool. MEASURED, one night apart, on
+ * the same code and the same weights:
+ *
+ *   board of 2026-08-31 → 8 of 12 picks change, shipped roster holds EIGHT QBs
+ *   board of 2026-09-01 → 3 of 12 picks change, shipped roster holds ONE QB
+ *
+ * I quoted the first of those as a finding about `need: 1.0` and it was a fact
+ * about one night's board. An output this volatile must never be repeated
+ * without the board it came from, so it can no longer be printed without one.
+ *
+ * (The 3-of-12 reading is also what A13's original evidence said — "need: 1.0
+ * changes only three of your fifteen picks" — so the ruling's evidence stands;
+ * it was the 08-31 re-run that was the outlier, not the ruling.) */
+const _stamp = (DATA.post_processed_at || DATA.built_at || 'UNSTAMPED')
+  + ', ' + DATA.players.length + ' players';
 console.log('A13, RULED 2026-08-20 — every pick, SHIPPED (need ' + E.MEASURED_WEIGHTS.need
-  + ') vs the PRE-RULING need 0, on the published board\n');
+  + ') vs the PRE-RULING need 0, on the published board');
+console.log('  BOARD: ' + _stamp + '  ⚠️ this answer is a function of THIS board — it '
+  + 'moved from 8-of-12 to 3-of-12 on one night\'s rebuild (register 455). Quote '
+  + 'the number only with the board.\n');
 console.log('  pick   SHIPPED (need ' + E.MEASURED_WEIGHTS.need + ')'
   + '              PRE-RULING need = 0            changed?');
 let ch=0;
