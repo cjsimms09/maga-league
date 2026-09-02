@@ -1022,9 +1022,18 @@ jobs:
               # number nobody diffs (rule 9). What is worth waking up for is a
               # CHANGE, and the archive already carries every day's rows, so the
               # comparison costs nothing but reading them.
-              tr = BM.format_trend(arc, brd)
+              # ⚠ THE DRAFT DATE SPLITS "ALARM" FROM "MEASUREMENT" (A, 09-02).
+              # Runs 21-28 went red eight nights in a row on the SAME drift
+              # (+0.073 first-day-to-today) because a change against a fixed
+              # baseline, once true, is true every morning after. Post-draft
+              # the drift is the calibration record for 2027, and it lands in
+              # `standing`, not `flags`. Pre-draft it still fails the job.
+              draft_date = (json.load(open("draft/config/league_config.json"))
+                            .get("draft") or {}).get("start_date")
+              tr = BM.format_trend(arc, brd, draft_date=draft_date)
               print("")
               print("### Is it the same pool it was yesterday?")
+              print("_phase: `%s` (draft %s)_" % (tr["phase"], tr["draft_date"]))
               if tr["status"] != "measured":
                   print("**%s** — %s" % (tr["status"].upper(), tr.get("note")))
               else:
@@ -1037,11 +1046,16 @@ jobs:
                                d["age_rho_non_qb"], d["dynasty"]))
                   print("")
                   print(tr["note"])
-                  if tr["moving"] or tr["flipped"]:
+                  if tr["escalate"]:
                       flags.append("composition drift %+.3f%s"
                                    % (tr["drift"],
                                       (" — %s FLIPPED" % ",".join(tr["flipped"]))
                                       if tr["flipped"] else ""))
+                  elif tr["moving"] or tr["flipped"]:
+                      standing.append("post-draft composition drift %+.3f%s"
+                                      % (tr["drift"],
+                                         (" — %s flipped" % ",".join(tr["flipped"]))
+                                         if tr["flipped"] else ""))
           except Exception as e:                      # noqa: BLE001
               print("**FORMAT CHECK DID NOT RUN** (%s: %s) — not a clean result; "
                     "nothing was compared." % (type(e).__name__, e))
