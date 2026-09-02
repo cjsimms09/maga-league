@@ -148,6 +148,14 @@ async function matchupsForWeek(leagueId, week) {
   try { return await fetchJson(`/v1/league/${leagueId}/matchups/${week}`); } catch (e) { return null; }
 }
 
+/* Raw completed-or-not transactions for one week (adds/drops keyed player ->
+ * roster_id, `type` waiver|free_agent|trade, `status`, `created`). The human
+ * side of the auto-derived tool-vs-actual WAIVER grade (register 466 ①):
+ * what Cory actually claimed, off the same feed `wire()` above formats. */
+async function transactionsForWeek(leagueId, week) {
+  try { return await fetchJson(`/v1/league/${leagueId}/transactions/${week}`); } catch (e) { return null; }
+}
+
 /**
  * One finished week's fantasy points, keyed by league owner id.
  *
@@ -584,7 +592,7 @@ module.exports = {
   // so that clause is a backstop against the two reads of TTL_MS diverging, and
   // a backstop nothing can reach is a backstop nothing can test. Rule 10.
   withFreshness,
-  bundle, matchupsForWeek, weekPointsByOwner, myMatchup,
+  bundle, matchupsForWeek, transactionsForWeek, weekPointsByOwner, myMatchup,
   standings, scoreboard, highScorer, teamName,
   autoMap, userMap, records, players, draftInfo, trendingAdds, WAR_POSITIONS,
   weekReview, wire, weekStats, seasonStats, rosterView,

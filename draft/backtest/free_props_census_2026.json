@@ -13,7 +13,7 @@
   "player_anytime_td",
   "player_rush_rec_tds"
  ],
- "captured_at": "2026-09-02T00:10:25.561278Z",
+ "captured_at": "2026-09-02T00:14:15.913263Z",
  "sources": {
   "bovada": {
    "status": 200,
@@ -118,7 +118,7 @@
   },
   "underdog": {
    "status": 200,
-   "bytes": 21307791,
+   "bytes": 20908389,
    "raw_head": "{\"appearances\":[{\"id\":\"2ed3b582-a21a-448b-b8c7-73e34617305c\",\"badges\":[],\"lineup_status_id\":null,\"match_id\":438,\"match_type\":\"Series\",\"multiple_picks_allowed\":true,\"player_id\":\"ac512ae7-2edd-458d-9ae5-2b4eb949a3b6\",\"position_id\":\"30f5b4f6-5306-5722-997c-a2255f44225b\",\"sort_by\":null,\"team_id\":\"5ce78c",
    "by_market": {
     "player_rush_rec_tds": 322,
@@ -168,12 +168,12 @@
    "raw_line_shape": "{\"id\": \"28a2c14b-a294-4e75-8fd6-1354a1d1f041\", \"contract_terms_url\": null, \"contract_url\": null, \"entry_stable_id\": null, \"expires_at\": null, \"line_type\": \"balanced\", \"live_event\": false, \"live_event_stat\": null, \"non_discounted_stat_value\": null, \"options\": [{\"id\": \"8a18c24f-33aa-4bae-ac5e-90233e4c235e\", \"american_price\": \"-112\", \"appearance_id\": null, \"choice\": \"higher\", \"choice_display\": \"Higher\", \"choice_display_name_shorter\": \"9+\", \"choice_display_short\": \"Higher\", \"choice_id\": \"over__\", \"decimal_price\": \"1.9\", \"grouping_id\": null, \"lookup_id\": null, \"over_under_line_id\": \"28a2c14b-a294-4e75-8fd6-1354a1d1f041\", \"payout_multiplier\": \"1.0\", \"raw_probability\": null, \"rfq_combinable\": true, \"selection_header\": \"Fernando Mendoza\", \"selection_subheader\": \"Higher 8.5 Regular Season Games Started\", \"status\": \"active\", \"type\": \"OverUnderOption\", \"updated_at\": \"2026-08-14T19:31:47Z\"}, {\"id\": ",
    "sports_seen": {
     "NFL": 2792,
-    "?": 1896,
+    "?": 2085,
     "CFB": 1679,
-    "MLB": 1252,
     "FIFA": 978,
+    "MLB": 878,
     "LOL": 282,
-    "CS": 253,
+    "CS": 254,
     "VAL": 40,
     "DOTA": 38
    },
@@ -181,7 +181,7 @@
     "Rush + Rec TDs": 322,
     "1H Rush + Rec TDs": 279,
     "First TD Scorer": 217,
-    "1Q Rush + Rec TDs": 208,
+    "1Q Rush + Rec TDs": 207,
     "Receiving Yards": 134,
     "Receptions": 129,
     "1Q Rec Yards": 118,
@@ -215,8 +215,8 @@
    "samples_season": [
     {
      "market": "player_reception_yds",
-     "player": "Makai Lemon  O/U",
-     "line": "575.5",
+     "player": "Denzel Boston  O/U",
+     "line": "499.5",
      "label": "Season Receiving Yards",
      "game": "",
      "kickoff": null
@@ -231,8 +231,8 @@
     },
     {
      "market": "player_reception_yds",
-     "player": "Denzel Boston  O/U",
-     "line": "499.5",
+     "player": "Kenyon Sadiq  O/U",
+     "line": "454.5",
      "label": "Season Receiving Yards",
      "game": "",
      "kickoff": null
@@ -245,117 +245,117 @@
    "bytes": 5712226,
    "raw_head": "{\"series\":[{\"additional_prohibitions\":[\"Current and former players, coaches, and staff of the league, association, or organization(s) governing the event. For college leagues/associations specifically, or where otherwise appropriate (as identified by the Exchange), this applies to current and former",
    "by_market": {
-    "player_pass_tds": 4,
-    "player_reception_yds": 87
+    "player_rush_yds": 6,
+    "player_reception_yds": 9
    },
    "samples": [
     {
-     "market": "player_pass_tds",
-     "player": "Brock Purdy",
-     "line": 3.5,
-     "label": "Brock Purdy: 4+ passing touchdowns"
+     "market": "player_rush_yds",
+     "player": "Christian McCaffrey",
+     "line": 89.5,
+     "label": "Christian McCaffrey: 90+ rushing yards"
     },
     {
-     "market": "player_pass_tds",
-     "player": "Brock Purdy",
-     "line": 2.5,
-     "label": "Brock Purdy: 3+ passing touchdowns"
+     "market": "player_rush_yds",
+     "player": "Christian McCaffrey",
+     "line": 79.5,
+     "label": "Christian McCaffrey: 80+ rushing yards"
     },
     {
-     "market": "player_pass_tds",
-     "player": "Brock Purdy",
-     "line": 1.5,
-     "label": "Brock Purdy: 2+ passing touchdowns"
+     "market": "player_rush_yds",
+     "player": "Christian McCaffrey",
+     "line": 69.5,
+     "label": "Christian McCaffrey: 70+ rushing yards"
     }
    ],
    "notes": [],
    "player_series": [
     {
+     "ticker": "KXNFL1HTD",
+     "title": "1st Half Touchdown"
+    },
+    {
+     "ticker": "KXNFLWEEKMOSTPASSYDS",
+     "title": "Weekly Most Passing Yards"
+    },
+    {
      "ticker": "KXNFLDSTTD",
      "title": "Pro Football D/ST Touchdown"
     },
     {
-     "ticker": "KXNFLFIRSTTDTEAM",
-     "title": "Pro Football First Team to Score a Touchdown"
+     "ticker": "KXNFLWEEKMOSTRSHYDS",
+     "title": "Weekly Most Rushing Yards"
     },
     {
-     "ticker": "KXNFLPASSINT",
-     "title": "Pro Football Passing Interceptions"
+     "ticker": "KXNFLPASSATT",
+     "title": "Pro Football Passing Attempts"
     },
     {
-     "ticker": "KXNFLHIRECOACH",
-     "title": "NFL hire coach"
+     "ticker": "KXNFLGAMETD",
+     "title": "Pro Football Touchdowns"
     },
     {
-     "ticker": "KXNFLANYTD",
-     "title": "Pro Football Anytime Touchdown"
+     "ticker": "KXNFLRSHYDS",
+     "title": "Pro Football Rushing Yards"
     },
     {
-     "ticker": "KXNFLRRYDS",
-     "title": "Pro Football Rush and Receiving Yards"
+     "ticker": "KXNFLRECYDS",
+     "title": "Pro Football Receiving Yards"
     },
     {
-     "ticker": "KXNFLFIRSTTD",
+     "ticker": "KXNFLNEXTTD",
+     "title": "Pro Football Next TD scorer"
+    },
+    {
+     "ticker": "KXNFLTEAMFIRSTTD",
      "title": "Pro Football First Touchdown"
     },
     {
-     "ticker": "KXNFLPASSTDS",
-     "title": "Pro Football player Passing Touchdowns"
+     "ticker": "KXNFLTOTALTD",
+     "title": "Pro Football Total Touchdowns"
     },
     {
-     "ticker": "KXNFLMOSTRECYDS",
-     "title": "Pro Football Most Receiving Yards"
+     "ticker": "KXNFLSHORTESTTD",
+     "title": "Pro Football Shortest Touchdown"
     },
     {
-     "ticker": "KXNFLSEASONRECYDS",
-     "title": "Receiving Yards"
-    },
-    {
-     "ticker": "KXNFLSZNRECORD",
-     "title": "Will single season record be broken?"
+     "ticker": "KXNFLREC",
+     "title": "Pro Football Player Receptions"
     },
     {
      "ticker": "KXNFL2HTD",
      "title": "2nd Half Touchdowns"
     },
     {
-     "ticker": "KXNFLPASSCOMP",
-     "title": "Pro Football Passing Completions"
+     "ticker": "KXNFL1YDPASS",
+     "title": "Seattle 1 Yard Pass"
     },
     {
-     "ticker": "KXNFLLONGESTREC",
-     "title": "Longest Reception"
+     "ticker": "KXNFLNONQBPASS",
+     "title": "Pro Football Non-QB Passes"
     },
     {
-     "ticker": "KXNFLWEEKMOSTRECYDS",
-     "title": "Weekly Most Receiving Yards"
-    },
-    {
-     "ticker": "KXNFLFIRSTTDTIME",
-     "title": "Pro Football First Touchdown Time"
-    },
-    {
-     "ticker": "KXNFLMOSTRSHYDS",
-     "title": "Pro Football Most Rushing Yards"
-    },
-    {
-     "ticker": "KXNFLSEASONPASSTDS",
-     "title": "Passing Touchdowns"
+     "ticker": "KXNFLPASSTDS",
+     "title": "Pro Football player Passing Touchdowns"
     },
     {
      "ticker": "KXNFLRECYDSH2H",
      "title": "Pro Football Head-to-Head Receiving Yards"
     },
     {
-     "ticker": "KXNFLRECYDS",
-     "title": "Pro Football Receiving Yards"
+     "ticker": "KXNFLRSHYDSH2H",
+     "title": "Pro Football Head-to-Head Rushing Yards"
+    },
+    {
+     "ticker": "KXNFLFIRSTTD",
+     "title": "Pro Football First Touchdown"
     }
    ],
-   "players_total": 91
+   "players_total": 14
   },
   "polymarket": {
    "status": 200,
-   "bytes": 6490572,
+   "bytes": 6490360,
    "raw_head": "[{\"id\":\"87239\",\"ticker\":\"tush-push-banned-for-2026-nfl-season\",\"slug\":\"tush-push-banned-for-2026-nfl-season\",\"title\":\"Tush Push banned for 2026 NFL Season?\",\"description\":\"This market will resolve to \\\"Yes\\\" if the NFL officially announces a rule change that prohibits, limits, or penalizes the \u201ctu",
    "by_market": {},
    "samples": [],
@@ -379,68 +379,84 @@
    "status": 200,
    "bytes": 1323421,
    "raw_head": "{\"layout\":{\"links\":{\"7593\":{\"id\":7593,\"linkIdentifier\":{\"options\":{\"title\":\"Play FanDuel Casino!\"},\"url\":\"https://sportsbook.fanduel.com/casino\"},\"linkType\":\"EXTERNAL\",\"target\":\"_self\",\"attachmentsDependent\":false,\"attachmentsFullyLoaded\":false}},\"coupons\":{\"3425\":{\"display\":[{\"marketLayoutTemplate\"",
-   "by_market": {},
-   "samples": [],
+   "by_market": {
+    "player_anytime_td": 88
+   },
+   "samples": [
+    {
+     "market": "player_anytime_td",
+     "player": "Javonte Williams",
+     "line": 0,
+     "label": "ANYTIME_4TH_QTR_TD_SCORER",
+     "name": "Anytime 4th Quarter TD Scorer"
+    },
+    {
+     "market": "player_anytime_td",
+     "player": "Cam Skattebo",
+     "line": 0,
+     "label": "ANYTIME_4TH_QTR_TD_SCORER",
+     "name": "Anytime 4th Quarter TD Scorer"
+    },
+    {
+     "market": "player_anytime_td",
+     "player": "Malik Nabers",
+     "line": 0,
+     "label": "ANYTIME_4TH_QTR_TD_SCORER",
+     "name": "Anytime 4th Quarter TD Scorer"
+    }
+   ],
    "notes": [],
-   "label_hits_in_body": {
-    "player_anytime_td": 31,
-    "player_reception_yds": 119,
-    "player_pass_yds": 54,
-    "player_rush_yds": 63,
-    "player_pass_tds": 49,
-    "player_rush_tds": 49,
-    "player_reception_tds": 1,
-    "player_pass_interceptions": 3,
-    "player_receptions": 58
+   "attachment_keys": {
+    "eventTypes": 1,
+    "competitions": 4,
+    "events": 36,
+    "markets": 283
    },
-   "nfl_mentions": 399,
-   "key_paths_top": {
-    "layout": 1,
-    "layout.links": 1,
-    "layout.links.7593": 1,
-    "layout.links.7593.id": 1,
-    "layout.links.7593.linkIdentifier": 1,
-    "layout.links.7593.linkIdentifier.options": 1,
-    "layout.links.7593.linkIdentifier.url": 1,
-    "layout.links.7593.linkType": 1,
-    "layout.links.7593.target": 1,
-    "layout.links.7593.attachmentsDependent": 1,
-    "layout.links.7593.attachmentsFullyLoaded": 1,
-    "layout.coupons": 1,
-    "layout.coupons.3425": 1,
-    "layout.coupons.3425.display": 1,
-    "layout.coupons.3425.attachmentsDependent": 1,
-    "layout.coupons.3425.attachmentsFullyLoaded": 1,
-    "layout.coupons.3425.id": 1,
-    "layout.coupons.3425.type": 1,
-    "layout.coupons.3425.competitionIds": 1,
-    "layout.coupons.3425.eventId": 1,
-    "layout.coupons.3425.externalMarketId": 1,
-    "layout.coupons.3425.eventTypeId": 1,
-    "layout.coupons.3425.displayOrder": 1,
-    "layout.coupons.3425.hasAttachments": 1,
-    "layout.coupons.3425.marketId": 1,
-    "layout.coupons.3425.title": 1,
-    "layout.coupons.3426": 1,
-    "layout.coupons.3426.display": 1,
-    "layout.coupons.3426.attachmentsDependent": 1,
-    "layout.coupons.3426.attachmentsFullyLoaded": 1,
-    "layout.coupons.3426.id": 1,
-    "layout.coupons.3426.type": 1,
-    "layout.coupons.3426.competitionIds": 1,
-    "layout.coupons.3426.eventId": 1,
-    "layout.coupons.3426.externalMarketId": 1,
-    "layout.coupons.3426.eventTypeId": 1,
-    "layout.coupons.3426.displayOrder": 1,
-    "layout.coupons.3426.hasAttachments": 1,
-    "layout.coupons.3426.marketId": 1,
-    "layout.coupons.3426.title": 1
+   "events_listed": 36,
+   "event_pages_read": 16,
+   "event_market_types_seen": {
+    "MONEY_LINE": 16,
+    "MATCH_HANDICAP_(2-WAY)": 16,
+    "TOTAL_POINTS_(OVER/UNDER)": 16,
+    "WINNING_MARGIN_(4-WAY)": 11,
+    "4TH_QUARTER_TOTAL": 5,
+    "4TH_QUARTER_WINNER": 5,
+    "ANYTIME_4TH_QTR_TD_SCORER": 5,
+    "4TH_QUARTER_HANDICAP": 5,
+    "4TH_QUARTER_WINNER_THREE_WAY": 5,
+    "BOTH_TEAMS_TO_SCORE_-_QTR_4": 5
    },
-   "matched_contexts": [
-    "{\"attachmentsDependent\": true, \"attachmentsFullyLoaded\": false, \"id\": 35123, \"type\": \"EVENTS\", \"displayLogic\": \"DATE_TOURNAMENT_TIME\", \"eventTypeId\": 6423, \"filter\": [\"PRE_PLAY\", \"IN_PLAY\"], \"gridType\": \"SINGLE\", \"hasMarketSwitcher\": true, \"marketTypes\": [\"ANY_TIME_TOUCHDOWN_SCORER\"], \"title\": \"Anytime TD Scorer Parlay Builder\", \"competitionIds\": [12282733]}",
-    "{\"attachmentsDependent\": true, \"attachmentsFullyLoaded\": false, \"id\": 35125, \"type\": \"EVENTS\", \"displayLogic\": \"DATE_TOURNAMENT_TIME\", \"eventTypeId\": 6423, \"filter\": [\"PRE_PLAY\", \"IN_PLAY\"], \"gridType\": \"SINGLE\", \"hasMarketSwitcher\": true, \"marketTypes\": [\"FIRST_TOUCHDOWN_SCORER\"], \"title\": \"First TD Scorer Parlay Builder\", \"competitionIds\": [12282733]}",
-    "{\"attachmentsDependent\": true, \"attachmentsFullyLoaded\": false, \"id\": 35126, \"type\": \"EVENTS\", \"displayLogic\": \"DATE_TOURNAMENT_TIME\", \"eventTypeId\": 6423, \"filter\": [\"PRE_PLAY\", \"IN_PLAY\"], \"gridType\": \"SINGLE\", \"hasMarketSwitcher\": true, \"marketTypes\": [\"PLAYERS_WITH_20+_YARDS_RECEPTION\"], \"title\": \"20+ Yards Reception Parlay Builder\", \"competitionIds\": [12282733]}"
-   ]
+   "market_types_seen_page": {
+    "REGULAR_SEASON_PROPS_-_RUNNING_BACKS": 51,
+    "REGULAR_SEASON_PROPS_-_QUARTERBACKS": 46,
+    "REGULAR_SEASON_PROPS_-_WIDE_RECEIVERS": 43,
+    "TOTAL_POINTS_(OVER/UNDER)": 32,
+    "MONEY_LINE": 32,
+    "MATCH_HANDICAP_(2-WAY)": 32,
+    "REGULAR_SEASON_WINS_SGP": 31,
+    "BEST_RECORD_SGP": 1,
+    "NUMBER_X_OVERALL_PICK": 1,
+    "MAKE_PLAYOFFS_AFC_SGP": 1,
+    "MAKE_PLAYOFFS_NFC_SGP": 1,
+    "SUPER_BOWL_WINNER_SGP": 1,
+    "REGULAR_SEASON_MVP": 1,
+    "DEFENSIVE_PLAYER_OF_THE_YEAR": 1,
+    "OFFENSIVE_PLAYER_OF_THE_YEAR": 1,
+    "NFL_OFFENSIVE_ROOKIE_OF_THE_YEAR": 1,
+    "NFL_DEFENSIVE_ROOKIE_OF_THE_YEAR": 1,
+    "NFL_COMEBACK_PLAYER_OF_THE_YEAR": 1,
+    "COACH_OF_THE_YEAR": 1,
+    "PROTECTOR_OF_THE_YEAR": 1
+   },
+   "by_market_season": {
+    "player_pass_yds": 23,
+    "player_rush_yds": 28,
+    "player_reception_yds": 58,
+    "player_pass_tds": 23,
+    "player_rush_tds": 23
+   },
+   "market_shape": "{\"marketId\": \"734.169273261\", \"eventTypeId\": 6423, \"competitionId\": 11379418, \"eventId\": 28297422, \"marketName\": \"Aaron Rodgers Regular Season Passing Yards 2026-27\", \"marketTime\": \"2026-09-13T17:00:00.000Z\", \"marketType\": \"REGULAR_SEASON_PROPS_-_QUARTERBACKS\", \"bspMarket\": false, \"sgmMarket\": false, \"inPlay\": false, \"numberOfRunners\": 2, \"numberOfActiveRunners\": 2, \"numberOfWinners\": 1, \"sortPriority\": 0, \"bettingType\": \"ODDS\", \"marketStatus\": \"OPEN\", \"marketLevels\": [\"COMPETITION\"], \"runners\": [{\"selectionId\": 99952803, \"handicap\": 0, \"runnerName\": \"Aaron Rodgers Over 3050.5\", \"sortPriority\": 1, \"result\": {}, \"runnerStatus\": \"ACTIVE\", \"winRunnerOdds\": {\"americanDisplayOdds\": {\"americanOdds\": -114, \"americanOddsInt\": -114}, \"trueOdds\": {\"decimalOdds\": {\"decimalOdds\": 1.87719298245614}, \"fractionalOdds\": {\"numerator\": 100, \"denominator\": 114}}}, \"previousWinRunnerOdds\": []}, {\"selectionI",
+   "players_total": 88
   },
   "caesars": {
    "status": 403,
@@ -452,7 +468,7 @@
   },
   "actionnetwork": {
    "status": 200,
-   "bytes": 193398,
+   "bytes": 57306,
    "raw_head": "{\"league\":{\"id\":1,\"sport\":\"football\",\"name\":\"nfl\",\"description\":\"National Football League\",\"logo\":\"https://static.sprtactn.co/leagues/500/nfl.png\",\"current_season\":\"2026\",\"current_season_type\":\"reg\",\"pre_season_start\":\"2026-07-30T07:00:00.000Z\",\"pre_season_end\":\"2026-09-02T06:59:59.000Z\",\"reg_season",
    "by_market": {},
    "samples": [],
@@ -460,46 +476,46 @@
    "label_hits_in_body": {},
    "nfl_mentions": 2,
    "key_paths_top": {
-    "games[].odds[].ml_away": 96,
-    "games[].odds[].ml_home": 96,
-    "games[].odds[].spread_away": 96,
-    "games[].odds[].spread_home": 96,
-    "games[].odds[].spread_away_line": 96,
-    "games[].odds[].spread_home_line": 96,
-    "games[].odds[].over": 96,
-    "games[].odds[].under": 96,
-    "games[].odds[].draw": 96,
-    "games[].odds[].total": 96,
-    "games[].odds[].away_total": 96,
-    "games[].odds[].away_over": 96,
-    "games[].odds[].away_under": 96,
-    "games[].odds[].home_total": 96,
-    "games[].odds[].home_over": 96,
-    "games[].odds[].home_under": 96,
-    "games[].odds[].ml_home_public": 96,
-    "games[].odds[].ml_away_public": 96,
-    "games[].odds[].spread_home_public": 96,
-    "games[].odds[].spread_away_public": 96,
-    "games[].odds[].total_under_public": 96,
-    "games[].odds[].total_over_public": 96,
-    "games[].odds[].ml_home_money": 96,
-    "games[].odds[].ml_away_money": 96,
-    "games[].odds[].spread_home_money": 96,
-    "games[].odds[].spread_away_money": 96,
-    "games[].odds[].total_over_money": 96,
-    "games[].odds[].total_under_money": 96,
-    "games[].odds[].meta": 96,
-    "games[].odds[].num_bets": 96,
-    "games[].odds[].book_id": 96,
-    "games[].odds[].type": 96,
-    "games[].odds[].inserted": 96,
-    "games[].odds[].line_status": 96,
     "games[].teams[].id": 32,
     "games[].teams[].full_name": 32,
     "games[].teams[].display_name": 32,
     "games[].teams[].short_name": 32,
     "games[].teams[].location": 32,
-    "games[].teams[].abbr": 32
+    "games[].teams[].abbr": 32,
+    "games[].teams[].logo": 32,
+    "games[].teams[].primary_color": 32,
+    "games[].teams[].secondary_color": 32,
+    "games[].teams[].conference_type": 32,
+    "games[].teams[].division_type": 32,
+    "games[].teams[].url_slug": 32,
+    "games[].teams[].standings": 32,
+    "games[].odds[].ml_away": 32,
+    "games[].odds[].ml_home": 32,
+    "games[].odds[].spread_away": 32,
+    "games[].odds[].spread_home": 32,
+    "games[].odds[].spread_away_line": 32,
+    "games[].odds[].spread_home_line": 32,
+    "games[].odds[].over": 32,
+    "games[].odds[].under": 32,
+    "games[].odds[].draw": 32,
+    "games[].odds[].total": 32,
+    "games[].odds[].away_total": 32,
+    "games[].odds[].away_over": 32,
+    "games[].odds[].away_under": 32,
+    "games[].odds[].home_total": 32,
+    "games[].odds[].home_over": 32,
+    "games[].odds[].home_under": 32,
+    "games[].odds[].ml_home_public": 32,
+    "games[].odds[].ml_away_public": 32,
+    "games[].odds[].spread_home_public": 32,
+    "games[].odds[].spread_away_public": 32,
+    "games[].odds[].total_under_public": 32,
+    "games[].odds[].total_over_public": 32,
+    "games[].odds[].ml_home_money": 32,
+    "games[].odds[].ml_away_money": 32,
+    "games[].odds[].spread_home_money": 32,
+    "games[].odds[].spread_away_money": 32,
+    "games[].odds[].total_over_money": 32
    },
    "matched_contexts": []
   },
@@ -513,59 +529,97 @@
   },
   "sleeper_picks": {
    "status": 200,
-   "bytes": 4308562,
-   "raw_head": "[{\"status\":\"active\",\"options\":[{\"status\":\"active\",\"metadata\":{},\"subject_id\":\"1179\",\"outcome\":\"over\",\"season\":\"2026\",\"season_type\":\"regular\",\"sport\":\"mlb\",\"market_type\":\"bat_walks_over_under_player_1179\",\"game_id\":\"1301364075489402880\",\"subject_type\":\"player\",\"wager_type\":\"bat_walks\",\"outcome_type\":",
-   "by_market": {},
-   "samples": [],
+   "bytes": 4036141,
+   "raw_head": "[{\"status\":\"active\",\"options\":[{\"status\":\"active\",\"metadata\":{},\"subject_id\":\"1007\",\"outcome\":\"over\",\"season\":\"2026\",\"season_type\":\"regular\",\"sport\":\"mlb\",\"market_type\":\"bat_walks_over_under_player_1007\",\"game_id\":\"1301364748725526528\",\"subject_type\":\"player\",\"wager_type\":\"bat_walks\",\"outcome_type\":",
+   "by_market": {
+    "player_pass_interceptions": 15,
+    "player_pass_tds": 28,
+    "player_pass_yds": 30,
+    "player_rush_yds": 57,
+    "player_reception_yds": 117,
+    "player_receptions": 102
+   },
+   "samples": [
+    {
+     "market": "player_pass_interceptions",
+     "player": "11564",
+     "line": 0.5,
+     "label": "interceptions",
+     "pos": "QB",
+     "team": "NE",
+     "game_id": "202610130",
+     "payouts": [
+      "1.68",
+      "1.89"
+     ]
+    },
+    {
+     "market": "player_pass_tds",
+     "player": "11564",
+     "line": 1.5,
+     "label": "passing_touchdowns",
+     "pos": "QB",
+     "team": "NE",
+     "game_id": "202610130",
+     "payouts": [
+      "2.23",
+      "1.47"
+     ]
+    },
+    {
+     "market": "player_pass_yds",
+     "player": "11564",
+     "line": 225.5,
+     "label": "passing_yards",
+     "pos": "QB",
+     "team": "NE",
+     "game_id": "202610130",
+     "payouts": [
+      "1.78",
+      "1.78"
+     ]
+    }
+   ],
    "notes": [],
-   "label_hits_in_body": {
-    "player_pass_interceptions": 135,
-    "player_receptions": 411
+   "sports_seen": {
+    "mlb": 553,
+    "cs": 283,
+    "tennis": 116,
+    "cfb": 416,
+    "clubsoccer:laliga": 17,
+    "clubsoccer:ligue1": 14,
+    "golf": 52,
+    "clubsoccer:epl": 27,
+    "clubsoccer:mls": 32,
+    "clubsoccer:seriea": 8,
+    "mma": 41,
+    "cfb_szn": 66,
+    "nfl": 458,
+    "nfl_szn": 331
    },
-   "nfl_mentions": 0,
-   "key_paths_top": {
-    "[].recent_performance.values[].date": 500,
-    "[].recent_performance.values[].opponent": 500,
-    "[].recent_performance.values[].value": 500,
-    "[].options[].status": 100,
-    "[].options[].metadata": 100,
-    "[].options[].subject_id": 100,
-    "[].options[].outcome": 100,
-    "[].options[].season": 100,
-    "[].options[].season_type": 100,
-    "[].options[].sport": 100,
-    "[].options[].market_type": 100,
-    "[].options[].game_id": 100,
-    "[].options[].subject_type": 100,
-    "[].options[].wager_type": 100,
-    "[].options[].outcome_type": 100,
-    "[].options[].line_type": 100,
-    "[].options[].game_status": 100,
-    "[].options[].line_id": 100,
-    "[].options[].outcome_value": 100,
-    "[].options[].payout_multiplier": 100,
-    "[].options[].subject_pos_rank": 100,
-    "[].options[].subject_position": 100,
-    "[].options[].subject_team": 100,
-    "[].status": 50,
-    "[].options": 50,
-    "[].subject_id": 50,
-    "[].season": 50,
-    "[].season_type": 50,
-    "[].sport": 50,
-    "[].market_type": 50,
-    "[].updated_at": 50,
-    "[].game_id": 50,
-    "[].subject_type": 50,
-    "[].wager_type": 50,
-    "[].outcome_type": 50,
-    "[].line_type": 50,
-    "[].game_status": 50,
-    "[].recent_performance": 50,
-    "[].recent_performance.values": 50,
-    "[].pick_stats": 39
+   "wager_types_nfl_gameweek": {
+    "receiving_yards": 117,
+    "anytime_touchdowns": 108,
+    "receptions": 102,
+    "rushing_yards": 57,
+    "passing_yards": 30,
+    "passing_touchdowns": 28,
+    "interceptions": 15,
+    "first_touchdown": 1
    },
-   "matched_contexts": []
+   "wager_types_nfl_season": {
+    "total_receiving_yards": 76,
+    "total_receiving_touchdowns": 53,
+    "total_rushing_yards": 41,
+    "total_receptions": 30,
+    "total_rushing_touchdowns": 29,
+    "total_passing_touchdowns": 28,
+    "total_passing_yards": 27,
+    "total_sacks": 24,
+    "total_interceptions": 23
+   },
+   "row_shape": "{\"status\": \"active\", \"options\": [{\"status\": \"active\", \"metadata\": {}, \"subject_id\": \"1007\", \"outcome\": \"over\", \"season\": \"2026\", \"season_type\": \"regular\", \"sport\": \"mlb\", \"market_type\": \"bat_walks_over_under_player_1007\", \"game_id\": \"1301364748725526528\", \"subject_type\": \"player\", \"wager_type\": \"bat_walks\", \"outcome_type\": \"over_under\", \"line_type\": \"normal\", \"game_status\": \"pre_game\", \"line_id\": \"1400484401124536328\", \"outcome_value\": 0.5, \"payout_multiplier\": \"2.38\", \"subject_pos_rank\": null, \"subject_position\": \"2B\", \"subject_team\": \"NYY\"}, {\"status\": \"active\", \"metadata\": {}, \"subject_id\": \"1007\", \"outcome\": \"under\", \"season\": \"2026\", \"season_type\": \"regular\", \"sport\": \"mlb\", \"market_type\": \"bat_walks_over_under_player_1007\", \"game_id\": \"1301364748725526528\", \"subject_type\": \"player\", \"wager_type\": \"bat_walks\", \"outcome_type\": \"over_under\", \"line_type\": \"normal\", \"game_status\": \"pre_",
+   "players_total": 159
   },
   "betmgm": {
    "status": 403,
@@ -584,6 +638,7 @@
   "player_pass_yds": {
    "carriers": {
     "underdog": 31,
+    "sleeper_picks": 30,
     "bovada": 6
    },
    "best": 31
@@ -591,20 +646,23 @@
   "player_pass_tds": {
    "carriers": {
     "underdog": 31,
-    "kalshi": 4
+    "sleeper_picks": 28
    },
    "best": 31
   },
   "player_pass_interceptions": {
    "carriers": {
-    "underdog": 30
+    "underdog": 30,
+    "sleeper_picks": 15
    },
    "best": 30
   },
   "player_rush_yds": {
    "carriers": {
     "underdog": 66,
-    "bovada": 14
+    "sleeper_picks": 57,
+    "bovada": 14,
+    "kalshi": 6
    },
    "best": 66
   },
@@ -618,6 +676,7 @@
   "player_receptions": {
    "carriers": {
     "underdog": 129,
+    "sleeper_picks": 102,
     "bovada": 18
    },
    "best": 129
@@ -625,8 +684,9 @@
   "player_reception_yds": {
    "carriers": {
     "underdog": 135,
-    "kalshi": 87,
-    "bovada": 18
+    "sleeper_picks": 117,
+    "bovada": 18,
+    "kalshi": 9
    },
    "best": 135
   },
@@ -640,6 +700,7 @@
   "player_anytime_td": {
    "carriers": {
     "underdog": 217,
+    "fanduel": 88,
     "bovada": 70
    },
    "best": 217

@@ -90,3 +90,29 @@ def test_live_board_known_positive_and_report_only_exit():
         "the scan found nothing on the live board — either the board changed "
         "shape or the detector lost the ability to fire; both are findings")
     assert S.main(["--board", str(board), "--json"]) == 0
+
+
+# ── the alias rule (2026-09-02): a 1.0x copy is explained, a 1.35x lock is not ──
+
+def test_copy_by_construction_explains_ratio_one_copies_only():
+    from constant_spike_scan import copy_by_construction as c
+    assert c("proj_fantasypros", "proj_used_fantasypros", 1.0)
+    assert c("proj_baseline", "proj_used_sleeper", 1.0)
+    assert c("proj_ds", "proj_draftsharks", 1.0) and c("proj_ds_floor", "proj_floor_ds", 1.0)
+    assert c("proj_mean_sleeper_only", "proj_sleeper", 1.0)
+    # the SAME pair at 1.35x is NOT a copy — it is the class this scan exists for
+    assert c("proj_fantasypros", "proj_used_fantasypros", 1.35) is None
+    # an unrelated pair at exactly 1.0 is not explained by the rule either
+    assert c("proj_mean", "proj_ceiling", 1.0) is None
+
+
+def test_scan_still_reports_a_ceiling_lock_beside_explained_copies():
+    from constant_spike_scan import scan
+    players = [{"proj_mean": float(i + 1), "proj_ceiling": 1.35 * (i + 1),
+                "proj_espn": float(i + 3), "proj_used_espn": float(i + 3)} for i in range(60)]
+    f = scan(players)
+    locked = {frozenset(h["pair"]) for h in f["ratio_locks"]}
+    known = {frozenset(h["pair"]) for h in f["known_locked_hits"]}
+    assert frozenset(("proj_mean", "proj_ceiling")) in locked, f
+    assert frozenset(("proj_espn", "proj_used_espn")) in known, f
+    assert frozenset(("proj_espn", "proj_used_espn")) not in locked

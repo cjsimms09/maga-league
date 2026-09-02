@@ -554,6 +554,31 @@ function buildInseasonResolutions(entries, weeklyPoints, opts) {
       push(key, chosen, cf, cfEmpty
         ? 'weekly realized points; counterfactual slot was empty (0 by construction)'
         : 'weekly realized points, chosen vs held');
+      /* ── THE STREAMED K/DEF vs THE ONE CORY ACTUALLY FIELDED (register 466 ①,
+       * 2026-09-02) — the stream twin of the lineup and waiver vs_actual rows.
+       * opts.actualStartersBySlot[week] = {K: pid|null, DEF: pid|null}, built by
+       * claims-cron from his matchup starters and the league's slot order. An
+       * empty slot is a real answer (0). Only the auto capture is graded. */
+      const bySlot = o.actualStartersBySlot && o.actualStartersBySlot[String(week)];
+      const spos = p.chosen && (p.chosen.position || p.chosen.pos);
+      if (e.method === 'stream-auto-v1' && bySlot && spos && (spos in bySlot)) {
+        const chosenPid = String(pidOf(p.chosen));
+        const humanPid = bySlot[spos] == null ? null : String(bySlot[spos]);
+        const human = humanPid ? delivered(pts, humanPid) : 0;
+        const agree = humanPid === chosenPid;
+        out.push({
+          kind: 'forecast_resolution', method: 'inseason-resolution-vs-actual-v1',
+          payload: { forecast_key: key + '|vs_actual', week: Number(week), decision_kind: 'stream_call',
+            realized_chosen: r2(chosen), realized_counterfactual: r2(human),
+            outcome: r2(chosen - human), position: spos,
+            human_started: humanPid, slot_empty: humanPid == null,
+            disagreement: { n: agree ? 0 : 1, tool_only: agree ? [] : [chosenPid],
+              human_only: agree || !humanPid ? [] : [humanPid] },
+            source: 'weekly realized points, the tool\'s streamed ' + spos + ' vs the ' + spos
+                  + ' the human actually started (auto-derived from matchup starters by slot; '
+                  + 'empty slot = 0)' },
+        });
+      }
 
     } else if (e.kind === 'inseason_override') {
       // Only the post-fix capture shape resolves: payload.actual is what the
@@ -603,6 +628,36 @@ function buildInseasonResolutions(entries, weeklyPoints, opts) {
       const chosenPid = pidOf(p.chosen);
       if (!chosenPid) continue;
       const chosen = window.reduce((s, pts) => s + delivered(pts, chosenPid), 0);
+      /* ── THE TOOL'S TUESDAY CLAIM vs WHAT CORY ACTUALLY CLAIMED (register 466 ①,
+       * 2026-09-02) — the waiver twin of the lineup vs_actual row above. The
+       * human side is his FIRST completed add that week off the transactions
+       * feed (opts.actualAdds[week], built by claims-cron from Sleeper); an
+       * EMPTY list is a real answer — he held — and his side is then 0, the
+       * same "a decision that delivered nothing to the roster delivered 0"
+       * convention every branch here uses. Same window, same points, paired.
+       * Absent map (feed unavailable) => no row, never a graded hold. Manual
+       * waiver_claim rows are not double-graded; only the auto capture is the
+       * tool's unprompted advice. Priority/FAAB cost is unmodelled here too. */
+      const adds = o.actualAdds && o.actualAdds[String(w0)];
+      if (e.method === 'waiver-auto-v1' && Array.isArray(adds)) {
+        const humanPid = adds.length ? String(adds[0].player_id) : null;
+        const human = humanPid ? window.reduce((s, pts) => s + delivered(pts, humanPid), 0) : 0;
+        const agree = adds.some(a => String(a.player_id) === String(chosenPid));
+        out.push({
+          kind: 'forecast_resolution', method: 'inseason-resolution-vs-actual-v1',
+          payload: { forecast_key: key + '|vs_actual', week: w0, decision_kind: 'waiver_claim',
+            realized_chosen: r2(chosen), realized_counterfactual: r2(human),
+            outcome: r2(chosen - human),
+            human_add: humanPid, human_adds_that_week: adds.map(a => String(a.player_id)),
+            held: !adds.length,
+            disagreement: { n: agree ? 0 : 1,
+              tool_only: agree ? [] : [String(chosenPid)],
+              human_only: agree || !humanPid ? [] : [humanPid] },
+            source: `claim window w${w0}-w${wEnd}: the tool's Tuesday claim vs the player the human `
+                  + 'actually added that week (auto-derived from Sleeper transactions, no button; '
+                  + 'no add = held = 0; priority cost unmodelled)' },
+        });
+      }
       const dropPid = pidOf(p.drop);
       if (dropPid) {
         const cf = window.reduce((s, pts) => s + delivered(pts, dropPid), 0);
@@ -610,7 +665,12 @@ function buildInseasonResolutions(entries, weeklyPoints, opts) {
           `claim window w${w0}-w${wEnd} vs the dropped player (real roster delta; priority cost unmodelled)`);
       } else {
         const wire = o.wire || null;
-        const pos = p.chosen && p.chosen.pos;
+        /* `pos` is the manual capture's field; the AUTO capture writes
+         * `position` (waiver_reco.buildAutoWaiverEntry). Reading only `pos`
+         * meant every auto claim with no drop fell through to "honest
+         * pending" FOREVER — the wire fallback had only ever seen its green
+         * arm (register 473, found by the vs-actual test's own control). */
+        const pos = p.chosen && (p.chosen.pos || p.chosen.position);
         const perWeek = wire && wire.per_week && num(wire.per_week[pos]);
         if (perWeek == null) continue;                 // no wire sample (e.g. K/DEF) -- honest pending
         const ongoing = (wire.ongoing_per_week && num(wire.ongoing_per_week[pos]));
@@ -638,28 +698,48 @@ function toolVsActualSummary(entries) {
   const r2 = x => Math.round(Number(x) * 100) / 100;
   const rows = (entries || []).filter(e => e && e.kind === 'forecast_resolution'
     && e.method === 'inseason-resolution-vs-actual-v1' && e.payload);
-  const seen = new Set();
-  const d = [], dis = [];
-  for (const e of rows) {
-    const k = e.payload.forecast_key;
-    if (seen.has(k)) continue;                 // one row per week counts
-    seen.add(k);
-    d.push(Number(e.payload.outcome) || 0);
-    dis.push(Number((e.payload.disagreement || {}).n) || 0);
-  }
-  if (!d.length) return { weeks: 0, note: 'no auto-derived tool-vs-actual rows yet' };
-  const mean = d.reduce((a, b) => a + b, 0) / d.length;
-  const sd = d.length > 1 ? Math.sqrt(d.reduce((a, b) => a + (b - mean) ** 2, 0) / (d.length - 1)) : null;
-  return {
-    weeks: d.length,
-    tool_minus_human_per_week: r2(mean),
-    se: sd == null ? null : r2(sd / Math.sqrt(d.length)),
-    season_total: r2(d.reduce((a, b) => a + b, 0)),
-    weeks_tool_better: d.filter(x => x > 0).length,
-    weeks_human_better: d.filter(x => x < 0).length,
-    weeks_tied: d.filter(x => x === 0).length,
-    mean_players_disagreed: r2(dis.reduce((a, b) => a + b, 0) / dis.length),
+  const pool = (subset) => {
+    const seen = new Set();
+    const d = [], dis = [];
+    for (const e of subset) {
+      const k = e.payload.forecast_key;
+      if (seen.has(k)) continue;                 // one row per week counts
+      seen.add(k);
+      d.push(Number(e.payload.outcome) || 0);
+      dis.push(Number((e.payload.disagreement || {}).n) || 0);
+    }
+    if (!d.length) return { weeks: 0, note: 'no auto-derived tool-vs-actual rows yet' };
+    const mean = d.reduce((a, b) => a + b, 0) / d.length;
+    const sd = d.length > 1 ? Math.sqrt(d.reduce((a, b) => a + (b - mean) ** 2, 0) / (d.length - 1)) : null;
+    return {
+      weeks: d.length,
+      tool_minus_human_per_week: r2(mean),
+      se: sd == null ? null : r2(sd / Math.sqrt(d.length)),
+      season_total: r2(d.reduce((a, b) => a + b, 0)),
+      weeks_tool_better: d.filter(x => x > 0).length,
+      weeks_human_better: d.filter(x => x < 0).length,
+      weeks_tied: d.filter(x => x === 0).length,
+      mean_players_disagreed: r2(dis.reduce((a, b) => a + b, 0) / dis.length),
+    };
   };
+  // Top level = the LINEUP grade (rows without a decision_kind are lineup —
+  // the shape every existing reader was built on); each other decision kind
+  // is pooled under its own key (register 466 ①: `waiver`).
+  const kindOf = e => e.payload.decision_kind || 'lineup_call';
+  const out = pool(rows.filter(e => kindOf(e) === 'lineup_call'));
+  const waiver = rows.filter(e => kindOf(e) === 'waiver_claim');
+  if (waiver.length) {
+    const w = pool(waiver);
+    w.weeks_human_held = waiver.filter(e => e.payload.held).length;
+    out.waiver = w;
+  }
+  const stream = rows.filter(e => kindOf(e) === 'stream_call');
+  if (stream.length) {
+    const st = pool(stream);
+    st.weeks_slot_empty = stream.filter(e => e.payload.slot_empty).length;
+    out.stream = st;
+  }
+  return out;
 }
 
 function unresolvedDecisionEntries(entries) {

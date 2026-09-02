@@ -49,6 +49,39 @@ priors, not their weekly numbers; the 2025 prop lines are the historical API's
 snapshot, treated as pre-kickoff; the roster-outcome column has SE ≈ 2.7/wk
 and is suggestive only.
 
+**Robustness of the prior (2026-09-02):** K7 in the 2024 fold measured the
+committed 08-18 own_v6 store against today's rebuild — 211 of 510 identical,
+max drift 22.55 points — so the 2025 fold was re-priced on the REBUILT prior
+(`--prior rebuilt`, `weekly_arms_2025_rebuiltprior_backtest.json`, a separate
+artifact; the cited one is untouched). Every claim holds with the same
+ordering: blend **4.350** vs pull 4.590 vs v1 4.777 pooled MAE; start/sit
+blend .613/.833/.789/.785 vs pull .592/.815/.759/.779 vs v1 .592/.783/.741/.740;
+props beats v1 at 4 of 4. The refreshed prior is slightly better for every
+own_v6-based arm (v1 4.853 → 4.777) and changes no conclusion.
+
+## 2b. Replication fold — 2024, same harness, claims fixed first (register 471, 2026-09-02)
+
+`python3 draft/backtest/weekly_arms_2025_backtest.py --season 2024` →
+`weekly_arms_2024_backtest.json`, seven controls green (K7: the in-process
+own_v6 builder reproduces the reference builder 529/529). The three claims
+in `REPLICATION_CLAIMS` were written before the fold was read.
+
+| grade | blend_props_pull | `site_ours` (pull) | v1 champion |
+|---|---|---|---|
+| pooled MAE, all | **4.650** | 4.900 | 5.188 |
+| MAE QB / RB / WR / TE | **7.323 / 4.626 / 4.432 / 3.412** | 8.054 / 4.857 / 4.619 / 3.497 | 9.015 / 5.078 / 4.815 / 3.628 |
+| pairwise start/sit QB / RB / WR / TE | **.654 / .790 / .751 / .760** | .636 / .764 / .729 / .738 | .618 / .734 / .697 / .720 |
+| props vs v1, shared population, start/sit | props **.643 / .805 / .765 / .766** vs v1 .611 / .753 / .709 / .737 | | |
+
+Best on every accuracy grade in both folds. **2024 limits:** two priors
+(no Sleeper 2024 archive exists); the props crosswalk leaves more names
+unmatched (539 vs 183 in week 1) because 2024 names come from the FP store
+and the 2026 board; and **the roster-outcome column is coverage-confounded
+for every own_v6-based arm** — own_v6 prices 8.1 of Cory's 2024 rostered
+players against 11.8 for props/FP (his 2024 roster carried rookies own_v6
+excludes by construction, and the equalisation fill is own_v6-based), so
+that column is not quoted for 2024.
+
 ## 3. When it enters, and what it must do
 
 * **Enters the Tuesday grader as a challenger column from week 5's snapshot

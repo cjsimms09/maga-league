@@ -1,0 +1,56 @@
+{
+ "_territory": "TERRITORY: A \u2014 the declared SHAPE of public/js/draft/valuation.js (the C1 one-shared-valuation contract; commitment item 18).",
+ "module": "public/js/draft/valuation.js",
+ "global": "SharedValuation",
+ "exports": {
+  "startableValue": "function",
+  "claimValue": "function",
+  "claimStoppingRule": "function",
+  "waiverPriorityDepletes": "function",
+  "vorpAfterOverride": "function",
+  "tradeActionability": "function",
+  "waiverClaimRecord": "function",
+  "bestAvailableByVorp": "function",
+  "openStartableSlots": "function",
+  "INJURY_RATE": "object",
+  "BENCH_DISCOUNT": "number"
+ },
+ "outputs": {
+  "claimValue(claim, drop, roster, league, lineupPoints)": {
+   "keys": [
+    "net_points",
+    "lineup_before",
+    "lineup_after",
+    "improves",
+    "drop_id",
+    "why"
+   ]
+  },
+  "claimStoppingRule(opts)": {
+   "keys": [
+    "claim",
+    "spend_priority",
+    "net_points",
+    "reserve",
+    "contested",
+    "reason"
+   ]
+  },
+  "tradeActionability(opts)": {
+   "keys": [
+    "actionable",
+    "verdict",
+    "current_week",
+    "deadline_week",
+    "boundary_unverified",
+    "reason"
+   ]
+  },
+  "startableValue(player, roster, league)": {
+   "keys": [
+    "value",
+    "fills"
+   ]
+  }
+ }
+}

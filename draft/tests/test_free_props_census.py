@@ -46,6 +46,11 @@ def test_labels_from_each_source_map_to_the_arms_markets():
         # Kalshi series titles
         "Pro Football Player Receptions": "player_receptions",
         "Pro Football Player Passing Yards": "player_pass_yds",
+        # Sleeper Picks wager_type spellings (run 6, 09-02)
+        "anytime_touchdowns": "player_anytime_td",
+        "receiving_yards": "player_reception_yds",
+        "passing_touchdowns": "player_pass_tds",
+        "interceptions": "player_pass_interceptions",
     }
     for label, want in cases.items():
         assert fpc.market_of(label) == want, (label, fpc.market_of(label))
@@ -86,3 +91,11 @@ def test_a_joint_rush_rec_td_line_covers_both_split_td_markets():
     assert t["player_rush_tds"]["best"] == 300 and "joint" in t["player_rush_tds"]["covered_by"]
     assert t["player_reception_tds"]["best"] == 300
     assert t["player_pass_tds"]["best"] == 0          # a joint TD line says nothing about passing
+
+
+def test_sleeper_stat_keys_map_directly():
+    """Sleeper Picks' market_type is Sleeper's own stat key — our scoring keys."""
+    for k, want in (("pass_yd", "player_pass_yds"), ("rec", "player_receptions"), ("rec_yd", "player_reception_yds"),
+                    ("rush_td", "player_rush_tds"), ("pass_int", "player_pass_interceptions"), ("rec_td", "player_reception_tds")):
+        assert fpc.market_of(k) == want, k
+    assert fpc.market_of("fum_lost") is None

@@ -1,0 +1,55 @@
+# FREE WEEKLY PROPS WRITER — the props arm's input, from free doors, no key.
+# Cory's standing ruling (CLAUDE.md, 09-01): no paid props, no Odds API. This
+# replaces the paid Thursday fetch's OUTPUT (same file, same contract) with
+# Sleeper Picks + Underdog lines, measured free and full-coverage on 09-02
+# (free_props_census_2026.json). Thursday 12:20 UTC, after the census (12:15)
+# and before the Thursday emissions; the writer REFUSES on its own known-
+# positive self-checks (a QB with a pass-yds line from Sleeper, an Underdog
+# fill, >=30 priced) and writes nothing on a null.
+name: free-props-writer
+on:
+  workflow_dispatch:
+    inputs:
+      week:
+        description: 'NFL week (blank = ask Sleeper /state/nfl)'
+        required: false
+        default: ''
+  schedule:
+    - cron: '0 20 * * 3'   # Wednesday 20:00 UTC — before a Wednesday/short-week opener (week 1: SEA-NE)
+    - cron: '20 12 * * 4'  # Thursday 12:20 UTC — the main pre-TNF snapshot; merges, never clobbers
+permissions:
+  contents: write
+jobs:
+  write:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Write this week's free props (self-checked, refuses on a null)
+        run: |
+          set -uo pipefail
+          W="${{ github.event.inputs.week }}"
+          if [ -n "$W" ]; then
+            if python3 draft/tools/fetch_free_props.py --week "$W"; then code=0; else code=$?; fi
+          else
+            if python3 draft/tools/fetch_free_props.py; then code=0; else code=$?; fi
+          fi
+          if [ "$code" -ne 0 ]; then
+            echo "::error::free props writer REFUSED (self-check or fetch failure) — nothing written; the arm has no file for this week until this is green"
+            exit "$code"
+          fi
+      - name: Commit
+        run: |
+          set -euo pipefail
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/data/props/ 2>/dev/null || true
+          if git diff --cached --quiet; then echo "no change — nothing to commit"; exit 0; fi
+          git commit -m "Free weekly props snapshot (Sleeper Picks + Underdog) [skip deploy]"
+          for i in 1 2 3 4 5; do
+            git fetch -q origin main
+            git rebase -q origin/main || { git rebase --abort; echo "::error::rebase failed"; exit 1; }
+            if git push -q origin HEAD:main; then echo "pushed on try $i"; exit 0; fi
+            sleep $((2**i))
+          done
+          echo "::error::could not push after 5 tries"; exit 1
