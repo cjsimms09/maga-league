@@ -1,0 +1,8 @@
+{
+ "_territory": "TERRITORY: A — read by draft/tools/blind_folds.py",
+ "_what": "Every (arm, season) fold an OPEN prereg is holding BLIND. A harness that can read a fold calls blind_folds.refuse_if_blind(arm, season) at startup and STOPS unless --spend-blind-fold is passed, so a replication run cannot spend another lane's primary fold by accident (register 472: it happened twice in one day). A row here whose ledger row is no longer OPEN is stale and test_blind_folds fails on it — the registry cleans itself through the ledger.",
+ "folds": [
+  {"arm": "props_weekly", "seasons": [2023], "ledger_row": "P347", "owner": "D", "grade_by": "2026-09-06",
+   "note": "2025 spent by register 463, 2024 by register 471; 2023 is the last blind fold"}
+ ]
+}

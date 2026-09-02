@@ -89,6 +89,11 @@ from weekly_own_projection import (                         # noqa: E402
 from fetch_weekly_props import implied_points, MARKET_TO_STAT  # noqa: E402
 
 SEASON = int(sys.argv[sys.argv.index("--season") + 1]) if "--season" in sys.argv else 2025
+# register 472: a fold an OPEN prereg holds blind is refused at startup unless
+# --spend-blind-fold is passed with that owner's word. 2023 is P347's (D).
+if __name__ == "__main__":
+    from blind_folds import refuse_if_blind
+    refuse_if_blind("props_weekly", SEASON)
 #: REPLICATION FOLDS (register 471, 2026-09-02). The file keeps its 2025 name
 #: because the 2025 artifact is cited by the prereg, P353, P357 and register
 #: 463; `--season 2024` runs the identical harness on the 2024 stores and
