@@ -75,12 +75,23 @@ _LABEL_RULES = [
     (r"\breceptions?\b|^rec$", "player_receptions"),
 ]
 
+#: Sleeper Picks speaks Sleeper's stat keys — the SAME keys our scoring table
+#: uses — so its market_type maps directly, no prose parsing.
+SLEEPER_STAT_KEYS = {
+    "pass_yd": "player_pass_yds", "pass_td": "player_pass_tds", "pass_int": "player_pass_interceptions",
+    "rush_yd": "player_rush_yds", "rush_td": "player_rush_tds", "rec": "player_receptions",
+    "rec_yd": "player_reception_yds", "rec_td": "player_reception_tds",
+    "rush_rec_td": "player_rush_rec_tds", "anytime_td": "player_anytime_td", "td": "player_anytime_td",
+}
+
 
 def market_of(label: str) -> str | None:
     """Normalise a source's market label to our key, or None (not a market we need)."""
     s = (label or "").lower().strip()
     if not s or "longest" in s:
         return None
+    if s in SLEEPER_STAT_KEYS:
+        return SLEEPER_STAT_KEYS[s]
     for pat, key in _LABEL_RULES:
         if re.search(pat, s):
             return key
@@ -478,9 +489,47 @@ def _generic_json(name, url, headers=None):
 
 
 def fanduel():
-    return _generic_json("fanduel",
-        "https://sbapi.nj.sportsbook.fanduel.com/api/content-managed-page?page=CUSTOM&customPageId=nfl&pbHorizontal=false&_ak=FhMFpcPWXMeyZxOx&timezone=America%2FNew_York",
-        headers={"Referer": "https://sportsbook.fanduel.com/", "Origin": "https://sportsbook.fanduel.com"})
+    """Content page: the layout layer is coupons; the MARKETS live under
+    attachments.markets[id] with runners (players) and handicaps. Discovery
+    stores the distinct marketType values so the map is written from the
+    real strings."""
+    st, body = get("https://sbapi.nj.sportsbook.fanduel.com/api/content-managed-page?page=CUSTOM&customPageId=nfl&pbHorizontal=false&_ak=FhMFpcPWXMeyZxOx&timezone=America%2FNew_York",
+                   headers={"Referer": "https://sportsbook.fanduel.com/", "Origin": "https://sportsbook.fanduel.com"})
+    out = _src(st, body)
+    if st != 200:
+        return out
+    try:
+        d = json.loads(body.decode("utf-8", "ignore"))
+    except ValueError:
+        out["notes"].append("unparseable"); return out
+    att = d.get("attachments") or {}
+    out["attachment_keys"] = {k: (len(v) if isinstance(v, (dict, list)) else 1) for k, v in att.items()}
+    markets = att.get("markets") or {}
+    mtypes = {}
+    pbm: dict[str, set] = {}; samples = []; shape = None
+    for mid, m in (markets.items() if isinstance(markets, dict) else enumerate(markets)):
+        mt = m.get("marketType") or ""
+        mtypes[mt] = mtypes.get(mt, 0) + 1
+        key = market_of(mt.replace("_", " ")) or market_of(m.get("marketName") or "")
+        if not key:
+            continue
+        if shape is None:
+            shape = json.dumps(m)[:900]
+        for r in m.get("runners") or []:
+            name = r.get("runnerName") or ""
+            hc = r.get("handicap")
+            if key != "player_anytime_td" and hc is None:
+                continue
+            if not name or name.lower() in ("over", "under", "yes", "no"):
+                continue
+            player = re.sub(r"\s*(over|under)\s*[\d.]+$", "", name, flags=re.I).strip()
+            pbm.setdefault(key, set()).add(player)
+            if len(samples) < 6:
+                samples.append({"market": key, "player": player, "line": hc, "label": mt[:60]})
+    out["market_types_seen"] = dict(sorted(mtypes.items(), key=lambda kv: -kv[1])[:40])
+    out["market_shape"] = shape
+    _tally(out, pbm, samples)
+    return out
 
 
 def caesars():
@@ -524,9 +573,49 @@ def parlayplay():
 
 
 def sleeper_picks():
-    """Sleeper's own pick'em product has lines; the public route is a guess and a
-    404 here is 'wrong door', not 'no lines'."""
-    return _generic_json("sleeper_picks", "https://api.sleeper.app/lines/available?sport=nfl")
+    """Sleeper's pick'em lines, keyed by subject_id = SLEEPER PLAYER ID — our
+    pipeline's native id, so no name crosswalk at all. Discovered 09-02
+    (4.3MB, structured). Lines: options[].outcome_value; market_type is a
+    Sleeper stat key (pass_yd, rec, rush_td ...)."""
+    st, body = get("https://api.sleeper.app/lines/available?sport=nfl")
+    out = _src(st, body)
+    if st != 200:
+        return out
+    try:
+        d = json.loads(body.decode("utf-8", "ignore"))
+    except ValueError:
+        out["notes"].append("unparseable"); return out
+    rows = d if isinstance(d, list) else (d.get("lines") or d.get("data") or [])
+    mtypes = {}; sports = {}; wtypes = {}
+    pbm: dict[str, set] = {}; samples = []
+    for r in rows:
+        mt = str(r.get("market_type") or "")
+        mtypes[mt] = mtypes.get(mt, 0) + 1
+        sports[str(r.get("sport"))] = sports.get(str(r.get("sport")), 0) + 1
+        wtypes[str(r.get("wager_type"))] = wtypes.get(str(r.get("wager_type")), 0) + 1
+        if str(r.get("sport") or "").lower() != "nfl":
+            continue
+        key = market_of(mt)
+        if not key:
+            continue
+        pid = str(r.get("subject_id") or "")
+        opts = r.get("options") or []
+        line = next((o.get("outcome_value") for o in opts if o.get("outcome_value") is not None), None)
+        if not pid or line is None:
+            continue
+        pbm.setdefault(key, set()).add(pid)
+        if len(samples) < 6:
+            samples.append({"market": key, "player": pid, "line": line, "label": mt,
+                            "pos": (opts[0].get("subject_position") if opts else None),
+                            "team": (opts[0].get("subject_team") if opts else None),
+                            "game_id": r.get("game_id"), "payouts": [o.get("payout_multiplier") for o in opts][:2]})
+    out["market_types_seen"] = dict(sorted(mtypes.items(), key=lambda kv: -kv[1])[:40])
+    out["sports_seen"] = sports
+    out["wager_types_seen"] = wtypes
+    if rows:
+        out["row_shape"] = json.dumps(rows[0])[:900]
+    _tally(out, pbm, samples)
+    return out
 
 
 def betmgm():
