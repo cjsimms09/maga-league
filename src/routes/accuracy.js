@@ -305,6 +305,17 @@ function buildAccuracyView(calibration, attribution, rawCount, extra) {
     // anything to show; the graded half sits alongside it when it exists.
     captured: extra.captured || null,
 
+    // REGISTER 466 — the tool's lineup/waiver/stream call vs what Cory actually
+    // did, auto-derived every week with no override click required. `captured`
+    // above is a LOWER BOUND on how often he disagreed (it counts logged
+    // overrides only); this is the real rate, from forecast_grade's own
+    // `toolVsActualSummary()` over the same ledger. Three keys: the top-level
+    // object is the lineup grade (weeks:0 + a note before anything resolves,
+    // the same "shown, honestly empty" convention as `captured` above);
+    // `.waiver` and `.stream` (only present once a resolved row of that kind
+    // exists) are the same shape.
+    toolVsActual: extra.toolVsActual || null,
+
     // ── IN-SEASON DECISION ACCURACY, computed every grade-cron run and never
     // rendered until now. `decisions.inseason` (forecast_grade.gradeDecisions'
     // return) already answers "is the human adding value on top of the tool"

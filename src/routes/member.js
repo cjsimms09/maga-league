@@ -24,6 +24,7 @@ const PLOFF = require('../playoffOdds');   // playoff-odds / risk-posture widget
 const SET = require('./settlement');       // the settlement report — who pays whom, with Venmo
 const RD = require('./recap-data');        // the weekly recap: gather here, write in src/recap.js
 const ACC = require('./accuracy');          // model-accuracy display — reads A's calibration/attribution output
+const FG = require('../forecast_grade');    // tool-vs-actual in-season resolution (register 466)
 const L = require('../ledger');
 const SB = require('../sidebets');
 const BL = require('../betlogic');
@@ -4079,8 +4080,14 @@ router.get('/lineup/accuracy', requireCommissioner, aw(async (req, res) => {
   // grade-cron writes it into every snapshot. It was simply never read on
   // this side of the seam; passed through below as `inseason`.
   const captured = ACC.capturedOverrides(ledger);
+  // REGISTER 466 — the tool's auto-derived lineup/waiver/stream call vs what Cory
+  // actually did, no button required. Distinct from `captured` above (which only
+  // counts logged OVERRIDE clicks) and from `decisions.inseason` below (which
+  // needs A's grading run) — this is forecast_grade's own pure read over the SAME
+  // ledger already fetched for `captured`, so it costs nothing new to compute.
+  const toolVsActual = FG.toolVsActualSummary(ledger);
   const view = ACC.buildAccuracyView(calibration, attribution, rawCount,
-    { series, decisions, captured, inseason: decisions && decisions.inseason });
+    { series, decisions, captured, toolVsActual, inseason: decisions && decisions.inseason });
   res.render('accuracy', { me: req.owner, season, view,
     // The explainer contract (what/read/do/src per panel) — view-model only.
     guide: require('../inseason_guide').GUIDE.accuracy });

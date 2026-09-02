@@ -180,6 +180,47 @@
         the tool recommended, which is the grading half — it covers the draft decisions today and not these.
         The gaps above are real; the verdict column is deliberately absent rather than guessed.
       </p>
+      <p class="muted" style="margin:.5rem 0 0; font-size:.78rem">
+        <b>The <%= C.rate %>% above is a LOWER BOUND on how often you actually went against the tool</b> —
+        it counts only the weeks you clicked override. The card below derives the real disagreement rate
+        automatically, from what you actually started/claimed/streamed, no click required.
+      </p>
+    </div>
+  </div>
+<% } %>
+
+<%# ── TOOL vs WHAT CORY ACTUALLY DID — register 466, auto-derived every week
+    with no override click required. `captured` above is a lower bound on
+    disagreement (clicks only); this is the real rate, paired week over week:
+    tool's call vs the lineup/claim/stream he actually ran. %>
+<% const TVA = v.toolVsActual; %>
+<% if (TVA) { %>
+  <div class="card" style="margin-bottom:1.2rem">
+    <h2>🤖 Tool vs. what you actually did <span class="sub">auto-derived every week — no override click needed</span></h2>
+    <div class="body">
+      <%
+        const tvaBlock = (label, sub, d, extraLine) => { %>
+        <div style="<%= label !== 'Lineup' ? 'margin-top:1rem; padding-top:.9rem; border-top:1px solid var(--line)' : '' %>">
+          <p style="margin:0 0 .4rem"><b><%= label %></b> <span class="muted" style="font-size:.8rem"><%= sub %></span></p>
+          <% if (!d.weeks) { %>
+            <p class="muted" style="margin:0; font-size:.8rem"><%= d.note || 'nothing auto-derived yet' %></p>
+          <% } else { %>
+            <div class="acc-ov">
+              <div class="acc-ov-cell"><span class="acc-ov-num wr-num"><%= d.weeks %></span><span class="acc-ov-lbl">weeks paired</span></div>
+              <div class="acc-ov-cell"><span class="acc-ov-num wr-num <%= d.tool_minus_human_per_week > 0 ? 'pos' : '' %>"><%= d.tool_minus_human_per_week > 0 ? '+' : '' %><%= d.tool_minus_human_per_week.toFixed(2) %></span><span class="acc-ov-lbl">tool − you, pts/wk<%= d.se != null ? ' (±' + d.se.toFixed(2) + ' SE)' : '' %></span></div>
+              <div class="acc-ov-cell"><span class="acc-ov-num wr-num"><%= d.weeks_tool_better %>–<%= d.weeks_human_better %>–<%= d.weeks_tied %></span><span class="acc-ov-lbl">tool–you–tied</span></div>
+              <div class="acc-ov-cell"><span class="acc-ov-num wr-num"><%= d.mean_players_disagreed.toFixed(1) %></span><span class="acc-ov-lbl">players disagreed / wk</span></div>
+            </div>
+            <% if (extraLine) { %><p class="muted" style="margin:.5rem 0 0; font-size:.78rem"><%= extraLine %></p><% } %>
+          <% } %>
+        </div>
+      <% };
+      tvaBlock('Lineup', 'start/sit — every scored week, not just the ones you overrode', TVA, null);
+      if (TVA.waiver) tvaBlock('Waiver', 'Tuesday claim vs. the player you actually added', TVA.waiver,
+        TVA.waiver.weeks_human_held + ' of ' + TVA.waiver.weeks + ' week' + (TVA.waiver.weeks === 1 ? '' : 's') + ' you held (no add) — counted as 0, not skipped.');
+      if (TVA.stream) tvaBlock('Stream', 'streamed K/DEF vs. the one you actually fielded', TVA.stream,
+        TVA.stream.weeks_slot_empty + ' of ' + TVA.stream.weeks + ' week' + (TVA.stream.weeks === 1 ? '' : 's') + ' the slot sat empty — counted as 0, not skipped.');
+      %>
     </div>
   </div>
 <% } %>
