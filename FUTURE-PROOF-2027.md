@@ -208,4 +208,6 @@ that might help."* Three mechanisms, two of which already run:
    nfldata `stadiums.csv` path 404 (asset renamed — candidate to fix); the nflverse
    depth-charts release is reachable but its columns did not match the shape (to confirm).
    Entered: NWS as weather's fallback, nflverse schedules as the schedule fallback;
-   ESPN struck from three fallback claims. `draft/backtest/free_source_discovery_2026-09-02.json`.**
+   ESPN struck from three fallback claims. Re-run 04:27Z on the corrected table: 22 answer;
+   the stadiums CSV path is dead on both branches (C, it feeds game_weather.py).
+   `draft/backtest/free_source_discovery_2026-09-02.json`.**
