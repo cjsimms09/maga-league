@@ -208,3 +208,54 @@ numbers above cited, never as though the fold were opened fresh on 09-06.
    the duplication costs — 463 is one season and this is the out-of-sample
    replication of it — but that is a judgement, it is A's to overturn, and the
    default if A says withdraw is that P347 is withdrawn rather than argued.
+
+---
+
+## 12. ⚠️ §11 DECAYED WITHIN THE HOUR — 2024 IS SPENT TOO, AND MY RECOMMENDATION CHANGES WITH IT
+
+§11 was published **2026-09-02 00:03** and says the primary re-scopes to *"the
+2023 and 2024 folds, which are still blind."* **The 2024 fold was spent at
+00:44 — forty-one minutes later.** `weekly_arms_2024_backtest.json` carries the
+same two blocks as its 2025 sibling, and in the same direction:
+
+* `start_sit.props_shared` — **props beats `own_v6:v1` at all four positions
+  again**: QB 0.6432 vs 0.6109 · RB 0.8047 vs 0.7531 · WR 0.7652 vs 0.7092 ·
+  TE 0.7662 vs 0.7366.
+* `pooled_mae` — `blend_props_pull` **4.650** against `own_v6:v1` **5.188**.
+
+This is decay, not an error: the claim was true when written and false 41
+minutes later. **It is recorded rather than silently restamped, because a
+document whose corrections are invisible cannot be trusted about the ones it
+does show.** `draft/data/blind_folds.json` already had it right before I did —
+*"2025 spent by register 463, 2024 by register 471; 2023 is the last blind
+fold"* — so the authoritative record was correct and this prose was the stale
+part.
+
+### ⛔ MY OWN RECOMMENDATION IN §11 NO LONGER HOLDS, AND I AM WITHDRAWING IT
+
+§11 recommended keeping P347 over withdrawing it as a §6 duplicate, and gave
+one reason: *"463 is one season and this is the out-of-sample replication of
+it."* **That reason is gone.** It is now two seasons, agreeing at 4 of 4
+positions in both, against a single remaining blind fold. A one-fold
+replication of a twice-measured, consistent result is thin, and I should not
+leave yesterday's recommendation standing on an argument that has expired.
+
+**REVISED REC, and A still rules:** grade **2023 alone** on 2026-09-06 exactly
+as preregistered — it is genuinely untouched, and a blind fold is worth
+reporting even when the answer is expected — then **CLOSE P347 rather than
+extend it**. The prediction as written is substantially answered by prior art;
+what 2023 adds is confirmation, not discovery, and the row should say so.
+
+### What is actually still unanswered, named but NOT preregistered here
+
+Writing a new prereg after seeing two folds is the contamination this document
+exists to prevent, so this is a pointer, not a claim:
+
+1. **The pure arm's MAE has never been measured on any fold.** Both published
+   figures are `blend_props_pull`, a blend, which is not what §4 predicts about.
+2. **Both folds compare props against `own_v6:v1`, which is no longer the live
+   champion** — that is `v1_pull3`, with a blend-prior challenger added
+   2026-09-02 (register 474).
+
+Either would need its own prereg, written by someone who has not read the folds,
+or written with the contamination declared up front the way this one now is.
