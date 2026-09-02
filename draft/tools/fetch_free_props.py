@@ -456,7 +456,14 @@ def main(argv=None) -> int:
             print("   -", b)
         return 1
     doc = build_snapshot(result, int(season), int(week), _dt.date.today().isoformat())
-    path = props_snapshot_path(out_dir, int(season), int(week))
+    # PROPS_SNAPSHOT_SUFFIX="_sun" (the Sunday 15:30Z run) writes a SEPARATE
+    # file for the closing-line grade (P289) and merges only against itself —
+    # never the Thursday file the emission read (ROUTES relay → C, 09-02).
+    suffix = os.environ.get("PROPS_SNAPSHOT_SUFFIX", "")
+    if suffix and not re.fullmatch(r"_[a-z]{1,8}", suffix):
+        print(f"! PROPS_SNAPSHOT_SUFFIX {suffix!r} is not _[a-z]{{1,8}} — refusing (nothing written)")
+        return 1
+    path = props_snapshot_path(out_dir, int(season), int(week), suffix)
     existing = None
     if path.exists():
         try:

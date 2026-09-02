@@ -2521,6 +2521,23 @@ router.get('/team', aw(async (req, res) => {
   const viewOwner = H.ownerById(owners, viewId) || req.owner;
   const sData = await sleeper.bundle(world.config.sleeper_league_id);
   const roster = await sleeper.rosterView(sData, world.config.sleeper_map || {}, viewOwner.id);
+  // THIS-WEEK PROJECTION ON EVERY ROSTER ROW (site review 09-02, item 5): the
+  // board's Sleeper number through proj_feed's zeroing ladder — the SAME
+  // function the week page uses (memberweek.sleeperWeekly), with the LIVE
+  // injury tag and bye from the roster row shimmed over the board's copy so a
+  // Thursday OUT zeroes here too. Absent from the board → proj null, never 0.
+  if (roster && roster.rows && roster.rows.length) {
+    try {
+      const art = MW.boardArtifact();
+      const byId = {};
+      for (const b of ((art && art.players) || []).concat((art && art.kept_players) || [])) byId[String(b.player_id)] = b;
+      const wkForProj = (sData && sData.week) || 1;
+      for (const r of roster.rows) {
+        const b = byId[String(r.id)];
+        r.proj = b ? MW.sleeperWeekly(Object.assign({}, b, { injury_status: r.inj != null ? r.inj : b.injury_status, bye: r.bye != null ? r.bye : b.bye }), { week: wkForProj }) : null;
+      }
+    } catch (e) { /* a missing board leaves proj null — "cannot say", not zero */ }
+  }
   // This week's game, so the page answers "who am I playing" before it answers
   // "who is on my bench" — and so a bet against that opponent is one tap away.
   const matchup = sleeper.myMatchup(sData, world.config.sleeper_map || {}, viewOwner.id, owners);

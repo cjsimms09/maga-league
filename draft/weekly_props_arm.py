@@ -55,8 +55,12 @@ from pathlib import Path
 ARM_NAME = "props_weekly_v1"
 
 
-def props_snapshot_path(props_dir: Path, season: int, week: int) -> Path:
-    return props_dir / f"weekly_props_{season}_w{week}.json"
+def props_snapshot_path(props_dir: Path, season: int, week: int, suffix: str = "") -> Path:
+    """The arm reads the UNSUFFIXED file (the Wed/Thu pre-kickoff lines the
+    emission saw). A suffixed sibling — `_sun`, the Sunday pre-kickoff
+    snapshot for P289's closing-line grade — is a separate file on purpose:
+    the Tuesday grader must grade the arm on the lines it actually used."""
+    return props_dir / f"weekly_props_{season}_w{week}{suffix}.json"
 
 
 def load_props_arm(props_dir: Path, season: int, week: int) -> dict | None:

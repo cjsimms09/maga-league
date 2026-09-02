@@ -274,6 +274,12 @@ function betCard(b, opts) {
     <div class="bc-top">
       <span class="bc-kind"><%= kindOf(b) %></span>
       <span class="bc-state <%= sk.cls %>"><%= sk.label %></span>
+      <%# OFFER EXPIRY (catalog item 2, site review 09-02 item 6): an open offer
+          already dies on its own deadline (betlogic.acceptDeadline); it just
+          never SAID when. One chip, only while the offer is still live. %>
+      <% if (dl && dl.open && dl.at && ['proposed', 'open'].includes(b.status)) { %>
+        <span class="bc-chip bc-expiry" title="<%= dl.why %>">⏳ <%= fmtDL(dl.at) %></span>
+      <% } %>
       <span class="bc-stake"><b class="wr-num"><%= money(b.stake) %></b><small>each</small></span>
     </div>
 

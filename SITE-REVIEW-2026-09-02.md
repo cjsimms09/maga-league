@@ -119,10 +119,10 @@ owner-facing. Fine under the access rule.
 2. ~~History index → menu + highlights~~ — **DONE 09-02 (relay): timeline and the four doors first, the Story of the League folded (opens itself on desktop or on a chapter link); phone page 11,589px → 2,462px.**
 3. **Mark as paid** (catalog 7) — the only money loop on the site that cannot
    close. *[med]*
-4. **Home phone order + first-visit-only prompts.** *[small]*
-5. **My Team: this-week context on the roster row** (opp · day · proj · status). *[small]*
+4. ~~Home phone order + first-visit-only prompts~~ — **DONE 09-02 (relay, on Cory's 09-02 'improve site' order): Needs You and the to-do strip sit above the hero, live scores above the standings; the contact-info nag dismisses for good (localStorage, was per-session).**
+5. ~~My Team: this-week context on the roster row~~ — **DONE 09-02 (relay): every roster row carries this week's game (opponent, home/away, kickoff day from the committed schedule; BYE only from a full week) and the projection through the lineup tool's own zeroing ladder; '—' is cannot-say, never zero. `team_this_week.test.js`.**
 6. **Vote deadline chip · bet expiry chip · chat reactions** (catalog 11/2/13
-   remainders). *[small ×3]*
+   remainders). *[small ×3]* — **bet expiry chip DONE 09-02 (relay): open offers show ⏳ their acceptance deadline (betlogic.acceptDeadline, ET). Vote deadline chip NOT buildable as-is: ballots carry no closing time (status open/closed_at only) — needs a rule first (B/A). Chat reactions: a store change, left for B.**
 7. **Pick'em vs the model** (model picks revealed and graded after lock). *[small]*
 8. ~~What to Watch linked from the scoreboard; Draft Spot parked in-season~~ — **DONE 09-02 (relay): a quiet-week link under the week strip (the Sunday-night banner unchanged), and Draft Spot leaves the menu while `inSeason` (season start → +150 days, from `config.season_start` or the betting calendar's derived default — nothing writes that config key, verified); the page and route stay.**
 9. ~~The lineup CHECK page for owners~~ — **dropped: Cory ruled everything stays private (09-02).**

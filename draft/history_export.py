@@ -113,6 +113,11 @@ def _standings(rosters: list) -> list:
             "points_for": s.get("fpts", 0) + s.get("fpts_decimal", 0) / 100,
             "points_against": s.get("fpts_against", 0) + s.get("fpts_against_decimal", 0) / 100,
             "waiver_budget_used": s.get("waiver_budget_used", 0),
+            # THE WAIVER PRIORITY ORDER as it stands at export time (rolling
+            # priority league, Tuesday clears). P288's claim-vs-wait MC and
+            # the Tuesday wire read it from here; null when Sleeper omits it,
+            # never 0 (ROUTES relay → C, 2026-09-02, default executed early).
+            "waiver_position": s.get("waiver_position"),
         })
     rows.sort(key=lambda x: (-x["wins"], -x["points_for"]))
     for i, row in enumerate(rows, 1):
