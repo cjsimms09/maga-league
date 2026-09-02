@@ -30,10 +30,15 @@ path as an ordinary challenger column, not as a study arm.
 
 | grade | blend_props_pull | best single arm (`site_ours` = pull) | v1 champion |
 |---|---|---|---|
-| pooled MAE, all | **4.416** | 4.655 | 4.853 |
-| MAE QB / RB / WR / TE | **8.214 / 4.185 / 4.020 / 3.266** | 8.614 / 4.468 / 4.250 / 3.347 | 9.535 / 4.645 / 4.323 / 3.415 |
-| pairwise start/sit QB / RB / WR / TE | **.611 / .832 / .785 / .777** | .592 / .814 / .753 / .770 | .592 / .780 / .735 / .730 |
+| pooled MAE, all | **4.411** | 4.655 | 4.853 |
+| MAE QB / RB / WR / TE | **8.170 / 4.185 / 4.020 / 3.266** | 8.614 / 4.468 / 4.250 / 3.347 | 9.535 / 4.645 / 4.323 / 3.415 |
+| pairwise start/sit QB / RB / WR / TE | **.613 / .832 / .785 / .777** | .592 / .814 / .753 / .770 | .592 / .780 / .735 / .730 |
 | Cory's 2025 roster, Δ vs the lineup he started | +1.31/wk ± 2.7 | −0.81/wk | −2.58/wk |
+
+*(Re-run 2026-09-01 under register 467, when the `any_td` fold moved from the
+backtest's hand arithmetic into the shared converter: RB/WR/TE byte-identical,
+QB gained its rushing-TD expectation — pooled 4.416 → 4.411, QB MAE 8.214 →
+8.170, QB start/sit .611 → .613. Control K6 in the artifact.)*
 
 It beats its own best ingredient on every accuracy grade — the bar
 BLEND-SEARCH-DESIGN §2 sets for any Tier-2 arm ("a blend that ties its own best

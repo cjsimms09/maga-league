@@ -128,6 +128,100 @@ def test_implied_points_absent_when_no_market_maps():
     assert pts is None and stat_line == {}
 
 
+# ── any_td: the PRICE market, folded as expected TDs (register 467) ─────────
+
+def _price_market(mk, *rows):
+    """rows of (desc, yes_price, no_price_or_None) -> one anytime-TD market
+    in the-odds-api shape: outcomes named Yes/No carrying a `price` and NO
+    `point` — the row shape the line branch silently dropped."""
+    outs = []
+    for desc, yes, no in rows:
+        outs.append({"name": "Yes", "description": desc, "price": yes})
+        if no is not None:
+            outs.append({"name": "No", "description": desc, "price": no})
+    return {"key": mk, "outcomes": outs}
+
+
+def test_any_td_price_market_is_priced_not_dropped():
+    # KNOWN POSITIVE (rule 3e): Yes -150 / No +120 de-vigs to 0.569 (the
+    # historical converter's own docstring example), Poisson -ln(1-p) = 0.841
+    # expected TDs. Before 467 this doc extracted {} for the player.
+    doc = _event_doc([_book("a", [_price_market("player_anytime_td",
+                                                ("RB One", -150, 120))])])
+    props = FP.extract_event_props(doc)
+    assert "RB One" in props, "the price market was dropped again"
+    import math
+    p = (150 / 250) / ((150 / 250) + (100 / 220))
+    assert props["RB One"]["player_anytime_td"] == round(-math.log(1 - p), 4)
+    assert abs(props["RB One"]["player_anytime_td"] - 0.8415) < 0.001
+
+
+def test_any_td_median_is_per_book_like_a_line():
+    doc = _event_doc([
+        _book("a", [_price_market("player_anytime_td", ("RB One", -150, 120))]),
+        _book("b", [_price_market("player_anytime_td", ("RB One", -100, -120))]),
+        _book("c", [_price_market("player_anytime_td", ("RB One", +200, -260))]),
+    ])
+    props = FP.extract_event_props(doc)
+    singles = [FP.extract_event_props(_event_doc([_book("x", [
+        _price_market("player_anytime_td", ("RB One", y, n))])]))["RB One"]["player_anytime_td"]
+        for y, n in ((-150, 120), (-100, -120), (200, -260))]
+    assert props["RB One"]["player_anytime_td"] == sorted(singles)[1]
+
+
+def test_any_td_scored_as_one_rush_td_per_expected_td():
+    table = frozen_scoring_table()
+    pts, line = FP.implied_points({"player_rush_yds": 60.5,
+                                   "player_anytime_td": 0.5}, table)
+    assert line == {"rush_yd": 60.5, "any_td": 0.5}
+    assert pts == round(60.5 * table["rush_yd"] + 0.5 * table["rush_td"], 2)
+
+
+def test_any_td_never_double_counts_a_per_type_td_line():
+    table = frozen_scoring_table()
+    with_line, line = FP.implied_points({"player_rush_tds": 0.5,
+                                         "player_anytime_td": 0.7}, table)
+    assert "any_td" not in line and line == {"rush_td": 0.5}
+    assert with_line == round(0.5 * table["rush_td"], 2)
+    rec_line, line2 = FP.implied_points({"player_reception_tds": 0.4,
+                                         "player_anytime_td": 0.7}, table)
+    assert line2 == {"rec_td": 0.4} and rec_line == round(0.4 * table["rec_td"], 2)
+
+
+def test_any_td_alone_is_a_priced_row_not_an_absence():
+    table = frozen_scoring_table()
+    pts, line = FP.implied_points({"player_anytime_td": 0.3}, table)
+    assert line == {"any_td": 0.3} and pts == round(0.3 * table["rush_td"], 2)
+
+
+def test_any_td_decimal_odds_refused_not_priced():
+    # the historical converter's guard travels with it: a "price" of 1.67 is
+    # decimal odds (oddsFormat lost) and must refuse, never price 1.67 as
+    # American odds
+    import pytest as _pt
+    from fetch_historical_props import DecimalOddsDetected
+    doc = _event_doc([_book("a", [_price_market("player_anytime_td",
+                                                ("RB One", 1.67, None))])])
+    with _pt.raises(DecimalOddsDetected):
+        FP.extract_event_props(doc)
+
+
+def test_default_markets_include_any_td_and_snapshot_states_the_rule():
+    assert "player_anytime_td" in FP.DEFAULT_MARKETS
+    assert FP.MARKET_TO_STAT["player_anytime_td"] == "any_td"
+    board = [{"player_id": "9", "name": "RB One", "position": "RB", "team": "KC"}]
+    events = [{"event_id": "e1", "home_team": "Kansas City Chiefs",
+               "away_team": "Buffalo Bills", "kickoff": "2026-09-10T00:00:00Z",
+               "odds": _event_doc([_book("a", [
+                   _price_market("player_anytime_td", ("RB One", -150, 120))])])}]
+    result = FP.build_week_props(events, board, frozen_scoring_table())
+    doc = FP.build_snapshot(result, 2026, 1, "2026-09-10T00:00:00Z")
+    assert doc["players"]["9"]["stat_line"] == {"any_td": 0.842}   # 3dp on the row
+    assert doc["players"]["9"]["markets_used"] == ["player_anytime_td"]
+    assert "player_anytime_td" in doc["provenance"]["markets_confirmed_live"]
+    assert "467" in doc["provenance"]["any_td_rule"]
+
+
 # ── name matching: team disambiguates, misses are NAMED, never guessed ──────
 
 def _board(rows):
@@ -235,7 +329,7 @@ def test_snapshot_shape_and_confirmed_vs_assumed_markets():
     assert doc["season"] == 2026 and doc["week"] == 1
     assert doc["formula"] == "props_weekly_v1"
     prov = doc["provenance"]
-    assert prov["markets_confirmed_live"] == ["player_pass_yds"]
+    assert prov["markets_confirmed_live"] == ["player_anytime_td", "player_pass_yds"]
     assert "player_pass_tds" in prov["markets_assumed"]
     assert "1" in doc["players"]
     assert doc["players"]["1"]["points"] > 0
@@ -256,11 +350,14 @@ def test_estimate_credits_multi_region():
 
 
 def test_estimate_credits_default_market_set_matches_workflow_comment():
-    # The workflow's budget comment states 8 markets x 1 region x 10 = 80
-    # credits/game — pinned here so the two can never silently drift apart.
+    # The workflow's budget comment states 9 markets x 1 region x 10 = 90
+    # credits/game (8 -> 9 on 2026-09-01, register 467: anytime TD) — pinned
+    # here so the two can never silently drift apart.
     est = FP.estimate_credits(1)
-    assert est["markets"] == 8
-    assert est["credits_per_event"] == 80
+    assert est["markets"] == 9
+    assert est["credits_per_event"] == 90
+    wf = (Path(__file__).resolve().parents[2] / ".github/workflows/weekly-props-fetch.yml").read_text()
+    assert "9 markets x 1 region x 10 credits = 90 credits PER GAME" in wf
 
 
 # ── network is never touched by import or the pure surface ──────────────────

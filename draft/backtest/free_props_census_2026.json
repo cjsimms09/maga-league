@@ -1,0 +1,441 @@
+{
+ "_territory": "relay census; C consumes for the free props writer (ROUTES TO: C, 09-01)",
+ "_ask": "Cory 2026-09-01: make sure we are getting all the prop bets we need; look for more free sources if needed",
+ "_need": [
+  "player_pass_yds",
+  "player_pass_tds",
+  "player_pass_interceptions",
+  "player_rush_yds",
+  "player_rush_tds",
+  "player_receptions",
+  "player_reception_yds",
+  "player_reception_tds",
+  "player_anytime_td"
+ ],
+ "captured_at": "2026-09-02T00:04:39.373343Z",
+ "sources": {
+  "bovada": {
+   "status": 200,
+   "bytes": 967344,
+   "raw_head": "[{\"path\":[{\"id\":\"241\",\"link\":\"/football/nfl\",\"description\":\"NFL\",\"type\":\"LEAGUE\",\"sportCode\":\"FOOT\",\"order\":2,\"leaf\":true,\"current\":true},{\"id\":\"1\",\"link\":\"/football\",\"description\":\"Football\",\"type\":\"SPORT\",\"sportCode\":\"FOOT\",\"order\":6,\"leaf\":false,\"current\":false}],\"events\":[{\"id\":\"25568702\",\"descr",
+   "by_market": {
+    "player_anytime_td": 70,
+    "player_pass_yds": 6,
+    "player_rush_yds": 14,
+    "player_receptions": 18,
+    "player_reception_yds": 18
+   },
+   "samples": [
+    {
+     "market": "player_anytime_td",
+     "player": "Kayshon Boutte (NE)",
+     "line": null,
+     "label": "Anytime Touchdown Scorer"
+    },
+    {
+     "market": "player_anytime_td",
+     "player": "David Montgomery (HOU)",
+     "line": null,
+     "label": "Anytime Touchdown Scorer"
+    },
+    {
+     "market": "player_anytime_td",
+     "player": "Josh Palmer (BUF)",
+     "line": null,
+     "label": "Anytime Touchdown Scorer"
+    }
+   ],
+   "notes": [],
+   "control_game_line": true,
+   "events_found": 18,
+   "market_descriptions_matched": {
+    "Anytime Touchdown Scorer": 3,
+    "First Touchdown Scorer": 3,
+    "Alternate Passing Touchdowns - C.J. Stroud (HOU)": 1,
+    "Alternate Passing Touchdowns - Josh Allen (BUF)": 1,
+    "Total Passing Yards - C.J. Stroud (HOU)": 1,
+    "Total Passing Yards - Josh Allen (BUF)": 1,
+    "Alternate Passing Yards - C.J. Stroud (HOU)": 1,
+    "Alternate Passing Yards - Josh Allen (BUF)": 1,
+    "Total Rushing Yards - David Montgomery (HOU)": 1,
+    "Total Rushing Yards - James Cook (BUF)": 1,
+    "Total Rushing Yards - Josh Allen (BUF)": 1,
+    "Total Rushing Yards - Woody Marks (HOU)": 1,
+    "Alternate Rushing Yards - David Montgomery (HOU)": 1,
+    "Alternate Rushing Yards - James Cook (BUF)": 1,
+    "Alternate Rushing Yards - Josh Allen (BUF)": 1,
+    "Alternate Rushing Yards - Woody Marks (HOU)": 1,
+    "Total Receptions - DJ Moore (BUF)": 1,
+    "Total Receptions - Dalton Kincaid (BUF)": 1,
+    "Total Receptions - Dalton Schultz (HOU)": 1,
+    "Total Receptions - Khalil Shakir (BUF)": 1,
+    "Total Receptions - Nico Collins (HOU)": 1,
+    "Alternate Receptions - D.J. Moore (BUF)": 1,
+    "Alternate Receptions - Dalton Kincaid (BUF)": 1,
+    "Alternate Receptions - Khalil Shakir (BUF)": 1,
+    "Total Receiving Yards - DJ Moore (BUF)": 1,
+    "Total Receiving Yards - Dalton Kincaid (BUF)": 1,
+    "Total Receiving Yards - Dalton Schultz (HOU)": 1,
+    "Total Receiving Yards - Khalil Shakir (BUF)": 1,
+    "Total Receiving Yards - Nico Collins (HOU)": 1,
+    "Alternate Receiving Yards - D.J. Moore (BUF)": 1
+   },
+   "outcome_shape_sample": [
+    {
+     "market": "Alternate Passing Touchdowns - C.J. Stroud (HOU)",
+     "outcome": "{\"id\": \"2395201908\", \"description\": \"To Record 1+ Passing Touchdowns\", \"status\": \"O\", \"type\": \"X\", \"price\": {\"id\": \"38203299474\", \"american\": \"-450\", \"decimal\": \"1.222222\", \"fractional\": \"2/9\"}}"
+    },
+    {
+     "market": "Alternate Passing Touchdowns - Josh Allen (BUF)",
+     "outcome": "{\"id\": \"2395205125\", \"description\": \"To Record 1+ Passing Touchdowns\", \"status\": \"O\", \"type\": \"X\", \"price\": {\"id\": \"38203299477\", \"american\": \"-400\", \"decimal\": \"1.250\", \"fractional\": \"1/4\"}}"
+    },
+    {
+     "market": "Total Passing Yards - C.J. Stroud (HOU)",
+     "outcome": "{\"id\": \"2395707470\", \"description\": \"Over\", \"status\": \"O\", \"type\": \"O\", \"competitorId\": \"25577327-16658678\", \"price\": {\"id\": \"38246053925\", \"handicap\": \"227.5\", \"american\": \"-115\", \"decimal\": \"1.870\", \"fractional\": \"20/23\"}}"
+    }
+   ],
+   "players_total": 103
+  },
+  "draftkings": {
+   "status": 403,
+   "bytes": 0,
+   "raw_head": "",
+   "by_market": {},
+   "samples": [],
+   "notes": [],
+   "nash_status": 403,
+   "nash_bytes": 0,
+   "nash_head": ""
+  },
+  "prizepicks": {
+   "status": 403,
+   "bytes": 0,
+   "raw_head": "",
+   "by_market": {},
+   "samples": [],
+   "notes": []
+  },
+  "underdog": {
+   "status": 200,
+   "bytes": 21248498,
+   "raw_head": "{\"appearances\":[{\"id\":\"2ed3b582-a21a-448b-b8c7-73e34617305c\",\"badges\":[],\"lineup_status_id\":null,\"match_id\":438,\"match_type\":\"Series\",\"multiple_picks_allowed\":true,\"player_id\":\"ac512ae7-2edd-458d-9ae5-2b4eb949a3b6\",\"position_id\":\"30f5b4f6-5306-5722-997c-a2255f44225b\",\"sort_by\":null,\"team_id\":\"5ce78c",
+   "by_market": {
+    "player_anytime_td": 322,
+    "player_reception_yds": 135,
+    "player_receptions": 129,
+    "player_rush_yds": 66,
+    "player_pass_yds": 31,
+    "player_pass_tds": 31,
+    "player_pass_interceptions": 30
+   },
+   "samples": [
+    {
+     "market": "player_anytime_td",
+     "player": "A.J. Brown  O/U",
+     "line": "0.5",
+     "label": "Rush + Rec TDs",
+     "game": "NE @ SEA",
+     "kickoff": "2026-09-10T00:20:00Z"
+    },
+    {
+     "market": "player_reception_yds",
+     "player": "A.J. Brown  O/U",
+     "line": "62.5",
+     "label": "Receiving Yards",
+     "game": "NE @ SEA",
+     "kickoff": "2026-09-10T00:20:00Z"
+    },
+    {
+     "market": "player_receptions",
+     "player": "A.J. Brown  O/U",
+     "line": "4.5",
+     "label": "Receptions",
+     "game": "NE @ SEA",
+     "kickoff": "2026-09-10T00:20:00Z"
+    }
+   ],
+   "notes": [],
+   "top_level_keys": [
+    "appearances",
+    "games",
+    "opened_lines_count",
+    "over_under_lines",
+    "players",
+    "solo_games"
+   ],
+   "raw_line_shape": "{\"id\": \"28a2c14b-a294-4e75-8fd6-1354a1d1f041\", \"contract_terms_url\": null, \"contract_url\": null, \"entry_stable_id\": null, \"expires_at\": null, \"line_type\": \"balanced\", \"live_event\": false, \"live_event_stat\": null, \"non_discounted_stat_value\": null, \"options\": [{\"id\": \"8a18c24f-33aa-4bae-ac5e-90233e4c235e\", \"american_price\": \"-112\", \"appearance_id\": null, \"choice\": \"higher\", \"choice_display\": \"Higher\", \"choice_display_name_shorter\": \"9+\", \"choice_display_short\": \"Higher\", \"choice_id\": \"over__\", \"decimal_price\": \"1.9\", \"grouping_id\": null, \"lookup_id\": null, \"over_under_line_id\": \"28a2c14b-a294-4e75-8fd6-1354a1d1f041\", \"payout_multiplier\": \"1.0\", \"raw_probability\": null, \"rfq_combinable\": true, \"selection_header\": \"Fernando Mendoza\", \"selection_subheader\": \"Higher 8.5 Regular Season Games Started\", \"status\": \"active\", \"type\": \"OverUnderOption\", \"updated_at\": \"2026-08-14T19:31:47Z\"}, {\"id\": ",
+   "sports_seen": {
+    "NFL": 2792,
+    "?": 1888,
+    "CFB": 1679,
+    "MLB": 1252,
+    "FIFA": 946,
+    "LOL": 282,
+    "CS": 254,
+    "VAL": 40,
+    "DOTA": 38
+   },
+   "stat_types_seen_nfl": {
+    "Rush + Rec TDs": 322,
+    "1H Rush + Rec TDs": 279,
+    "First TD Scorer": 217,
+    "1Q Rush + Rec TDs": 208,
+    "Receiving Yards": 134,
+    "Receptions": 129,
+    "1Q Rec Yards": 118,
+    "1H Rec Yards": 118,
+    "1Q Receptions": 117,
+    "1H Receptions": 117,
+    "Season Receiving Yards": 94,
+    "Season Receiving TDs": 86,
+    "Rush Yards": 65,
+    "Rush + Rec Yards": 59,
+    "Last TD Scorer": 58,
+    "Season Rush TDs": 57,
+    "Season Rush Yards": 56,
+    "1Q Rush Yards": 56,
+    "1H Rush Yards": 56,
+    "Season Pass Yards": 31,
+    "Season Pass TDs": 31,
+    "Pass Yards": 31,
+    "Pass TDs": 31,
+    "1Q Pass TDs": 31,
+    "INTs Thrown": 30
+   },
+   "by_market_season": {
+    "player_reception_yds": 116,
+    "player_reception_tds": 93,
+    "player_pass_yds": 61,
+    "player_pass_tds": 47,
+    "player_rush_yds": 78,
+    "player_rush_tds": 66
+   },
+   "samples_season": [
+    {
+     "market": "player_reception_yds",
+     "player": "Denzel Boston  O/U",
+     "line": "499.5",
+     "label": "Season Receiving Yards",
+     "game": "",
+     "kickoff": null
+    },
+    {
+     "market": "player_reception_yds",
+     "player": "Makai Lemon  O/U",
+     "line": "575.5",
+     "label": "Season Receiving Yards",
+     "game": "",
+     "kickoff": null
+    },
+    {
+     "market": "player_reception_yds",
+     "player": "Germie Bernard  O/U",
+     "line": "375.5",
+     "label": "Season Receiving Yards",
+     "game": "",
+     "kickoff": null
+    }
+   ],
+   "players_total": 322
+  },
+  "kalshi": {
+   "status": 200,
+   "bytes": 5712226,
+   "raw_head": "{\"series\":[{\"additional_prohibitions\":[\"Current and former players, coaches, and staff of the league, association, or organization(s) governing the event. For college leagues/associations specifically, or where otherwise appropriate (as identified by the Exchange), this applies to current and former",
+   "by_market": {
+    "player_rush_yds": 6,
+    "player_reception_yds": 9
+   },
+   "samples": [
+    {
+     "market": "player_rush_yds",
+     "player": "Christian McCaffrey",
+     "line": 89.5,
+     "label": "Christian McCaffrey: 90+ rushing yards"
+    },
+    {
+     "market": "player_rush_yds",
+     "player": "Christian McCaffrey",
+     "line": 79.5,
+     "label": "Christian McCaffrey: 80+ rushing yards"
+    },
+    {
+     "market": "player_rush_yds",
+     "player": "Christian McCaffrey",
+     "line": 69.5,
+     "label": "Christian McCaffrey: 70+ rushing yards"
+    }
+   ],
+   "notes": [],
+   "player_series": [
+    {
+     "ticker": "KXNFL1HTD",
+     "title": "1st Half Touchdown"
+    },
+    {
+     "ticker": "KXNFLPASSINT",
+     "title": "Pro Football Passing Interceptions"
+    },
+    {
+     "ticker": "KXNFLRSHYDS",
+     "title": "Pro Football Rushing Yards"
+    },
+    {
+     "ticker": "KXNFLRRYDS",
+     "title": "Pro Football Rush and Receiving Yards"
+    },
+    {
+     "ticker": "KXNFLWEEKMOSTRSHYDS",
+     "title": "Weekly Most Rushing Yards"
+    },
+    {
+     "ticker": "KXNFLTOTALTD",
+     "title": "Pro Football Total Touchdowns"
+    },
+    {
+     "ticker": "KXNFLLONGREC",
+     "title": "Longest Reception"
+    },
+    {
+     "ticker": "KXNFLRECYDS",
+     "title": "Pro Football Receiving Yards"
+    },
+    {
+     "ticker": "KXNFLSZNRECORD",
+     "title": "Will single season record be broken?"
+    },
+    {
+     "ticker": "KXNFLSACKRECORD",
+     "title": "NFL Regular Season Sack Record"
+    },
+    {
+     "ticker": "KXNFLDSTTD",
+     "title": "Pro Football D/ST Touchdown"
+    },
+    {
+     "ticker": "KXNFLANYTD",
+     "title": "Pro Football Anytime Touchdown"
+    },
+    {
+     "ticker": "KXNFLLONGESTTD",
+     "title": "Pro Football Longest Touchdown"
+    },
+    {
+     "ticker": "KXNFL2TD",
+     "title": "Pro Football Multiple Touchdowns"
+    },
+    {
+     "ticker": "KXNFLSEASONRSHYDS",
+     "title": "Rushing Yards"
+    },
+    {
+     "ticker": "KXNFLPASSYDSH2H",
+     "title": "Pro Football Head-to-Head Passing Yards"
+    },
+    {
+     "ticker": "KXNFLSEASONPASSYDS",
+     "title": "Passing Yards"
+    },
+    {
+     "ticker": "KXNFLFIRSTTD",
+     "title": "Pro Football First Touchdown"
+    },
+    {
+     "ticker": "KXNFLTEAM1STDOWNS",
+     "title": "Pro Football Team 1st Downs"
+    },
+    {
+     "ticker": "KXNFLTEAMFIRSTTD",
+     "title": "Pro Football First Touchdown"
+    }
+   ],
+   "players_total": 14
+  },
+  "polymarket": {
+   "status": 200,
+   "bytes": 6489725,
+   "raw_head": "[{\"id\":\"87239\",\"ticker\":\"tush-push-banned-for-2026-nfl-season\",\"slug\":\"tush-push-banned-for-2026-nfl-season\",\"title\":\"Tush Push banned for 2026 NFL Season?\",\"description\":\"This market will resolve to \\\"Yes\\\" if the NFL officially announces a rule change that prohibits, limits, or penalizes the \u201ctu",
+   "by_market": {},
+   "samples": [],
+   "notes": [],
+   "players_total": 0
+  },
+  "balldontlie": {
+   "status": null,
+   "bytes": 0,
+   "raw_head": "",
+   "by_market": {},
+   "samples": [],
+   "notes": [
+    "nfl/v1/odds?season=2026&week=1: 401 ''",
+    "nfl/v1/player_props?season=2026&week=1: 404 ''",
+    "nfl/v1/props?season=2026&week=1: 404 ''"
+   ],
+   "key_present": true
+  }
+ },
+ "controls": {
+  "C1_reachability_bovada_game_line": true,
+  "C2_any_source_named_player_numeric_line": true
+ },
+ "need_table": {
+  "player_pass_yds": {
+   "carriers": {
+    "underdog": 31,
+    "bovada": 6
+   },
+   "best": 31
+  },
+  "player_pass_tds": {
+   "carriers": {
+    "underdog": 31
+   },
+   "best": 31
+  },
+  "player_pass_interceptions": {
+   "carriers": {
+    "underdog": 30
+   },
+   "best": 30
+  },
+  "player_rush_yds": {
+   "carriers": {
+    "underdog": 66,
+    "bovada": 14,
+    "kalshi": 6
+   },
+   "best": 66
+  },
+  "player_rush_tds": {
+   "carriers": {},
+   "best": 0
+  },
+  "player_receptions": {
+   "carriers": {
+    "underdog": 129,
+    "bovada": 18
+   },
+   "best": 129
+  },
+  "player_reception_yds": {
+   "carriers": {
+    "underdog": 135,
+    "bovada": 18,
+    "kalshi": 9
+   },
+   "best": 135
+  },
+  "player_reception_tds": {
+   "carriers": {},
+   "best": 0
+  },
+  "player_anytime_td": {
+   "carriers": {
+    "underdog": 322,
+    "bovada": 70
+   },
+   "best": 322
+  }
+ },
+ "verdict": "GAPS \u2014 no free carrier for: player_rush_tds, player_reception_tds -> find more sources (Cory's rule)"
+}

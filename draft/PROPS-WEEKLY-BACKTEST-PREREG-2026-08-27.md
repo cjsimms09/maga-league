@@ -148,3 +148,63 @@ reproducible; §2's is the probe's and this one is the shipped join's.
 
 **Nothing has been graded.** §7 fixes the first fold read at **2026-09-06** and
 that has not moved.
+
+---
+
+## 11. ⚠️ AMENDMENT, 2026-09-02 — THE 2025 FOLD IS NOT BLIND, AND I FOUND OUT FOUR DAYS BEFORE THE GRADE DATE RATHER THAN AFTER
+
+**Register 463 graded a props arm on 2025 while this prereg was sealed**, and its
+results are committed on `main` in `draft/backtest/weekly_arms_2025_backtest.json`.
+Found 2026-09-02 while checking, ahead of the 09-06 read, that P347 still had
+its inputs. It has its inputs. It no longer has one of its folds.
+
+**WHAT IS PUBLISHED, verbatim from that artifact:**
+
+* `start_sit.props_shared` compares `props` against `own_v6:v1` on the shared
+  population, per position, on 2025. **Props wins at all four:** QB 0.5835 vs
+  0.5656 · RB 0.8527 vs 0.8018 · WR 0.7985 vs 0.7511 · TE 0.7923 vs 0.7499
+  (n_pairs 4,564 / 24,279 / 56,505 / 12,816).
+* `pooled_mae` carries `blend_props_pull` at **4.416** against `own_v6:v1` at
+  **4.853**, over 17 weeks.
+
+**THAT IS THIS PREREG'S HEADLINE, ON ONE OF ITS THREE FOLDS.** §0 predicts the
+props arm BEATS on start/sit and does NOT beat on MAE. The first half is
+answered TRUE on 2025. The second is contradicted in DIRECTION — though see the
+limit below, because the published MAE is not the pure arm's.
+
+**AND IT IS MATERIALLY THE SAME ARM, not a cousin.** `weekly_arms_2025_backtest.py:props_arm`
+and `draft/weekly_props_arm.py` both go prop lines → stat line → our points
+through `fetch_weekly_props.implied_points`, and both fold `any_td` in as
+expected TDs for RB/WR/TE. They differ only in the crosswalk: 463 joins by
+normalized NAME disambiguated by that week's team; the shipped arm joins by
+`player_id`. §6's duplicate rule is written for exactly this situation.
+
+### What changes, and what does not
+
+**THE PRIMARY IS RE-SCOPED TO THE 2023 AND 2024 FOLDS, WHICH ARE STILL BLIND.**
+Register 463's harness is 2025-only — its artifact stamps `season: 2025`, 17
+weeks, and its input is `historical_props_2025.json`. Nothing has read 2023 or
+2024 through any props arm. Those two folds remain a real out-of-sample test.
+
+**2025 IS DEMOTED TO CONFIRMATORY AND WILL BE REPORTED AS NOT-BLIND**, with the
+numbers above cited, never as though the fold were opened fresh on 09-06.
+
+**THE DATE DOES NOT MOVE.** First read is still 2026-09-06.
+
+### ⚠️ Limits of this amendment, stated rather than discovered later
+
+1. **The published MAE is `blend_props_pull`, not the pure props arm.** A blend
+   of props with a pull term is not what §0 predicts about. So the MAE half is
+   *indicated* FALSE on 2025, not measured — the pure-arm MAE is still unread on
+   every fold, and 2023/2024 will measure it blind.
+2. **Knowing the 2025 direction is itself a contaminant of the remaining folds,
+   because I now know it.** The mitigation is that §§2-8 are already fixed in
+   writing — the population, the four nulls, the abstention matching and the
+   duplicate rule were all sealed on 08-27 and none of them moves in this
+   amendment. What I cannot do is pretend the expectation is unchanged, so it
+   is written down here instead.
+3. **A reasonable reader could say this should be withdrawn as a duplicate under
+   §6 rather than re-scoped.** I think the two blind folds are worth more than
+   the duplication costs — 463 is one season and this is the out-of-sample
+   replication of it — but that is a judgement, it is A's to overturn, and the
+   default if A says withdraw is that P347 is withdrawn rather than argued.

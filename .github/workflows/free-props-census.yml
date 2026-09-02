@@ -1,0 +1,39 @@
+# FREE PLAYER-PROPS CENSUS — Cory 2026-09-01: "make sure we are getting all the
+# prop bets we need.. if we need to look for more free sources we should do that!"
+# Per MARKET, not per source: which keyless sources carry each of the eight
+# markets the weekly props arm needs (+ anytime TD), how many players each
+# prices, with a reachability control and a player-props known-positive so a
+# zero can never read as "missing" when the truth is "untested". Runs in CI
+# (the sandbox gateway 403s these hosts). Thursday cron beside the free-odds
+# probe; the writer that turns the winning source into
+# draft/data/props/weekly_props_<season>_w<week>.json is C's (ROUTES, 09-01).
+name: free-props-census
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '15 12 * * 4'   # Thursday 12:15 UTC — lines are up, before the arm emits
+permissions:
+  contents: write
+jobs:
+  census:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run the census (controls + need table)
+        env:
+          BALL_DONT_LIE_API: ${{ secrets.BALL_DONT_LIE_API }}
+        run: |
+          set -uo pipefail
+          if python3 draft/tools/free_props_census.py; then code=0; else code=$?; fi
+          if [ "$code" -ne 0 ]; then echo "::error::census crashed (exit $code)"; exit "$code"; fi
+      - name: Commit the census
+        run: |
+          set -euo pipefail
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/backtest/free_props_census_2026.json
+          git diff --cached --quiet && { echo "no change"; exit 0; }
+          git commit -m "Free player-props census: per-market carriers, controlled [skip deploy]"
+          git pull --rebase origin main
+          git push origin HEAD:main

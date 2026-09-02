@@ -52,7 +52,16 @@
    "id": "K4",
    "what": "props arm priced Josh Allen in week 1 from his lines",
    "ok": true,
-   "value": 21.4
+   "value": 25.54
+  },
+  {
+   "id": "K6",
+   "what": "shared any_td fold == the hand fold at RB/WR/TE (week 1); QBs gain exactly rush_td x any_td",
+   "ok": true,
+   "skill_players": 312,
+   "skill_identical": 312,
+   "qb_with_any_td": 32,
+   "qb_max_abs_residual": 0.0
   },
   {
    "id": "K5",
@@ -64,10 +73,10 @@
  "pooled_mae": {
   "blend_props_pull": {
    "weeks": 17,
-   "mae_weighted": 4.416,
+   "mae_weighted": 4.411,
    "per_pos": {
     "QB": {
-     "mae_weighted": 8.214,
+     "mae_weighted": 8.17,
      "n": 402
     },
     "RB": {
@@ -553,7 +562,7 @@
    "sources": {
     "blend_props_pull": {
      "QB": {
-      "accuracy": 0.6113,
+      "accuracy": 0.6132,
       "n_pairs": 3548,
       "status": "measured"
      },
@@ -1069,12 +1078,12 @@
    "bar": "beat BOTH providers at >=3 of 4 positions (WEEKLY-LAB-FREEZE-2026.md \u00a72)"
   },
   "props_shared": {
-   "_excluded_below_floor": 47838,
+   "_excluded_below_floor": 47840,
    "sources": {
     "own_v6:v1": {
      "QB": {
-      "accuracy": 0.5656,
-      "n_pairs": 4564,
+      "accuracy": 0.5677,
+      "n_pairs": 4586,
       "status": "measured"
      },
      "RB": {
@@ -1095,8 +1104,8 @@
     },
     "props": {
      "QB": {
-      "accuracy": 0.5835,
-      "n_pairs": 4564,
+      "accuracy": 0.5868,
+      "n_pairs": 4586,
       "status": "measured"
      },
      "RB": {
@@ -1544,7 +1553,7 @@
  },
  "nulls": {
   "shuffle_mae": {
-   "blend_props_pull": 6.695,
+   "blend_props_pull": 6.725,
    "fp:v1": 6.544,
    "fp:v1_notilt": 6.408,
    "fp:v1_pg16": 6.557,
@@ -1646,7 +1655,7 @@
   "14": {
    "unmatched_names": 164,
    "ambiguous": 0,
-   "priced": 298
+   "priced": 299
   },
   "15": {
    "unmatched_names": 199,
@@ -2156,13 +2165,13 @@
     },
     "blend_props_pull": {
      "n": 265,
-     "mae": 3.825,
-     "spearman": 0.7552,
+     "mae": 3.813,
+     "spearman": 0.7553,
      "per_pos": {
       "QB": {
        "n": 30,
-       "mae": 8.274,
-       "spearman": 0.2707
+       "mae": 8.163,
+       "spearman": 0.2552
       },
       "RB": {
        "n": 69,
@@ -2214,13 +2223,13 @@
      },
      "props": {
       "n": 271,
-      "mae": 3.795,
-      "spearman": 0.7514,
+      "mae": 3.783,
+      "spearman": 0.7515,
       "per_pos": {
        "QB": {
         "n": 30,
-        "mae": 8.274,
-        "spearman": 0.2707
+        "mae": 8.163,
+        "spearman": 0.2552
        },
        "RB": {
         "n": 72,
@@ -2814,13 +2823,13 @@
     },
     "blend_props_pull": {
      "n": 241,
-     "mae": 4.493,
-     "spearman": 0.7114,
+     "mae": 4.486,
+     "spearman": 0.7117,
      "per_pos": {
       "QB": {
        "n": 29,
-       "mae": 8.175,
-       "spearman": -0.0059
+       "mae": 8.116,
+       "spearman": -0.033
       },
       "RB": {
        "n": 62,
@@ -2872,13 +2881,13 @@
      },
      "props": {
       "n": 260,
-      "mae": 4.308,
-      "spearman": 0.7276,
+      "mae": 4.301,
+      "spearman": 0.7279,
       "per_pos": {
        "QB": {
         "n": 28,
-        "mae": 8.02,
-        "spearman": -0.0974
+        "mae": 7.959,
+        "spearman": -0.1275
        },
        "RB": {
         "n": 67,
@@ -3472,13 +3481,13 @@
     },
     "blend_props_pull": {
      "n": 234,
-     "mae": 4.03,
-     "spearman": 0.7572,
+     "mae": 4.026,
+     "spearman": 0.7575,
      "per_pos": {
       "QB": {
        "n": 29,
-       "mae": 6.941,
-       "spearman": 0.502
+       "mae": 6.906,
+       "spearman": 0.4759
       },
       "RB": {
        "n": 60,
@@ -3530,13 +3539,13 @@
      },
      "props": {
       "n": 262,
-      "mae": 3.854,
-      "spearman": 0.7613,
+      "mae": 3.839,
+      "spearman": 0.7614,
       "per_pos": {
        "QB": {
         "n": 31,
-        "mae": 6.594,
-        "spearman": 0.4944
+        "mae": 6.466,
+        "spearman": 0.4609
        },
        "RB": {
         "n": 69,
@@ -4131,12 +4140,12 @@
     "blend_props_pull": {
      "n": 230,
      "mae": 4.127,
-     "spearman": 0.7588,
+     "spearman": 0.7587,
      "per_pos": {
       "QB": {
        "n": 29,
-       "mae": 7.139,
-       "spearman": 0.3217
+       "mae": 7.135,
+       "spearman": 0.3409
       },
       "RB": {
        "n": 59,
@@ -4188,13 +4197,13 @@
      },
      "props": {
       "n": 268,
-      "mae": 3.76,
+      "mae": 3.743,
       "spearman": 0.7979,
       "per_pos": {
        "QB": {
         "n": 30,
-        "mae": 6.798,
-        "spearman": 0.1871
+        "mae": 6.654,
+        "spearman": 0.2085
        },
        "RB": {
         "n": 68,
@@ -4788,13 +4797,13 @@
     },
     "blend_props_pull": {
      "n": 194,
-     "mae": 4.328,
-     "spearman": 0.7583,
+     "mae": 4.324,
+     "spearman": 0.7588,
      "per_pos": {
       "QB": {
        "n": 22,
-       "mae": 8.193,
-       "spearman": -0.1078
+       "mae": 8.159,
+       "spearman": -0.1666
       },
       "RB": {
        "n": 51,
@@ -4846,13 +4855,13 @@
      },
      "props": {
       "n": 224,
-      "mae": 4.017,
-      "spearman": 0.7786,
+      "mae": 4.023,
+      "spearman": 0.779,
       "per_pos": {
        "QB": {
         "n": 25,
-        "mae": 7.671,
-        "spearman": -0.0723
+        "mae": 7.729,
+        "spearman": -0.1092
        },
        "RB": {
         "n": 61,
@@ -5446,13 +5455,13 @@
     },
     "blend_props_pull": {
      "n": 173,
-     "mae": 4.453,
-     "spearman": 0.6818,
+     "mae": 4.43,
+     "spearman": 0.6821,
      "per_pos": {
       "QB": {
        "n": 22,
-       "mae": 7.884,
-       "spearman": 0.3427
+       "mae": 7.7,
+       "spearman": 0.38
       },
       "RB": {
        "n": 49,
@@ -5504,13 +5513,13 @@
      },
      "props": {
       "n": 228,
-      "mae": 4.183,
-      "spearman": 0.7006,
+      "mae": 4.166,
+      "spearman": 0.7005,
       "per_pos": {
        "QB": {
         "n": 25,
-        "mae": 6.441,
-        "spearman": 0.4546
+        "mae": 6.282,
+        "spearman": 0.4838
        },
        "RB": {
         "n": 62,
@@ -6104,13 +6113,13 @@
     },
     "blend_props_pull": {
      "n": 184,
-     "mae": 4.938,
-     "spearman": 0.7108,
+     "mae": 4.937,
+     "spearman": 0.709,
      "per_pos": {
       "QB": {
        "n": 25,
-       "mae": 9.604,
-       "spearman": 0.3677
+       "mae": 9.595,
+       "spearman": 0.3115
       },
       "RB": {
        "n": 49,
@@ -6162,13 +6171,13 @@
      },
      "props": {
       "n": 237,
-      "mae": 4.498,
-      "spearman": 0.7155,
+      "mae": 4.503,
+      "spearman": 0.7145,
       "per_pos": {
        "QB": {
         "n": 27,
-        "mae": 9.332,
-        "spearman": 0.3584
+        "mae": 9.375,
+        "spearman": 0.3205
        },
        "RB": {
         "n": 62,
@@ -6762,13 +6771,13 @@
     },
     "blend_props_pull": {
      "n": 160,
-     "mae": 4.795,
-     "spearman": 0.6862,
+     "mae": 4.722,
+     "spearman": 0.6876,
      "per_pos": {
       "QB": {
        "n": 19,
-       "mae": 10.208,
-       "spearman": 0.3298
+       "mae": 9.594,
+       "spearman": 0.3702
       },
       "RB": {
        "n": 44,
@@ -6820,13 +6829,13 @@
      },
      "props": {
       "n": 211,
-      "mae": 4.34,
-      "spearman": 0.7218,
+      "mae": 4.28,
+      "spearman": 0.7229,
       "per_pos": {
        "QB": {
         "n": 23,
-        "mae": 9.517,
-        "spearman": 0.3231
+        "mae": 8.965,
+        "spearman": 0.3617
        },
        "RB": {
         "n": 59,
@@ -7420,13 +7429,13 @@
     },
     "blend_props_pull": {
      "n": 157,
-     "mae": 4.332,
-     "spearman": 0.6701,
+     "mae": 4.319,
+     "spearman": 0.6711,
      "per_pos": {
       "QB": {
        "n": 14,
-       "mae": 10.323,
-       "spearman": -0.0198
+       "mae": 10.177,
+       "spearman": 0.1121
       },
       "RB": {
        "n": 42,
@@ -7478,13 +7487,13 @@
      },
      "props": {
       "n": 226,
-      "mae": 4.349,
-      "spearman": 0.7382,
+      "mae": 4.315,
+      "spearman": 0.7386,
       "per_pos": {
        "QB": {
         "n": 24,
-        "mae": 10.133,
-        "spearman": -0.0487
+        "mae": 9.81,
+        "spearman": 0.013
        },
        "RB": {
         "n": 59,
@@ -8078,13 +8087,13 @@
     },
     "blend_props_pull": {
      "n": 169,
-     "mae": 4.614,
-     "spearman": 0.6963,
+     "mae": 4.671,
+     "spearman": 0.6953,
      "per_pos": {
       "QB": {
        "n": 20,
-       "mae": 7.389,
-       "spearman": 0.5203
+       "mae": 7.873,
+       "spearman": 0.5669
       },
       "RB": {
        "n": 44,
@@ -8136,13 +8145,13 @@
      },
      "props": {
       "n": 224,
-      "mae": 4.108,
-      "spearman": 0.7331,
+      "mae": 4.169,
+      "spearman": 0.7323,
       "per_pos": {
        "QB": {
         "n": 24,
-        "mae": 7.07,
-        "spearman": 0.5226
+        "mae": 7.642,
+        "spearman": 0.5252
        },
        "RB": {
         "n": 60,
@@ -8736,13 +8745,13 @@
     },
     "blend_props_pull": {
      "n": 172,
-     "mae": 4.849,
-     "spearman": 0.6432,
+     "mae": 4.905,
+     "spearman": 0.6444,
      "per_pos": {
       "QB": {
        "n": 23,
-       "mae": 9.211,
-       "spearman": -0.0692
+       "mae": 9.632,
+       "spearman": 0.0277
       },
       "RB": {
        "n": 47,
@@ -8794,13 +8803,13 @@
      },
      "props": {
       "n": 231,
-      "mae": 4.468,
-      "spearman": 0.6928,
+      "mae": 4.512,
+      "spearman": 0.6935,
       "per_pos": {
        "QB": {
         "n": 27,
-        "mae": 8.683,
-        "spearman": -0.0482
+        "mae": 9.064,
+        "spearman": 0.0043
        },
        "RB": {
         "n": 61,
@@ -9394,13 +9403,13 @@
     },
     "blend_props_pull": {
      "n": 176,
-     "mae": 4.299,
-     "spearman": 0.752,
+     "mae": 4.329,
+     "spearman": 0.7518,
      "per_pos": {
       "QB": {
        "n": 23,
-       "mae": 6.943,
-       "spearman": 0.1729
+       "mae": 7.175,
+       "spearman": 0.2283
       },
       "RB": {
        "n": 44,
@@ -9452,13 +9461,13 @@
      },
      "props": {
       "n": 223,
-      "mae": 3.881,
-      "spearman": 0.7624,
+      "mae": 3.902,
+      "spearman": 0.7625,
       "per_pos": {
        "QB": {
         "n": 23,
-        "mae": 6.668,
-        "spearman": 0.0623
+        "mae": 6.864,
+        "spearman": 0.1245
        },
        "RB": {
         "n": 57,
@@ -10052,13 +10061,13 @@
     },
     "blend_props_pull": {
      "n": 186,
-     "mae": 4.2,
-     "spearman": 0.6929,
+     "mae": 4.209,
+     "spearman": 0.6931,
      "per_pos": {
       "QB": {
        "n": 21,
-       "mae": 6.207,
-       "spearman": 0.2766
+       "mae": 6.287,
+       "spearman": 0.2662
       },
       "RB": {
        "n": 48,
@@ -10110,13 +10119,13 @@
      },
      "props": {
       "n": 253,
-      "mae": 3.852,
-      "spearman": 0.7361,
+      "mae": 3.866,
+      "spearman": 0.7364,
       "per_pos": {
        "QB": {
         "n": 27,
-        "mae": 6.671,
-        "spearman": 0.1612
+        "mae": 6.809,
+        "spearman": 0.177
        },
        "RB": {
         "n": 67,
@@ -10710,13 +10719,13 @@
     },
     "blend_props_pull": {
      "n": 200,
-     "mae": 4.381,
-     "spearman": 0.6341,
+     "mae": 4.321,
+     "spearman": 0.6501,
      "per_pos": {
       "QB": {
        "n": 25,
-       "mae": 8.246,
-       "spearman": 0.4638
+       "mae": 7.766,
+       "spearman": 0.4477
       },
       "RB": {
        "n": 54,
@@ -10737,17 +10746,17 @@
     }
    },
    "props": {
-    "n_shared": 228,
+    "n_shared": 229,
     "mae": {
      "own_v6:v1": {
-      "n": 228,
-      "mae": 4.367,
-      "spearman": 0.6026,
+      "n": 229,
+      "mae": 4.362,
+      "spearman": 0.6067,
       "per_pos": {
        "QB": {
-        "n": 24,
-        "mae": 8.896,
-        "spearman": 0.2496
+        "n": 25,
+        "mae": 8.664,
+        "spearman": 0.3362
        },
        "RB": {
         "n": 60,
@@ -10767,14 +10776,14 @@
       }
      },
      "props": {
-      "n": 228,
-      "mae": 4.129,
-      "spearman": 0.6721,
+      "n": 229,
+      "mae": 4.134,
+      "spearman": 0.672,
       "per_pos": {
        "QB": {
-        "n": 24,
-        "mae": 8.697,
-        "spearman": 0.2643
+        "n": 25,
+        "mae": 8.558,
+        "spearman": 0.3123
        },
        "RB": {
         "n": 60,
@@ -11368,13 +11377,13 @@
     },
     "blend_props_pull": {
      "n": 185,
-     "mae": 4.836,
-     "spearman": 0.7321,
+     "mae": 4.796,
+     "spearman": 0.7324,
      "per_pos": {
       "QB": {
        "n": 23,
-       "mae": 8.805,
-       "spearman": 0.1097
+       "mae": 8.489,
+       "spearman": 0.2095
       },
       "RB": {
        "n": 53,
@@ -11426,13 +11435,13 @@
      },
      "props": {
       "n": 244,
-      "mae": 4.391,
-      "spearman": 0.7434,
+      "mae": 4.366,
+      "spearman": 0.7437,
       "per_pos": {
        "QB": {
         "n": 25,
-        "mae": 8.587,
-        "spearman": -0.0169
+        "mae": 8.335,
+        "spearman": 0.0869
        },
        "RB": {
         "n": 66,
@@ -12026,13 +12035,13 @@
     },
     "blend_props_pull": {
      "n": 214,
-     "mae": 4.756,
-     "spearman": 0.6782,
+     "mae": 4.769,
+     "spearman": 0.6764,
      "per_pos": {
       "QB": {
        "n": 25,
-       "mae": 9.432,
-       "spearman": 0.2585
+       "mae": 9.546,
+       "spearman": 0.1623
       },
       "RB": {
        "n": 60,
@@ -12084,13 +12093,13 @@
      },
      "props": {
       "n": 256,
-      "mae": 4.359,
-      "spearman": 0.7061,
+      "mae": 4.369,
+      "spearman": 0.705,
       "per_pos": {
        "QB": {
         "n": 24,
-        "mae": 9.93,
-        "spearman": 0.053
+        "mae": 10.036,
+        "spearman": -0.0565
        },
        "RB": {
         "n": 66,
@@ -12684,13 +12693,13 @@
     },
     "blend_props_pull": {
      "n": 214,
-     "mae": 4.288,
-     "spearman": 0.7034,
+     "mae": 4.276,
+     "spearman": 0.7038,
      "per_pos": {
       "QB": {
        "n": 23,
-       "mae": 7.913,
-       "spearman": 0.6038
+       "mae": 7.793,
+       "spearman": 0.5405
       },
       "RB": {
        "n": 58,
@@ -12742,13 +12751,13 @@
      },
      "props": {
       "n": 245,
-      "mae": 3.902,
-      "spearman": 0.7446,
+      "mae": 3.891,
+      "spearman": 0.7447,
       "per_pos": {
        "QB": {
         "n": 22,
-        "mae": 7.676,
-        "spearman": 0.5788
+        "mae": 7.551,
+        "spearman": 0.4839
        },
        "RB": {
         "n": 69,

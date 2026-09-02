@@ -7,13 +7,13 @@ by hand, so it cannot quietly stop being true.
 Two questions, measured:
 **is anyone answering**, and **is any finished work invisible from `main`**.
 
-_Last measured: 2026-09-01 17:19 UTC_
+_Last measured: 2026-09-02 00:00 UTC_
 
 ```
 ============================================================================
 ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
-  965 items · 369 open · 300 of those carry a DEFAULT (silence resolves them)
+  973 items · 376 open · 307 of those carry a DEFAULT (silence resolves them)
   65 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
   of 69 open item(s) with no default: 5 SAY they ask for nothing · 0 are BROADCASTS (same
   header in 3+ inboxes — a rule, not four decisions) · 64 declare NEITHER, so nobody
@@ -23,21 +23,21 @@ ROUTES RESPONSE CHECK — is anyone answering?
   rewording is precisely what stops it matching.
 
   waiting on:
-      19    13d oldest   A
-      10    13d oldest   E
-      10    12d oldest   B
-       9    13d oldest   D
-       4     9d oldest   Cory
-       3     8d oldest   relay
-       3    12d oldest   C
-       2    12d oldest   A/B
+      19    14d oldest   A
+      10    14d oldest   E
+      10    13d oldest   B
+       9    14d oldest   D
+       4    10d oldest   Cory
+       3     9d oldest   relay
+       3    13d oldest   C
+       2    13d oldest   A/B
 
   the five oldest:
-    13d  2026-08-19 · E → A · 🔴 **REPLY TO `ROSTER-CONSTRUCTION-CALL.md`: RELAXING TE'S CAP TO AN ALREAD
-    13d  2026-08-19 · C → D · 🎯 **CORY RULED ON THE ROSTER-CONSTRUCTION TARGET — verbatim: "We should be
-    13d  2026-08-19 · C → E · 🎯 **CORY RULED ON THE ROSTER-CONSTRUCTION TARGET — verbatim: "We should be
-    12d  2026-08-20 · relay → A · 🔬 **AUDIT-PACKAGE ADDENDUM: question 2 (the friction constant) now has
-    12d  2026-08-20 · relay → A · 🚂 **FULL STEAM — **CORY, VERBATIM (08-20): "everyones full task list s
+    14d  2026-08-19 · E → A · 🔴 **REPLY TO `ROSTER-CONSTRUCTION-CALL.md`: RELAXING TE'S CAP TO AN ALREAD
+    14d  2026-08-19 · C → D · 🎯 **CORY RULED ON THE ROSTER-CONSTRUCTION TARGET — verbatim: "We should be
+    14d  2026-08-19 · C → E · 🎯 **CORY RULED ON THE ROSTER-CONSTRUCTION TARGET — verbatim: "We should be
+    13d  2026-08-20 · relay → A · 🔬 **AUDIT-PACKAGE ADDENDUM: question 2 (the friction constant) now has
+    13d  2026-08-20 · relay → A · 🚂 **FULL STEAM — **CORY, VERBATIM (08-20): "everyones full task list s
 
   DOES THE LOOP VISIBLY CLOSE? — ticked share by sender→recipient
   (a low rate is a QUESTION: real backlog, or answered and never ticked?)
@@ -47,12 +47,12 @@ ROUTES RESPONSE CHECK — is anyone answering?
     relay → E                 15 items    13% ticked    1 open with NO default
     relay → D                 19 items    26% ticked    4 open with NO default
     A → E                     15 items    40% ticked    0 open with NO default
-    D → A                    101 items    51% ticked   10 open with NO default
-    relay → A                120 items    54% ticked   14 open with NO default
-    relay → C                 29 items    55% ticked    3 open with NO default
+    D → A                    102 items    51% ticked   10 open with NO default
+    relay → A                123 items    53% ticked   14 open with NO default
+    relay → C                 30 items    53% ticked    3 open with NO default
     B → A                     68 items    57% ticked    9 open with NO default
     D → C                      5 items    60% ticked    0 open with NO default
-    A → A                     73 items    64% ticked    1 open with NO default
+    A → A                     76 items    63% ticked    1 open with NO default
     relay → B                 21 items    76% ticked    4 open with NO default
     A → D                     14 items    86% ticked    0 open with NO default
     A → C                     36 items    89% ticked    0 open with NO default
@@ -82,19 +82,18 @@ ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
 LANE STATUS — work that exists but `main` cannot see
 ============================================================================
-  ⚠️  157 commits    23h old  claude/data-stewardship-setup-bo5h9j
-  ⚠️  109 commits    26h old  claude/fantasy-football-research-926y6z
-  ⚠️   67 commits    23h old  claude/external-ingest-program-1xfinj
-  ⚠️   50 commits   120h old  claude/red-team-fantasy-football-97otna
-        2 commits    26h old  claude/happy-faraday-qsy49d
-        2 commits    25h old  claude/warroom-shell-rebuild-0817
-        1 commits     3h old  claude/happy-faraday-b6jnbe
+      160 commits     0h old  claude/data-stewardship-setup-bo5h9j
+  ⚠️  109 commits    32h old  claude/fantasy-football-research-926y6z
+  ⚠️   67 commits    30h old  claude/external-ingest-program-1xfinj
+        2 commits    33h old  claude/happy-faraday-qsy49d
+        2 commits    32h old  claude/warroom-shell-rebuild-0817
+        1 commits     9h old  claude/happy-faraday-b6jnbe
 
-  ⚠️  4 branch(es) look STRANDED — 3+ commits, 12h+ old, unmerged.
+  ⚠️  2 branch(es) look STRANDED — 3+ commits, 12h+ old, unmerged.
      ROUTES.md cannot show you these: it lists what a lane WROTE DOWN,
      and an unrouted branch is indistinguishable from an idle lane.
 
-  (4 branch(es) older than 5d not shown — old divergence, not stranded work.)
+  (5 branch(es) older than 5d not shown — old divergence, not stranded work.)
 
   NEXT, BEFORE MERGING ANY OF THESE:
     node draft/tools/routes_branch_reconcile.js   — what work here is `main` blind to?

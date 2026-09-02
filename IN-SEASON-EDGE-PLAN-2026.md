@@ -56,7 +56,7 @@ Everything below is ordered by that table.
 **① SHIP THE PROPS ARM LIVE as a weekly challenger, week 2 onward.** *(owner A for the
 loop, C for the capture; prereg P354)* The backtest arm (`weekly_arms_2025_backtest.py:
 props_arm`) prices from `historical_props_*`; the live version reads Thursday's lines
-(**the FREE Bovada per-event feed — Cory's standing ruling 09-01: no paid props, no Odds API.** Game lines POSITIVE since 08-27; player props auto-grade Thursday 09-10, P299. If Bovada carries no player props at game week, the answer is another free source, never a purchase). Converts through
+(**FREE, keyless — Cory's standing ruling 09-01: no paid props, no Odds API. Measured 09-02 (`free_props_census_2026.json`): UNDERDOG carries game-week lines for every market the arm needs across all 16 games, including the joint `Rush + Rec TDs` line that closes the TD gap; Bovada is the Thursday complement. The writer to the arm's contract is C's, deadline 09-08.**). Converts through
 `market_convert.py` (one scoring engine, component-matched: yards+receptions only,
 **no TDs — 23–47% uncovered by position**, so the arm is a *component* and its
 TD share must come from the prior, never be silently zero). Emits as arm `'props'`
