@@ -215,13 +215,28 @@ jobs:
     permissions:
       contents: write
     steps:
+      # ⚠ THE BRANCH TIP, NOT THE RUN'S COMMIT (register 480, A 09-02).
+      # actions/checkout defaults to `github.sha` — the commit the run was
+      # triggered on — which PREDATES the CSV the `commit` job pushed a minute
+      # earlier. Every re-score had been scoring the PREVIOUS capture: the
+      # 08-20 artifact carries the 08-19 counts for exactly this reason.
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
       - uses: actions/setup-python@v5
         with: { python-version: '3.11' }
       - name: Re-score and re-join under our own table
         run: python3 draft/tools/multisource_projections.py
+      # STAMP ONLY WHAT WAS WRITTEN. On 09-02 the tool exited FROZEN without
+      # writing and the stamp still re-dated 08-20 content to 09-02, then the
+      # commit step called it "re-scored" — register 364's exact shape.
       - name: Stamp the capture time (workflow-side, not a change to A's module)
-        run: python3 draft/tools/stamp_multisource_captured_at.py
+        run: |
+          if git diff --quiet -- draft/data/multisource_projections.json; then
+            echo "artifact unchanged — the re-score wrote nothing, so nothing is stamped"
+            exit 0
+          fi
+          python3 draft/tools/stamp_multisource_captured_at.py
       - name: Commit it
         run: |
           git config user.name Claude
