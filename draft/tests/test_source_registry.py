@@ -33,11 +33,11 @@ def test_every_cited_workflow_exists_or_is_declared_manual_or_none():
 
 
 def test_the_no_fallback_classes_are_exactly_the_known_gaps():
-    """KNOWN-POSITIVE + the pin. snaps_usage has no free second source; weather,
-    depth charts and team context are not captured yet. Anything else showing
+    """KNOWN-POSITIVE + the pin. snaps_usage has no independent free second source;
+    depth charts and team context are not captured yet; weather has NWS since 09-02. Anything else showing
     NONE is a new gap somebody has to register."""
     none = sorted(c["class"] for c in REG["classes"] if c["fallback"]["source"].upper().startswith("NONE"))
-    assert none == ["depth_charts_team_context", "expert_ranks", "player_bio_capital", "snaps_usage", "weather"], none
+    assert none == ["depth_charts_team_context", "expert_ranks", "player_bio_capital", "snaps_usage"], none  # weather gained NWS 09-02 (census)
 
 
 def test_props_class_names_both_free_doors_and_the_census():

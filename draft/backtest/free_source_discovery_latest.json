@@ -126,14 +126,14 @@
   },
   "depth_charts_team_context": {
    "candidates": 3,
-   "answers": [],
+   "answers": [
+    "nflverse_depth_charts"
+   ],
    "blocked": [
     "espn_depth_chart",
     "espn_team_info"
    ],
-   "no_shape": [
-    "nflverse_depth_charts"
-   ]
+   "no_shape": []
   },
   "expert_ranks": {
    "candidates": 1,
@@ -146,6 +146,7 @@
   "realized_points": {
    "candidates": 3,
    "answers": [
+    "nflverse_player_stats",
     "sleeper_stats_week"
    ],
    "blocked": [],
@@ -278,7 +279,7 @@
    "url": "https://api.sleeper.app/v1/players/nfl/trending/add?lookback_hours=168&limit=100",
    "shape": "\"player_id\"",
    "status": 200,
-   "bytes": 3571,
+   "bytes": 3570,
    "error": null,
    "verdict": "answers",
    "note": null
@@ -388,7 +389,7 @@
    "url": "https://api.open-meteo.com/v1/forecast?latitude=39.9&longitude=-75.17&hourly=temperature_2m,wind_speed_10m,precipitation_probability&forecast_days=7",
    "shape": "\"hourly\"",
    "status": 200,
-   "bytes": 5536,
+   "bytes": 5538,
    "error": null,
    "verdict": "answers",
    "note": null
@@ -407,13 +408,13 @@
   {
    "class": "weather",
    "name": "nflverse_stadiums",
-   "url": "https://raw.githubusercontent.com/nflverse/nfldata/master/data/stadiums.csv",
+   "url": "https://raw.githubusercontent.com/nflverse/nfldata/main/data/stadiums.csv",
    "shape": "stadium_id|roof",
    "status": 404,
    "bytes": 0,
    "error": "HTTP 404",
    "verdict": "error",
-   "note": null
+   "note": "the master branch path 404ed on 09-02; trying main"
   },
   {
    "class": "depth_charts_team_context",
@@ -430,12 +431,12 @@
    "class": "depth_charts_team_context",
    "name": "nflverse_depth_charts",
    "url": "https://github.com/nflverse/nflverse-data/releases/download/depth_charts/depth_charts_2025.csv",
-   "shape": "depth_team|depth_position|position",
+   "shape": "club_code|depth_team|pos_abb|pos_grp|position|gsis_id",
    "status": 200,
    "bytes": 400000,
    "error": null,
-   "verdict": "reachable_no_shape",
-   "note": null
+   "verdict": "answers",
+   "note": "200 on 09-02 but the old shape missed; widened to the 2025 column names"
   },
   {
    "class": "depth_charts_team_context",
@@ -473,13 +474,13 @@
   {
    "class": "realized_points",
    "name": "nflverse_player_stats",
-   "url": "https://github.com/nflverse/nflverse-data/releases/download/player_stats/player_stats_2025.csv",
+   "url": "https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_2025.csv",
    "shape": "fantasy_points|passing_yards",
-   "status": 404,
-   "bytes": 0,
-   "error": "HTTP 404",
-   "verdict": "error",
-   "note": null
+   "status": 200,
+   "bytes": 400000,
+   "error": null,
+   "verdict": "answers",
+   "note": "renamed upstream from player_stats_2025.csv (404 on 09-02); the repo's own loader uses stats_player_week_2025"
   },
   {
    "class": "player_bio_capital",

@@ -99,6 +99,17 @@ edge. **Changed for you:** nothing yet; it goes to D as a live weekly arm
 graded from week 1, and it moves here only if real weeks confirm it.
 *(`game_env_lab.json`)*
 
+### 10. Turning a player's weekly swings into a season ceiling with one knob
+**Tested (graded 09-02):** scale each player's week-to-week spread up to a
+season ceiling with a single fitted exponent, walk-forward on 2021-25.
+**Found:** it calibrates (about 10% of players beat their ceiling, as
+designed) and it keeps player-specific information — but the same setting
+prints ceilings no one has ever scored: a 557-point receiver season against
+a best-ever of 367, at every position. One knob cannot buy both breakout
+coverage and plausibility. **Changed for you:** nothing ships; the ceiling
+family stays as it was, and the next candidate is a two-parameter form with
+the ceiling capped at the best season ever recorded. *(P20; register 4w)*
+
 ## ⏳ STILL RUNNING — grade dates
 
 | loop | what it will tell you | first grade |
@@ -111,3 +122,5 @@ graded from week 1, and it moves here only if real weeks confirm it.
 | usage (snap share / target share) as a weekly arm | the most-cited weekly predictor we have never measured | D, by 09-15 |
 | tool vs what you actually did (lineup, waiver, stream) | the dollars-shaped grade: did following the tool beat your gut | every Sunday from week 2 |
 | roster shape WITHOUT a cap (P363) | whether the model learned the format (one TE, K with the last pick) from a roster-aware value function, or has to be told — 2026 half says learned: 1.0 violations/seat, every roster complete | replay half 10-06 |
+| four outside WEEKLY projection sources as a challenger (register 478) | CBS and ESPN stopped publishing season totals on 08-20 but publish weekly numbers, and FleaFlicker and NumberFire do too — 1,900 weekly rows a week we never had; whether a blend of them beats our champion on real weeks | D preregisters the arm; first graded week 09-15 |
+| an automatic bench rule for the champion (A-DECISIONS D4) | the champion can be benched only when a challenger beats it on the season, the last three weeks AND start/sit — built report-only first, so the first weeks show what it WOULD do before it is allowed to act | D, by 09-15 |

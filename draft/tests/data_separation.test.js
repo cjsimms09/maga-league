@@ -128,6 +128,13 @@ const PRODUCTION_INPUTS = {
     + 'a templated name for the scoreboard numbers). Cory-only display; never '
     + 'an input to a ranking or a member surface. Declared 2026-08-16 with '
     + 'the weekly-own loop.',
+  'team_context_<season>.json': 'THIS WEEK\'s implied team total and spread per '
+    + 'NFL team, from our own free Bovada game-lines capture (team_context.py). '
+    + 'Read by the My Team roster rows (src/routes/member.js) as DISPLAY beside '
+    + 'the game — never an input to a projection, ranking or lineup call. The '
+    + 'read is templated on Sleeper\'s season (no_season_literals), so this key '
+    + 'documents it rather than matches it. Declared 2026-09-02 (A) when the '
+    + 'literal-year read went red on CI.',
   'conditional_value_2026.json': 'The stack+handcuff premiums for CORY\'S '
     + 'keeper roster — PROMOTED FROM RESEARCH TO DISPLAY BY CORY\'S RULING, '
     + '2026-08-17 (verbatim: "Yes!"), on the evidence in '

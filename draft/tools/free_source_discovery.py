@@ -76,16 +76,16 @@ CANDIDATES = [
     # weather
     {"class": "weather", "name": "open_meteo_forecast", "url": "https://api.open-meteo.com/v1/forecast?latitude=39.9&longitude=-75.17&hourly=temperature_2m,wind_speed_10m,precipitation_probability&forecast_days=7", "shape": r'"hourly"'},
     {"class": "weather", "name": "nws_forecast_points", "url": "https://api.weather.gov/points/39.9008,-75.1675", "shape": r'"forecastHourly"'},
-    {"class": "weather", "name": "nflverse_stadiums", "url": "https://raw.githubusercontent.com/nflverse/nfldata/master/data/stadiums.csv", "shape": r'stadium_id|roof'},
+    {"class": "weather", "name": "nflverse_stadiums", "url": "https://raw.githubusercontent.com/nflverse/nfldata/main/data/stadiums.csv", "shape": r'stadium_id|roof', "note": "the master branch path 404ed on 09-02; trying main"},
     # depth charts / team context (the coaching half is C's open gap)
     {"class": "depth_charts_team_context", "name": "espn_depth_chart", "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/12/depthcharts", "shape": r'"depthchart"|"positions"'},
-    {"class": "depth_charts_team_context", "name": "nflverse_depth_charts", "url": "https://github.com/nflverse/nflverse-data/releases/download/depth_charts/depth_charts_2025.csv", "shape": r'depth_team|depth_position|position'},
+    {"class": "depth_charts_team_context", "name": "nflverse_depth_charts", "url": "https://github.com/nflverse/nflverse-data/releases/download/depth_charts/depth_charts_2025.csv", "shape": r'club_code|depth_team|pos_abb|pos_grp|position|gsis_id', "note": "200 on 09-02 but the old shape missed; widened to the 2025 column names"},
     {"class": "depth_charts_team_context", "name": "espn_team_info", "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/12", "shape": r'"team"'},
     # expert ranks
     {"class": "expert_ranks", "name": "fantasypros_ecr_page", "url": "https://www.fantasypros.com/nfl/rankings/half-point-ppr-cheatsheets.php", "shape": r'ecrData|rank_ecr|"player_name"'},
     # realized points
     {"class": "realized_points", "name": "sleeper_stats_week", "url": "https://api.sleeper.app/v1/stats/nfl/regular/2025/1", "shape": r'"pts_half_ppr"|"pts_ppr"'},
-    {"class": "realized_points", "name": "nflverse_player_stats", "url": "https://github.com/nflverse/nflverse-data/releases/download/player_stats/player_stats_2025.csv", "shape": r'fantasy_points|passing_yards'},
+    {"class": "realized_points", "name": "nflverse_player_stats", "url": "https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_2025.csv", "shape": r'fantasy_points|passing_yards', "note": "renamed upstream from player_stats_2025.csv (404 on 09-02); the repo's own loader uses stats_player_week_2025"},
     # player bio / capital
     {"class": "player_bio_capital", "name": "nflverse_draft_picks", "url": "https://github.com/nflverse/nflverse-data/releases/download/draft_picks/draft_picks.csv", "shape": r'pick,|round,|pfr_player_id'},
     {"class": "player_bio_capital", "name": "nflverse_rosters", "url": "https://github.com/nflverse/nflverse-data/releases/download/rosters/roster_2025.csv", "shape": r'birth_date|years_exp|draft_number'},

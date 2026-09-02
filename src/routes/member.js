@@ -2534,10 +2534,14 @@ router.get('/team', aw(async (req, res) => {
       const wkForProj = (sData && sData.week) || 1;
       // THIS WEEK'S IMPLIED TEAM TOTAL beside the game (team_context.py — our own
       // Bovada capture, latest snapshot per game). Absent → nothing shown.
+      // The season comes from Sleeper's state, never a literal (no_season_literals);
+      // the store is declared in data_separation.test.js under team_context_<season>.
       let ctx = null;
       try {
-        const doc = JSON.parse(require('fs').readFileSync(require('path').join(__dirname, '..', '..', 'draft', 'data', 'team_context_2026.json'), 'utf8'));
-        if (String(doc.season) === String(sData && sData.state && sData.state.season)) ctx = doc.teams || null;
+        const ctxSeason = String((sData && sData.state && sData.state.season) || '');
+        if (!ctxSeason) throw new Error('no season');
+        const doc = JSON.parse(require('fs').readFileSync(require('path').join(__dirname, '..', '..', 'draft', 'data', `team_context_${ctxSeason}.json`), 'utf8'));
+        if (String(doc.season) === ctxSeason) ctx = doc.teams || null;
       } catch (e) { ctx = null; }
       const ALIAS = { WAS: 'WSH', WSH: 'WAS' };
       for (const r of roster.rows) {
