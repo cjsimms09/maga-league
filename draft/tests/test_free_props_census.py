@@ -46,6 +46,11 @@ def test_labels_from_each_source_map_to_the_arms_markets():
         # Kalshi series titles
         "Pro Football Player Receptions": "player_receptions",
         "Pro Football Player Passing Yards": "player_pass_yds",
+        # Sleeper Picks wager_type spellings (run 6, 09-02)
+        "anytime_touchdowns": "player_anytime_td",
+        "receiving_yards": "player_reception_yds",
+        "passing_touchdowns": "player_pass_tds",
+        "interceptions": "player_pass_interceptions",
     }
     for label, want in cases.items():
         assert fpc.market_of(label) == want, (label, fpc.market_of(label))

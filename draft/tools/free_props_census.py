@@ -63,7 +63,7 @@ _LABEL_RULES = [
     # yardage, then per-stat TDs/INTs, then receptions LAST and only as the
     # whole word — 'Longest Reception' and 'Rec Yds' must never read as
     # receptions (test_free_props_census pins both).
-    (r"anytime\s*(touchdown|td)\b|to score a touchdown|\btd scorer|anytime scorer|touchdown scorer", "player_anytime_td"),
+    (r"anytime\s*(touchdowns?|tds?)\b|to score a touchdown|\btd scorer|anytime scorer|touchdown scorer", "player_anytime_td"),
     (r"\brush(ing)?\s*\+\s*rec(eiving)?\s*(tds?|touchdowns)", "player_rush_rec_tds"),
     (r"receiv(ing)?\s*(yards|yds)|\brec\s*(yards|yds)", "player_reception_yds"),
     (r"pass(ing)?\s*(yards|yds)", "player_pass_yds"),
