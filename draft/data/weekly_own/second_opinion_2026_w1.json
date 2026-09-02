@@ -3,7 +3,7 @@
  "_what": "REPORT ONLY. The champion weekly projection beside the props-implied points on Cory's live roster, and the lineup each would start. The second lineup uses P357's blend rule (props where a line exists, champion elsewhere) \u2014 its prior art made visible, not the arm entering the grader early.",
  "season": 2026,
  "week": 1,
- "generated": "2026-09-02T01:20:38.840736+00:00",
+ "generated": "2026-09-02T01:21:22.353997+00:00",
  "roster_source": "THIS-WEEK.md generated 2026-09-01T17:21:35+00:00",
  "champion_source": "BUILT LOCALLY from the board and lines \u2014 not the Thursday snapshot",
  "champion_arm": "v1_pull3",
@@ -245,6 +245,28 @@
   "Harrison Mevis",
   "HOU D/ST"
  ],
+ "lineup_champion_ids": [
+  "11560",
+  "3198",
+  "8151",
+  "7564",
+  "2133",
+  "7002",
+  "10229",
+  "12015",
+  "HOU D/ST"
+ ],
+ "lineup_props_blend_ids": [
+  "11560",
+  "3198",
+  "8151",
+  "7564",
+  "10229",
+  "7002",
+  "12512",
+  "12015",
+  "HOU D/ST"
+ ],
  "swaps": [
   {
    "props_starts": "Quinshon Judkins",
@@ -468,6 +490,28 @@
    "Trey McBride",
    "Terry McLaurin",
    "Will Reichard",
+   "KC D/ST"
+  ],
+  "lineup_champion_ids": [
+   "3294",
+   "9509",
+   "6790",
+   "8137",
+   "7569",
+   "8130",
+   "7594",
+   "11792",
+   "KC D/ST"
+  ],
+  "lineup_props_blend_ids": [
+   "5849",
+   "9509",
+   "7611",
+   "7569",
+   "8137",
+   "8130",
+   "5927",
+   "11792",
    "KC D/ST"
   ],
   "swaps": [

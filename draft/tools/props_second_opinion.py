@@ -157,6 +157,10 @@ def second_opinion(rows: list, champion: dict, props: dict, blend_arm: dict | No
         "table": table,
         "lineup_champion": [name_of.get(x, x) for x in line_c],
         "lineup_props_blend": [name_of.get(x, x) for x in line_p],
+        # ids too, so the Tuesday grade can score BOTH lineups with real points
+        # (the backtest's outcome column, live) without a name crosswalk
+        "lineup_champion_ids": list(line_c),
+        "lineup_props_blend_ids": list(line_p),
         "swaps": swaps,
         "valuation": {
             "champion_lineup": {"by_champion": total(line_c, champion), "by_props_blend": total(line_c, second)},
