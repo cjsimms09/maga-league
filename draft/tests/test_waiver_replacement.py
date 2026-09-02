@@ -597,8 +597,40 @@ def test_the_RECORD_IS_OVERLAID_BY_THE_LIVE_BOARD_so_corrections_still_land():
 # Ratchet tightened 2026-08-21 as the test itself prescribed when the gap
 # closed 9 -> 8 on the post-keeper-lock board ('good news that must be
 # recorded'): 4080 resolved, so it leaves the known-unresolvable set.
-KNOWN_UNRESOLVABLE_IDS = {"5916", "7045", "7066", "7617"}
-KNOWN_UNRESOLVABLE_ACQUISITIONS = 8
+#: ⭐ TIGHTENED 2026-09-02 (D, on C's file, claimed as a gate blocker under
+#: Cory's 08-31 claimable-specs ruling): 4 ids / 8 acquisitions -> 3 / 6.
+#: `7066` now RESOLVES, which is what this ratchet exists to force somebody to
+#: write down.
+#:
+#: EVIDENCE IS CI, NOT THIS SANDBOX, and that distinction is the whole reason
+#: the ratchet fired: `_unresolvable()` reads `public/draft_data.json`, the
+#: gate builds a FRESH board, and the fresh board carries a row for 7066 that
+#: the published one does not. Run 33631410982 (2026-09-02 12:42Z) computed
+#: `len(got) == 6` with the survivors `['7045','7045','5916','5916','7617','7617']`
+#: — three ids, twice each. That run IS the fresh-board measurement; nothing
+#: here could reproduce it, because the board it needs is not on disk.
+#:
+#: ⚠️ SO THIS IS RED IN EVERY SANDBOX UNTIL THE BOARD REPUBLISHES, and that is
+#: expected rather than a defect: today's published board (09-01) has no 7066,
+#: so a local run still reads 8. The pre-build acceptance step is ADVISORY by
+#: design — failing the job because the CURRENT board is broken would stop the
+#: rebuild that repairs it (2026-08-14) — so this cannot deadlock the pipeline,
+#: and the window closes the moment the gate publishes.
+#:
+#: ⚠️ AND IT MAY COME BACK UP. Nothing establishes 7066's arrival as STABLE:
+#: it appears in no Sleeper projection snapshot on any day (checked 08-09
+#: through 09-02), though that proves little, since `proj_series` is
+#: board-derived and truncated to the top 700 by projection. If 7066 flickers
+#: off the board the way Nick Chubb and Trey Benson did on 08-27 (register
+#: 435), this ratchet fires in reverse with the same message and the constant
+#: goes back up under the same discipline. That is the ratchet working, not
+#: failing.
+#:
+#: The player cannot be named: no store carries a name for 7066, which is
+#: exactly why it was unresolvable — the board is the only thing that can
+#: resolve these ids, and it just gained the row.
+KNOWN_UNRESOLVABLE_IDS = {"5916", "7045", "7617"}
+KNOWN_UNRESOLVABLE_ACQUISITIONS = 6
 
 
 def _unresolvable():
