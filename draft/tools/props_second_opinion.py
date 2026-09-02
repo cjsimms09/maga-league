@@ -53,19 +53,25 @@ def parse_this_week(text: str) -> dict:
     week = int(m.group(1)) if m else None
     season = int(m.group(2)) if m else None
     g = re.search(r"\*\*Generated (\S+)", text)
-    roster = []
-    sec = text.split("## My roster", 1)
-    if len(sec) == 2:
-        body = sec[1].split("\n## ", 1)[0]
-        for line in body.splitlines():
-            if not line.startswith("|") or line.startswith("|---") or "| player |" in line:
-                continue
-            cells = [c.strip() for c in line.strip().strip("|").split("|")]
-            if len(cells) < 4:
-                continue
-            roster.append({"st": cells[0] == "S", "name": cells[1], "pos": cells[2], "team": cells[3],
-                           "injury": cells[5] if len(cells) > 5 else ""})
-    return {"week": week, "season": season, "generated": g.group(1) if g else None, "roster": roster}
+    opp = re.search(r"## Opponent: (.+)", text)
+
+    def table(header):
+        rows = []
+        sec = text.split(header, 1)
+        if len(sec) == 2:
+            body = sec[1].split("\n## ", 1)[0]
+            for line in body.splitlines():
+                if not line.startswith("|") or line.startswith("|---") or "| player |" in line:
+                    continue
+                cells = [c.strip() for c in line.strip().strip("|").split("|")]
+                if len(cells) < 4:
+                    continue
+                rows.append({"st": cells[0] == "S", "name": cells[1], "pos": cells[2], "team": cells[3],
+                             "injury": cells[5] if len(cells) > 5 else ""})
+        return rows
+    return {"week": week, "season": season, "generated": g.group(1) if g else None,
+            "opponent": opp.group(1).strip() if opp else None,
+            "roster": table("## My roster"), "opponent_roster": table("## Opponent's roster")}
 
 
 def resolve_roster(roster: list, board_players: list) -> tuple[list, list]:
@@ -187,6 +193,20 @@ def main(argv=None) -> int:
     rows, unmatched = resolve_roster(tw["roster"], board)
     slots = json.loads((ROOT / "draft" / "config" / "league_config.json").read_text())["starters"]
     so = second_opinion(rows, champion, props, blend_arm, slots)
+    # THE MATCHUP under both opinions (the opponent's roster from the same
+    # brief): the gap Cory is actually playing for this week, read twice.
+    opp_rows, opp_unmatched = resolve_roster(tw.get("opponent_roster") or [], board)
+    opp = second_opinion(opp_rows, champion, props, blend_arm, slots) if opp_rows else None
+    matchup = None
+    if opp:
+        mine_c = so["valuation"]["champion_lineup"]["by_champion"]
+        mine_p = so["valuation"]["props_blend_lineup"]["by_props_blend"]
+        theirs_c = opp["valuation"]["champion_lineup"]["by_champion"]
+        theirs_p = opp["valuation"]["props_blend_lineup"]["by_props_blend"]
+        matchup = {"opponent": tw.get("opponent"),
+                   "by_champion": {"mine": mine_c, "theirs": theirs_c, "gap": round(mine_c - theirs_c, 2)},
+                   "by_props_blend": {"mine": mine_p, "theirs": theirs_p, "gap": round(mine_p - theirs_p, 2)},
+                   "note": "each side's best lineup under that opinion; K/DEF unpriced by both, so the gap is skill slots only"}
     controls = [
         {"id": "S1", "what": "every rostered skill player resolves to a board id, or is named", "ok": not unmatched, "unmatched": unmatched},
         {"id": "S2", "what": "the props file covers at least one rostered skill player", "ok": so["skill_players_with_a_props_line"] > 0,
@@ -199,7 +219,9 @@ def main(argv=None) -> int:
            "season": season, "week": week, "generated": _dt.datetime.now(_dt.timezone.utc).isoformat(),
            "roster_source": f"THIS-WEEK.md generated {tw['generated']}", "champion_source": snap_source,
            "champion_arm": snap["diagnostics"]["champion_arm"], "props_source": f"weekly_props_{season}_w{week}.json ({len(props)} players)",
-           "controls": controls, **so}
+           "controls": controls, **so,
+           "opponent": ({"name": tw.get("opponent"), "unmatched": opp_unmatched, **opp} if opp else None),
+           "matchup": matchup}
     out = ROOT / "draft" / "data" / "weekly_own" / f"second_opinion_{season}_w{week}.json"
     out.write_text(json.dumps(doc, indent=1))
     if "--json" in args:
@@ -220,6 +242,13 @@ def main(argv=None) -> int:
             print(f"  SWAP: props would start {s['props_starts']} over {s['champion_starts']}")
     else:
         print("  the two opinions start the SAME lineup this week")
+    if matchup:
+        print(f"\n  MATCHUP vs {matchup['opponent']} (skill slots, each side's best lineup under that opinion)")
+        print(f"   by champion:    {matchup['by_champion']['mine']} vs {matchup['by_champion']['theirs']}   gap {matchup['by_champion']['gap']:+.2f}")
+        print(f"   by props-blend: {matchup['by_props_blend']['mine']} vs {matchup['by_props_blend']['theirs']}   gap {matchup['by_props_blend']['gap']:+.2f}")
+        if opp and opp["swaps"]:
+            for s in opp["swaps"]:
+                print(f"   their side — props would start {s['props_starts']} over {s['champion_starts']}")
     print(f"\n  wrote {out.relative_to(ROOT)}")
     return 0
 
