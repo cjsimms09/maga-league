@@ -122,6 +122,12 @@ MANIFEST = {
         "extract_timestamp": _no_timestamp_control_only,
         "cadence_days": 7,
     },
+    "free_weekly_props": {
+        "workflow": "free-weekly-props-writer.yml",
+        "glob": "draft/data/props/weekly_props_*_w*.json",
+        "extract_timestamp": _flat_field("captured_at"),
+        "cadence_days": 7,
+    },
     # ── THE IN-SEASON LEARNING CHAIN (added by A, 2026-08-24) ───────────────
     # This manifest's own header says it was verified against every scheduled
     # TERRITORY: C workflow, which it was — but the stores that feed the

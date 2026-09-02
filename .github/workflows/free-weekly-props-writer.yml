@@ -1,0 +1,71 @@
+# TERRITORY: C
+name: Free weekly props writer (Cory's 09-01 ruling — no paid Odds API)
+
+# ROUTES.md TO: C, 2026-09-01 dispatch (props arm, P354 plan ①). Cory: "We
+# don't need odds api... We get free props from bovada, ball don't lie,
+# etc!!" The paid door (weekly-props-fetch.yml, TERRITORY: A) loses its
+# schedule; this writes the SAME file, in the SAME contract
+# (weekly_props_arm.py:59 / fetch_weekly_props.py:311), from two free,
+# keyless doors instead — Sleeper Picks first (native sleeper_id, no
+# crosswalk), Underdog filling markets Sleeper does not price.
+#
+# HARD DEADLINE 09-08 was the ask's own framing (week-1 Thursday is 09-10,
+# and a missed week cannot be re-emitted honestly) — this workflow exists
+# so the deadline is a standing cron, not a one-time manual run.
+#
+# Thursday 12:00 UTC, same slot as bovada-lines-capture.yml's opening
+# snapshot — the ask's own suggested placement.
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '0 12 * * 4'   # Thursday 12:00 UTC
+
+permissions:
+  contents: write
+
+concurrency:
+  group: free-weekly-props-writer
+  cancel-in-progress: false
+
+jobs:
+  write:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Install
+        run: pip install -r draft/requirements.txt pytest
+
+      - name: The pure crosswalk/scoring/merge logic is tested before any real fetch runs
+        run: python3 -m pytest draft/tests/test_free_weekly_props_writer.py -q
+
+      - name: Write this week's free-props snapshot (refuses on a thin or dead result)
+        run: python3 draft/tools/free_weekly_props_writer.py
+
+      - name: Commit the snapshot
+        run: |
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "::warning::Dispatched from '$GITHUB_REF_NAME', not main. The"
+            echo "::warning::result is in this run's log and is deliberately"
+            echo "::warning::NOT committed. Re-dispatch from main."
+            echo "_Dispatched from \`$GITHUB_REF_NAME\` — result NOT committed._" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/data/props/
+          if ! git diff --cached --quiet; then
+            git commit -m "free_weekly_props_writer: weekly snapshot (Sleeper Picks + Underdog) [skip deploy]"
+            for i in 1 2 3; do
+              git fetch origin main || true
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              if git push origin HEAD:main; then exit 0; fi
+              sleep $((i * 5))
+            done
+            echo "::error::RESULT NOT PUSHED — the week's snapshot cannot be re-emitted honestly once the week has passed."
+            exit 1
+          fi
+          echo "no change — a same-week file already exists, correctly not overwritten"
