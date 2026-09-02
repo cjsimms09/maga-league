@@ -150,6 +150,8 @@ is marginal lineup value, and it already exists as a second voice
 (`public/js/draft/mlv.js`, `mlv_recommend.json`, Cory's 08-19 ruling "let's
 use mlv"). It is not the score the board ranks on.
 
+**MEASURED THE SAME NIGHT (`mlv_grammar_probe_2026-09-02.json`): MLV plus draft_plan's bench equation, with NO cap anywhere, replayed all ten seats of the real draft night against the room's actual picks — 1.0 violations/seat excluding the kicker, the humans' exact rate, vs the engine's 7.1; every seat RB6/WR4/TE2/QB2/DEF1; 1,901 projected startable points/seat vs humans 1,880 and the engine's 1,526. The value function LEARNED the format from measured wire levels and slot counts. Its one disagreement with the humans is the kicker (worth ~0 over the wire, so it spends the last pick on a bench option) — a ruling for Cory, not a defect.**
+
 **So the grammar (`roster_grammar.py`) is the EXAM, not the answer:** the value
 function has learned the format when, UNCONSTRAINED, its recommendations pass
 the grammar at the humans' rate. P363 is that claim. Only if it fails does a
