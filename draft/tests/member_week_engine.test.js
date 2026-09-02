@@ -86,6 +86,17 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS ' + n)) : (fail++, cons
   ck('odds: a bye starter projects zero (the feed\'s ladder, reused)',
     o5.ok && o5.my === 0 && o5.opp === 20, JSON.stringify(o5));
 
+  // KEEPERS (register 476): the board keeps them in `kept_players`; a lineup
+  // with a keeper starter must PRICE, not refuse. Control: the same keeper
+  // absent from both lists still refuses.
+  const artKept = Object.assign(board([P('a1', 'QB', 340), P('b1', 'QB', 255), P('b2', 'RB', 170)]),
+    { kept_players: [P('k1', 'RB', 300)] });
+  const o6 = MW.matchupOdds(['a1', 'k1'], ['b1', 'b2'], { week: 8, artifact: artKept });
+  ck('odds: a KEEPER starter (kept_players, not players) is priced — register 476, the tenth consumer',
+    o6.ok === true && Math.abs(o6.my - (340 + 300) / 17) < 0.11, JSON.stringify(o6));
+  const o7 = MW.matchupOdds(['a1', 'k1'], ['b1', 'b2'], { week: 8, artifact: board([P('a1', 'QB', 340), P('b1', 'QB', 255), P('b2', 'RB', 170)]) });
+  ck('odds: CONTROL — the same id absent from BOTH lists still refuses', o7.ok === false && /not on the board/.test(o7.why));
+
   // ── 3. WEEK NAV: pastWeek + ownerSeason off the frozen docs ───────────────
   await store.set('pickem-slate:2026:3', { season: 2026, week: 3, games: [
     { id: '1:2', a: { id: 1, name: 'Cory' }, b: { id: 2, name: 'David' } },
