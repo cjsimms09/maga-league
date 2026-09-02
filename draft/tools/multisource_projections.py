@@ -466,7 +466,7 @@ def main() -> int:
     print("\n  AGREEMENT (Spearman on scored points — order, not level):")
     for k, v in agree.items():
         print(f"    {k:24} n={v['n']:4}  rho={v['spearman']}")
-    print(f"\n  wrote {OUT.relative_to(ROOT)}")
+    print(f"\n  wrote {OUT.relative_to(ROOT) if OUT.is_relative_to(ROOT) else OUT}")
     return 0
 
 
