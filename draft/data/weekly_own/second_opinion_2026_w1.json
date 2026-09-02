@@ -1,0 +1,266 @@
+{
+ "_territory": "TERRITORY: A \u2014 produced by draft/tools/props_second_opinion.py",
+ "_what": "REPORT ONLY. The champion weekly projection beside the props-implied points on Cory's live roster, and the lineup each would start. The second lineup uses P357's blend rule (props where a line exists, champion elsewhere) \u2014 its prior art made visible, not the arm entering the grader early.",
+ "season": 2026,
+ "week": 1,
+ "generated": "2026-09-02T00:55:43.009621+00:00",
+ "roster_source": "THIS-WEEK.md generated 2026-09-01T17:21:35+00:00",
+ "champion_source": "BUILT LOCALLY from the board and lines \u2014 not the Thursday snapshot",
+ "champion_arm": "v1_pull3",
+ "props_source": "weekly_props_2026_w1.json (312 players)",
+ "controls": [
+  {
+   "id": "S1",
+   "what": "every rostered skill player resolves to a board id, or is named",
+   "ok": true,
+   "unmatched": []
+  },
+  {
+   "id": "S2",
+   "what": "the props file covers at least one rostered skill player",
+   "ok": true,
+   "covered": 13,
+   "of": 14
+  },
+  {
+   "id": "S3",
+   "what": "THIS-WEEK.md is fresh (<= 3 days) \u2014 the roster rule",
+   "generated": "2026-09-01T17:21:35+00:00",
+   "ok": true
+  }
+ ],
+ "table": [
+  {
+   "st": true,
+   "name": "Rashee Rice",
+   "pos": "WR",
+   "team": "KC",
+   "injury": "",
+   "player_id": "10229",
+   "champion": 8.72,
+   "blend_prior": 12.8,
+   "props": 11.58,
+   "props_minus_champion": 2.86
+  },
+  {
+   "st": true,
+   "name": "Caleb Williams",
+   "pos": "QB",
+   "team": "CHI",
+   "injury": "",
+   "player_id": "11560",
+   "champion": 18.91,
+   "blend_prior": 21.49,
+   "props": 20.94,
+   "props_minus_champion": 2.03
+  },
+  {
+   "st": false,
+   "name": "Rome Odunze",
+   "pos": "WR",
+   "team": "CHI",
+   "injury": "",
+   "player_id": "11620",
+   "champion": 7.96,
+   "blend_prior": 10.65,
+   "props": 8.69,
+   "props_minus_champion": 0.73
+  },
+  {
+   "st": true,
+   "name": "Harrison Mevis",
+   "pos": "K",
+   "team": "LAR",
+   "injury": "",
+   "player_id": "12015",
+   "champion": null,
+   "blend_prior": null,
+   "props": null,
+   "props_minus_champion": null
+  },
+  {
+   "st": false,
+   "name": "Quinshon Judkins",
+   "pos": "RB",
+   "team": "CLE",
+   "injury": "",
+   "player_id": "12512",
+   "champion": 7.73,
+   "blend_prior": 9.78,
+   "props": 10.95,
+   "props_minus_champion": 3.22
+  },
+  {
+   "st": false,
+   "name": "Emmett Johnson",
+   "pos": "RB",
+   "team": "KC",
+   "injury": "",
+   "player_id": "13337",
+   "champion": 2.3,
+   "blend_prior": 2.3,
+   "props": 1.66,
+   "props_minus_champion": -0.64
+  },
+  {
+   "st": true,
+   "name": "Davante Adams",
+   "pos": "WR",
+   "team": "LAR",
+   "injury": "",
+   "player_id": "2133",
+   "champion": 9.78,
+   "blend_prior": 11.67,
+   "props": 10.6,
+   "props_minus_champion": 0.82
+  },
+  {
+   "st": true,
+   "name": "Derrick Henry",
+   "pos": "RB",
+   "team": "BAL",
+   "injury": "",
+   "player_id": "3198",
+   "champion": 13.42,
+   "blend_prior": 16.27,
+   "props": 14.76,
+   "props_minus_champion": 1.34
+  },
+  {
+   "st": false,
+   "name": "Courtland Sutton",
+   "pos": "WR",
+   "team": "DEN",
+   "injury": "",
+   "player_id": "5045",
+   "champion": 7.84,
+   "blend_prior": 8.98,
+   "props": 8.41,
+   "props_minus_champion": 0.57
+  },
+  {
+   "st": true,
+   "name": "Juwan Johnson",
+   "pos": "TE",
+   "team": "NO",
+   "injury": "",
+   "player_id": "7002",
+   "champion": 6.72,
+   "blend_prior": 7.04,
+   "props": 8.34,
+   "props_minus_champion": 1.62
+  },
+  {
+   "st": true,
+   "name": "Ja'Marr Chase",
+   "pos": "WR",
+   "team": "CIN",
+   "injury": "Questionable",
+   "player_id": "7564",
+   "champion": 16.27,
+   "blend_prior": 17.5,
+   "props": 16.9,
+   "props_minus_champion": 0.63
+  },
+  {
+   "st": false,
+   "name": "Rachaad White",
+   "pos": "RB",
+   "team": "WAS",
+   "injury": "Questionable",
+   "player_id": "8136",
+   "champion": 5.73,
+   "blend_prior": 7.58,
+   "props": 2.24,
+   "props_minus_champion": -3.49
+  },
+  {
+   "st": true,
+   "name": "Kenneth Walker",
+   "pos": "RB",
+   "team": "KC",
+   "injury": "Questionable",
+   "player_id": "8151",
+   "champion": 11.14,
+   "blend_prior": 13.77,
+   "props": 13.42,
+   "props_minus_champion": 2.28
+  },
+  {
+   "st": false,
+   "name": "Parker Washington",
+   "pos": "WR",
+   "team": "JAX",
+   "injury": "",
+   "player_id": "9487",
+   "champion": 7.01,
+   "blend_prior": 9.49,
+   "props": 9.69,
+   "props_minus_champion": 2.68
+  },
+  {
+   "st": false,
+   "name": "Zach Charbonnet",
+   "pos": "RB",
+   "team": "SEA",
+   "injury": "PUP",
+   "player_id": "9753",
+   "champion": 1.1,
+   "blend_prior": 6.3,
+   "props": null,
+   "props_minus_champion": null
+  },
+  {
+   "st": true,
+   "name": "HOU D/ST",
+   "pos": "DEF",
+   "team": "HOU",
+   "injury": "",
+   "player_id": null,
+   "champion": null,
+   "blend_prior": null,
+   "props": null,
+   "props_minus_champion": null
+  }
+ ],
+ "lineup_champion": [
+  "Caleb Williams",
+  "Derrick Henry",
+  "Kenneth Walker",
+  "Ja'Marr Chase",
+  "Davante Adams",
+  "Juwan Johnson",
+  "Rashee Rice",
+  "Harrison Mevis",
+  "HOU D/ST"
+ ],
+ "lineup_props_blend": [
+  "Caleb Williams",
+  "Derrick Henry",
+  "Kenneth Walker",
+  "Ja'Marr Chase",
+  "Rashee Rice",
+  "Juwan Johnson",
+  "Quinshon Judkins",
+  "Harrison Mevis",
+  "HOU D/ST"
+ ],
+ "swaps": [
+  {
+   "props_starts": "Quinshon Judkins",
+   "champion_starts": "Davante Adams"
+  }
+ ],
+ "valuation": {
+  "champion_lineup": {
+   "by_champion": 84.96,
+   "by_props_blend": 96.54
+  },
+  "props_blend_lineup": {
+   "by_champion": 82.91,
+   "by_props_blend": 96.89
+  }
+ },
+ "skill_players_with_a_props_line": 13,
+ "skill_players_rostered": 14
+}

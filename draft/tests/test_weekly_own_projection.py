@@ -486,3 +486,34 @@ def test_blend_arm_formula_names_its_prior_and_the_fallback():
     assert f.startswith("(3*proj_mean/17*tilt") and "falls back to proj_ownmodel" in f
     # the existing arms' strings are unchanged
     assert WP.arm_formula(next(a for a in WP.DEFAULT_ARMS if a["name"] == "v1")).startswith("proj_ownmodel/17 *")
+
+
+# ── register 476: kept players are priced like everyone else ──────────────────
+
+def test_board_players_includes_kept_players(tmp_path):
+    board = tmp_path / "board.json"
+    board.write_text(json.dumps({
+        "players": [{"player_id": "1", "name": "A", "position": "RB", "team": "DET", "proj_ownmodel": 170.0}],
+        "kept_players": [{"player_id": "7564", "name": "Ja'Marr Chase", "position": "WR", "team": "CIN",
+                          "proj_ownmodel": 252.68, "proj_mean": 271.8},
+                         {"player_id": "1", "name": "A dup", "position": "RB", "team": "DET", "proj_ownmodel": 1.0}],
+    }))
+    ps = WP._board_players(board)
+    assert [p["player_id"] for p in ps] == ["1", "7564"]           # kept appended, duplicate id not doubled
+    assert ps[1]["kept"] is True and ps[0].get("kept") is None
+    priced = WP.price_week(ps, 1, {}, WP.DEFAULT_ARMS)
+    assert priced["means"]["v1_pull3"]["7564"] == round(252.68 / 17, 2)   # the keeper IS priced
+    assert priced["means"]["v1_blend_pull3"]["7564"] == round(271.8 / 17, 2)
+
+
+def test_the_live_board_keeps_no_keeper_unpriced():
+    # KNOWN POSITIVE against the committed board: every kept player prices.
+    board = Path(__file__).resolve().parents[2] / "public" / "draft_data.json"
+    if not board.exists():
+        return
+    doc = json.loads(board.read_text())
+    kept = {str(k["player_id"]) for k in doc.get("kept_players") or [] if (k.get("proj_ownmodel") or 0) > 0}
+    if not kept:
+        return
+    priced = WP.price_week(WP._board_players(board), 1, {}, WP.DEFAULT_ARMS)
+    assert kept <= set(priced["means"]["v1_pull3"]), sorted(kept - set(priced["means"]["v1_pull3"]))

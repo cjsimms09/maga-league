@@ -72,6 +72,16 @@ jobs:
               echo "$OUT"; exit 1
             fi
           fi
+      - name: Props second opinion on Cory's roster (report-only, register 476's tool)
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          # Non-fatal by design: the snapshot above is the forward guarantee and
+          # must commit even if THIS-WEEK.md is stale or the props file is absent.
+          if OUT="$(python3 draft/tools/props_second_opinion.py 2>&1)"; then
+            echo "$OUT"
+          else
+            echo "$OUT"; echo "::warning::second opinion did not run — the snapshot still commits"
+          fi
       - name: Commit the snapshot (the forward guarantee)
         if: ${{ github.event.inputs.dry_run != 'true' }}
         run: |

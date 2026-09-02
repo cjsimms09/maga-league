@@ -507,8 +507,24 @@ def apply_override(champion: dict, arms: list, controls: dict) -> tuple[dict, bo
 # ── CLI ──────────────────────────────────────────────────────────────────────
 
 def _board_players(path: Path) -> list:
+    """Every player the board projects: `players` PLUS `kept_players`.
+
+    ⛔ REGISTER 476 (2026-09-02): the board keeps the 23 kept players in a
+    separate list, and this reader returned `players` only — so the weekly
+    champion priced 0 of 23 keepers, including Cory's three best starters
+    (Chase, Henry, Walker), and every Tuesday grade, the shadow rule and the
+    lineup grades would have excluded the league's best players all season.
+    Found by the props second-opinion tool's own crosswalk control (S1), not
+    by a reader. The kept rows carry the same projection fields."""
     doc = json.loads(path.read_text())
-    return doc.get("players") if isinstance(doc, dict) else doc
+    if not isinstance(doc, dict):
+        return doc
+    players = list(doc.get("players") or [])
+    seen = {str(p.get("player_id")) for p in players}
+    for k in doc.get("kept_players") or []:
+        if str(k.get("player_id")) not in seen:
+            players.append(dict(k, kept=True))
+    return players
 
 
 def snapshot_path(out_dir: Path, season: int, week: int) -> Path:
