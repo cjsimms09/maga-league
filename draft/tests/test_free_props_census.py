@@ -36,7 +36,8 @@ def test_labels_from_each_source_map_to_the_arms_markets():
         "Receiving Yards": "player_reception_yds",
         "Rush Yards": "player_rush_yds",
         "Pass TDs": "player_pass_tds",
-        "Rush+Rec TDs": "player_anytime_td",
+        "Rush+Rec TDs": "player_rush_rec_tds",
+        "Rush + Rec TDs": "player_rush_rec_tds",
         # Underdog display_stat
         "Passing Yards": "player_pass_yds",
         "Rushing Yards": "player_rush_yds",
@@ -74,3 +75,14 @@ def test_need_table_and_verdict_logic():
     assert t["player_pass_yds"]["best"] == 30 and list(t["player_pass_yds"]["carriers"]) == ["a", "b"]
     assert t["player_receptions"]["best"] == 5
     assert t["player_rush_yds"]["best"] == 0 and t["player_rush_yds"]["carriers"] == {}
+
+
+def test_a_joint_rush_rec_td_line_covers_both_split_td_markets():
+    """Underdog prices 'Rush + Rec TDs' and never the split; under our scoring
+    both are six points, so the joint line must satisfy both needs — the first
+    census read it as two gaps."""
+    srcs = {"ud": {"by_market": {"player_rush_rec_tds": 300}, "samples": [{}]}}
+    t = fpc.need_table(srcs)
+    assert t["player_rush_tds"]["best"] == 300 and "joint" in t["player_rush_tds"]["covered_by"]
+    assert t["player_reception_tds"]["best"] == 300
+    assert t["player_pass_tds"]["best"] == 0          # a joint TD line says nothing about passing

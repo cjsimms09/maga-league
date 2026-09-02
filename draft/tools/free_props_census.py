@@ -46,7 +46,14 @@ UA = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, 
 #: the arm's markets (fetch_weekly_props.MARKET_TO_STAT keys) + the one we want
 NEED = ["player_pass_yds", "player_pass_tds", "player_pass_interceptions",
         "player_rush_yds", "player_rush_tds", "player_receptions",
-        "player_reception_yds", "player_reception_tds", "player_anytime_td"]
+        "player_reception_yds", "player_reception_tds", "player_anytime_td",
+        "player_rush_rec_tds"]
+#: a JOINT rush+rec TD line satisfies BOTH split TD markets: under this league's
+#: scoring a rushing and a receiving touchdown are the same six points, so the
+#: split is bookkeeping the arm does not need (found 09-02: Underdog prices
+#: 'Rush + Rec TDs' at game week and never the split; the first census called
+#: that two gaps).
+JOINT_TD_COVERS = {"player_rush_tds", "player_reception_tds"}
 
 #: label -> market key. Every source spells these differently; this is the ONE
 #: crosswalk, unit-tested against real labels from each source's payload.
@@ -57,7 +64,7 @@ _LABEL_RULES = [
     # whole word — 'Longest Reception' and 'Rec Yds' must never read as
     # receptions (test_free_props_census pins both).
     (r"anytime\s*(touchdown|td)\b|to score a touchdown|\btd scorer|anytime scorer|touchdown scorer", "player_anytime_td"),
-    (r"\brush(ing)?\s*\+\s*rec(eiving)?\s*(tds?|touchdowns)", "player_anytime_td"),
+    (r"\brush(ing)?\s*\+\s*rec(eiving)?\s*(tds?|touchdowns)", "player_rush_rec_tds"),
     (r"receiv(ing)?\s*(yards|yds)|\brec\s*(yards|yds)", "player_reception_yds"),
     (r"pass(ing)?\s*(yards|yds)", "player_pass_yds"),
     (r"rush(ing)?\s*(yards|yds)", "player_rush_yds"),
@@ -405,6 +412,87 @@ def balldontlie():
     return out
 
 
+
+
+# ── TIER 2 — more keyless doors (Cory 09-02: "Are there more free betting
+# sources we can check and get"). Each stores status + raw head; a 403 is a
+# bot wall (the headless-browser door is the next step), a 404 is a wrong
+# route guess to correct, a 200 with zero markets is a parse to fix — all
+# three are visible in the artifact, none reads as "no source".
+
+def _generic_json(name, url, headers=None):
+    st, body = get(url, headers=headers)
+    out = _src(st, body)
+    if st == 200 and body:
+        txt = body.decode("utf-8", "ignore")
+        hits = {}
+        for pat, key in _LABEL_RULES:
+            n = len(re.findall(pat, txt.lower()))
+            if n:
+                hits[key] = n
+        out["label_hits_in_body"] = hits      # presence, NOT a player count
+        out["nfl_mentions"] = txt.count("NFL") + txt.lower().count("football")
+    return out
+
+
+def fanduel():
+    return _generic_json("fanduel",
+        "https://sbapi.nj.sportsbook.fanduel.com/api/content-managed-page?page=CUSTOM&customPageId=nfl&pbHorizontal=false&_ak=FhMFpcPWXMeyZxOx&timezone=America%2FNew_York",
+        headers={"Referer": "https://sportsbook.fanduel.com/", "Origin": "https://sportsbook.fanduel.com"})
+
+
+def caesars():
+    return _generic_json("caesars",
+        "https://api.americanwagering.com/regions/us/locations/nj/brands/czr/sb/v3/sports/americanfootball/events/schedule?competitionIds=007d7c61-07a7-4e18-bb40-15104b6eac92",
+        headers={"Referer": "https://sportsbook.caesars.com/", "Origin": "https://sportsbook.caesars.com"})
+
+
+def actionnetwork():
+    return _generic_json("actionnetwork",
+        "https://api.actionnetwork.com/web/v2/scoreboard/proplist/nfl?bookIds=15,30,68,69,75,76&period=game",
+        headers={"Referer": "https://www.actionnetwork.com/", "Origin": "https://www.actionnetwork.com"})
+
+
+def parlayplay():
+    st, body = get("https://parlayplay.io/api/v1/crossgame/search/?sport=NFL&league=NFL&includeAlt=true",
+                   headers={"Referer": "https://parlayplay.io/", "Origin": "https://parlayplay.io", "X-Parlay-Request": "1", "X-ParlayPlay-Platform": "web"})
+    out = _src(st, body)
+    if st != 200:
+        return out
+    try:
+        d = json.loads(body.decode("utf-8", "ignore"))
+    except ValueError:
+        out["notes"].append("unparseable"); return out
+    pbm: dict[str, set] = {}; samples = []; stats = {}
+    for pl in d.get("players") or []:
+        name = ((pl.get("player") or {}).get("fullName")) or pl.get("fullName") or ""
+        for st_ in pl.get("stats") or []:
+            lab = st_.get("statName") or st_.get("name") or ""
+            stats[lab] = stats.get(lab, 0) + 1
+            key = market_of(lab)
+            if key and name and st_.get("statValue") is not None:
+                pbm.setdefault(key, set()).add(name)
+                if len(samples) < 6:
+                    samples.append({"market": key, "player": name, "line": st_.get("statValue"), "label": lab})
+    out["stat_types_seen"] = dict(sorted(stats.items(), key=lambda kv: -kv[1])[:20])
+    if not pbm:
+        out["raw_keys"] = sorted(d.keys())[:20] if isinstance(d, dict) else str(type(d))
+    _tally(out, pbm, samples)
+    return out
+
+
+def sleeper_picks():
+    """Sleeper's own pick'em product has lines; the public route is a guess and a
+    404 here is 'wrong door', not 'no lines'."""
+    return _generic_json("sleeper_picks", "https://api.sleeper.app/lines/available?sport=nfl")
+
+
+def betmgm():
+    return _generic_json("betmgm",
+        "https://sports.nj.betmgm.com/cds-api/bettingoffer/fixtures?x-bwin-accessid=NTEwNjkzZDgtZmZlNy00ZjM4LWI4NDktZGJkY2VjZjMzMWFm&lang=en-us&country=US&userCountry=US&sportIds=11&regionIds=9&competitionIds=35&fixtureTypes=Standard&state=Latest&offerMapping=Filtered&offerCategories=Gridable&skip=0&take=50",
+        headers={"Referer": "https://sports.nj.betmgm.com/", "Origin": "https://sports.nj.betmgm.com"})
+
+
 # ── main ─────────────────────────────────────────────────────────────────────
 
 def need_table(sources: dict) -> dict:
@@ -412,8 +500,15 @@ def need_table(sources: dict) -> dict:
     for mk in NEED:
         carriers = {name: s["by_market"][mk] for name, s in sources.items()
                     if isinstance(s, dict) and s.get("by_market", {}).get(mk)}
-        table[mk] = {"carriers": dict(sorted(carriers.items(), key=lambda kv: -kv[1])),
-                     "best": max(carriers.values()) if carriers else 0}
+        row = {"carriers": dict(sorted(carriers.items(), key=lambda kv: -kv[1])),
+               "best": max(carriers.values()) if carriers else 0}
+        if mk in JOINT_TD_COVERS and not carriers:
+            joint = {name: s["by_market"]["player_rush_rec_tds"] for name, s in sources.items()
+                     if isinstance(s, dict) and s.get("by_market", {}).get("player_rush_rec_tds")}
+            if joint:
+                row = {"carriers": dict(sorted(joint.items(), key=lambda kv: -kv[1])),
+                       "best": max(joint.values()), "covered_by": "player_rush_rec_tds (joint line; same 6 pts either way)"}
+        table[mk] = row
     return table
 
 
@@ -427,7 +522,9 @@ def main():
     }
     for name, fn in [("bovada", bovada), ("draftkings", draftkings), ("prizepicks", prizepicks),
                      ("underdog", underdog), ("kalshi", kalshi), ("polymarket", polymarket),
-                     ("balldontlie", balldontlie)]:
+                     ("balldontlie", balldontlie),
+                     ("fanduel", fanduel), ("caesars", caesars), ("actionnetwork", actionnetwork),
+                     ("parlayplay", parlayplay), ("sleeper_picks", sleeper_picks), ("betmgm", betmgm)]:
         try:
             res["sources"][name] = fn()
         except Exception as e:  # noqa: BLE001
