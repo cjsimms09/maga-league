@@ -316,9 +316,22 @@ function waiverInputsFromBundle(bundle, playersDb, artifact, myRosterId) {
     // CANONICAL vorp from the artifact; deep FAs get artifact positional replacement.
     const vorp = art ? art.vorp
       : (proj_mean != null && replByPos[position] != null ? proj_mean - replByPos[position] : 0);
+    /* Register 468: `info.proj` (Sleeper's players DB) never carries a
+     * per-player projection (register 427's root cause, on a second
+     * surface) -- so this field was always `undefined` and every free
+     * agent's consensus fell through to the single-source `proj_mean`
+     * fallback, labelled "Sleeper proj" by its default. The board's OWN
+     * per-source field is sitting on `art` unread, the same field the
+     * draft board itself passes into this shared derivation
+     * (`app.js` calls `rawProjection(p, ...)` with the raw board row).
+     * Sourcing it from there makes the wire's label agree with the
+     * board's for the same player, and lets a real 2-source consensus
+     * be found instead of a false 1-source one. */
     return { player_id: String(pid), name: info.name || (art && art.name) || String(pid),
       position, proj_mean, vorp,
-      proj_sleeper: info.proj != null ? Number(info.proj) : undefined,
+      proj_sleeper: art && art.proj_sleeper != null ? Number(art.proj_sleeper)
+        : (info.proj != null ? Number(info.proj) : undefined),
+      proj_fantasypros: art && art.proj_fantasypros != null ? Number(art.proj_fantasypros) : undefined,
       bye: art ? art.bye : info.bye, injury_status: info.inj };
   };
   const rosters = (bundle && bundle.rosters) || [];
