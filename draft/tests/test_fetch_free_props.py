@@ -105,8 +105,38 @@ def test_build_week_writes_sleeper_first_fills_from_underdog_and_prices_through_
     pts, _ = implied_points({"player_reception_yds": 70.5, "player_receptions": 5.5,
                              "player_anytime_td": p["2"]["lines"]["player_anytime_td"]}, SCORING)
     assert p["2"]["points"] == pts
-    # a QB's anytime line would be dropped (RB/WR/TE only) — none here; counts are right
     assert r["counts"]["sleeper_qbs_with_pass_yds"] == 1 and r["counts"]["underdog_filled_players"] == 3
+
+
+def test_a_qb_with_an_anytime_line_gets_his_rushing_td_expectation_folded():
+    # Register 467's rule, applied 2026-09-02 on Cory's word: the line is folded
+    # for EVERY position. Before this the QB's line was popped and 32 week-1 QBs
+    # were priced without it.
+    rows = [sp_row("1", "passing_yards", 245.5, pos="QB"), sp_row("1", "passing_touchdowns", 1.5, pos="QB")]
+    doc = ud_doc([("Jalen Hurts", "Rush + Rec TDs", "0.5", "-135", "+105", "NE @ PHI")])
+    r = ffp.build_week(rows, doc, BOARD, SCORING)
+    q = r["players"]["1"]
+    assert q["pos"] == "QB" and q["sources"]["player_anytime_td"] == "underdog"
+    assert "any_td" in q["stat_line"] and 0.3 < q["stat_line"]["any_td"] < 1.2
+    from fetch_weekly_props import implied_points
+    pts, _ = implied_points({"player_pass_yds": 245.5, "player_pass_tds": 1.5,
+                             "player_anytime_td": q["lines"]["player_anytime_td"]}, SCORING)
+    assert q["points"] == pts
+    # and the gain is exactly one rush-TD's points per expected TD (K6's identity)
+    base, _ = implied_points({"player_pass_yds": 245.5, "player_pass_tds": 1.5}, SCORING)
+    assert abs((q["points"] - base) - SCORING["rush_td"] * q["stat_line"]["any_td"]) < 0.02
+    assert ffp.self_check(r) == [] or all("any_td" not in b for b in ffp.self_check(r))
+
+
+def test_REFUSAL_ARM_a_row_with_an_anytime_source_and_no_any_td_is_refused():
+    rows = [sp_row("1", "passing_yards", 245.5, pos="QB")] + [sp_row(str(100 + i), "receptions", 4.5) for i in range(30)]
+    doc = ud_doc([("Jalen Hurts", "Rush + Rec TDs", "0.5", "-135", "+105", "NE @ PHI")])
+    r = ffp.build_week(rows, doc, BOARD, SCORING)
+    assert ffp.self_check(r) == [] if r["counts"]["underdog_filled_players"] else True
+    # simulate the pre-467 strip on the built result: the writer must REFUSE
+    r["players"]["1"]["stat_line"].pop("any_td", None)
+    bad = ffp.self_check(r)
+    assert any("anytime-TD source and no any_td" in b for b in bad), bad
 
 
 def test_the_written_file_loads_through_the_arms_own_reader(tmp_path):

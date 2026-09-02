@@ -29,8 +29,12 @@ implied_points` — the same function the 2025 backtest and the paid path call
 of the thing that ships). Touchdown lines are quoted as a 0.5/1.5 over-under
 with two prices, not as a yardage number: they are de-vigged and folded to
 EXPECTED touchdowns (Poisson, `anytime_td_to_expected_tds`), delivered as
-`player_anytime_td` -> `any_td`, RB/WR/TE only, exactly as the backtest's
-`props_arm` did.
+`player_anytime_td` -> `any_td`, for EVERY position — the converter's rule.
+(Until 2026-09-02 this file stripped the line for QBs, citing "the backtest's
+fold: RB/WR/TE only"; that was the backtest's HAND fold, retired by register
+467 the day before this writer shipped. K6 in the harness measures what the
+converter does for a QB: exactly one rush-TD's points per expected TD. Cory,
+09-02: "Do it!" — applied by A in C's file, flagged.)
 
 SELF-CHECKS / KNOWN-POSITIVE (Rule 3e — a writer that has never refused has
 only been run): the file is NOT written unless
@@ -96,7 +100,6 @@ UNDERDOG_STAT_TO_MARKET = {
     "Receiving TDs": "player_reception_tds", "Rush + Rec TDs": "player_anytime_td",
 }
 TD_PRICE_MARKETS = {"player_anytime_td"}
-ANY_TD_POSITIONS = {"RB", "WR", "TE"}
 TEAM_ALIAS = {"WSH": "WAS", "JAC": "JAX", "LA": "LAR", "OAK": "LV", "SD": "LAC"}
 
 
@@ -272,8 +275,8 @@ def build_week(sleeper_rows: list, underdog_doc: dict, board: dict, scoring_tabl
         b = by_id.get(pid) or {}
         pos = b.get("position") or meta.get(pid, {}).get("pos")
         mp = dict(mp)
-        if "player_anytime_td" in mp and (pos not in ANY_TD_POSITIONS):
-            mp.pop("player_anytime_td")          # the backtest's fold: RB/WR/TE only
+        # No position filter on the anytime line: the shared converter folds
+        # it for every position (register 467); a QB's rushing scores count.
         if not mp:
             continue
         pts, stat_line = implied_points(mp, scoring_table)
@@ -309,6 +312,15 @@ def self_check(result: dict) -> list:
         bad.append(f"only {c['priced']} players priced (<30)")
     if any(not math.isfinite(float(r["points"])) for r in result["players"].values()):
         bad.append("a priced row has a non-finite points value")
+    # THE CONTRACT (register 467): a row priced from an anytime-TD source
+    # carries `any_td` in its stat line, whatever the position. A writer that
+    # strips it for one position is two formulas under one name, and the file
+    # is refused rather than written with the gap.
+    stripped = [pid for pid, r in result["players"].items()
+                if "player_anytime_td" in (r.get("sources") or {}) and "any_td" not in (r.get("stat_line") or {})
+                and not any(k in (r.get("stat_line") or {}) for k in ("rush_td", "rec_td"))]
+    if stripped:
+        bad.append(f"{len(stripped)} row(s) have an anytime-TD source and no any_td in the stat line: {stripped[:5]}")
     return bad
 
 
@@ -326,7 +338,7 @@ def build_snapshot(result: dict, season: int, week: int, date: str) -> dict:
             "source": "free: sleeper_picks (Sleeper player ids, no crosswalk) + underdog (name crosswalk, team-filtered)",
             "ruling": "Cory 2026-09-01: no paid props, no Odds API (CLAUDE.md standing ruling)",
             "markets": sorted(set(SLEEPER_WAGER_TO_MARKET.values()) | set(UNDERDOG_STAT_TO_MARKET.values())),
-            "td_fold": "0.5/1.5 TD over-unders de-vigged and folded to EXPECTED TDs (Poisson); RB/WR/TE only; any_td scored as rush_td",
+            "td_fold": "0.5/1.5 TD over-unders de-vigged and folded to EXPECTED TDs (Poisson); every position (register 467, since 2026-09-02); any_td scored as rush_td unless a per-type TD line is quoted",
             "counts": result["counts"],
             "self_check": "passed",
         },
