@@ -212,14 +212,26 @@ const CHECKS = {
    * has seen fire is the failure class this whole program exists to catch, and a
    * report-only tool is especially easy to ship inert. */
   'constant-spike-detector': () => {
-    const tool = readText('draft/tools/constant_spike.js');
-    if (tool === null) return { code: 1, why: 'draft/tools/constant_spike.js does not exist' };
+    /* ⚠️ BUILT 2026-08-18 AS PYTHON (draft/tools/constant_spike_scan.py +
+     * draft/tests/test_constant_spike_scan.py, commit 9c137c59) and this
+     * verify read "does not exist" for two weeks because it was pinned to a
+     * .js file name. The commitment is the DETECTOR, not the language —
+     * either implementation counts, and both arms must be present in
+     * whichever one exists (register 452's class, the second instance in
+     * this file today; see analyzer-claims-caller). */
+    const cands = [
+      { tool: 'draft/tools/constant_spike.js', suite: 'draft/tests/constant_spike.test.js' },
+      { tool: 'draft/tools/constant_spike_scan.py', suite: 'draft/tests/test_constant_spike_scan.py' },
+    ];
+    const found = cands.map(c => ({ ...c, src: readText(c.tool) })).filter(c => c.src !== null);
+    if (!found.length) return { code: 1, why: 'neither draft/tools/constant_spike.js nor constant_spike_scan.py exists' };
+    const tool = found[0].src;
     if (!/ratio/i.test(tool) || !/spike/i.test(tool)) {
       return { code: 1, why: 'the tool exists but does not implement BOTH arms '
         + '(value spike and ratio lock) — the ratio arm is the one that would have '
         + 'caught proj_ceiling = 1.35 * proj_mean' };
     }
-    const suite = readText('draft/tests/constant_spike.test.js');
+    const suite = readText(found[0].suite);
     if (suite === null) {
       return { code: 1, why: 'no suite — a report-only detector that nobody has '
         + 'watched fire is indistinguishable from one that reports nothing' };
