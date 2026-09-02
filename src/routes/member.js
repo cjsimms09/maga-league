@@ -4581,6 +4581,31 @@ router.post('/chat/:id/delete', aw(async (req, res) => {
   res.redirect('/chat#end');
 }));
 
+// SITE-REVIEW-2026-09-02 item ⑥ (catalog 13, the other half — edit/delete/
+// reply already shipped): reactions. Any owner, any message (including their
+// own -- an emoji is a reaction, not a vote, and refusing self-reactions is a
+// rule nobody asked for). One tap TOGGLES that owner's reaction to that emoji
+// on that message; a second tap on the SAME emoji removes it. No cap on how
+// many of the three emoji one owner can put on one message -- 🔥 AND 💀 on
+// the same message is a real reaction, not a bug.
+const CHAT_REACTIONS = ['🔥', '💀', '🤡'];
+router.post('/chat/:id/react', aw(async (req, res) => {
+  const key = 'chat:' + req.params.id;
+  const emoji = String(req.body.emoji || '');
+  if (CHAT_REACTIONS.includes(emoji)) {
+    await mutateDoc(key, null, msg => {
+      if (!msg) return undefined;              // no message, no write
+      msg.reactions = msg.reactions || {};
+      const set = new Set(msg.reactions[emoji] || []);
+      const me = req.owner.id;
+      if (set.has(me)) set.delete(me); else set.add(me);
+      msg.reactions[emoji] = [...set];
+      return msg;
+    });
+  }
+  res.redirect(req.body.back === 'home' ? '/#locker' : '/chat#end');
+}));
+
 router.get('/rules', aw(async (req, res) => {
   const season = H.currentSeason(req.world.seasons);
   // THE CONSTITUTION MUST NOT DISAGREE WITH THE BALLOT.
