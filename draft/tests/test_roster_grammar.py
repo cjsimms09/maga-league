@@ -55,3 +55,14 @@ def test_keepers_count_as_bodies_already_held():
     seq = ["RB", "WR", "WR"] + ["RB", "QB", "TE", "QB"]
     r = rg.check_sequence(seq, G, total_picks=15)
     assert any("G1 QB2" in v for pv in r["pick_violations"] for v in pv["violations"])
+
+
+def test_RULED_the_kicker_is_required_and_belongs_to_the_last_pick():
+    """Cory, 09-02: nobody else can start at K, so no K is not smart — but
+    replacement value is null, so the right pick is the dead-last one."""
+    seq = ["RB", "WR", "RB", "WR", "TE", "QB", "RB", "WR", "WR", "RB", "QB", "TE", "WR", "DEF", "K"]
+    assert rg.check_sequence(seq, G)["n_violations"] == 0
+    no_k = rg.check_sequence(seq[:-1] + ["WR"], G)
+    assert no_k["g5"] == ["G5 no body for K"]
+    early_k = rg.check_sequence(["RB", "WR", "K"] + ["RB", "WR", "TE", "QB", "RB", "WR", "WR", "RB", "QB", "TE", "WR", "DEF"], G)
+    assert any("G4 K" in v for pv in early_k["pick_violations"] for v in pv["violations"])

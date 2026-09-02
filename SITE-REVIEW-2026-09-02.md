@@ -36,7 +36,7 @@ it head-on, so the choice is yours, stated as three options:
 | **B · open the CHECKS, not the CALLS** *(REC)* | a "lineup check" page: bye/OUT/empty-slot alarms, injury chips, kickoff times, projected total — no recommendation, no waiver targets | intact — the optimizer's *call* and the wire's *targets* stay yours; the site gets visibly useful to nine people |
 | **C · open everything** | the optimizer and waiver targets | halved: the room converts better and the tool's +2-3 pts/wk becomes everyone's |
 
-CORY-ASKS A24. Default if unruled: A (nothing changes).
+**RULED 2026-09-02 — Cory: "Keep everything private from other owners." Option A. The access rule stands; item 9 below is dropped.**
 
 ---
 
@@ -126,7 +126,7 @@ owner-facing. Fine under the access rule.
    remainders). *[small ×3]*
 7. **Pick'em vs the model** (model picks revealed and graded after lock). *[small]*
 8. **What to Watch linked from the scoreboard; Draft Spot parked in-season.** *[tiny]*
-9. **The lineup CHECK page for owners** — only if Cory rules option B. *[med]*
+9. ~~The lineup CHECK page for owners~~ — **dropped: Cory ruled everything stays private (09-02).**
 
 **Not in scope, said plainly:** anything that changes bet/vote/money math;
 trades UI (Sleeper's job); push notifications (a later program).
