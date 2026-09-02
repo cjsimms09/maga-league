@@ -88,8 +88,24 @@ function armOfKey(key) {
  * the direction that marks a borderline row late rather than on time.
  * Returns null when the start date is unknown: unknown timing is not "on
  * time", and the grader treats null as ungradeable (named, never graded). */
-function lateCutoffUtc(seasonStartDate, week) {
-  if (!seasonStartDate || !week) return null;
+/* THE REAL KICKOFF WINS (register 475, E, 2026-09-02). The formula below
+ * assumes every NFL week starts Friday 00:20 UTC (the Thursday-22:00Z cutoff
+ * + 7 days per week). Measured against draft/data/nfl_schedule_2026.json:
+ * 15 of 18 weeks match; week 1 kicks off 2026-09-10T00:20Z (Thursday), week
+ * 12 2026-11-26T01:00Z — both ~21 HOURS before the assumed cutoff — so the
+ * Thursday-10:00Z emission for week 1 would have been stamped on-time 9h40m
+ * AFTER kickoff. When a schedule doc is passed, the cutoff IS that week's
+ * first kickoff; the formula is only the fallback when no schedule exists,
+ * and a test asserts the formula is never later than any committed week's
+ * real kickoff except where the schedule says so. */
+function lateCutoffUtc(seasonStartDate, week, schedule) {
+  if (!week) return null;
+  const wk = schedule && schedule.weeks && (schedule.weeks[String(week)] || schedule.weeks[Number(week)]);
+  if (wk && wk.first) {
+    const t = Date.parse(wk.first);
+    if (Number.isFinite(t)) return t;
+  }
+  if (!seasonStartDate) return null;
   const start = Date.parse(String(seasonStartDate) + 'T22:00:00Z');
   if (!Number.isFinite(start)) return null;
   return start + (Number(week) - 1) * 7 * 24 * 60 * 60 * 1000;

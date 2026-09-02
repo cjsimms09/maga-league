@@ -1,0 +1,1441 @@
+{
+ "_territory": "relay audit \u2014 roster_grammar.py; engine integration is A's (ROUTES 09-02)",
+ "_question": "Cory 09-02: 'drafting 4 TEs shows a real lack of fantasy football knowledge' \u2014 how often does the tool break the format's grammar, vs the humans?",
+ "generated_at": "2026-09-02T01:03:21+00:00",
+ "grammar": {
+  "_what": "Roster grammar derived from league.starters/roster_slots \u2014 hard legality for recommendations (roster_grammar.py)",
+  "starters": {
+   "DEF": 1,
+   "FLEX": 1,
+   "K": 1,
+   "QB": 1,
+   "RB": 2,
+   "TE": 1,
+   "WR": 2
+  },
+  "rounds": 15,
+  "flex": 1,
+  "onesie_cap": {
+   "QB": 2,
+   "TE": 2,
+   "K": 1,
+   "DEF": 1
+  },
+  "depth_cap": {
+   "RB": 7,
+   "WR": 7
+  },
+  "rb_wr_total_cap": 11,
+  "kdef_last_picks": 3,
+  "rules": [
+   "G1 fill first",
+   "G2 onesie cap",
+   "G3 depth cap",
+   "G4 K/DEF timing",
+   "G5 complete roster"
+  ]
+ },
+ "controls": {
+  "C1_seven_qb_seat_fires": true,
+  "C2_clean_15_pick_draft_is_silent": true
+ },
+ "summary": {
+  "tool_recs_2026_followed_literally": {
+   "seats": 10,
+   "violations_total": 71,
+   "violations_per_seat": 7.1,
+   "seats_clean": 0,
+   "by_rule": {
+    "G3": 27,
+    "G4": 7,
+    "G5": 25,
+    "G1": 9,
+    "G2": 3
+   }
+  },
+  "humans_2026_actual": {
+   "seats": 10,
+   "violations_total": 10,
+   "violations_per_seat": 1.0,
+   "seats_clean": 3,
+   "by_rule": {
+    "G4": 6,
+    "G1": 1,
+    "G3": 1,
+    "G5": 1,
+    "G2": 1
+   }
+  },
+  "engine_replay_2023_25": {
+   "seats": 30,
+   "violations_total": 113,
+   "violations_per_seat": 3.77,
+   "seats_clean": 0,
+   "by_rule": {
+    "G1": 25,
+    "G2": 17,
+    "G5": 60,
+    "G3": 11
+   }
+  }
+ },
+ "tool_recs_2026": {
+  "1": {
+   "shape": {
+    "RB": 7,
+    "WR": 5,
+    "QB": 1,
+    "K": 1,
+    "DEF": 1
+   },
+   "pick_violations": [
+    {
+     "pick_index": 13,
+     "pos": "RB",
+     "violations": [
+      "G3 RB+WR 12 > 11"
+     ]
+    },
+    {
+     "pick_index": 14,
+     "pos": "K",
+     "violations": [
+      "G4 K with 2 starting slot(s) still empty and only 1 pick(s) left"
+     ]
+    },
+    {
+     "pick_index": 15,
+     "pos": "DEF",
+     "violations": [
+      "G4 DEF with 1 starting slot(s) still empty and only 0 pick(s) left"
+     ]
+    }
+   ],
+   "n_violations": 4,
+   "g5": [
+    "G5 no body for TE"
+   ],
+   "keepers_held": 2
+  },
+  "2": {
+   "shape": {
+    "WR": 5,
+    "QB": 1,
+    "RB": 8,
+    "K": 1
+   },
+   "pick_violations": [
+    {
+     "pick_index": 13,
+     "pos": "RB",
+     "violations": [
+      "G3 RB+WR 12 > 11"
+     ]
+    },
+    {
+     "pick_index": 14,
+     "pos": "RB",
+     "violations": [
+      "G3 RB8 > depth cap 7",
+      "G3 RB+WR 13 > 11"
+     ]
+    },
+    {
+     "pick_index": 15,
+     "pos": "K",
+     "violations": [
+      "G4 K with 2 starting slot(s) still empty and only 0 pick(s) left"
+     ]
+    }
+   ],
+   "n_violations": 6,
+   "g5": [
+    "G5 no body for TE",
+    "G5 no body for DEF"
+   ],
+   "keepers_held": 3
+  },
+  "3": {
+   "shape": {
+    "RB": 7,
+    "WR": 5,
+    "QB": 3
+   },
+   "pick_violations": [
+    {
+     "pick_index": 13,
+     "pos": "RB",
+     "violations": [
+      "G3 RB+WR 12 > 11"
+     ]
+    },
+    {
+     "pick_index": 14,
+     "pos": "QB",
+     "violations": [
+      "G1 QB2 while 1 skill starting slot(s) empty"
+     ]
+    },
+    {
+     "pick_index": 15,
+     "pos": "QB",
+     "violations": [
+      "G1 QB3 while 1 skill starting slot(s) empty",
+      "G2 QB3 > cap 2"
+     ]
+    }
+   ],
+   "n_violations": 7,
+   "g5": [
+    "G5 no body for TE",
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ],
+   "keepers_held": 3
+  },
+  "4": {
+   "shape": {
+    "WR": 5,
+    "RB": 8,
+    "QB": 2
+   },
+   "pick_violations": [
+    {
+     "pick_index": 12,
+     "pos": "RB",
+     "violations": [
+      "G3 RB+WR 12 > 11"
+     ]
+    },
+    {
+     "pick_index": 13,
+     "pos": "RB",
+     "violations": [
+      "G3 RB8 > depth cap 7",
+      "G3 RB+WR 13 > 11"
+     ]
+    },
+    {
+     "pick_index": 15,
+     "pos": "QB",
+     "violations": [
+      "G1 QB2 while 1 skill starting slot(s) empty"
+     ]
+    }
+   ],
+   "n_violations": 7,
+   "g5": [
+    "G5 no body for TE",
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ],
+   "keepers_held": 0
+  },
+  "5": {
+   "shape": {
+    "RB": 9,
+    "WR": 4,
+    "QB": 2
+   },
+   "pick_violations": [
+    {
+     "pick_index": 12,
+     "pos": "RB",
+     "violations": [
+      "G3 RB8 > depth cap 7",
+      "G3 RB+WR 12 > 11"
+     ]
+    },
+    {
+     "pick_index": 13,
+     "pos": "RB",
+     "violations": [
+      "G3 RB9 > depth cap 7",
+      "G3 RB+WR 13 > 11"
+     ]
+    },
+    {
+     "pick_index": 15,
+     "pos": "QB",
+     "violations": [
+      "G1 QB2 while 1 skill starting slot(s) empty"
+     ]
+    }
+   ],
+   "n_violations": 8,
+   "g5": [
+    "G5 no body for TE",
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ],
+   "keepers_held": 2
+  },
+  "6": {
+   "shape": {
+    "WR": 8,
+    "RB": 4,
+    "QB": 2,
+    "DEF": 1
+   },
+   "pick_violations": [
+    {
+     "pick_index": 13,
+     "pos": "WR",
+     "violations": [
+      "G3 WR8 > depth cap 7",
+      "G3 RB+WR 12 > 11"
+     ]
+    },
+    {
+     "pick_index": 14,
+     "pos": "QB",
+     "violations": [
+      "G1 QB2 while 1 skill starting slot(s) empty"
+     ]
+    },
+    {
+     "pick_index": 15,
+     "pos": "DEF",
+     "violations": [
+      "G4 DEF with 2 starting slot(s) still empty and only 0 pick(s) left"
+     ]
+    }
+   ],
+   "n_violations": 6,
+   "g5": [
+    "G5 no body for TE",
+    "G5 no body for K"
+   ],
+   "keepers_held": 3
+  },
+  "7": {
+   "shape": {
+    "WR": 5,
+    "RB": 9,
+    "DEF": 1
+   },
+   "pick_violations": [
+    {
+     "pick_index": 12,
+     "pos": "RB",
+     "violations": [
+      "G3 RB+WR 12 > 11"
+     ]
+    },
+    {
+     "pick_index": 13,
+     "pos": "RB",
+     "violations": [
+      "G3 RB8 > depth cap 7",
+      "G3 RB+WR 13 > 11"
+     ]
+    },
+    {
+     "pick_index": 14,
+     "pos": "RB",
+     "violations": [
+      "G3 RB9 > depth cap 7",
+      "G3 RB+WR 14 > 11"
+     ]
+    },
+    {
+     "pick_index": 15,
+     "pos": "DEF",
+     "violations": [
+      "G4 DEF with 3 starting slot(s) still empty and only 0 pick(s) left"
+     ]
+    }
+   ],
+   "n_violations": 9,
+   "g5": [
+    "G5 no body for QB",
+    "G5 no body for TE",
+    "G5 no body for K"
+   ],
+   "keepers_held": 3
+  },
+  "8": {
+   "shape": {
+    "WR": 3,
+    "RB": 8,
+    "QB": 2,
+    "K": 2
+   },
+   "pick_violations": [
+    {
+     "pick_index": 10,
+     "pos": "QB",
+     "violations": [
+      "G1 QB2 while 1 skill starting slot(s) empty"
+     ]
+    },
+    {
+     "pick_index": 13,
+     "pos": "RB",
+     "violations": [
+      "G3 RB8 > depth cap 7"
+     ]
+    },
+    {
+     "pick_index": 14,
+     "pos": "K",
+     "violations": [
+      "G4 K with 2 starting slot(s) still empty and only 1 pick(s) left"
+     ]
+    },
+    {
+     "pick_index": 15,
+     "pos": "K",
+     "violations": [
+      "G2 K2 > cap 1",
+      "G4 K with 2 starting slot(s) still empty and only 0 pick(s) left"
+     ]
+    }
+   ],
+   "n_violations": 7,
+   "g5": [
+    "G5 no body for TE",
+    "G5 no body for DEF"
+   ],
+   "keepers_held": 3
+  },
+  "9": {
+   "shape": {
+    "WR": 4,
+    "RB": 8,
+    "TE": 3
+   },
+   "pick_violations": [
+    {
+     "pick_index": 11,
+     "pos": "TE",
+     "violations": [
+      "G1 TE2 while 1 skill starting slot(s) empty"
+     ]
+    },
+    {
+     "pick_index": 14,
+     "pos": "RB",
+     "violations": [
+      "G3 RB8 > depth cap 7",
+      "G3 RB+WR 12 > 11"
+     ]
+    },
+    {
+     "pick_index": 15,
+     "pos": "TE",
+     "violations": [
+      "G1 TE3 while 1 skill starting slot(s) empty",
+      "G2 TE3 > cap 2"
+     ]
+    }
+   ],
+   "n_violations": 8,
+   "g5": [
+    "G5 no body for QB",
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ],
+   "keepers_held": 1
+  },
+  "10": {
+   "shape": {
+    "RB": 11,
+    "WR": 1,
+    "TE": 1,
+    "QB": 2
+   },
+   "pick_violations": [
+    {
+     "pick_index": 11,
+     "pos": "RB",
+     "violations": [
+      "G3 RB8 > depth cap 7"
+     ]
+    },
+    {
+     "pick_index": 12,
+     "pos": "RB",
+     "violations": [
+      "G3 RB9 > depth cap 7"
+     ]
+    },
+    {
+     "pick_index": 13,
+     "pos": "RB",
+     "violations": [
+      "G3 RB10 > depth cap 7"
+     ]
+    },
+    {
+     "pick_index": 14,
+     "pos": "RB",
+     "violations": [
+      "G3 RB11 > depth cap 7",
+      "G3 RB+WR 12 > 11"
+     ]
+    },
+    {
+     "pick_index": 15,
+     "pos": "QB",
+     "violations": [
+      "G1 QB2 while 1 skill starting slot(s) empty"
+     ]
+    }
+   ],
+   "n_violations": 9,
+   "g5": [
+    "G5 no body for WR",
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ],
+   "keepers_held": 3
+  }
+ },
+ "humans_2026": {
+  "1": {
+   "shape": {
+    "RB": 4,
+    "WR": 5,
+    "QB": 2,
+    "TE": 2,
+    "K": 1,
+    "DEF": 1
+   },
+   "pick_violations": [],
+   "n_violations": 0,
+   "g5": []
+  },
+  "2": {
+   "shape": {
+    "WR": 6,
+    "QB": 1,
+    "RB": 4,
+    "TE": 2,
+    "DEF": 1,
+    "K": 1
+   },
+   "pick_violations": [
+    {
+     "pick_index": 12,
+     "pos": "DEF",
+     "violations": [
+      "G4 DEF with 3 picks still to come"
+     ]
+    }
+   ],
+   "n_violations": 1,
+   "g5": []
+  },
+  "3": {
+   "shape": {
+    "RB": 4,
+    "WR": 6,
+    "TE": 2,
+    "QB": 1,
+    "K": 1,
+    "DEF": 1
+   },
+   "pick_violations": [
+    {
+     "pick_index": 12,
+     "pos": "K",
+     "violations": [
+      "G4 K with 3 picks still to come"
+     ]
+    }
+   ],
+   "n_violations": 1,
+   "g5": []
+  },
+  "4": {
+   "shape": {
+    "TE": 1,
+    "WR": 6,
+    "QB": 1,
+    "RB": 5,
+    "DEF": 1,
+    "K": 1
+   },
+   "pick_violations": [
+    {
+     "pick_index": 11,
+     "pos": "DEF",
+     "violations": [
+      "G4 DEF with 4 picks still to come"
+     ]
+    }
+   ],
+   "n_violations": 1,
+   "g5": []
+  },
+  "5": {
+   "shape": {
+    "RB": 4,
+    "WR": 5,
+    "TE": 2,
+    "QB": 2,
+    "K": 1,
+    "DEF": 1
+   },
+   "pick_violations": [],
+   "n_violations": 0,
+   "g5": []
+  },
+  "6": {
+   "shape": {
+    "WR": 5,
+    "RB": 4,
+    "TE": 2,
+    "QB": 2,
+    "K": 1,
+    "DEF": 1
+   },
+   "pick_violations": [
+    {
+     "pick_index": 9,
+     "pos": "TE",
+     "violations": [
+      "G1 TE2 while 1 skill starting slot(s) empty"
+     ]
+    }
+   ],
+   "n_violations": 1,
+   "g5": []
+  },
+  "7": {
+   "shape": {
+    "WR": 5,
+    "RB": 5,
+    "TE": 1,
+    "QB": 2,
+    "K": 1,
+    "DEF": 1
+   },
+   "pick_violations": [
+    {
+     "pick_index": 11,
+     "pos": "K",
+     "violations": [
+      "G4 K with 4 picks still to come"
+     ]
+    }
+   ],
+   "n_violations": 1,
+   "g5": []
+  },
+  "8": {
+   "shape": {
+    "WR": 6,
+    "RB": 6,
+    "QB": 1,
+    "DEF": 1,
+    "TE": 1
+   },
+   "pick_violations": [
+    {
+     "pick_index": 11,
+     "pos": "DEF",
+     "violations": [
+      "G4 DEF with 4 picks still to come"
+     ]
+    },
+    {
+     "pick_index": 15,
+     "pos": "RB",
+     "violations": [
+      "G3 RB+WR 12 > 11"
+     ]
+    }
+   ],
+   "n_violations": 3,
+   "g5": [
+    "G5 no body for K"
+   ]
+  },
+  "9": {
+   "shape": {
+    "WR": 4,
+    "RB": 4,
+    "QB": 2,
+    "TE": 3,
+    "DEF": 1,
+    "K": 1
+   },
+   "pick_violations": [
+    {
+     "pick_index": 11,
+     "pos": "DEF",
+     "violations": [
+      "G4 DEF with 4 picks still to come"
+     ]
+    },
+    {
+     "pick_index": 15,
+     "pos": "TE",
+     "violations": [
+      "G2 TE3 > cap 2"
+     ]
+    }
+   ],
+   "n_violations": 2,
+   "g5": []
+  },
+  "10": {
+   "shape": {
+    "RB": 5,
+    "WR": 5,
+    "TE": 1,
+    "QB": 2,
+    "DEF": 1,
+    "K": 1
+   },
+   "pick_violations": [],
+   "n_violations": 0,
+   "g5": []
+  }
+ },
+ "engine_replay": {
+  "2025:coryjsimms": {
+   "shape": {
+    "QB": 3,
+    "WR": 4,
+    "RB": 5,
+    "TE": 1
+   },
+   "pick_violations": [
+    {
+     "pick_index": 6,
+     "pos": "QB",
+     "violations": [
+      "G1 QB2 while 2 skill starting slot(s) empty"
+     ]
+    },
+    {
+     "pick_index": 12,
+     "pos": "QB",
+     "violations": [
+      "G2 QB3 > cap 2"
+     ]
+    }
+   ],
+   "n_violations": 4,
+   "g5": [
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ]
+  },
+  "2025:ds7mmet": {
+   "shape": {
+    "QB": 5,
+    "RB": 4,
+    "WR": 3,
+    "TE": 1
+   },
+   "pick_violations": [
+    {
+     "pick_index": 2,
+     "pos": "QB",
+     "violations": [
+      "G1 QB2 while 6 skill starting slot(s) empty"
+     ]
+    },
+    {
+     "pick_index": 6,
+     "pos": "QB",
+     "violations": [
+      "G1 QB3 while 3 skill starting slot(s) empty",
+      "G2 QB3 > cap 2"
+     ]
+    },
+    {
+     "pick_index": 9,
+     "pos": "QB",
+     "violations": [
+      "G1 QB4 while 1 skill starting slot(s) empty",
+      "G2 QB4 > cap 2"
+     ]
+    },
+    {
+     "pick_index": 13,
+     "pos": "QB",
+     "violations": [
+      "G2 QB5 > cap 2"
+     ]
+    }
+   ],
+   "n_violations": 8,
+   "g5": [
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ]
+  },
+  "2025:cashworth": {
+   "shape": {
+    "WR": 4,
+    "QB": 3,
+    "RB": 5,
+    "TE": 1
+   },
+   "pick_violations": [
+    {
+     "pick_index": 8,
+     "pos": "QB",
+     "violations": [
+      "G1 QB2 while 1 skill starting slot(s) empty"
+     ]
+    },
+    {
+     "pick_index": 9,
+     "pos": "QB",
+     "violations": [
+      "G1 QB3 while 1 skill starting slot(s) empty",
+      "G2 QB3 > cap 2"
+     ]
+    }
+   ],
+   "n_violations": 5,
+   "g5": [
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ]
+  },
+  "2025:Jreis": {
+   "shape": {
+    "WR": 4,
+    "QB": 2,
+    "RB": 6,
+    "TE": 1
+   },
+   "pick_violations": [
+    {
+     "pick_index": 5,
+     "pos": "QB",
+     "violations": [
+      "G1 QB2 while 3 skill starting slot(s) empty"
+     ]
+    }
+   ],
+   "n_violations": 3,
+   "g5": [
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ]
+  },
+  "2025:B8T3S": {
+   "shape": {
+    "WR": 4,
+    "RB": 7,
+    "TE": 1,
+    "QB": 1
+   },
+   "pick_violations": [],
+   "n_violations": 2,
+   "g5": [
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ]
+  },
+  "2025:MarianSaar": {
+   "shape": {
+    "WR": 4,
+    "TE": 1,
+    "QB": 2,
+    "RB": 6
+   },
+   "pick_violations": [],
+   "n_violations": 2,
+   "g5": [
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ]
+  },
+  "2025:mhagen": {
+   "shape": {
+    "TE": 1,
+    "QB": 4,
+    "RB": 5,
+    "WR": 3
+   },
+   "pick_violations": [
+    {
+     "pick_index": 5,
+     "pos": "QB",
+     "violations": [
+      "G1 QB2 while 3 skill starting slot(s) empty"
+     ]
+    },
+    {
+     "pick_index": 6,
+     "pos": "QB",
+     "violations": [
+      "G1 QB3 while 3 skill starting slot(s) empty",
+      "G2 QB3 > cap 2"
+     ]
+    },
+    {
+     "pick_index": 13,
+     "pos": "QB",
+     "violations": [
+      "G2 QB4 > cap 2"
+     ]
+    }
+   ],
+   "n_violations": 6,
+   "g5": [
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ]
+  },
+  "2025:Richard2121": {
+   "shape": {
+    "QB": 2,
+    "WR": 6,
+    "TE": 1,
+    "RB": 3
+   },
+   "pick_violations": [
+    {
+     "pick_index": 2,
+     "pos": "QB",
+     "violations": [
+      "G1 QB2 while 6 skill starting slot(s) empty"
+     ]
+    }
+   ],
+   "n_violations": 3,
+   "g5": [
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ]
+  },
+  "2025:Schmelley": {
+   "shape": {
+    "QB": 1,
+    "WR": 5,
+    "RB": 6,
+    "TE": 1
+   },
+   "pick_violations": [],
+   "n_violations": 2,
+   "g5": [
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ]
+  },
+  "2025:Sadbru": {
+   "shape": {
+    "WR": 4,
+    "RB": 4,
+    "QB": 4,
+    "TE": 1
+   },
+   "pick_violations": [
+    {
+     "pick_index": 6,
+     "pos": "QB",
+     "violations": [
+      "G1 QB2 while 2 skill starting slot(s) empty"
+     ]
+    },
+    {
+     "pick_index": 7,
+     "pos": "QB",
+     "violations": [
+      "G1 QB3 while 2 skill starting slot(s) empty",
+      "G2 QB3 > cap 2"
+     ]
+    },
+    {
+     "pick_index": 9,
+     "pos": "QB",
+     "violations": [
+      "G1 QB4 while 1 skill starting slot(s) empty",
+      "G2 QB4 > cap 2"
+     ]
+    }
+   ],
+   "n_violations": 7,
+   "g5": [
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ]
+  },
+  "2024:coryjsimms": {
+   "shape": {
+    "TE": 1,
+    "WR": 8,
+    "QB": 1,
+    "RB": 3
+   },
+   "pick_violations": [
+    {
+     "pick_index": 13,
+     "pos": "WR",
+     "violations": [
+      "G3 WR8 > depth cap 7"
+     ]
+    }
+   ],
+   "n_violations": 3,
+   "g5": [
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ]
+  },
+  "2024:ds7mmet": {
+   "shape": {
+    "TE": 1,
+    "WR": 7,
+    "QB": 1,
+    "RB": 4
+   },
+   "pick_violations": [],
+   "n_violations": 2,
+   "g5": [
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ]
+  },
+  "2024:cashworth": {
+   "shape": {
+    "WR": 7,
+    "QB": 2,
+    "RB": 3,
+    "TE": 1
+   },
+   "pick_violations": [
+    {
+     "pick_index": 5,
+     "pos": "QB",
+     "violations": [
+      "G1 QB2 while 3 skill starting slot(s) empty"
+     ]
+    }
+   ],
+   "n_violations": 3,
+   "g5": [
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ]
+  },
+  "2024:Jreis": {
+   "shape": {
+    "WR": 6,
+    "QB": 1,
+    "RB": 5,
+    "TE": 1
+   },
+   "pick_violations": [],
+   "n_violations": 2,
+   "g5": [
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ]
+  },
+  "2024:B8T3S": {
+   "shape": {
+    "TE": 1,
+    "WR": 6,
+    "QB": 1,
+    "RB": 5
+   },
+   "pick_violations": [],
+   "n_violations": 2,
+   "g5": [
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ]
+  },
+  "2024:MarianSaar": {
+   "shape": {
+    "WR": 7,
+    "QB": 1,
+    "TE": 1,
+    "RB": 4
+   },
+   "pick_violations": [],
+   "n_violations": 2,
+   "g5": [
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ]
+  },
+  "2024:mhagen": {
+   "shape": {
+    "WR": 8,
+    "RB": 3,
+    "QB": 1,
+    "TE": 1
+   },
+   "pick_violations": [
+    {
+     "pick_index": 13,
+     "pos": "WR",
+     "violations": [
+      "G3 WR8 > depth cap 7"
+     ]
+    }
+   ],
+   "n_violations": 3,
+   "g5": [
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ]
+  },
+  "2024:Richard2121": {
+   "shape": {
+    "WR": 3,
+    "QB": 1,
+    "TE": 1,
+    "RB": 7
+   },
+   "pick_violations": [],
+   "n_violations": 2,
+   "g5": [
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ]
+  },
+  "2024:Schmelley": {
+   "shape": {
+    "WR": 6,
+    "QB": 1,
+    "RB": 5,
+    "TE": 1
+   },
+   "pick_violations": [],
+   "n_violations": 2,
+   "g5": [
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ]
+  },
+  "2024:Sadbru": {
+   "shape": {
+    "WR": 7,
+    "QB": 2,
+    "TE": 1,
+    "RB": 3
+   },
+   "pick_violations": [
+    {
+     "pick_index": 4,
+     "pos": "QB",
+     "violations": [
+      "G1 QB2 while 4 skill starting slot(s) empty"
+     ]
+    }
+   ],
+   "n_violations": 3,
+   "g5": [
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ]
+  },
+  "2023:coryjsimms": {
+   "shape": {
+    "WR": 9,
+    "RB": 2,
+    "QB": 1,
+    "TE": 1
+   },
+   "pick_violations": [
+    {
+     "pick_index": 12,
+     "pos": "WR",
+     "violations": [
+      "G3 WR8 > depth cap 7"
+     ]
+    },
+    {
+     "pick_index": 13,
+     "pos": "WR",
+     "violations": [
+      "G3 WR9 > depth cap 7"
+     ]
+    }
+   ],
+   "n_violations": 4,
+   "g5": [
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ]
+  },
+  "2023:ds7mmet": {
+   "shape": {
+    "TE": 1,
+    "WR": 3,
+    "RB": 8,
+    "QB": 1
+   },
+   "pick_violations": [
+    {
+     "pick_index": 13,
+     "pos": "RB",
+     "violations": [
+      "G3 RB8 > depth cap 7"
+     ]
+    }
+   ],
+   "n_violations": 3,
+   "g5": [
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ]
+  },
+  "2023:cashworth": {
+   "shape": {
+    "WR": 3,
+    "RB": 8,
+    "QB": 1,
+    "TE": 1
+   },
+   "pick_violations": [
+    {
+     "pick_index": 13,
+     "pos": "RB",
+     "violations": [
+      "G3 RB8 > depth cap 7"
+     ]
+    }
+   ],
+   "n_violations": 3,
+   "g5": [
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ]
+  },
+  "2023:Jreis": {
+   "shape": {
+    "RB": 9,
+    "QB": 1,
+    "TE": 1,
+    "WR": 2
+   },
+   "pick_violations": [
+    {
+     "pick_index": 11,
+     "pos": "RB",
+     "violations": [
+      "G3 RB8 > depth cap 7"
+     ]
+    },
+    {
+     "pick_index": 13,
+     "pos": "RB",
+     "violations": [
+      "G3 RB9 > depth cap 7"
+     ]
+    }
+   ],
+   "n_violations": 4,
+   "g5": [
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ]
+  },
+  "2023:B8T3S": {
+   "shape": {
+    "WR": 3,
+    "RB": 8,
+    "QB": 1,
+    "TE": 1
+   },
+   "pick_violations": [
+    {
+     "pick_index": 12,
+     "pos": "RB",
+     "violations": [
+      "G3 RB8 > depth cap 7"
+     ]
+    }
+   ],
+   "n_violations": 3,
+   "g5": [
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ]
+  },
+  "2023:MarianSaar": {
+   "shape": {
+    "WR": 8,
+    "RB": 2,
+    "QB": 2,
+    "TE": 1
+   },
+   "pick_violations": [
+    {
+     "pick_index": 13,
+     "pos": "WR",
+     "violations": [
+      "G3 WR8 > depth cap 7"
+     ]
+    }
+   ],
+   "n_violations": 3,
+   "g5": [
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ]
+  },
+  "2023:mhagen": {
+   "shape": {
+    "QB": 7,
+    "RB": 3,
+    "TE": 1,
+    "WR": 2
+   },
+   "pick_violations": [
+    {
+     "pick_index": 2,
+     "pos": "QB",
+     "violations": [
+      "G1 QB2 while 6 skill starting slot(s) empty"
+     ]
+    },
+    {
+     "pick_index": 3,
+     "pos": "QB",
+     "violations": [
+      "G1 QB3 while 6 skill starting slot(s) empty",
+      "G2 QB3 > cap 2"
+     ]
+    },
+    {
+     "pick_index": 7,
+     "pos": "QB",
+     "violations": [
+      "G1 QB4 while 3 skill starting slot(s) empty",
+      "G2 QB4 > cap 2"
+     ]
+    },
+    {
+     "pick_index": 9,
+     "pos": "QB",
+     "violations": [
+      "G1 QB5 while 2 skill starting slot(s) empty",
+      "G2 QB5 > cap 2"
+     ]
+    },
+    {
+     "pick_index": 11,
+     "pos": "QB",
+     "violations": [
+      "G1 QB6 while 1 skill starting slot(s) empty",
+      "G2 QB6 > cap 2"
+     ]
+    },
+    {
+     "pick_index": 12,
+     "pos": "QB",
+     "violations": [
+      "G1 QB7 while 1 skill starting slot(s) empty",
+      "G2 QB7 > cap 2"
+     ]
+    }
+   ],
+   "n_violations": 13,
+   "g5": [
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ]
+  },
+  "2023:Richard2121": {
+   "shape": {
+    "WR": 8,
+    "RB": 2,
+    "QB": 2,
+    "TE": 1
+   },
+   "pick_violations": [
+    {
+     "pick_index": 11,
+     "pos": "QB",
+     "violations": [
+      "G1 QB2 while 1 skill starting slot(s) empty"
+     ]
+    },
+    {
+     "pick_index": 12,
+     "pos": "WR",
+     "violations": [
+      "G3 WR8 > depth cap 7"
+     ]
+    }
+   ],
+   "n_violations": 4,
+   "g5": [
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ]
+  },
+  "2023:Schmelley": {
+   "shape": {
+    "WR": 2,
+    "RB": 6,
+    "QB": 4,
+    "TE": 1
+   },
+   "pick_violations": [
+    {
+     "pick_index": 7,
+     "pos": "QB",
+     "violations": [
+      "G1 QB2 while 1 skill starting slot(s) empty"
+     ]
+    },
+    {
+     "pick_index": 9,
+     "pos": "QB",
+     "violations": [
+      "G2 QB3 > cap 2"
+     ]
+    },
+    {
+     "pick_index": 11,
+     "pos": "QB",
+     "violations": [
+      "G2 QB4 > cap 2"
+     ]
+    }
+   ],
+   "n_violations": 5,
+   "g5": [
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ]
+  },
+  "2023:Sadbru": {
+   "shape": {
+    "WR": 7,
+    "QB": 3,
+    "RB": 2,
+    "TE": 1
+   },
+   "pick_violations": [
+    {
+     "pick_index": 6,
+     "pos": "QB",
+     "violations": [
+      "G1 QB2 while 2 skill starting slot(s) empty"
+     ]
+    },
+    {
+     "pick_index": 11,
+     "pos": "QB",
+     "violations": [
+      "G1 QB3 while 1 skill starting slot(s) empty",
+      "G2 QB3 > cap 2"
+     ]
+    }
+   ],
+   "n_violations": 5,
+   "g5": [
+    "G5 no body for K",
+    "G5 no body for DEF"
+   ]
+  }
+ },
+ "_note_replay_order": "engine_roster lists are read in stored order as pick order; G1/G4 timing on the replay is therefore approximate, G2/G3/G5 are order-free and exact"
+}

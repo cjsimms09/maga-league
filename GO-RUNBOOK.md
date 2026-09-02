@@ -100,3 +100,5 @@ changes behavior, never only in chat.*
 
 
 **🏈 FOOTBALL KNOWLEDGE LEDGER (added 09-02):** the Monday explorer's ≤3 arms now come from `FUTURE-PROOF-2027.md` §2's queue (E owns the queue, D measures, relay chases); process grade P362 on 12-15.
+
+**🔎 MONTHLY FREE-SOURCE DISCOVERY (added 09-02, FUTURE-PROOF-2027 §6):** first Monday of each month the explorer spends one slot probing new free candidates for one data class, with controls (`free_props_census.py` is the template); finds enter `draft/data/source_registry.json` as fallbacks first. E picks the class; relay covers props/odds by default.

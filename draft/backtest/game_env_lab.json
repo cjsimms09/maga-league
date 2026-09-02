@@ -1,0 +1,207 @@
+{
+ "_territory": "TERRITORY: A \u2014 draft/backtest/game_env_lab.py",
+ "_population_note": "MAE here is per-arm (arm \u2229 actuals), NOT the harness's shared population across all arms \u2014 so 'base' reads ~4.0 where the harness reads ~4.55 for the same arm; compare rows within this file only",
+ "_reading_2026-09-02": "PACE: inert in both folds (C1 TRUE/TRUE) \u2014 dead for weekly as it was for the draft. WEATHER on our arm: noise (pooled \u00b10.01; touched \u22120.07 in 2025 beating its shuffle, +0.02 in 2024 tying it). WEATHER on PROPS: \u22120.069 on touched players in 2025 and \u22120.001 in 2024, both beating the shuffled map \u2014 C3 FALSE by the letter in both folds, a tie in substance in 2024. Per the pre-fixed rule the axis goes to D as a live Tier-1 arm; it is NOT an edge yet and does not go on WHAT-STUCK as one.",
+ "_claims_fixed_before_the_run": "(Tier-1 single axes; report-only; nothing ships):\n  C1 PACE   a tempo tilt from the PRIOR season's plays_per_game (team z-score,\n            +-3% per sd, strictly prior) does NOT beat the untilted blend:v1_pull3\n            on pooled MAE in either fold.\n  C2 WEATHER a weather tilt on OUTDOOR games \u2014 wind >= 15 mph: x0.93 on QB/WR/TE\n            (passing offence), x0.97 on RB; temp <= 32F: x0.97 on everyone \u2014\n            does NOT beat the untilted arm on pooled MAE in either fold, AND on\n            the AFFECTED players alone (where any effect must show) the MAE\n            difference is inside +-0.10.\n  C3 PROPS  the same weather tilt on the PROPS arm does not beat untilted props\n            on the affected players \u2014 the books already price the wind.\nIf a claim is FALSE in BOTH folds, the axis goes to D as a live Tier-1 arm\n(ROUTES 1023); FALSE in one fold is noise until a third season says otherwise.",
+ "params": {
+  "wind_mph": 15.0,
+  "cold_f": 32.0,
+  "wind_pass": 0.93,
+  "wind_rb": 0.97,
+  "cold_all": 0.97,
+  "pace_per_sd": 0.03,
+  "seed": 20260902
+ },
+ "controls": [
+  {
+   "id": "G1",
+   "what": "every tilt touched >0 player-weeks in every fold",
+   "ok": true,
+   "touched": {
+    "2025": {
+     "pace": 5401,
+     "wx": 605,
+     "props_wx": 572
+    },
+    "2024": {
+     "pace": 4694,
+     "wx": 390,
+     "props_wx": 380
+    }
+   }
+  },
+  {
+   "id": "G2",
+   "what": "the real weather tilt is not WORSE than its shuffle on touched players (else it carries no information)",
+   "ok": true,
+   "real_vs_shuffle_touched": {
+    "2025": [
+     3.973,
+     4.048
+    ],
+    "2024": [
+     4.168,
+     4.168
+    ]
+   }
+  }
+ ],
+ "claims": {
+  "C1_pace_does_not_beat_untilted": {
+   "2025": true,
+   "2024": true
+  },
+  "C2_weather_does_not_beat_untilted_pooled": {
+   "2025": false,
+   "2024": true
+  },
+  "C2_weather_touched_inside_0.10": {
+   "2025": true,
+   "2024": true
+  },
+  "C3_props_weather_does_not_beat_untilted_touched": {
+   "2025": false,
+   "2024": false
+  }
+ },
+ "folds": {
+  "2025": {
+   "season": 2025,
+   "mae": {
+    "base": {
+     "pooled": 4.01,
+     "touched": 4.046,
+     "n_touched": 605
+    },
+    "pace": {
+     "pooled": 4.018,
+     "touched": 4.005,
+     "n_touched": 5401
+    },
+    "wx": {
+     "pooled": 4.002,
+     "touched": 3.973,
+     "n_touched": 605
+    },
+    "wx_shuf": {
+     "pooled": 4.012,
+     "touched": 4.048,
+     "n_touched": 605
+    },
+    "props": {
+     "pooled": 3.875,
+     "touched": 3.919,
+     "n_touched": 572
+    },
+    "props_wx": {
+     "pooled": 3.868,
+     "touched": 3.85,
+     "n_touched": 572
+    },
+    "props_wx_shuf": {
+     "pooled": 3.875,
+     "touched": 3.92,
+     "n_touched": 572
+    }
+   },
+   "touched_player_weeks": {
+    "pace": 5401,
+    "wx": 605,
+    "props_wx": 572
+   },
+   "start_sit": {
+    "base": {
+     "QB": 0.696,
+     "RB": 0.8342,
+     "WR": 0.7907,
+     "TE": 0.7989
+    },
+    "pace": {
+     "QB": 0.6957,
+     "RB": 0.834,
+     "WR": 0.7905,
+     "TE": 0.7993
+    },
+    "wx": {
+     "QB": 0.6953,
+     "RB": 0.8339,
+     "WR": 0.7913,
+     "TE": 0.7993
+    }
+   },
+   "weather_games": {
+    "weeks_with_flags": 12,
+    "team_weeks_flagged": 64
+   }
+  },
+  "2024": {
+   "season": 2024,
+   "mae": {
+    "base": {
+     "pooled": 4.36,
+     "touched": 4.151,
+     "n_touched": 390
+    },
+    "pace": {
+     "pooled": 4.365,
+     "touched": 4.363,
+     "n_touched": 4694
+    },
+    "wx": {
+     "pooled": 4.361,
+     "touched": 4.168,
+     "n_touched": 390
+    },
+    "wx_shuf": {
+     "pooled": 4.362,
+     "touched": 4.168,
+     "n_touched": 390
+    },
+    "props": {
+     "pooled": 4.296,
+     "touched": 4.069,
+     "n_touched": 380
+    },
+    "props_wx": {
+     "pooled": 4.296,
+     "touched": 4.068,
+     "n_touched": 380
+    },
+    "props_wx_shuf": {
+     "pooled": 4.297,
+     "touched": 4.089,
+     "n_touched": 380
+    }
+   },
+   "touched_player_weeks": {
+    "pace": 4694,
+    "wx": 390,
+    "props_wx": 380
+   },
+   "start_sit": {
+    "base": {
+     "QB": 0.7197,
+     "RB": 0.8014,
+     "WR": 0.7575,
+     "TE": 0.7614
+    },
+    "pace": {
+     "QB": 0.7196,
+     "RB": 0.8011,
+     "WR": 0.7575,
+     "TE": 0.7616
+    },
+    "wx": {
+     "QB": 0.7188,
+     "RB": 0.8013,
+     "WR": 0.7578,
+     "TE": 0.7611
+    }
+   },
+   "weather_games": {
+    "weeks_with_flags": 10,
+    "team_weeks_flagged": 52
+   }
+  }
+ }
+}

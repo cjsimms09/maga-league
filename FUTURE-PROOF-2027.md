@@ -124,3 +124,65 @@ The model gets ahead of Cory not by knowing more football than he does, but by
 keeping a season of evidence he cannot keep, grading every football belief
 against this league's scoring, learning what his overrides are worth, and
 building the 2027 board only from what survived.
+
+---
+
+## 5 · "BUT IT DRAFTED FOUR TIGHT ENDS" — the value function, not a cap (Cory, 09-02)
+
+**Cory:** *"just setting a hard constraint doesn't force it to learn.. if it knew
+that you can only start 2 TE and really only 1 because only 1-3 TE in the whole
+league are worth a flex spot then it wouldn't draft 4. Drafting 4 is a symptom
+of a larger knowledge gap that putting a cap on still doesn't solve."* Correct.
+
+**Measured 09-02 (`draft/audit/roster_grammar_audit_2026-09-02.json`, controls
+green):** the tool's own draft-night recommendations, followed literally, break
+the format in EVERY seat — 7.1 violations/seat, 0 clean, never a complete
+roster (no TE in 9 seats, seat 10 = eleven RBs); humans 1.0/seat, 3 clean; the
+2023-25 replay engine 3.8/seat, 0 clean, seven QBs in one seat.
+
+**The gap is the VALUE FUNCTION.** The engine prices a player by value-over-
+next-available AT HIS POSITION; it never asks what he adds to MY roster's
+startable points. A model that asked that question would price a third TE at
+~0 on its own: one TE slot, a FLEX that only the top few TEs ever earn (a
+number we MEASURE weekly from realized points), and a wire that supplies TE
+replacement free (DEF 100% of pool cycled, K 83% — `waiver_supply.js`). That
+is marginal lineup value, and it already exists as a second voice
+(`public/js/draft/mlv.js`, `mlv_recommend.json`, Cory's 08-19 ruling "let's
+use mlv"). It is not the score the board ranks on.
+
+**So the grammar (`roster_grammar.py`) is the EXAM, not the answer:** the value
+function has learned the format when, UNCONSTRAINED, its recommendations pass
+the grammar at the humans' rate. P363 is that claim. Only if it fails does a
+constraint go in — as a disclosed guardrail with the failing term named.
+
+**And what makes it LEARN rather than be told:** every input to MLV is a
+measured, per-season number from this league — wire replacement per position
+per week, how many TEs out-score the flex-level RB/WR each week, injury/bye
+need rates — refreshed every season by the archives in §1. The model's "only
+1-3 TEs are flex-worthy" is a count it re-derives, not a sentence it was given.
+
+---
+
+## 6 · FUTURE-PROOF DATA — how it keeps getting draft, player and betting info, and keeps looking (Cory, 09-02)
+
+**Cory:** *"How do we make sure it can continue to get draft info, player info,
+betting info, etc.. and continually looks for free sources of info it could get
+that might help."* Three mechanisms, two of which already run:
+
+1. **Every source is a monitored capture with a control** — `go_status.py`
+   reads each capture workflow's last run and reds it the day it fails; every
+   capture refuses to write on a null (Rule 3e) so a dead source shows as red,
+   never as silent zeros. This week's props sourcing is the template.
+2. **A SOURCE REGISTRY (C builds, `draft/data/source_registry.json`):** one row
+   per data class we depend on — projections, ADP, props/odds, game lines,
+   injuries/practice, snaps/usage, depth charts, weather, schedule, rosters —
+   with the primary source, its endpoint and cadence, its known-positive
+   control, its FALLBACK, and cost (all free by the standing ruling). **A data
+   class with no fallback is a register row**, and GO status reads the
+   registry so "props source dying" is an agenda line before the arm goes dark.
+3. **A standing DISCOVERY census** — `free_props_census.py` generalised: each
+   month the Monday explorer spends one slot probing new free candidates per
+   data class (the way six props doors were tried in one night), with the
+   same controls, and E/C add candidates as they learn of them. CADENCE: first
+   Monday of the month. What it finds enters the registry as a fallback first
+   and a primary only after it grades.
