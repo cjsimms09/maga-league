@@ -1,0 +1,54 @@
+{
+ "_territory": "TERRITORY: A \u2014 the declared SHAPE of public/js/draft/decision_contract.js (commitment item 18, shape-files). A consumer tests against THIS; a producer that renames a field breaks draft/tests/shape_files.test.js, not a renderer.",
+ "module": "public/js/draft/decision_contract.js",
+ "global": "DecisionContract",
+ "exports": {
+  "explain": "function",
+  "contributions": "function",
+  "resolution": "function",
+  "causes": "function",
+  "deferral": "function",
+  "citesZeroContribution": "function",
+  "citesNonDecisive": "function",
+  "citesUnexplainable": "function",
+  "roleOf": "function",
+  "TERM_WORDS": "object",
+  "CALIBRATION": "object",
+  "SURVIVAL_CALIBRATION": "object"
+ },
+ "outputs": {
+  "resolution(gap, cfg)": {
+   "keys": [
+    "status",
+    "gap",
+    "band",
+    "why"
+   ],
+   "status_in": [
+    "TIE",
+    "CLOSE",
+    "DECISIVE"
+   ]
+  },
+  "explain(o)": {
+   "keys": [
+    "contract",
+    "evidence",
+    "presentation",
+    "invariant"
+   ],
+   "contract": "decision-explanation-v1",
+   "evidence_keys": [
+    "decision",
+    "alternative",
+    "gap",
+    "resolution",
+    "contributions",
+    "causes",
+    "deferral",
+    "survival",
+    "shares_note"
+   ]
+  }
+ }
+}

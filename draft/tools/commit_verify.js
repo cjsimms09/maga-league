@@ -269,11 +269,27 @@ const CHECKS = {
     catch (e) { return { code: 2, why: 'cannot read .github/workflows' }; }
     const callers = files.filter(f => /analyzerClaims|analyzer_claims|analyzer-claims/
       .test(fs.readFileSync(path.join(dir, f), 'utf8')));
-    if (!callers.length) {
-      return { code: 1, why: 'no workflow invokes analyzerClaims — the rail has no caller' };
+    /* ⚠️ THE CALLER IS A NETLIFY SCHEDULED FUNCTION, NOT A WORKFLOW — and this
+     * verify only ever looked in .github/workflows, so it read "no caller" on
+     * 2026-09-02 while netlify/functions/analyzer-cron.js had carried
+     * `schedule = "5 13 * * 0"` in netlify.toml since 08-24. A verify pinned
+     * to one of the two places a schedule can live is the register-452 class
+     * (an assertion pinned to a condition that moved). Both places count;
+     * the function must actually require the rail, not merely be named like it. */
+    const toml = readText('netlify.toml') || '';
+    const netlifyScheduled = [];
+    const blockRe = /\[functions\."([^"]+)"\]([\s\S]*?)(?=\n\[|$)/g;
+    let m;
+    while ((m = blockRe.exec(toml))) {
+      if (!/^\s*schedule\s*=/m.test(m[2])) continue;
+      const src = readText('netlify/functions/' + m[1] + '.js') || '';
+      if (/analyzer_claims|analyzerClaims/.test(src)) netlifyScheduled.push(m[1] + ' (netlify.toml)');
+    }
+    if (!callers.length && !netlifyScheduled.length) {
+      return { code: 1, why: 'no workflow or scheduled Netlify function invokes analyzerClaims — the rail has no caller' };
     }
     const scheduled = callers.filter(f =>
-      /cron:/.test(fs.readFileSync(path.join(dir, f), 'utf8')));
+      /cron:/.test(fs.readFileSync(path.join(dir, f), 'utf8'))).concat(netlifyScheduled);
     return scheduled.length
       ? { code: 0, why: 'scheduled caller(s): ' + scheduled.join(', ') }
       : { code: 1, why: 'analyzerClaims is invoked by ' + callers.join(', ')
