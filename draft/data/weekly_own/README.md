@@ -90,6 +90,19 @@ actionable-this-year and stays a human ruling; the switch lives on
 `/admin/model-scoreboard` and writes the site's `model_controls` doc, whose
 one consumer is `src/proj_feed.js`.
 
+**The shadow rule (report-only, register 470, 2026-09-02):** the live rule
+crowns on MAE; `PROJECTION-PROGRAM-2027.md`'s bar is start/sit accuracy, and
+the 2025 backtest (register 463) showed the two can disagree. Until Cory rules
+which one selects (ROUTES plan-⑥, default 09-15), `decide_promotion_startsit()`
+runs the same shape of rule on the frozen pairwise start/sit metric — 3 of the
+last 4 weeks on per-week pooled accuracy, cumulative lead, AND ahead at ≥3 of 4
+positions — and `promotion_shadow()` writes both verdicts side by side into
+the ledger every Tuesday as `promotion_shadow` (latest) and
+`promotion_shadow_history` (one row per change of verdict). It runs while an
+override or a pause holds the wheel too, so the loop keeps measuring what each
+rule WOULD do. **Nothing in it promotes.** A disagreement is named in the ledger
+and in the alert body, never averaged away.
+
 **Who invents arms:** the mechanical loop only *selects among* the arms it is
 given. New challenger AXES — a props arm when the market posts player props,
 pace, recency, opponent-adjusted anything — are added by relay/A sessions

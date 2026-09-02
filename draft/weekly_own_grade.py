@@ -56,6 +56,20 @@ challenger (a bad switch reverses itself under the same rule), and a new
 variant may be seeded along the winning tilt axis. Humans and agents invent
 new arms from the miss patterns; this rule only selects among them.
 
+THE SHADOW RULE (added 2026-09-02, register 470; REPORT-ONLY). The live
+rule crowns on MAE. PROJECTION-PROGRAM-2027.md's bar is START/SIT accuracy,
+and the 2025 backtest (register 463) showed the two can disagree — Sleeper's
+prior best at QB on start/sit, site_ours best on MAE. Whether the rule should
+change is Cory's call (ROUTES plan-⑥, default 09-15) and this file does not
+make it: decide_promotion_startsit() runs the SAME shape of rule on the frozen
+pairwise start/sit metric (3-of-4 recent weeks on per-week pooled accuracy,
+cumulative lead, AND ahead at >= 3 of 4 positions — the program bar's shape)
+and promotion_shadow() writes both verdicts side by side into the ledger
+every Tuesday — INCLUDING while an override or a pause holds the wheel, so
+the loop keeps measuring what each rule WOULD do. Nothing here promotes.
+A disagreement is named in the ledger and in the alert body, never averaged
+away. The ruling, when it comes, has a season of evidence behind it.
+
 THE ALERT (Cory: "I'd also like an alert or someway to know if model adapted
 and how"): a promotion writes its record into the ledger AND this CLI emits
 promotion_title.txt + promotion_body.md (issue_text() below, pure and tested)
@@ -400,6 +414,173 @@ def _best_of_k_null(weeks: dict, arm_names: list) -> dict:
                           "the null is missing, not passed"}
 
 
+# ── the SHADOW promotion rule: start/sit, report-only (register 470) ─────────
+
+def _week_rows_for_arms(entry: dict, arms: list) -> tuple[dict, list]:
+    """(rows reshaped for start_sit_metric, the arms present THAT week).
+    Every own arm prices every player it was live for (price_week's
+    guarantee), so the shared population is the graded population — but an
+    arm added mid-season has no column in earlier weeks, and demanding it
+    there would blank those weeks for EVERY arm. Arms are the ones the week
+    actually carries; a row missing one of those, or its actual, is out."""
+    rows = entry.get("rows") or {}
+    present = [a for a in arms
+               if any((r.get("proj") or {}).get(a) is not None for r in rows.values())]
+    out = {}
+    for pid, r in rows.items():
+        proj = r.get("proj") or {}
+        if r.get("actual") is None or any(proj.get(a) is None for a in present):
+            continue
+        out[pid] = {"pos": r.get("pos"), "actual": r["actual"],
+                    "proj": {a: proj[a] for a in present}}
+    return out, present
+
+
+def startsit_week_tally(week_rows: dict, arms: list) -> dict:
+    """{arm: {pos: [hits, n_pairs]}} for ONE week — the frozen metric's own
+    pair rule and pair score (start_sit_metric.py, imported not retyped),
+    kept as raw tallies so weeks can be pooled without losing the pairs a
+    per-week MIN_PAIRS cut would hide."""
+    from start_sit_metric import POSITIONS, _pair_score, qualifying_pairs
+    pairs, _ = qualifying_pairs(week_rows)
+    tally = {a: {q: [0.0, 0] for q in POSITIONS} for a in arms}
+    for q, plist in pairs.items():
+        for x, y in plist:
+            ax, ay = week_rows[x]["actual"], week_rows[y]["actual"]
+            for arm in arms:
+                sc = _pair_score(week_rows[x]["proj"][arm],
+                                 week_rows[y]["proj"][arm], ax, ay)
+                tally[arm][q][0] += sc
+                tally[arm][q][1] += 1
+    return tally
+
+
+def _pooled(tally: dict, arm: str):
+    """(accuracy or None, n_pairs) across the four positions for one arm;
+    (None, 0) for an arm the week does not carry."""
+    from start_sit_metric import POSITIONS
+    if arm not in tally:
+        return None, 0
+    h = sum(tally[arm][q][0] for q in POSITIONS)
+    n = sum(tally[arm][q][1] for q in POSITIONS)
+    return (h / n if n else None), n
+
+
+def decide_promotion_startsit(champion: dict, weeks: dict,
+                              active_arms: list) -> dict | None:
+    """The live rule's SHAPE on the frozen start/sit metric. Returns None or a
+    would-promote record — NEVER applied by anything; see promotion_shadow.
+
+      (a) >= PROMOTION_MIN_WEEKS graded weeks with pairs for both arms;
+      (b) beats the champion on per-week POOLED pairwise accuracy in >=
+          PROMOTION_RECENT_WINS of the last PROMOTION_RECENT_WINDOW weeks;
+      (c) leads cumulative pooled accuracy over the common span, AND is ahead
+          at >= 3 of the 4 positions on the pooled-over-weeks per-position
+          accuracy with MIN_PAIRS enforced (PROJECTION-PROGRAM-2027's
+          "3 of 4 positions" shape, WEEKLY-LAB-FREEZE-2026's pair rule).
+    Best cumulative pooled accuracy among qualifiers."""
+    from start_sit_metric import MIN_PAIRS, POSITIONS
+    champ = champion["arm"]
+    arms = [a["name"] for a in active_arms]
+    if champ not in arms:
+        arms.append(champ)
+    per_week = {}
+    for wk, e in weeks.items():
+        wr, present = _week_rows_for_arms(e, arms)
+        if wr and champ in present:
+            t = startsit_week_tally(wr, present)
+            if _pooled(t, champ)[1] > 0:
+                per_week[int(wk)] = t
+    if not per_week:
+        return None
+    qualifiers = []
+    for arm in arms:
+        if arm == champ:
+            continue
+        common = sorted(w for w in per_week if _pooled(per_week[w], arm)[1] > 0)
+        if len(common) < PROMOTION_MIN_WEEKS:
+            continue
+        recent = common[-PROMOTION_RECENT_WINDOW:]
+        wins = sum(1 for w in recent
+                   if _pooled(per_week[w], arm)[0] > _pooled(per_week[w], champ)[0])
+        need = min(PROMOTION_RECENT_WINS, len(recent))
+        if wins < need:
+            continue
+        hc = sum(_pooled(per_week[w], arm)[0] * _pooled(per_week[w], arm)[1] for w in common)
+        hk = sum(_pooled(per_week[w], champ)[0] * _pooled(per_week[w], champ)[1] for w in common)
+        n_all = sum(_pooled(per_week[w], arm)[1] for w in common)
+        cum_cand, cum_champ = hc / n_all, hk / n_all
+        if not cum_cand > cum_champ:
+            continue
+        per_pos, won = {}, 0
+        for q in POSITIONS:
+            n_q = sum(per_week[w][arm][q][1] for w in common)
+            if n_q < MIN_PAIRS:
+                per_pos[q] = {"status": "unmeasurable", "n_pairs": n_q}
+                continue
+            a_q = sum(per_week[w][arm][q][0] for w in common) / n_q
+            c_q = sum(per_week[w][champ][q][0] for w in common) / n_q
+            per_pos[q] = {"challenger": round(a_q, 4), "champion": round(c_q, 4),
+                          "n_pairs": n_q, "won": a_q > c_q}
+            won += a_q > c_q
+        if won < 3:
+            continue
+        qualifiers.append({
+            "arm": arm,
+            "weeks_used": common,
+            "recent_wins": f"{wins} of last {len(recent)}",
+            "cum_accuracy": round(cum_cand, 4),
+            "champion_cum_accuracy": round(cum_champ, 4),
+            "n_pairs": n_all,
+            "positions_won": won,
+            "per_position": per_pos,
+            "per_week": {str(w): {"challenger": round(_pooled(per_week[w], arm)[0], 4),
+                                  "champion": round(_pooled(per_week[w], champ)[0], 4)}
+                         for w in common},
+        })
+    if not qualifiers:
+        return None
+    return max(qualifiers, key=lambda q: q["cum_accuracy"])
+
+
+def promotion_shadow(champion: dict, weeks: dict, active_arms: list,
+                     as_of_week: int, today: _dt.date) -> dict:
+    """Both rules' verdicts side by side, REPORT-ONLY. `mae_rule` is what the
+    live rule would do if nothing held the wheel; `startsit_rule` is what
+    the program-bar rule would do. Disagreement is named, not resolved —
+    the resolution is Cory's (ROUTES plan-⑥)."""
+    mae = decide_promotion(champion, weeks, active_arms)
+    ss = decide_promotion_startsit(champion, weeks, active_arms)
+    mae_arm = mae["to"]["arm"] if mae else None
+    ss_arm = ss["arm"] if ss else None
+    agree = mae_arm == ss_arm
+    if agree:
+        note = (f"both rules would promote `{mae_arm}`" if mae_arm
+                else "both rules hold the champion")
+    else:
+        note = ("THE TWO RULES DISAGREE — MAE would "
+                + (f"promote `{mae_arm}`" if mae_arm else "hold")
+                + "; start/sit would "
+                + (f"promote `{ss_arm}`" if ss_arm else "hold")
+                + ". The LIVE rule is MAE (Cory's 08-16 contract); the program "
+                  "bar is start/sit (PROJECTION-PROGRAM-2027.md). Ruling owed: "
+                  "ROUTES plan-⑥ / A-DECISIONS D7.")
+    return {
+        "_what": ("REPORT-ONLY shadow of the promotion rule on the start/sit "
+                  "metric beside the live MAE rule; nothing here promotes "
+                  "(register 470)"),
+        "as_of_week": as_of_week,
+        "computed_at": today.isoformat(),
+        "champion": champion["arm"],
+        "mae_rule": mae_arm,
+        "startsit_rule": ss_arm,
+        "agree": agree,
+        "note": note,
+        "startsit_evidence": ss,
+        "mae_evidence": (mae or {}).get("evidence"),
+    }
+
+
 def seed_challenger(promoted_def: dict, active_arms: list) -> dict | None:
     """A new variant along the winning TILT axis: keep pushing the direction
     that just won (x1.5 further out, x0.5 further in). No seeding when the
@@ -440,6 +621,11 @@ def issue_text(record: dict) -> tuple[str, str]:
         f"- **Cumulative Spearman:** {ev['cum_spearman']} vs "
         f"{ev['champion_cum_spearman']} (tolerance "
         f"{PROMOTION_SPEARMAN_TOLERANCE})",
+    ]
+    sh = record.get("shadow")
+    if sh:
+        lines.append(f"- **Shadow start/sit rule (report-only):** {sh['note']}")
+    lines += [
         "",
         "| week | challenger MAE | champion MAE |",
         "|---|---|---|",
@@ -679,13 +865,31 @@ def main(argv: list | None = None) -> int:
     elif n_graded and ov:
         print(f"manual champion override active (arm {ov}) — mechanical "
               "promotions held while it stands")
+    shadow = None
+    if n_graded:
+        # BOTH rules' verdicts, every Tuesday, wheel held or not — the loop
+        # keeps measuring what each rule WOULD do (register 470). Report-only.
+        shadow = promotion_shadow(ledger["champion"], ledger["weeks"],
+                                  ledger["active_arms"],
+                                  max(int(w) for w in ledger["weeks"]), today)
+        ledger["promotion_shadow"] = shadow
+        hist = ledger.setdefault("promotion_shadow_history", [])
+        last = hist[-1] if hist else None
+        if not last or (last["mae_rule"], last["startsit_rule"]) != (
+                shadow["mae_rule"], shadow["startsit_rule"]):
+            hist.append({k: shadow[k] for k in
+                         ("as_of_week", "computed_at", "champion", "mae_rule",
+                          "startsit_rule", "agree", "note")})
+        print(f"shadow rule (report-only): {shadow['note']}")
     if promo:
         promoted_def = next(a for a in ledger["active_arms"]
                             if a["name"] == promo["to"]["arm"])
         latest = max(int(w) for w in ledger["weeks"])
         record = {**promo, "promoted_at": today.isoformat(),
                   "effective_from_week": latest + 1,
-                  "formula": arm_formula(promoted_def)}
+                  "formula": arm_formula(promoted_def),
+                  "shadow": ({k: shadow[k] for k in ("startsit_rule", "agree", "note")}
+                             if shadow else None)}
         seed = seed_challenger(promoted_def, ledger["active_arms"])
         if seed:
             ledger["active_arms"].append({**seed, "formula": arm_formula(seed)})
