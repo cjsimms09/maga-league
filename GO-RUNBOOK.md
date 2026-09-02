@@ -97,3 +97,6 @@ edge bar **09-15** · free props path confirmed on the 09-10 Thursday capture (P
 
 *Filed 2026-08-31 by the relay on Cory's order. Amend through a commit that
 changes behavior, never only in chat.*
+
+
+**🏈 FOOTBALL KNOWLEDGE LEDGER (added 09-02):** the Monday explorer's ≤3 arms now come from `FUTURE-PROOF-2027.md` §2's queue (E owns the queue, D measures, relay chases); process grade P362 on 12-15.
