@@ -349,7 +349,8 @@ def kalshi():
         out["notes"].append("series unparseable")
         return out
     want = [s for s in series if str(s.get("ticker", "")).startswith("KXNFL")
-            and re.search(r"PASS|RUSH|REC|TD|YDS|RECEPTION", s.get("ticker", ""))]
+            and re.search(r"PASS|RUSH|REC|TD|YDS|RECEPTION", s.get("ticker", ""))
+            and "SEASON" not in s.get("ticker", "") and "RECORD" not in s.get("ticker", "")]   # game-week only
     out["player_series"] = [{"ticker": s.get("ticker"), "title": s.get("title")} for s in want][:20]
     pbm: dict[str, set] = {}
     samples = []
@@ -507,12 +508,39 @@ def fanduel():
     markets = att.get("markets") or {}
     mtypes = {}
     pbm: dict[str, set] = {}; samples = []; shape = None
-    for mid, m in (markets.items() if isinstance(markets, dict) else enumerate(markets)):
+    pbm_season: dict[str, set] = {}
+    # game props live on per-event pages; the content page lists the events
+    events = att.get("events") or {}
+    ev_ids = [str(e.get("eventId") or k) for k, e in (events.items() if isinstance(events, dict) else enumerate(events))
+              if (e.get("name") or "").count("@") or (e.get("name") or "").count(" v ")][:16]
+    out["events_listed"] = len(events)
+    ev_markets = []
+    for eid in ev_ids[:16]:
+        st2, b2 = get(f"https://sbapi.nj.sportsbook.fanduel.com/api/event-page?_ak=FhMFpcPWXMeyZxOx&eventId={eid}",
+                      headers={"Referer": "https://sportsbook.fanduel.com/", "Origin": "https://sportsbook.fanduel.com"})
+        if st2 != 200:
+            out["notes"].append(f"event {eid}: {st2}"); continue
+        try:
+            d2 = json.loads(b2.decode("utf-8", "ignore"))
+        except ValueError:
+            continue
+        for m in ((d2.get("attachments") or {}).get("markets") or {}).values():
+            ev_markets.append(m)
+    out["event_pages_read"] = len(ev_ids) - sum(1 for n in out["notes"] if n.startswith("event "))
+    out["event_market_types_seen"] = {}
+    for m in ev_markets:
         mt = m.get("marketType") or ""
-        mtypes[mt] = mtypes.get(mt, 0) + 1
+        out["event_market_types_seen"][mt] = out["event_market_types_seen"].get(mt, 0) + 1
+    out["event_market_types_seen"] = dict(sorted(out["event_market_types_seen"].items(), key=lambda kv: -kv[1])[:40])
+    all_markets = [(True, m) for m in (markets.values() if isinstance(markets, dict) else markets)] + [(False, m) for m in ev_markets]
+    for is_page, m in all_markets:
+        mt = m.get("marketType") or ""
+        if is_page:
+            mtypes[mt] = mtypes.get(mt, 0) + 1
         key = market_of(mt.replace("_", " ")) or market_of(m.get("marketName") or "")
         if not key:
             continue
+        is_season = ("REGULAR_SEASON" in mt) or ("regular season" in (m.get("marketName") or "").lower()) or is_page
         if shape is None:
             shape = json.dumps(m)[:900]
         for r in m.get("runners") or []:
@@ -523,10 +551,11 @@ def fanduel():
             if not name or name.lower() in ("over", "under", "yes", "no"):
                 continue
             player = re.sub(r"\s*(over|under)\s*[\d.]+$", "", name, flags=re.I).strip()
-            pbm.setdefault(key, set()).add(player)
-            if len(samples) < 6:
-                samples.append({"market": key, "player": player, "line": hc, "label": mt[:60]})
-    out["market_types_seen"] = dict(sorted(mtypes.items(), key=lambda kv: -kv[1])[:40])
+            (pbm_season if is_season else pbm).setdefault(key, set()).add(player)
+            if not is_season and len(samples) < 6:
+                samples.append({"market": key, "player": player, "line": hc, "label": mt[:60], "name": (m.get("marketName") or "")[:60]})
+    out["market_types_seen_page"] = dict(sorted(mtypes.items(), key=lambda kv: -kv[1])[:20])
+    out["by_market_season"] = {k: len(v) for k, v in pbm_season.items() if v}
     out["market_shape"] = shape
     _tally(out, pbm, samples)
     return out
@@ -586,16 +615,19 @@ def sleeper_picks():
     except ValueError:
         out["notes"].append("unparseable"); return out
     rows = d if isinstance(d, list) else (d.get("lines") or d.get("data") or [])
-    mtypes = {}; sports = {}; wtypes = {}
+    mtypes = {}; sports = {}; wtypes = {}; wtypes_szn = {}
     pbm: dict[str, set] = {}; samples = []
     for r in rows:
-        mt = str(r.get("market_type") or "")
-        mtypes[mt] = mtypes.get(mt, 0) + 1
-        sports[str(r.get("sport"))] = sports.get(str(r.get("sport")), 0) + 1
-        wtypes[str(r.get("wager_type"))] = wtypes.get(str(r.get("wager_type")), 0) + 1
-        if str(r.get("sport") or "").lower() != "nfl":
+        sport = str(r.get("sport") or "").lower()
+        sports[sport] = sports.get(sport, 0) + 1
+        wt = str(r.get("wager_type") or "")
+        if sport == "nfl_szn":
+            wtypes_szn[wt] = wtypes_szn.get(wt, 0) + 1
+        if sport != "nfl":
             continue
-        key = market_of(mt)
+        wtypes[wt] = wtypes.get(wt, 0) + 1          # NFL game-week stat keys ONLY
+        mt = wt
+        key = market_of(wt) or market_of(wt.replace("_", " "))
         if not key:
             continue
         pid = str(r.get("subject_id") or "")
@@ -609,9 +641,9 @@ def sleeper_picks():
                             "pos": (opts[0].get("subject_position") if opts else None),
                             "team": (opts[0].get("subject_team") if opts else None),
                             "game_id": r.get("game_id"), "payouts": [o.get("payout_multiplier") for o in opts][:2]})
-    out["market_types_seen"] = dict(sorted(mtypes.items(), key=lambda kv: -kv[1])[:40])
     out["sports_seen"] = sports
-    out["wager_types_seen"] = wtypes
+    out["wager_types_nfl_gameweek"] = dict(sorted(wtypes.items(), key=lambda kv: -kv[1])[:40])
+    out["wager_types_nfl_season"] = dict(sorted(wtypes_szn.items(), key=lambda kv: -kv[1])[:20])
     if rows:
         out["row_shape"] = json.dumps(rows[0])[:900]
     _tally(out, pbm, samples)
