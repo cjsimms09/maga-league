@@ -1,0 +1,75 @@
+{
+ "_what": "P363 2026 half \u2014 grammar grades of the probe arms beside the engine and humans",
+ "grades": {
+  "mlv": {
+   "seats": 10,
+   "violations_total": 26,
+   "violations_per_seat": 2.6,
+   "seats_clean": 0,
+   "by_rule": {
+    "G4": 10,
+    "G5": 10,
+    "G2": 2,
+    "G3": 4
+   },
+   "g5_missing": {
+    "G5 no body for K": 10
+   },
+   "startable_mean": 1907.4
+  },
+  "mlv_bench": {
+   "seats": 10,
+   "violations_total": 20,
+   "violations_per_seat": 2.0,
+   "seats_clean": 0,
+   "by_rule": {
+    "G4": 10,
+    "G5": 10
+   },
+   "g5_missing": {
+    "G5 no body for K": 10
+   },
+   "startable_mean": 1901.1
+  },
+  "engine_recs": {
+   "seats": 10,
+   "violations_total": 71,
+   "violations_per_seat": 7.1,
+   "seats_clean": 0,
+   "by_rule": {
+    "G3": 27,
+    "G4": 7,
+    "G5": 25,
+    "G1": 9,
+    "G2": 3
+   },
+   "startable_mean": 1525.8
+  },
+  "humans": {
+   "seats": 10,
+   "violations_total": 10,
+   "violations_per_seat": 1.0,
+   "seats_clean": 3,
+   "by_rule": {
+    "G4": 6,
+    "G1": 1,
+    "G3": 1,
+    "G5": 1,
+    "G2": 1
+   },
+   "startable_mean": 1880.4
+  }
+ },
+ "mlv_bench_minus_human_startable": [
+  14.799999999999955,
+  -16.09999999999991,
+  -24.59999999999991,
+  254.0,
+  -13.599999999999909,
+  -58.299999999999955,
+  -25.09999999999991,
+  98.0,
+  7.099999999999909,
+  -29.700000000000045
+ ]
+}
