@@ -115,6 +115,7 @@ from weekly_own_projection import (  # noqa: E402
 )
 from weekly_props_arm import ARM_NAME as PROPS_ARM_NAME  # noqa: E402
 from weekly_props_arm import load_props_arm  # noqa: E402
+from weekly_ffa_arm import ARM_NAME as FFA_ARM_NAME, load_ffa_arm  # noqa: E402
 
 SEASON = 2026
 MIN_WEEK_PLAYERS = 200   # a real NFL week has ~600 offensive player rows
@@ -738,6 +739,7 @@ def main(argv: list | None = None) -> int:
                        or HERE / "data" / "proj_series.json")
     props_dir = Path(os.environ.get("PROPS_WEEKLY_DIR")
                      or HERE / "data" / "props")
+    ffa_dir = Path(os.environ.get("FFA_WEEKLY_DIR") or HERE / "data")
     issue_dir = os.environ.get("OWN_WEEKLY_ISSUE_DIR")
 
     snapshots = sorted(own_dir.glob(f"own_weekly_{season}_w*.json"))
@@ -809,6 +811,14 @@ def main(argv: list | None = None) -> int:
             # here, at the point weekly_own_grade decides what counts as a
             # study arm this run.
             provider_proj = {**provider_proj, PROPS_ARM_NAME: props_map}
+        # ffa4_weekly (register 478, P365): four outside WEEKLY sources
+        # scored under our table, the same study-arm slot as props — graded
+        # on its own population and the shared one, never auto-promoted.
+        # The reader refuses a capture scraped at/after kickoff.
+        ffa_map, ffa_diag = load_ffa_arm(ffa_dir, season, wk, snap)
+        print(f"week {wk} {FFA_ARM_NAME}: {ffa_diag.get('status')} — {ffa_diag.get('note')}")
+        if ffa_map:
+            provider_proj = {**provider_proj, FFA_ARM_NAME: ffa_map}
         entry = grade_week(snap, players, provider_proj,
                            graded_at=today.isoformat())
         ledger["weeks"][str(wk)] = entry

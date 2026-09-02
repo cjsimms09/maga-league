@@ -51,8 +51,49 @@ on:
   # capture in this repo.
   schedule:
     - cron: '0 6 * * *'
+    # ── THE WEEKLY CAPTURE (register 478, A 2026-09-02) ───────────────────
+    # Wednesday 16:00Z: the upcoming week's WEEKLY projections from the four
+    # sources that serve them (CBS, ESPN, FleaFlicker, NumberFire), written
+    # to the `_wN` files the ffa4_weekly study arm reads on Tuesday. 16:00Z
+    # sits ahead of the 19:30Z props writer and the 20:00Z own-weekly
+    # snapshot, and 8h20m ahead of a Wednesday-night opener (week 1). The
+    # week is RESOLVED, never typed: the `week` job reads the committed
+    # schedule and picks the first week whose kickoff is still ahead.
+    - cron: '0 16 * * 3'
 jobs:
+  # ── WHICH WEEK, AND WHICH SEASON — derived, on the weekly cron only ──────
+  # A dispatch passes its own `week`/`season`; the nightly cron wants week 0
+  # (season totals). Only the Wednesday cron needs a resolver, and it is a
+  # plain-runner Python step because the probe job runs inside an R image.
+  week:
+    runs-on: ubuntu-latest
+    outputs:
+      week: ${{ steps.pick.outputs.week }}
+      season: ${{ steps.pick.outputs.season }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: pick
+        env:
+          WEEKLY_CRON: ${{ github.event.schedule == '0 16 * * 3' && '1' || '' }}
+        run: |
+          python3 - <<'PY'
+          import json, os, datetime as dt
+          season = str(json.load(open("draft/config/league_config.json")).get("season") or "")
+          week = ""
+          if os.environ.get("WEEKLY_CRON"):
+              sched = json.load(open(f"draft/data/nfl_schedule_{season}.json"))
+              now = dt.datetime.now(dt.timezone.utc)
+              ahead = sorted(int(w) for w, v in (sched.get("weeks") or {}).items()
+                             if v.get("first") and dt.datetime.fromisoformat(v["first"].replace("Z", "+00:00")) > now)
+              week = str(ahead[0]) if ahead else ""
+              print("weekly cron: upcoming week =", week or "(none — season over, probe skipped)")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+              fh.write(f"week={week}\nseason={season}\n")
+          PY
   probe:
+    needs: week
+    # the Wednesday cron with no week ahead (season over) skips cleanly
+    if: ${{ github.event.schedule != '0 16 * * 3' || needs.week.outputs.week != '' }}
     runs-on: ubuntu-latest
     # A PREBUILT R IMAGE, NOT `setup-r`. The first attempt (run 32210403268) sat
     # in `r-lib/actions/setup-r@v2` for over THIRTY MINUTES without completing a
@@ -94,8 +135,8 @@ jobs:
       - name: Probe each source separately, count rows, fail on a total zero
         env:
           FFA_SOURCES: ${{ inputs.sources }}
-          FFA_SEASON: ${{ inputs.season }}
-          FFA_WEEK: ${{ inputs.week || '0' }}
+          FFA_SEASON: ${{ inputs.season || needs.week.outputs.season }}
+          FFA_WEEK: ${{ inputs.week || needs.week.outputs.week || '0' }}
         run: Rscript draft/tools/ffanalytics_probe.R
       - name: Show what landed
         run: |
@@ -165,10 +206,11 @@ jobs:
   # makes that call decidable rather than adding the refusal unasked, three
   # days before the draft, in a module this job does not own.
   regenerate-multisource:
-    needs: commit
-    # A weekly probe (week != 0) changes nothing the seasonal blend reads, so
-    # re-scoring after one would only re-report the seasonal verdict.
-    if: ${{ needs.commit.result == 'success' && (inputs.week == '' || inputs.week == '0' || inputs.week == null) }}
+    needs: [commit, week]
+    # A weekly probe (week != 0, dispatched or the Wednesday cron) changes
+    # nothing the seasonal blend reads, so re-scoring after one would only
+    # re-report the seasonal verdict.
+    if: ${{ needs.commit.result == 'success' && (inputs.week == '' || inputs.week == '0' || inputs.week == null) && needs.week.outputs.week == '' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
