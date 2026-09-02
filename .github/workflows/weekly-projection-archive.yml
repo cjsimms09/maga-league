@@ -11,9 +11,19 @@ name: Weekly projection archive (Sleeper + FantasyPros, raw + scored)
 #
 # THURSDAY 15:00 UTC — one hour AFTER own-weekly-proj.yml's 14:00 UTC run,
 # so own_weekly_<season>_w<week>.json already exists on disk when this
-# captures the same week (referenced by path, not re-copied). Still
-# pre-kickoff: the week's earliest game is Thursday night, kicking off no
-# earlier than ~00:15 UTC Friday.
+# captures the same week (referenced by path, not re-copied).
+#
+# ⚠️ THAT WAS ONLY TRUE FOR 15 OF 18 WEEKS (register 475/477's class, ROUTES.md
+# 2026-09-02, A -> C): week 1's real opener is 2026-09-10T00:20Z (Wednesday
+# night) and week 12's is 2026-11-26T01:00Z (Thursday) — BOTH before this
+# cron's 15:00 UTC. Fixed in weekly_projection_archive.py by reusing
+# weekly_own_projection.first_kickoff_utc() against the committed schedule
+# (rule 11) — an existing pre-kickoff snapshot is now frozen rather than
+# silently overwritten by a post-kickoff run (merge-never-clobber), and a
+# genuinely-late first capture is stamped captured_after_first_kickoff
+# instead. The Wednesday 20:00 UTC run below (own-weekly-proj.yml's own
+# pattern for the same class) gives a Wednesday-opener week a real
+# pre-kickoff snapshot before Thursday's run would otherwise be too late.
 #
 # Egress: both Sleeper and FantasyPros are proxy-blocked from the dev
 # sandbox (measured 2026-08-17, external_source_projections.py's own
@@ -24,7 +34,8 @@ name: Weekly projection archive (Sleeper + FantasyPros, raw + scored)
 
 on:
   schedule:
-    - cron: '0 15 * * 4'      # Thursdays 15:00 UTC — after own_weekly, pre-kickoff
+    - cron: '0 20 * * 3'      # Wednesdays 20:00 UTC — before a Wednesday-night opener (week 1: SEA-NE)
+    - cron: '0 15 * * 4'      # Thursdays 15:00 UTC — after own_weekly; FROZEN (exit 0) once the week's first game has kicked off
   workflow_dispatch:
     inputs:
       week:

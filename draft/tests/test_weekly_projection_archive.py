@@ -191,3 +191,61 @@ def test_no_gp_field_anywhere_does_not_false_positive():
 
 def test_empty_stats_do_not_false_positive():
     assert WPA.week_shape_check({})["ok"] is True
+
+
+# ── the post-kickoff boundary (register 475/477's class, ROUTES.md 09-02) ──
+#
+# The Thursday 15:00 UTC cron is genuinely post-kickoff for week 1 (real
+# opener 2026-09-10T00:20Z) and week 12 (2026-11-26T01:00Z) -- the same two
+# weeks register 477 found in weekly_own_projection.py. Fixed by reusing
+# that file's first_kickoff_utc(), not reimplementing it.
+
+import datetime as _dt  # noqa: E402
+
+
+def test_reuses_weekly_own_projections_first_kickoff_utc_not_reimplemented():
+    # rule 11 pin -- the SAME function object, not a copy
+    import weekly_own_projection as WOP
+    assert WPA.first_kickoff_utc is WOP.first_kickoff_utc
+
+
+def test_first_kickoff_utc_reads_the_real_committed_week_1_opener():
+    # known-positive: the real, committed schedule -- same fixture register
+    # 477's own test used, not an invented one
+    got = WPA.first_kickoff_utc(1, 2026)
+    assert got == _dt.datetime(2026, 9, 10, 0, 20, tzinfo=_dt.timezone.utc)
+
+
+def test_frozen_check_writes_before_kickoff_regardless_of_existing_file():
+    kick = _dt.datetime(2026, 9, 10, 0, 20, tzinfo=_dt.timezone.utc)
+    before = _dt.datetime(2026, 9, 9, 20, 0, tzinfo=_dt.timezone.utc)
+    assert WPA.frozen_check(True, before, kick) == "write"
+    assert WPA.frozen_check(False, before, kick) == "write"
+
+
+def test_frozen_check_freezes_after_kickoff_only_when_a_file_already_exists():
+    kick = _dt.datetime(2026, 9, 10, 0, 20, tzinfo=_dt.timezone.utc)
+    after = _dt.datetime(2026, 9, 10, 14, 0, tzinfo=_dt.timezone.utc)  # the real Thursday cron
+    assert WPA.frozen_check(True, after, kick) == "frozen"
+    # unlike weekly_own_projection's MISSED (exit 1): a genuinely-first late
+    # capture still writes here -- this is a descriptive record, not a live
+    # forward guarantee -- it is stamped, not refused (checked below)
+    assert WPA.frozen_check(False, after, kick) == "write"
+
+
+def test_frozen_check_at_the_exact_kickoff_instant_freezes():
+    kick = _dt.datetime(2026, 9, 10, 0, 20, tzinfo=_dt.timezone.utc)
+    assert WPA.frozen_check(True, kick, kick) == "frozen"
+
+
+def test_build_archive_doc_defaults_captured_after_first_kickoff_false():
+    doc = WPA.build_archive_doc(2026, 3, SLEEPER_STATS, FP_ROWS, NAME_IDX,
+                                SCORING, "x", False)
+    assert doc["captured_after_first_kickoff"] is False
+
+
+def test_build_archive_doc_stamps_captured_after_first_kickoff_true():
+    doc = WPA.build_archive_doc(2026, 1, SLEEPER_STATS, FP_ROWS, NAME_IDX,
+                                SCORING, "x", False,
+                                captured_after_first_kickoff=True)
+    assert doc["captured_after_first_kickoff"] is True

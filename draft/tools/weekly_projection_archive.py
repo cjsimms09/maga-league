@@ -47,6 +47,20 @@ RULE 3e. positive_control.py gates every real capture: the join must place
 >= MIN_JOINED_PLAYERS players on both sides or the whole snapshot is VOID,
 never a misleadingly-thin commit.
 
+THE POST-KICKOFF BOUNDARY (ROUTES.md 2026-09-02, A -> C -- register 475/477's
+class applied here): "pre-kickoff" above was advisory text, unenforced -- the
+Thursday 15:00 UTC cron is genuinely post-kickoff for week 1 (opener
+2026-09-10T00:20Z) and week 12 (2026-11-26T01:00Z), same two weeks register
+477 found in weekly_own_projection.py. Fixed the same way, reusing that
+file's first_kickoff_utc() (rule 11): once the week's REAL first kickoff has
+passed, an existing snapshot is frozen (frozen_check()) rather than
+overwritten -- merge-never-clobber. A late FIRST capture still writes (this
+is a descriptive record for grading, not own_weekly's live forward
+guarantee) but is stamped captured_after_first_kickoff so the 09-15 grade
+can exclude it honestly. A Wednesday 20:00 UTC run was added beside
+Thursday's so a Wednesday-opener week still gets a genuinely pre-kickoff
+snapshot.
+
 Snapshot files, one per week, committed:
   draft/data/weekly_projection_archive/
     weekly_projection_archive_<season>_w<week>.json
@@ -57,6 +71,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -64,13 +79,24 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent            # draft/tools
 DRAFT = HERE.parent
 BT = DRAFT / "backtest"
-ARCHIVE_DIR = DRAFT / "data" / "weekly_projection_archive"
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(BT))
 sys.path.insert(0, str(DRAFT))
 
 from external_source_projections import join_by_sleeper_id, sleeper_rows  # noqa: E402  -- rule 11
 from scoring import score_stat_line  # noqa: E402
+from weekly_own_projection import first_kickoff_utc  # noqa: E402  -- rule 11, register 477's fix reused, not reimplemented
+
+
+def _archive_dir() -> Path:
+    """Overridable at call time (WEEKLY_PROJ_ARCHIVE_OUT_DIR) so tests never
+    touch the real committed archive -- same pattern as weekly_own_projection's
+    OWN_WEEKLY_OUT_DIR."""
+    return Path(os.environ.get("WEEKLY_PROJ_ARCHIVE_OUT_DIR")
+               or (DRAFT / "data" / "weekly_projection_archive"))
+
+
+ARCHIVE_DIR = _archive_dir()  # module-level default; main() re-reads _archive_dir() so a test env var still wins
 
 MIN_JOINED_PLAYERS = 50  # Rule 3e floor -- named in the routing order itself
 
@@ -108,7 +134,8 @@ def raw_and_scored(stats_by_pid: dict, scoring_cfg: dict) -> dict:
 def build_archive_doc(season: int, week: int, sleeper_stats: dict,
                       fp_rows: list, name_index: dict, scoring_cfg: dict,
                       own_weekly_path: str, own_weekly_exists: bool,
-                      prior_fingerprints: dict | None = None) -> dict:
+                      prior_fingerprints: dict | None = None,
+                      captured_after_first_kickoff: bool = False) -> dict:
     """Assembles the full weekly snapshot -- pure, fixture-testable, no I/O.
 
     sleeper_stats: {pid: raw_stat_line} (sleeper_rows() output, reused).
@@ -117,6 +144,11 @@ def build_archive_doc(season: int, week: int, sleeper_stats: dict,
     prior_fingerprints: {"sleeper": hash, "fantasypros": hash} from LAST
     week's doc, or None for week 1 -- used for the no-change-is-a-hole
     check (register 41's lesson: unchanged is a finding, not a no-op).
+    captured_after_first_kickoff: register 475/477's class, caller-judged
+    (main()/frozen_check(), against weekly_own_projection.first_kickoff_utc)
+    -- the doc's own honest record of whether it was a real prediction or a
+    backdated one, so the 09-15 grade can exclude the latter without a
+    second source of truth for the boundary.
     """
     joined, diagnostics = join_by_sleeper_id(sleeper_stats, fp_rows, name_index)
 
@@ -163,6 +195,7 @@ def build_archive_doc(season: int, week: int, sleeper_stats: dict,
                              "captured_at above and the dispatch schedule "
                              "in .github/workflows/weekly-projection-"
                              "archive.yml for the enforced boundary"),
+        "captured_after_first_kickoff": bool(captured_after_first_kickoff),
         "sleeper_weekly": sleeper_out,
         "fantasypros_weekly": fp_out,
         "own_weekly_ref": {"path": own_weekly_path, "exists": own_weekly_exists},
@@ -301,8 +334,8 @@ def week_shape_check(sleeper_stats: dict) -> dict:
     return {"ok": True, "rows_checked": len(gp_values), "rows_over_one_game": over}
 
 
-def _load_prior_fingerprints(season: int, week: int) -> dict | None:
-    prior_path = ARCHIVE_DIR / f"weekly_projection_archive_{season}_w{week - 1}.json"
+def _load_prior_fingerprints(season: int, week: int, archive_dir: Path | None = None) -> dict | None:
+    prior_path = (archive_dir or ARCHIVE_DIR) / f"weekly_projection_archive_{season}_w{week - 1}.json"
     if week <= 1 or not prior_path.exists():
         return None
     try:
@@ -312,7 +345,23 @@ def _load_prior_fingerprints(season: int, week: int) -> dict | None:
         return None
 
 
-def egress_main(season: int, week: int) -> dict:  # pragma: no cover  (egress; CI only)
+def frozen_check(out_path_exists: bool, now: datetime, kick: datetime) -> str:
+    """Register 475/477's class, applied to this file: merge-never-clobber
+    once a week's REAL first kickoff (weekly_own_projection.first_kickoff_utc,
+    reused not reimplemented) has passed. Returns "frozen" or "write".
+
+    Deliberately NOT weekly_own_projection's FROZEN/MISSED pair -- that module
+    publishes a live forward guarantee and refuses (exit 1) a post-kickoff
+    week with nothing on disk. This archive is a descriptive record for the
+    09-15 grade, so a late-first capture still writes; it is stamped
+    captured_after_first_kickoff instead of refused (dispatch row, ROUTES.md
+    2026-09-02, A -> C)."""
+    return "frozen" if (now >= kick and out_path_exists) else "write"
+
+
+def egress_main(season: int, week: int,
+                captured_after_first_kickoff: bool = False,
+                archive_dir: Path | None = None) -> dict:  # pragma: no cover  (egress; CI only)
     import adp as ADP
     import fantasypros_adp as FP
     import sleeper_import as SL
@@ -363,10 +412,11 @@ def egress_main(season: int, week: int) -> dict:  # pragma: no cover  (egress; C
         return {"status": "VOID", "reason": "no scoring table in league_config"}
 
     own_path = (DRAFT / "data" / "weekly_own" / f"own_weekly_{season}_w{week}.json")
-    prior_fp = _load_prior_fingerprints(season, week)
+    prior_fp = _load_prior_fingerprints(season, week, archive_dir)
     doc = build_archive_doc(season, week, sleeper_stats, fp_rows, name_index,
                             scoring_cfg, str(own_path.relative_to(DRAFT.parent)),
-                            own_path.exists(), prior_fp)
+                            own_path.exists(), prior_fp,
+                            captured_after_first_kickoff=captured_after_first_kickoff)
     doc["captured_at"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     joined_n = doc["diagnostics"]["joined_rows"]
@@ -409,13 +459,26 @@ def main() -> int:  # pragma: no cover  (egress; CI only)
              "REFUSING rather than archiving under a guess")
         return 1
 
-    doc = egress_main(season, week)
+    archive_dir = _archive_dir()
+    out_path = archive_dir / f"weekly_projection_archive_{season}_w{week}.json"
+    kick = first_kickoff_utc(week, season)
+    now = datetime.now(timezone.utc)
+    if frozen_check(out_path.exists(), now, kick) == "frozen":
+        # merge-never-clobber (register 475/477's class): the earlier
+        # pre-kickoff snapshot is the forward-guarantee record and a later
+        # run must not backdate over it.
+        print(f"FROZEN: {out_path.name} stands — week {week}'s first game kicked off "
+             f"{kick.isoformat()} and now is {now.isoformat()}; a post-kickoff rewrite "
+             "would silently backdate the forecast. Nothing written (exit 0).")
+        return 0
+
+    doc = egress_main(season, week, captured_after_first_kickoff=(now >= kick),
+                      archive_dir=archive_dir)
     if doc.get("status") == "VOID":
         print(f"VOID -- {doc['reason']}", file=sys.stderr)
         return 1
 
-    ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
-    out_path = ARCHIVE_DIR / f"weekly_projection_archive_{season}_w{week}.json"
+    archive_dir.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(doc, indent=1))
     # register 223 — the archive's output must reach the grader's reader too
     mirrored = mirror_to_proj_series(
