@@ -168,6 +168,26 @@ function decisionWeeksNeeded(entries, currentWeek, finalWeek) {
 /* One week's REAL per-player points, merged across every roster's matchup row
  * (Sleeper's players_points map — the same field league_history.json archives,
  * which is what the resolver tests prove the arithmetic against). */
+/* Cory's REAL adds in one week, off Sleeper's transactions feed — the human
+ * side of the tool-vs-actual WAIVER grade (register 466 ①). Completed
+ * waiver/free-agent adds only, to HIS roster, in the order they were made;
+ * trades are a different decision and stay out. An empty array is a real
+ * answer ("he held"), distinct from null ("feed unavailable"). Pure. */
+function myAddsByWeek(txs, myRid) {
+  if (!Array.isArray(txs) || myRid == null) return null;
+  const out = [];
+  for (const t of txs) {
+    if (!t || t.status !== 'complete') continue;
+    if (t.type !== 'waiver' && t.type !== 'free_agent') continue;
+    for (const [pid, rid] of Object.entries(t.adds || {})) {
+      if (String(rid) !== String(myRid)) continue;
+      const dropped = Object.entries(t.drops || {}).filter(([, r]) => String(r) === String(myRid)).map(([p]) => String(p));
+      out.push({ player_id: String(pid), type: t.type, created: Number(t.created) || 0, drops: dropped });
+    }
+  }
+  return out.sort((a, b) => a.created - b.created);
+}
+
 function mergePlayersPoints(matchupRows) {
   const out = {};
   for (const m of matchupRows || []) {
@@ -194,6 +214,7 @@ function alreadyResolvedKeys(entries) {
 }
 exports.alreadyResolvedKeys = alreadyResolvedKeys;
 exports.mergePlayersPoints = mergePlayersPoints;
+exports.myAddsByWeek = myAddsByWeek;
 
 exports.handler = async (event) => {
   store.initBlobs(event);
@@ -309,6 +330,10 @@ exports.handler = async (event) => {
        * Cory's ruling). His roster is the one the auto lineup rows name by
        * owner_id, mapped back through sleeper_map. */
       const actualStarters = {};
+      /* And his REAL adds per week (register 466 ①) — the same feed the
+       * /wire page formats, read raw. A week the feed cannot supply is absent
+       * from the map => the waiver vs_actual row waits, never grades a hold. */
+      const actualAdds = {};
       const smap = (sData && sData.sleeper_map) || cfg.sleeper_map || {};
       const autoOwner = (allRows.find(e => e && e.kind === 'lineup_call'
         && e.method === 'lineup-auto-v1' && (e.payload || {}).owner_id != null) || { payload: {} }).payload.owner_id;
@@ -324,6 +349,10 @@ exports.handler = async (event) => {
             actualStarters[String(w)] = mine.starters.map(String);
           }
         }
+        if (myRid != null && typeof sleeper.transactionsForWeek === 'function') {
+          const adds = myAddsByWeek(await sleeper.transactionsForWeek(leagueId, w), myRid);
+          if (adds) actualAdds[String(w)] = adds;
+        }
       }
       /* The wire baseline for hold-priority waiver claims — the committed,
        * measured artifact (draft/tools/emit_wire_level.js), shipped with this
@@ -337,6 +366,7 @@ exports.handler = async (event) => {
       const opts = {
         finalWeek: FINAL_WEEK,
         actualStarters,
+        actualAdds,
         wire: wire ? { per_week: wire.per_week,
           ongoing_per_week: wire.ongoing && wire.ongoing.per_week } : null,
       };
