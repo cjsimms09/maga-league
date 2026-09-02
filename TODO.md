@@ -1,4 +1,10 @@
 # TODO — the real count, in plain English (regenerated 2026-08-15, mid-week; refreshed
+
+> **⚠️ DRAFT-ERA ARCHIVE, marked 2026-09-02 (relay): this queue was last regenerated
+> 08-17 and is superseded. The live queues are `ROUTES.md` (per-lane asks, every
+> open row carries a DEFAULT), `A-DECISIONS.md` (A's rulings), `PREDICTION-LEDGER.md`
+> (every claim and its grade date) and `DEFECT-REGISTER.md` (every open concern with
+> an owner and a recheck). Do not work from this file.**
 # again later the same day — see "LATER THE SAME DAY" below the fold, read that first)
 
 ## ⭐⭐⭐ 2026-08-17 LATE — THE DATA PASS. Read this before anything below.

@@ -1241,8 +1241,32 @@ def market_agreement(mfl_ids: dict, mfl_rows: dict, source_rows: dict, board,
                     "right." % "the second source"}
 
 
-def format_trend(archive, board, year="2026", top_n=DRAFT_RANGE) -> dict:
+def format_trend(archive, board, year="2026", top_n=DRAFT_RANGE,
+                 draft_date=None) -> dict:
     """The composition on EVERY archived day, and whether it is moving.
+
+    ⚠ THE OBSERVATION THE PARAGRAPHS BELOW ASKED FOR HAS BEEN TAKEN (A,
+    2026-09-02), AND IT IS THE REASON `draft_date` EXISTS. Measured on the live
+    archive, first day 08-11 against 09-01: the quarterback shift walked from
+    -0.383 to -0.310 of the ranked board (+0.073, 2.2x the drift bar), and the
+    dynasty age gradient fell from rho 0.339 to 0.095 — every step after the
+    draft, monotone, in exactly the direction the mechanism predicted (startups
+    run early, single-QB redraft rooms fill in late). SO THE POOL IS MOVING AND
+    THE INSTRUMENT IS RIGHT — and the escalation built for it went red for
+    eight consecutive nights (runs 21-28) because "changed since the first day"
+    is a one-shot alarm compared against a fixed baseline: once the pool has
+    moved it has moved forever, and every subsequent morning re-fires on the
+    same fact. That is the standing-condition trap the docstring itself warns
+    about, one level up.
+
+    The alarm's stated purpose is DRAFT-WINDOW: "finding it out on the 23rd is
+    finding it out too late." After the draft nobody prices a pick off this
+    market, so a composition change is a MEASUREMENT for the 2027 calibration
+    record, not an interrupt. `draft_date` (the league's `draft.start_date`)
+    splits the two: `moving`/`flipped` are always the measurement; `escalate`
+    is that measurement AND the last archived day is on or before the draft.
+    Without a `draft_date` the function escalates exactly as before — an
+    undated caller must not get a quieter answer by omission.
 
     ⚠ THIS IS WHY THE DAILY CHECK IS A MECHANISM AND NOT A DASHBOARD (rule 9).
     Contamination is the steady state — the market has been a mixed pool every day
@@ -1294,9 +1318,13 @@ def format_trend(archive, board, year="2026", top_n=DRAFT_RANGE) -> dict:
                        "reception": rcp.get("detected")})
     usable = [s for s in series if s["status"] == "measured"
               and s["qb_median_fraction"] is not None]
+    phase = ("undated" if not draft_date else
+             ("post-draft" if usable and str(usable[-1]["observed_at"]) > str(draft_date)
+              else "pre-draft"))
     base = {"days": series, "measured_days": len(usable), "drift": None,
             "drift_threshold": round(COMPOSITION_DRIFT_FRACTION, 4),
             "moving": None, "flipped": [], "status": "unmeasured",
+            "draft_date": draft_date, "phase": phase, "escalate": None,
             "note": None}
     if len(usable) < 2:
         # ONE DAY IS NOT A TREND, AND SAYING "no drift" FROM IT WOULD BE A CHECK
@@ -1310,17 +1338,29 @@ def format_trend(archive, board, year="2026", top_n=DRAFT_RANGE) -> dict:
     drift = last["qb_median_fraction"] - first["qb_median_fraction"]
     flipped = [k for k in ("superflex", "dynasty", "reception")
                if first[k] != last[k]]
+    changed = abs(drift) >= COMPOSITION_DRIFT_FRACTION or bool(flipped)
+    # ESCALATE ON A CHANGE, INSIDE THE WINDOW THE CHANGE CAN STILL COST A PICK.
+    # Post-draft the same change is recorded (`moving`, `flipped`, `drift` are
+    # untouched) and the caller is told not to go red on it.
+    escalate = changed and phase != "post-draft"
+    post_note = ("" if phase != "post-draft" else
+                 " ⚠ POST-DRAFT (draft %s): this is the calibration observation "
+                 "the pre-draft check asked for — the pool converging toward "
+                 "single-QB redraft after the rooms fill — and it is RECORDED, "
+                 "not escalated; no pick is priced off this market until 2027."
+                 % draft_date)
     return dict(base, status="measured", drift=round(drift, 4),
                 moving=abs(drift) >= COMPOSITION_DRIFT_FRACTION,
-                flipped=flipped,
+                flipped=flipped, escalate=escalate,
                 note=("THE MARKET'S COMPOSITION IS MOVING — the quarterback shift "
                       "went from %.3f to %.3f of the ranked board between %s and "
                       "%s%s. A comparison against this market is being taken "
-                      "against a different pool than it was last week."
+                      "against a different pool than it was last week.%s"
                       % (first["qb_median_fraction"], last["qb_median_fraction"],
                          first["observed_at"], last["observed_at"],
-                         (" and %s flipped" % ", ".join(flipped)) if flipped else ""))
-                if abs(drift) >= COMPOSITION_DRIFT_FRACTION or flipped else
+                         (" and %s flipped" % ", ".join(flipped)) if flipped else "",
+                         post_note))
+                if changed else
                 ("HAS NOT MOVED across %d day(s): the quarterback shift moved "
                  "%.3f of the board, under the %.3f that would mean a different "
                  "pool. ⚠ THAT IS NOT 'STRUCTURAL' AND MUST NOT BE READ AS ONE. "

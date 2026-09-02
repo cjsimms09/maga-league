@@ -114,6 +114,24 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS  ' + n))
     W.lateCutoffUtc('2026-09-03', 3) === wk1 + 14 * 86400000);
   ck('no start date -> null (unknown timing is NOT "on time")',
     W.lateCutoffUtc(null, 3) === null);
+
+  // REGISTER 475 (E): the real kickoff wins. Against the COMMITTED 2026
+  // schedule, the schedule-based cutoff IS each week's first kickoff, and the
+  // Friday-start FORMULA is LATER than the real kickoff for weeks 1 and 12 —
+  // the control that fails on the old code, which is the only reason to trust it.
+  const sched = JSON.parse(require('fs').readFileSync(
+    path.join(__dirname, '..', 'data', 'nfl_schedule_2026.json'), 'utf8'));
+  const weeks = Object.keys(sched.weeks || {});
+  ck('schedule-based cutoff equals the committed first kickoff for every week (' + weeks.length + ')',
+    weeks.length >= 17 && weeks.every(w => W.lateCutoffUtc('2026-09-10', Number(w), sched) === Date.parse(sched.weeks[w].first)));
+  const lateWeeks = weeks.filter(w => W.lateCutoffUtc('2026-09-10', Number(w)) > Date.parse(sched.weeks[w].first));
+  ck('FAIL ARM — the formula alone is LATER than the real kickoff on weeks 1 and 12 (a post-kickoff emission would read on-time)',
+    lateWeeks.join(',') === '1,12', lateWeeks.join(','));
+  ck('week 1: an emission at Thursday 10:00Z is LATE under the schedule and on-time under the formula',
+    Date.parse('2026-09-10T10:00:00Z') >= W.lateCutoffUtc('2026-09-10', 1, sched)
+      && Date.parse('2026-09-10T10:00:00Z') < W.lateCutoffUtc('2026-09-10', 1));
+  ck('a schedule without that week falls back to the formula',
+    W.lateCutoffUtc('2026-09-03', 3, { weeks: {} }) === wk1 + 14 * 86400000);
 }
 
 // ── buildWeekForecasts: the whole slate ─────────────────────────────────────

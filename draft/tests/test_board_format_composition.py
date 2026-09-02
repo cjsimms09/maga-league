@@ -528,6 +528,69 @@ def test_EVERY_DAY_IS_RANKED_AGAINST_TODAYS_BOARD_not_that_days():
     assert tr["drift"] == 0.0
 
 
+# ── THE ALARM HAS A WINDOW, THE MEASUREMENT DOES NOT ─────────────────────────
+#
+# A, 2026-09-02. The live archive walked from -0.383 to -0.310 of the board
+# between 08-11 and 09-01 (age rho 0.339 -> 0.095), every step post-draft and in
+# the direction the mechanism predicted. Correct measurement — and eight red
+# nights (runs 21-28), because "changed since day one" re-fires every morning
+# once it is true. Post-draft nobody prices a pick off this market, so the
+# change is the 2027 calibration record, not an interrupt.
+
+_POST_WALK = {"2026-08-%02d" % (25 + i): -60.0 + 4.0 * i for i in range(7)}
+_POST_WALK.update({"2026-09-%02d" % (1 + i): -32.0 + 4.0 * i for i in range(9)})
+
+
+def test_POST_DRAFT_DRIFT_IS_MEASURED_AND_NOT_ESCALATED():
+    """MUTATION: drop the phase split — the workflow goes red every morning of
+    the season on a fact that stopped being actionable on 08-22."""
+    tr = B.format_trend(*_multi_day(_POST_WALK), draft_date="2026-08-22")
+    assert tr["status"] == "measured" and tr["phase"] == "post-draft"
+    # THE MEASUREMENT IS UNTOUCHED ...
+    assert tr["moving"] is True, tr
+    assert "superflex" in tr["flipped"]
+    assert "COMPOSITION IS MOVING" in tr["note"]
+    # ... AND IT IS RECORDED RATHER THAN ESCALATED, AND SAYS SO.
+    assert tr["escalate"] is False
+    assert "POST-DRAFT" in tr["note"] and "RECORDED, not escalated" in tr["note"]
+
+
+def test_THE_SAME_WALK_BEFORE_THE_DRAFT_STILL_ESCALATES():
+    """The other arm, so the phase split cannot be read as 'quieter'. The same
+    sixteen-day walk dated inside the draft window is the case the check was
+    built for and it must still fire.
+
+    MUTATION: key the phase on today's clock instead of the last archived day —
+    a 2027 pre-draft run executed after 2026's draft date would read post-draft
+    and swallow the one alarm that matters."""
+    pre = {"2026-08-%02d" % (1 + i): v for i, v in enumerate(_POST_WALK.values())}
+    tr = B.format_trend(*_multi_day(pre), draft_date="2026-08-22")
+    assert tr["phase"] == "pre-draft"
+    assert tr["moving"] is True and tr["escalate"] is True
+    assert "POST-DRAFT" not in tr["note"]
+    # THE PHASE IS THE LAST ARCHIVED DAY AGAINST THE DRAFT DATE, NOT THE CLOCK:
+    # the same rows against an earlier draft date read post-draft, and nothing
+    # in this test consulted today's date to get either answer.
+    # (last archived day 08-16; a draft ON 08-16 is still pre-draft — strict.)
+    assert B.format_trend(*_multi_day(pre), draft_date="2026-08-16")["phase"] == "pre-draft"
+    late = B.format_trend(*_multi_day(pre), draft_date="2026-08-15")
+    assert late["phase"] == "post-draft" and late["escalate"] is False
+
+
+def test_AN_UNDATED_CALL_ESCALATES_EXACTLY_AS_BEFORE():
+    """Omitting `draft_date` must not be a way to get a quieter answer.
+
+    MUTATION: default `escalate` to False when no date is passed — every caller
+    that predates the parameter silently loses its alarm."""
+    tr = B.format_trend(*_multi_day(_POST_WALK))
+    assert tr["phase"] == "undated" and tr["draft_date"] is None
+    assert tr["escalate"] is True and tr["moving"] is True
+    flat = B.format_trend(*_multi_day({"2026-08-25": -60.0, "2026-08-26": -60.0}))
+    assert flat["escalate"] is False and flat["moving"] is False
+    one = B.format_trend(*_multi_day({"2026-08-25": -60.0}), draft_date="2026-08-22")
+    assert one["status"] == "unmeasured" and one["escalate"] is None
+
+
 # ── THE VERDICT IS "OUTSIDE THE NULL", AND THE NULL IS NOT ZERO ─────────────
 #
 # STEP 2, AND IT COST ME THREE OF MY OWN REPORTED NUMBERS. The declared bar was

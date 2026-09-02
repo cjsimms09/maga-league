@@ -226,9 +226,20 @@ function sleeperWeekly(player, opts) {
 
 /** Positions the board projects with Sleeper numbers at all. Data-derived so a
  *  future board that DOES project K/DEF stops excluding them by itself. */
+/* EVERY player the board projects: `players` PLUS `kept_players`. Register 476
+ * (A, 2026-09-02, applied here on Cory's standing "Do it"): the board keeps
+ * the 23 keepers in a separate list (register 80's split) and this route
+ * walked `players` alone, so matchupOdds REFUSED for any lineup with a keeper
+ * starter — "starter 7564 is not on the board" for Cory's own Chase, Henry
+ * and Walker, every week. Tenth recorded consumer of the split (437 was the
+ * eighth, the weekly champion the ninth). */
+function boardRows(artifact) {
+  return ((artifact && artifact.players) || []).concat((artifact && artifact.kept_players) || []);
+}
+
 function sleeperProjectedPositions(artifact) {
   const have = new Set();
-  for (const p of ((artifact && artifact.players) || [])) {
+  for (const p of boardRows(artifact)) {
     if (p && p.proj_sleeper != null && p.position) have.add(String(p.position));
   }
   return have;
@@ -251,7 +262,7 @@ function matchupOdds(myIds, oppIds, opts = {}) {
     return { ok: false, why: 'starters not posted' };
   }
   const byId = {};
-  for (const p of artifact.players) if (p && p.player_id != null) byId[String(p.player_id)] = p;
+  for (const p of boardRows(artifact)) if (p && p.player_id != null) byId[String(p.player_id)] = p;
   const projected = sleeperProjectedPositions(artifact);
   const sigmaByPos = opts.sigmaByPos || LO.positionSigmas();
   const sd = pos => Number(sigmaByPos && sigmaByPos[pos]) || WW.CFG.DEFAULT_SD;

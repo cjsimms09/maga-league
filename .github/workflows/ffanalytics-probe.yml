@@ -36,6 +36,10 @@ on:
         description: "Season to scrape"
         required: false
         default: "2026"
+      week:
+        description: "0 = season totals (the blend's input, the default). N = that week's projections, written to _wN files — the known-positive control for a source that returns zero season-total rows (CBS/ESPN since 08-20), and the in-season weekly capture."
+        required: false
+        default: "0"
   # ── SCHEDULED, 2026-08-19 — REGISTER-65-CLASS DISPATCH ITEM (C1): "on draft
   # morning the blend silently applies 08-19 opinions to an 08-22 board." This
   # was captured exactly once, by hand, with no recurring job and no staleness
@@ -91,6 +95,7 @@ jobs:
         env:
           FFA_SOURCES: ${{ inputs.sources }}
           FFA_SEASON: ${{ inputs.season }}
+          FFA_WEEK: ${{ inputs.week || '0' }}
         run: Rscript draft/tools/ffanalytics_probe.R
       - name: Show what landed
         run: |
@@ -101,8 +106,8 @@ jobs:
         with:
           name: ffanalytics-probe
           path: |
-            draft/data/ffanalytics_probe.json
-            draft/data/ffanalytics_raw_projections.csv
+            draft/data/ffanalytics_probe*.json
+            draft/data/ffanalytics_raw_projections*.csv
           if-no-files-found: warn
   # ── THE COMMIT MOVED TO ITS OWN NON-CONTAINER JOB ───────────────────────
   # FOUR RUNS IN A ROW SCRAPED SUCCESSFULLY AND FAILED AT THE COMMIT
@@ -130,7 +135,7 @@ jobs:
           head -3 draft/data/ffanalytics_probe.json || true
           git config user.name Claude
           git config user.email noreply@anthropic.com
-          git add draft/data/ffanalytics_probe.json draft/data/ffanalytics_raw_projections.csv
+          git add draft/data/ffanalytics_probe*.json draft/data/ffanalytics_raw_projections*.csv
           git diff --cached --quiet && { echo "no changes to commit"; exit 0; }
           git commit -m "ffanalytics probe: raw multi-source projection rows from Actions [skip deploy]"
           for i in 1 2 3 4 5; do
@@ -161,7 +166,9 @@ jobs:
   # days before the draft, in a module this job does not own.
   regenerate-multisource:
     needs: commit
-    if: ${{ needs.commit.result == 'success' }}
+    # A weekly probe (week != 0) changes nothing the seasonal blend reads, so
+    # re-scoring after one would only re-report the seasonal verdict.
+    if: ${{ needs.commit.result == 'success' && (inputs.week == '' || inputs.week == '0' || inputs.week == null) }}
     runs-on: ubuntu-latest
     permissions:
       contents: write

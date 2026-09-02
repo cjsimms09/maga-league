@@ -4505,3 +4505,7 @@ body.warroom-page #tier-cliff-wrap { display: none !important; }
 .pb-strike-head { display:flex; flex-direction:column; padding:.15rem .5rem; border-right:1px solid var(--line); }
 .pb-strike-head .pb-strike-pos { color: var(--gold, #c9a227); font-weight:800; }
 .pb-strike-head .pb-strike-cost { font-size:.65rem; }
+
+/* offer-expiry chip on bet cards (site review 09-02, item 6) */
+.bc-chip { display: inline-flex; align-items: center; gap: .25rem; font-size: .7rem; padding: .1rem .45rem; border-radius: 999px; background: rgba(0,0,0,.06); color: inherit; white-space: nowrap; }
+.bc-chip.bc-expiry { background: rgba(180,120,0,.12); }

@@ -1,0 +1,532 @@
+{
+ "_territory": "TERRITORY: relay \u2014 produced by draft/tools/free_source_discovery.py (FUTURE-PROOF-2027 \u00a76.3, monthly)",
+ "_what": "A CENSUS of free candidate doors per registry data class: which answer with data, which are blocked, which are reachable but not data. Nothing here is captured; a door that answers becomes a registry FALLBACK first (\u00a76.3).",
+ "date": "2026-09-02",
+ "control": {
+  "name": "sleeper_state",
+  "ok": true,
+  "status": 200,
+  "error": null
+ },
+ "classes_in_registry": [
+  "season_projections",
+  "weekly_projections",
+  "player_props",
+  "game_lines",
+  "adp",
+  "injuries_practice",
+  "snaps_usage",
+  "rosters_transactions",
+  "schedule_kickoffs",
+  "weather",
+  "depth_charts_team_context",
+  "expert_ranks",
+  "realized_points",
+  "player_bio_capital"
+ ],
+ "classes_without_a_candidate": [],
+ "per_class": {
+  "season_projections": {
+   "candidates": 1,
+   "answers": [
+    "sleeper_projections_season"
+   ],
+   "blocked": [],
+   "no_shape": []
+  },
+  "weekly_projections": {
+   "candidates": 2,
+   "answers": [
+    "espn_fantasy_projections",
+    "sleeper_projections_week"
+   ],
+   "blocked": [],
+   "no_shape": []
+  },
+  "player_props": {
+   "candidates": 4,
+   "answers": [
+    "kalshi_player_markets",
+    "sleeper_picks_lines"
+   ],
+   "blocked": [
+    "prizepicks_projections"
+   ],
+   "no_shape": []
+  },
+  "game_lines": {
+   "candidates": 3,
+   "answers": [
+    "actionnetwork_scoreboard",
+    "polymarket_nfl"
+   ],
+   "blocked": [
+    "espn_scoreboard_odds"
+   ],
+   "no_shape": []
+  },
+  "adp": {
+   "candidates": 2,
+   "answers": [
+    "ffc_adp",
+    "sleeper_trending_adds"
+   ],
+   "blocked": [],
+   "no_shape": []
+  },
+  "injuries_practice": {
+   "candidates": 2,
+   "answers": [
+    "sleeper_players_injury"
+   ],
+   "blocked": [
+    "espn_injuries"
+   ],
+   "no_shape": []
+  },
+  "snaps_usage": {
+   "candidates": 3,
+   "answers": [
+    "nflverse_pbp_participation",
+    "nflverse_snap_counts_release"
+   ],
+   "blocked": [
+    "espn_boxscore_sample"
+   ],
+   "no_shape": []
+  },
+  "rosters_transactions": {
+   "candidates": 2,
+   "answers": [
+    "sleeper_league_rosters"
+   ],
+   "blocked": [
+    "espn_teams_roster"
+   ],
+   "no_shape": []
+  },
+  "schedule_kickoffs": {
+   "candidates": 2,
+   "answers": [
+    "nflverse_schedules"
+   ],
+   "blocked": [
+    "espn_scoreboard_week"
+   ],
+   "no_shape": []
+  },
+  "weather": {
+   "candidates": 3,
+   "answers": [
+    "nws_forecast_points",
+    "open_meteo_forecast"
+   ],
+   "blocked": [],
+   "no_shape": []
+  },
+  "depth_charts_team_context": {
+   "candidates": 3,
+   "answers": [
+    "nflverse_depth_charts"
+   ],
+   "blocked": [
+    "espn_depth_chart",
+    "espn_team_info"
+   ],
+   "no_shape": []
+  },
+  "expert_ranks": {
+   "candidates": 1,
+   "answers": [
+    "fantasypros_ecr_page"
+   ],
+   "blocked": [],
+   "no_shape": []
+  },
+  "realized_points": {
+   "candidates": 3,
+   "answers": [
+    "nflverse_player_stats",
+    "sleeper_stats_week"
+   ],
+   "blocked": [],
+   "no_shape": []
+  },
+  "player_bio_capital": {
+   "candidates": 2,
+   "answers": [
+    "nflverse_draft_picks",
+    "nflverse_rosters"
+   ],
+   "blocked": [],
+   "no_shape": []
+  }
+ },
+ "candidates": [
+  {
+   "class": "season_projections",
+   "name": "sleeper_projections_season",
+   "url": "https://api.sleeper.app/projections/nfl/2026?season_type=regular&position[]=QB&position[]=RB&position[]=WR&position[]=TE",
+   "shape": "\"pts_half_ppr\"|\"pts_ppr\"|\"pts_std\"",
+   "status": 200,
+   "bytes": 400000,
+   "error": null,
+   "verdict": "answers",
+   "note": null
+  },
+  {
+   "class": "weekly_projections",
+   "name": "sleeper_projections_week",
+   "url": "https://api.sleeper.app/projections/nfl/2026/1?season_type=regular&position[]=QB&position[]=RB&position[]=WR&position[]=TE",
+   "shape": "\"pts_half_ppr\"|\"pts_ppr\"|\"pts_std\"",
+   "status": 200,
+   "bytes": 400000,
+   "error": null,
+   "verdict": "answers",
+   "note": null
+  },
+  {
+   "class": "weekly_projections",
+   "name": "espn_fantasy_projections",
+   "url": "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/2026/segments/0/leaguedefaults/3?view=kona_player_info",
+   "shape": "\"appliedTotal\"|\"projectedPoints\"|\"players\"",
+   "status": 200,
+   "bytes": 400000,
+   "error": null,
+   "verdict": "answers",
+   "note": null
+  },
+  {
+   "class": "player_props",
+   "name": "kalshi_player_markets",
+   "url": "https://api.elections.kalshi.com/trade-api/v2/markets?limit=200&status=open&series_ticker=KXNFLPLAYER",
+   "shape": "\"markets\"\\s*:\\s*\\[",
+   "status": 200,
+   "bytes": 27,
+   "error": null,
+   "verdict": "answers",
+   "note": null
+  },
+  {
+   "class": "player_props",
+   "name": "sleeper_picks_lines",
+   "url": "https://api.sleeper.app/lines/available?sport=nfl",
+   "shape": "\"subject_id\"|\"wager_type\"|\"options\"",
+   "status": 200,
+   "bytes": 400000,
+   "error": null,
+   "verdict": "answers",
+   "note": null
+  },
+  {
+   "class": "player_props",
+   "name": "prizepicks_projections",
+   "url": "https://api.prizepicks.com/projections?league_id=9&per_page=250",
+   "shape": "\"stat_type\"|\"line_score\"",
+   "status": 403,
+   "bytes": 0,
+   "error": "HTTP 403",
+   "verdict": "blocked",
+   "note": null
+  },
+  {
+   "class": "game_lines",
+   "name": "espn_scoreboard_odds",
+   "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard",
+   "shape": "\"odds\"|\"overUnder\"|\"spread\"",
+   "status": 403,
+   "bytes": 0,
+   "error": "HTTP 403",
+   "verdict": "blocked",
+   "note": null
+  },
+  {
+   "class": "game_lines",
+   "name": "actionnetwork_scoreboard",
+   "url": "https://api.actionnetwork.com/web/v1/scoreboard/nfl",
+   "shape": "\"odds\"|\"spread\"|\"total\"",
+   "status": 200,
+   "bytes": 400000,
+   "error": null,
+   "verdict": "answers",
+   "note": null
+  },
+  {
+   "class": "game_lines",
+   "name": "polymarket_nfl",
+   "url": "https://gamma-api.polymarket.com/events?tag=nfl&active=true&limit=50",
+   "shape": "\"markets\"|\"outcomePrices\"",
+   "status": 200,
+   "bytes": 305064,
+   "error": null,
+   "verdict": "answers",
+   "note": null
+  },
+  {
+   "class": "adp",
+   "name": "ffc_adp",
+   "url": "https://fantasyfootballcalculator.com/api/v1/adp/half-ppr?teams=10&year=2026",
+   "shape": "\"adp\"\\s*:\\s*[\\d.]+",
+   "status": 200,
+   "bytes": 44201,
+   "error": null,
+   "verdict": "answers",
+   "note": null
+  },
+  {
+   "class": "adp",
+   "name": "sleeper_trending_adds",
+   "url": "https://api.sleeper.app/v1/players/nfl/trending/add?lookback_hours=168&limit=100",
+   "shape": "\"player_id\"",
+   "status": 200,
+   "bytes": 3570,
+   "error": null,
+   "verdict": "answers",
+   "note": null
+  },
+  {
+   "class": "injuries_practice",
+   "name": "espn_injuries",
+   "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/injuries",
+   "shape": "\"injuries\"|\"status\"",
+   "status": 403,
+   "bytes": 0,
+   "error": "HTTP 403",
+   "verdict": "blocked",
+   "note": null
+  },
+  {
+   "class": "injuries_practice",
+   "name": "sleeper_players_injury",
+   "url": "https://api.sleeper.app/v1/players/nfl",
+   "shape": "\"injury_status\"",
+   "status": 200,
+   "bytes": 400000,
+   "error": null,
+   "verdict": "answers",
+   "note": null
+  },
+  {
+   "class": "snaps_usage",
+   "name": "nflverse_snap_counts_release",
+   "url": "https://github.com/nflverse/nflverse-data/releases/download/snap_counts/snap_counts_2025.csv",
+   "shape": "offense_snaps|offense_pct",
+   "status": 200,
+   "bytes": 399998,
+   "error": null,
+   "verdict": "answers",
+   "note": null
+  },
+  {
+   "class": "snaps_usage",
+   "name": "nflverse_pbp_participation",
+   "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp_participation/pbp_participation_2024.csv",
+   "shape": "offense_players|players_on_play",
+   "status": 200,
+   "bytes": 400000,
+   "error": null,
+   "verdict": "answers",
+   "note": null
+  },
+  {
+   "class": "snaps_usage",
+   "name": "espn_boxscore_sample",
+   "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=401671716",
+   "shape": "\"boxscore\"|\"players\"",
+   "status": 403,
+   "bytes": 0,
+   "error": "HTTP 403",
+   "verdict": "blocked",
+   "note": null
+  },
+  {
+   "class": "rosters_transactions",
+   "name": "sleeper_league_rosters",
+   "url": "https://api.sleeper.app/v1/league/1374848328470102016/rosters",
+   "shape": "\"roster_id\"",
+   "status": 200,
+   "bytes": 5238,
+   "error": null,
+   "verdict": "answers",
+   "note": null
+  },
+  {
+   "class": "rosters_transactions",
+   "name": "espn_teams_roster",
+   "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/12/roster",
+   "shape": "\"athletes\"",
+   "status": 403,
+   "bytes": 0,
+   "error": "HTTP 403",
+   "verdict": "blocked",
+   "note": null
+  },
+  {
+   "class": "schedule_kickoffs",
+   "name": "espn_scoreboard_week",
+   "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?seasontype=2&week=1&dates=2026",
+   "shape": "\"events\"\\s*:\\s*\\[",
+   "status": 403,
+   "bytes": 0,
+   "error": "HTTP 403",
+   "verdict": "blocked",
+   "note": null
+  },
+  {
+   "class": "schedule_kickoffs",
+   "name": "nflverse_schedules",
+   "url": "https://github.com/nflverse/nflverse-data/releases/download/schedules/games.csv",
+   "shape": "game_id,season|gameday",
+   "status": 200,
+   "bytes": 400000,
+   "error": null,
+   "verdict": "answers",
+   "note": null
+  },
+  {
+   "class": "weather",
+   "name": "open_meteo_forecast",
+   "url": "https://api.open-meteo.com/v1/forecast?latitude=39.9&longitude=-75.17&hourly=temperature_2m,wind_speed_10m,precipitation_probability&forecast_days=7",
+   "shape": "\"hourly\"",
+   "status": 200,
+   "bytes": 5538,
+   "error": null,
+   "verdict": "answers",
+   "note": null
+  },
+  {
+   "class": "weather",
+   "name": "nws_forecast_points",
+   "url": "https://api.weather.gov/points/39.9008,-75.1675",
+   "shape": "\"forecastHourly\"",
+   "status": 200,
+   "bytes": 3921,
+   "error": null,
+   "verdict": "answers",
+   "note": null
+  },
+  {
+   "class": "weather",
+   "name": "nflverse_stadiums",
+   "url": "https://raw.githubusercontent.com/nflverse/nfldata/main/data/stadiums.csv",
+   "shape": "stadium_id|roof",
+   "status": 404,
+   "bytes": 0,
+   "error": "HTTP 404",
+   "verdict": "error",
+   "note": "the master branch path 404ed on 09-02; trying main"
+  },
+  {
+   "class": "depth_charts_team_context",
+   "name": "espn_depth_chart",
+   "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/12/depthcharts",
+   "shape": "\"depthchart\"|\"positions\"",
+   "status": 403,
+   "bytes": 0,
+   "error": "HTTP 403",
+   "verdict": "blocked",
+   "note": null
+  },
+  {
+   "class": "depth_charts_team_context",
+   "name": "nflverse_depth_charts",
+   "url": "https://github.com/nflverse/nflverse-data/releases/download/depth_charts/depth_charts_2025.csv",
+   "shape": "club_code|depth_team|pos_abb|pos_grp|position|gsis_id",
+   "status": 200,
+   "bytes": 400000,
+   "error": null,
+   "verdict": "answers",
+   "note": "200 on 09-02 but the old shape missed; widened to the 2025 column names"
+  },
+  {
+   "class": "depth_charts_team_context",
+   "name": "espn_team_info",
+   "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/12",
+   "shape": "\"team\"",
+   "status": 403,
+   "bytes": 0,
+   "error": "HTTP 403",
+   "verdict": "blocked",
+   "note": null
+  },
+  {
+   "class": "expert_ranks",
+   "name": "fantasypros_ecr_page",
+   "url": "https://www.fantasypros.com/nfl/rankings/half-point-ppr-cheatsheets.php",
+   "shape": "ecrData|rank_ecr|\"player_name\"",
+   "status": 200,
+   "bytes": 399295,
+   "error": null,
+   "verdict": "answers",
+   "note": null
+  },
+  {
+   "class": "realized_points",
+   "name": "sleeper_stats_week",
+   "url": "https://api.sleeper.app/v1/stats/nfl/regular/2025/1",
+   "shape": "\"pts_half_ppr\"|\"pts_ppr\"",
+   "status": 200,
+   "bytes": 400000,
+   "error": null,
+   "verdict": "answers",
+   "note": null
+  },
+  {
+   "class": "realized_points",
+   "name": "nflverse_player_stats",
+   "url": "https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_2025.csv",
+   "shape": "fantasy_points|passing_yards",
+   "status": 200,
+   "bytes": 400000,
+   "error": null,
+   "verdict": "answers",
+   "note": "renamed upstream from player_stats_2025.csv (404 on 09-02); the repo's own loader uses stats_player_week_2025"
+  },
+  {
+   "class": "player_bio_capital",
+   "name": "nflverse_draft_picks",
+   "url": "https://github.com/nflverse/nflverse-data/releases/download/draft_picks/draft_picks.csv",
+   "shape": "pick,|round,|pfr_player_id",
+   "status": 200,
+   "bytes": 399996,
+   "error": null,
+   "verdict": "answers",
+   "note": null
+  },
+  {
+   "class": "player_bio_capital",
+   "name": "nflverse_rosters",
+   "url": "https://github.com/nflverse/nflverse-data/releases/download/rosters/roster_2025.csv",
+   "shape": "birth_date|years_exp|draft_number",
+   "status": 200,
+   "bytes": 400000,
+   "error": null,
+   "verdict": "answers",
+   "note": null
+  },
+  {
+   "class": "player_props",
+   "name": "the_odds_api",
+   "url": "https://api.the-odds-api.com/v4/sports/americanfootball_nfl/odds",
+   "shape": "",
+   "key": true,
+   "note": "PAID \u2014 retired by Cory's 09-01 ruling; listed so nobody re-discovers it as free",
+   "verdict": "needs_key_not_fetched",
+   "status": null,
+   "bytes": 0,
+   "error": null
+  },
+  {
+   "class": "realized_points",
+   "name": "balldontlie_nfl",
+   "url": "https://api.balldontlie.io/nfl/v1/stats",
+   "shape": "",
+   "key": true,
+   "note": "key required (401 measured 08-21)",
+   "verdict": "needs_key_not_fetched",
+   "status": null,
+   "bytes": 0,
+   "error": null
+  }
+ ]
+}

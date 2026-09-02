@@ -542,6 +542,34 @@ async function seasonStats(season) {
 }
 
 // Full roster view for one owner: players with info + recent + season stat lines.
+/* THIS WEEK'S GAME PER NFL TEAM, from the committed schedule store (the same
+ * file build_week_brief.py and capture_window.js read). Site review 09-02
+ * item 5: the roster rows carried no this-week context — opponent, kickoff
+ * day — and that lived on the other tab. Null when the schedule cannot say
+ * (a missing file or a foreign season), never a guessed BYE: a team absent
+ * from a full 16-game week IS on bye, a team absent because the file is gone
+ * is not. The WAS/WSH alias is the join failure the brief hit first. */
+let _schedCache = null;
+function gamesForWeek(season, week) {
+  try {
+    if (!_schedCache) _schedCache = JSON.parse(require('fs').readFileSync(require('path').join(__dirname, '..', 'draft', 'data', 'nfl_schedule_2026.json'), 'utf8'));
+  } catch (e) { return null; }
+  if (Number(_schedCache.season) !== Number(season)) return null;
+  const rows = (_schedCache.rows || []).filter(g => Number(g.week) === Number(week) && !g.postseason);
+  if (!rows.length) return null;
+  const ALIAS = { WAS: 'WSH', WSH: 'WAS' };
+  const byTeam = {};
+  for (const g of rows) {
+    byTeam[g.home] = { opp: g.away, home: true, kickoff: g.date };
+    byTeam[g.away] = { opp: g.home, home: false, kickoff: g.date };
+  }
+  const teams = new Set(rows.flatMap(g => [g.home, g.away]));
+  return {
+    full: teams.size === 32,
+    lookup: team => byTeam[team] || byTeam[ALIAS[team]] || null,
+  };
+}
+
 async function rosterView(data, sleeperMap, ownerId) {
   if (!data) return null;
   const rosterId = Object.keys(sleeperMap || {}).find(rid => Number(sleeperMap[rid]) === Number(ownerId));
@@ -564,16 +592,21 @@ async function rosterView(data, sleeperMap, ownerId) {
   ]);
   const pts = st => st == null ? null : Math.round(((st.pts_half_ppr ?? st.pts_ppr ?? st.pts_std) || 0) * 10) / 10;
   const starters = new Set(roster.starters || []);
+  const sched = gamesForWeek(data.state.season, data.state.week);
   const rows = (roster.players || []).map(pid => {
     const info = (playersDb && playersDb.players[pid]) || { name: pid, pos: '?', team: '?', rank: null, inj: null };
     const w = wk ? wk[pid] : null;
     const se = seas ? seas[pid] : null;
+    const g = sched ? sched.lookup(info.team) : null;
     return {
       id: pid, ...info,
       bye: byeMap[info.team] != null ? Number(byeMap[info.team]) : null,
       starter: starters.has(pid),
       wkPts: pts(w), seasonPts: pts(se),
       gp: se ? (se.gp || se.gms_active || null) : null,
+      // this week's game: {opp, home, kickoff} · null = cannot say · 'BYE' only
+      // when the schedule holds a FULL week and the team is not in it
+      game: g || ((sched && sched.full && info.team && info.team !== '?') ? 'BYE' : null),
     };
   });
   const posOrder = { QB: 1, RB: 2, WR: 3, TE: 4, K: 5, DEF: 6 };
@@ -595,5 +628,5 @@ module.exports = {
   bundle, matchupsForWeek, transactionsForWeek, weekPointsByOwner, myMatchup,
   standings, scoreboard, highScorer, teamName,
   autoMap, userMap, records, players, draftInfo, trendingAdds, WAR_POSITIONS,
-  weekReview, wire, weekStats, seasonStats, rosterView,
+  weekReview, wire, weekStats, seasonStats, rosterView, gamesForWeek,
 };

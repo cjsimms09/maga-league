@@ -322,7 +322,7 @@ def _run_main(argv, env):
 
 def test_main_dry_run_end_to_end(tmp_path):
     out_dir = tmp_path / "out"
-    rc = _run_main(["--week", "1", "--date", "2026-09-10"],
+    rc = _run_main(["--week", "1", "--now", "2026-09-09T20:00:00Z"],
                    _env(tmp_path, out_dir))
     assert rc == 0
     out = out_dir / "own_weekly_2026_w1.json"
@@ -346,11 +346,20 @@ def test_main_preseason_is_a_clean_skip(tmp_path):
 def test_main_refuses_post_kickoff_rewrite(tmp_path):
     out_dir = tmp_path / "out"
     env = _env(tmp_path, out_dir)
-    assert _run_main(["--week", "1", "--date", "2026-09-10"], env) == 0
-    # Friday after kickoff: the committed snapshot is frozen history.
-    assert _run_main(["--week", "1", "--date", "2026-09-11"], env) == 1
-    # Same-day Thursday re-run stays allowed (lines move before kickoff).
-    assert _run_main(["--week", "1", "--date", "2026-09-10"], env) == 0
+    # week 1's REAL first kickoff is 2026-09-10T00:20Z (the Wednesday-night
+    # opener) — register 477. Before it: writes. After it with a snapshot on
+    # disk: FROZEN, exit 0, file untouched. After it with none: MISSED, exit 1.
+    assert _run_main(["--week", "1", "--now", "2026-09-09T20:00:00Z"], env) == 0
+    before = (out_dir / "own_weekly_2026_w1.json").read_text()
+    assert _run_main(["--week", "1", "--now", "2026-09-10T14:00:00Z"], env) == 0     # the Thursday cron
+    assert (out_dir / "own_weekly_2026_w1.json").read_text() == before
+    assert _run_main(["--week", "1", "--date", "2026-09-11"], env) == 0
+    assert (out_dir / "own_weekly_2026_w1.json").read_text() == before
+    (out_dir / "own_weekly_2026_w1.json").unlink()
+    assert _run_main(["--week", "1", "--now", "2026-09-10T14:00:00Z"], env) == 1     # missed week
+    assert not (out_dir / "own_weekly_2026_w1.json").exists()
+    # a normal week: Thursday 14:00Z is BEFORE the Thursday-night kickoff (00:15Z Fri), so it writes
+    assert _run_main(["--week", "2", "--now", "2026-09-17T14:00:00Z"], env) == 0
 
 
 def test_main_honors_champion_override(tmp_path):
@@ -358,7 +367,7 @@ def test_main_honors_champion_override(tmp_path):
     env = _env(tmp_path, out_dir)
     Path(env["OWN_WEEKLY_CONTROLS"]).write_text(
         json.dumps({"champion_override": "v1_notilt"}))
-    assert _run_main(["--week", "1", "--date", "2026-09-10"], env) == 0
+    assert _run_main(["--week", "1", "--now", "2026-09-09T20:00:00Z"], env) == 0
     doc = json.loads((out_dir / "own_weekly_2026_w1.json").read_text())
     assert doc["diagnostics"]["champion_arm"] == "v1_notilt"
     assert doc["diagnostics"]["champion_override"] is True
@@ -486,3 +495,46 @@ def test_blend_arm_formula_names_its_prior_and_the_fallback():
     assert f.startswith("(3*proj_mean/17*tilt") and "falls back to proj_ownmodel" in f
     # the existing arms' strings are unchanged
     assert WP.arm_formula(next(a for a in WP.DEFAULT_ARMS if a["name"] == "v1")).startswith("proj_ownmodel/17 *")
+
+
+# ── register 476: kept players are priced like everyone else ──────────────────
+
+def test_board_players_includes_kept_players(tmp_path):
+    board = tmp_path / "board.json"
+    board.write_text(json.dumps({
+        "players": [{"player_id": "1", "name": "A", "position": "RB", "team": "DET", "proj_ownmodel": 170.0}],
+        "kept_players": [{"player_id": "7564", "name": "Ja'Marr Chase", "position": "WR", "team": "CIN",
+                          "proj_ownmodel": 252.68, "proj_mean": 271.8},
+                         {"player_id": "1", "name": "A dup", "position": "RB", "team": "DET", "proj_ownmodel": 1.0}],
+    }))
+    ps = WP._board_players(board)
+    assert [p["player_id"] for p in ps] == ["1", "7564"]           # kept appended, duplicate id not doubled
+    assert ps[1]["kept"] is True and ps[0].get("kept") is None
+    priced = WP.price_week(ps, 1, {}, WP.DEFAULT_ARMS)
+    assert priced["means"]["v1_pull3"]["7564"] == round(252.68 / 17, 2)   # the keeper IS priced
+    assert priced["means"]["v1_blend_pull3"]["7564"] == round(271.8 / 17, 2)
+
+
+def test_the_live_board_keeps_no_keeper_unpriced():
+    # KNOWN POSITIVE against the committed board: every kept player prices.
+    board = Path(__file__).resolve().parents[2] / "public" / "draft_data.json"
+    if not board.exists():
+        return
+    doc = json.loads(board.read_text())
+    kept = {str(k["player_id"]) for k in doc.get("kept_players") or [] if (k.get("proj_ownmodel") or 0) > 0}
+    if not kept:
+        return
+    priced = WP.price_week(WP._board_players(board), 1, {}, WP.DEFAULT_ARMS)
+    assert kept <= set(priced["means"]["v1_pull3"]), sorted(kept - set(priced["means"]["v1_pull3"]))
+
+
+def test_first_kickoff_reads_the_committed_schedule_and_falls_back_honestly(tmp_path):
+    k1 = WP.first_kickoff_utc(1, 2026)
+    assert k1 == dt.datetime(2026, 9, 10, 0, 20, tzinfo=dt.timezone.utc)      # the Wednesday-night opener
+    assert WP.first_kickoff_utc(12, 2026) == dt.datetime(2026, 11, 26, 1, 0, tzinfo=dt.timezone.utc)
+    # the Thursday cron at 14:00Z is AFTER week 1's kickoff and BEFORE week 2's
+    cron = lambda w: dt.datetime(2026, 9, 3, 14, 0, tzinfo=dt.timezone.utc) + dt.timedelta(days=7 * w)  # noqa: E731
+    assert cron(1) >= k1 and cron(2) < WP.first_kickoff_utc(2, 2026)
+    # no schedule -> Friday 00:20Z after week_kickoff (the usual TNF), never a crash
+    fb = WP.first_kickoff_utc(3, 2026, tmp_path / "nope.json")
+    assert fb == dt.datetime(2026, 9, 25, 0, 20, tzinfo=dt.timezone.utc)

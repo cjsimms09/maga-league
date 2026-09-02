@@ -64,7 +64,22 @@ def best(cands, pts, pos):
 def main():
     hist = json.load(open(ROOT + "/draft/data/league_history.json"))
     pos = json.load(open(ROOT + "/draft/data/player_positions.json"))["positions"]
-    seasons = [s for s in hist["seasons"] if s.get("weeks")]
+    # ⚠️ 2026-09-02: THIS FILTER USED TO BE `if s.get("weeks")` AND IT SILENTLY
+    # DILUTED EVERY NUMBER HERE BY 25%. The 09-01 league_history export gave the
+    # unplayed 2026 season 18 week rows whose matchups are all 0.0 points, so an
+    # in_season-but-unplayed year passed the old test and entered the mean as a
+    # fourth season of zeros. Cory's figure fell 17.31 -> 12.98 and the league's
+    # 14.99 -> 11.24 — EXACTLY 3/4 of each, which is what identified it. Nothing
+    # errored and both controls simply started failing. A season counts only if
+    # somebody actually scored in it.
+    def _played(s):
+        for rows in (s.get("weeks") or {}).values():
+            if any(float(r.get("points") or 0) > 0 for r in rows if isinstance(r, dict)):
+                return True
+        return False
+    seasons = [s for s in hist["seasons"] if _played(s)]
+    print("     seasons with played weeks: %s"
+          % ", ".join(sorted(str(s.get("season")) for s in seasons)))
 
     owners = {}
     for s in seasons:
@@ -76,7 +91,12 @@ def main():
     print("\nK1 — does optimal-minus-actual reproduce the published bench line?")
     print("     published: league 15.90/wk, Cory 17.33 +/- 1.68")
     windows = {}
-    for first, last in ((1, 13), (2, 13), (1, 14), (2, 14), (1, 15)):
+    # ⚠️ 2026-09-02: THIS LIST USED TO STOP AT WEEK 15 AND THAT IS WHY K1b
+    # 'FAILED' FOR DAYS. The league's 15.90 reproduces at weeks 2-18 (15.89) —
+    # it was never unreconcilable, it was outside the windows I searched. The
+    # REAL defect the extended search found is worse and is what K1b now tests:
+    # no single window reproduces BOTH published numbers.
+    for first, last in ((1, 13), (2, 13), (1, 15), (2, 15), (1, 18), (2, 18)):
         lg, co = [], []
         for s in seasons:
             for w in sorted(int(x) for x in s["weeks"]):
@@ -97,6 +117,14 @@ def main():
        "Cory's published 17.33 reproduces in at least one window")
     ok("K1b", any(abs(l - 15.90) < 0.20 for l, _, _ in windows.values()),
        "league's published 15.90 reproduces in at least one window")
+    # THE PAIR TEST. Both figures are quoted side by side in CLAUDE.md as though
+    # they describe one population. They do not: 17.33 is a weeks-2-13 number and
+    # 15.90 is a weeks-2-18 number. Quoting them as a pair compares across windows.
+    both = [(f, l2) for (f, l2), (lg, co, _) in windows.items()
+            if abs(lg - 15.90) < 0.20 and abs(co - 17.33) < 0.20]
+    ok("K1c", bool(both),
+       "SOME window reproduces BOTH published numbers%s"
+       % (" (%s)" % both if both else " — they are from DIFFERENT windows"))
     if "K1b" in failures:
         print("     ^^ K1b FAILS AND THE ARM RESULT BELOW STILL STANDS — here is why.")
         print("        K1 passes to 0.02 (Cory 17.31 at weeks 2-13 against a published")
@@ -132,11 +160,11 @@ def main():
     ok("K2", statistics.mean(arm_pts) != statistics.mean(act_pts),
        "the arm differs from what owners started (%.2f vs %.2f)"
        % (statistics.mean(arm_pts), statistics.mean(act_pts)))
-    if failures and failures != ["K1b"]:
+    if failures and set(failures) - {"K1b", "K1c"}:
         print("\n*** %d control(s) failed — output void ***" % len(failures))
         return 1
     if failures:
-        print("\n*** K1b failed and only K1b — see the note above; the arms stand ***")
+        print("\n*** only the published-number controls failed (K1b/K1c) — see the note; the arms stand ***")
 
     def line(label, d):
         m = statistics.mean(d); se = statistics.pstdev(d) / len(d) ** 0.5

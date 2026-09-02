@@ -92,6 +92,12 @@ jobs:
       - name: Report coverage where it cannot be missed
         id: cov
         if: always()
+        # THE YEAR RIDES IN AS ENV, NOT AS AN EXPRESSION: a `run:` block that
+        # contains any `${{ }}` is capped at 21,000 characters by GitHub and this
+        # one crossed it on 09-02 (dispatch refused: 'Exceeded max expression
+        # length'). With no expression inside, the block has no cap.
+        env:
+          D3_YEAR: ${{ github.event.inputs.year || '2026' }}
         run: |
           {
             echo "## D3 external ADP capture"
@@ -103,8 +109,22 @@ jobs:
           # OUR draft, stated in one place. It lives only in prose today —
           # `draft.start_time` is null in the Sleeper config — so it is
           # named here rather than guessed inside the module.
+          # ⚠ READ FROM THE LEAGUE CONFIG, NOT TYPED HERE (A, 09-02): the
+          # draft-window alarms below key on it, and a date typed in a YAML
+          # heredoc is the kind that stays 2026 in 2027.
           DRAFT_DATE = "2026-08-22"
-          cov = C.coverage(C.load(), "${{ github.event.inputs.year || '2026' }}")
+          try:
+              DRAFT_DATE = (json.load(open("draft/config/league_config.json"))
+                            .get("draft") or {}).get("start_date") or DRAFT_DATE
+          except Exception:                              # noqa: BLE001
+              pass
+          cov = C.coverage(C.load(), os.environ.get("D3_YEAR", "2026"))
+          # post-draft = the archive's last day is strictly after the draft
+          # (same test as board_vs_market.format_trend, so the two phases
+          # cannot disagree on one run). Unknown last day = not post-draft.
+          POST_DRAFT = bool(cov.get("last")) and str(cov["last"]) > str(DRAFT_DATE)
+          print("_phase: `%s` (draft %s, archive last %s)_"
+                % ("post-draft" if POST_DRAFT else "pre-draft", DRAFT_DATE, cov.get("last")))
           print("```")
           print(json.dumps(cov, indent=1))
           print("```")
@@ -146,7 +166,18 @@ jobs:
           dd = cov.get("drop_depth")
           if dd is not None:
               print("**DEEPEST DROP** — %s" % dd["note"])
-              if dd["verdict"] == "inside_draft":
+              if dd["verdict"] == "inside_draft" and POST_DRAFT:
+                  # DRAFT-WINDOW ALARM, RECORDED NOT ESCALATED AFTER THE DRAFT
+                  # (A, 09-02). "Days from a draft" is the alarm's own premise;
+                  # after it, MFL's pool shedding a draftable id is the
+                  # archive's calibration record. The first post-draft firing
+                  # was 0716, the Dallas team-kicker placeholder. `unknown`
+                  # still fails below in every phase — a broken instrument is
+                  # not a post-draft fact.
+                  print("**%d of the %d players the board dropped were priced INSIDE"
+                        " pick %s — post-draft, recorded and not escalated.**"
+                        % (dd["lost_inside_draft"], dd["lost"], dd["draftable_picks"]))
+              elif dd["verdict"] == "inside_draft":
                   print("::error::%d of the %d players the board dropped were priced"
                         " INSIDE pick %s — the ADP source no longer prices players"
                         " this room can draft"
@@ -169,13 +200,13 @@ jobs:
           # pinned by tests now. UTC is still stated explicitly at the call.
           today = datetime.datetime.now(datetime.timezone.utc).date()
           resumed = C.missed_yesterday(C.load(),
-                                       "${{ github.event.inputs.year || '2026' }}", today)
+                                       os.environ.get("D3_YEAR", "2026"), today)
           # `stale_days`, NOT `missing`. A rehearsal against a dead MFL had this
           # alarm print "0 uncaptured day(s)" while firing correctly: `missing`
           # counts INTERIOR gaps, and a capture that has stopped has none yet.
           # The two answer different questions and this one quotes how far behind
           # the archive is, which is what a resume is about.
-          stale = C.days_since_last(C.load(), "${{ github.event.inputs.year || '2026' }}", today)
+          stale = C.days_since_last(C.load(), os.environ.get("D3_YEAR", "2026"), today)
           with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
               fh.write("resumed=%s\n" % ("1" if resumed else "0"))
               fh.write("missing=%s\n" % (cov["missing"] if cov["missing"] is not None else "?"))
@@ -236,7 +267,7 @@ jobs:
                       open("public/draft_data.json")).get("pick_order"))
               lp = C.draft_last_pick(_ls)
           drop = C.dropped_inside(C.load(),
-                                  "${{ github.event.inputs.year || '2026' }}",
+                                  os.environ.get("D3_YEAR", "2026"),
                                   last_pick=lp["last_pick"])
           print("Draft boundary: **%s** — %s" % (lp["last_pick"], lp["note"]))
           if drop["verdict"] == "draftable_loss":
@@ -266,7 +297,7 @@ jobs:
           # attempt is about our parser (the field names have never matched);
           # zero after a fortnight of non-zero is about the feed. The state
           # names the suspect so the morning it breaks is not spent guessing.
-          dh = C.dispersion_health(C.load(), "${{ github.event.inputs.year || '2026' }}")
+          dh = C.dispersion_health(C.load(), os.environ.get("D3_YEAR", "2026"))
           if dh["state"] == "present":
               print("Spread: **%d/%d** players carry a dispersion row (%.0f%%)."
                     % (dh["rows"], dh["adp_rows"], 100 * dh["coverage"]))
@@ -279,7 +310,7 @@ jobs:
               # clamp survived this long. The estimator is unvalidated against
               # real data until this line runs, so this IS the validation.
               latest = [s for s in C.load()
-                        if str(s.get("year")) == "${{ github.event.inputs.year || '2026' }}"][-1]
+                        if str(s.get("year")) == os.environ.get("D3_YEAR", "2026")][-1]
               sp = C.spread_summary(latest.get("dispersion") or {})
               if sp["status"] == "measured":
                   print("  → **%d distinct** spreads over %d measured players "
@@ -318,7 +349,7 @@ jobs:
           # our Sleeper config, so there is nothing to derive it from, and the
           # archive must not hardcode one league's calendar.
           try:
-              rd = C.f5_readiness(C.load(), "${{ github.event.inputs.year || '2026' }}",
+              rd = C.f5_readiness(C.load(), os.environ.get("D3_YEAR", "2026"),
                                   draft_date=DRAFT_DATE, today=today.isoformat())
               if rd["verdict"] == "ready":
                   print("F5 would use **%s** (%s rows), %s day(s) to the last capture "
@@ -410,7 +441,18 @@ jobs:
                   _rows = (_ser[-1].get("rows") or {}) if _ser else {}
                   ud = C.undecoded_inside_draft(xrep, _rows, C._draftable_picks())
                   print("Draftable decode: %s" % ud["note"])
-                  if ud["verdict"] == "undecoded_in_draft":
+                  if ud["verdict"] == "undecoded_in_draft" and POST_DRAFT:
+                      # THE FOURTH DRAFT-WINDOW ALARM IN THIS FILE, SAME RULING
+                      # (A, 09-02). Its own text: "worth knowing BEFORE the
+                      # draft rather than after". After it, a name drifting
+                      # inside pick 150 as MFL's pool converges is the 2027
+                      # crosswalk backlog, recorded here, not a red job. First
+                      # post-draft firing: 17083 Jayden Higgins, 16622 Ricky
+                      # Pearsall. `unknown` still fails in every phase.
+                      print("**%d player(s) inside pick 150 did not decode — post-draft, "
+                            "recorded for the 2027 crosswalk, not escalated: %s**"
+                            % (ud["inside"], ", ".join(ud["players"][:10])))
+                  elif ud["verdict"] == "undecoded_in_draft":
                       print("::error::%d player(s) inside our draft are at a rostered"
                             " position, not kept, and did not decode: %s"
                             % (ud["inside"], ", ".join(ud["players"][:10])))
@@ -936,6 +978,7 @@ jobs:
           sys.path.insert(0, "draft/backtest")
           print("## Is the market drafting our format?")
           flags, standing = [], []
+          phase = "undated"
           try:
               import board_vs_market as BM
               arc = json.load(open("draft/data/external_adp_series.json"))
@@ -1022,9 +1065,19 @@ jobs:
               # number nobody diffs (rule 9). What is worth waking up for is a
               # CHANGE, and the archive already carries every day's rows, so the
               # comparison costs nothing but reading them.
-              tr = BM.format_trend(arc, brd)
+              # ⚠ THE DRAFT DATE SPLITS "ALARM" FROM "MEASUREMENT" (A, 09-02).
+              # Runs 21-28 went red eight nights in a row on the SAME drift
+              # (+0.073 first-day-to-today) because a change against a fixed
+              # baseline, once true, is true every morning after. Post-draft
+              # the drift is the calibration record for 2027, and it lands in
+              # `standing`, not `flags`. Pre-draft it still fails the job.
+              draft_date = (json.load(open("draft/config/league_config.json"))
+                            .get("draft") or {}).get("start_date")
+              tr = BM.format_trend(arc, brd, draft_date=draft_date)
+              phase = tr["phase"]
               print("")
               print("### Is it the same pool it was yesterday?")
+              print("_phase: `%s` (draft %s)_" % (tr["phase"], tr["draft_date"]))
               if tr["status"] != "measured":
                   print("**%s** — %s" % (tr["status"].upper(), tr.get("note")))
               else:
@@ -1037,11 +1090,16 @@ jobs:
                                d["age_rho_non_qb"], d["dynasty"]))
                   print("")
                   print(tr["note"])
-                  if tr["moving"] or tr["flipped"]:
+                  if tr["escalate"]:
                       flags.append("composition drift %+.3f%s"
                                    % (tr["drift"],
                                       (" — %s FLIPPED" % ",".join(tr["flipped"]))
                                       if tr["flipped"] else ""))
+                  elif tr["moving"] or tr["flipped"]:
+                      standing.append("post-draft composition drift %+.3f%s"
+                                      % (tr["drift"],
+                                         (" — %s flipped" % ",".join(tr["flipped"]))
+                                         if tr["flipped"] else ""))
           except Exception as e:                      # noqa: BLE001
               print("**FORMAT CHECK DID NOT RUN** (%s: %s) — not a clean result; "
                     "nothing was compared." % (type(e).__name__, e))
@@ -1053,6 +1111,9 @@ jobs:
           with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
               fh.write("flags=%s\n" % ("; ".join(flags) or ""))
               fh.write("standing=%s\n" % ("; ".join(standing) or ""))
+              # pre-draft / post-draft / undated — the draft-window alarms
+              # below key on it. Undated (no config, crashed) escalates.
+              fh.write("phase=%s\n" % phase)
           FMT
 
       # ── IS TODAY'S DATA TRUSTWORTHY AT ALL ─────────────────────────────
@@ -1488,8 +1549,14 @@ jobs:
           echo "::error::it until this is understood."
           exit 1
 
+      # ⚠ DRAFT-WINDOW ALARM (A, 09-02). Its own text says why it exists: "F5
+      # reads the latest snapshot strictly before the draft". After the draft
+      # there is no F5 read to protect, and MFL's pool shedding a draftable id
+      # (the first post-draft firing was 0716, the Dallas team-kicker
+      # placeholder) is the archive's business, reported in the coverage
+      # summary either way. Escalates pre-draft and when the phase is unknown.
       - name: Escalate ONLY if a DRAFTABLE player left the board
-        if: always() && steps.cov.outputs.draftable_loss == '1'
+        if: always() && steps.cov.outputs.draftable_loss == '1' && steps.fmt.outputs.phase != 'post-draft'
         run: |
           echo "::error::A player priced INSIDE the draft left the board: ${{ steps.cov.outputs.lost_ids }}"
           echo "::error::F5 reads the latest snapshot strictly before the draft, so these"

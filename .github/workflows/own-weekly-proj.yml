@@ -34,7 +34,8 @@ on:
         description: 'NFL week override (blank = computed from the date; preseason is a clean skip)'
         required: false
   schedule:
-    - cron: '0 14 * * 4'   # Thursdays 14:00 UTC, after the 12:00 odds capture
+    - cron: '0 20 * * 3'   # Wednesdays 20:00 UTC — BEFORE a Wednesday-night opener (week 1 kicks off 00:20Z Thu; register 477)
+    - cron: '0 14 * * 4'   # Thursdays 14:00 UTC, after the 12:00 odds capture; FROZEN (exit 0) once the week's first game has kicked off
 
 permissions:
   contents: write
@@ -71,6 +72,16 @@ jobs:
             else
               echo "$OUT"; exit 1
             fi
+          fi
+      - name: Props second opinion on Cory's roster (report-only, register 476's tool)
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          # Non-fatal by design: the snapshot above is the forward guarantee and
+          # must commit even if THIS-WEEK.md is stale or the props file is absent.
+          if OUT="$(python3 draft/tools/props_second_opinion.py 2>&1)"; then
+            echo "$OUT"
+          else
+            echo "$OUT"; echo "::warning::second opinion did not run — the snapshot still commits"
           fi
       - name: Commit the snapshot (the forward guarantee)
         if: ${{ github.event.inputs.dry_run != 'true' }}

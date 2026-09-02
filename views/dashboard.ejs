@@ -45,6 +45,55 @@
   </a>
 <% } %>
 
+<%# ── NEEDS YOU — FIRST on the page (site review 09-02, item 4: order by urgency —
+    needs you → your game → live scores → standings). The only aggregation on the site (redesign spec, rule 5):
+    bets waiting on your answer, results waiting on your confirm, ballots
+    waiting on your vote, money you owe. Each row is one tap to the action.
+    Absent entirely when nothing needs you — no empty furniture. %>
+<% const _ny = (typeof needsYou !== 'undefined' && needsYou) ? needsYou : []; %>
+<% if (_ny.length) { %>
+  <div class="card" role="region" aria-label="Needs you" style="border-left:4px solid var(--red, #b91c1c)">
+    <h2 style="display:flex;align-items:center;gap:.5rem">🎯 Needs You
+      <span class="sub"><%= _ny.length %> thing<%= _ny.length === 1 ? '' : 's' %> waiting on you</span></h2>
+    <div class="body" style="padding-top:.35rem">
+      <% for (const it of _ny) { %>
+        <div style="display:flex;align-items:center;gap:.6rem;padding:.5rem .2rem;border-bottom:1px solid var(--line,#e5e7eb)">
+          <a href="<%= it.href %>" style="display:flex;align-items:center;gap:.6rem;flex:1 1 auto;text-decoration:none;color:inherit;min-width:0">
+            <span style="font-size:1.1rem" aria-hidden="true"><%= it.icon %></span>
+            <span style="flex:1 1 auto"><%= it.text %></span>
+          </a>
+          <%# Catalog item 26 — a straight bet offer accepts right here, no
+              tap-through required (Rule 4: actions live on the thing). %>
+          <% if (it.betId) { %>
+            <form class="asis" method="post" action="/sidebets/<%= it.betId %>/accept" style="flex:0 0 auto">
+              <button class="btn small gold" type="submit" style="padding:.3rem .6rem;font-size:.82rem">✓ Accept</button>
+            </form>
+          <% } %>
+          <a href="<%= it.href %>" class="muted" style="white-space:nowrap;font-weight:700;text-decoration:none;flex:0 0 auto"><%= it.cue %></a>
+        </div>
+      <% } %>
+    </div>
+  </div>
+<% } %>
+
+<%# THE TO-DO STRIP sits with NEEDS YOU, above the hero (site review 09-02, item 4):
+    a vote you have not cast or money you owe is the first thing, not the tenth. %>
+<%
+  const myTurn = draft.current && draft.current.owner_id === owner.id;
+  const iOwe = myBalance < 0;
+  const pkNudge = (typeof pickemNudge !== 'undefined' && pickemNudge) ? pickemNudge : null;
+%>
+<% if (myTurn || unvoted || iOwe || pkNudge) { %>
+<div class="todo-strip">
+  <span class="todo-label">Needs you</span>
+  <% if (myTurn) { %><a class="todo-item urgent" href="/draft">🎯 Pick your draft spot</a><% } %>
+  <%# The one item with a hard weekly deadline — unpicked games vanish at kickoff. %>
+  <% if (pkNudge) { %><a class="todo-item" href="/pickem">🗳️ Pick this week's games (<%= pkNudge.made %> of <%= pkNudge.total %> in)</a><% } %>
+  <% if (unvoted) { %><a class="todo-item" href="/votes">🗳 <%= unvoted %> vote<%= unvoted === 1 ? '' : 's' %> you haven't cast</a><% } %>
+  <% if (iOwe) { %><a class="todo-item" href="/bank">💵 You owe <%= money(-myBalance) %></a><% } %>
+</div>
+<% } %>
+
 <%# ── THE IN-SEASON HERO — your game, first thing, during a season week. Score,
     opponent, who's leading, and a lineup problem if there's a real one. Taps
     through to your full matchup. Absent off-season (the draft banner leads then). %>
@@ -80,36 +129,6 @@
       <div class="week-hero-foot">Open your matchup — bet it, talk trash, watch the starters <span class="week-hero-cue">→</span></div>
     <% } %>
   </a>
-<% } %>
-
-<%# ── NEEDS YOU — the only aggregation on the site (redesign spec, rule 5):
-    bets waiting on your answer, results waiting on your confirm, ballots
-    waiting on your vote, money you owe. Each row is one tap to the action.
-    Absent entirely when nothing needs you — no empty furniture. %>
-<% const _ny = (typeof needsYou !== 'undefined' && needsYou) ? needsYou : []; %>
-<% if (_ny.length) { %>
-  <div class="card" role="region" aria-label="Needs you" style="border-left:4px solid var(--red, #b91c1c)">
-    <h2 style="display:flex;align-items:center;gap:.5rem">🎯 Needs You
-      <span class="sub"><%= _ny.length %> thing<%= _ny.length === 1 ? '' : 's' %> waiting on you</span></h2>
-    <div class="body" style="padding-top:.35rem">
-      <% for (const it of _ny) { %>
-        <div style="display:flex;align-items:center;gap:.6rem;padding:.5rem .2rem;border-bottom:1px solid var(--line,#e5e7eb)">
-          <a href="<%= it.href %>" style="display:flex;align-items:center;gap:.6rem;flex:1 1 auto;text-decoration:none;color:inherit;min-width:0">
-            <span style="font-size:1.1rem" aria-hidden="true"><%= it.icon %></span>
-            <span style="flex:1 1 auto"><%= it.text %></span>
-          </a>
-          <%# Catalog item 26 — a straight bet offer accepts right here, no
-              tap-through required (Rule 4: actions live on the thing). %>
-          <% if (it.betId) { %>
-            <form class="asis" method="post" action="/sidebets/<%= it.betId %>/accept" style="flex:0 0 auto">
-              <button class="btn small gold" type="submit" style="padding:.3rem .6rem;font-size:.82rem">✓ Accept</button>
-            </form>
-          <% } %>
-          <a href="<%= it.href %>" class="muted" style="white-space:nowrap;font-weight:700;text-decoration:none;flex:0 0 auto"><%= it.cue %></a>
-        </div>
-      <% } %>
-    </div>
-  </div>
 <% } %>
 
 <%# ── RECORDS WATCH — last week's finals that entered the franchise book.
@@ -200,10 +219,13 @@
     <% if (_nag.includes('Venmo')) { %><input type="text" name="venmo" maxlength="60" placeholder="venmo handle"><% } %>
     <button type="submit" class="btn small">Save</button>
   </form>
-  <button type="button" class="dismiss" onclick="this.parentNode.style.display='none';sessionStorage.setItem('contactNagDismissed','1')">dismiss</button>
+  <%# ONE TAP, GONE FOR GOOD (site review 09-02, item 4): this was sessionStorage,
+      so the nag came back every visit; a nudge that returns after you dismissed
+      it reads as nagging, not helping. localStorage, wrapped for the browsers that throw. %>
+  <button type="button" class="dismiss" onclick="this.parentNode.style.display='none';try{localStorage.setItem('contactNagDismissed','1')}catch(e){}">dismiss</button>
 </div>
 <script>
-  (function(){ if(!sessionStorage.getItem('contactNagDismissed')){ var n=document.getElementById('contact-nag'); if(n) n.style.display='flex'; } })();
+  (function(){ var d=false; try{ d=localStorage.getItem('contactNagDismissed')==='1'; }catch(e){} if(!d){ var n=document.getElementById('contact-nag'); if(n) n.style.display='flex'; } })();
 </script>
 <% } %>
 
@@ -247,23 +269,43 @@
   <% } %>
 </div>
 
-<%
-  const myTurn = draft.current && draft.current.owner_id === owner.id;
-  const iOwe = myBalance < 0;
-  const pkNudge = (typeof pickemNudge !== 'undefined' && pickemNudge) ? pickemNudge : null;
-%>
-<% if (myTurn || unvoted || iOwe || pkNudge) { %>
-<div class="todo-strip">
-  <span class="todo-label">Needs you</span>
-  <% if (myTurn) { %><a class="todo-item urgent" href="/draft">🎯 Pick your draft spot</a><% } %>
-  <%# The one item with a hard weekly deadline — unpicked games vanish at kickoff. %>
-  <% if (pkNudge) { %><a class="todo-item" href="/pickem">🗳️ Pick this week's games (<%= pkNudge.made %> of <%= pkNudge.total %> in)</a><% } %>
-  <% if (unvoted) { %><a class="todo-item" href="/votes">🗳 <%= unvoted %> vote<%= unvoted === 1 ? '' : 's' %> you haven't cast</a><% } %>
-  <% if (iOwe) { %><a class="todo-item" href="/bank">💵 You owe <%= money(-myBalance) %></a><% } %>
-</div>
-<% } %>
+
+
 
 <div class="grid cols-2">
+
+  <%# LIVE SCORES ABOVE THE STANDINGS (site review 09-02, item 4): on a phone this
+      grid is one column in DOM order, and the games are what you open the page for. %>
+  <% const boardHasScores = sleeperBoard.some(m => m.some(t => t.points > 0)); %>
+  <% if (sleeperBoard.length && boardHasScores) { %>
+  <div class="card">
+    <h2>Week <%= sleeperData.week %> Scoreboard <span class="sub">live from Sleeper</span></h2>
+    <div class="body">
+      <%# Each game taps through to its matchup — your own game opens your full
+          matchup (?opp=), any other opens the read-only spectator view (?a=&b=),
+          the same rule as the /scoreboard page. Falls back to a plain block only
+          when the owner ids aren't mapped yet. %>
+      <% for (const m of sleeperBoard) { const hi = Math.max(...m.map(t => t.points));
+         const ids = m.map(t => t.owner_id).filter(x => x != null);
+         let _mlnk = null;
+         if (ids.length === 2) {
+           _mlnk = ids.indexOf(meId) !== -1
+             ? '/matchup?opp=' + ids[ids.indexOf(meId) === 0 ? 1 : 0]
+             : '/matchup?a=' + ids[0] + '&b=' + ids[1];
+         }
+         const _mtag = _mlnk ? 'a' : 'div'; %>
+        <<%= _mtag %> class="matchup<%= _mlnk ? ' clickable' : '' %>"<% if (_mlnk) { %> href="<%= _mlnk %>" title="See this matchup"<% } %>>
+          <% for (const t of m) { %>
+            <div class="mrow <%= t.points === hi && m.length > 1 && hi > 0 ? 'winning' : '' %>">
+              <span><%= t.team %></span><b><%= t.points.toFixed(2) %></b>
+            </div>
+          <% } %>
+          <% if (_mlnk) { %><span class="mrow-cue" aria-hidden="true">→</span><% } %>
+        </<%= _mtag %>>
+      <% } %>
+    </div>
+  </div>
+  <% } %>
 
   <% if (sleeperStandings.length) { %>
   <%
@@ -339,37 +381,6 @@
           </tr>
         <% } %>
       </table>
-    </div>
-  </div>
-  <% } %>
-
-  <% const boardHasScores = sleeperBoard.some(m => m.some(t => t.points > 0)); %>
-  <% if (sleeperBoard.length && boardHasScores) { %>
-  <div class="card">
-    <h2>Week <%= sleeperData.week %> Scoreboard <span class="sub">live from Sleeper</span></h2>
-    <div class="body">
-      <%# Each game taps through to its matchup — your own game opens your full
-          matchup (?opp=), any other opens the read-only spectator view (?a=&b=),
-          the same rule as the /scoreboard page. Falls back to a plain block only
-          when the owner ids aren't mapped yet. %>
-      <% for (const m of sleeperBoard) { const hi = Math.max(...m.map(t => t.points));
-         const ids = m.map(t => t.owner_id).filter(x => x != null);
-         let _mlnk = null;
-         if (ids.length === 2) {
-           _mlnk = ids.indexOf(meId) !== -1
-             ? '/matchup?opp=' + ids[ids.indexOf(meId) === 0 ? 1 : 0]
-             : '/matchup?a=' + ids[0] + '&b=' + ids[1];
-         }
-         const _mtag = _mlnk ? 'a' : 'div'; %>
-        <<%= _mtag %> class="matchup<%= _mlnk ? ' clickable' : '' %>"<% if (_mlnk) { %> href="<%= _mlnk %>" title="See this matchup"<% } %>>
-          <% for (const t of m) { %>
-            <div class="mrow <%= t.points === hi && m.length > 1 && hi > 0 ? 'winning' : '' %>">
-              <span><%= t.team %></span><b><%= t.points.toFixed(2) %></b>
-            </div>
-          <% } %>
-          <% if (_mlnk) { %><span class="mrow-cue" aria-hidden="true">→</span><% } %>
-        </<%= _mtag %>>
-      <% } %>
     </div>
   </div>
   <% } %>

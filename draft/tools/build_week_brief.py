@@ -29,6 +29,7 @@ own generated_at beats a fresh brief that lies.
 CI-only (Sleeper is proxy-blocked from dev sandboxes):
     python3 draft/tools/build_week_brief.py
 """
+from pathlib import Path
 import json, os, sys, urllib.request
 from datetime import datetime, timezone
 
@@ -42,6 +43,81 @@ API = "https://api.sleeper.app/v1"
 def get(url):
     with urllib.request.urlopen(url, timeout=30) as r:
         return json.load(r)
+
+
+SECOND_OPINION = "draft/data/weekly_own/second_opinion_{season}_w{week}.json"
+TEAM_CONTEXT = "draft/data/team_context_2026.json"
+
+
+def implied_totals(season, week, root="."):
+    """team code -> this week's implied team total from OUR Bovada capture
+    (draft/tools/team_context.py). {} when the store is absent or is another
+    season — the column then prints '—' (cannot say), never a number."""
+    try:
+        doc = json.load(open(Path(root) / TEAM_CONTEXT))
+    except (OSError, ValueError):
+        return {}
+    if str(doc.get("season")) != str(season):
+        return {}
+    out = {}
+    for code, t in (doc.get("teams") or {}).items():
+        w = (t.get("weeks") or {}).get(str(week))
+        if w and w.get("implied_total") is not None:
+            out[code] = {"total": w["implied_total"], "spread": w.get("spread"), "opp": w.get("opp")}
+    return out
+
+
+def implied_text(team, implied):
+    """'24.0 (−4.0)' — the implied total and the spread from that team's side;
+    the WAS/WSH alias the schedule store needs applies here too."""
+    if not team:
+        return "—"
+    row = implied.get(team) or implied.get({"WSH": "WAS", "WAS": "WSH"}.get(team, ""))
+    if not row:
+        return "—"
+    sp = row.get("spread")
+    sp_txt = "" if sp is None else f" ({'+' if sp > 0 else ''}{sp:g})"
+    return f"{row['total']:.1f}{sp_txt}"
+
+
+def second_opinion_section(season, week, root="."):
+    """## Second opinion (props vs champion) — READ from the file A's
+    props_second_opinion.py writes after each Thursday snapshot (ROUTES A →
+    relay, 09-02); never recomputed here. The table is the roster table above
+    with three more columns; `swaps` names where the two opinions disagree on
+    who starts. Returns the markdown section, or a one-line placeholder when
+    the week's file is not written yet (the brief runs Tue before the Wed/Thu
+    snapshot writes it)."""
+    path = Path(root) / SECOND_OPINION.format(season=season, week=week)
+    head = "## Second opinion (props vs champion)\n\n"
+    if not path.exists():
+        return head + (f"_not written yet for week {week} — `props_second_opinion.py` runs after "
+                       "the Wed/Thu snapshot (own-weekly-proj.yml)._\n")
+    so = json.load(open(path))
+    rows = so.get("table") or []
+    fmt = lambda v: "—" if v is None else f"{v:.1f}"  # noqa: E731
+    lines = ["| st | player | pos | champion | props | props − champion |",
+             "|---|---|---|---|---|---|"]
+    for r in rows:
+        lines.append(f"| {'S' if r.get('st') else ' '} | {r.get('name')} | {r.get('pos')} | "
+                     f"{fmt(r.get('champion'))} | {fmt(r.get('props'))} | {fmt(r.get('props_minus_champion'))} |")
+    swaps = so.get("swaps") or []
+    swap_txt = ("; ".join(f"props starts **{s.get('props_starts')}** where the champion starts "
+                          f"{s.get('champion_starts')}" for s in swaps)
+                if swaps else "none — both opinions start the same nine")
+    m = so.get("matchup") or {}
+    bc, bp = m.get("by_champion") or {}, m.get("by_props_blend") or {}
+    match_txt = ""
+    if bc and bp:
+        match_txt = (f"\n\n**Matchup vs {m.get('opponent')}:** by the champion "
+                     f"{fmt(bc.get('mine'))} – {fmt(bc.get('theirs'))} (gap {fmt(bc.get('gap'))}); "
+                     f"by the props blend {fmt(bp.get('mine'))} – {fmt(bp.get('theirs'))} "
+                     f"(gap {fmt(bp.get('gap'))}). {m.get('note') or ''}")
+    return (head + f"_Read from `{path.as_posix()}` (generated {so.get('generated')}; champion arm "
+            f"`{so.get('champion_arm')}`; {so.get('skill_players_with_a_props_line')} of "
+            f"{so.get('skill_players_rostered')} rostered skill players carry a line). REPORT ONLY — "
+            f"the props arm is P354's challenger, not the grader's input yet._\n\n"
+            + "\n".join(lines) + f"\n\n**Lineup swaps:** {swap_txt}." + match_txt + "\n")
 
 
 def league_id():
@@ -159,10 +235,12 @@ def main():
     }
     json.dump(doc, open(OUT_JSON, "w"), indent=1)
 
+    implied = implied_totals(season, week)
+
     def table(rows):
         out = [f"| {'S' if r['starter'] else ' '} | {r['name']} | {r['pos']} | "
-               f"{r['team'] or '—'} | {r['game']} | {r['injury'] or ''} |" for r in rows]
-        return ("| st | player | pos | team | game | injury |\n|---|---|---|---|---|---|\n"
+               f"{r['team'] or '—'} | {r['game']} | {implied_text(r['team'], implied)} | {r['injury'] or ''} |" for r in rows]
+        return ("| st | player | pos | team | game | implied | injury |\n|---|---|---|---|---|---|---|\n"
                 + "\n".join(out))
 
     md = (f"# THIS WEEK — {doc['cory']['display']}, week {week} ({season})\n\n"
@@ -170,9 +248,14 @@ def main():
           f"Cory's roster or matchup cites this file (fresh within 3 days) or live\n"
           f"Sleeper — a frozen seat plan or tournament artifact is never a source for\n"
           f"who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)\n\n"
+          # Cory, 09-02: "every loop closed, the ones that stick, I need to know."
+          f"**What stuck so far: `WHAT-STUCK.md`** — every closed loop in plain English, and what is still running.\n\n"
           f"## Opponent: {doc['opponent']['display'] if doc['opponent'] else 'BYE / not scheduled'}\n\n"
           f"## My roster\n\n{table(my_players)}\n\n"
           f"## Opponent's roster\n\n{table(opp_players) if opp_players else '_not available_'}\n\n"
+          f"{second_opinion_section(season, week)}\n"
+          f"**Implied column:** each team's implied total this week from our own Bovada capture, with the spread from that side "
+          f"(`draft/data/team_context_2026.json`; — = not priced yet). "
           f"**Named gaps:** {doc['named_gaps'][0]}\n")
     open(OUT_MD, "w").write(md)
     print(f"wrote {OUT_MD} + {OUT_JSON}: week {week}, {len(my_players)} players, "

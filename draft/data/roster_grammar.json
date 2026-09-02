@@ -1,0 +1,33 @@
+{
+ "_what": "Roster grammar derived from league.starters/roster_slots \u2014 hard legality for recommendations (roster_grammar.py)",
+ "starters": {
+  "DEF": 1,
+  "FLEX": 1,
+  "K": 1,
+  "QB": 1,
+  "RB": 2,
+  "TE": 1,
+  "WR": 2
+ },
+ "rounds": 15,
+ "flex": 1,
+ "onesie_cap": {
+  "QB": 2,
+  "TE": 2,
+  "K": 1,
+  "DEF": 1
+ },
+ "depth_cap": {
+  "RB": 7,
+  "WR": 7
+ },
+ "rb_wr_total_cap": 11,
+ "kdef_last_picks": 3,
+ "rules": [
+  "G1 fill first",
+  "G2 onesie cap",
+  "G3 depth cap",
+  "G4 K/DEF timing",
+  "G5 complete roster (K required \u2014 Cory 09-02: nobody else can start in that spot; take him last)"
+ ]
+}

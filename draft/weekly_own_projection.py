@@ -198,6 +198,28 @@ def week_kickoff(week: int) -> _dt.date:
     return WEEK1_KICKOFF + _dt.timedelta(days=7 * (week - 1))
 
 
+def first_kickoff_utc(week: int, season: int = SEASON, schedule_path: Path | None = None) -> _dt.datetime:
+    """The REAL first kickoff of a week, UTC — the forward-guarantee LINE.
+
+    Register 477 (2026-09-02, the same class E filed as 475 against the site's
+    emitter): the date-level `week_kickoff` treats the whole Thursday as
+    "kickoff day, a re-run may refresh", but week 1's first game kicks off
+    2026-09-10T00:20Z and the Thursday cron runs 14:00Z — a snapshot written
+    13h40m AFTER the opener, stamped as the forward guarantee. The committed
+    schedule (draft/data/nfl_schedule_<season>.json, weeks[N].first) is exact
+    for all 18 weeks; the fallback when it is absent is the usual Thursday-
+    night kickoff, 00:20Z on the Friday after `week_kickoff`."""
+    path = schedule_path or (HERE / "data" / f"nfl_schedule_{season}.json")
+    try:
+        wk = json.loads(path.read_text()).get("weeks", {}).get(str(week))
+        if wk and wk.get("first"):
+            return _dt.datetime.fromisoformat(str(wk["first"]).replace("Z", "+00:00"))
+    except (OSError, ValueError):
+        pass
+    d = week_kickoff(week) + _dt.timedelta(days=1)
+    return _dt.datetime(d.year, d.month, d.day, 0, 20, tzinfo=_dt.timezone.utc)
+
+
 # ── lines -> implied team totals (pure) ──────────────────────────────────────
 
 def implied_from_sgo(doc: dict, week: int) -> dict:
@@ -507,8 +529,24 @@ def apply_override(champion: dict, arms: list, controls: dict) -> tuple[dict, bo
 # ── CLI ──────────────────────────────────────────────────────────────────────
 
 def _board_players(path: Path) -> list:
+    """Every player the board projects: `players` PLUS `kept_players`.
+
+    ⛔ REGISTER 476 (2026-09-02): the board keeps the 23 kept players in a
+    separate list, and this reader returned `players` only — so the weekly
+    champion priced 0 of 23 keepers, including Cory's three best starters
+    (Chase, Henry, Walker), and every Tuesday grade, the shadow rule and the
+    lineup grades would have excluded the league's best players all season.
+    Found by the props second-opinion tool's own crosswalk control (S1), not
+    by a reader. The kept rows carry the same projection fields."""
     doc = json.loads(path.read_text())
-    return doc.get("players") if isinstance(doc, dict) else doc
+    if not isinstance(doc, dict):
+        return doc
+    players = list(doc.get("players") or [])
+    seen = {str(p.get("player_id")) for p in players}
+    for k in doc.get("kept_players") or []:
+        if str(k.get("player_id")) not in seen:
+            players.append(dict(k, kept=True))
+    return players
 
 
 def snapshot_path(out_dir: Path, season: int, week: int) -> Path:
@@ -519,6 +557,7 @@ def main(argv: list | None = None) -> int:
     args = list(sys.argv[1:] if argv is None else argv)
     week = season = None
     date = None
+    now_arg = None
     for i, a in enumerate(args):
         if a == "--week" and i + 1 < len(args):
             week = int(args[i + 1])
@@ -526,9 +565,18 @@ def main(argv: list | None = None) -> int:
             season = int(args[i + 1])
         if a == "--date" and i + 1 < len(args):
             date = args[i + 1]
+        if a == "--now" and i + 1 < len(args):
+            now_arg = args[i + 1]
     season = season or SEASON
-    today = _dt.date.fromisoformat(date) if date else _dt.datetime.now(
-        _dt.timezone.utc).date()
+    #: `--now` (tests, register 477): the UTC instant the run happens at; the
+    #: forward guarantee is judged against the week's REAL first kickoff, so a
+    #: date alone cannot decide it. `--date` alone implies noon UTC that day.
+    now = (_dt.datetime.fromisoformat(now_arg.replace("Z", "+00:00")) if now_arg
+           else (_dt.datetime.fromisoformat(date + "T12:00:00+00:00") if date
+                 else _dt.datetime.now(_dt.timezone.utc)))
+    if now.tzinfo is None:
+        now = now.replace(tzinfo=_dt.timezone.utc)
+    today = now.date()
 
     board_path = Path(os.environ.get("OWN_WEEKLY_BOARD")
                       or HERE.parent / "public" / "draft_data.json")
@@ -557,11 +605,20 @@ def main(argv: list | None = None) -> int:
     # existing snapshot is frozen (it is the forward guarantee). A same-day
     # Thursday re-run may refresh it (kickoff is that evening, lines move).
     out_path = snapshot_path(out_dir, season, week)
-    if out_path.exists() and today > week_kickoff(week):
-        print(f"REFUSING to overwrite {out_path.name}: week {week} kicked off "
-              f"{week_kickoff(week)} and the committed snapshot is the "
-              "forward guarantee. A post-kickoff rewrite would be a backdated "
-              "forecast.")
+    kick = first_kickoff_utc(week, season)
+    if now >= kick:
+        if out_path.exists():
+            # EXPECTED every week the slate opens before the Thursday run
+            # (week 1's Wednesday opener, week 12's Thanksgiving): the earlier
+            # pre-kickoff snapshot stands and this run is a clean no-op, not a
+            # red job — a refusal that fires on schedule is not a failure.
+            print(f"FROZEN: {out_path.name} stands — week {week}'s first game kicked off "
+                  f"{kick.isoformat()} and now is {now.isoformat()}; a post-kickoff rewrite "
+                  "would be a backdated forecast. Nothing written (exit 0).")
+            return 0
+        print(f"MISSED: no snapshot for week {week} and its first game kicked off "
+              f"{kick.isoformat()} (now {now.isoformat()}). Writing one now would be a "
+              "backdated forecast; the week is unpriced and this is a failure.")
         return 1
 
     if not board_path.exists():

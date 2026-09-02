@@ -1,0 +1,218 @@
+{
+ "_territory": "TERRITORY: relay \u2014 produced by draft/tools/props_spread.py (P355's feed)",
+ "_what": "Per-position residual sd of realized weekly points around market-implied points, by implied-points bucket, and a clipped linear fit sd \u2248 a + b\u00b7implied. fetch_free_props.py stamps `sd` on every priced player from `fits`; the E[$] solver reads p.sd. REPORT-ONLY until P355 grades \u2014 the point-estimate solver stays the default (A's call).",
+ "_controls_rule": "fits are EMPTY when any control fails; a consumer must treat that as no feed, not sd 0",
+ "measured": {
+  "seasons": [
+   2023,
+   2024,
+   2025
+  ],
+  "weeks": 54,
+  "player_weeks": 11560,
+  "dropped_no_board_position": 4578,
+  "min_bucket_n": 30
+ },
+ "controls": [
+  {
+   "id": "C1",
+   "what": "shuffling implied points within a week raises residual sd by >20%",
+   "true_sd": 6.04,
+   "shuffled_sd": 10.17,
+   "ok": true
+  },
+  {
+   "id": "C2",
+   "what": "a perfect forecast measures sd 0 at every position/bucket",
+   "ok": true
+  },
+  {
+   "id": "C3",
+   "what": "within each position the bucket sd is non-decreasing in implied points",
+   "violations": [],
+   "ok": true
+  }
+ ],
+ "table": {
+  "QB": {
+   "n": 1390,
+   "sd_all": 9.65,
+   "buckets": [
+    {
+     "lo": 10,
+     "hi": 15,
+     "n": 151,
+     "implied_mean": 12.73,
+     "bias": 1.91,
+     "sd": 8.39
+    },
+    {
+     "lo": 15,
+     "hi": 20,
+     "n": 425,
+     "implied_mean": 18.87,
+     "bias": -1.29,
+     "sd": 9.55
+    },
+    {
+     "lo": 20,
+     "hi": 99,
+     "n": 792,
+     "implied_mean": 22.48,
+     "bias": -1.57,
+     "sd": 9.57
+    }
+   ]
+  },
+  "RB": {
+   "n": 2800,
+   "sd_all": 5.57,
+   "buckets": [
+    {
+     "lo": 0,
+     "hi": 5,
+     "n": 1405,
+     "implied_mean": 1.78,
+     "bias": 1.87,
+     "sd": 4.22
+    },
+    {
+     "lo": 5,
+     "hi": 10,
+     "n": 587,
+     "implied_mean": 7.4,
+     "bias": 0.93,
+     "sd": 6.08
+    },
+    {
+     "lo": 10,
+     "hi": 15,
+     "n": 644,
+     "implied_mean": 12.43,
+     "bias": -0.58,
+     "sd": 6.52
+    },
+    {
+     "lo": 15,
+     "hi": 20,
+     "n": 162,
+     "implied_mean": 16.44,
+     "bias": -1.66,
+     "sd": 7.35
+    }
+   ]
+  },
+  "WR": {
+   "n": 4624,
+   "sd_all": 5.59,
+   "buckets": [
+    {
+     "lo": 0,
+     "hi": 5,
+     "n": 2004,
+     "implied_mean": 1.98,
+     "bias": 1.53,
+     "sd": 4.06
+    },
+    {
+     "lo": 5,
+     "hi": 10,
+     "n": 1699,
+     "implied_mean": 7.4,
+     "bias": 0.71,
+     "sd": 6.09
+    },
+    {
+     "lo": 10,
+     "hi": 15,
+     "n": 873,
+     "implied_mean": 11.66,
+     "bias": -0.21,
+     "sd": 7.01
+    },
+    {
+     "lo": 15,
+     "hi": 20,
+     "n": 47,
+     "implied_mean": 16.72,
+     "bias": -0.9,
+     "sd": 8.27
+    }
+   ]
+  },
+  "TE": {
+   "n": 2746,
+   "sd_all": 4.54,
+   "buckets": [
+    {
+     "lo": 0,
+     "hi": 5,
+     "n": 1633,
+     "implied_mean": 1.74,
+     "bias": 1.47,
+     "sd": 3.49
+    },
+    {
+     "lo": 5,
+     "hi": 10,
+     "n": 968,
+     "implied_mean": 7.08,
+     "bias": 0.44,
+     "sd": 5.41
+    },
+    {
+     "lo": 10,
+     "hi": 15,
+     "n": 134,
+     "implied_mean": 11.25,
+     "bias": -0.56,
+     "sd": 7.15
+    }
+   ]
+  }
+ },
+ "fits": {
+  "QB": {
+   "a": 6.858,
+   "b": 0.1283,
+   "sd_min": 8.39,
+   "sd_max": 9.57,
+   "implied_min": 12.73,
+   "implied_max": 22.48,
+   "buckets_used": 3
+  },
+  "RB": {
+   "a": 4.115,
+   "b": 0.2026,
+   "sd_min": 4.22,
+   "sd_max": 7.35,
+   "implied_min": 1.78,
+   "implied_max": 16.44,
+   "buckets_used": 4
+  },
+  "WR": {
+   "a": 3.707,
+   "b": 0.2808,
+   "sd_min": 4.06,
+   "sd_max": 8.27,
+   "implied_min": 1.98,
+   "implied_max": 16.72,
+   "buckets_used": 4
+  },
+  "TE": {
+   "a": 2.783,
+   "b": 0.3837,
+   "sd_min": 3.49,
+   "sd_max": 7.15,
+   "implied_min": 1.74,
+   "implied_max": 11.25,
+   "buckets_used": 3
+  }
+ },
+ "solver_fallback_for_reference": {
+  "QB": 8,
+  "RB": 7,
+  "WR": 7,
+  "TE": 6
+ }
+}

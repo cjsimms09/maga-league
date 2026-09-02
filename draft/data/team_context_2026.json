@@ -1,0 +1,807 @@
+{
+ "_territory": "TERRITORY: C \u2014 produced by draft/tools/team_context.py (relay built the pace + implied-total half, 2026-09-02)",
+ "_what": "Per-team situational context: this week's implied team total from OUR Bovada capture (latest capture per game), a 2024-25 pace prior from nflverse, and the coaching/O-line fields the store is waiting for (null = NOT CAPTURED).",
+ "_gaps": [
+  "head_coach / offensive_coordinator / *_changed_since_2025 / oline_starters_returning: no free source wired yet (C); null is the honest value \u2014 a blank string would read as 'no change'",
+  "pace is the 2024-25 prior until the Wednesday snap job has 2026 weeks"
+ ],
+ "season": 2026,
+ "built_at": "2026-09-02T03:10:43+00:00",
+ "source_rows": 101,
+ "priced_games": 16,
+ "unmatched": [],
+ "controls": [
+  {
+   "id": "C1",
+   "what": "implied totals sum to the game total and the favourite's exceeds the underdog's",
+   "games": 16,
+   "ok": true,
+   "violations": []
+  },
+  {
+   "id": "C2",
+   "what": "known positive: week 1 NE @ SEA priced, Seattle favoured",
+   "sea": 24.0,
+   "ne": 20.5,
+   "ok": true
+  },
+  {
+   "id": "C3",
+   "what": "every priced team carries a pace prior; every pace code is an NFL code",
+   "priced_teams": 32,
+   "missing_pace": [],
+   "foreign_pace_codes": [],
+   "ok": true
+  }
+ ],
+ "teams": {
+  "ARI": {
+   "pace_prior": {
+    "plays_per_game": 61.912,
+    "neutral_plays_per_game": 48.176,
+    "neutral_pass_rate": 0.6062,
+    "basis": "2105 scrimmage plays over 34 games",
+    "seasons": "2024-25 (a prior, not this season)"
+   },
+   "head_coach": null,
+   "offensive_coordinator": null,
+   "hc_changed_since_2025": null,
+   "oc_changed_since_2025": null,
+   "oline_starters_returning": null,
+   "weeks": {
+    "1": {
+     "opp": "LAC",
+     "home": false,
+     "implied_total": 18.75,
+     "spread": 10.0,
+     "game_total": 47.5,
+     "captured_at": "2026-08-30T18:55:06.965305Z"
+    }
+   }
+  },
+  "ATL": {
+   "pace_prior": {
+    "plays_per_game": 62.029,
+    "neutral_plays_per_game": 56.794,
+    "neutral_pass_rate": 0.5458,
+    "basis": "2109 scrimmage plays over 34 games",
+    "seasons": "2024-25 (a prior, not this season)"
+   },
+   "head_coach": null,
+   "offensive_coordinator": null,
+   "hc_changed_since_2025": null,
+   "oc_changed_since_2025": null,
+   "oline_starters_returning": null,
+   "weeks": {
+    "1": {
+     "opp": "PIT",
+     "home": false,
+     "implied_total": 19.75,
+     "spread": 3.0,
+     "game_total": 42.5,
+     "captured_at": "2026-08-30T18:55:06.965305Z"
+    }
+   }
+  },
+  "BAL": {
+   "pace_prior": {
+    "plays_per_game": 58.972,
+    "neutral_plays_per_game": 52.028,
+    "neutral_pass_rate": 0.4944,
+    "basis": "2123 scrimmage plays over 36 games",
+    "seasons": "2024-25 (a prior, not this season)"
+   },
+   "head_coach": null,
+   "offensive_coordinator": null,
+   "hc_changed_since_2025": null,
+   "oc_changed_since_2025": null,
+   "oline_starters_returning": null,
+   "weeks": {
+    "1": {
+     "opp": "IND",
+     "home": false,
+     "implied_total": 25.5,
+     "spread": -3.5,
+     "game_total": 47.5,
+     "captured_at": "2026-08-30T18:55:06.965305Z"
+    }
+   }
+  },
+  "BUF": {
+   "pace_prior": {
+    "plays_per_game": 61.667,
+    "neutral_plays_per_game": 52.385,
+    "neutral_pass_rate": 0.5301,
+    "basis": "2405 scrimmage plays over 39 games",
+    "seasons": "2024-25 (a prior, not this season)"
+   },
+   "head_coach": null,
+   "offensive_coordinator": null,
+   "hc_changed_since_2025": null,
+   "oc_changed_since_2025": null,
+   "oline_starters_returning": null,
+   "weeks": {
+    "1": {
+     "opp": "HOU",
+     "home": false,
+     "implied_total": 21.75,
+     "spread": 1.0,
+     "game_total": 44.5,
+     "captured_at": "2026-08-30T18:55:06.965305Z"
+    }
+   }
+  },
+  "CAR": {
+   "pace_prior": {
+    "plays_per_game": 58.457,
+    "neutral_plays_per_game": 46.514,
+    "neutral_pass_rate": 0.562,
+    "basis": "2046 scrimmage plays over 35 games",
+    "seasons": "2024-25 (a prior, not this season)"
+   },
+   "head_coach": null,
+   "offensive_coordinator": null,
+   "hc_changed_since_2025": null,
+   "oc_changed_since_2025": null,
+   "oline_starters_returning": null,
+   "weeks": {
+    "1": {
+     "opp": "CHI",
+     "home": true,
+     "implied_total": 22.25,
+     "spread": 2.5,
+     "game_total": 47.0,
+     "captured_at": "2026-08-30T18:55:06.965305Z"
+    }
+   }
+  },
+  "CHI": {
+   "pace_prior": {
+    "plays_per_game": 64.278,
+    "neutral_plays_per_game": 55.667,
+    "neutral_pass_rate": 0.5679,
+    "basis": "2314 scrimmage plays over 36 games",
+    "seasons": "2024-25 (a prior, not this season)"
+   },
+   "head_coach": null,
+   "offensive_coordinator": null,
+   "hc_changed_since_2025": null,
+   "oc_changed_since_2025": null,
+   "oline_starters_returning": null,
+   "weeks": {
+    "1": {
+     "opp": "CAR",
+     "home": false,
+     "implied_total": 24.75,
+     "spread": -2.5,
+     "game_total": 47.0,
+     "captured_at": "2026-08-30T18:55:06.965305Z"
+    }
+   }
+  },
+  "CIN": {
+   "pace_prior": {
+    "plays_per_game": 62.294,
+    "neutral_plays_per_game": 54.618,
+    "neutral_pass_rate": 0.6613,
+    "basis": "2118 scrimmage plays over 34 games",
+    "seasons": "2024-25 (a prior, not this season)"
+   },
+   "head_coach": null,
+   "offensive_coordinator": null,
+   "hc_changed_since_2025": null,
+   "oc_changed_since_2025": null,
+   "oline_starters_returning": null,
+   "weeks": {
+    "1": {
+     "opp": "TB",
+     "home": true,
+     "implied_total": 27.25,
+     "spread": -4.0,
+     "game_total": 50.5,
+     "captured_at": "2026-08-30T18:55:06.965305Z"
+    }
+   }
+  },
+  "CLE": {
+   "pace_prior": {
+    "plays_per_game": 63.206,
+    "neutral_plays_per_game": 51.088,
+    "neutral_pass_rate": 0.6016,
+    "basis": "2149 scrimmage plays over 34 games",
+    "seasons": "2024-25 (a prior, not this season)"
+   },
+   "head_coach": null,
+   "offensive_coordinator": null,
+   "hc_changed_since_2025": null,
+   "oc_changed_since_2025": null,
+   "oline_starters_returning": null,
+   "weeks": {
+    "1": {
+     "opp": "JAX",
+     "home": false,
+     "implied_total": 16.0,
+     "spread": 8.5,
+     "game_total": 40.5,
+     "captured_at": "2026-08-30T18:55:06.965305Z"
+    }
+   }
+  },
+  "DAL": {
+   "pace_prior": {
+    "plays_per_game": 64.676,
+    "neutral_plays_per_game": 52.324,
+    "neutral_pass_rate": 0.5964,
+    "basis": "2199 scrimmage plays over 34 games",
+    "seasons": "2024-25 (a prior, not this season)"
+   },
+   "head_coach": null,
+   "offensive_coordinator": null,
+   "hc_changed_since_2025": null,
+   "oc_changed_since_2025": null,
+   "oline_starters_returning": null,
+   "weeks": {
+    "1": {
+     "opp": "NYG",
+     "home": false,
+     "implied_total": 25.75,
+     "spread": -3.0,
+     "game_total": 48.5,
+     "captured_at": "2026-08-30T18:55:06.965305Z"
+    }
+   }
+  },
+  "DEN": {
+   "pace_prior": {
+    "plays_per_game": 61.703,
+    "neutral_plays_per_game": 54.649,
+    "neutral_pass_rate": 0.5984,
+    "basis": "2283 scrimmage plays over 37 games",
+    "seasons": "2024-25 (a prior, not this season)"
+   },
+   "head_coach": null,
+   "offensive_coordinator": null,
+   "hc_changed_since_2025": null,
+   "oc_changed_since_2025": null,
+   "oline_starters_returning": null,
+   "weeks": {
+    "1": {
+     "opp": "KC",
+     "home": false,
+     "implied_total": 20.5,
+     "spread": 2.5,
+     "game_total": 43.5,
+     "captured_at": "2026-08-30T18:55:06.965305Z"
+    }
+   }
+  },
+  "DET": {
+   "pace_prior": {
+    "plays_per_game": 63.286,
+    "neutral_plays_per_game": 54.543,
+    "neutral_pass_rate": 0.5715,
+    "basis": "2215 scrimmage plays over 35 games",
+    "seasons": "2024-25 (a prior, not this season)"
+   },
+   "head_coach": null,
+   "offensive_coordinator": null,
+   "hc_changed_since_2025": null,
+   "oc_changed_since_2025": null,
+   "oline_starters_returning": null,
+   "weeks": {
+    "1": {
+     "opp": "NO",
+     "home": true,
+     "implied_total": 28.25,
+     "spread": -7.0,
+     "game_total": 49.5,
+     "captured_at": "2026-08-30T18:55:06.965305Z"
+    }
+   }
+  },
+  "GB": {
+   "pace_prior": {
+    "plays_per_game": 59.556,
+    "neutral_plays_per_game": 52.306,
+    "neutral_pass_rate": 0.5125,
+    "basis": "2144 scrimmage plays over 36 games",
+    "seasons": "2024-25 (a prior, not this season)"
+   },
+   "head_coach": null,
+   "offensive_coordinator": null,
+   "hc_changed_since_2025": null,
+   "oc_changed_since_2025": null,
+   "oline_starters_returning": null,
+   "weeks": {
+    "1": {
+     "opp": "MIN",
+     "home": false,
+     "implied_total": 21.75,
+     "spread": 1.5,
+     "game_total": 45.0,
+     "captured_at": "2026-08-30T18:55:06.965305Z"
+    }
+   }
+  },
+  "HOU": {
+   "pace_prior": {
+    "plays_per_game": 62.974,
+    "neutral_plays_per_game": 57.711,
+    "neutral_pass_rate": 0.5764,
+    "basis": "2393 scrimmage plays over 38 games",
+    "seasons": "2024-25 (a prior, not this season)"
+   },
+   "head_coach": null,
+   "offensive_coordinator": null,
+   "hc_changed_since_2025": null,
+   "oc_changed_since_2025": null,
+   "oline_starters_returning": null,
+   "weeks": {
+    "1": {
+     "opp": "BUF",
+     "home": true,
+     "implied_total": 22.75,
+     "spread": -1.0,
+     "game_total": 44.5,
+     "captured_at": "2026-08-30T18:55:06.965305Z"
+    }
+   }
+  },
+  "IND": {
+   "pace_prior": {
+    "plays_per_game": 60.147,
+    "neutral_plays_per_game": 53.029,
+    "neutral_pass_rate": 0.5502,
+    "basis": "2045 scrimmage plays over 34 games",
+    "seasons": "2024-25 (a prior, not this season)"
+   },
+   "head_coach": null,
+   "offensive_coordinator": null,
+   "hc_changed_since_2025": null,
+   "oc_changed_since_2025": null,
+   "oline_starters_returning": null,
+   "weeks": {
+    "1": {
+     "opp": "BAL",
+     "home": true,
+     "implied_total": 22.0,
+     "spread": 3.5,
+     "game_total": 47.5,
+     "captured_at": "2026-08-30T18:55:06.965305Z"
+    }
+   }
+  },
+  "JAX": {
+   "pace_prior": {
+    "plays_per_game": 60.543,
+    "neutral_plays_per_game": 49.943,
+    "neutral_pass_rate": 0.5715,
+    "basis": "2119 scrimmage plays over 35 games",
+    "seasons": "2024-25 (a prior, not this season)"
+   },
+   "head_coach": null,
+   "offensive_coordinator": null,
+   "hc_changed_since_2025": null,
+   "oc_changed_since_2025": null,
+   "oline_starters_returning": null,
+   "weeks": {
+    "1": {
+     "opp": "CLE",
+     "home": true,
+     "implied_total": 24.5,
+     "spread": -8.5,
+     "game_total": 40.5,
+     "captured_at": "2026-08-30T18:55:06.965305Z"
+    }
+   }
+  },
+  "KC": {
+   "pace_prior": {
+    "plays_per_game": 61.541,
+    "neutral_plays_per_game": 57.432,
+    "neutral_pass_rate": 0.6047,
+    "basis": "2277 scrimmage plays over 37 games",
+    "seasons": "2024-25 (a prior, not this season)"
+   },
+   "head_coach": null,
+   "offensive_coordinator": null,
+   "hc_changed_since_2025": null,
+   "oc_changed_since_2025": null,
+   "oline_starters_returning": null,
+   "weeks": {
+    "1": {
+     "opp": "DEN",
+     "home": true,
+     "implied_total": 23.0,
+     "spread": -2.5,
+     "game_total": 43.5,
+     "captured_at": "2026-08-30T18:55:06.965305Z"
+    }
+   }
+  },
+  "LAC": {
+   "pace_prior": {
+    "plays_per_game": 60.861,
+    "neutral_plays_per_game": 53.889,
+    "neutral_pass_rate": 0.5747,
+    "basis": "2191 scrimmage plays over 36 games",
+    "seasons": "2024-25 (a prior, not this season)"
+   },
+   "head_coach": null,
+   "offensive_coordinator": null,
+   "hc_changed_since_2025": null,
+   "oc_changed_since_2025": null,
+   "oline_starters_returning": null,
+   "weeks": {
+    "1": {
+     "opp": "ARI",
+     "home": true,
+     "implied_total": 28.75,
+     "spread": -10.0,
+     "game_total": 47.5,
+     "captured_at": "2026-08-30T18:55:06.965305Z"
+    }
+   }
+  },
+  "LAR": {
+   "pace_prior": {
+    "plays_per_game": 61.718,
+    "neutral_plays_per_game": 55.846,
+    "neutral_pass_rate": 0.5973,
+    "basis": "2407 scrimmage plays over 39 games",
+    "seasons": "2024-25 (a prior, not this season)"
+   },
+   "head_coach": null,
+   "offensive_coordinator": null,
+   "hc_changed_since_2025": null,
+   "oc_changed_since_2025": null,
+   "oline_starters_returning": null,
+   "weeks": {
+    "1": {
+     "opp": "SF",
+     "home": true,
+     "implied_total": 26.0,
+     "spread": -3.5,
+     "game_total": 48.5,
+     "captured_at": "2026-08-30T18:55:06.965305Z"
+    }
+   }
+  },
+  "LV": {
+   "pace_prior": {
+    "plays_per_game": 58.706,
+    "neutral_plays_per_game": 49.118,
+    "neutral_pass_rate": 0.6102,
+    "basis": "1996 scrimmage plays over 34 games",
+    "seasons": "2024-25 (a prior, not this season)"
+   },
+   "head_coach": null,
+   "offensive_coordinator": null,
+   "hc_changed_since_2025": null,
+   "oc_changed_since_2025": null,
+   "oline_starters_returning": null,
+   "weeks": {
+    "1": {
+     "opp": "MIA",
+     "home": true,
+     "implied_total": 22.0,
+     "spread": -3.5,
+     "game_total": 40.5,
+     "captured_at": "2026-08-30T18:55:06.965305Z"
+    }
+   }
+  },
+  "MIA": {
+   "pace_prior": {
+    "plays_per_game": 59.353,
+    "neutral_plays_per_game": 49.441,
+    "neutral_pass_rate": 0.5538,
+    "basis": "2018 scrimmage plays over 34 games",
+    "seasons": "2024-25 (a prior, not this season)"
+   },
+   "head_coach": null,
+   "offensive_coordinator": null,
+   "hc_changed_since_2025": null,
+   "oc_changed_since_2025": null,
+   "oline_starters_returning": null,
+   "weeks": {
+    "1": {
+     "opp": "LV",
+     "home": false,
+     "implied_total": 18.5,
+     "spread": 3.5,
+     "game_total": 40.5,
+     "captured_at": "2026-08-30T18:55:06.965305Z"
+    }
+   }
+  },
+  "MIN": {
+   "pace_prior": {
+    "plays_per_game": 58.371,
+    "neutral_plays_per_game": 50.943,
+    "neutral_pass_rate": 0.5861,
+    "basis": "2043 scrimmage plays over 35 games",
+    "seasons": "2024-25 (a prior, not this season)"
+   },
+   "head_coach": null,
+   "offensive_coordinator": null,
+   "hc_changed_since_2025": null,
+   "oc_changed_since_2025": null,
+   "oline_starters_returning": null,
+   "weeks": {
+    "1": {
+     "opp": "GB",
+     "home": true,
+     "implied_total": 23.25,
+     "spread": -1.5,
+     "game_total": 45.0,
+     "captured_at": "2026-08-30T18:55:06.965305Z"
+    }
+   }
+  },
+  "NE": {
+   "pace_prior": {
+    "plays_per_game": 60.237,
+    "neutral_plays_per_game": 50.053,
+    "neutral_pass_rate": 0.5515,
+    "basis": "2289 scrimmage plays over 38 games",
+    "seasons": "2024-25 (a prior, not this season)"
+   },
+   "head_coach": null,
+   "offensive_coordinator": null,
+   "hc_changed_since_2025": null,
+   "oc_changed_since_2025": null,
+   "oline_starters_returning": null,
+   "weeks": {
+    "1": {
+     "opp": "SEA",
+     "home": false,
+     "implied_total": 20.5,
+     "spread": 3.5,
+     "game_total": 44.5,
+     "captured_at": "2026-08-30T18:55:06.965305Z"
+    }
+   }
+  },
+  "NO": {
+   "pace_prior": {
+    "plays_per_game": 61.471,
+    "neutral_plays_per_game": 51.206,
+    "neutral_pass_rate": 0.5767,
+    "basis": "2090 scrimmage plays over 34 games",
+    "seasons": "2024-25 (a prior, not this season)"
+   },
+   "head_coach": null,
+   "offensive_coordinator": null,
+   "hc_changed_since_2025": null,
+   "oc_changed_since_2025": null,
+   "oline_starters_returning": null,
+   "weeks": {
+    "1": {
+     "opp": "DET",
+     "home": false,
+     "implied_total": 21.25,
+     "spread": 7.0,
+     "game_total": 49.5,
+     "captured_at": "2026-08-30T18:55:06.965305Z"
+    }
+   }
+  },
+  "NYG": {
+   "pace_prior": {
+    "plays_per_game": 62.647,
+    "neutral_plays_per_game": 54.294,
+    "neutral_pass_rate": 0.559,
+    "basis": "2130 scrimmage plays over 34 games",
+    "seasons": "2024-25 (a prior, not this season)"
+   },
+   "head_coach": null,
+   "offensive_coordinator": null,
+   "hc_changed_since_2025": null,
+   "oc_changed_since_2025": null,
+   "oline_starters_returning": null,
+   "weeks": {
+    "1": {
+     "opp": "DAL",
+     "home": true,
+     "implied_total": 22.75,
+     "spread": 3.0,
+     "game_total": 48.5,
+     "captured_at": "2026-08-30T18:55:06.965305Z"
+    }
+   }
+  },
+  "NYJ": {
+   "pace_prior": {
+    "plays_per_game": 59.5,
+    "neutral_plays_per_game": 47.088,
+    "neutral_pass_rate": 0.5759,
+    "basis": "2023 scrimmage plays over 34 games",
+    "seasons": "2024-25 (a prior, not this season)"
+   },
+   "head_coach": null,
+   "offensive_coordinator": null,
+   "hc_changed_since_2025": null,
+   "oc_changed_since_2025": null,
+   "oline_starters_returning": null,
+   "weeks": {
+    "1": {
+     "opp": "TEN",
+     "home": false,
+     "implied_total": 18.25,
+     "spread": 2.5,
+     "game_total": 39.0,
+     "captured_at": "2026-08-30T18:55:06.965305Z"
+    }
+   }
+  },
+  "PHI": {
+   "pace_prior": {
+    "plays_per_game": 61.744,
+    "neutral_plays_per_game": 54.897,
+    "neutral_pass_rate": 0.4988,
+    "basis": "2408 scrimmage plays over 39 games",
+    "seasons": "2024-25 (a prior, not this season)"
+   },
+   "head_coach": null,
+   "offensive_coordinator": null,
+   "hc_changed_since_2025": null,
+   "oc_changed_since_2025": null,
+   "oline_starters_returning": null,
+   "weeks": {
+    "1": {
+     "opp": "WAS",
+     "home": true,
+     "implied_total": 25.25,
+     "spread": -4.5,
+     "game_total": 46.0,
+     "captured_at": "2026-08-30T18:55:06.965305Z"
+    }
+   }
+  },
+  "PIT": {
+   "pace_prior": {
+    "plays_per_game": 59.472,
+    "neutral_plays_per_game": 55.194,
+    "neutral_pass_rate": 0.5611,
+    "basis": "2141 scrimmage plays over 36 games",
+    "seasons": "2024-25 (a prior, not this season)"
+   },
+   "head_coach": null,
+   "offensive_coordinator": null,
+   "hc_changed_since_2025": null,
+   "oc_changed_since_2025": null,
+   "oline_starters_returning": null,
+   "weeks": {
+    "1": {
+     "opp": "ATL",
+     "home": true,
+     "implied_total": 22.75,
+     "spread": -3.0,
+     "game_total": 42.5,
+     "captured_at": "2026-08-30T18:55:06.965305Z"
+    }
+   }
+  },
+  "SEA": {
+   "pace_prior": {
+    "plays_per_game": 59.541,
+    "neutral_plays_per_game": 51.865,
+    "neutral_pass_rate": 0.5847,
+    "basis": "2203 scrimmage plays over 37 games",
+    "seasons": "2024-25 (a prior, not this season)"
+   },
+   "head_coach": null,
+   "offensive_coordinator": null,
+   "hc_changed_since_2025": null,
+   "oc_changed_since_2025": null,
+   "oline_starters_returning": null,
+   "weeks": {
+    "1": {
+     "opp": "NE",
+     "home": true,
+     "implied_total": 24.0,
+     "spread": -3.5,
+     "game_total": 44.5,
+     "captured_at": "2026-08-30T18:55:06.965305Z"
+    }
+   }
+  },
+  "SF": {
+   "pace_prior": {
+    "plays_per_game": 60.944,
+    "neutral_plays_per_game": 53.833,
+    "neutral_pass_rate": 0.5635,
+    "basis": "2194 scrimmage plays over 36 games",
+    "seasons": "2024-25 (a prior, not this season)"
+   },
+   "head_coach": null,
+   "offensive_coordinator": null,
+   "hc_changed_since_2025": null,
+   "oc_changed_since_2025": null,
+   "oline_starters_returning": null,
+   "weeks": {
+    "1": {
+     "opp": "LAR",
+     "home": false,
+     "implied_total": 22.5,
+     "spread": 3.5,
+     "game_total": 48.5,
+     "captured_at": "2026-08-30T18:55:06.965305Z"
+    }
+   }
+  },
+  "TB": {
+   "pace_prior": {
+    "plays_per_game": 62.657,
+    "neutral_plays_per_game": 54.829,
+    "neutral_pass_rate": 0.5597,
+    "basis": "2193 scrimmage plays over 35 games",
+    "seasons": "2024-25 (a prior, not this season)"
+   },
+   "head_coach": null,
+   "offensive_coordinator": null,
+   "hc_changed_since_2025": null,
+   "oc_changed_since_2025": null,
+   "oline_starters_returning": null,
+   "weeks": {
+    "1": {
+     "opp": "CIN",
+     "home": false,
+     "implied_total": 23.25,
+     "spread": 4.0,
+     "game_total": 50.5,
+     "captured_at": "2026-08-30T18:55:06.965305Z"
+    }
+   }
+  },
+  "TEN": {
+   "pace_prior": {
+    "plays_per_game": 59.559,
+    "neutral_plays_per_game": 45.971,
+    "neutral_pass_rate": 0.5624,
+    "basis": "2025 scrimmage plays over 34 games",
+    "seasons": "2024-25 (a prior, not this season)"
+   },
+   "head_coach": null,
+   "offensive_coordinator": null,
+   "hc_changed_since_2025": null,
+   "oc_changed_since_2025": null,
+   "oline_starters_returning": null,
+   "weeks": {
+    "1": {
+     "opp": "NYJ",
+     "home": true,
+     "implied_total": 20.75,
+     "spread": -2.5,
+     "game_total": 39.0,
+     "captured_at": "2026-08-30T18:55:06.965305Z"
+    }
+   }
+  },
+  "WAS": {
+   "pace_prior": {
+    "plays_per_game": 61.811,
+    "neutral_plays_per_game": 50.649,
+    "neutral_pass_rate": 0.5336,
+    "basis": "2287 scrimmage plays over 37 games",
+    "seasons": "2024-25 (a prior, not this season)"
+   },
+   "head_coach": null,
+   "offensive_coordinator": null,
+   "hc_changed_since_2025": null,
+   "oc_changed_since_2025": null,
+   "oline_starters_returning": null,
+   "weeks": {
+    "1": {
+     "opp": "PHI",
+     "home": false,
+     "implied_total": 20.75,
+     "spread": 4.5,
+     "game_total": 46.0,
+     "captured_at": "2026-08-30T18:55:06.965305Z"
+    }
+   }
+  }
+ }
+}

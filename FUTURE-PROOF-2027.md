@@ -124,3 +124,90 @@ The model gets ahead of Cory not by knowing more football than he does, but by
 keeping a season of evidence he cannot keep, grading every football belief
 against this league's scoring, learning what his overrides are worth, and
 building the 2027 board only from what survived.
+
+---
+
+## 5 · "BUT IT DRAFTED FOUR TIGHT ENDS" — the value function, not a cap (Cory, 09-02)
+
+**Cory:** *"just setting a hard constraint doesn't force it to learn.. if it knew
+that you can only start 2 TE and really only 1 because only 1-3 TE in the whole
+league are worth a flex spot then it wouldn't draft 4. Drafting 4 is a symptom
+of a larger knowledge gap that putting a cap on still doesn't solve."* Correct.
+
+**Measured 09-02 (`draft/audit/roster_grammar_audit_2026-09-02.json`, controls
+green):** the tool's own draft-night recommendations, followed literally, break
+the format in EVERY seat — 7.1 violations/seat, 0 clean, never a complete
+roster (no TE in 9 seats, seat 10 = eleven RBs); humans 1.0/seat, 3 clean; the
+2023-25 replay engine 3.8/seat, 0 clean, seven QBs in one seat.
+
+**The gap is the VALUE FUNCTION.** The engine prices a player by value-over-
+next-available AT HIS POSITION; it never asks what he adds to MY roster's
+startable points. A model that asked that question would price a third TE at
+~0 on its own: one TE slot, a FLEX that only the top few TEs ever earn (a
+number we MEASURE weekly from realized points), and a wire that supplies TE
+replacement free (DEF 100% of pool cycled, K 83% — `waiver_supply.js`). That
+is marginal lineup value, and it already exists as a second voice
+(`public/js/draft/mlv.js`, `mlv_recommend.json`, Cory's 08-19 ruling "let's
+use mlv"). It is not the score the board ranks on.
+
+**MEASURED THE SAME NIGHT (`mlv_grammar_probe_2026-09-02.json`): MLV plus draft_plan's bench equation, with NO cap anywhere, replayed all ten seats of the real draft night against the room's actual picks — 1.0 violations/seat excluding the kicker, the humans' exact rate, vs the engine's 7.1; every seat RB6/WR4/TE2/QB2/DEF1; 1,901 projected startable points/seat vs humans 1,880 and the engine's 1,526. The value function LEARNED the format from measured wire levels and slot counts. Its one disagreement with the humans was the kicker. **Cory ruled 09-02 — "you can't start anyone else in a kicker spot so not having one is not smart.. but it's probably right to wait til dead last pick as replacement value is null" — and the value function earned exactly that once an empty required slot at the end of the draft was priced at the wire body: all ten seats take the K with the last pick, every roster complete, 1.0 violations/seat, 1,921 startable vs humans 1,880. Derived, not capped.**
+
+**So the grammar (`roster_grammar.py`) is the EXAM, not the answer:** the value
+function has learned the format when, UNCONSTRAINED, its recommendations pass
+the grammar at the humans' rate. P363 is that claim. Only if it fails does a
+constraint go in — as a disclosed guardrail with the failing term named.
+
+**And what makes it LEARN rather than be told:** every input to MLV is a
+measured, per-season number from this league — wire replacement per position
+per week, how many TEs out-score the flex-level RB/WR each week, injury/bye
+need rates — refreshed every season by the archives in §1. The model's "only
+1-3 TEs are flex-worthy" is a count it re-derives, not a sentence it was given.
+
+---
+
+## 6 · FUTURE-PROOF DATA — how it keeps getting draft, player and betting info, and keeps looking (Cory, 09-02)
+
+**Cory:** *"How do we make sure it can continue to get draft info, player info,
+betting info, etc.. and continually looks for free sources of info it could get
+that might help."* Three mechanisms, two of which already run:
+
+1. **Every source is a monitored capture with a control** — `go_status.py`
+   reads each capture workflow's last run and reds it the day it fails; every
+   capture refuses to write on a null (Rule 3e) so a dead source shows as red,
+   never as silent zeros. This week's props sourcing is the template.
+2. **A SOURCE REGISTRY (C builds, `draft/data/source_registry.json`):** one row
+   per data class we depend on — projections, ADP, props/odds, game lines,
+   injuries/practice, snaps/usage, depth charts, weather, schedule, rosters —
+   with the primary source, its endpoint and cadence, its known-positive
+   control, its FALLBACK, and cost (all free by the standing ruling). **A data
+   class with no fallback is a register row**, and GO status reads the
+   registry so "props source dying" is an agenda line before the arm goes dark.
+   **SEEDED 09-02 (relay, C's default):** 14 classes, each with primary,
+   workflow, cadence, control, fallback and cost; `test_source_registry.py`
+   pins the no-fallback list (snaps_usage · weather · depth_charts_team_context
+   · expert_ranks · player_bio_capital) so a new gap fails CI until it is
+   written down, and `go_status.py` prints a SOURCE REGISTRY section (⚠ per
+   single-door class, advisory). C owns the rows from here.
+3. **A standing DISCOVERY census** — `free_props_census.py` generalised: each
+   month the Monday explorer spends one slot probing new free candidates per
+   data class (the way six props doors were tried in one night), with the
+   same controls, and E/C add candidates as they learn of them. CADENCE: first
+   Monday of the month. What it finds enters the registry as a fallback first
+   and a primary only after it grades.
+   **BUILT 09-02 (relay): `draft/tools/free_source_discovery.py` + `free-source-discovery.yml`
+   (first Monday, 12:00Z, and on dispatch) — 33 candidate doors across all 14 registry
+   classes (ESPN, nflverse releases, Sleeper, Kalshi, PrizePicks, Polymarket, FFC,
+   open-meteo, NWS, FantasyPros), each with a SHAPE regex so a 200 login page is not a
+   door; keyed doors listed and never fetched; the report is refused when the
+   Sleeper-state control is dark. Writes `draft/backtest/free_source_discovery_<date>.json`
+   (+ `_latest`). Lanes add candidates to the table as they learn of them; a door that
+   answers enters the registry as a fallback.**
+   **FIRST RUN 09-02 03:17Z (dispatch, control green): 20 of 31 fetched doors answer with
+   data. Every ESPN site-API door (6) is 403 from GitHub Actions runners — dead as a CI
+   fallback, whatever it does from a laptop; nflverse `player_stats_2025.csv` and the
+   nfldata `stadiums.csv` path 404 (asset renamed — candidate to fix); the nflverse
+   depth-charts release is reachable but its columns did not match the shape (to confirm).
+   Entered: NWS as weather's fallback, nflverse schedules as the schedule fallback;
+   ESPN struck from three fallback claims. Re-run 04:27Z on the corrected table: 22 answer;
+   the stadiums CSV path is dead on both branches (C, it feeds game_weather.py).
+   `draft/backtest/free_source_discovery_2026-09-02.json`.**

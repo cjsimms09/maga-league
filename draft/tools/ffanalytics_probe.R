@@ -45,8 +45,22 @@ POS <- c("QB", "RB", "WR", "TE", "K", "DST")
 env_sources <- Sys.getenv("FFA_SOURCES", "")
 sources <- if (nzchar(env_sources)) trimws(strsplit(env_sources, ",")[[1]]) else ALL_SOURCES
 season <- as.integer(Sys.getenv("FFA_SEASON", "2026"))
+# week = 0 is ffanalytics' SEASON-TOTAL scrape and the default. Anything else
+# asks each source for that week's projections. ⚠️ THE TWO ARE DIFFERENT
+# PRODUCTS AND NEVER SHARE A FILE: CBS and ESPN returned 442/416 season-total
+# rows on 08-19 and 0 on 08-20 (same ffanalytics commit 1955daa, runs 7 and 9)
+# — the sites stopped serving season totals, not the scraper. A week != 0 run
+# is the known-positive control for that null (rule 3e), and it writes to
+# `_w<week>` files so it can never overwrite the seasonal capture the blend
+# re-scores from.
+week <- as.integer(Sys.getenv("FFA_WEEK", "0"))
+if (is.na(week)) week <- 0L
+suffix <- if (week == 0) "" else sprintf("_w%d", week)
+probe_path <- sprintf("draft/data/ffanalytics_probe%s.json", suffix)
+raw_path <- sprintf("draft/data/ffanalytics_raw_projections%s.csv", suffix)
 
-cat("ffanalytics probe — season", season, "\n")
+cat("ffanalytics probe — season", season, "week", week,
+    if (week == 0) "(season totals)" else "(weekly)", "\n")
 cat("sources asked:", paste(sources, collapse = ", "), "\n")
 cat("positions:", paste(POS, collapse = ", "), "\n\n")
 
@@ -56,7 +70,7 @@ frames <- list()
 for (src in sources) {
   # week = 0 is ffanalytics' season-total (preseason) scrape.
   res <- tryCatch({
-    d <- scrape_data(src = src, pos = POS, season = season, week = 0)
+    d <- scrape_data(src = src, pos = POS, season = season, week = week)
     d
   }, error = function(e) e)
 
@@ -110,13 +124,14 @@ out <- list(
                   "near proj_mean. ffanalytics does NOT scrape Draft Sharks —",
                   "it scrapes FantasySharks, a different company."),
   season = season,
+  week = week,
   scraped_at = format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ", tz = "UTC"),
   sources_asked = sources,
   sources_returning_rows = ok_sources,
   total_rows = grand,
   per_source = report
 )
-write(toJSON(out, auto_unbox = TRUE, pretty = TRUE), "draft/data/ffanalytics_probe.json")
+write(toJSON(out, auto_unbox = TRUE, pretty = TRUE), probe_path)
 
 if (length(frames)) {
   # UNION of columns across sources, not the intersection: providers publish
@@ -129,8 +144,8 @@ if (length(frames)) {
     f[, allcols, drop = FALSE]
   })
   all <- do.call(rbind, padded)
-  write.csv(all, "draft/data/ffanalytics_raw_projections.csv", row.names = FALSE)
-  cat("\nwrote draft/data/ffanalytics_raw_projections.csv —", nrow(all), "rows,",
+  write.csv(all, raw_path, row.names = FALSE)
+  cat("\nwrote", raw_path, "—", nrow(all), "rows,",
       length(allcols), "columns\n")
   cat("columns:", paste(head(allcols, 40), collapse = ", "), "\n")
 }

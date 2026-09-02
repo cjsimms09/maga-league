@@ -29,7 +29,13 @@
    "carried_from_earlier_run": 0
   },
   "self_check": "passed",
-  "merge": "players no longer quoted keep their earlier row (carried_from); quoted players take the new line"
+  "merge": "players no longer quoted keep their earlier row (carried_from); quoted players take the new line",
+  "spread": {
+   "source": "draft/data/props_residual_sd.json (props_spread.py, P355 feed)",
+   "stamped": 312,
+   "of": 312,
+   "stamped_at": "2026-09-02 re-stamp of the 09-02 snapshot; the writer stamps live from here"
+  }
  },
  "players": {
   "11564": {
@@ -64,7 +70,8 @@
     "player_pass_yds": "sleeper_picks",
     "player_rush_yds": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 9.53
   },
   "11603": {
    "name": "AJ Barner",
@@ -90,7 +97,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 5.0
   },
   "12048": {
    "name": "George Holani",
@@ -116,7 +124,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_rush_yds": "sleeper_picks"
-   }
+   },
+   "sd": 5.06
   },
   "12529": {
    "name": "TreVeyon Henderson",
@@ -146,7 +155,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_rush_yds": "sleeper_picks"
-   }
+   },
+   "sd": 5.44
   },
   "13286": {
    "name": "Jadarian Price",
@@ -176,7 +186,8 @@
     "player_receptions": "sleeper_picks",
     "player_rush_yds": "sleeper_picks",
     "player_reception_yds": "underdog"
-   }
+   },
+   "sd": 6.1
   },
   "3214": {
    "name": "Hunter Henry",
@@ -202,7 +213,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 5.45
   },
   "4039": {
    "name": "Cooper Kupp",
@@ -228,7 +240,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 5.57
   },
   "4943": {
    "name": "Sam Darnold",
@@ -262,7 +275,8 @@
     "player_pass_yds": "sleeper_picks",
     "player_anytime_td": "underdog",
     "player_rush_yds": "underdog"
-   }
+   },
+   "sd": 9.24
   },
   "5859": {
    "name": "A.J. Brown",
@@ -288,7 +302,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 6.78
   },
   "7611": {
    "name": "Rhamondre Stevenson",
@@ -318,7 +333,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_rush_yds": "sleeper_picks"
-   }
+   },
+   "sd": 6.14
   },
   "8121": {
    "name": "Romeo Doubs",
@@ -344,7 +360,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 5.76
   },
   "8676": {
    "name": "Rashid Shaheed",
@@ -370,7 +387,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 5.51
   },
   "9488": {
    "name": "Jaxon Smith-Njigba",
@@ -396,7 +414,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 7.92
   },
   "9501": {
    "name": "DeMario Douglas",
@@ -422,7 +441,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.78
   },
   "11586": {
    "name": "Blake Corum",
@@ -452,7 +472,8 @@
     "player_rush_yds": "sleeper_picks",
     "player_reception_yds": "underdog",
     "player_receptions": "underdog"
-   }
+   },
+   "sd": 5.49
   },
   "12487": {
    "name": "Terrance Ferguson",
@@ -478,7 +499,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.3
   },
   "13417": {
    "name": "De'Zhaun Stribling",
@@ -504,7 +526,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 5.9
   },
   "2133": {
    "name": "Davante Adams",
@@ -530,7 +553,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 6.68
   },
   "2216": {
    "name": "Mike Evans",
@@ -556,7 +580,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 6.27
   },
   "4034": {
    "name": "Christian McCaffrey",
@@ -586,7 +611,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_rush_yds": "sleeper_picks"
-   }
+   },
+   "sd": 7.35
   },
   "421": {
    "name": "Matthew Stafford",
@@ -616,7 +642,8 @@
     "player_pass_tds": "sleeper_picks",
     "player_pass_yds": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 9.3
   },
   "4217": {
    "name": "George Kittle",
@@ -634,7 +661,8 @@
    },
    "sources": {
     "player_anytime_td": "sleeper_picks"
-   }
+   },
+   "sd": 3.61
   },
   "5872": {
    "name": "Deebo Samuel",
@@ -660,7 +688,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 5.55
   },
   "6865": {
    "name": "Colby Parkinson",
@@ -686,7 +715,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.6
   },
   "8150": {
    "name": "Kyren Williams",
@@ -716,7 +746,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_rush_yds": "sleeper_picks"
-   }
+   },
+   "sd": 6.54
   },
   "8183": {
    "name": "Brock Purdy",
@@ -750,7 +781,8 @@
     "player_pass_yds": "sleeper_picks",
     "player_rush_yds": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 9.49
   },
   "8698": {
    "name": "Jake Tonges",
@@ -768,7 +800,8 @@
    },
    "sources": {
     "player_anytime_td": "sleeper_picks"
-   }
+   },
+   "sd": 3.57
   },
   "9493": {
    "name": "Puka Nacua",
@@ -794,7 +827,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 8.21
   },
   "11560": {
    "name": "Caleb Williams",
@@ -828,7 +862,8 @@
     "player_anytime_td": "underdog",
     "player_rush_yds": "underdog",
     "player_pass_interceptions": "underdog"
-   }
+   },
+   "sd": 9.54
   },
   "11620": {
    "name": "Rome Odunze",
@@ -854,7 +889,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 6.15
   },
   "11646": {
    "name": "Jalen Coker",
@@ -872,7 +908,8 @@
    },
    "sources": {
     "player_anytime_td": "sleeper_picks"
-   }
+   },
+   "sd": 4.22
   },
   "12517": {
    "name": "Colston Loveland",
@@ -898,7 +935,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 6.54
   },
   "12519": {
    "name": "Luther Burden",
@@ -924,7 +962,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 6.49
   },
   "12526": {
    "name": "Tetairoa McMillan",
@@ -950,7 +989,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 6.76
   },
   "12534": {
    "name": "Kyle Monangai",
@@ -968,7 +1008,8 @@
    },
    "sources": {
     "player_anytime_td": "sleeper_picks"
-   }
+   },
+   "sd": 4.6
   },
   "6790": {
    "name": "D'Andre Swift",
@@ -994,7 +1035,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "underdog"
-   }
+   },
+   "sd": 5.66
   },
   "7594": {
    "name": "Chuba Hubbard",
@@ -1012,7 +1054,8 @@
    },
    "sources": {
     "player_anytime_td": "sleeper_picks"
-   }
+   },
+   "sd": 4.79
   },
   "9228": {
    "name": "Bryce Young",
@@ -1046,7 +1089,8 @@
     "player_rush_yds": "sleeper_picks",
     "player_anytime_td": "underdog",
     "player_pass_interceptions": "underdog"
-   }
+   },
+   "sd": 9.32
   },
   "10226": {
    "name": "Andrei Iosivas",
@@ -1072,7 +1116,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "underdog",
     "player_receptions": "underdog"
-   }
+   },
+   "sd": 4.75
   },
   "11584": {
    "name": "Bucky Irving",
@@ -1102,7 +1147,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_rush_yds": "sleeper_picks",
     "player_receptions": "underdog"
-   }
+   },
+   "sd": 6.31
   },
   "11618": {
    "name": "Jalen McMillan",
@@ -1128,7 +1174,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 5.93
   },
   "12514": {
    "name": "Emeka Egbuka",
@@ -1154,7 +1201,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 6.55
   },
   "13477": {
    "name": "Colbie Young",
@@ -1180,7 +1228,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_anytime_td": "underdog",
     "player_receptions": "underdog"
-   }
+   },
+   "sd": 4.52
   },
   "4037": {
    "name": "Chris Godwin",
@@ -1206,7 +1255,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 6.29
   },
   "4147": {
    "name": "Samaje Perine",
@@ -1236,7 +1286,8 @@
     "player_receptions": "sleeper_picks",
     "player_rush_yds": "sleeper_picks",
     "player_reception_yds": "underdog"
-   }
+   },
+   "sd": 5.14
   },
   "4892": {
    "name": "Baker Mayfield",
@@ -1270,7 +1321,8 @@
     "player_pass_yds": "sleeper_picks",
     "player_rush_yds": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 9.49
   },
   "4993": {
    "name": "Mike Gesicki",
@@ -1296,7 +1348,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "underdog",
     "player_receptions": "underdog"
-   }
+   },
+   "sd": 4.3
   },
   "6770": {
    "name": "Joe Burrow",
@@ -1330,7 +1383,8 @@
     "player_pass_yds": "sleeper_picks",
     "player_rush_yds": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 9.48
   },
   "6801": {
    "name": "Tee Higgins",
@@ -1356,7 +1410,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 6.97
   },
   "7564": {
    "name": "Ja'Marr Chase",
@@ -1382,7 +1437,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 8.27
   },
   "7567": {
    "name": "Kenny Gainwell",
@@ -1412,7 +1468,8 @@
     "player_rush_yds": "underdog",
     "player_reception_yds": "underdog",
     "player_receptions": "underdog"
-   }
+   },
+   "sd": 5.91
   },
   "8111": {
    "name": "Cade Otton",
@@ -1438,7 +1495,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 5.14
   },
   "9224": {
    "name": "Chase Brown",
@@ -1468,7 +1526,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_rush_yds": "sleeper_picks"
-   }
+   },
+   "sd": 7.07
   },
   "10859": {
    "name": "Sam LaPorta",
@@ -1494,7 +1553,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 6.07
   },
   "11834": {
    "name": "Devaughn Vele",
@@ -1520,7 +1580,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "underdog"
-   }
+   },
+   "sd": 5.74
   },
   "12545": {
    "name": "Tyler Shough",
@@ -1554,7 +1615,8 @@
     "player_pass_yds": "sleeper_picks",
     "player_rush_yds": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 9.54
   },
   "3163": {
    "name": "Jared Goff",
@@ -1584,7 +1646,8 @@
     "player_pass_tds": "sleeper_picks",
     "player_pass_yds": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 9.29
   },
   "7002": {
    "name": "Juwan Johnson",
@@ -1610,7 +1673,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 5.98
   },
   "7543": {
    "name": "Travis Etienne",
@@ -1640,7 +1704,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_rush_yds": "sleeper_picks"
-   }
+   },
+   "sd": 6.55
   },
   "7547": {
    "name": "Amon-Ra St. Brown",
@@ -1666,7 +1731,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 7.87
   },
   "8144": {
    "name": "Chris Olave",
@@ -1692,7 +1758,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 7.51
   },
   "8148": {
    "name": "Jameson Williams",
@@ -1718,7 +1785,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 6.55
   },
   "9221": {
    "name": "Jahmyr Gibbs",
@@ -1748,7 +1816,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_rush_yds": "sleeper_picks"
-   }
+   },
+   "sd": 7.35
   },
   "10236": {
    "name": "Dalton Kincaid",
@@ -1774,7 +1843,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 5.54
   },
   "12474": {
    "name": "Woody Marks",
@@ -1796,7 +1866,8 @@
    "sources": {
     "player_anytime_td": "sleeper_picks",
     "player_rush_yds": "sleeper_picks"
-   }
+   },
+   "sd": 5.11
   },
   "4983": {
    "name": "DJ Moore",
@@ -1822,7 +1893,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 6.04
   },
   "4984": {
    "name": "Josh Allen",
@@ -1856,7 +1928,8 @@
     "player_pass_yds": "sleeper_picks",
     "player_rush_yds": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 9.57
   },
   "5001": {
    "name": "Dalton Schultz",
@@ -1882,7 +1955,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 5.44
   },
   "5892": {
    "name": "David Montgomery",
@@ -1904,7 +1978,8 @@
    "sources": {
     "player_anytime_td": "sleeper_picks",
     "player_rush_yds": "sleeper_picks"
-   }
+   },
+   "sd": 5.97
   },
   "7569": {
    "name": "Nico Collins",
@@ -1930,7 +2005,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 7.17
   },
   "8134": {
    "name": "Khalil Shakir",
@@ -1956,7 +2032,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 5.76
   },
   "8138": {
    "name": "James Cook",
@@ -1982,7 +2059,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_rush_yds": "sleeper_picks"
-   }
+   },
+   "sd": 6.73
   },
   "9758": {
    "name": "C.J. Stroud",
@@ -2016,7 +2094,8 @@
     "player_pass_yds": "sleeper_picks",
     "player_rush_yds": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 9.23
   },
   "12518": {
    "name": "Tyler Warren",
@@ -2038,7 +2117,8 @@
    "sources": {
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks"
-   }
+   },
+   "sd": 5.52
   },
   "3198": {
    "name": "Derrick Henry",
@@ -2068,7 +2148,8 @@
     "player_rush_yds": "sleeper_picks",
     "player_reception_yds": "underdog",
     "player_receptions": "underdog"
-   }
+   },
+   "sd": 7.11
   },
   "4881": {
    "name": "Lamar Jackson",
@@ -2102,7 +2183,8 @@
     "player_rush_yds": "sleeper_picks",
     "player_anytime_td": "underdog",
     "player_pass_interceptions": "underdog"
-   }
+   },
+   "sd": 9.57
   },
   "5012": {
    "name": "Mark Andrews",
@@ -2128,7 +2210,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 5.56
   },
   "5870": {
    "name": "Daniel Jones",
@@ -2158,7 +2241,8 @@
     "player_pass_yds": "sleeper_picks",
     "player_anytime_td": "underdog",
     "player_pass_interceptions": "underdog"
-   }
+   },
+   "sd": 9.25
   },
   "6813": {
    "name": "Jonathan Taylor",
@@ -2188,7 +2272,8 @@
     "player_receptions": "sleeper_picks",
     "player_rush_yds": "sleeper_picks",
     "player_reception_yds": "underdog"
-   }
+   },
+   "sd": 7.31
   },
   "8142": {
    "name": "Alec Pierce",
@@ -2210,7 +2295,8 @@
    "sources": {
     "player_reception_yds": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 5.9
   },
   "9500": {
    "name": "Josh Downs",
@@ -2228,7 +2314,8 @@
    },
    "sources": {
     "player_anytime_td": "sleeper_picks"
-   }
+   },
+   "sd": 4.24
   },
   "9997": {
    "name": "Zay Flowers",
@@ -2254,7 +2341,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 6.86
   },
   "10219": {
    "name": "Chris Rodriguez",
@@ -2284,7 +2372,8 @@
     "player_rush_yds": "sleeper_picks",
     "player_reception_yds": "underdog",
     "player_receptions": "underdog"
-   }
+   },
+   "sd": 5.34
   },
   "11631": {
    "name": "Brian Thomas",
@@ -2310,7 +2399,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 5.65
   },
   "12490": {
    "name": "Bhayshul Tuten",
@@ -2332,7 +2422,8 @@
    "sources": {
     "player_anytime_td": "sleeper_picks",
     "player_rush_yds": "sleeper_picks"
-   }
+   },
+   "sd": 5.8
   },
   "12506": {
    "name": "Harold Fannin",
@@ -2358,7 +2449,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 5.69
   },
   "12512": {
    "name": "Quinshon Judkins",
@@ -2388,7 +2480,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_rush_yds": "sleeper_picks"
-   }
+   },
+   "sd": 6.33
   },
   "13346": {
    "name": "Denzel Boston",
@@ -2414,7 +2507,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 5.13
   },
   "4017": {
    "name": "Deshaun Watson",
@@ -2448,7 +2542,8 @@
     "player_rush_yds": "sleeper_picks",
     "player_anytime_td": "underdog",
     "player_pass_interceptions": "underdog"
-   }
+   },
+   "sd": 8.42
   },
   "5947": {
    "name": "Jakobi Meyers",
@@ -2474,7 +2569,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 5.81
   },
   "6783": {
    "name": "Jerry Jeudy",
@@ -2504,7 +2600,8 @@
     "player_receptions": "sleeper_picks",
     "player_anytime_td": "underdog",
     "player_rush_yds": "underdog"
-   }
+   },
+   "sd": 5.35
   },
   "7523": {
    "name": "Trevor Lawrence",
@@ -2538,7 +2635,8 @@
     "player_pass_yds": "sleeper_picks",
     "player_rush_yds": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 9.51
   },
   "9480": {
    "name": "Brenton Strange",
@@ -2564,7 +2662,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 5.53
   },
   "9487": {
    "name": "Parker Washington",
@@ -2590,7 +2689,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 6.43
   },
   "10222": {
    "name": "Jayden Reed",
@@ -2616,7 +2716,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 5.77
   },
   "11581": {
    "name": "MarShawn Lloyd",
@@ -2646,7 +2747,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_rush_yds": "sleeper_picks"
-   }
+   },
+   "sd": 6.5
   },
   "12501": {
    "name": "Matthew Golden",
@@ -2672,7 +2774,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 5.81
   },
   "4199": {
    "name": "Aaron Jones",
@@ -2702,7 +2805,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_rush_yds": "sleeper_picks"
-   }
+   },
+   "sd": 5.82
   },
   "5844": {
    "name": "T.J. Hockenson",
@@ -2728,7 +2832,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 5.1
   },
   "5849": {
    "name": "Kyler Murray",
@@ -2762,7 +2867,8 @@
     "player_rush_yds": "sleeper_picks",
     "player_anytime_td": "underdog",
     "player_pass_interceptions": "underdog"
-   }
+   },
+   "sd": 9.52
   },
   "6794": {
    "name": "Justin Jefferson",
@@ -2788,7 +2894,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 7.33
   },
   "6804": {
    "name": "Jordan Love",
@@ -2822,7 +2929,8 @@
     "player_rush_yds": "sleeper_picks",
     "player_anytime_td": "underdog",
     "player_pass_interceptions": "underdog"
-   }
+   },
+   "sd": 9.36
   },
   "7049": {
    "name": "Jauan Jennings",
@@ -2848,7 +2956,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 5.09
   },
   "8167": {
    "name": "Christian Watson",
@@ -2874,7 +2983,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 6.35
   },
   "8408": {
    "name": "Jordan Mason",
@@ -2896,7 +3006,8 @@
    "sources": {
     "player_anytime_td": "sleeper_picks",
     "player_rush_yds": "sleeper_picks"
-   }
+   },
+   "sd": 5.58
   },
   "9484": {
    "name": "Tucker Kraft",
@@ -2922,7 +3033,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 6.22
   },
   "9756": {
    "name": "Jordan Addison",
@@ -2948,7 +3060,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 5.98
   },
   "11632": {
    "name": "Malik Nabers",
@@ -2974,7 +3087,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 6.97
   },
   "11783": {
    "name": "Ryan Flournoy",
@@ -3000,7 +3114,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_anytime_td": "underdog",
     "player_receptions": "underdog"
-   }
+   },
+   "sd": 5.03
   },
   "12481": {
    "name": "Cam Skattebo",
@@ -3030,7 +3145,8 @@
     "player_rush_yds": "sleeper_picks",
     "player_anytime_td": "underdog",
     "player_receptions": "underdog"
-   }
+   },
+   "sd": 6.37
   },
   "12508": {
    "name": "Jaxson Dart",
@@ -3064,7 +3180,8 @@
     "player_pass_yds": "sleeper_picks",
     "player_rush_yds": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 9.57
   },
   "3294": {
    "name": "Dak Prescott",
@@ -3098,7 +3215,8 @@
     "player_rush_yds": "sleeper_picks",
     "player_anytime_td": "underdog",
     "player_pass_interceptions": "underdog"
-   }
+   },
+   "sd": 9.48
   },
   "6149": {
    "name": "Darius Slayton",
@@ -3124,7 +3242,8 @@
     "player_receptions": "sleeper_picks",
     "player_anytime_td": "underdog",
     "player_reception_yds": "underdog"
-   }
+   },
+   "sd": 4.93
   },
   "6786": {
    "name": "CeeDee Lamb",
@@ -3150,7 +3269,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 7.7
   },
   "7090": {
    "name": "Darnell Mooney",
@@ -3176,7 +3296,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.59
   },
   "7588": {
    "name": "Javonte Williams",
@@ -3206,7 +3327,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_rush_yds": "sleeper_picks",
     "player_receptions": "underdog"
-   }
+   },
+   "sd": 7.01
   },
   "8110": {
    "name": "Jake Ferguson",
@@ -3232,7 +3354,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 5.4
   },
   "8131": {
    "name": "Isaiah Likely",
@@ -3258,7 +3381,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 5.53
   },
   "8137": {
    "name": "George Pickens",
@@ -3284,7 +3408,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 7.07
   },
   "10213": {
    "name": "Tre Tucker",
@@ -3310,7 +3435,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 5.84
   },
   "11604": {
    "name": "Brock Bowers",
@@ -3336,7 +3462,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 7.15
   },
   "11610": {
    "name": "Malik Washington",
@@ -3362,7 +3489,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 5.2
   },
   "1166": {
    "name": "Kirk Cousins",
@@ -3392,7 +3520,8 @@
     "player_pass_yds": "sleeper_picks",
     "player_anytime_td": "underdog",
     "player_pass_interceptions": "underdog"
-   }
+   },
+   "sd": 9.04
   },
   "12527": {
    "name": "Ashton Jeanty",
@@ -3410,7 +3539,8 @@
    },
    "sources": {
     "player_anytime_td": "sleeper_picks"
-   }
+   },
+   "sd": 4.97
   },
   "13296": {
    "name": "Caleb Douglas",
@@ -3436,7 +3566,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 5.27
   },
   "8161": {
    "name": "Malik Willis",
@@ -3470,7 +3601,8 @@
     "player_rush_yds": "sleeper_picks",
     "player_anytime_td": "underdog",
     "player_pass_interceptions": "underdog"
-   }
+   },
+   "sd": 8.79
   },
   "8180": {
    "name": "Jalen Nailor",
@@ -3492,7 +3624,8 @@
    "sources": {
     "player_reception_yds": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.76
   },
   "9226": {
    "name": "De'Von Achane",
@@ -3522,7 +3655,8 @@
     "player_receptions": "sleeper_picks",
     "player_rush_yds": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 7.35
   },
   "11566": {
    "name": "Jayden Daniels",
@@ -3556,7 +3690,8 @@
     "player_pass_yds": "sleeper_picks",
     "player_rush_yds": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 8.94
   },
   "12533": {
    "name": "Jacory Croskey-Merritt",
@@ -3578,7 +3713,8 @@
    "sources": {
     "player_anytime_td": "sleeper_picks",
     "player_rush_yds": "sleeper_picks"
-   }
+   },
+   "sd": 5.53
   },
   "2449": {
    "name": "Stefon Diggs",
@@ -3604,7 +3740,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 5.82
   },
   "4866": {
    "name": "Saquon Barkley",
@@ -3634,7 +3771,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_rush_yds": "sleeper_picks"
-   }
+   },
+   "sd": 7.13
   },
   "5022": {
    "name": "Dallas Goedert",
@@ -3660,7 +3798,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 5.59
   },
   "5927": {
    "name": "Terry McLaurin",
@@ -3686,7 +3825,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 6.35
   },
   "6904": {
    "name": "Jalen Hurts",
@@ -3720,7 +3860,8 @@
     "player_rush_yds": "sleeper_picks",
     "player_anytime_td": "underdog",
     "player_pass_interceptions": "underdog"
-   }
+   },
+   "sd": 9.57
   },
   "7525": {
    "name": "DeVonta Smith",
@@ -3746,7 +3887,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 7.01
   },
   "8136": {
    "name": "Rachaad White",
@@ -3764,7 +3906,8 @@
    },
    "sources": {
     "player_anytime_td": "sleeper_picks"
-   }
+   },
+   "sd": 4.57
   },
   "9486": {
    "name": "Dontayvion Wicks",
@@ -3790,7 +3933,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_anytime_td": "underdog",
     "player_receptions": "underdog"
-   }
+   },
+   "sd": 5.18
   },
   "5846": {
    "name": "DK Metcalf",
@@ -3816,7 +3960,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 6.16
   },
   "6768": {
    "name": "Tua Tagovailoa",
@@ -3838,7 +3983,8 @@
    "sources": {
     "player_pass_yds": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 8.39
   },
   "6819": {
    "name": "Michael Pittman",
@@ -3864,7 +4010,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 6.17
   },
   "7021": {
    "name": "Rico Dowdle",
@@ -3894,7 +4041,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_rush_yds": "sleeper_picks",
     "player_receptions": "underdog"
-   }
+   },
+   "sd": 6.31
   },
   "7553": {
    "name": "Kyle Pitts",
@@ -3920,7 +4068,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 5.93
   },
   "8112": {
    "name": "Drake London",
@@ -3946,7 +4095,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 6.92
   },
   "8119": {
    "name": "Jahan Dotson",
@@ -3972,7 +4122,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_anytime_td": "underdog",
     "player_receptions": "underdog"
-   }
+   },
+   "sd": 4.8
   },
   "8228": {
    "name": "Jaylen Warren",
@@ -4002,7 +4153,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_rush_yds": "sleeper_picks",
     "player_receptions": "underdog"
-   }
+   },
+   "sd": 6.18
   },
   "9509": {
    "name": "Bijan Robinson",
@@ -4032,7 +4184,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_rush_yds": "sleeper_picks"
-   }
+   },
+   "sd": 7.35
   },
   "96": {
    "name": "Aaron Rodgers",
@@ -4062,7 +4215,8 @@
     "player_pass_yds": "sleeper_picks",
     "player_anytime_td": "underdog",
     "player_pass_interceptions": "underdog"
-   }
+   },
+   "sd": 9.06
   },
   "10232": {
    "name": "Michael Wilson",
@@ -4088,7 +4242,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 5.82
   },
   "11628": {
    "name": "Marvin Harrison",
@@ -4114,7 +4269,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 6.08
   },
   "11635": {
    "name": "Ladd McConkey",
@@ -4140,7 +4296,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 6.51
   },
   "12507": {
    "name": "Omarion Hampton",
@@ -4170,7 +4327,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_rush_yds": "sleeper_picks",
     "player_receptions": "underdog"
-   }
+   },
+   "sd": 7.05
   },
   "12509": {
    "name": "Tre' Harris",
@@ -4196,7 +4354,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 5.28
   },
   "13287": {
    "name": "Jeremiyah Love",
@@ -4218,7 +4377,8 @@
    "sources": {
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks"
-   }
+   },
+   "sd": 4.9
   },
   "3257": {
    "name": "Jacoby Brissett",
@@ -4252,7 +4412,8 @@
     "player_rush_yds": "sleeper_picks",
     "player_anytime_td": "underdog",
     "player_pass_interceptions": "underdog"
-   }
+   },
+   "sd": 9.25
   },
   "4454": {
    "name": "Kendrick Bourne",
@@ -4278,7 +4439,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_anytime_td": "underdog",
     "player_receptions": "underdog"
-   }
+   },
+   "sd": 4.71
   },
   "6797": {
    "name": "Justin Herbert",
@@ -4312,7 +4474,8 @@
     "player_rush_yds": "sleeper_picks",
     "player_anytime_td": "underdog",
     "player_pass_interceptions": "underdog"
-   }
+   },
+   "sd": 9.54
   },
   "8130": {
    "name": "Trey McBride",
@@ -4338,7 +4501,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 7.1
   },
   "8132": {
    "name": "Tyler Allgeier",
@@ -4368,7 +4532,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_rush_yds": "sleeper_picks",
     "player_receptions": "underdog"
-   }
+   },
+   "sd": 5.6
   },
   "9511": {
    "name": "Keaton Mitchell",
@@ -4386,7 +4551,8 @@
    },
    "sources": {
     "player_anytime_td": "sleeper_picks"
-   }
+   },
+   "sd": 4.52
   },
   "9754": {
    "name": "Quentin Johnston",
@@ -4412,7 +4578,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 6.12
   },
   "11576": {
    "name": "Braelon Allen",
@@ -4442,7 +4609,8 @@
     "player_receptions": "sleeper_picks",
     "player_rush_yds": "sleeper_picks",
     "player_reception_yds": "underdog"
-   }
+   },
+   "sd": 4.86
   },
   "11625": {
    "name": "Adonai Mitchell",
@@ -4468,7 +4636,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 5.39
   },
   "12502": {
    "name": "Gunnar Helm",
@@ -4494,7 +4663,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.65
   },
   "12522": {
    "name": "Cam Ward",
@@ -4528,7 +4698,8 @@
     "player_pass_yds": "sleeper_picks",
     "player_rush_yds": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 9.16
   },
   "13279": {
    "name": "Carnell Tate",
@@ -4554,7 +4725,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 5.86
   },
   "1373": {
    "name": "Geno Smith",
@@ -4588,7 +4760,8 @@
     "player_anytime_td": "underdog",
     "player_rush_yds": "underdog",
     "player_pass_tds": "underdog"
-   }
+   },
+   "sd": 8.39
   },
   "4981": {
    "name": "Calvin Ridley",
@@ -4614,7 +4787,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 5.21
   },
   "5967": {
    "name": "Tony Pollard",
@@ -4644,7 +4818,8 @@
     "player_receptions": "sleeper_picks",
     "player_rush_yds": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 6.06
   },
   "8126": {
    "name": "Wan'Dale Robinson",
@@ -4670,7 +4845,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 5.96
   },
   "8146": {
    "name": "Garrett Wilson",
@@ -4696,7 +4872,8 @@
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
-   }
+   },
+   "sd": 6.81
   },
   "8155": {
    "name": "Breece Hall",
@@ -4726,7 +4903,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_rush_yds": "sleeper_picks"
-   }
+   },
+   "sd": 6.7
   },
   "9508": {
    "name": "Tyjae Spears",
@@ -4756,7 +4934,8 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
     "player_rush_yds": "sleeper_picks"
-   }
+   },
+   "sd": 5.56
   },
   "11435": {
    "name": "Emanuel Wilson",
@@ -4774,7 +4953,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.46
   },
   "12497": {
    "name": "Tory Horton",
@@ -4792,7 +4972,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "12521": {
    "name": "Elijah Arroyo",
@@ -4810,7 +4991,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "12547": {
    "name": "Kyle Williams",
@@ -4828,7 +5010,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "4177": {
    "name": "Mack Hollins",
@@ -4846,7 +5029,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "10867": {
    "name": "Jake Bobo",
@@ -4864,7 +5048,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.11
   },
   "12542": {
    "name": "Efton Chism",
@@ -4882,7 +5067,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "4189": {
    "name": "Eric Saubert",
@@ -4900,7 +5086,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "13421": {
    "name": "Eli Raridon",
@@ -4918,7 +5105,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "3271": {
    "name": "Tyler Higbee",
@@ -4936,7 +5124,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "1379": {
    "name": "Kyle Juszczyk",
@@ -4954,7 +5143,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.23
   },
   "11623": {
    "name": "Jordan Whittington",
@@ -4972,7 +5162,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "10214": {
    "name": "Davis Allen",
@@ -4990,7 +5181,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "11168": {
    "name": "Xavier Smith",
@@ -5008,7 +5200,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "12467": {
    "name": "Jordan James",
@@ -5026,7 +5219,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.31
   },
   "8195": {
    "name": "Ronnie Rivers",
@@ -5044,7 +5238,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.22
   },
   "7562": {
    "name": "Tutu Atwell",
@@ -5062,7 +5257,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "13414": {
    "name": "Kaelon Black",
@@ -5080,7 +5276,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.33
   },
   "12718": {
    "name": "Konata Mumpfield",
@@ -5098,7 +5295,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "3286": {
    "name": "Demarcus Robinson",
@@ -5116,7 +5314,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "11616": {
    "name": "Jacob Cowing",
@@ -5134,7 +5333,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "11637": {
    "name": "Keon Coleman",
@@ -5152,7 +5352,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "7670": {
    "name": "Joshua Palmer",
@@ -5170,7 +5371,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "11575": {
    "name": "Ray Davis",
@@ -5188,7 +5390,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.33
   },
   "5906": {
    "name": "Dawson Knox",
@@ -5206,7 +5409,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "10218": {
    "name": "Xavier Hutchinson",
@@ -5224,7 +5428,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "9504": {
    "name": "Kayshon Boutte",
@@ -5242,7 +5447,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.15
   },
   "6039": {
    "name": "Ty Johnson",
@@ -5260,7 +5466,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.29
   },
   "12536": {
    "name": "Jaylin Noel",
@@ -5278,7 +5485,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "12543": {
    "name": "Tahj Brooks",
@@ -5296,7 +5504,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.28
   },
   "9506": {
    "name": "Sean Tucker",
@@ -5314,7 +5523,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.35
   },
   "10227": {
    "name": "Payne Durham",
@@ -5332,7 +5542,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "6001": {
    "name": "Drew Sample",
@@ -5358,7 +5569,8 @@
     "player_anytime_td": "underdog",
     "player_reception_yds": "underdog",
     "player_receptions": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "12485": {
    "name": "Tez Johnson",
@@ -5376,7 +5588,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "13264": {
    "name": "Dohnte Meyers",
@@ -5394,7 +5607,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "13317": {
    "name": "Ted Hurst",
@@ -5412,7 +5626,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "13282": {
    "name": "Jack Endries",
@@ -5430,7 +5645,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "1479": {
    "name": "Keenan Allen",
@@ -5448,7 +5664,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.13
   },
   "7571": {
    "name": "Rashod Bateman",
@@ -5466,7 +5683,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.12
   },
   "5995": {
    "name": "Justice Hill",
@@ -5484,7 +5702,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.35
   },
   "11629": {
    "name": "Devontez Walker",
@@ -5502,7 +5721,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "12699": {
    "name": "LaJohntay Wester",
@@ -5520,7 +5740,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "5008": {
    "name": "Durham Smythe",
@@ -5538,7 +5759,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "13293": {
    "name": "Ja'Kobi Lane",
@@ -5556,7 +5778,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.09
   },
   "8154": {
    "name": "Brian Robinson",
@@ -5574,7 +5797,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.46
   },
   "7600": {
    "name": "Pat Freiermuth",
@@ -5592,7 +5816,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "11630": {
    "name": "Roman Wilson",
@@ -5610,7 +5835,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "6271": {
    "name": "Olamide Zaccheaus",
@@ -5628,7 +5854,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "3202": {
    "name": "Austin Hooper",
@@ -5646,7 +5873,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "9479": {
    "name": "Darnell Washington",
@@ -5664,7 +5892,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "13433": {
    "name": "Riley Nowakowski",
@@ -5682,7 +5911,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "13274": {
    "name": "Germie Bernard",
@@ -5700,7 +5930,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.07
   },
   "13423": {
    "name": "Eli Heidenreich",
@@ -5718,7 +5949,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.22
   },
   "13320": {
    "name": "Zachariah Branch",
@@ -5736,7 +5968,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "13491": {
    "name": "Kaden Wetjen",
@@ -5754,7 +5987,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "12535": {
    "name": "Isaac TeSlaa",
@@ -5772,7 +6006,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.15
   },
   "5857": {
    "name": "Noah Fant",
@@ -5790,7 +6025,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "13533": {
    "name": "Barion Brown",
@@ -5808,7 +6044,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "13420": {
    "name": "Bryce Lance",
@@ -5826,7 +6063,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "7891": {
    "name": "Brock Wright",
@@ -5844,7 +6082,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "11626": {
    "name": "Xavier Legette",
@@ -5862,7 +6101,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.13
   },
   "6826": {
    "name": "Cole Kmet",
@@ -5880,7 +6120,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "3634": {
    "name": "Kalif Raymond",
@@ -5898,7 +6139,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "12523": {
    "name": "Jimmy Horn",
@@ -5916,7 +6158,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "13079": {
    "name": "Jahdae Walker",
@@ -5934,7 +6177,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "11583": {
    "name": "Jonathon Brooks",
@@ -5952,7 +6196,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.58
   },
   "13411": {
    "name": "Zavion Thomas",
@@ -5970,7 +6215,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "12469": {
    "name": "Dylan Sampson",
@@ -5988,7 +6234,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.32
   },
   "12503": {
    "name": "Isaiah Bond",
@@ -6006,7 +6253,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "13298": {
    "name": "KC Concepcion",
@@ -6032,7 +6280,8 @@
     "player_anytime_td": "underdog",
     "player_reception_yds": "underdog",
     "player_receptions": "underdog"
-   }
+   },
+   "sd": 5.2
   },
   "12499": {
    "name": "Elic Ayomanor",
@@ -6050,7 +6299,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "12498": {
    "name": "Mason Taylor",
@@ -6068,7 +6318,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "8225": {
    "name": "Daniel Bellinger",
@@ -6086,7 +6337,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "11571": {
    "name": "Isaiah Davis",
@@ -6104,7 +6356,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.28
   },
   "12540": {
    "name": "Chimere Dike",
@@ -6122,7 +6375,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "13330": {
    "name": "Kenyon Sadiq",
@@ -6140,7 +6394,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "11608": {
    "name": "Isaiah Williams",
@@ -6158,7 +6413,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "13276": {
    "name": "Omar Cooper",
@@ -6176,7 +6432,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "11370": {
    "name": "Chris Brooks",
@@ -6194,7 +6451,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.3
   },
   "5973": {
    "name": "Josh Oliver",
@@ -6212,7 +6470,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "8168": {
    "name": "Skyy Moore",
@@ -6230,7 +6489,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "12482": {
    "name": "Savion Williams",
@@ -6248,7 +6508,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "8204": {
    "name": "Bo Melton",
@@ -6266,7 +6527,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "10212": {
    "name": "Josh Whyle",
@@ -6284,7 +6546,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "9225": {
    "name": "Tank Bigsby",
@@ -6302,7 +6565,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.38
   },
   "8210": {
    "name": "Chig Okonkwo",
@@ -6320,7 +6584,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "11650": {
    "name": "Luke McCaffrey",
@@ -6338,7 +6603,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "8135": {
    "name": "Treylon Burks",
@@ -6356,7 +6622,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "13301": {
    "name": "Antonio Williams",
@@ -6374,7 +6641,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "13294": {
    "name": "Makai Lemon",
@@ -6392,7 +6660,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.16
   },
   "4033": {
    "name": "David Njoku",
@@ -6410,7 +6679,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "11647": {
    "name": "Kimani Vidal",
@@ -6428,7 +6698,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.48
   },
   "10231": {
    "name": "Elijah Higgins",
@@ -6446,7 +6717,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "12493": {
    "name": "Oronde Gadsden",
@@ -6464,7 +6736,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "8127": {
    "name": "Charlie Kolar",
@@ -6482,7 +6755,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "13380": {
    "name": "Brenen Thompson",
@@ -6500,7 +6774,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "8117": {
    "name": "Jalen Tolbert",
@@ -6518,7 +6793,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "9482": {
    "name": "Michael Mayer",
@@ -6536,7 +6812,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "12483": {
    "name": "Jack Bech",
@@ -6554,7 +6831,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "13329": {
    "name": "Malik Benson",
@@ -6572,7 +6850,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "13338": {
    "name": "Kevin Coleman",
@@ -6590,7 +6869,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "13434": {
    "name": "Will Kacmarek",
@@ -6608,7 +6888,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "13311": {
    "name": "Chris Bell",
@@ -6626,7 +6907,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "13429": {
    "name": "Seydou Traore",
@@ -6644,7 +6926,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "8172": {
    "name": "Greg Dulcich",
@@ -6662,7 +6945,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "8181": {
    "name": "Connor Heyward",
@@ -6680,7 +6964,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "7528": {
    "name": "Najee Harris",
@@ -6698,7 +6983,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.46
   },
   "11597": {
    "name": "Theo Johnson",
@@ -6716,7 +7002,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "8917": {
    "name": "KaVontae Turpin",
@@ -6734,7 +7021,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "6130": {
    "name": "Devin Singletary",
@@ -6752,7 +7040,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.39
   },
   "10871": {
    "name": "Luke Schoonmaker",
@@ -6770,7 +7059,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "11510": {
    "name": "Hunter Luepke",
@@ -6788,7 +7078,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.22
   },
   "11593": {
    "name": "Brevyn Spann-Ford",
@@ -6806,7 +7097,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "8800": {
    "name": "Malik Davis",
@@ -6824,7 +7116,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.38
   },
   "13285": {
    "name": "Malachi Fields",
@@ -6854,7 +7147,8 @@
     "player_rush_yds": "underdog",
     "player_reception_yds": "underdog",
     "player_receptions": "underdog"
-   }
+   },
+   "sd": 5.27
   },
   "3048": {
    "name": "Chris Manhertz",
@@ -6872,7 +7166,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "8151": {
    "name": "Kenneth Walker",
@@ -6902,7 +7197,8 @@
     "player_rush_yds": "underdog",
     "player_reception_yds": "underdog",
     "player_receptions": "underdog"
-   }
+   },
+   "sd": 6.83
   },
   "11624": {
    "name": "Xavier Worthy",
@@ -6928,7 +7224,8 @@
     "player_anytime_td": "underdog",
     "player_reception_yds": "underdog",
     "player_receptions": "underdog"
-   }
+   },
+   "sd": 5.61
   },
   "6806": {
    "name": "J.K. Dobbins",
@@ -6958,7 +7255,8 @@
     "player_rush_yds": "underdog",
     "player_reception_yds": "underdog",
     "player_receptions": "underdog"
-   }
+   },
+   "sd": 5.81
   },
   "10229": {
    "name": "Rashee Rice",
@@ -6984,7 +7282,8 @@
     "player_anytime_td": "underdog",
     "player_reception_yds": "underdog",
     "player_receptions": "underdog"
-   }
+   },
+   "sd": 6.96
   },
   "5045": {
    "name": "Courtland Sutton",
@@ -7010,7 +7309,8 @@
     "player_anytime_td": "underdog",
     "player_reception_yds": "underdog",
     "player_receptions": "underdog"
-   }
+   },
+   "sd": 6.07
   },
   "1466": {
    "name": "Travis Kelce",
@@ -7036,7 +7336,8 @@
     "player_anytime_td": "underdog",
     "player_reception_yds": "underdog",
     "player_receptions": "underdog"
-   }
+   },
+   "sd": 5.86
   },
   "7526": {
    "name": "Jaylen Waddle",
@@ -7062,7 +7363,8 @@
     "player_anytime_td": "underdog",
     "player_reception_yds": "underdog",
     "player_receptions": "underdog"
-   }
+   },
+   "sd": 6.54
   },
   "4066": {
    "name": "Evan Engram",
@@ -7080,7 +7382,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "9494": {
    "name": "Marvin Mims",
@@ -7098,7 +7401,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "12489": {
    "name": "RJ Harvey",
@@ -7116,7 +7420,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.42
   },
   "11563": {
    "name": "Bo Nix",
@@ -7150,7 +7455,8 @@
     "player_pass_yds": "underdog",
     "player_pass_tds": "underdog",
     "player_pass_interceptions": "underdog"
-   }
+   },
+   "sd": 9.42
   },
   "11627": {
    "name": "Troy Franklin",
@@ -7168,7 +7474,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "4046": {
    "name": "Patrick Mahomes",
@@ -7202,7 +7509,8 @@
     "player_rush_yds": "underdog",
     "player_pass_tds": "underdog",
     "player_pass_interceptions": "underdog"
-   }
+   },
+   "sd": 9.39
   },
   "7828": {
    "name": "Noah Gray",
@@ -7224,7 +7532,8 @@
    "sources": {
     "player_anytime_td": "underdog",
     "player_reception_yds": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "12455": {
    "name": "Brashard Smith",
@@ -7242,7 +7551,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.4
   },
   "12492": {
    "name": "Pat Bryant",
@@ -7260,7 +7570,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "12505": {
    "name": "Jalen Royals",
@@ -7278,7 +7589,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   },
   "6869": {
    "name": "Adam Trautman",
@@ -7296,7 +7608,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "8188": {
    "name": "Tyquan Thornton",
@@ -7322,7 +7635,8 @@
     "player_anytime_td": "underdog",
     "player_reception_yds": "underdog",
     "player_receptions": "underdog"
-   }
+   },
+   "sd": 4.83
   },
   "13345": {
    "name": "Jonah Coleman",
@@ -7340,7 +7654,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.33
   },
   "13337": {
    "name": "Emmett Johnson",
@@ -7358,7 +7673,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.45
   },
   "11433": {
    "name": "Nate Adkins",
@@ -7376,7 +7692,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 3.49
   },
   "13413": {
    "name": "Cyrus Allen",
@@ -7394,7 +7711,8 @@
    },
    "sources": {
     "player_anytime_td": "underdog"
-   }
+   },
+   "sd": 4.06
   }
  },
  "unmatched": [

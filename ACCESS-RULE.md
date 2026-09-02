@@ -39,3 +39,5 @@ Regardless of how it was computed:
 - **Deploy discipline:** the tool gating ships whenever ready; the history restore
   (putting all-play/efficiency/bench back on the league-visible pages) must be LIVE
   before or with any deploy that would otherwise ship the over-stripped history.
+
+**REAFFIRMED 2026-09-02 — Cory, 2026-09-02, verbatim: "Keep everything private form other owners.. trust wire".** Asked as CORY-ASKS A24 after the owner-site review found the lineup optimizer and waiver wire commissioner-only: nothing opens to other owners, not even an alarms-only variant. Do not re-ask.

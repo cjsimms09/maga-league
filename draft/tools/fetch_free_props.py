@@ -300,6 +300,43 @@ def build_week(sleeper_rows: list, underdog_doc: dict, board: dict, scoring_tabl
                        "unmatched": len(unmatched)}}
 
 
+SPREAD_TABLE = ROOT / "draft" / "data" / "props_residual_sd.json"
+
+
+def load_spread_fits(path: Path = SPREAD_TABLE) -> dict:
+    """The per-position `sd ≈ a + b·implied` fits props_spread.py measured
+    (P355's feed). Empty when the table is absent or its controls failed —
+    the caller then writes NO `sd`, never a zero."""
+    try:
+        doc = json.loads(Path(path).read_text())
+    except (OSError, ValueError):
+        return {}
+    if not all(c.get("ok") for c in doc.get("controls", [])):
+        return {}
+    return doc.get("fits") or {}
+
+
+def spread_sd(pos, implied, fits: dict):
+    f = fits.get(pos) if pos else None
+    if not f or implied is None:
+        return None
+    v = f["a"] + f["b"] * float(implied)
+    return round(min(max(v, f["sd_min"]), f["sd_max"]), 2)
+
+
+def stamp_spread(players: dict, fits: dict) -> int:
+    """Attach `sd` to every priced player whose position has a fit. Returns
+    the number stamped. K/DEF and unknown positions carry no `sd` and the
+    solver keeps its own fallback there."""
+    n = 0
+    for row in players.values():
+        sd = spread_sd(row.get("pos"), row.get("points"), fits)
+        if sd is not None:
+            row["sd"] = sd
+            n += 1
+    return n
+
+
 def self_check(result: dict) -> list:
     """Known-positive controls. Empty list = write; otherwise the reasons."""
     c = result["counts"]
@@ -419,7 +456,14 @@ def main(argv=None) -> int:
             print("   -", b)
         return 1
     doc = build_snapshot(result, int(season), int(week), _dt.date.today().isoformat())
-    path = props_snapshot_path(out_dir, int(season), int(week))
+    # PROPS_SNAPSHOT_SUFFIX="_sun" (the Sunday 15:30Z run) writes a SEPARATE
+    # file for the closing-line grade (P289) and merges only against itself —
+    # never the Thursday file the emission read (ROUTES relay → C, 09-02).
+    suffix = os.environ.get("PROPS_SNAPSHOT_SUFFIX", "")
+    if suffix and not re.fullmatch(r"_[a-z]{1,8}", suffix):
+        print(f"! PROPS_SNAPSHOT_SUFFIX {suffix!r} is not _[a-z]{{1,8}} — refusing (nothing written)")
+        return 1
+    path = props_snapshot_path(out_dir, int(season), int(week), suffix)
     existing = None
     if path.exists():
         try:
@@ -428,6 +472,14 @@ def main(argv=None) -> int:
             existing = None
     doc = merge_with_existing(doc, existing)
     print(f"merge: carried {doc['provenance']['counts'].get('carried_from_earlier_run', 0)} earlier-priced players; {len(doc['players'])} total")
+    # P355's FEED: a per-player weekly sd from the measured residual table
+    # (props_spread.py). Absent table or failed controls → no `sd` on any
+    # row, and the solver keeps its per-position fallback; never a zero.
+    fits = load_spread_fits()
+    stamped = stamp_spread(doc["players"], fits)
+    doc["provenance"]["spread"] = ({"source": str(SPREAD_TABLE.relative_to(ROOT)), "stamped": stamped, "of": len(doc["players"])}
+                                   if fits else {"source": None, "stamped": 0, "why": "spread table absent or its controls failed"})
+    print(f"spread: sd stamped on {stamped} of {len(doc['players'])} players")
     if args.dry_run:
         print(f"dry run — would write {path} ({len(doc['players'])} players)")
         return 0

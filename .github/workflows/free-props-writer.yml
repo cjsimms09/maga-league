@@ -15,8 +15,17 @@ on:
         required: false
         default: ''
   schedule:
-    - cron: '0 20 * * 3'   # Wednesday 20:00 UTC — before a Wednesday/short-week opener (week 1: SEA-NE)
+    # Wednesday 19:30 UTC — before a Wednesday/short-week opener (week 1: SEA-NE)
+    # AND before own-weekly-proj.yml's 20:00Z snapshot, whose props second
+    # opinion READS this file: at 20:00 both fired together and the snapshot
+    # raced a write that had not been pushed yet (relay, 09-02).
+    - cron: '30 19 * * 3'
     - cron: '20 12 * * 4'  # Thursday 12:20 UTC — the main pre-TNF snapshot; merges, never clobbers
+    # Sunday 15:30 UTC — the CLOSING-LINE snapshot for P289, written to a SEPARATE
+    # `_sun` file (PROPS_SNAPSHOT_SUFFIX below). The arm and the Tuesday grader
+    # read the unsuffixed Wed/Thu file — the lines the emission actually saw —
+    # so a Sunday run can never overwrite them (ROUTES relay → C, 09-02).
+    - cron: '30 15 * * 0'
 permissions:
   contents: write
 jobs:
@@ -28,6 +37,8 @@ jobs:
       - name: Write this week's free props (self-checked, refuses on a null)
         run: |
           set -uo pipefail
+          # Sunday (UTC day 7) writes the closing-line sibling, never the arm's file.
+          if [ "$(date -u +%u)" = "7" ]; then export PROPS_SNAPSHOT_SUFFIX=_sun; echo "Sunday run: writing the _sun closing-line snapshot"; fi
           W="${{ github.event.inputs.week }}"
           if [ -n "$W" ]; then
             if python3 draft/tools/fetch_free_props.py --week "$W"; then code=0; else code=$?; fi
