@@ -420,6 +420,41 @@ def balldontlie():
 # route guess to correct, a 200 with zero markets is a parse to fix — all
 # three are visible in the artifact, none reads as "no source".
 
+def _key_census(obj, prefix="", depth=0, acc=None, limit=4):
+    """Key-path histogram to depth `limit` — the map a parser is written from."""
+    acc = {} if acc is None else acc
+    if depth > limit:
+        return acc
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            path = f"{prefix}.{k}" if prefix else str(k)
+            acc[path] = acc.get(path, 0) + 1
+            _key_census(v, path, depth + 1, acc, limit)
+    elif isinstance(obj, list):
+        for v in obj[:50]:
+            _key_census(v, prefix + "[]", depth + 1, acc, limit)
+    return acc
+
+
+def _matched_contexts(obj, n=3, acc=None):
+    """The enclosing objects around the first few strings our crosswalk matches —
+    so the NEXT run's parser reads the real shape, not a guess."""
+    acc = [] if acc is None else acc
+    if len(acc) >= n:
+        return acc
+    if isinstance(obj, dict):
+        for v in obj.values():
+            if isinstance(v, str) and market_of(v) and len(acc) < n:
+                acc.append(json.dumps(obj)[:700])
+                break
+        for v in obj.values():
+            _matched_contexts(v, n, acc)
+    elif isinstance(obj, list):
+        for v in obj[:200]:
+            _matched_contexts(v, n, acc)
+    return acc
+
+
 def _generic_json(name, url, headers=None):
     st, body = get(url, headers=headers)
     out = _src(st, body)
@@ -432,6 +467,13 @@ def _generic_json(name, url, headers=None):
                 hits[key] = n
         out["label_hits_in_body"] = hits      # presence, NOT a player count
         out["nfl_mentions"] = txt.count("NFL") + txt.lower().count("football")
+        try:
+            d = json.loads(txt)
+            kc = _key_census(d)
+            out["key_paths_top"] = dict(sorted(kc.items(), key=lambda kv: -kv[1])[:40])
+            out["matched_contexts"] = _matched_contexts(d)
+        except ValueError:
+            out["notes"].append("body is not JSON")
     return out
 
 
@@ -449,7 +491,7 @@ def caesars():
 
 def actionnetwork():
     return _generic_json("actionnetwork",
-        "https://api.actionnetwork.com/web/v2/scoreboard/proplist/nfl?bookIds=15,30,68,69,75,76&period=game",
+        "https://api.actionnetwork.com/web/v1/scoreboard/nfl?bookIds=15&period=game",
         headers={"Referer": "https://www.actionnetwork.com/", "Origin": "https://www.actionnetwork.com"})
 
 
@@ -517,7 +559,7 @@ def main():
         "_territory": "relay census; C consumes for the free props writer (ROUTES TO: C, 09-01)",
         "_ask": "Cory 2026-09-01: make sure we are getting all the prop bets we need; look for more free sources if needed",
         "_need": NEED,
-        "captured_at": datetime.datetime.utcnow().isoformat() + "Z",
+        "captured_at": datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z"),
         "sources": {},
     }
     for name, fn in [("bovada", bovada), ("draftkings", draftkings), ("prizepicks", prizepicks),
