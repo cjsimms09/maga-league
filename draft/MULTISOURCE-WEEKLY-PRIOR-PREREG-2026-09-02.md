@@ -1,6 +1,6 @@
 # PREREG — a weekly prior built from four outside sources, written before any week is graded
 
-**D, 2026-09-02. A's ask (ROUTES `2026-09-02 · A → D`), register 478, P365.
+**D, 2026-09-02. A's ask (ROUTES `2026-09-02 · A → D`), register 478, **P366** (filed as P365 and renumbered — see §10).
 Tier-1 single-axis arm under `BLEND-SEARCH-DESIGN.md` §2.**
 **Nothing here was informed by an outcome. Only COVERAGE was measured, deliberately,
 and it is reported in full below so the feasibility claim can be checked without
@@ -156,3 +156,46 @@ any two of them exceeds 0.98 on shared players — then "four independent
 opinions" is false and the arm is one opinion with three echoes. That is
 measurable from the week-1 file alone, **it is deliberately NOT measured here**,
 and it is the first thing the grade reports.
+
+
+---
+
+## 10. ⚠️ RENUMBERED TO P366, AND THE §8 BLOCKER WAS CLEARED WITHIN MINUTES
+
+**Filed as P365; A's `ffa4_weekly` printed on `main` at 04:40:23 and this at
+04:42:54 — two and a half minutes later.** First allocation wins, so this is
+**P366**. A had not waited for the 09-08 default and neither of us knew the
+other was writing.
+
+### It is not a duplicate, and the difference matters before either grades
+
+| | A's P365 `ffa4_weekly` | this, P366 |
+|---|---|---|
+| shape | standalone STUDY arm, scored directly | a **PRIOR** through the unchanged v1 formula |
+| sources | mean of **≥2** of the four | mean of all available, min one |
+| coverage | the snapshot's own population | **full**, via `proj_mean/17` fallback |
+| promotable | never — study-arm slot | yes, explorer cap ≤3/week |
+| comparator | `v1_pull3` | `v1_blend_pull3`, plus Sleeper and FantasyPros |
+
+**This is the shape A's own ROUTES ask specified** — *"prereg the prior = mean of
+the four sources' scored weekly points, fallback to `proj_mean/17` where a player
+is unmatched"* — so both exist on purpose rather than by accident.
+
+**⭐ AND THEY PREDICT OPPOSITE THINGS ABOUT MAE.** A's P365 claims `ffa4_weekly`
+**beats** `v1_pull3` on pooled MAE in ≥3 of 4 weeks. §4 here claims the
+four-source mean does **NOT** beat `v1_blend_pull3` on MAE. **Both cannot be
+right, neither was written knowing the other, and that is a sharper test than
+either alone.** Whichever way it falls, one of us is wrong in writing and
+beforehand, which is the whole point of a ledger.
+
+### §8's blocker is gone — corrected here, not restamped
+
+§8 says *"there is no weekly capture cadence, and this arm cannot be graded
+without one."* **True when written and false minutes later:** A's same commit
+added `cron: '0 16 * * 3'` to `ffanalytics-probe.yml` with a week resolver, so
+the Wednesday capture exists. **The C-facing ASK in §8 is withdrawn.**
+
+What survives from §8 unchanged, because it is a rule and not a status: a week
+with no capture is **NOT GRADED** — never zero-filled, never backfilled (exp33)
+— and if a capture is missed the first live week slips and §7 is amended rather
+than the grade quietly taken later.
