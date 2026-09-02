@@ -86,6 +86,16 @@ exports.handler = async (event) => {
     const playersDb = await sleeper.players().catch(() => null);
     const proj = await WPP.fetchWeekProjections(season, week);
     const startDate = sData && sData.state && sData.state.season_start_date;
+    /* The committed schedule (draft/data/**, shipped via included_files) makes
+     * the lateness cutoff the week's REAL first kickoff — register 475: the
+     * Friday-start formula was 21 hours late for weeks 1 and 12. Absent
+     * schedule => the formula, and the row says which via `late_cutoff_source`. */
+    let schedule = null;
+    try {
+      schedule = JSON.parse(require('fs').readFileSync(
+        require('path').join(__dirname, '..', '..', 'draft', 'data', `nfl_schedule_${season}.json`), 'utf8'));
+    } catch (e) { schedule = null; }
+    const lateCutoff = WPP.lateCutoffUtc(startDate, week, schedule);
     const built = WPP.buildWeekForecasts({
       season, week,
       rosters: (sData && sData.rosters) || [],
@@ -96,7 +106,7 @@ exports.handler = async (event) => {
       history,
       sleeperProj: proj.rows,
       now: Date.now(),
-      lateCutoff: WPP.lateCutoffUtc(startDate, week),
+      lateCutoff,
     });
 
     // Dedupe against what an earlier run of THIS week already emitted.
@@ -136,6 +146,7 @@ exports.handler = async (event) => {
       emitted: appended.length, deduped: built.forecasts.length - fresh.length,
       coverage: built.coverage, sleeper_arm_status: proj.status,
       emitted_late: built.forecasts.length && built.forecasts[0].emitted_late,
+      late_cutoff_source: schedule && schedule.weeks && schedule.weeks[String(week)] ? 'schedule.first' : 'formula',
       emission_sanity: sanity,
     }) };
   } catch (e) {
