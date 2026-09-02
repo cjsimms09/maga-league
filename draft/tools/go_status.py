@@ -40,7 +40,12 @@ WATCHED = [
     # HTTPError on this tool's own first run). Their health proof is the
     # probe line below, by design (register 287).
     ("reco-cron-probe.yml",       "capture-rail weekly proof (covers the two Netlify reco crons)"),
-    ("weekly-props-fetch.yml",    "paid Thursday props fetch"),
+    # weekly-props-fetch.yml is DISPATCH-ONLY since 09-01 (Cory: no paid
+    # props, no Odds API, ever — CLAUDE.md standing ruling). Watching it here
+    # read "✅ paid Thursday props fetch" on every sweep, a green line for a
+    # capture that is deliberately dead. The live props capture is the free
+    # writer (Underdog + Bovada, Wed/Thu, register 467).
+    ("free-props-writer.yml",     "free props writer Wed/Thu (Underdog + Bovada; the paid fetch is off by ruling)"),
     ("bovada-lines-capture.yml",  "Thu open + Sun close game lines"),
     ("odds-capture.yml",          "Thu/Sun odds snapshots"),
     ("free-odds-probe.yml",       "free-source census Thu (P299)"),

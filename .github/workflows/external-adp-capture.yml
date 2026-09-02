@@ -936,6 +936,7 @@ jobs:
           sys.path.insert(0, "draft/backtest")
           print("## Is the market drafting our format?")
           flags, standing = [], []
+          phase = "undated"
           try:
               import board_vs_market as BM
               arc = json.load(open("draft/data/external_adp_series.json"))
@@ -1031,6 +1032,7 @@ jobs:
               draft_date = (json.load(open("draft/config/league_config.json"))
                             .get("draft") or {}).get("start_date")
               tr = BM.format_trend(arc, brd, draft_date=draft_date)
+              phase = tr["phase"]
               print("")
               print("### Is it the same pool it was yesterday?")
               print("_phase: `%s` (draft %s)_" % (tr["phase"], tr["draft_date"]))
@@ -1067,6 +1069,9 @@ jobs:
           with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
               fh.write("flags=%s\n" % ("; ".join(flags) or ""))
               fh.write("standing=%s\n" % ("; ".join(standing) or ""))
+              # pre-draft / post-draft / undated — the draft-window alarms
+              # below key on it. Undated (no config, crashed) escalates.
+              fh.write("phase=%s\n" % phase)
           FMT
 
       # ── IS TODAY'S DATA TRUSTWORTHY AT ALL ─────────────────────────────
@@ -1502,8 +1507,14 @@ jobs:
           echo "::error::it until this is understood."
           exit 1
 
+      # ⚠ DRAFT-WINDOW ALARM (A, 09-02). Its own text says why it exists: "F5
+      # reads the latest snapshot strictly before the draft". After the draft
+      # there is no F5 read to protect, and MFL's pool shedding a draftable id
+      # (the first post-draft firing was 0716, the Dallas team-kicker
+      # placeholder) is the archive's business, reported in the coverage
+      # summary either way. Escalates pre-draft and when the phase is unknown.
       - name: Escalate ONLY if a DRAFTABLE player left the board
-        if: always() && steps.cov.outputs.draftable_loss == '1'
+        if: always() && steps.cov.outputs.draftable_loss == '1' && steps.fmt.outputs.phase != 'post-draft'
         run: |
           echo "::error::A player priced INSIDE the draft left the board: ${{ steps.cov.outputs.lost_ids }}"
           echo "::error::F5 reads the latest snapshot strictly before the draft, so these"
