@@ -182,6 +182,12 @@ that might help."* Three mechanisms, two of which already run:
    control, its FALLBACK, and cost (all free by the standing ruling). **A data
    class with no fallback is a register row**, and GO status reads the
    registry so "props source dying" is an agenda line before the arm goes dark.
+   **SEEDED 09-02 (relay, C's default):** 14 classes, each with primary,
+   workflow, cadence, control, fallback and cost; `test_source_registry.py`
+   pins the no-fallback list (snaps_usage · weather · depth_charts_team_context
+   · expert_ranks · player_bio_capital) so a new gap fails CI until it is
+   written down, and `go_status.py` prints a SOURCE REGISTRY section (⚠ per
+   single-door class, advisory). C owns the rows from here.
 3. **A standing DISCOVERY census** — `free_props_census.py` generalised: each
    month the Monday explorer spends one slot probing new free candidates per
    data class (the way six props doors were tried in one night), with the

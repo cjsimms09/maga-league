@@ -124,7 +124,7 @@ owner-facing. Fine under the access rule.
 6. **Vote deadline chip · bet expiry chip · chat reactions** (catalog 11/2/13
    remainders). *[small ×3]*
 7. **Pick'em vs the model** (model picks revealed and graded after lock). *[small]*
-8. **What to Watch linked from the scoreboard; Draft Spot parked in-season.** *[tiny]*
+8. ~~What to Watch linked from the scoreboard; Draft Spot parked in-season~~ — **DONE 09-02 (relay): a quiet-week link under the week strip (the Sunday-night banner unchanged), and Draft Spot leaves the menu while `inSeason` (season start → +150 days, from `config.season_start` or the betting calendar's derived default — nothing writes that config key, verified); the page and route stay.**
 9. ~~The lineup CHECK page for owners~~ — **dropped: Cory ruled everything stays private (09-02).**
 
 **Not in scope, said plainly:** anything that changes bet/vote/money math;

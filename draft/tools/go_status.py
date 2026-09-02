@@ -33,6 +33,9 @@ REPO = "cjsimms09/maga-league"
 # Every scheduled job that captures data or publishes an artifact, with the
 # cadence a healthy one shows. Add a line when a new capture ships — a capture
 # missing from this list is invisible to "go", which is how captures die.
+from pathlib import Path
+ROOT = Path(__file__).resolve().parents[2]
+
 WATCHED = [
     ("draft-data.yml",            "board build+publish (schedule)"),
     # waiver-reco-cron / lineup-reco-cron are NETLIFY scheduled functions,
@@ -44,8 +47,9 @@ WATCHED = [
     # props, no Odds API, ever — CLAUDE.md standing ruling). Watching it here
     # read "✅ paid Thursday props fetch" on every sweep, a green line for a
     # capture that is deliberately dead. The live props capture is the free
-    # writer (Underdog + Bovada, Wed/Thu, register 467).
-    ("free-props-writer.yml",     "free props writer Wed/Thu (Underdog + Bovada; the paid fetch is off by ruling)"),
+    # writer (Sleeper Picks + Underdog, Wed/Thu, register 467) and its census.
+    ("free-props-writer.yml",     "FREE props → the arm's input file (Sleeper Picks + Underdog; the paid fetch is off by ruling)"),
+    ("free-props-census.yml",     "per-market free-source census (Thu)"),
     ("bovada-lines-capture.yml",  "Thu open + Sun close game lines"),
     ("odds-capture.yml",          "Thu/Sun odds snapshots"),
     ("free-odds-probe.yml",       "free-source census Thu (P299)"),
@@ -53,6 +57,12 @@ WATCHED = [
     ("ffanalytics-probe.yml",     "nightly multi-source projections"),
     ("weekly-proj-snapshot.yml",  "the 2027-gradeable proj freeze"),
     ("week-brief.yml",            "THIS-WEEK roster fact sheet (the roster rule's target)"),
+    ("weekly-snap-counts.yml",    "nflverse snaps (Wed) — the usage arm's input, NO fallback"),
+    ("own-weekly-proj.yml",       "our weekly projection emission (Wed/Thu)"),
+    ("own-weekly-grade.yml",      "the Tuesday grader (reads the props file too)"),
+    ("weekly-grade.yml",          "Tuesday component grades + tool-vs-random"),
+    ("weekly-projection-archive.yml", "the 2027-gradeable weekly archive (Thu)"),
+    ("kalshi-capture.yml",        "daily Kalshi ladders"),
 ]
 
 
@@ -215,6 +225,29 @@ def main():
         print(f"   🔴 {problem}")
     else:
         print(f"   ✅ {days} day(s) old")
+
+    print("\n── SOURCE REGISTRY ─────────────────────────────────────────")
+    # FUTURE-PROOF-2027 §6: every data class names a primary and a fallback.
+    # Advisory, not red: a class whose primary is failing is already red above
+    # by workflow; this line is the "and there is no fallback" fact, which is
+    # what turns a bad night into a dark arm.
+    try:
+        reg = json.load(open(ROOT / "draft" / "data" / "source_registry.json"))
+        gaps = []
+        for c in reg["classes"]:
+            fb = (c["fallback"].get("source") or "").upper()
+            nofb = fb.startswith("NONE")
+            uncaptured = "none" in (c["primary"].get("workflow") or "").lower()
+            mark = "⚠" if (nofb or uncaptured) else "✅"
+            note = "NOT CAPTURED" if uncaptured else ("no fallback" if nofb else "fallback: " + (c["fallback"].get("source") or "")[:40])
+            print(f" {mark} {c['class']:26} {note}")
+            if uncaptured or nofb:
+                gaps.append(c["class"])
+        if gaps:
+            print(f"   ⚠ {len(gaps)} class(es) with a single door or none — C's registry rows, not tonight's red list")
+    except Exception as e:  # noqa: BLE001
+        print(f" 🔴 registry unreadable: {type(e).__name__}: {e}")
+        red.append(f"source_registry.json unreadable — {e}")
 
     print("\n── VERDICT ─────────────────────────────────────────────────")
     if red:
