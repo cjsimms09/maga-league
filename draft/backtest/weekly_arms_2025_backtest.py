@@ -106,6 +106,17 @@ if __name__ == "__main__":
 #: fold D's P347 was holding blind (register 472); 2023 is the last blind
 #: fold for the props arm and this file must not be pointed at it without
 #: D's grade landing first.
+#: THE PRIOR CLAIM (2026-09-02, written BEFORE either fold was run with it):
+#: both folds showed the season PRIOR mattering more than the formula, with
+#: own_v6 the worst prior on every grade. A `blend` prior — the per-player
+#: mean of the available season priors (own_v6 + FP + Sleeper in 2025; own_v6
+#: + FP in 2024), the backtest's proxy for the board's multi-source proj_mean
+#: — is priced through the SAME v1 formula. CLAIM: blend:v1 beats own_v6:v1
+#: on pooled MAE AND at >= 3 of 4 positions on start/sit, in BOTH folds.
+#: If TRUE it is a Tier-1 single-axis challenger (the prior source) the
+#: design permits any time; if FALSE the board blend stays a draft instrument.
+PRIOR_CLAIM = ("blend_v1_beats_own_v1_mae_and_startsit_3of4",
+               "blend:v1 beats own_v6:v1 on pooled MAE AND on start/sit at >= 3 of 4 positions")
 REPLICATION_CLAIMS = (
     ("props_beats_v1_startsit_3of4", "props beats own_v6:v1 on pairwise start/sit at >= 3 of 4 positions (shared population)"),
     ("pull_beats_v1_mae", "site_ours (the pull rule) beats own_v6:v1 on pooled MAE"),
@@ -220,6 +231,13 @@ def load(controls: list | None = None):
                              "committed_0818_store": {"n": len(committed), "identical_to_rebuild": same_c,
                                                       "max_abs_drift": round(drift, 2),
                                                       "note": "the 2025 fold prices the COMMITTED store; its inputs have been refreshed since 08-18"}})
+    # the blend prior: per-player mean of every available season prior
+    pids = set().union(*[set(v) for v in priors.values()])
+    priors["blend"] = {}
+    for pid in pids:
+        vals = [float(v[pid]) for v in priors.values() if pid in v and v[pid] is not None]
+        if vals:
+            priors["blend"][pid] = round(sum(vals) / len(vals), 2)
     props = {e["week"]: e["players"]
              for e in J(f"draft/backtest/historical_props_{SEASON}.json")["weeks"]}
     hist = next(s for s in J("draft/data/league_history.json")["seasons"]
@@ -254,10 +272,23 @@ def team_pos_for_week(comp, w):
 
 # ── arms ──────────────────────────────────────────────────────────────────────
 
-def season_prior_arms(priors, tp, implied, byes_w, w):
+def realized_lists(act, w):
+    """{pid: [points in weeks < w]} — what price_week's pull arms read live
+    (weekly_own_projection.realized_from_ledger), rebuilt from the actuals."""
+    per = {}
+    for k in sorted(k for k in act if k < w):
+        for pid, pts in act[k].items():
+            per.setdefault(pid, []).append(pts)
+    return per
+
+
+def season_prior_arms(priors, tp, implied, byes_w, w, realized=None):
     """The LIVE formula on each preseason prior, across the live challenger set.
     Reuses price_week so the own_v6 arm IS what own_weekly_v1 would have
-    priced — the control below proves it."""
+    priced — the control below proves it. `realized` (2026-09-02) makes the
+    pull arms PULL on every prior, as they do live from week 2; before this
+    every `<prior>:v1_pull3` column equalled `<prior>:v1` and the only pulled
+    arm was site_ours (own_v6). K8 proves site_ours == own_v6:v1_pull3."""
     out = {}
     for pname, prior in priors.items():
         players = []
@@ -268,8 +299,9 @@ def season_prior_arms(priors, tp, implied, byes_w, w):
             players.append({"player_id": pid, "position": pos, "team": team,
                             "proj_ownmodel": float(total),
                             "bye": w if team in byes_w else None})
-        priced = price_week(players, w, implied, DEFAULT_ARMS)
-        for arm in DEFAULT_ARMS:
+        arms_here = [a for a in DEFAULT_ARMS if not a.get("prior")]   # the prior axis IS `priors` here
+        priced = price_week(players, w, implied, arms_here, realized)
+        for arm in arms_here:
             out[f"{pname}:{arm['name']}"] = priced["means"][arm["name"]]
     return out
 
@@ -446,7 +478,8 @@ def main() -> int:
                    for k, v in implied_from_vegas_store(D["vegas"], SEASON, w).items()}
         byes_w = {VEGAS_TO_STATS.get(t, t) for t in byes[w]}
         arms = {}
-        arms.update(season_prior_arms(D["priors"], tp, implied, byes_w, w))
+        arms.update(season_prior_arms(D["priors"], tp, implied, byes_w, w,
+                                      realized_lists(D["act"], w) if w >= 2 else None))
         if w >= 2:
             arms.update(realized_arms(D["act"], D["priors"], tp, w))
         p_arm, p_diag = props_arm(D["props"].get(w, {}), D["names"], tp, D["scoring"])
@@ -498,9 +531,35 @@ def main() -> int:
                 "proj_ownmodel": float(t), "bye": w if tp[pid][0] in byes_w else None}
                for pid, t in D["priors"]["own_v6"].items()
                if tp.get(pid, (None, None))[1] in POSITIONS and tp[pid][0]]
-    direct = price_week(players, w, implied, DEFAULT_ARMS)["means"]["v1"]
+    direct = price_week(players, w, implied, [a for a in DEFAULT_ARMS if not a.get("prior")])["means"]["v1"]
     controls.append({"id": "K1", "what": "own_v6:v1 reproduces price_week byte-for-byte (week 3)",
                      "ok": direct == a, "n": len(a)})
+    # K8 — the site's own pull rule (realized_arms.site_ours: prior/17 pulled
+    # toward realized, no tilt, no bye rule) and the live pricer's pull arm
+    # WITHOUT its tilt are ONE rule: byte-identical on every shared player,
+    # every week from 2. If they diverge, the harness and the site price two
+    # different things under one name. (First draft of this control compared
+    # against a key that did not exist and would have passed on nothing.)
+    k8_diff, k8_n = 0, 0
+    notilt_pull = [{"name": "_pull_notilt", "divisor": 17, "tilt_scale": 0.0, "pull": PRIOR_PSEUDO_WEEKS}]
+    for w in sorted(weekly):
+        if w < 2:
+            continue
+        tpw = team_pos_for_week(D["comp"], w)
+        bw = {VEGAS_TO_STATS.get(t, t) for t in byes[w]}
+        plist = [{"player_id": pid, "position": tpw[pid][1], "team": tpw[pid][0],
+                  "proj_ownmodel": float(t), "bye": w if tpw[pid][0] in bw else None}
+                 for pid, t in D["priors"]["own_v6"].items()
+                 if tpw.get(pid, (None, None))[1] in POSITIONS and tpw[pid][0]]
+        pulled = price_week(plist, w, {}, notilt_pull, realized_lists(D["act"], w))["means"]["_pull_notilt"]
+        site = realized_arms(D["act"], D["priors"], tpw, w)["site_ours"]
+        for pid, v in pulled.items():
+            if pid in site:
+                k8_n += 1
+                if abs(v - site[pid]) > 0.011:
+                    k8_diff += 1
+    controls.append({"id": "K8", "what": "site_ours == the live pull arm without its tilt, every shared player, weeks 2-17: one pull rule, not two",
+                     "ok": k8_n > 0 and k8_diff == 0, "compared": k8_n, "differ": k8_diff})
     # K2 — Cory's recorded weekly score reproduces from his starters' points
     diffs = [abs(o["actual"] - float(o["recorded"])) for o in outcome.values() if o.get("recorded") is not None]
     controls.append({"id": "K2", "what": "Cory's recorded points == sum of his starters' points, every week",
@@ -573,7 +632,7 @@ def main() -> int:
                         "per_pos": per_pos}
 
     ss_full = pairwise_accuracy(ss_weeks_full, arm_names)
-    provider_arms = [f"{p}:v1" for p in D["priors"] if p != "own_v6"]
+    provider_arms = [f"{p}:v1" for p in D["priors"] if p not in ("own_v6", "blend")]
     bar_vs_priors = meets_cory_bar(ss_full, "own_v6:v1", provider_arms)
     ss_props = pairwise_accuracy(ss_weeks_props, ["own_v6:v1", "props"])
 
@@ -616,7 +675,8 @@ def main() -> int:
             arms_w = {}
             arms_w.update(season_prior_arms(D["priors"], tpw,
                           {VEGAS_TO_STATS.get(k, k): v for k, v in implied_from_vegas_store(D["vegas"], SEASON, w).items()},
-                          {VEGAS_TO_STATS.get(t, t) for t in byes[w]}, w))
+                          {VEGAS_TO_STATS.get(t, t) for t in byes[w]}, w,
+                          realized_lists(D["act"], w) if w >= 2 else None))
             if w >= 2:
                 arms_w.update(realized_arms(D["act"], D["priors"], tpw, w))
             pa, _ = props_arm(D["props"].get(w, {}), D["names"], tpw, D["scoring"])
@@ -666,8 +726,12 @@ def main() -> int:
                    and acc["sources"][a][q]["accuracy"] > acc["sources"][b][q]["accuracy"])
     props_wins = _wins(ss_props, "props", "own_v6:v1")
     blend_wins = _wins(ss_full, "blend_props_pull", "site_ours")
+    blend_wins_v1 = _wins(ss_full, "blend:v1", "own_v6:v1")
     replication = {
         "_fixed_before_the_2024_fold_was_read": [c[1] for c in REPLICATION_CLAIMS],
+        PRIOR_CLAIM[0]: {"true": pooled["blend:v1"]["mae_weighted"] < pooled["own_v6:v1"]["mae_weighted"] and blend_wins_v1 >= 3,
+                         "blend:v1": pooled["blend:v1"]["mae_weighted"], "own_v6:v1": pooled["own_v6:v1"]["mae_weighted"],
+                         "positions_won": blend_wins_v1, "_claim": PRIOR_CLAIM[1]},
         "props_beats_v1_startsit_3of4": {"true": props_wins >= 3, "positions_won": props_wins},
         "pull_beats_v1_mae": {"true": pooled["site_ours"]["mae_weighted"] < pooled["own_v6:v1"]["mae_weighted"],
                               "site_ours": pooled["site_ours"]["mae_weighted"], "own_v6:v1": pooled["own_v6:v1"]["mae_weighted"]},
@@ -744,8 +808,8 @@ def main() -> int:
         print(f"   {name:<20} {o['delta_vs_actual_per_week']:>+6.2f}/wk ± {o['se']}   season {o['season_total_delta']:>+7.1f}"
               f"   better/tied/worse {o['weeks_better']}/{o['weeks_tied']}/{o['weeks_worse']}")
     print("\n  REPLICATION CLAIMS (fixed in REPLICATION_CLAIMS before the 2024 fold was read)")
-    for k, _ in REPLICATION_CLAIMS:
-        print(f"   {'TRUE ' if replication[k]['true'] else 'FALSE'}  {k}  {{ {', '.join(f'{a}: {b}' for a, b in replication[k].items() if a != 'true')} }}")
+    for k, _ in REPLICATION_CLAIMS + (PRIOR_CLAIM,):
+        print(f"   {'TRUE ' if replication[k]['true'] else 'FALSE'}  {k}  {{ {', '.join(f'{a}: {b}' for a, b in replication[k].items() if a not in ('true', '_claim'))} }}")
     b = doc["nulls"]["best_of_k_outcome"]
     print(f"\n  NULLS  shuffle worse than real on every arm: {doc['nulls']['shuffle_worse_on_every_arm']}")
     print(f"         best-of-K (random legal lineups): best arm {b['best_arm']} season {b['season_delta']:+.1f} sits at "

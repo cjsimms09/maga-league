@@ -137,6 +137,16 @@ DEFAULT_ARMS = [
     #: it equals v1 exactly there and full-population coverage is preserved.
     #: The realized points come from the grades ledger — zero extra fetch.
     {"name": "v1_pull3",   "divisor": 17, "tilt_scale": 1.0, "pull": 3},
+    #: ── ADDED 2026-09-02 FROM BOTH BACKTEST FOLDS (register 474) ────────────
+    #: The champion's exact formula on a DIFFERENT SEASON PRIOR: the board's
+    #: multi-source blend (`proj_mean`) instead of own_v6 (`proj_ownmodel`).
+    #: In 2025 AND 2024 the prior mattered more than the formula, own_v6 was
+    #: the worst of the priors on every grade, and a blend-of-priors proxy
+    #: beat own_v6 through the same formula on pooled MAE and at 4 of 4
+    #: positions on start/sit in both folds (weekly_arms_*_backtest.json,
+    #: PRIOR_CLAIM). Single-axis (the prior), so Tier-1 any time. Population
+    #: is the champion's; a row with no proj_mean falls back and is counted.
+    {"name": "v1_blend_pull3", "divisor": 17, "tilt_scale": 1.0, "pull": 3, "prior": "proj_mean"},
 ]
 DEFAULT_CHAMPION = {"version": FORMULA_VERSION_V1, "arm": "v1", "since_week": None}
 
@@ -265,15 +275,17 @@ def implied_for_week(week: int, season: int, odds_path: Path,
 def arm_formula(arm: dict) -> str:
     """The arm's formula, stated plainly — this string travels in every
     snapshot and grade so no reader ever reverse-engineers an arm."""
+    prior = arm.get("prior") or "proj_ownmodel"
     if arm.get("pull"):
         k = arm["pull"]
-        return (f"({k}*proj_ownmodel/{arm['divisor']}*tilt + sum(realized)) / ({k} + n_realized), "
-                "tilt as v1, realized = this season's graded actual points before this week")
+        return (f"({k}*{prior}/{arm['divisor']}*tilt + sum(realized)) / ({k} + n_realized), "
+                "tilt as v1, realized = this season's graded actual points before this week"
+                + ("" if prior == "proj_ownmodel" else f"; prior = the board's {prior} (falls back to proj_ownmodel where absent)"))
     if not arm["tilt_scale"]:
-        return f"proj_ownmodel/{arm['divisor']} (no vegas tilt)"
+        return f"{prior}/{arm['divisor']} (no vegas tilt)"
     scale = ("" if arm["tilt_scale"] == 1.0
              else f"{arm['tilt_scale']:g}*")
-    return (f"proj_ownmodel/{arm['divisor']} * (1 + {scale}vg[pos]"
+    return (f"{prior}/{arm['divisor']} * (1 + {scale}vg[pos]"
             "*(implied_team-mean_implied)/mean_implied), vg from V5_CONFIG")
 
 
@@ -319,6 +331,7 @@ def price_week(players: list, week: int, implied: dict,
     mean_imp = (sum(implied.values()) / len(implied)) if implied else None
     means: dict[str, dict] = {a["name"]: {} for a in arms}
     meta: dict[str, dict] = {}
+    prior_fallbacks: dict[str, list] = {}
     byes: list[str] = []
     no_line_players: list[str] = []
     no_line_teams: set[str] = set()
@@ -340,7 +353,21 @@ def price_week(players: list, week: int, implied: dict,
             if team:
                 no_line_teams.add(team)
         for a in arms:
-            base = float(proj) / a["divisor"]
+            # `prior` (2026-09-02, register 474): an arm may price a DIFFERENT
+            # season prior off the same board row — the single-axis challenger
+            # the two backtest folds pointed at (the prior mattered more than
+            # the formula; own_v6 was the worst prior on every grade). The
+            # POPULATION stays the champion's: gated on proj_ownmodel above,
+            # and a row whose alternative prior is missing/zero falls back to
+            # proj_ownmodel and is counted, so every arm prices every player.
+            pv = proj
+            if a.get("prior") and a["prior"] != "proj_ownmodel":
+                alt = p.get(a["prior"])
+                if isinstance(alt, (int, float)) and not isinstance(alt, bool) and alt > 0:
+                    pv = alt
+                else:
+                    prior_fallbacks.setdefault(a["name"], []).append(pid)
+            base = float(pv) / a["divisor"]
             tilt = 1.0
             if delta is not None and a["tilt_scale"]:
                 tilt = 1.0 + a["tilt_scale"] * VG[pos] * delta
@@ -358,6 +385,7 @@ def price_week(players: list, week: int, implied: dict,
         "no_line": {"players": sorted(no_line_players, key=lambda x: (len(x), x)),
                     "teams": sorted(no_line_teams)},
         "mean_implied": round(mean_imp, 3) if mean_imp else None,
+        "prior_fallbacks": {k: sorted(v, key=lambda x: (len(x), x)) for k, v in prior_fallbacks.items()},
     }
 
 
@@ -409,6 +437,8 @@ def build_snapshot(players: list, week: int, season: int, implied: dict,
                         "count": len(priced["no_line"]["players"]),
                         "teams": priced["no_line"]["teams"],
                         "player_ids": priced["no_line"]["players"]},
+            "prior_fallbacks": {"note": "arms pricing another prior fell back to proj_ownmodel for these players (register 474)",
+                                **{k: {"count": len(v), "player_ids": v} for k, v in priced.get("prior_fallbacks", {}).items()}},
             "vg": dict(VG),
         },
         "projections": projections,

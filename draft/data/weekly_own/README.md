@@ -54,6 +54,7 @@ same inputs, zero extra fetch cost:
 | `v1_notilt` | `proj_ownmodel/17` flat — is the tilt earning anything at all? |
 | `v1_pg16` | `proj_ownmodel/16` with the v1 tilt — is /17 too low a per-game bar? |
 | `v1_pull3` | `(3·v1 + Σ realized) / (3 + n)` — the v1 rate pulled toward the player's own graded in-season points, 3 pseudo-weeks of prior (the site's rule). **Added 2026-09-01 from the 2025 backtest, register 463:** best full-coverage arm on pooled 2025 MAE and on the start/sit metric at RB/WR/TE. Equals v1 in week 1. |
+| `v1_blend_pull3` | the `v1_pull3` formula on the board's multi-source blend (`proj_mean`) instead of own_v6 (`proj_ownmodel`); a row with no `proj_mean` falls back and is counted in `diagnostics.prior_fallbacks`. **Added 2026-09-02 from BOTH backtest folds, register 474:** the season prior mattered more than the formula, own_v6 was the worst prior on every grade, and a blend-of-priors proxy through the same pulled formula beat own_v6's at 4 of 4 positions on start/sit in 2025 and 2024 (MAE 4.551 vs 4.600; 4.785 vs 4.831). Single-axis (the prior), Tier-1. Population = the champion's. |
 
 The Tuesday grader also grades **provider study arms**: `sleeper` and
 `fantasypros` wherever the Thursday provider archive

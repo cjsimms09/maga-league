@@ -105,8 +105,38 @@ def test_build_week_writes_sleeper_first_fills_from_underdog_and_prices_through_
     pts, _ = implied_points({"player_reception_yds": 70.5, "player_receptions": 5.5,
                              "player_anytime_td": p["2"]["lines"]["player_anytime_td"]}, SCORING)
     assert p["2"]["points"] == pts
-    # a QB's anytime line would be dropped (RB/WR/TE only) — none here; counts are right
     assert r["counts"]["sleeper_qbs_with_pass_yds"] == 1 and r["counts"]["underdog_filled_players"] == 3
+
+
+def test_a_qb_with_an_anytime_line_gets_his_rushing_td_expectation_folded():
+    # Register 467's rule, applied 2026-09-02 on Cory's word: the line is folded
+    # for EVERY position. Before this the QB's line was popped and 32 week-1 QBs
+    # were priced without it.
+    rows = [sp_row("1", "passing_yards", 245.5, pos="QB"), sp_row("1", "passing_touchdowns", 1.5, pos="QB")]
+    doc = ud_doc([("Jalen Hurts", "Rush + Rec TDs", "0.5", "-135", "+105", "NE @ PHI")])
+    r = ffp.build_week(rows, doc, BOARD, SCORING)
+    q = r["players"]["1"]
+    assert q["pos"] == "QB" and q["sources"]["player_anytime_td"] == "underdog"
+    assert "any_td" in q["stat_line"] and 0.3 < q["stat_line"]["any_td"] < 1.2
+    from fetch_weekly_props import implied_points
+    pts, _ = implied_points({"player_pass_yds": 245.5, "player_pass_tds": 1.5,
+                             "player_anytime_td": q["lines"]["player_anytime_td"]}, SCORING)
+    assert q["points"] == pts
+    # and the gain is exactly one rush-TD's points per expected TD (K6's identity)
+    base, _ = implied_points({"player_pass_yds": 245.5, "player_pass_tds": 1.5}, SCORING)
+    assert abs((q["points"] - base) - SCORING["rush_td"] * q["stat_line"]["any_td"]) < 0.02
+    assert ffp.self_check(r) == [] or all("any_td" not in b for b in ffp.self_check(r))
+
+
+def test_REFUSAL_ARM_a_row_with_an_anytime_source_and_no_any_td_is_refused():
+    rows = [sp_row("1", "passing_yards", 245.5, pos="QB")] + [sp_row(str(100 + i), "receptions", 4.5) for i in range(30)]
+    doc = ud_doc([("Jalen Hurts", "Rush + Rec TDs", "0.5", "-135", "+105", "NE @ PHI")])
+    r = ffp.build_week(rows, doc, BOARD, SCORING)
+    assert ffp.self_check(r) == [] if r["counts"]["underdog_filled_players"] else True
+    # simulate the pre-467 strip on the built result: the writer must REFUSE
+    r["players"]["1"]["stat_line"].pop("any_td", None)
+    bad = ffp.self_check(r)
+    assert any("anytime-TD source and no any_td" in b for b in bad), bad
 
 
 def test_the_written_file_loads_through_the_arms_own_reader(tmp_path):
@@ -126,3 +156,23 @@ def test_REFUSAL_ARM_no_sleeper_qb_or_too_few_players_writes_nothing():
     r = ffp.build_week([sp_row("2", "receptions", 5.5)], ud_doc([]), BOARD, SCORING)
     bad = ffp.self_check(r)
     assert any("QB" in b for b in bad) and any("Underdog" in b for b in bad) and any("<30" in b for b in bad)
+
+
+def test_MERGE_NOT_CLOBBER_a_player_whose_line_vanished_keeps_his_earlier_row():
+    """Week-1 opener kicks off before the Thursday run: the refresh must not
+    erase the opener's players (register 172's clobber lesson)."""
+    rows = [sp_row("1", "passing_yards", 245.5, pos="QB")] + [sp_row(str(100 + i), "receptions", 4.5) for i in range(30)]
+    board = {"players": BOARD["players"] + [{"player_id": str(100 + i), "name": f"P{i}", "position": "WR", "team": "PHI"} for i in range(30)]}
+    doc_wed = ud_doc([("Saquon Barkley", "Rush Yards", "88.5", "-112", "-112", "NE @ PHI")])
+    wed = ffp.build_snapshot(ffp.build_week(rows, doc_wed, board, SCORING), 2026, 1, "2026-09-09")
+    assert "3" in wed["players"]
+    # Thursday: Barkley's game already kicked off — Underdog no longer quotes him; P0 got a new line
+    rows_thu = [sp_row("1", "passing_yards", 251.5, pos="QB")] + [sp_row(str(100 + i), "receptions", 5.5 if i == 0 else 4.5) for i in range(30)]
+    thu = ffp.build_snapshot(ffp.build_week(rows_thu, ud_doc([]), board, SCORING), 2026, 1, "2026-09-10")
+    merged = ffp.merge_with_existing(thu, wed)
+    assert merged["players"]["3"]["carried_from"] == "2026-09-09" and merged["players"]["3"]["points"] == wed["players"]["3"]["points"]
+    assert merged["players"]["100"]["lines"]["player_receptions"] == 5.5           # quoted players take the new line
+    assert merged["players"]["1"]["lines"]["player_pass_yds"] == 251.5
+    assert merged["provenance"]["counts"]["carried_from_earlier_run"] == 1
+    # a different week never merges
+    assert ffp.merge_with_existing(dict(thu, week=2), wed)["players"].get("3") is None
