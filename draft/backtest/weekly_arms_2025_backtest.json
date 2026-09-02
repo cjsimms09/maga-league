@@ -7,6 +7,29 @@
   "Props lines are the historical API's snapshot, not a verified pre-kickoff close; treated as knowable before kickoff.",
   "own_v6's 2025 prior is a walk-forward rebuild (510 players), not a frozen preseason artifact \u2014 the closest thing to proj_ownmodel-2025 that exists."
  ],
+ "prior_sources": "sleeper_vs_fp_rows (own_v6 rebuilt, FP + Sleeper fetched live)",
+ "replication_claims": {
+  "_fixed_before_the_2024_fold_was_read": [
+   "props beats own_v6:v1 on pairwise start/sit at >= 3 of 4 positions (shared population)",
+   "site_ours (the pull rule) beats own_v6:v1 on pooled MAE",
+   "blend_props_pull beats site_ours on pooled MAE AND on start/sit at >= 3 of 4 positions"
+  ],
+  "props_beats_v1_startsit_3of4": {
+   "true": true,
+   "positions_won": 4
+  },
+  "pull_beats_v1_mae": {
+   "true": true,
+   "site_ours": 4.655,
+   "own_v6:v1": 4.853
+  },
+  "blend_beats_pull_mae_and_startsit_3of4": {
+   "true": true,
+   "blend": 4.411,
+   "site_ours": 4.655,
+   "positions_won": 4
+  }
+ },
  "season": 2025,
  "weeks": [
   1,

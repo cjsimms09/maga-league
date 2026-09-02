@@ -61,8 +61,11 @@ output byte-for-byte on a sample week; Cory's recorded weekly score must be
 reproduced from his starters' points; the hindsight ceiling must dominate every
 arm; the props crosswalk must match a named known player.
 
-REPORT ONLY. Writes draft/backtest/weekly_arms_2025_backtest.json.
-Run:  python3 draft/backtest/weekly_arms_2025_backtest.py
+REPORT ONLY. Writes draft/backtest/weekly_arms_<season>_backtest.json.
+Run:  python3 draft/backtest/weekly_arms_2025_backtest.py [--season 2024]
+      (2025 is the default and the cited artifact; --season 2024 is the
+      replication fold, register 471 — same harness, the three claims fixed
+      in REPLICATION_CLAIMS before that fold was read)
 """
 from __future__ import annotations
 
@@ -85,13 +88,25 @@ from weekly_own_projection import (                         # noqa: E402
     DEFAULT_ARMS, VG, implied_from_vegas_store, price_week)
 from fetch_weekly_props import implied_points, MARKET_TO_STAT  # noqa: E402
 
-SEASON = 2025
+SEASON = int(sys.argv[sys.argv.index("--season") + 1]) if "--season" in sys.argv else 2025
+#: REPLICATION FOLDS (register 471, 2026-09-02). The file keeps its 2025 name
+#: because the 2025 artifact is cited by the prereg, P353, P357 and register
+#: 463; `--season 2024` runs the identical harness on the 2024 stores and
+#: writes weekly_arms_2024_backtest.json. The 2025 run is the control: it must
+#: be byte-identical before and after this parameterisation (it was).
+#: The three claims a fold must answer are fixed HERE, before the 2024 fold
+#: was read (BLEND-SEARCH-DESIGN: no arm is invented per fold):
+REPLICATION_CLAIMS = (
+    ("props_beats_v1_startsit_3of4", "props beats own_v6:v1 on pairwise start/sit at >= 3 of 4 positions (shared population)"),
+    ("pull_beats_v1_mae", "site_ours (the pull rule) beats own_v6:v1 on pooled MAE"),
+    ("blend_beats_pull_mae_and_startsit_3of4", "blend_props_pull beats site_ours on pooled MAE AND on start/sit at >= 3 of 4 positions"),
+)
 WEEKS = list(range(1, 18))          # weeks 1-17: the fantasy regular season
 CORY_ROSTER_ID = 1
 K_NULL = 200
 SEED = 20260901
 PRIOR_PSEUDO_WEEKS = 3               # src/weekly_player_projection.js
-OUT = ROOT / "draft" / "backtest" / "weekly_arms_2025_backtest.json"
+OUT = ROOT / "draft" / "backtest" / f"weekly_arms_{SEASON}_backtest.json"
 
 #: the props store keys markets by the STAT they map to, not the odds-api name
 STAT_TO_MARKET = {v: k for k, v in MARKET_TO_STAT.items()}
@@ -99,29 +114,101 @@ STAT_TO_MARKET = {v: k for k, v in MARKET_TO_STAT.items()}
 
 # ── inputs ────────────────────────────────────────────────────────────────────
 
-def load():
+def rebuild_own_v6(graded: int) -> dict:
+    """own_v6's preseason prior for `graded`, rebuilt from the SAME committed
+    helpers own_model_v6 uses — the chain proj_mean_blend._probe_models runs
+    for 2025, with the season as a parameter. Control K7 proves the chain at
+    2025 reproduces the committed 2025 prior before any other season is read."""
+    import fetch_component_stats as FCS
+    import own_model_v5 as V5
+    from model_accuracy_backtest import positions_record, season_totals
+    from own_model_v2 import features_for, fit_transition, predict
+    from own_model_v3 import build_v3, market_ranks, rank_curve
+    from own_model_v4 import (build_v4, league_draft_picks, qb_active_games,
+                              qb_availability_correction, weekly_points)
+    from own_model_v6 import _baselines, board_ages, build_v6
+    priors = (graded - 2, graded - 1)
+    positions, ages = positions_record(), board_ages()
+    fits = fit_transition(features_for(graded - 1, (graded - 2,), positions, ages),
+                          season_totals(graded - 1)[0])
+    v2 = predict(features_for(graded, priors, positions, ages), fits)
+    base = _baselines(graded, priors)
+    blend = base["recency_blend"]
+    curve = rank_curve(max(priors), positions)
+    mrank = market_ranks(league_draft_picks(graded), positions)
+    v3 = build_v3(v2, blend, mrank, curve, positions)
+    corr, _mu = qb_availability_correction(qb_active_games(weekly_points(max(priors)), positions))
+    v4 = build_v4(v3, blend, corr, positions)
+    v5 = V5.build_v5(v3, V5.comp_opinion(graded, priors, positions, ages,
+                                         FCS.implied_team_totals(graded, 1, 1)),
+                     blend, corr, mrank, curve, positions)
+    return {str(k): v for k, v in build_v6(v4, v5, positions).items()}
+
+
+def load(controls: list | None = None):
     J = lambda p: json.loads((ROOT / p).read_text())  # noqa: E731
     act = {e["week"]: {str(k): float(v) for k, v in e["points"].items()}
-           for e in J("draft/backtest/nflverse_weekly_points_2025.json")["weeks"]}
+           for e in J(f"draft/backtest/nflverse_weekly_points_{SEASON}.json")["weeks"]}
     comp = {e["week"]: e["players"]
-            for e in J("draft/backtest/component_stats_2025.json")["weeks"]}
+            for e in J(f"draft/backtest/component_stats_{SEASON}.json")["weeks"]}
     vegas = J("draft/backtest/vegas_lines_2021_2026.json")
-    prov = J("draft/backtest/sleeper_vs_fp_rows_2025.json")
-    priors = {"own_v6": prov["rows"]["own_v6"], "fp": prov["rows"]["fantasypros"],
-              "sleeper": prov["rows"]["sleeper"]}
-    positions = dict(prov["positions"])
+    fp_hist = J("draft/backtest/fp_hist_rows.json")["years"][str(SEASON)]["rows"]
+    prov_path = ROOT / "draft" / "backtest" / f"sleeper_vs_fp_rows_{SEASON}.json"
+    if prov_path.exists():
+        # 2025: the committed three-source store from the egress run (own_v6
+        # rebuilt there by the same chain, FP and Sleeper fetched live).
+        prov = json.loads(prov_path.read_text())
+        priors = {"own_v6": prov["rows"]["own_v6"], "fp": prov["rows"]["fantasypros"],
+                  "sleeper": prov["rows"]["sleeper"]}
+        positions = dict(prov["positions"])
+        prior_sources = "sleeper_vs_fp_rows (own_v6 rebuilt, FP + Sleeper fetched live)"
+    else:
+        # Other seasons: no Sleeper archive exists (sandbox cannot fetch, and
+        # none was captured). own_v6 is rebuilt from the committed helpers; FP
+        # is the historical draft-week projection re-scored under our table
+        # (fp_hist_rows `our_pts`). Two priors, stated in the artifact.
+        priors = {"own_v6": rebuild_own_v6(SEASON),
+                  "fp": {str(r["pid"]): float(r["our_pts"]) for r in fp_hist
+                         if r.get("pid") and (r.get("our_pts") or 0) > 0}}
+        positions = {}
+        prior_sources = "own_v6 rebuilt in-process (K7 controls the builder); FP from fp_hist_rows our_pts; NO Sleeper archive for this season"
+        if controls is not None:
+            # K7 — the builder used for THIS season IS the reference builder:
+            # pointed at 2025 it must reproduce proj_mean_blend._probe_models()
+            # player for player. A builder that only agrees with itself is not
+            # a control (rule 3e). ⚠️ K7 was first written against the
+            # COMMITTED 08-18 store (sleeper_vs_fp_rows_2025) and FAILED —
+            # 211 of 510 identical, 19 extra players — because that store's
+            # INPUTS (component stats, positions record, season totals) have
+            # been refreshed since 08-18; the chain itself agreed with the
+            # reference 529/529. A control pinned to a store built on a past
+            # day fails on refresh, not on defect (the class registers 452-466
+            # keep finding). The drift is RECORDED here as a measurement, not
+            # asserted away.
+            import proj_mean_blend as PMB
+            ref = {str(k): v for k, v in PMB._probe_models()[0]["own_v6"].items()}
+            rebuilt = rebuild_own_v6(2025)
+            same = sum(1 for k, v in ref.items() if abs(rebuilt.get(k, float("nan")) - float(v)) < 0.011)
+            committed = J("draft/backtest/sleeper_vs_fp_rows_2025.json")["rows"]["own_v6"]
+            same_c = sum(1 for k, v in committed.items() if abs(rebuilt.get(k, float("nan")) - float(v)) < 0.011)
+            drift = max(abs(rebuilt.get(k, float("nan")) - float(v)) for k, v in committed.items() if k in rebuilt)
+            controls.append({"id": "K7", "what": "rebuild_own_v6(2025) == proj_mean_blend._probe_models() own_v6, player for player",
+                             "ok": same == len(ref) and len(rebuilt) == len(ref),
+                             "reference": len(ref), "rebuilt": len(rebuilt), "identical": same,
+                             "committed_0818_store": {"n": len(committed), "identical_to_rebuild": same_c,
+                                                      "max_abs_drift": round(drift, 2),
+                                                      "note": "the 2025 fold prices the COMMITTED store; its inputs have been refreshed since 08-18"}})
     props = {e["week"]: e["players"]
-             for e in J("draft/backtest/historical_props_2025.json")["weeks"]}
+             for e in J(f"draft/backtest/historical_props_{SEASON}.json")["weeks"]}
     hist = next(s for s in J("draft/data/league_history.json")["seasons"]
                 if str(s.get("season")) == str(SEASON))
     scoring_table = J("draft/config/league_config.json")["scoring"]
-    names = {str(r["pid"]): r["name"]
-             for r in J("draft/backtest/fp_hist_rows.json")["years"]["2025"]["rows"]
-             if r.get("pid")}
+    names = {str(r["pid"]): r["name"] for r in fp_hist if r.get("pid")}
     for p in J("public/draft_data.json")["players"]:
         names.setdefault(str(p.get("player_id")), p.get("name"))
     return dict(act=act, comp=comp, vegas=vegas, priors=priors, positions=positions,
-                props=props, hist=hist, scoring=scoring_table, names=names)
+                props=props, hist=hist, scoring=scoring_table, names=names,
+                prior_sources=prior_sources)
 
 
 def byes_by_week(vegas):
@@ -321,11 +408,11 @@ def shuffle_within_pos(vals, tp, rng):
 # ── main ──────────────────────────────────────────────────────────────────────
 
 def main() -> int:
-    D = load()
+    controls = []
+    D = load(controls)
     rng = random.Random(SEED)
     byes = byes_by_week(D["vegas"])
     slots = slot_counts(D["hist"]["roster_positions"])
-    controls = []
 
     weekly = {}
     ss_weeks_full, ss_weeks_props = [], []
@@ -464,7 +551,8 @@ def main() -> int:
                         "per_pos": per_pos}
 
     ss_full = pairwise_accuracy(ss_weeks_full, arm_names)
-    bar_vs_priors = meets_cory_bar(ss_full, "own_v6:v1", ["fp:v1", "sleeper:v1"])
+    provider_arms = [f"{p}:v1" for p in D["priors"] if p != "own_v6"]
+    bar_vs_priors = meets_cory_bar(ss_full, "own_v6:v1", provider_arms)
     ss_props = pairwise_accuracy(ss_weeks_props, ["own_v6:v1", "props"])
 
     # ── outcome pooled (paired over weeks) ────────────────────────────────────
@@ -549,28 +637,47 @@ def main() -> int:
     rand_deltas.sort()
     pct = sum(1 for x in rand_deltas if x < best_delta) / K_NULL
 
+    # ── the three fixed replication claims, answered for THIS fold ───────────
+    def _wins(acc, a, b):
+        return sum(1 for q in POSITIONS
+                   if acc["sources"][a][q]["status"] == "measured" and acc["sources"][b][q]["status"] == "measured"
+                   and acc["sources"][a][q]["accuracy"] > acc["sources"][b][q]["accuracy"])
+    props_wins = _wins(ss_props, "props", "own_v6:v1")
+    blend_wins = _wins(ss_full, "blend_props_pull", "site_ours")
+    replication = {
+        "_fixed_before_the_2024_fold_was_read": [c[1] for c in REPLICATION_CLAIMS],
+        "props_beats_v1_startsit_3of4": {"true": props_wins >= 3, "positions_won": props_wins},
+        "pull_beats_v1_mae": {"true": pooled["site_ours"]["mae_weighted"] < pooled["own_v6:v1"]["mae_weighted"],
+                              "site_ours": pooled["site_ours"]["mae_weighted"], "own_v6:v1": pooled["own_v6:v1"]["mae_weighted"]},
+        "blend_beats_pull_mae_and_startsit_3of4": {
+            "true": pooled["blend_props_pull"]["mae_weighted"] < pooled["site_ours"]["mae_weighted"] and blend_wins >= 3,
+            "blend": pooled["blend_props_pull"]["mae_weighted"], "site_ours": pooled["site_ours"]["mae_weighted"],
+            "positions_won": blend_wins},
+    }
     doc = {
         "_territory": "TERRITORY: A — produced by draft/backtest/weekly_arms_2025_backtest.py",
         "_what": "The live weekly formula and its challenger set, plus naive and props arms, "
-                 "run over all of 2025 with strictly-prior inputs; graded on MAE, on Cory's "
+                 f"run over all of {SEASON} with strictly-prior inputs; graded on MAE, on Cory's "
                  "pairwise start/sit bar, and on the lineup Cory would actually have started.",
         "_limits": [
-            "NO weekly provider projections exist for 2025 — the 'providers' in the bar are "
+            f"NO weekly provider projections exist for {SEASON} — the 'providers' in the bar are "
             "FantasyPros' and Sleeper's PRESEASON priors run through the same formula. The "
             "live 2026 bar compares against their WEEKLY numbers, which is a harder test.",
             "The outcome grade fixes K and DEF to what Cory actually started; no arm prices them.",
             "Props lines are the historical API's snapshot, not a verified pre-kickoff close; "
             "treated as knowable before kickoff.",
-            "own_v6's 2025 prior is a walk-forward rebuild (510 players), not a frozen "
-            "preseason artifact — the closest thing to proj_ownmodel-2025 that exists.",
+            f"own_v6's {SEASON} prior is a walk-forward rebuild ({len(D['priors']['own_v6'])} players), not a frozen "
+            f"preseason artifact — the closest thing to proj_ownmodel-{SEASON} that exists.",
         ],
+        "prior_sources": D["prior_sources"],
+        "replication_claims": replication,
         "season": SEASON, "weeks": WEEKS, "seed": SEED, "k_null": K_NULL,
         "controls": controls,
         "pooled_mae": pooled,
         "start_sit": {"full_population": ss_full,
                       "cory_bar_own_v6_v1_vs_preseason_priors": bar_vs_priors,
                       "props_shared": ss_props},
-        "outcome_cory_2025": outcome_pooled,
+        f"outcome_cory_{SEASON}": outcome_pooled,
         "nulls": {"shuffle_mae": shuffle_mae, "shuffle_worse_on_every_arm": all(shuffle_worse.values()),
                   "best_of_k_outcome": {"best_arm": best_arm, "season_delta": best_delta,
                                         "random_lineup_deltas_p05": round(rand_deltas[int(0.05 * K_NULL)], 1),
@@ -594,7 +701,7 @@ def main() -> int:
         print(f"   {name:<20} all {pooled[name]['mae_weighted']:>6}   "
               + "  ".join(f"{q} {pp[q]['mae_weighted']}" for q in POSITIONS if pp[q]['mae_weighted'] is not None)
               + f"   shuffle {shuffle_mae[name]}")
-    print("\n  START/SIT pairwise accuracy (Cory's frozen metric), pooled 2025")
+    print(f"\n  START/SIT pairwise accuracy (Cory's frozen metric), pooled {SEASON}")
     for name in sorted(arm_names, key=lambda k: -(sum((ss_full['sources'][k][q]['accuracy'] or 0) for q in POSITIONS))):
         cells = ss_full["sources"][name]
         print(f"   {name:<20} " + "  ".join(f"{q} {cells[q]['accuracy']}" for q in POSITIONS))
@@ -602,7 +709,7 @@ def main() -> int:
           + "  ".join(f"{q} own {ss_props['sources']['own_v6:v1'][q]['accuracy']} / props {ss_props['sources']['props'][q]['accuracy']}" for q in POSITIONS))
     print(f"\n  CORY'S BAR, own_v6:v1 vs the two PRESEASON priors: {bar_vs_priors['positions_beating_both']} of 4 positions"
           f" — bar_met={bar_vs_priors['bar_met']}  (weaker comparator than the live bar; see _limits)")
-    print("\n  THE UNIT THAT PAYS — Cory's ACTUAL 2025 roster, best lineup by each arm vs what he started")
+    print(f"\n  THE UNIT THAT PAYS — Cory's ACTUAL {SEASON} roster, best lineup by each arm vs what he started")
     print(f"   Cory actual {outcome_pooled['cory_actual_per_week']}/wk   hindsight ceiling {outcome_pooled['hindsight_per_week']}/wk   ({outcome_pooled['weeks']} weeks)")
     for name in sorted(outcome_pooled["arms"], key=lambda k: -outcome_pooled["arms"][k]["delta_vs_actual_per_week"]):
         o = outcome_pooled["arms"][name]
@@ -614,6 +721,9 @@ def main() -> int:
         o = eqa[name]
         print(f"   {name:<20} {o['delta_vs_actual_per_week']:>+6.2f}/wk ± {o['se']}   season {o['season_total_delta']:>+7.1f}"
               f"   better/tied/worse {o['weeks_better']}/{o['weeks_tied']}/{o['weeks_worse']}")
+    print("\n  REPLICATION CLAIMS (fixed in REPLICATION_CLAIMS before the 2024 fold was read)")
+    for k, _ in REPLICATION_CLAIMS:
+        print(f"   {'TRUE ' if replication[k]['true'] else 'FALSE'}  {k}  {{ {', '.join(f'{a}: {b}' for a, b in replication[k].items() if a != 'true')} }}")
     b = doc["nulls"]["best_of_k_outcome"]
     print(f"\n  NULLS  shuffle worse than real on every arm: {doc['nulls']['shuffle_worse_on_every_arm']}")
     print(f"         best-of-K (random legal lineups): best arm {b['best_arm']} season {b['season_delta']:+.1f} sits at "
