@@ -97,7 +97,7 @@
    "fallback": {
     "source": "practice participation FP/LP/DNP (store P308)",
     "workflow": "TODO \u2014 name the workflow that refreshes practice_participation.json (C)",
-    "status": "store exists; refresh cadence unverified"
+    "status": "store exists; refresh cadence unverified \u00b7 ESPN injuries endpoint is 403 from Actions (census 09-02)"
    },
    "cost": "free"
   },
@@ -113,7 +113,7 @@
    "fallback": {
     "source": "NONE",
     "workflow": "none",
-    "status": "NO FALLBACK \u2014 register it (nflverse is the only free per-snap source; ESPN box scores are the candidate)"
+    "status": "NO INDEPENDENT FALLBACK \u2014 nflverse pbp_participation answers (census 09-02) but is the same source family; ESPN box scores are 403 from Actions runners, so that candidate is dead from CI"
    },
    "cost": "free"
   },
@@ -143,9 +143,9 @@
     "control": "32 teams in a full week; opener date verified against Sleeper state"
    },
    "fallback": {
-    "source": "ESPN scoreboard (measured reachable) \u00b7 Sleeper state week/season_start",
+    "source": "nflverse schedules games.csv (answers from Actions, census 09-02) \u00b7 Sleeper state week/season_start",
     "workflow": "none wired",
-    "status": "fallback exists, unwired"
+    "status": "ESPN scoreboard is 403 from GitHub Actions runners (census 09-02) \u2014 not a fallback from CI"
    },
    "cost": "free"
   },
@@ -159,9 +159,9 @@
     "control": "n/a"
    },
    "fallback": {
-    "source": "NONE",
-    "workflow": "none",
-    "status": "NOT CAPTURED \u2014 a named gap on THIS-WEEK.md; wire at game week (C)"
+    "source": "NWS api.weather.gov points/forecastHourly (answers from Actions, census 09-02)",
+    "workflow": "none \u2014 unwired (same status as the primary)",
+    "status": "second free door measured; neither wired yet \u2014 wire at game week (C)"
    },
    "cost": "free"
   },
@@ -177,7 +177,7 @@
    "fallback": {
     "source": "NONE",
     "workflow": "none",
-    "status": "coaching half NOT CAPTURED (C: name the free source \u2014 ESPN team pages); no second door for lines-implied totals beyond odds-capture.yml"
+    "status": "coaching half NOT CAPTURED; ESPN team/depth-chart pages are 403 from GitHub Actions runners (census 09-02) \u2014 C must find a door that answers from CI (nflverse depth_charts release is reachable; shape to confirm)"
    },
    "cost": "free"
   },

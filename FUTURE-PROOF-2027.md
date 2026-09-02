@@ -202,3 +202,10 @@ that might help."* Three mechanisms, two of which already run:
    Sleeper-state control is dark. Writes `draft/backtest/free_source_discovery_<date>.json`
    (+ `_latest`). Lanes add candidates to the table as they learn of them; a door that
    answers enters the registry as a fallback.**
+   **FIRST RUN 09-02 03:17Z (dispatch, control green): 20 of 31 fetched doors answer with
+   data. Every ESPN site-API door (6) is 403 from GitHub Actions runners — dead as a CI
+   fallback, whatever it does from a laptop; nflverse `player_stats_2025.csv` and the
+   nfldata `stadiums.csv` path 404 (asset renamed — candidate to fix); the nflverse
+   depth-charts release is reachable but its columns did not match the shape (to confirm).
+   Entered: NWS as weather's fallback, nflverse schedules as the schedule fallback;
+   ESPN struck from three fallback claims. `draft/backtest/free_source_discovery_2026-09-02.json`.**
