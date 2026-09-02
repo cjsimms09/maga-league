@@ -1,0 +1,49 @@
+# FREE-SOURCE DISCOVERY — the monthly census FUTURE-PROOF-2027 §6.3 asked for
+# (Cory, 09-02: "continually looks for free sources of info it could get").
+# For every data class in draft/data/source_registry.json it probes the free
+# candidate doors listed in draft/tools/free_source_discovery.py and writes a
+# dated report under draft/backtest/. A door that answers becomes a registry
+# FALLBACK first, a primary only after it grades. Nothing is captured here.
+#
+# CADENCE: the first Monday of each month, 12:00 UTC. Cron cannot say "first
+# Monday" (day-of-month and day-of-week are OR'd), so the schedule fires
+# daily on the 1st-7th and the step exits clean unless it is a Monday.
+# RULE 3e: the report is REFUSED when the known-positive control (Sleeper
+# state) does not answer — the runner's network and "every door is dark"
+# must never look alike.
+name: free-source-discovery
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 12 1-7 * *'
+permissions:
+  contents: write
+jobs:
+  census:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Probe every free candidate door (refuses when the control is dark)
+        run: |
+          set -uo pipefail
+          if [ "${{ github.event_name }}" = "schedule" ] && [ "$(date -u +%u)" != "1" ]; then
+            echo "not the first Monday — clean skip"; exit 0
+          fi
+          if python3 draft/tools/free_source_discovery.py --write; then code=0; else code=$?; fi
+          if [ "$code" -ne 0 ]; then echo "::error::discovery refused (control dark or a crash) — nothing written"; exit "$code"; fi
+      - name: Commit the report
+        run: |
+          set -uo pipefail
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/backtest/free_source_discovery_*.json 2>/dev/null || true
+          if git diff --cached --quiet; then echo "no change — nothing to commit"; exit 0; fi
+          git commit -m "Free-source discovery census $(date -u +%F) [skip deploy]"
+          for i in 1 2 3 4 5; do
+            git fetch -q origin main
+            git rebase -q origin/main || { git rebase --abort; echo "::error::rebase failed"; exit 1; }
+            if git push -q origin HEAD:main; then echo "pushed on try $i"; exit 0; fi
+            sleep $((2**i))
+          done
+          echo "::error::could not push after 5 tries"; exit 1

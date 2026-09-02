@@ -169,15 +169,15 @@
    "class": "depth_charts_team_context",
    "feeds": "K1/K2 (team context store), the coaching-change discount",
    "primary": {
-    "source": "TODO \u2014 team_context_2026.json (OC/HC, pace, PROE, O-line continuity)",
-    "workflow": "none yet (ROUTES \u2192 C, 09-02)",
-    "cadence": "weekly",
-    "control": "a team whose OC changed in 2026 shows the flag"
+    "source": "team_context.py: implied team totals from OUR Bovada capture + nflverse pace prior (HALF \u2014 coaching/O-line fields null, NOT CAPTURED)",
+    "workflow": "bovada-lines-capture.yml",
+    "cadence": "thu 12:00 + sun 16:00 UTC",
+    "control": "C2: week-1 NE @ SEA priced with Seattle favoured; C1 totals sum; C3 every priced team has a pace prior (caught nflverse LA\u2192LAR)"
    },
    "fallback": {
     "source": "NONE",
     "workflow": "none",
-    "status": "NOT CAPTURED"
+    "status": "coaching half NOT CAPTURED (C: name the free source \u2014 ESPN team pages); no second door for lines-implied totals beyond odds-capture.yml"
    },
    "cost": "free"
   },

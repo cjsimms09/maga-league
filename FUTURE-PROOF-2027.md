@@ -194,3 +194,11 @@ that might help."* Three mechanisms, two of which already run:
    same controls, and E/C add candidates as they learn of them. CADENCE: first
    Monday of the month. What it finds enters the registry as a fallback first
    and a primary only after it grades.
+   **BUILT 09-02 (relay): `draft/tools/free_source_discovery.py` + `free-source-discovery.yml`
+   (first Monday, 12:00Z, and on dispatch) — 33 candidate doors across all 14 registry
+   classes (ESPN, nflverse releases, Sleeper, Kalshi, PrizePicks, Polymarket, FFC,
+   open-meteo, NWS, FantasyPros), each with a SHAPE regex so a 200 login page is not a
+   door; keyed doors listed and never fetched; the report is refused when the
+   Sleeper-state control is dark. Writes `draft/backtest/free_source_discovery_<date>.json`
+   (+ `_latest`). Lanes add candidates to the table as they learn of them; a door that
+   answers enters the registry as a fallback.**

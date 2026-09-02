@@ -42,3 +42,18 @@ def test_the_what_stuck_line_is_in_the_brief_template():
     src = (ROOT / "draft" / "tools" / "build_week_brief.py").read_text()
     assert "What stuck so far: `WHAT-STUCK.md`" in src
     assert "second_opinion_section(season, week)" in src
+
+
+def test_the_implied_column_reads_the_team_context_store_and_says_dash_when_it_cannot():
+    """Known positive: week 1 of 2026 is fully priced (32 teams) and the opener's
+    two sides carry opposite spreads. Known negative: an unpriced week and an
+    unknown team print '—', never a number."""
+    imp = BWB.implied_totals("2026", 1, root=ROOT)
+    assert len(imp) == 32
+    sea, ne = BWB.implied_text("SEA", imp), BWB.implied_text("NE", imp)
+    assert sea.startswith("24.") or sea[0].isdigit()
+    assert "(-" in sea and "(+" in ne                     # favourite / underdog from each side
+    assert BWB.implied_text("WSH", imp) == BWB.implied_text("WAS", imp)   # the alias
+    assert BWB.implied_text("ZZZ", imp) == "—"
+    assert BWB.implied_totals("2026", 99, root=ROOT) == {}
+    assert BWB.implied_totals("1999", 1, root=ROOT) == {}

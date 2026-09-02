@@ -46,6 +46,38 @@ def get(url):
 
 
 SECOND_OPINION = "draft/data/weekly_own/second_opinion_{season}_w{week}.json"
+TEAM_CONTEXT = "draft/data/team_context_2026.json"
+
+
+def implied_totals(season, week, root="."):
+    """team code -> this week's implied team total from OUR Bovada capture
+    (draft/tools/team_context.py). {} when the store is absent or is another
+    season — the column then prints '—' (cannot say), never a number."""
+    try:
+        doc = json.load(open(Path(root) / TEAM_CONTEXT))
+    except (OSError, ValueError):
+        return {}
+    if str(doc.get("season")) != str(season):
+        return {}
+    out = {}
+    for code, t in (doc.get("teams") or {}).items():
+        w = (t.get("weeks") or {}).get(str(week))
+        if w and w.get("implied_total") is not None:
+            out[code] = {"total": w["implied_total"], "spread": w.get("spread"), "opp": w.get("opp")}
+    return out
+
+
+def implied_text(team, implied):
+    """'24.0 (−4.0)' — the implied total and the spread from that team's side;
+    the WAS/WSH alias the schedule store needs applies here too."""
+    if not team:
+        return "—"
+    row = implied.get(team) or implied.get({"WSH": "WAS", "WAS": "WSH"}.get(team, ""))
+    if not row:
+        return "—"
+    sp = row.get("spread")
+    sp_txt = "" if sp is None else f" ({'+' if sp > 0 else ''}{sp:g})"
+    return f"{row['total']:.1f}{sp_txt}"
 
 
 def second_opinion_section(season, week, root="."):
@@ -203,10 +235,12 @@ def main():
     }
     json.dump(doc, open(OUT_JSON, "w"), indent=1)
 
+    implied = implied_totals(season, week)
+
     def table(rows):
         out = [f"| {'S' if r['starter'] else ' '} | {r['name']} | {r['pos']} | "
-               f"{r['team'] or '—'} | {r['game']} | {r['injury'] or ''} |" for r in rows]
-        return ("| st | player | pos | team | game | injury |\n|---|---|---|---|---|---|\n"
+               f"{r['team'] or '—'} | {r['game']} | {implied_text(r['team'], implied)} | {r['injury'] or ''} |" for r in rows]
+        return ("| st | player | pos | team | game | implied | injury |\n|---|---|---|---|---|---|---|\n"
                 + "\n".join(out))
 
     md = (f"# THIS WEEK — {doc['cory']['display']}, week {week} ({season})\n\n"
@@ -220,6 +254,8 @@ def main():
           f"## My roster\n\n{table(my_players)}\n\n"
           f"## Opponent's roster\n\n{table(opp_players) if opp_players else '_not available_'}\n\n"
           f"{second_opinion_section(season, week)}\n"
+          f"**Implied column:** each team's implied total this week from our own Bovada capture, with the spread from that side "
+          f"(`draft/data/team_context_2026.json`; — = not priced yet). "
           f"**Named gaps:** {doc['named_gaps'][0]}\n")
     open(OUT_MD, "w").write(md)
     print(f"wrote {OUT_MD} + {OUT_JSON}: week {week}, {len(my_players)} players, "
