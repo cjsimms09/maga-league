@@ -2532,8 +2532,19 @@ router.get('/team', aw(async (req, res) => {
       const byId = {};
       for (const b of ((art && art.players) || []).concat((art && art.kept_players) || [])) byId[String(b.player_id)] = b;
       const wkForProj = (sData && sData.week) || 1;
+      // THIS WEEK'S IMPLIED TEAM TOTAL beside the game (team_context.py — our own
+      // Bovada capture, latest snapshot per game). Absent → nothing shown.
+      let ctx = null;
+      try {
+        const doc = JSON.parse(require('fs').readFileSync(require('path').join(__dirname, '..', '..', 'draft', 'data', 'team_context_2026.json'), 'utf8'));
+        if (String(doc.season) === String(sData && sData.state && sData.state.season)) ctx = doc.teams || null;
+      } catch (e) { ctx = null; }
+      const ALIAS = { WAS: 'WSH', WSH: 'WAS' };
       for (const r of roster.rows) {
         const b = byId[String(r.id)];
+        const t = ctx && (ctx[r.team] || ctx[ALIAS[r.team]]);
+        const w = t && t.weeks && t.weeks[String(wkForProj)];
+        r.implied = w && w.implied_total != null ? { total: w.implied_total, spread: w.spread } : null;
         r.proj = b ? MW.sleeperWeekly(Object.assign({}, b, { injury_status: r.inj != null ? r.inj : b.injury_status, bye: r.bye != null ? r.bye : b.bye }), { week: wkForProj }) : null;
       }
     } catch (e) { /* a missing board leaves proj null — "cannot say", not zero */ }

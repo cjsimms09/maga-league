@@ -328,7 +328,7 @@
           <td><b><%= r.name %></b><% if (f.level) { %> <span class="mu-flag <%= flagCls %>"><%= f.text %></span><% } %><% if (r.rank && r.rank <= 50) { %> <span class="badge gold" title="Sleeper overall rank">#<%= r.rank %></span><% } %><% if (kc) { %> <img class="kc-logo" src="/icons/kc.svg" alt="KC" title="Kansas City Chiefs"><% } %></td>
           <td><%= r.pos %></td>
           <td class="muted"><%= r.team %></td>
-          <td class="muted<%= r.game === 'BYE' ? ' bye' : '' %>"><%= _gameText(r.game) %></td>
+          <td class="muted<%= r.game === 'BYE' ? ' bye' : '' %>"><%= _gameText(r.game) %><% if (r.implied && r.game && r.game !== 'BYE') { %> <span class="muted" title="implied team total this week from the lines (spread from this side)" style="white-space:nowrap">· <%= r.implied.total.toFixed(1) %><%= r.implied.spread != null ? ' (' + (r.implied.spread > 0 ? '+' : '') + r.implied.spread + ')' : '' %></span><% } %></td>
           <td class="num"<%- r.proj && r.proj.basis ? ` title="${String(r.proj.basis).replace(/"/g, '')}${r.proj.zeroed_because ? ' — ' + String(r.proj.zeroed_because).replace(/"/g, '') : ''}"` : '' %>><%= (r.proj && r.proj.proj != null) ? r.proj.proj.toFixed(1) : '—' %></td>
           <td class="num"><%= r.wkPts == null ? '—' : r.wkPts.toFixed(1) %></td>
           <td class="num"><b><%= r.seasonPts == null ? '—' : r.seasonPts.toFixed(1) %></b></td>
