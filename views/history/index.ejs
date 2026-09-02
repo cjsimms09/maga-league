@@ -27,8 +27,71 @@
     <p style="text-align:center; margin:.2rem 0 0"><a class="btn navy small" href="/history/vault/<%= topYear %>">🗄️ The Vault — this season's trash talk &amp; dispatches →</a></p>
   <% } %>
 
-  <!-- 2. THE STORY OF THE LEAGUE (the centerpiece) -->
+  <!-- 3. THE SEASONS timeline -->
   <div class="card">
+    <h2>📖 The Seasons <span class="sub">tap a year</span></h2>
+    <div class="body">
+      <div class="timeline">
+        <% for (const y of years) {
+             const c = champByYear[y];
+             const href = linkFor(y);
+             const written = chapters.has(y);
+             const preSleeper = y < 2023;
+             const inProgress = y === 2026;
+        %>
+          <% if (href) { %><a class="tl-row" href="<%= href %>"><% } else { %><div class="tl-row tl-dead"><% } %>
+            <span class="tl-year"><%= y %></span>
+            <span class="tl-mid">
+              <% if (inProgress) { %>
+                <span class="tl-champ tl-live">Season in progress</span>
+              <% } else if (c) { %>
+                <span class="tl-champ">🏆 <%= c.champion %> <span class="flag"><%= flag(c.champion) %></span><% if (c.asterisk) { %><a class="aster" href="#asterisk" onclick="event.stopPropagation()">*</a><% } %></span>
+                <% if (c.payout != null) { %><span class="tl-won"><%= dollars(c.payout) %></span><% } %>
+              <% } %>
+            </span>
+            <span class="tl-tag">
+              <% if (written) { %><span class="tag">Chapter</span>
+              <% } else if (A.byYear[y]) { %><span class="tag pending">Records</span>
+              <% } else if (preSleeper) { %><span class="tag ghost">Pre-Sleeper</span>
+              <% } %>
+            </span>
+          <% if (href) { %></a><% } else { %></div><% } %>
+        <% } %>
+      </div>
+      <p class="tl-note">Full box scores survive from <b>2023</b> on. 2016–2022 are the age before Sleeper — champions and money only.</p>
+    </div>
+  </div>
+
+  <!-- 4. FOUR DOORS -->
+  <div class="doors">
+    <a class="door" href="/history/records">
+      <span class="door-icon">📖</span>
+      <span class="door-title">The Record Book</span>
+      <span class="door-sub">All-time highs, lows, the dynasty tracker, and every franchise page.</span>
+    </a>
+    <a class="door" href="/history/money">
+      <span class="door-icon">💰</span>
+      <span class="door-title">The Money Board</span>
+      <span class="door-sub">Career earnings, ranked ten deep. The table that settles arguments.</span>
+    </a>
+    <a class="door" href="/history/badbeats">
+      <span class="door-icon">💔</span>
+      <span class="door-title">Bad Beats Hall of Fame</span>
+      <span class="door-sub">Auto-detected heartbreak — the tragedies the schedule authored.</span>
+    </a>
+    <a class="door" href="/history/catalogue">
+      <span class="door-icon">🃏</span>
+      <span class="door-title">The Absurdity Catalogue</span>
+      <span class="door-sub">Every box score mined: kickers over QBs, benched studs, near-misses.</span>
+    </a>
+  </div>
+
+  <!-- 2. THE STORY OF THE LEAGUE — the centerpiece, now BELOW the timeline and
+       the doors and folded by default (site review 2026-09-02: the index was an
+       11,589px phone page; the story is one tap away, and opens itself on a
+       wide screen or when a chapter link targets it). -->
+  <details class="card chron-story" id="chron-story">
+    <summary style="cursor:pointer; padding:.9rem 1rem; font-weight:800; font-size:1.05rem">📜 The Story of the League <span class="sub" style="font-weight:600; opacity:.75">— ten years, five chapters, all the receipts. Tap to read.</span></summary>
     <div class="body">
       <div class="chapter">
         <p>It started with a dick joke. 2016, ten guys, a hundred bucks each, and a
@@ -282,67 +345,15 @@
         started with a dick joke.</p>
       </div>
     </div>
-  </div>
-
-  <!-- 3. THE SEASONS timeline -->
-  <div class="card">
-    <h2>📖 The Seasons <span class="sub">tap a year</span></h2>
-    <div class="body">
-      <div class="timeline">
-        <% for (const y of years) {
-             const c = champByYear[y];
-             const href = linkFor(y);
-             const written = chapters.has(y);
-             const preSleeper = y < 2023;
-             const inProgress = y === 2026;
-        %>
-          <% if (href) { %><a class="tl-row" href="<%= href %>"><% } else { %><div class="tl-row tl-dead"><% } %>
-            <span class="tl-year"><%= y %></span>
-            <span class="tl-mid">
-              <% if (inProgress) { %>
-                <span class="tl-champ tl-live">Season in progress</span>
-              <% } else if (c) { %>
-                <span class="tl-champ">🏆 <%= c.champion %> <span class="flag"><%= flag(c.champion) %></span><% if (c.asterisk) { %><a class="aster" href="#asterisk" onclick="event.stopPropagation()">*</a><% } %></span>
-                <% if (c.payout != null) { %><span class="tl-won"><%= dollars(c.payout) %></span><% } %>
-              <% } %>
-            </span>
-            <span class="tl-tag">
-              <% if (written) { %><span class="tag">Chapter</span>
-              <% } else if (A.byYear[y]) { %><span class="tag pending">Records</span>
-              <% } else if (preSleeper) { %><span class="tag ghost">Pre-Sleeper</span>
-              <% } %>
-            </span>
-          <% if (href) { %></a><% } else { %></div><% } %>
-        <% } %>
-      </div>
-      <p class="tl-note">Full box scores survive from <b>2023</b> on. 2016–2022 are the age before Sleeper — champions and money only.</p>
-    </div>
-  </div>
-
-  <!-- 4. FOUR DOORS -->
-  <div class="doors">
-    <a class="door" href="/history/records">
-      <span class="door-icon">📖</span>
-      <span class="door-title">The Record Book</span>
-      <span class="door-sub">All-time highs, lows, the dynasty tracker, and every franchise page.</span>
-    </a>
-    <a class="door" href="/history/money">
-      <span class="door-icon">💰</span>
-      <span class="door-title">The Money Board</span>
-      <span class="door-sub">Career earnings, ranked ten deep. The table that settles arguments.</span>
-    </a>
-    <a class="door" href="/history/badbeats">
-      <span class="door-icon">💔</span>
-      <span class="door-title">Bad Beats Hall of Fame</span>
-      <span class="door-sub">Auto-detected heartbreak — the tragedies the schedule authored.</span>
-    </a>
-    <a class="door" href="/history/catalogue">
-      <span class="door-icon">🃏</span>
-      <span class="door-title">The Absurdity Catalogue</span>
-      <span class="door-sub">Every box score mined: kickers over QBs, benched studs, near-misses.</span>
-    </a>
-  </div>
-
+  </details>
+  <script>
+    (function () {
+      var d = document.getElementById('chron-story'); if (!d) return;
+      if (window.innerWidth >= 900) d.open = true;
+      function openForHash() { if (location.hash && d.querySelector(location.hash)) { d.open = true; } }
+      openForHash(); window.addEventListener('hashchange', openForHash);
+    })();
+  </script>
   <!-- The 2022 asterisk is stated once, in the story above (#asterisk). -->
 
   <p class="provenance">

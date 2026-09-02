@@ -126,6 +126,20 @@ function createApp() {
         // "somebody is waiting on you and you do not know it" case, so it
         // gets the identical badge + top-of-page treatment, not a new
         // mechanism.
+        // IN-SEASON FLAG for the nav (site review 2026-09-02, item 8): the
+        // offseason "Draft Spot" page stays in the menu until the season
+        // opens and comes back ~150 days later, derived from config.season_start
+        // rather than edited by hand — the same shape as every other date here.
+        // Verified 09-02 (Rule 3f): NOTHING writes config.season_start — no
+        // form, no route, no seed — so the betting calendar already runs on
+        // betlogic.defaultSeasonStart() (this year's 09-10). Same fallback
+        // here, or the flag would be false forever and the parking a no-op.
+        res.locals.inSeason = false;
+        try {
+          const cfgStart = world.config && world.config.season_start;
+          const ss = Date.parse(cfgStart || require('./src/betlogic').defaultSeasonStart());
+          if (!isNaN(ss)) { const now = Date.now(); res.locals.inSeason = now >= ss && now < ss + 150 * 86400000; }
+        } catch (e) { /* nav cosmetic */ }
         res.locals.votesWaiting = 0;
         if (req.owner) {
           try {

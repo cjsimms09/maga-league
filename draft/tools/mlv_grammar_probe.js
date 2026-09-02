@@ -100,6 +100,25 @@ function projectedStartable(roster) {
   return Math.round(M.lineupValue(bag, ST) * 10) / 10;
 }
 
+/* THE COMPLETENESS TERM (Cory, 09-02: "you can't start anyone else in a
+ * kicker spot so not having one is not smart.. but it's probably right to wait
+ * til dead last pick as replacement value is null"). Ending the draft with a
+ * REQUIRED slot empty is not free: the wire body still has to be fetched, and
+ * until he is, the slot scores zero. So when the picks left equal the required
+ * slots still empty, filling one is worth the slot itself — the wire value —
+ * not the surplus over it. Earlier, a bench option beats a ~0 surplus and the
+ * K waits. This is a value the model derives from the slot count and the
+ * wire, not a cap. */
+function requiredOpen(roster) {
+  return Object.keys(ST).filter(p => p !== 'FLEX' && (ST[p] || 0) > roster.filter(x => x.position === p).length);
+}
+function completeness(roster, cand, picksLeftAfter) {
+  const open = requiredOpen(roster);
+  if (!open.includes(cand.position)) return 0;
+  // must this pick fill a required slot? (picks left including this one <= open slots)
+  return (picksLeftAfter + 1 <= open.length) ? (WIRE[cand.position] || 0) : 0;
+}
+
 const ARMS = {
   mlv: (roster, cands) => {
     let best = null, bestV = -Infinity;
@@ -108,6 +127,22 @@ const ARMS = {
     // lineup full: fall through to best surplus (mlv.js's documented behaviour)
     cands.forEach(c => { const v = surplus(c); if (v > bestV) { bestV = v; best = c; } });
     return { pick: best, basis: 'best_surplus', v: bestV };
+  },
+  mlv_bench_complete: (roster, cands, picksLeftAfter) => {
+    let best = null, bestV = -Infinity, basis = null;
+    cands.forEach(c => {
+      const g = lineupGain(roster, c);
+      const comp = completeness(roster, c, picksLeftAfter);
+      let v, b;
+      if (comp > 0) { v = comp + g; b = 'required_slot_endgame'; }
+      else if (g > 0) { v = g; b = 'lineup_gain'; }
+      else { v = benchValue(roster, c); b = 'bench_option'; }
+      if (v > bestV) { bestV = v; best = c; basis = b; }
+    });
+    if (!best || bestV <= 0) {
+      cands.forEach(c => { const v = surplus(c); if (v > bestV) { bestV = v; best = c; basis = 'best_surplus'; } });
+    }
+    return { pick: best, basis, v: bestV };
   },
   mlv_bench: (roster, cands) => {
     let best = null, bestV = -Infinity, basis = null;
@@ -140,7 +175,8 @@ Object.keys(ARMS).forEach(arm => {
       if (r.is_keeper) { taken.add(String(r.actual_player.player_id)); continue; }
       if (!isMine) { taken.add(String(r.actual_player.player_id)); continue; }
       const cands = pool.filter(p => !taken.has(String(p.player_id)) && !roster.some(x => String(x.player_id) === String(p.player_id)));
-      const ch = ARMS[arm](roster, cands);
+      const myLeftAfter = rows.filter(x => x.seat === seat && !x.is_keeper && x.pick_no > r.pick_no).length;
+      const ch = ARMS[arm](roster, cands, myLeftAfter);
       if (!ch.pick) break;
       roster.push(ch.pick); taken.add(String(ch.pick.player_id)); seq.push(ch.pick.position);
       picks.push({ pick_no: r.pick_no, pos: ch.pick.position, name: ch.pick.name, basis: ch.basis, v: Math.round(ch.v * 10) / 10 });

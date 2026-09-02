@@ -146,6 +146,44 @@ def league_scoring() -> dict:
     return doc["weeks"][0]["scoring"]
 
 
+def _draft_date() -> str:
+    """The league's draft day, from the same config the draft tooling reads."""
+    try:
+        cfg = json.loads((DRAFT / "config" / "league_config.json").read_text())
+        return str((cfg.get("draft") or {}).get("start_date") or "")
+    except Exception:                                   # noqa: BLE001
+        return ""
+
+
+def _today_arg(argv=None) -> str:
+    """`--today=YYYY-MM-DD` on the command line, else the real clock (UTC)."""
+    import datetime as _dt
+    for a in (sys.argv[1:] if argv is None else argv):
+        if a.startswith("--today="):
+            return a.split("=", 1)[1]
+    return _dt.datetime.utcnow().strftime("%Y-%m-%d")
+
+
+def zero_source_verdict(missing, today: str, draft_date: str) -> dict:
+    """Refuse (pre-draft, or undated) or freeze (post-draft) on a USABLE source
+    that contributed zero rows. Pure, so both arms are testable without a
+    scrape: `frozen` is True only when the draft date is KNOWN and today is
+    strictly after it — an unreadable config must not become a silent
+    season-long freeze (rule 3e: cannot-say does not skip)."""
+    frozen = bool(draft_date) and bool(today) and str(today) > str(draft_date)
+    if frozen:
+        note = ("post-draft (draft %s, today %s): %s stopped serving season totals "
+                "— measured 08-19 -> 08-20 on one ffanalytics commit — and the "
+                "seasonal blend is frozen at its last full capture"
+                % (draft_date, today, ", ".join(missing)))
+    else:
+        note = ("pre-draft or undated (draft %r, today %s): a source going dark "
+                "before the draft is an alarm, not a freeze"
+                % (draft_date or None, today))
+    return {"frozen": frozen, "missing": list(missing), "today": today,
+            "draft_date": draft_date, "note": note}
+
+
 def main() -> int:
     if not RAW.exists():
         raise SystemExit(f"no {RAW} — dispatch ffanalytics-probe.yml first")
@@ -351,12 +389,40 @@ def main() -> int:
         raw_by_source = {}
         for r in rows:
             raw_by_source[r.get("source")] = raw_by_source.get(r.get("source"), 0) + 1
+        # ── POST-DRAFT THE SAME NULL IS A FREEZE, NOT A FAILURE (A, 09-02) ──
+        #
+        # Diagnosed from the probe logs rather than the CSV: CBS returned 442
+        # season-total rows and ESPN 416 on 08-19 (run 7), and 0/0 on 08-20
+        # (run 9) — SAME ffanalytics commit (1955daa) both days, no scraper
+        # error, every day since identical. The sites stopped serving season
+        # totals two days before our draft; the scraper did not break. The
+        # blend's last honest input is therefore the 08-19 capture, and the
+        # committed artifact built from it IS the season's preseason blend.
+        #
+        # Pre-draft a source going dark is an alarm — a pick is about to be
+        # priced off a thinner blend than the artifact claims — and the exit 1
+        # below stays. Post-draft no pick is priced off it until next August,
+        # and a job that is red every night for a season is a job nobody
+        # reads (register 440, same lesson). So after the league's draft date
+        # this is reported as FROZEN and exits clean, still writing nothing.
+        # `--today=YYYY-MM-DD` is injectable so both arms are provable today.
+        verdict = zero_source_verdict(missing, today=_today_arg(), draft_date=_draft_date())
+        if verdict["frozen"]:
+            print("MULTI-SOURCE PROJECTIONS — FROZEN FOR THE SEASON (exit clean)\n")
+            print(f"  declared USABLE sources with ZERO season-total rows: {', '.join(missing)}")
+            print(f"  usable sources that did arrive: {present or '(none)'}")
+            print(f"  every source in the raw capture:  {raw_by_source}")
+            print(f"  {verdict['note']}")
+            print("\n  NOT overwriting the committed artifact; it is the season's "
+                  "preseason blend and stays honestly dated (register 364/442).")
+            return 0
         print("MULTI-SOURCE PROJECTIONS — REFUSING TO WRITE\n", file=sys.stderr)
         print(f"  declared USABLE sources with ZERO rows: {', '.join(missing)}",
               file=sys.stderr)
         print(f"  usable sources that did arrive: {present or '(none)'}", file=sys.stderr)
         print(f"  every source in the raw capture:  {raw_by_source}", file=sys.stderr)
-        print(f"  raw file: {RAW.relative_to(ROOT)}", file=sys.stderr)
+        raw_shown = RAW.relative_to(ROOT) if RAW.is_relative_to(ROOT) else RAW
+        print(f"  raw file: {raw_shown}", file=sys.stderr)
         print("\n  NOT overwriting the committed artifact. It would still claim\n"
               f"  sources_used={sorted(USABLE)} while carrying "
               f"{len(present)} of {len(srcs)}, and a fresh artifact that\n"

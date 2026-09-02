@@ -123,9 +123,9 @@
    },
    "inseason_arm_evidence": {
     "method": "player-week-projection-v1",
-    "n_forecasts": 0,
+    "n_forecasts": 379,
     "n_graded": 0,
-    "n_pending": 0,
+    "n_pending": 379,
     "excluded_late_or_unknown_timing": 0,
     "disqualified": 0,
     "by_position": {},
@@ -331,22 +331,31 @@
    "status": "wired-to-recommendation-artifact",
    "summary": "grade-cron writes evidence_weights:current every week. The read side now exists: netlify/functions/weights-read.js exposes it read-only, draft/tools/weekly_grade_runner.js mirrors it into draft/data/evidence_weights_latest.json every Tuesday, and this artifact consumes the mirror on each weekly regeneration \u2014 so weekly grades flow into the RECOMMENDATION artifact, era-stamped. A LIVE parameter consumer stays deliberately unwired: that change is beyond REC-1's ruling and remains a design ruling for Cory.",
    "consumed_evidence_weights": {
-    "updated_at": "2026-08-18T12:02:22.836Z",
+    "updated_at": "2026-09-01T12:02:45.080Z",
     "season": 2026,
-    "graded_n": 0,
-    "league_se": null,
+    "graded_n": 14,
+    "league_se": 0.10849621454884299,
     "combined": {
      "posterior": null,
      "weights": {
-      "league": 0,
+      "league": 1,
       "external": 0
      },
-     "dominant": "none",
+     "dominant": "league",
      "transferability": null,
-     "transferability_is_placeholder": true
+     "transferability_is_placeholder": true,
+     "record": {
+      "n_league": 14,
+      "se_league": 0.10849621454884299,
+      "n_external": 0,
+      "se_external": null,
+      "t": 0.25,
+      "w_league": 1,
+      "w_external": 0
+     }
     },
     "rules_era": "1la32x",
-    "fetched_at": "2026-08-18T14:02:06.567Z",
+    "fetched_at": "2026-09-02T02:19:33.264Z",
     "era_note": "rules_era travels with the weights; a snapshot graded under different money-bearing rules must not steer this era's model"
    },
    "reader_status": "mirror consumed",

@@ -150,7 +150,7 @@ is marginal lineup value, and it already exists as a second voice
 (`public/js/draft/mlv.js`, `mlv_recommend.json`, Cory's 08-19 ruling "let's
 use mlv"). It is not the score the board ranks on.
 
-**MEASURED THE SAME NIGHT (`mlv_grammar_probe_2026-09-02.json`): MLV plus draft_plan's bench equation, with NO cap anywhere, replayed all ten seats of the real draft night against the room's actual picks — 1.0 violations/seat excluding the kicker, the humans' exact rate, vs the engine's 7.1; every seat RB6/WR4/TE2/QB2/DEF1; 1,901 projected startable points/seat vs humans 1,880 and the engine's 1,526. The value function LEARNED the format from measured wire levels and slot counts. Its one disagreement with the humans is the kicker (worth ~0 over the wire, so it spends the last pick on a bench option) — a ruling for Cory, not a defect.**
+**MEASURED THE SAME NIGHT (`mlv_grammar_probe_2026-09-02.json`): MLV plus draft_plan's bench equation, with NO cap anywhere, replayed all ten seats of the real draft night against the room's actual picks — 1.0 violations/seat excluding the kicker, the humans' exact rate, vs the engine's 7.1; every seat RB6/WR4/TE2/QB2/DEF1; 1,901 projected startable points/seat vs humans 1,880 and the engine's 1,526. The value function LEARNED the format from measured wire levels and slot counts. Its one disagreement with the humans was the kicker. **Cory ruled 09-02 — "you can't start anyone else in a kicker spot so not having one is not smart.. but it's probably right to wait til dead last pick as replacement value is null" — and the value function earned exactly that once an empty required slot at the end of the draft was priced at the wire body: all ten seats take the K with the last pick, every roster complete, 1.0 violations/seat, 1,921 startable vs humans 1,880. Derived, not capped.**
 
 **So the grammar (`roster_grammar.py`) is the EXAM, not the answer:** the value
 function has learned the format when, UNCONSTRAINED, its recommendations pass
@@ -182,6 +182,12 @@ that might help."* Three mechanisms, two of which already run:
    control, its FALLBACK, and cost (all free by the standing ruling). **A data
    class with no fallback is a register row**, and GO status reads the
    registry so "props source dying" is an agenda line before the arm goes dark.
+   **SEEDED 09-02 (relay, C's default):** 14 classes, each with primary,
+   workflow, cadence, control, fallback and cost; `test_source_registry.py`
+   pins the no-fallback list (snaps_usage · weather · depth_charts_team_context
+   · expert_ranks · player_bio_capital) so a new gap fails CI until it is
+   written down, and `go_status.py` prints a SOURCE REGISTRY section (⚠ per
+   single-door class, advisory). C owns the rows from here.
 3. **A standing DISCOVERY census** — `free_props_census.py` generalised: each
    month the Monday explorer spends one slot probing new free candidates per
    data class (the way six props doors were tried in one night), with the

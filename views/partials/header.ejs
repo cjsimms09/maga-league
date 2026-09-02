@@ -137,7 +137,9 @@
     { href: '/team',    label: 'My Team',       short: 'Team',    icon: '🏈', primary: true },
     { href: '/bank',    label: 'League Finances', short: 'Finances', icon: '💰',  primary: true, badge: _bets + _owed },
     { href: '/chat',    label: 'Locker Room',   short: 'Locker',  icon: '💬',  primary: true, badge: _unread },
-    { href: '/draft',   label: 'Draft Spot',     short: 'Draft',   icon: '🎯',  match: '/draft' },
+    // Draft Spot is an OFFSEASON page: hidden while the season runs (site
+    // review 09-02) — the page and route stay; only the menu entry parks.
+    ...((typeof inSeason !== 'undefined' && inSeason) ? [] : [{ href: '/draft',   label: 'Draft Spot',     short: 'Draft',   icon: '🎯',  match: '/draft' }]),
     { href: '/votes',   label: 'Voting Booth',  short: 'Votes',   icon: '🗳',  match: '/votes', badge: _votes },
     // Owners and Record Book are sections of /history now, not nav items.
     // Three entries answering one question ("who has won what") cost three

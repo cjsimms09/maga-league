@@ -110,3 +110,4 @@ graded from week 1, and it moves here only if real weeks confirm it.
 | weather as a live WEEKLY arm (pace is dead, entry 8) | whether the small props-side wind/cold hint from two backtest seasons survives real weeks | D, weekly from 09-15 |
 | usage (snap share / target share) as a weekly arm | the most-cited weekly predictor we have never measured | D, by 09-15 |
 | tool vs what you actually did (lineup, waiver, stream) | the dollars-shaped grade: did following the tool beat your gut | every Sunday from week 2 |
+| roster shape WITHOUT a cap (P363) | whether the model learned the format (one TE, K with the last pick) from a roster-aware value function, or has to be told — 2026 half says learned: 1.0 violations/seat, every roster complete | replay half 10-06 |

@@ -1,7 +1,7 @@
 {
  "_territory": "relay audit \u2014 roster_grammar.py; engine integration is A's (ROUTES 09-02)",
  "_question": "Cory 09-02: 'drafting 4 TEs shows a real lack of fantasy football knowledge' \u2014 how often does the tool break the format's grammar, vs the humans?",
- "generated_at": "2026-09-02T01:03:21+00:00",
+ "generated_at": "2026-09-02T01:51:25+00:00",
  "grammar": {
   "_what": "Roster grammar derived from league.starters/roster_slots \u2014 hard legality for recommendations (roster_grammar.py)",
   "starters": {
@@ -32,7 +32,7 @@
    "G2 onesie cap",
    "G3 depth cap",
    "G4 K/DEF timing",
-   "G5 complete roster"
+   "G5 complete roster (K required \u2014 Cory 09-02: nobody else can start in that spot; take him last)"
   ]
  },
  "controls": {

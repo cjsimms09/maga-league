@@ -69,7 +69,7 @@ def grammar_from_league(league: dict) -> dict:
         "depth_cap": depth_cap,
         "rb_wr_total_cap": rounds - sum(1 for p in ("QB", "TE", "K", "DEF") if st.get(p)),
         "kdef_last_picks": 3,
-        "rules": ["G1 fill first", "G2 onesie cap", "G3 depth cap", "G4 K/DEF timing", "G5 complete roster"],
+        "rules": ["G1 fill first", "G2 onesie cap", "G3 depth cap", "G4 K/DEF timing", "G5 complete roster (K required — Cory 09-02: nobody else can start in that spot; take him last)"],
     }
 
 
@@ -129,6 +129,13 @@ def check_sequence(positions: list, g: dict, total_picks: int | None = None) -> 
             out.append({"pick_index": i + 1, "pos": pos, "violations": v})
         counts[pos] += 1
     st = g["starters"]
+    # THE KICKER, RULED TWICE ON 09-02 AND THE SECOND WORD WINS — Cory: "you
+    # can't start anyone else in a kicker spot so not having one is not smart..
+    # but it's probably right to wait til dead last pick as replacement value
+    # is null." So: a roster with no K IS incomplete (G5 counts him), and a K
+    # taken before the last picks is a waste (G4). The value function earns
+    # this by pricing an empty required slot at the end of the draft, not by
+    # a cap — see mlv_grammar_probe.js arm mlv_bench_complete.
     missing = [p for p in ("QB", "RB", "WR", "TE", "K", "DEF") if counts.get(p, 0) < int(st.get(p, 0))]
     g5 = [f"G5 no body for {p}" for p in missing]
     return {"shape": dict(counts), "pick_violations": out,

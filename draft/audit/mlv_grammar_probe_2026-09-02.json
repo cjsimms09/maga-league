@@ -1,7 +1,7 @@
 {
  "_territory": "relay probe — draft/tools/mlv_grammar_probe.js",
  "_what": "P363 2026 half: three value functions draft every seat of the real 2026 night against the room's actual picks, no caps; graded by roster_grammar.py",
- "generated_at": "2026-09-02T01:31:29.479Z",
+ "generated_at": "2026-09-02T01:51:24.578Z",
  "wire": {
   "QB": 317.7,
   "RB": 96.9,
@@ -1208,6 +1208,1217 @@
       "name": "Brock Purdy",
       "basis": "best_surplus",
       "v": 32.5
+     }
+    ]
+   }
+  },
+  "mlv_bench_complete": {
+   "1": {
+    "sequence": [
+     "RB",
+     "RB",
+     "RB",
+     "WR",
+     "WR",
+     "RB",
+     "TE",
+     "QB",
+     "DEF",
+     "WR",
+     "RB",
+     "QB",
+     "TE",
+     "WR",
+     "K"
+    ],
+    "keepers": 2,
+    "total_picks": 15,
+    "shape": {
+     "RB": 5,
+     "WR": 4,
+     "TE": 2,
+     "QB": 2,
+     "DEF": 1,
+     "K": 1
+    },
+    "projected_startable": 1928.2,
+    "picks": [
+     {
+      "pick_no": 21,
+      "pos": "RB",
+      "name": "Christian McCaffrey",
+      "basis": "lineup_gain",
+      "v": 197.5
+     },
+     {
+      "pick_no": 40,
+      "pos": "WR",
+      "name": "Zay Flowers",
+      "basis": "lineup_gain",
+      "v": 86.9
+     },
+     {
+      "pick_no": 41,
+      "pos": "WR",
+      "name": "Ladd McConkey",
+      "basis": "lineup_gain",
+      "v": 82.3
+     },
+     {
+      "pick_no": 60,
+      "pos": "RB",
+      "name": "Jeremiyah Love",
+      "basis": "bench_option",
+      "v": 80.6
+     },
+     {
+      "pick_no": 61,
+      "pos": "TE",
+      "name": "Sam LaPorta",
+      "basis": "lineup_gain",
+      "v": 50
+     },
+     {
+      "pick_no": 80,
+      "pos": "QB",
+      "name": "Joe Burrow",
+      "basis": "lineup_gain",
+      "v": 44.4
+     },
+     {
+      "pick_no": 81,
+      "pos": "DEF",
+      "name": "Los Angeles Rams",
+      "basis": "lineup_gain",
+      "v": 38.7
+     },
+     {
+      "pick_no": 100,
+      "pos": "WR",
+      "name": "Tee Higgins",
+      "basis": "bench_option",
+      "v": 29.8
+     },
+     {
+      "pick_no": 101,
+      "pos": "RB",
+      "name": "Tony Pollard",
+      "basis": "bench_option",
+      "v": 16.5
+     },
+     {
+      "pick_no": 120,
+      "pos": "QB",
+      "name": "Jordan Love",
+      "basis": "bench_option",
+      "v": 10.7
+     },
+     {
+      "pick_no": 121,
+      "pos": "TE",
+      "name": "Mark Andrews",
+      "basis": "bench_option",
+      "v": 10.4
+     },
+     {
+      "pick_no": 140,
+      "pos": "WR",
+      "name": "Jayden Reed",
+      "basis": "bench_option",
+      "v": 2.1
+     },
+     {
+      "pick_no": 141,
+      "pos": "K",
+      "name": "Matt Prater",
+      "basis": "required_slot_endgame",
+      "v": 125.7
+     }
+    ]
+   },
+   "2": {
+    "sequence": [
+     "WR",
+     "QB",
+     "RB",
+     "RB",
+     "RB",
+     "WR",
+     "RB",
+     "DEF",
+     "TE",
+     "WR",
+     "RB",
+     "QB",
+     "TE",
+     "WR",
+     "K"
+    ],
+    "keepers": 3,
+    "total_picks": 15,
+    "shape": {
+     "WR": 4,
+     "QB": 2,
+     "RB": 5,
+     "DEF": 1,
+     "TE": 2,
+     "K": 1
+    },
+    "projected_startable": 1911.5,
+    "picks": [
+     {
+      "pick_no": 39,
+      "pos": "RB",
+      "name": "Travis Etienne",
+      "basis": "lineup_gain",
+      "v": 120
+     },
+     {
+      "pick_no": 42,
+      "pos": "RB",
+      "name": "D'Andre Swift",
+      "basis": "lineup_gain",
+      "v": 116
+     },
+     {
+      "pick_no": 59,
+      "pos": "WR",
+      "name": "Ladd McConkey",
+      "basis": "lineup_gain",
+      "v": 82.3
+     },
+     {
+      "pick_no": 62,
+      "pos": "RB",
+      "name": "Cam Skattebo",
+      "basis": "bench_option",
+      "v": 66.7
+     },
+     {
+      "pick_no": 79,
+      "pos": "DEF",
+      "name": "Los Angeles Rams",
+      "basis": "lineup_gain",
+      "v": 38.7
+     },
+     {
+      "pick_no": 82,
+      "pos": "TE",
+      "name": "Travis Kelce",
+      "basis": "lineup_gain",
+      "v": 37.2
+     },
+     {
+      "pick_no": 99,
+      "pos": "WR",
+      "name": "Christian Watson",
+      "basis": "bench_option",
+      "v": 24.8
+     },
+     {
+      "pick_no": 102,
+      "pos": "RB",
+      "name": "Jaylen Warren",
+      "basis": "bench_option",
+      "v": 16.8
+     },
+     {
+      "pick_no": 119,
+      "pos": "QB",
+      "name": "Jordan Love",
+      "basis": "bench_option",
+      "v": 10.7
+     },
+     {
+      "pick_no": 122,
+      "pos": "TE",
+      "name": "Mark Andrews",
+      "basis": "bench_option",
+      "v": 10.4
+     },
+     {
+      "pick_no": 139,
+      "pos": "WR",
+      "name": "Luther Burden",
+      "basis": "bench_option",
+      "v": 2.2
+     },
+     {
+      "pick_no": 142,
+      "pos": "K",
+      "name": "Matt Prater",
+      "basis": "required_slot_endgame",
+      "v": 125.7
+     }
+    ]
+   },
+   "3": {
+    "sequence": [
+     "RB",
+     "RB",
+     "WR",
+     "RB",
+     "RB",
+     "WR",
+     "TE",
+     "DEF",
+     "QB",
+     "WR",
+     "RB",
+     "QB",
+     "TE",
+     "WR",
+     "K"
+    ],
+    "keepers": 3,
+    "total_picks": 15,
+    "shape": {
+     "RB": 5,
+     "WR": 4,
+     "TE": 2,
+     "DEF": 1,
+     "QB": 2,
+     "K": 1
+    },
+    "projected_startable": 1956,
+    "picks": [
+     {
+      "pick_no": 38,
+      "pos": "RB",
+      "name": "Travis Etienne",
+      "basis": "lineup_gain",
+      "v": 120
+     },
+     {
+      "pick_no": 43,
+      "pos": "RB",
+      "name": "D'Andre Swift",
+      "basis": "bench_option",
+      "v": 81.2
+     },
+     {
+      "pick_no": 58,
+      "pos": "WR",
+      "name": "Emeka Egbuka",
+      "basis": "lineup_gain",
+      "v": 75.2
+     },
+     {
+      "pick_no": 63,
+      "pos": "TE",
+      "name": "Harold Fannin",
+      "basis": "lineup_gain",
+      "v": 39.7
+     },
+     {
+      "pick_no": 78,
+      "pos": "DEF",
+      "name": "Los Angeles Rams",
+      "basis": "lineup_gain",
+      "v": 38.7
+     },
+     {
+      "pick_no": 83,
+      "pos": "QB",
+      "name": "Brock Purdy",
+      "basis": "lineup_gain",
+      "v": 32.5
+     },
+     {
+      "pick_no": 98,
+      "pos": "WR",
+      "name": "Garrett Wilson",
+      "basis": "bench_option",
+      "v": 28.9
+     },
+     {
+      "pick_no": 103,
+      "pos": "RB",
+      "name": "J.K. Dobbins",
+      "basis": "bench_option",
+      "v": 14.7
+     },
+     {
+      "pick_no": 118,
+      "pos": "QB",
+      "name": "Jordan Love",
+      "basis": "bench_option",
+      "v": 10.7
+     },
+     {
+      "pick_no": 123,
+      "pos": "TE",
+      "name": "Mark Andrews",
+      "basis": "bench_option",
+      "v": 10.4
+     },
+     {
+      "pick_no": 138,
+      "pos": "WR",
+      "name": "DK Metcalf",
+      "basis": "bench_option",
+      "v": 2.2
+     },
+     {
+      "pick_no": 143,
+      "pos": "K",
+      "name": "Matt Prater",
+      "basis": "required_slot_endgame",
+      "v": 125.7
+     }
+    ]
+   },
+   "4": {
+    "sequence": [
+     "RB",
+     "RB",
+     "RB",
+     "TE",
+     "WR",
+     "WR",
+     "RB",
+     "QB",
+     "DEF",
+     "WR",
+     "RB",
+     "QB",
+     "TE",
+     "WR",
+     "K"
+    ],
+    "keepers": 0,
+    "total_picks": 15,
+    "shape": {
+     "RB": 5,
+     "TE": 2,
+     "WR": 4,
+     "QB": 2,
+     "DEF": 1,
+     "K": 1
+    },
+    "projected_startable": 2058.5,
+    "picks": [
+     {
+      "pick_no": 4,
+      "pos": "RB",
+      "name": "Bijan Robinson",
+      "basis": "lineup_gain",
+      "v": 239.9
+     },
+     {
+      "pick_no": 17,
+      "pos": "RB",
+      "name": "Christian McCaffrey",
+      "basis": "lineup_gain",
+      "v": 197.5
+     },
+     {
+      "pick_no": 24,
+      "pos": "RB",
+      "name": "De'Von Achane",
+      "basis": "lineup_gain",
+      "v": 153.7
+     },
+     {
+      "pick_no": 37,
+      "pos": "TE",
+      "name": "Brock Bowers",
+      "basis": "lineup_gain",
+      "v": 113.2
+     },
+     {
+      "pick_no": 44,
+      "pos": "WR",
+      "name": "DeVonta Smith",
+      "basis": "lineup_gain",
+      "v": 88.6
+     },
+     {
+      "pick_no": 57,
+      "pos": "WR",
+      "name": "Mike Evans",
+      "basis": "lineup_gain",
+      "v": 73.2
+     },
+     {
+      "pick_no": 64,
+      "pos": "RB",
+      "name": "Bucky Irving",
+      "basis": "bench_option",
+      "v": 71.6
+     },
+     {
+      "pick_no": 77,
+      "pos": "QB",
+      "name": "Lamar Jackson",
+      "basis": "lineup_gain",
+      "v": 54.3
+     },
+     {
+      "pick_no": 84,
+      "pos": "DEF",
+      "name": "Los Angeles Rams",
+      "basis": "lineup_gain",
+      "v": 38.7
+     },
+     {
+      "pick_no": 97,
+      "pos": "WR",
+      "name": "Malik Nabers",
+      "basis": "bench_option",
+      "v": 28.9
+     },
+     {
+      "pick_no": 104,
+      "pos": "RB",
+      "name": "Jadarian Price",
+      "basis": "bench_option",
+      "v": 15.1
+     },
+     {
+      "pick_no": 117,
+      "pos": "QB",
+      "name": "Jordan Love",
+      "basis": "bench_option",
+      "v": 10.7
+     },
+     {
+      "pick_no": 124,
+      "pos": "TE",
+      "name": "Mark Andrews",
+      "basis": "bench_option",
+      "v": 10.4
+     },
+     {
+      "pick_no": 137,
+      "pos": "WR",
+      "name": "Alec Pierce",
+      "basis": "bench_option",
+      "v": 2.3
+     },
+     {
+      "pick_no": 144,
+      "pos": "K",
+      "name": "Matt Prater",
+      "basis": "required_slot_endgame",
+      "v": 125.7
+     }
+    ]
+   },
+   "5": {
+    "sequence": [
+     "RB",
+     "WR",
+     "RB",
+     "RB",
+     "WR",
+     "RB",
+     "TE",
+     "DEF",
+     "QB",
+     "WR",
+     "RB",
+     "QB",
+     "TE",
+     "WR",
+     "K"
+    ],
+    "keepers": 2,
+    "total_picks": 15,
+    "shape": {
+     "RB": 5,
+     "WR": 4,
+     "TE": 2,
+     "DEF": 1,
+     "QB": 2,
+     "K": 1
+    },
+    "projected_startable": 1904.5,
+    "picks": [
+     {
+      "pick_no": 25,
+      "pos": "RB",
+      "name": "De'Von Achane",
+      "basis": "lineup_gain",
+      "v": 153.7
+     },
+     {
+      "pick_no": 36,
+      "pos": "RB",
+      "name": "Travis Etienne",
+      "basis": "lineup_gain",
+      "v": 120
+     },
+     {
+      "pick_no": 45,
+      "pos": "WR",
+      "name": "Chris Olave",
+      "basis": "lineup_gain",
+      "v": 94.9
+     },
+     {
+      "pick_no": 56,
+      "pos": "RB",
+      "name": "David Montgomery",
+      "basis": "bench_option",
+      "v": 75.3
+     },
+     {
+      "pick_no": 65,
+      "pos": "TE",
+      "name": "Colston Loveland",
+      "basis": "lineup_gain",
+      "v": 70.3
+     },
+     {
+      "pick_no": 76,
+      "pos": "DEF",
+      "name": "Los Angeles Rams",
+      "basis": "lineup_gain",
+      "v": 38.7
+     },
+     {
+      "pick_no": 85,
+      "pos": "QB",
+      "name": "Brock Purdy",
+      "basis": "lineup_gain",
+      "v": 32.5
+     },
+     {
+      "pick_no": 96,
+      "pos": "WR",
+      "name": "Mike Evans",
+      "basis": "bench_option",
+      "v": 29.5
+     },
+     {
+      "pick_no": 105,
+      "pos": "RB",
+      "name": "Bhayshul Tuten",
+      "basis": "bench_option",
+      "v": 14.9
+     },
+     {
+      "pick_no": 116,
+      "pos": "QB",
+      "name": "Jordan Love",
+      "basis": "bench_option",
+      "v": 10.7
+     },
+     {
+      "pick_no": 125,
+      "pos": "TE",
+      "name": "Mark Andrews",
+      "basis": "bench_option",
+      "v": 10.4
+     },
+     {
+      "pick_no": 136,
+      "pos": "WR",
+      "name": "Brian Thomas",
+      "basis": "bench_option",
+      "v": 2.6
+     },
+     {
+      "pick_no": 145,
+      "pos": "K",
+      "name": "Matt Prater",
+      "basis": "required_slot_endgame",
+      "v": 125.7
+     }
+    ]
+   },
+   "6": {
+    "sequence": [
+     "WR",
+     "RB",
+     "RB",
+     "RB",
+     "RB",
+     "WR",
+     "TE",
+     "DEF",
+     "QB",
+     "WR",
+     "RB",
+     "QB",
+     "TE",
+     "RB",
+     "K"
+    ],
+    "keepers": 3,
+    "total_picks": 15,
+    "shape": {
+     "WR": 3,
+     "RB": 6,
+     "TE": 2,
+     "DEF": 1,
+     "QB": 2,
+     "K": 1
+    },
+    "projected_startable": 1870,
+    "picks": [
+     {
+      "pick_no": 35,
+      "pos": "RB",
+      "name": "Travis Etienne",
+      "basis": "lineup_gain",
+      "v": 120
+     },
+     {
+      "pick_no": 46,
+      "pos": "RB",
+      "name": "D'Andre Swift",
+      "basis": "bench_option",
+      "v": 81.2
+     },
+     {
+      "pick_no": 55,
+      "pos": "WR",
+      "name": "Jaylen Waddle",
+      "basis": "lineup_gain",
+      "v": 80
+     },
+     {
+      "pick_no": 66,
+      "pos": "TE",
+      "name": "Harold Fannin",
+      "basis": "lineup_gain",
+      "v": 39.7
+     },
+     {
+      "pick_no": 75,
+      "pos": "DEF",
+      "name": "Los Angeles Rams",
+      "basis": "lineup_gain",
+      "v": 38.7
+     },
+     {
+      "pick_no": 86,
+      "pos": "QB",
+      "name": "Brock Purdy",
+      "basis": "lineup_gain",
+      "v": 32.5
+     },
+     {
+      "pick_no": 95,
+      "pos": "WR",
+      "name": "Jameson Williams",
+      "basis": "bench_option",
+      "v": 28.7
+     },
+     {
+      "pick_no": 106,
+      "pos": "RB",
+      "name": "Josh Jacobs",
+      "basis": "bench_option",
+      "v": 23.6
+     },
+     {
+      "pick_no": 115,
+      "pos": "QB",
+      "name": "Jordan Love",
+      "basis": "bench_option",
+      "v": 10.7
+     },
+     {
+      "pick_no": 126,
+      "pos": "TE",
+      "name": "George Kittle",
+      "basis": "bench_option",
+      "v": 10.6
+     },
+     {
+      "pick_no": 135,
+      "pos": "RB",
+      "name": "TreVeyon Henderson",
+      "basis": "bench_option",
+      "v": 1.9
+     },
+     {
+      "pick_no": 146,
+      "pos": "K",
+      "name": "Matt Prater",
+      "basis": "required_slot_endgame",
+      "v": 125.7
+     }
+    ]
+   },
+   "7": {
+    "sequence": [
+     "WR",
+     "WR",
+     "RB",
+     "RB",
+     "RB",
+     "TE",
+     "RB",
+     "QB",
+     "DEF",
+     "WR",
+     "RB",
+     "QB",
+     "TE",
+     "WR",
+     "K"
+    ],
+    "keepers": 3,
+    "total_picks": 15,
+    "shape": {
+     "WR": 4,
+     "RB": 5,
+     "TE": 2,
+     "QB": 2,
+     "DEF": 1,
+     "K": 1
+    },
+    "projected_startable": 1895,
+    "picks": [
+     {
+      "pick_no": 34,
+      "pos": "RB",
+      "name": "Breece Hall",
+      "basis": "lineup_gain",
+      "v": 128
+     },
+     {
+      "pick_no": 47,
+      "pos": "RB",
+      "name": "Travis Etienne",
+      "basis": "lineup_gain",
+      "v": 120
+     },
+     {
+      "pick_no": 54,
+      "pos": "TE",
+      "name": "Tyler Warren",
+      "basis": "lineup_gain",
+      "v": 56.5
+     },
+     {
+      "pick_no": 67,
+      "pos": "RB",
+      "name": "Jaylen Warren",
+      "basis": "bench_option",
+      "v": 55.1
+     },
+     {
+      "pick_no": 74,
+      "pos": "QB",
+      "name": "Drake Maye",
+      "basis": "lineup_gain",
+      "v": 50.1
+     },
+     {
+      "pick_no": 87,
+      "pos": "DEF",
+      "name": "Los Angeles Rams",
+      "basis": "lineup_gain",
+      "v": 38.7
+     },
+     {
+      "pick_no": 94,
+      "pos": "WR",
+      "name": "Jayden Reed",
+      "basis": "bench_option",
+      "v": 19.3
+     },
+     {
+      "pick_no": 107,
+      "pos": "RB",
+      "name": "Kenny Gainwell",
+      "basis": "bench_option",
+      "v": 11.2
+     },
+     {
+      "pick_no": 114,
+      "pos": "QB",
+      "name": "Jordan Love",
+      "basis": "bench_option",
+      "v": 10.7
+     },
+     {
+      "pick_no": 127,
+      "pos": "TE",
+      "name": "Mark Andrews",
+      "basis": "bench_option",
+      "v": 10.4
+     },
+     {
+      "pick_no": 134,
+      "pos": "WR",
+      "name": "Josh Downs",
+      "basis": "bench_option",
+      "v": 1.8
+     },
+     {
+      "pick_no": 147,
+      "pos": "K",
+      "name": "Matt Prater",
+      "basis": "required_slot_endgame",
+      "v": 125.7
+     }
+    ]
+   },
+   "8": {
+    "sequence": [
+     "WR",
+     "RB",
+     "RB",
+     "RB",
+     "RB",
+     "WR",
+     "TE",
+     "DEF",
+     "QB",
+     "WR",
+     "RB",
+     "QB",
+     "TE",
+     "WR",
+     "K"
+    ],
+    "keepers": 3,
+    "total_picks": 15,
+    "shape": {
+     "WR": 4,
+     "RB": 5,
+     "TE": 2,
+     "DEF": 1,
+     "QB": 2,
+     "K": 1
+    },
+    "projected_startable": 1853.5,
+    "picks": [
+     {
+      "pick_no": 33,
+      "pos": "RB",
+      "name": "Breece Hall",
+      "basis": "lineup_gain",
+      "v": 128
+     },
+     {
+      "pick_no": 48,
+      "pos": "RB",
+      "name": "D'Andre Swift",
+      "basis": "bench_option",
+      "v": 81.2
+     },
+     {
+      "pick_no": 53,
+      "pos": "WR",
+      "name": "Mike Evans",
+      "basis": "lineup_gain",
+      "v": 73.2
+     },
+     {
+      "pick_no": 68,
+      "pos": "TE",
+      "name": "Harold Fannin",
+      "basis": "lineup_gain",
+      "v": 39.7
+     },
+     {
+      "pick_no": 73,
+      "pos": "DEF",
+      "name": "Los Angeles Rams",
+      "basis": "lineup_gain",
+      "v": 38.7
+     },
+     {
+      "pick_no": 88,
+      "pos": "QB",
+      "name": "Brock Purdy",
+      "basis": "lineup_gain",
+      "v": 32.5
+     },
+     {
+      "pick_no": 93,
+      "pos": "WR",
+      "name": "Rome Odunze",
+      "basis": "bench_option",
+      "v": 26.8
+     },
+     {
+      "pick_no": 108,
+      "pos": "RB",
+      "name": "Quinshon Judkins",
+      "basis": "bench_option",
+      "v": 21.3
+     },
+     {
+      "pick_no": 113,
+      "pos": "QB",
+      "name": "Jordan Love",
+      "basis": "bench_option",
+      "v": 10.7
+     },
+     {
+      "pick_no": 128,
+      "pos": "TE",
+      "name": "Mark Andrews",
+      "basis": "bench_option",
+      "v": 10.4
+     },
+     {
+      "pick_no": 133,
+      "pos": "WR",
+      "name": "Parker Washington",
+      "basis": "bench_option",
+      "v": 2.9
+     },
+     {
+      "pick_no": 148,
+      "pos": "K",
+      "name": "Matt Prater",
+      "basis": "required_slot_endgame",
+      "v": 125.7
+     }
+    ]
+   },
+   "9": {
+    "sequence": [
+     "WR",
+     "RB",
+     "RB",
+     "RB",
+     "RB",
+     "WR",
+     "TE",
+     "DEF",
+     "QB",
+     "RB",
+     "WR",
+     "QB",
+     "TE",
+     "WR",
+     "K"
+    ],
+    "keepers": 1,
+    "total_picks": 15,
+    "shape": {
+     "WR": 4,
+     "RB": 5,
+     "TE": 2,
+     "DEF": 1,
+     "QB": 2,
+     "K": 1
+    },
+    "projected_startable": 1860.3,
+    "picks": [
+     {
+      "pick_no": 12,
+      "pos": "RB",
+      "name": "Christian McCaffrey",
+      "basis": "lineup_gain",
+      "v": 197.5
+     },
+     {
+      "pick_no": 29,
+      "pos": "RB",
+      "name": "Breece Hall",
+      "basis": "lineup_gain",
+      "v": 128
+     },
+     {
+      "pick_no": 32,
+      "pos": "RB",
+      "name": "Kyren Williams",
+      "basis": "lineup_gain",
+      "v": 123.9
+     },
+     {
+      "pick_no": 49,
+      "pos": "RB",
+      "name": "Javonte Williams",
+      "basis": "bench_option",
+      "v": 81.8
+     },
+     {
+      "pick_no": 52,
+      "pos": "WR",
+      "name": "Tetairoa McMillan",
+      "basis": "lineup_gain",
+      "v": 77.2
+     },
+     {
+      "pick_no": 69,
+      "pos": "TE",
+      "name": "Harold Fannin",
+      "basis": "lineup_gain",
+      "v": 39.7
+     },
+     {
+      "pick_no": 72,
+      "pos": "DEF",
+      "name": "Los Angeles Rams",
+      "basis": "lineup_gain",
+      "v": 38.7
+     },
+     {
+      "pick_no": 89,
+      "pos": "QB",
+      "name": "Brock Purdy",
+      "basis": "lineup_gain",
+      "v": 32.5
+     },
+     {
+      "pick_no": 92,
+      "pos": "RB",
+      "name": "Travis Etienne",
+      "basis": "bench_option",
+      "v": 24.2
+     },
+     {
+      "pick_no": 109,
+      "pos": "WR",
+      "name": "DJ Moore",
+      "basis": "bench_option",
+      "v": 19.1
+     },
+     {
+      "pick_no": 112,
+      "pos": "QB",
+      "name": "Jordan Love",
+      "basis": "bench_option",
+      "v": 10.7
+     },
+     {
+      "pick_no": 129,
+      "pos": "TE",
+      "name": "Mark Andrews",
+      "basis": "bench_option",
+      "v": 10.4
+     },
+     {
+      "pick_no": 132,
+      "pos": "WR",
+      "name": "Michael Wilson",
+      "basis": "bench_option",
+      "v": 1.8
+     },
+     {
+      "pick_no": 149,
+      "pos": "K",
+      "name": "Matt Prater",
+      "basis": "required_slot_endgame",
+      "v": 125.7
+     }
+    ]
+   },
+   "10": {
+    "sequence": [
+     "RB",
+     "WR",
+     "TE",
+     "RB",
+     "RB",
+     "WR",
+     "RB",
+     "DEF",
+     "QB",
+     "WR",
+     "RB",
+     "QB",
+     "TE",
+     "RB",
+     "K"
+    ],
+    "keepers": 3,
+    "total_picks": 15,
+    "shape": {
+     "RB": 6,
+     "WR": 3,
+     "TE": 2,
+     "DEF": 1,
+     "QB": 2,
+     "K": 1
+    },
+    "projected_startable": 1973.1,
+    "picks": [
+     {
+      "pick_no": 31,
+      "pos": "RB",
+      "name": "Breece Hall",
+      "basis": "lineup_gain",
+      "v": 128
+     },
+     {
+      "pick_no": 50,
+      "pos": "RB",
+      "name": "Travis Etienne",
+      "basis": "lineup_gain",
+      "v": 120
+     },
+     {
+      "pick_no": 51,
+      "pos": "WR",
+      "name": "George Pickens",
+      "basis": "lineup_gain",
+      "v": 107.5
+     },
+     {
+      "pick_no": 70,
+      "pos": "RB",
+      "name": "D'Andre Swift",
+      "basis": "bench_option",
+      "v": 81.2
+     },
+     {
+      "pick_no": 71,
+      "pos": "DEF",
+      "name": "Los Angeles Rams",
+      "basis": "lineup_gain",
+      "v": 38.7
+     },
+     {
+      "pick_no": 90,
+      "pos": "QB",
+      "name": "Dak Prescott",
+      "basis": "lineup_gain",
+      "v": 35.2
+     },
+     {
+      "pick_no": 91,
+      "pos": "WR",
+      "name": "Terry McLaurin",
+      "basis": "bench_option",
+      "v": 27.3
+     },
+     {
+      "pick_no": 110,
+      "pos": "RB",
+      "name": "Rhamondre Stevenson",
+      "basis": "bench_option",
+      "v": 16.3
+     },
+     {
+      "pick_no": 111,
+      "pos": "QB",
+      "name": "Jordan Love",
+      "basis": "bench_option",
+      "v": 10.7
+     },
+     {
+      "pick_no": 130,
+      "pos": "TE",
+      "name": "Mark Andrews",
+      "basis": "bench_option",
+      "v": 10.4
+     },
+     {
+      "pick_no": 131,
+      "pos": "RB",
+      "name": "Chuba Hubbard",
+      "basis": "bench_option",
+      "v": 1.8
+     },
+     {
+      "pick_no": 150,
+      "pos": "K",
+      "name": "Matt Prater",
+      "basis": "required_slot_endgame",
+      "v": 125.7
      }
     ]
    }

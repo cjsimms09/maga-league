@@ -1,0 +1,233 @@
+{
+ "_territory": "TERRITORY: C \u2014 seeded by the relay 2026-09-02 (FUTURE-PROOF-2027 \u00a76); C owns the rows",
+ "_what": "One row per DATA CLASS the model depends on: the primary source, the workflow that captures it, its cadence and known-positive control, its FALLBACK, and cost. A class with no fallback is a defect (register it). go_status.py reads this so a dying source is an agenda line before an arm goes dark.",
+ "_ruling": "Cory 2026-09-01: no paid data \u2014 every source here is free; a paid row is a defect.",
+ "_cadence_words": "daily | weekly | tue/fri/sun | thu | wed | sun | manual",
+ "classes": [
+  {
+   "class": "season_projections",
+   "feeds": "the player board (proj_mean, VORP), keeper valuation, the weekly arm's prior",
+   "primary": {
+    "source": "Sleeper season projections + FantasyPros (in build.py)",
+    "workflow": "draft-data.yml",
+    "cadence": "daily",
+    "control": "acceptance gate (pytest not repo_parity) refuses a bad board"
+   },
+   "fallback": {
+    "source": "ffanalytics multi-source (CBS/ESPN/FFToday)",
+    "workflow": "ffanalytics-probe.yml",
+    "status": "RED upstream \u2014 CBS/ESPN 0 rows (register 442)"
+   },
+   "cost": "free"
+  },
+  {
+   "class": "weekly_projections",
+   "feeds": "arm 'ours' vs 'sleeper' (the 09-15 head-to-head), the lineup optimizer's numbers",
+   "primary": {
+    "source": "our weekly emitter + Sleeper weekly projections",
+    "workflow": "own-weekly-proj.yml (+ Netlify player-projection-cron)",
+    "cadence": "wed/thu",
+    "control": "emissionSanity in the cron response; grader refuses absent inputs"
+   },
+   "fallback": {
+    "source": "the props arm (market-implied points)",
+    "workflow": "free-props-writer.yml",
+    "status": "live 09-02"
+   },
+   "cost": "free"
+  },
+  {
+   "class": "player_props",
+   "feeds": "arm 'props' (P354), the props+pull blend (P357), per-player spread for the E[$] solver (P355)",
+   "primary": {
+    "source": "Sleeper Picks lines (Sleeper player ids, no crosswalk)",
+    "workflow": "free-props-writer.yml",
+    "cadence": "wed 19:30 + thu 12:20 UTC (writer runs before the 20:00 / 14:00 projection snapshots that read it)",
+    "control": "self_check(): a Sleeper QB pass-yds line, an Underdog fill, >=30 priced; refuses on a null"
+   },
+   "fallback": {
+    "source": "Underdog game-week lines (same writer, fills what Sleeper lacks) \u00b7 Bovada per-event (Thursday complement)",
+    "workflow": "free-props-writer.yml \u00b7 event-props-capture.yml",
+    "status": "measured 09-02: both full-coverage at game week"
+   },
+   "discovery": "free-props-census.yml (thu 12:15) \u2014 per-market carriers across every keyless door, monthly new candidates (FUTURE-PROOF \u00a76.3)",
+   "cost": "free \u2014 paid Odds API retired by Cory's standing ruling"
+  },
+  {
+   "class": "game_lines",
+   "feeds": "implied totals / spreads for the analyzer and the side-bet advisor; P289 closing-line benchmark",
+   "primary": {
+    "source": "Bovada game lines",
+    "workflow": "bovada-lines-capture.yml",
+    "cadence": "thu 12:00 + sun 16:00 UTC",
+    "control": "known-positive game line (spread/total numeric) on a real game"
+   },
+   "fallback": {
+    "source": "odds-capture.yml snapshots \u00b7 Kalshi game markets \u00b7 Action Network v1 scoreboard (measured reachable 09-02, unwired)",
+    "workflow": "odds-capture.yml \u00b7 kalshi-capture.yml",
+    "status": "live"
+   },
+   "cost": "free"
+  },
+  {
+   "class": "adp",
+   "feeds": "the board's market column, the room model (P259), 2027 keeper pricing",
+   "primary": {
+    "source": "FantasyPros ADP (in build.py) \u00b7 MFL/FFC external snapshot",
+    "workflow": "draft-data.yml \u00b7 external-adp-capture.yml",
+    "cadence": "daily",
+    "control": "external-adp's own invariants + marginal-day check"
+   },
+   "fallback": {
+    "source": "the other of the two (FantasyPros in build.py \u2194 MFL/FFC external snapshot)",
+    "workflow": "draft-data.yml \u00b7 external-adp-capture.yml",
+    "status": "external-adp escalations are draft-era (re-scope routed to C)"
+   },
+   "cost": "free"
+  },
+  {
+   "class": "injuries_practice",
+   "feeds": "the Sunday/Thursday alert (zero-point starts, P351), the weekly arm's zeroing, K3 (P360)",
+   "primary": {
+    "source": "Sleeper injury_status (players DB)",
+    "workflow": "week-brief.yml \u00b7 draft-data.yml",
+    "cadence": "tue/fri/sun + daily",
+    "control": "week brief refuses on an unresolvable id"
+   },
+   "fallback": {
+    "source": "practice participation FP/LP/DNP (store P308)",
+    "workflow": "TODO \u2014 name the workflow that refreshes practice_participation.json (C)",
+    "status": "store exists; refresh cadence unverified"
+   },
+   "cost": "free"
+  },
+  {
+   "class": "snaps_usage",
+   "feeds": "the usage arm (K-queue \u2464, D), opportunity checks on waivers",
+   "primary": {
+    "source": "nflverse snap counts",
+    "workflow": "weekly-snap-counts.yml",
+    "cadence": "wed 11:00 UTC",
+    "control": "row count vs prior week"
+   },
+   "fallback": {
+    "source": "NONE",
+    "workflow": "none",
+    "status": "NO FALLBACK \u2014 register it (nflverse is the only free per-snap source; ESPN box scores are the candidate)"
+   },
+   "cost": "free"
+  },
+  {
+   "class": "rosters_transactions",
+   "feeds": "THIS-WEEK.md (the roster rule), the dossier, the wire tool, tool-vs-actual grading",
+   "primary": {
+    "source": "Sleeper league API (rosters, matchups, transactions)",
+    "workflow": "week-brief.yml \u00b7 league-history-export.yml",
+    "cadence": "tue/fri/sun + tue",
+    "control": "roster >=10, every id resolves"
+   },
+   "fallback": {
+    "source": "Sleeper IS the league host \u2014 single-source by nature; the committed exports are the fallback for history",
+    "workflow": "league-history-export.yml",
+    "status": "acceptable single source"
+   },
+   "cost": "free"
+  },
+  {
+   "class": "schedule_kickoffs",
+   "feeds": "game days on THIS-WEEK.md, the lateness cutoff (register 475), TNF timing",
+   "primary": {
+    "source": "committed nfl_schedule_2026.json (Ball Don't Lie games, no key needed at capture)",
+    "workflow": "manual (captured 08-29; C's opener-date verify open)",
+    "cadence": "static",
+    "control": "32 teams in a full week; opener date verified against Sleeper state"
+   },
+   "fallback": {
+    "source": "ESPN scoreboard (measured reachable) \u00b7 Sleeper state week/season_start",
+    "workflow": "none wired",
+    "status": "fallback exists, unwired"
+   },
+   "cost": "free"
+  },
+  {
+   "class": "weather",
+   "feeds": "K7 (P-queue), K/DEF and deep-passing start/sit hints",
+   "primary": {
+    "source": "open-meteo via game_weather.py + nflverse stadiums",
+    "workflow": "none \u2014 unwired",
+    "cadence": "n/a",
+    "control": "n/a"
+   },
+   "fallback": {
+    "source": "NONE",
+    "workflow": "none",
+    "status": "NOT CAPTURED \u2014 a named gap on THIS-WEEK.md; wire at game week (C)"
+   },
+   "cost": "free"
+  },
+  {
+   "class": "depth_charts_team_context",
+   "feeds": "K1/K2 (team context store), the coaching-change discount",
+   "primary": {
+    "source": "TODO \u2014 team_context_2026.json (OC/HC, pace, PROE, O-line continuity)",
+    "workflow": "none yet (ROUTES \u2192 C, 09-02)",
+    "cadence": "weekly",
+    "control": "a team whose OC changed in 2026 shows the flag"
+   },
+   "fallback": {
+    "source": "NONE",
+    "workflow": "none",
+    "status": "NOT CAPTURED"
+   },
+   "cost": "free"
+  },
+  {
+   "class": "expert_ranks",
+   "feeds": "the FP expert-consensus arm, room-anchor grades (P102 lineage)",
+   "primary": {
+    "source": "FantasyPros expert weekly ranks",
+    "workflow": "fp-expert-ranks-weekly-capture.yml",
+    "cadence": "wed 12:30 UTC",
+    "control": "row count"
+   },
+   "fallback": {
+    "source": "NONE",
+    "workflow": "none",
+    "status": "NO FALLBACK \u2014 low stakes (a study input, not a live number)"
+   },
+   "cost": "free"
+  },
+  {
+   "class": "realized_points",
+   "feeds": "every Tuesday grade (weekly-grade, own-weekly-grade, tool-vs-actual)",
+   "primary": {
+    "source": "Sleeper matchup/player points",
+    "workflow": "weekly-grade.yml \u00b7 own-weekly-grade.yml",
+    "cadence": "tue",
+    "control": "grader refuses unresolved weeks"
+   },
+   "fallback": {
+    "source": "nflverse weekly components re-scored under our table",
+    "workflow": "build_weekly_points_from_components.py (manual)",
+    "status": "exists"
+   },
+   "cost": "free"
+  },
+  {
+   "class": "player_bio_capital",
+   "feeds": "age/rookie priors (P302 store), K11",
+   "primary": {
+    "source": "nflverse rosters + draft picks",
+    "workflow": "player-bio-capital-refresh.yml",
+    "cadence": "wed",
+    "control": "row count"
+   },
+   "fallback": {
+    "source": "NONE",
+    "workflow": "none",
+    "status": "slow-changing; low risk"
+   },
+   "cost": "free"
+  }
+ ]
+}
