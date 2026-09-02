@@ -27,6 +27,8 @@ draft-week instruction without checking its date.** What governs NOW:
 
 * **💵 WHERE THE IN-SEASON EDGE IS, RANKED BY MEASURED DOLLARS — `IN-SEASON-EDGE-PLAN-2026.md`** (Cory, 09-01: *"Make our model better... make me more money"*; the props arm beats the live champion at all four positions in the 2025 backtest, register 463 — ship it first; the $1,500 weekly-high pot is a variance question; zero-point starts and Tuesday waiver speed are the behaviors that pay).
 
+**📖 CORY READS ONE PAGE: `WHAT-STUCK.md`** (Cory, 09-02: *"if we find edge we're presenting it in a way that I can understand.. every loop closed, the ones that stick, I need to know"*) — every closed loop in plain English: tested / found / changed for you / do; every entry cites its register or ledger row and `test_what_stuck.py` fails on a citation that does not resolve. A loop that closes and is not there within a day is a defect. The relay and A keep it current.
+
 **📬 A READS ONE PAGE: `A-DECISIONS.md`** (Cory, 08-31) — the relay curates
   every decision onto it and routes every answer; `TO: A` is closed to new
   decision-asks; E writes the sheet directly, unfiltered.
