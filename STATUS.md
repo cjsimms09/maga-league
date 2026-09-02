@@ -1,5 +1,16 @@
 # STATUS — unattended run
 
+> **⚠️ IN-SEASON, 2026-09-02 (relay): everything below this line is the DRAFT-ERA
+> state (last edited 08-18) and is kept as history. The live entry points are:**
+> `CLAUDE.md` (the era banner — standing rulings, the day's closures) ·
+> `THIS-WEEK.md` (Cory's roster, opponent, the props second opinion — the roster
+> rule) · `WHAT-STUCK.md` (Cory's page: every closed loop) ·
+> `IN-SEASON-EDGE-PLAN-2026.md` (the ranked in-season program) ·
+> `FUTURE-PROOF-2027.md` (how the model learns the format and keeps its data) ·
+> `A-DECISIONS.md` (what waits on A) · `ROUTES.md` (lane mailboxes) ·
+> `python3 draft/tools/go_status.py` (captures, gates, board, source registry —
+> the agenda). Week 1 kicks off 09-10; first Tuesday grade 09-15.
+
 > **📣 READ `DRAFT-WEEK-BRIEF.md` FIRST** (2026-08-17; draft is 08-22).
 > `MONDAY-BRIEF.md` is still accurate and superseded as the entry point.
 >
