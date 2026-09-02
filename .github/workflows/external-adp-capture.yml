@@ -92,6 +92,12 @@ jobs:
       - name: Report coverage where it cannot be missed
         id: cov
         if: always()
+        # THE YEAR RIDES IN AS ENV, NOT AS AN EXPRESSION: a `run:` block that
+        # contains any `${{ }}` is capped at 21,000 characters by GitHub and this
+        # one crossed it on 09-02 (dispatch refused: 'Exceeded max expression
+        # length'). With no expression inside, the block has no cap.
+        env:
+          D3_YEAR: ${{ github.event.inputs.year || '2026' }}
         run: |
           {
             echo "## D3 external ADP capture"
@@ -112,7 +118,7 @@ jobs:
                             .get("draft") or {}).get("start_date") or DRAFT_DATE
           except Exception:                              # noqa: BLE001
               pass
-          cov = C.coverage(C.load(), "${{ github.event.inputs.year || '2026' }}")
+          cov = C.coverage(C.load(), os.environ.get("D3_YEAR", "2026"))
           # post-draft = the archive's last day is strictly after the draft
           # (same test as board_vs_market.format_trend, so the two phases
           # cannot disagree on one run). Unknown last day = not post-draft.
@@ -194,13 +200,13 @@ jobs:
           # pinned by tests now. UTC is still stated explicitly at the call.
           today = datetime.datetime.now(datetime.timezone.utc).date()
           resumed = C.missed_yesterday(C.load(),
-                                       "${{ github.event.inputs.year || '2026' }}", today)
+                                       os.environ.get("D3_YEAR", "2026"), today)
           # `stale_days`, NOT `missing`. A rehearsal against a dead MFL had this
           # alarm print "0 uncaptured day(s)" while firing correctly: `missing`
           # counts INTERIOR gaps, and a capture that has stopped has none yet.
           # The two answer different questions and this one quotes how far behind
           # the archive is, which is what a resume is about.
-          stale = C.days_since_last(C.load(), "${{ github.event.inputs.year || '2026' }}", today)
+          stale = C.days_since_last(C.load(), os.environ.get("D3_YEAR", "2026"), today)
           with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
               fh.write("resumed=%s\n" % ("1" if resumed else "0"))
               fh.write("missing=%s\n" % (cov["missing"] if cov["missing"] is not None else "?"))
@@ -261,7 +267,7 @@ jobs:
                       open("public/draft_data.json")).get("pick_order"))
               lp = C.draft_last_pick(_ls)
           drop = C.dropped_inside(C.load(),
-                                  "${{ github.event.inputs.year || '2026' }}",
+                                  os.environ.get("D3_YEAR", "2026"),
                                   last_pick=lp["last_pick"])
           print("Draft boundary: **%s** — %s" % (lp["last_pick"], lp["note"]))
           if drop["verdict"] == "draftable_loss":
@@ -291,7 +297,7 @@ jobs:
           # attempt is about our parser (the field names have never matched);
           # zero after a fortnight of non-zero is about the feed. The state
           # names the suspect so the morning it breaks is not spent guessing.
-          dh = C.dispersion_health(C.load(), "${{ github.event.inputs.year || '2026' }}")
+          dh = C.dispersion_health(C.load(), os.environ.get("D3_YEAR", "2026"))
           if dh["state"] == "present":
               print("Spread: **%d/%d** players carry a dispersion row (%.0f%%)."
                     % (dh["rows"], dh["adp_rows"], 100 * dh["coverage"]))
@@ -304,7 +310,7 @@ jobs:
               # clamp survived this long. The estimator is unvalidated against
               # real data until this line runs, so this IS the validation.
               latest = [s for s in C.load()
-                        if str(s.get("year")) == "${{ github.event.inputs.year || '2026' }}"][-1]
+                        if str(s.get("year")) == os.environ.get("D3_YEAR", "2026")][-1]
               sp = C.spread_summary(latest.get("dispersion") or {})
               if sp["status"] == "measured":
                   print("  → **%d distinct** spreads over %d measured players "
@@ -343,7 +349,7 @@ jobs:
           # our Sleeper config, so there is nothing to derive it from, and the
           # archive must not hardcode one league's calendar.
           try:
-              rd = C.f5_readiness(C.load(), "${{ github.event.inputs.year || '2026' }}",
+              rd = C.f5_readiness(C.load(), os.environ.get("D3_YEAR", "2026"),
                                   draft_date=DRAFT_DATE, today=today.isoformat())
               if rd["verdict"] == "ready":
                   print("F5 would use **%s** (%s rows), %s day(s) to the last capture "
