@@ -1,5 +1,8 @@
 {
   "_territory": "TERRITORY: D",
+  "graded": [
+    "P151"
+  ],
   "_note": "P151 grade -- PREDICTION-LEDGER.md P151 / CEILING-PROGRAM-PREREG-2026-08-20.md SS4. Written by p151_target_share_trend.py.",
   "known_positive_control": {
     "status": "ok",
@@ -10,9 +13,9 @@
     "binomial_p_vs_chance": 1.0,
     "control_demonstration": {
       "method": "shuffled the pid<->2023-delta-share mapping 1000x (same value distribution, identity destroyed) to confirm a broken join would NOT pass this control",
-      "corrupted_join_mean_positive_rate": 0.5186000000000005,
+      "corrupted_join_mean_positive_rate": 0.5292000000000006,
       "corrupted_join_reps": 1000,
-      "fraction_of_corrupted_reps_matching_or_beating_real_rate": 0.842
+      "fraction_of_corrupted_reps_matching_or_beating_real_rate": 0.846
     },
     "passes_its_own_criterion": false,
     "licenses_a_null": false,
@@ -74,8 +77,8 @@
         2024,
         2025
       ],
-      "delta_share_eligible_n": 148,
-      "quintile_cutoff_delta": 0.0364,
+      "delta_share_eligible_n": 149,
+      "quintile_cutoff_delta": 0.0363,
       "top_quintile_n": 30,
       "top_quintile_gradable_n": 9,
       "top_quintile_gradable_excluded_undrafted_in_Y+1": 21,
@@ -134,7 +137,7 @@
         2023,
         2025
       ],
-      "delta_share_eligible_n": 153,
+      "delta_share_eligible_n": 154,
       "quintile_cutoff_delta": 0.0422,
       "top_quintile_n": 31,
       "top_quintile_gradable_n": 12,
@@ -195,8 +198,8 @@
         2023,
         2024
       ],
-      "delta_share_eligible_n": 153,
-      "quintile_cutoff_delta": 0.0496,
+      "delta_share_eligible_n": 154,
+      "quintile_cutoff_delta": 0.0499,
       "top_quintile_n": 31,
       "top_quintile_gradable_n": 16,
       "top_quintile_gradable_excluded_undrafted_in_Y+1": 15,
@@ -223,6 +226,7 @@
         0.0824,
         0.0809,
         0.08,
+        0.0772,
         0.0756,
         0.0746,
         0.0732,
@@ -241,8 +245,7 @@
         0.0534,
         0.0515,
         0.0503,
-        0.0501,
-        0.0497
+        0.0501
       ],
       "top_quintile_positions": {
         "WR": 22,
