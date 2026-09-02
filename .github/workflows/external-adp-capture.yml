@@ -103,8 +103,22 @@ jobs:
           # OUR draft, stated in one place. It lives only in prose today —
           # `draft.start_time` is null in the Sleeper config — so it is
           # named here rather than guessed inside the module.
+          # ⚠ READ FROM THE LEAGUE CONFIG, NOT TYPED HERE (A, 09-02): the
+          # draft-window alarms below key on it, and a date typed in a YAML
+          # heredoc is the kind that stays 2026 in 2027.
           DRAFT_DATE = "2026-08-22"
+          try:
+              DRAFT_DATE = (json.load(open("draft/config/league_config.json"))
+                            .get("draft") or {}).get("start_date") or DRAFT_DATE
+          except Exception:                              # noqa: BLE001
+              pass
           cov = C.coverage(C.load(), "${{ github.event.inputs.year || '2026' }}")
+          # post-draft = the archive's last day is strictly after the draft
+          # (same test as board_vs_market.format_trend, so the two phases
+          # cannot disagree on one run). Unknown last day = not post-draft.
+          POST_DRAFT = bool(cov.get("last")) and str(cov["last"]) > str(DRAFT_DATE)
+          print("_phase: `%s` (draft %s, archive last %s)_"
+                % ("post-draft" if POST_DRAFT else "pre-draft", DRAFT_DATE, cov.get("last")))
           print("```")
           print(json.dumps(cov, indent=1))
           print("```")
@@ -146,7 +160,18 @@ jobs:
           dd = cov.get("drop_depth")
           if dd is not None:
               print("**DEEPEST DROP** — %s" % dd["note"])
-              if dd["verdict"] == "inside_draft":
+              if dd["verdict"] == "inside_draft" and POST_DRAFT:
+                  # DRAFT-WINDOW ALARM, RECORDED NOT ESCALATED AFTER THE DRAFT
+                  # (A, 09-02). "Days from a draft" is the alarm's own premise;
+                  # after it, MFL's pool shedding a draftable id is the
+                  # archive's calibration record. The first post-draft firing
+                  # was 0716, the Dallas team-kicker placeholder. `unknown`
+                  # still fails below in every phase — a broken instrument is
+                  # not a post-draft fact.
+                  print("**%d of the %d players the board dropped were priced INSIDE"
+                        " pick %s — post-draft, recorded and not escalated.**"
+                        % (dd["lost_inside_draft"], dd["lost"], dd["draftable_picks"]))
+              elif dd["verdict"] == "inside_draft":
                   print("::error::%d of the %d players the board dropped were priced"
                         " INSIDE pick %s — the ADP source no longer prices players"
                         " this room can draft"
