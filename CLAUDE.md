@@ -376,9 +376,11 @@ not. **⚠️ `skill_luck_r.py` is NOT the skill instrument and the "≥20 grade
 outcomes" rule is WITHDRAWN** (08-21): on our own spread R\* has 12% power now
 and 20% after nine more seasons, so it cannot certify the standings and never
 will. It remains a descriptive tool; never quote R\* without its band.
-**Report the margin in the unit that pays — points left on the bench (league
-15.90/wk; Cory 17.33 ± 1.68 vs the best owner's 12.06 ± 1.43) — and never read
-adjacent ranks as findings; they sit inside one SE.**
+**Report the margin in the unit that pays — points left on the bench (weeks
+2-18, 2023-25: league 15.89/wk, Cory 17.81 — ONE window, stated; register 298,
+E 09-02: the earlier pair quoted two windows, and Cory leaves more than the
+league in both; a HINDSIGHT number nothing has yet been shown to capture) — and
+never read adjacent ranks as findings; they sit inside one SE.**
 **📋 WHAT THE MODEL LEARNS FROM, AND WHAT IT STILL CANNOT SEE —
 `LEARNING-COVERAGE.md`.** Cory, 08-24: *"I want to make sure our model is set up
 to actually learn ALL the things it can."* The map of every decision he makes
