@@ -115,9 +115,8 @@ owner-facing. Fine under the access rule.
 
 ## 2 · THE RANKED BUILD LIST (each slice shippable alone; B builds, relay by default)
 
-1. **Scoreboard: games first, your game pinned, money below** — one template
-   reorder, the most-visited Sunday page. *[small]*
-2. **History index → menu + highlights** (kill the 11,589px page). *[small]*
+1. ~~Scoreboard: games first, your game pinned, money below~~ — **DONE 09-02 (relay): your game first by stable sort, money-line moved under the slate; 71 routes render, phone shot verified.**
+2. ~~History index → menu + highlights~~ — **DONE 09-02 (relay): timeline and the four doors first, the Story of the League folded (opens itself on desktop or on a chapter link); phone page 11,589px → 2,462px.**
 3. **Mark as paid** (catalog 7) — the only money loop on the site that cannot
    close. *[med]*
 4. **Home phone order + first-visit-only prompts.** *[small]*
