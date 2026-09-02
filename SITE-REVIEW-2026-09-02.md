@@ -117,13 +117,24 @@ owner-facing. Fine under the access rule.
 
 1. ~~Scoreboard: games first, your game pinned, money below~~ — **DONE 09-02 (relay): your game first by stable sort, money-line moved under the slate; 71 routes render, phone shot verified.**
 2. ~~History index → menu + highlights~~ — **DONE 09-02 (relay): timeline and the four doors first, the Story of the League folded (opens itself on desktop or on a chapter link); phone page 11,589px → 2,462px.**
-3. **Mark as paid** (catalog 7) — the only money loop on the site that cannot
-   close. *[med]*
+3. ~~Mark as paid~~ (catalog 7) — **DONE 09-02 (B): owner-facing two-step
+   mirroring sidebets' already-shipped rule (receiver's mark is the fact,
+   payer's mark is a claim the receiver confirms) — an owner who owes claims
+   and Cory confirms; an owner Cory owes self-settles with no confirmation.
+   Writes a real ledger entry the same way /admin/payment already does.
+   19/19 tests, load-bearing.**
 4. ~~Home phone order + first-visit-only prompts~~ — **DONE 09-02 (relay, on Cory's 09-02 'improve site' order): Needs You and the to-do strip sit above the hero, live scores above the standings; the contact-info nag dismisses for good (localStorage, was per-session).**
 5. ~~My Team: this-week context on the roster row~~ — **DONE 09-02 (relay): every roster row carries this week's game (opponent, home/away, kickoff day from the committed schedule; BYE only from a full week) and the projection through the lineup tool's own zeroing ladder; '—' is cannot-say, never zero. `team_this_week.test.js`.**
-6. **Vote deadline chip · bet expiry chip · chat reactions** (catalog 11/2/13
-   remainders). *[small ×3]* — **bet expiry chip DONE 09-02 (relay): open offers show ⏳ their acceptance deadline (betlogic.acceptDeadline, ET). Vote deadline chip NOT buildable as-is: ballots carry no closing time (status open/closed_at only) — needs a rule first (B/A). Chat reactions: a store change, left for B.**
-7. **Pick'em vs the model** (model picks revealed and graded after lock). *[small]*
+6. ~~Vote deadline chip · bet expiry chip · chat reactions~~ (catalog 11/2/13
+   remainders). *[small ×3]* — **bet expiry chip DONE 09-02 (relay). Chat
+   reactions DONE 09-02 (B): 🔥💀🤡, one tap toggles the acting owner's own
+   reaction on any message including their own, 10/10 tests. Vote deadline
+   chip NOT BUILT (B, checked independently, same finding as the relay's):
+   votes have no closing deadline anywhere in the system — `POST
+   /votes/:id/close` is a manual commissioner action, no auto-close timer,
+   no `closes_at` field. Rendering one would mean inventing data. Needs a
+   real deadline RULE first (a Cory/A decision), not a B build.**
+7. ~~Pick'em vs the model~~ (model picks revealed and graded after lock). *[small]* — **DONE 09-02 (B): the model's pick is `MW.matchupOdds()`, the same pre-kick win-probability call `/scoreboard` and `/matchup` already make — computed and frozen once per week, revealed after lock next to the human split, graded on the literal same board via `PE.seasonBoard()`'s new `extraParticipants` param (same `rankBoard()`/`scoreWeek()` call real owners use). Not backfilled — starts from whenever this shipped. 10/10 tests, load-bearing.**
 8. ~~What to Watch linked from the scoreboard; Draft Spot parked in-season~~ — **DONE 09-02 (relay): a quiet-week link under the week strip (the Sunday-night banner unchanged), and Draft Spot leaves the menu while `inSeason` (season start → +150 days, from `config.season_start` or the betting calendar's derived default — nothing writes that config key, verified); the page and route stay.**
 9. ~~The lineup CHECK page for owners~~ — **dropped: Cory ruled everything stays private (09-02).**
 
@@ -149,3 +160,15 @@ day (five B commits on 09-02, ROUTES "B IS LIVE"). Order: 1-2, then the 12 open
 E findings on the lineup and waiver tools, then 3-8. Items 1, 2 and 8 shipped
 from the relay before the ruling was read; 3-7 are B's. Fallback unchanged:
 any item without a B commit by 09-04 end-of-day goes to the relay.**
+
+**UPDATE 09-02 (B): §2's ranked build list is COMPLETE.** Items 3, 6 (two of
+three sub-parts — the third has no buildable target, see §2's note) and 7 all
+shipped, tested, load-bearing, pushed to `claude/warroom-shell-rebuild-0817`
+(not yet on `main` — A merges). Every item is now either done or correctly
+out of scope (item 9 dropped by Cory's 09-02 ruling; the vote-deadline chip
+has no data to render until a real deadline rule exists). The "12 open E
+findings" premise cited above was also checked before working it (Rule 3i):
+register 294 (eight kickers) and register 324 (win-prob swing) were both
+already closed elsewhere in the repo before this review was written — the
+true remaining count on B's Sunday tools was 0, not 12 (full accounting in
+ROUTES.md, 2026-09-02).
