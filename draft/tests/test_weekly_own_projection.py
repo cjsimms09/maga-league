@@ -216,7 +216,7 @@ def test_snapshot_territory_first_and_contract_shape():
     assert doc["diagnostics"]["players_priced"] == 2
     # challenger columns present, champion not duplicated among them
     assert set(doc["challengers"]) == {"v1_tilt150", "v1_tilt050",
-                                       "v1_notilt", "v1_pg16", "v1_pull3"}
+                                       "v1_notilt", "v1_pg16", "v1_pull3", "v1_blend_pull3"}
     assert doc["names"]["1"] == "Test Player"
 
 
@@ -440,3 +440,49 @@ def test_pull_arm_formula_string_names_its_inputs():
     arm = next(a for a in WP.DEFAULT_ARMS if a["name"] == "v1_pull3")
     f = WP.arm_formula(arm)
     assert "3*proj_ownmodel/17" in f and "sum(realized)" in f and "n_realized" in f
+
+
+# ── the blend-prior arm (register 474): same formula, a different season prior ──
+
+def _two_players():
+    return [
+        {"player_id": "1", "position": "RB", "team": "DET", "proj_ownmodel": 170.0, "proj_mean": 204.0},
+        {"player_id": "2", "position": "WR", "team": "KC", "proj_ownmodel": 136.0},           # no proj_mean
+    ]
+
+
+def test_blend_arm_prices_proj_mean_through_the_champions_formula():
+    priced = WP.price_week(_two_players(), 1, {}, WP.DEFAULT_ARMS)
+    # no lines => tilt 1.0; week 1 => no realized, so the pull arm is prior/17
+    assert priced["means"]["v1_pull3"]["1"] == 10.0                # 170/17
+    assert priced["means"]["v1_blend_pull3"]["1"] == 12.0          # 204/17 — the blend prior
+    # the SAME formula: with realized points both pull identically toward them
+    priced3 = WP.price_week(_two_players(), 3, {}, WP.DEFAULT_ARMS, {"1": [20.0, 20.0]})
+    assert priced3["means"]["v1_pull3"]["1"] == 14.0               # (3*10 + 40)/5
+    assert priced3["means"]["v1_blend_pull3"]["1"] == 15.2         # (3*12 + 40)/5
+
+
+def test_blend_arm_falls_back_and_counts_when_proj_mean_is_absent():
+    priced = WP.price_week(_two_players(), 1, {}, WP.DEFAULT_ARMS)
+    assert priced["means"]["v1_blend_pull3"]["2"] == priced["means"]["v1_pull3"]["2"] == 8.0
+    assert priced["prior_fallbacks"] == {"v1_blend_pull3": ["2"]}
+    # a zero/negative proj_mean is absent, not a prior
+    ps = _two_players(); ps[0]["proj_mean"] = 0
+    priced0 = WP.price_week(ps, 1, {}, WP.DEFAULT_ARMS)
+    assert priced0["prior_fallbacks"]["v1_blend_pull3"] == ["1", "2"]
+
+
+def test_blend_arm_population_is_the_champions_population():
+    ps = _two_players() + [{"player_id": "3", "position": "TE", "team": "SEA", "proj_mean": 90.0}]  # no proj_ownmodel
+    priced = WP.price_week(ps, 1, {}, WP.DEFAULT_ARMS)
+    assert set(priced["means"]["v1_blend_pull3"]) == set(priced["means"]["v1_pull3"]) == {"1", "2"}
+    snap = WP.build_snapshot(ps, 1, 2026, {}, "none", "2026-09-10")
+    assert snap["diagnostics"]["prior_fallbacks"]["v1_blend_pull3"] == {"count": 1, "player_ids": ["2"]}
+
+
+def test_blend_arm_formula_names_its_prior_and_the_fallback():
+    arm = next(a for a in WP.DEFAULT_ARMS if a["name"] == "v1_blend_pull3")
+    f = WP.arm_formula(arm)
+    assert f.startswith("(3*proj_mean/17*tilt") and "falls back to proj_ownmodel" in f
+    # the existing arms' strings are unchanged
+    assert WP.arm_formula(next(a for a in WP.DEFAULT_ARMS if a["name"] == "v1")).startswith("proj_ownmodel/17 *")
