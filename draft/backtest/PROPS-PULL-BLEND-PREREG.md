@@ -49,6 +49,16 @@ priors, not their weekly numbers; the 2025 prop lines are the historical API's
 snapshot, treated as pre-kickoff; the roster-outcome column has SE ≈ 2.7/wk
 and is suggestive only.
 
+**Robustness of the prior (2026-09-02):** K7 in the 2024 fold measured the
+committed 08-18 own_v6 store against today's rebuild — 211 of 510 identical,
+max drift 22.55 points — so the 2025 fold was re-priced on the REBUILT prior
+(`--prior rebuilt`, `weekly_arms_2025_rebuiltprior_backtest.json`, a separate
+artifact; the cited one is untouched). Every claim holds with the same
+ordering: blend **4.350** vs pull 4.590 vs v1 4.777 pooled MAE; start/sit
+blend .613/.833/.789/.785 vs pull .592/.815/.759/.779 vs v1 .592/.783/.741/.740;
+props beats v1 at 4 of 4. The refreshed prior is slightly better for every
+own_v6-based arm (v1 4.853 → 4.777) and changes no conclusion.
+
 ## 2b. Replication fold — 2024, same harness, claims fixed first (register 471, 2026-09-02)
 
 `python3 draft/backtest/weekly_arms_2025_backtest.py --season 2024` →

@@ -116,7 +116,15 @@ CORY_ROSTER_ID = 1
 K_NULL = 200
 SEED = 20260901
 PRIOR_PSEUDO_WEEKS = 3               # src/weekly_player_projection.js
-OUT = ROOT / "draft" / "backtest" / f"weekly_arms_{SEASON}_backtest.json"
+#: `--prior rebuilt` (2026-09-02, register 471's follow-up): price the fold on
+#: own_v6 REBUILT from today's helper stores instead of the committed 08-18
+#: store — K7 measured 211/510 identical, max drift 22.55 points between the
+#: two — so the question "do the cited 2025 conclusions depend on WHICH own_v6
+#: store?" has a measured answer. Writes a SEPARATE artifact; the cited one
+#: cannot be overwritten by this flag.
+PRIOR_MODE = sys.argv[sys.argv.index("--prior") + 1] if "--prior" in sys.argv else "committed"
+OUT = ROOT / "draft" / "backtest" / (f"weekly_arms_{SEASON}_backtest.json" if PRIOR_MODE == "committed"
+                                     else f"weekly_arms_{SEASON}_{PRIOR_MODE}prior_backtest.json")
 
 #: the props store keys markets by the STAT they map to, not the odds-api name
 STAT_TO_MARKET = {v: k for k, v in MARKET_TO_STAT.items()}
@@ -172,6 +180,10 @@ def load(controls: list | None = None):
                   "sleeper": prov["rows"]["sleeper"]}
         positions = dict(prov["positions"])
         prior_sources = "sleeper_vs_fp_rows (own_v6 rebuilt, FP + Sleeper fetched live)"
+        if PRIOR_MODE == "rebuilt":
+            priors["own_v6"] = rebuild_own_v6(SEASON)
+            prior_sources = ("own_v6 REBUILT from today's helper stores (--prior rebuilt); FP + Sleeper "
+                             "from sleeper_vs_fp_rows — the robustness arm of the cited artifact, not the cited artifact")
     else:
         # Other seasons: no Sleeper archive exists (sandbox cannot fetch, and
         # none was captured). own_v6 is rebuilt from the committed helpers; FP

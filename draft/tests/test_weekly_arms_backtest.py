@@ -69,3 +69,21 @@ def test_out_path_is_season_keyed_so_a_fold_cannot_overwrite_the_cited_artifact(
     mod = _module()
     assert mod.OUT.name == "weekly_arms_2025_backtest.json"
     assert mod.SEASON == 2025
+
+
+def test_prior_rebuilt_flag_writes_a_separate_artifact_and_the_cited_one_is_untouched():
+    saved = sys.argv
+    sys.argv = ["x", "--prior", "rebuilt"]
+    try:
+        spec = importlib.util.spec_from_file_location("weekly_arms_bt_r", BT / "weekly_arms_2025_backtest.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+    finally:
+        sys.argv = saved
+    assert mod.PRIOR_MODE == "rebuilt"
+    assert mod.OUT.name == "weekly_arms_2025_rebuiltprior_backtest.json"
+    doc = json.loads(mod.OUT.read_text())
+    assert doc["prior_sources"].startswith("own_v6 REBUILT")
+    assert all(c["ok"] for c in doc["controls"])
+    cited = json.loads((BT / "weekly_arms_2025_backtest.json").read_text())
+    assert cited["prior_sources"].startswith("sleeper_vs_fp_rows")
