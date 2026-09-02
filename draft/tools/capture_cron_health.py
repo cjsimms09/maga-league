@@ -122,10 +122,10 @@ MANIFEST = {
         "extract_timestamp": _no_timestamp_control_only,
         "cadence_days": 7,
     },
-    "free_weekly_props": {
-        "workflow": "free-weekly-props-writer.yml",
+    "free_props": {
+        "workflow": "free-props-writer.yml",
         "glob": "draft/data/props/weekly_props_*_w*.json",
-        "extract_timestamp": _flat_field("captured_at"),
+        "extract_timestamp": _flat_field("date"),
         "cadence_days": 7,
     },
     # ── THE IN-SEASON LEARNING CHAIN (added by A, 2026-08-24) ───────────────
