@@ -130,12 +130,12 @@
   },
   {
    "observed_at": "2026-09-02",
-   "commit": "066b3ed9a3b04360d1a1c33ce32b57b8f81cc261",
+   "commit": "57c537e3ef25529c6af0ce7d0afb855a6cd9d8da",
    "path": "public/draft_data.json",
    "sha256": "0b16ec96e45410a9fe8d0b2f39db4dbb2f243a7522863b52a7c7daa8da256399",
    "n_players": 730,
    "built_at": "2026-09-01T15:29:04Z",
-   "recover_with": "git show 066b3ed9a3b04360d1a1c33ce32b57b8f81cc261:public/draft_data.json"
+   "recover_with": "git show 57c537e3ef25529c6af0ce7d0afb855a6cd9d8da:public/draft_data.json"
   }
  ],
  "population": {
