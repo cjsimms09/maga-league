@@ -69,4 +69,16 @@ jobs:
           # reasoning as weekly-proj-snapshot.yml.
           git diff --cached --quiet && echo "no change — nothing new to capture" && exit 0
           git commit -m "weekly snap counts [skip deploy]"
-          git push
+          # PUSH WITH A REBASE-RETRY (relay, 09-02): a plain `git push` loses the race
+          # whenever another job or a session lands on main first — weekly-grade lost
+          # its 09-01 artifacts that way ("! [rejected] main -> main (fetch first)"),
+          # the props census lost run 3 the same way. The artifacts are already
+          # committed locally, so rebase onto main and try again; a real conflict
+          # still fails loudly.
+          for i in 1 2 3 4 5; do
+            git fetch -q origin main
+            git rebase -q origin/main || { git rebase --abort; echo "::error::rebase failed"; exit 1; }
+            if git push -q origin HEAD:main; then echo "pushed on try $i"; exit 0; fi
+            sleep $((2**i))
+          done
+          echo "::error::could not push after 5 tries"; exit 1
