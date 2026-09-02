@@ -52,10 +52,39 @@ from weekly_own_projection import first_kickoff_utc  # noqa: E402
 ARM_NAME = "ffa4_weekly"
 #: the four sources that returned weekly rows on the 09-02 control
 #: (register 478); FantasyPros (top-10 leaderboard) and FFToday (season
-#: totals only) are excluded by name, as in the seasonal blend.
+#: totals only) are excluded by name, as in the seasonal blend. ⚠️ CBS is
+#: asked but answers a week=N request with SEASON totals (measured 09-02:
+#: games=17, QB max 415) — the scale guard below drops it for the week, so
+#: in practice this is a THREE-source weekly arm until CBS serves weekly.
 WEEKLY_SOURCES = ("CBS", "ESPN", "FleaFlicker", "NumberFire")
 MIN_SOURCES = 2
 POSITIONS = ("QB", "RB", "WR", "TE")
+#: a weekly QB projection median cannot sit above this; a source whose
+#: joined QB rows do is serving season totals, whatever it was asked.
+WEEKLY_QB_MEDIAN_MAX = 60.0
+SCALE_GUARD_MIN_ROWS = 5
+
+
+def scale_guard(scored: list) -> set:
+    """Sources whose joined QB rows have a median above WEEKLY_QB_MEDIAN_MAX
+    — season-scale answers to a weekly question. `scored` is
+    [(src, pid, pos, pts)]. A source with fewer than SCALE_GUARD_MIN_ROWS
+    QB rows is judged on all its positions instead (a weekly RB/WR/TE
+    median above the bar is just as impossible)."""
+    by_src: dict = {}
+    for src, _pid, pos, pts in scored:
+        by_src.setdefault(src, {}).setdefault(pos, []).append(pts)
+    out = set()
+    for src, per_pos in by_src.items():
+        qb = per_pos.get("QB") or []
+        vals = qb if len(qb) >= SCALE_GUARD_MIN_ROWS else [p for v in per_pos.values() for p in v]
+        if not vals:
+            continue
+        vals = sorted(vals)
+        med = vals[len(vals) // 2]
+        if med > WEEKLY_QB_MEDIAN_MAX:
+            out.add(src)
+    return out
 
 
 def weekly_paths(data_dir: Path, week: int) -> tuple[Path, Path]:
@@ -155,7 +184,7 @@ def load_ffa_arm(data_dir: Path, season: int, week: int, snapshot: dict,
     rows = list(csv.DictReader(csv_path.open()))
     per_src_rows: dict = {s: 0 for s in WEEKLY_SOURCES}
     per_src_joined: dict = {s: 0 for s in WEEKLY_SOURCES}
-    by_pid: dict = {}
+    scored: list = []                      # (src, pid, pos, pts)
     unmatched = 0
     sample: list = []
     for r in rows:
@@ -176,6 +205,20 @@ def load_ffa_arm(data_dir: Path, season: int, week: int, snapshot: dict,
         if pts is None:
             continue
         per_src_joined[src] += 1
+        scored.append((src, pid, pos, pts))
+    # ── THE SCALE GUARD (rule 3i, learned the hard way the same evening) ──
+    # Asked for week 1, CBS returned its SEASON totals (games = 17, QB max
+    # 415 points) while ESPN, FleaFlicker and NumberFire returned weekly
+    # numbers (QB max ~28). Averaging the two is garbage, and the first cut
+    # of this reader did exactly that — its known-positive asserted only
+    # "> 5 points" and passed on a 200-point "week". A source whose median
+    # QB row scores above WEEKLY_QB_MEDIAN_MAX is season-scale and is
+    # dropped for the week, by name, in the diagnostics.
+    season_scale = scale_guard(scored)
+    by_pid: dict = {}
+    for src, pid, pos, pts in scored:
+        if src in season_scale:
+            continue
         by_pid.setdefault(pid, {})[src] = round(pts, 2)
     out = {pid: round(sum(v.values()) / len(v), 2)
            for pid, v in by_pid.items() if len(v) >= MIN_SOURCES}
@@ -183,6 +226,7 @@ def load_ffa_arm(data_dir: Path, season: int, week: int, snapshot: dict,
         "rows": len(rows),
         "per_source_rows": per_src_rows,
         "per_source_joined": per_src_joined,
+        "season_scale_sources_dropped": sorted(season_scale),
         "unmatched_rows": unmatched,
         "unmatched_sample": sample,
         "players_joined": len(by_pid),

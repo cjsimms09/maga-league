@@ -109,11 +109,38 @@ def test_join_uses_the_snapshot_population_and_team_disambiguates(tmp_path):
     assert diag["unmatched_rows"] == 3 and len(diag["unmatched_sample"]) == 3
 
 
+def test_A_SEASON_SCALE_SOURCE_IS_DROPPED_FOR_THE_WEEK_by_name():
+    """Rule 3i, the same evening: asked for week 1, CBS answered with SEASON
+    totals (games=17, QB max 415) beside three weekly-scale sources, and the
+    first cut of this reader averaged them — its known positive asserted
+    only '> 5 points' and passed on a 200-point 'week'.
+
+    MUTATION: remove the scale guard — Allen prices at (380+20)/2 = 200 and
+    the arm is graded on a number no player can score."""
+    rows = [_row("Josh Allen", "QB", "BUF", "CBS", pass_yds=4000, pass_tds=30, rush_tds=8),  # 160+120+48 = 328
+            _row("Josh Allen", "QB", "BUF", "ESPN", pass_yds=250, pass_tds=2),               # 10+8 = 18
+            _row("Josh Allen", "QB", "BUF", "NumberFire", pass_yds=225, pass_tds=1.5)]       # 9+6 = 15
+    # five CBS quarterbacks so the guard judges CBS on its QB median (letters,
+    # not digits — norm_name strips digits and five "Backup Q" would collide)
+    backups = [f"Backup {n}" for n in ("Adams", "Baker", "Carter", "Dawson", "Evans")]
+    for i, nm in enumerate(backups):
+        rows.append(_row(nm, "QB", "BUF", "CBS", pass_yds=3000 + 100 * i, pass_tds=20))
+    snap = _snap([ALLEN] + [{"pid": str(100 + i), "name": nm, "team": "BUF", "pos": "QB"} for i, nm in enumerate(backups)])
+    _write(tmp_path := Path(__import__("tempfile").mkdtemp()), 1, rows)
+    out, diag = FA.load_ffa_arm(tmp_path, 2026, 1, snap, SCORING)
+    assert diag["season_scale_sources_dropped"] == ["CBS"], diag
+    assert out == {"13589": 16.5}, out
+    # the backups had CBS only → nothing weekly-scale joined them at all
+    assert diag["players_joined"] == 1 and diag["players_below_min_sources"] == 0
+    assert diag["per_source_joined"]["CBS"] == 6      # counted as joined, then dropped by name
+
+
 def test_KNOWN_POSITIVE_the_committed_week_1_capture_prices_real_players():
     """Rule 3e: the reader has returned a positive on the REAL file. The
     09-02 control capture (register 478) is committed; against a snapshot
     that names four real players it must price them from ≥2 sources at
-    positive points under the league's real table."""
+    WEEKLY-plausible points under the league's real table — and name CBS as
+    the season-scale source it drops (rule 3i: look at the distribution)."""
     data = ROOT / "draft" / "data"
     assert (data / "ffanalytics_raw_projections_w1.csv").exists(), "the week-1 capture is committed on main"
     real = [ALLEN, CHASE,
@@ -122,9 +149,10 @@ def test_KNOWN_POSITIVE_the_committed_week_1_capture_prices_real_players():
     out, diag = FA.load_ffa_arm(data, 2026, 1, _snap(real))
     assert diag["status"] == "priced", diag
     assert len(out) >= 3, (out, diag)
-    assert all(v > 5.0 for v in out.values()), out
-    # and every one of the four sources joined something
-    assert all(diag["per_source_joined"][s] >= 1 for s in ("CBS", "ESPN", "NumberFire")), diag["per_source_joined"]
+    assert all(5.0 < v < 40.0 for v in out.values()), out
+    assert diag["season_scale_sources_dropped"] == ["CBS"], diag["season_scale_sources_dropped"]
+    # and every weekly-scale source joined something
+    assert all(diag["per_source_joined"][s] >= 1 for s in ("ESPN", "FleaFlicker", "NumberFire")), diag["per_source_joined"]
 
 
 def test_the_grader_scores_it_as_a_study_arm_on_its_own_and_the_shared_population():

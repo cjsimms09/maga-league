@@ -102,6 +102,49 @@ def test_END_TO_END_post_draft_exits_clean_and_writes_nothing(monkeypatch, tmp_p
     assert "FROZEN FOR THE SEASON" in out and "CBS, ESPN" in out
 
 
+def _full_csv(path: Path):
+    """All three USABLE sources present — the shape of the 09-02 capture."""
+    cols = ["player", "team", "pos", "source", "position_asked", "pass_yds",
+            "pass_tds", "rush_yds", "rush_tds", "rec", "rec_yds", "rec_tds"]
+    with path.open("w", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=cols)
+        w.writeheader()
+        for src, yds in (("CBS", 4000), ("ESPN", 3900), ("FFToday", 4100)):
+            w.writerow({"player": "Josh Allen", "team": "BUF", "pos": "QB",
+                        "source": src, "position_asked": "QB",
+                        "pass_yds": yds, "pass_tds": 30, "rush_yds": 500, "rush_tds": 8,
+                        "rec": "", "rec_yds": "", "rec_tds": ""})
+
+
+def test_POST_DRAFT_A_FULL_CAPTURE_IS_FROZEN_TOO_unless_allowed(monkeypatch, tmp_path, capsys):
+    """Register 480: CBS/ESPN season totals came back on 09-02 and a nightly
+    would have re-scored proj_mean — the board's blend and a live challenger's
+    prior — mid-season. Post-draft the tool writes nothing whatever arrives;
+    `--allow-post-draft` on a dispatch is the deliberate path.
+
+    MUTATION: freeze only on a missing source — the first full capture after
+    the draft silently rewrites the season's blend."""
+    raw = tmp_path / "raw.csv"
+    _full_csv(raw)
+    out = tmp_path / "multisource_projections.json"
+    out.write_text(json.dumps({"sources_used": ["CBS", "ESPN", "FFToday"], "players": {}}))
+    monkeypatch.setattr(M, "RAW", raw)
+    monkeypatch.setattr(M, "OUT", out)
+    monkeypatch.setattr(sys, "argv", ["multisource_projections.py", "--today=2026-09-02"])
+    assert M.main() == 0
+    assert json.loads(out.read_text())["players"] == {}
+    assert "FULL capture arrived" in capsys.readouterr().out
+    # the deliberate path writes
+    monkeypatch.setattr(sys, "argv", ["multisource_projections.py", "--today=2026-09-02", "--allow-post-draft"])
+    assert M.main() == 0
+    assert json.loads(out.read_text())["players"], "allowed post-draft re-score writes"
+    # and pre-draft a full capture always writes (the 2027 nightly path)
+    out.write_text(json.dumps({"players": {}}))
+    monkeypatch.setattr(sys, "argv", ["multisource_projections.py", "--today=2026-08-10"])
+    assert M.main() == 0
+    assert json.loads(out.read_text())["players"]
+
+
 def test_END_TO_END_pre_draft_still_refuses_with_exit_1(monkeypatch, tmp_path, capsys):
     """The control: the same capture dated before the draft is the register-442
     refusal, unchanged."""

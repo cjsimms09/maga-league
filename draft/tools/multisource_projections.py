@@ -384,6 +384,24 @@ def main() -> int:
     # more than a fresh one that silently changes what a citation means — so
     # the refusal below leaves it in place rather than overwriting it.
     missing = sorted(s for s in srcs if not diag["by_source"].get(s, {}).get("rows"))
+    # ── POST-DRAFT THE SEASON'S BLEND IS FROZEN WHATEVER ARRIVES (A, 09-02,
+    # register 480). CBS and ESPN season totals came BACK on 09-02 after
+    # thirteen dark days, and a full fresh capture would have re-scored
+    # `proj_mean` — the board's blend AND the live prior of the
+    # `v1_blend_pull3` challenger (P359) — mid-stream, silently. A fresh
+    # capture is archived by the probe and reported here; scoring it into
+    # the season's blend after the draft is a Tier-2 change that takes
+    # `--allow-post-draft` on a dispatch, never a nightly.
+    if (not missing and "--allow-post-draft" not in sys.argv
+            and zero_source_verdict([], today=_today_arg(), draft_date=_draft_date())["frozen"]):
+        present = {s: v["rows"] for s, v in sorted(diag["by_source"].items())}
+        print("MULTI-SOURCE PROJECTIONS — FROZEN FOR THE SEASON (exit clean)\n")
+        print(f"  a FULL capture arrived: {present} — archived by the probe, NOT scored")
+        print("  into the season's blend: post-draft the committed artifact is the")
+        print("  preseason blend and the live prior of a preregistered challenger;")
+        print("  re-scoring it is a Tier-2 change. Dispatch with --allow-post-draft")
+        print("  to write it deliberately (register 480).")
+        return 0
     if missing:
         present = {s: v["rows"] for s, v in sorted(diag["by_source"].items())}
         raw_by_source = {}
@@ -448,7 +466,7 @@ def main() -> int:
     print("\n  AGREEMENT (Spearman on scored points — order, not level):")
     for k, v in agree.items():
         print(f"    {k:24} n={v['n']:4}  rho={v['spearman']}")
-    print(f"\n  wrote {OUT.relative_to(ROOT)}")
+    print(f"\n  wrote {OUT.relative_to(ROOT) if OUT.is_relative_to(ROOT) else OUT}")
     return 0
 
 
