@@ -120,6 +120,8 @@ def bovada():
     out["events_found"] = len(links)
     pbm: dict[str, set] = {}
     samples = []
+    descs: dict[str, int] = {}
+    oc_sample: list = []
     for link in links[:20]:
         st2, b2 = get(BOV + link)
         if st2 != 200:
@@ -139,6 +141,9 @@ def bovada():
                         key = market_of(desc)
                         if not key:
                             continue
+                        descs[desc[:70]] = descs.get(desc[:70], 0) + 1
+                        if len(oc_sample) < 3 and key != "player_anytime_td" and (m.get("outcomes") or []):
+                            oc_sample.append({"market": desc[:70], "outcome": json.dumps((m.get("outcomes") or [])[0])[:300]})
                         for oc in m.get("outcomes") or []:
                             nm = oc.get("description") or ""
                             hc = (oc.get("price") or {}).get("handicap")
@@ -162,6 +167,8 @@ def bovada():
                 for v in x:
                     walk(v)
         walk(d)
+    out["market_descriptions_matched"] = dict(sorted(descs.items(), key=lambda kv: -kv[1])[:30])
+    out["outcome_shape_sample"] = oc_sample[:3]
     _tally(out, pbm, samples)
     return out
 
@@ -169,9 +176,13 @@ def bovada():
 def draftkings():
     """Public sportsbook JSON: eventgroup 88808 (NFL) -> categories -> offers."""
     base = "https://sportsbook.draftkings.com/sites/US-SB/api/v5/eventgroups/88808"
-    st, body = get(base + "?format=json")
+    hdr = {"Referer": "https://sportsbook.draftkings.com/leagues/football/nfl", "Origin": "https://sportsbook.draftkings.com",
+           "Accept-Language": "en-US,en;q=0.9"}
+    st, body = get(base + "?format=json", headers=hdr)
     out = _src(st, body)
     if st != 200:
+        st3, b3 = get("https://sportsbook-nash.draftkings.com/api/sportscontent/dkusnj/v1/leagues/88808", headers=hdr)
+        out["nash_status"], out["nash_bytes"], out["nash_head"] = st3, len(b3), b3[:200].decode("utf-8", "ignore")
         return out
     try:
         d = json.loads(body.decode("utf-8", "ignore"))
@@ -219,7 +230,9 @@ def draftkings():
 
 
 def prizepicks():
-    st, body = get("https://api.prizepicks.com/projections?league_id=9&per_page=2000&single_stat=true")
+    hdr = {"Referer": "https://app.prizepicks.com/", "Origin": "https://app.prizepicks.com",
+           "Accept-Language": "en-US,en;q=0.9", "X-Device-ID": "census"}
+    st, body = get("https://api.prizepicks.com/projections?league_id=9&per_page=2000&single_stat=true", headers=hdr)
     out = _src(st, body)
     if st != 200:
         return out
@@ -259,25 +272,50 @@ def underdog():
     except ValueError:
         out["notes"].append("unparseable")
         return out
-    pbm: dict[str, set] = {}
-    samples = []
+    lines = d.get("over_under_lines") or []
+    out["top_level_keys"] = sorted(d.keys())
+    if lines:
+        out["raw_line_shape"] = json.dumps(lines[0])[:900]
+    # sport filter: the v5 payload mixes every sport; keep only lines whose
+    # appearance/option resolves to NFL, else fall back to a football-stat allowlist
+    apps = {a.get("id"): a for a in (d.get("appearances") or [])}
+    games = {g.get("id"): g for g in (d.get("games") or [])}
+    pbm_week: dict[str, set] = {}
+    pbm_season: dict[str, set] = {}
+    samples, samples_season = [], []
     stats = {}
-    for ln in d.get("over_under_lines") or []:
+    sports = {}
+    for ln in lines:
         ou = ln.get("over_under") or {}
-        title = ou.get("title") or ""          # e.g. "Josh Allen Passing Yards"
-        stat = ((ou.get("appearance_stat") or {}).get("display_stat")) or ""
-        stats[stat] = stats.get(stat, 0) + 1
+        title = ou.get("title") or ""
+        ast = ou.get("appearance_stat") or {}
+        stat = ast.get("display_stat") or ""
+        app = apps.get(ast.get("appearance_id")) or {}
+        game = games.get(app.get("match_id")) or {}
+        sport = (game.get("sport_id") or app.get("sport_id") or "").upper()
+        sports[sport or "?"] = sports.get(sport or "?", 0) + 1
         key = market_of(stat) or market_of(title)
         if not key:
             continue
-        player = title.replace(stat, "").strip(" -") if stat and stat in title else title
+        if sport and sport != "NFL":
+            continue
+        stats[stat] = stats.get(stat, 0) + 1
         if ln.get("stat_value") is None:
             continue
-        pbm.setdefault(key, set()).add(player)
-        if len(samples) < 6:
-            samples.append({"market": key, "player": player, "line": ln.get("stat_value"), "label": stat or title[:80]})
-    out["stat_types_seen"] = dict(sorted(stats.items(), key=lambda kv: -kv[1])[:25])
-    _tally(out, pbm, samples)
+        player = title.replace(stat, "").strip(" -") if stat and stat in title else title
+        is_season = ("season" in title.lower()) or ("season" in stat.lower()) or not game
+        tgt = pbm_season if is_season else pbm_week
+        tgt.setdefault(key, set()).add(player)
+        smp = samples_season if is_season else samples
+        if len(smp) < 6:
+            smp.append({"market": key, "player": player, "line": ln.get("stat_value"),
+                        "label": stat or title[:80], "game": (game.get("title") or "")[:60],
+                        "kickoff": game.get("scheduled_at")})
+    out["sports_seen"] = dict(sorted(sports.items(), key=lambda kv: -kv[1])[:10])
+    out["stat_types_seen_nfl"] = dict(sorted(stats.items(), key=lambda kv: -kv[1])[:25])
+    out["by_market_season"] = {k: len(v) for k, v in pbm_season.items() if v}
+    out["samples_season"] = samples_season[:3]
+    _tally(out, pbm_week, samples)          # by_market = GAME-WEEK lines only
     return out
 
 
@@ -338,7 +376,7 @@ def polymarket():
         if not key:
             continue
         mm = re.match(r"(?:Will\s+)?([A-Z][\w.'\-]+(?:\s[A-Z][\w.'\-]+)+)", t)
-        if not mm:
+        if not mm or mm.group(1).lower().startswith(("pro football", "nfl", "super bowl")):
             continue
         pbm.setdefault(key, set()).add(mm.group(1))
         if len(samples) < 6:
@@ -409,7 +447,7 @@ def main():
     else:
         missing = [mk for mk, row in res["need_table"].items() if row["best"] == 0]
         thin = [mk for mk, row in res["need_table"].items() if 0 < row["best"] < 20]
-        verdict = ("COVERED — every needed market has a free carrier" if not missing else
+        verdict = ("COVERED — every needed market has a free GAME-WEEK carrier" if not missing else
                    f"GAPS — no free carrier for: {', '.join(missing)} -> find more sources (Cory's rule)")
         if thin:
             verdict += f" | THIN (<20 players): {', '.join(thin)}"
