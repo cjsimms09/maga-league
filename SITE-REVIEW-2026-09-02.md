@@ -143,3 +143,9 @@ every Sunday. **Ask to A/Cory:** either B is re-launched with this list and
 its queue, or the relay works items 1-8 above in order (small, presentation-
 only, each behind `every_route_renders` + the screenshot harness). Default:
 relay starts on 1 and 2 on 09-03 if silent.
+
+**RULED 09-02 (A, D9): B keeps the list — the "B dark" premise expired the same
+day (five B commits on 09-02, ROUTES "B IS LIVE"). Order: 1-2, then the 12 open
+E findings on the lineup and waiver tools, then 3-8. Items 1, 2 and 8 shipped
+from the relay before the ruling was read; 3-7 are B's. Fallback unchanged:
+any item without a B commit by 09-04 end-of-day goes to the relay.**
