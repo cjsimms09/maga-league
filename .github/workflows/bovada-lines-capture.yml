@@ -21,12 +21,22 @@ jobs:
         run: |
           set -euo pipefail
           python3 draft/tools/bovada_lines_capture.py
+      - name: Team context (implied totals + pace) from the lines just captured
+        # PRESERVE BEFORE YOU ALARM: a refused context build (a control failed)
+        # must not cost the lines snapshot below, so this step reports and the
+        # commit step still runs. team_context.py writes nothing on a red control.
+        continue-on-error: true
+        run: |
+          set -uo pipefail
+          if python3 draft/tools/team_context.py --write; then :; else echo "::warning::team_context.py refused — see its controls above; the lines snapshot still commits"; exit 1; fi
       - name: Commit the snapshot
+        if: always()
         run: |
           set -euo pipefail
           git config user.name lab-bot
           git config user.email lab-bot@users.noreply.github.com
           git add draft/data/bovada_lines_2026.jsonl
+          git add draft/data/team_context_2026.json 2>/dev/null || true
           git diff --cached --quiet && { echo "no change"; exit 0; }
           git commit -m "Bovada lines snapshot [skip deploy]"
           git pull --rebase origin main
