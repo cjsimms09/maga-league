@@ -435,7 +435,18 @@ jobs:
                   _rows = (_ser[-1].get("rows") or {}) if _ser else {}
                   ud = C.undecoded_inside_draft(xrep, _rows, C._draftable_picks())
                   print("Draftable decode: %s" % ud["note"])
-                  if ud["verdict"] == "undecoded_in_draft":
+                  if ud["verdict"] == "undecoded_in_draft" and POST_DRAFT:
+                      # THE FOURTH DRAFT-WINDOW ALARM IN THIS FILE, SAME RULING
+                      # (A, 09-02). Its own text: "worth knowing BEFORE the
+                      # draft rather than after". After it, a name drifting
+                      # inside pick 150 as MFL's pool converges is the 2027
+                      # crosswalk backlog, recorded here, not a red job. First
+                      # post-draft firing: 17083 Jayden Higgins, 16622 Ricky
+                      # Pearsall. `unknown` still fails in every phase.
+                      print("**%d player(s) inside pick 150 did not decode — post-draft, "
+                            "recorded for the 2027 crosswalk, not escalated: %s**"
+                            % (ud["inside"], ", ".join(ud["players"][:10])))
+                  elif ud["verdict"] == "undecoded_in_draft":
                       print("::error::%d player(s) inside our draft are at a rostered"
                             " position, not kept, and did not decode: %s"
                             % (ud["inside"], ", ".join(ud["players"][:10])))
