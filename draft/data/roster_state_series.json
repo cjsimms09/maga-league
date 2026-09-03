@@ -53787,6 +53787,5022 @@
      "position": "K"
     }
    }
+  },
+  {
+   "date": "2026-09-03",
+   "n_players": 736,
+   "state": {
+    "11604": {
+     "depth_chart_order": 1,
+     "team": "LV",
+     "years_exp": 2,
+     "adp": 22.33,
+     "position": "TE"
+    },
+    "13287": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 1,
+     "team": "ARI",
+     "years_exp": 0,
+     "adp": 28.0,
+     "position": "RB"
+    },
+    "8155": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 1,
+     "team": "NYJ",
+     "years_exp": 4,
+     "adp": 32.0,
+     "position": "RB"
+    },
+    "8150": {
+     "depth_chart_order": 1,
+     "team": "LAR",
+     "years_exp": 4,
+     "adp": 26.67,
+     "position": "RB"
+    },
+    "10229": {
+     "depth_chart_order": 1,
+     "team": "KC",
+     "years_exp": 3,
+     "adp": 33.0,
+     "position": "WR"
+    },
+    "7588": {
+     "depth_chart_order": 1,
+     "team": "DAL",
+     "years_exp": 5,
+     "adp": 29.33,
+     "position": "RB"
+    },
+    "8137": {
+     "depth_chart_order": 2,
+     "team": "DAL",
+     "years_exp": 4,
+     "adp": 24.0,
+     "position": "WR"
+    },
+    "8144": {
+     "depth_chart_order": 1,
+     "team": "NO",
+     "years_exp": 4,
+     "adp": 26.67,
+     "position": "WR"
+    },
+    "12481": {
+     "depth_chart_order": 1,
+     "team": "NYG",
+     "years_exp": 1,
+     "adp": 39.67,
+     "position": "RB"
+    },
+    "7543": {
+     "depth_chart_order": 1,
+     "team": "NO",
+     "years_exp": 5,
+     "adp": 37.33,
+     "position": "RB"
+    },
+    "12517": {
+     "depth_chart_order": 1,
+     "team": "CHI",
+     "years_exp": 1,
+     "adp": 41.0,
+     "position": "TE"
+    },
+    "6790": {
+     "depth_chart_order": 1,
+     "team": "CHI",
+     "years_exp": 6,
+     "adp": 43.33,
+     "position": "RB"
+    },
+    "4881": {
+     "depth_chart_order": 1,
+     "team": "BAL",
+     "years_exp": 8,
+     "adp": 39.0,
+     "position": "QB"
+    },
+    "9997": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 1,
+     "team": "BAL",
+     "years_exp": 3,
+     "adp": 37.0,
+     "position": "WR"
+    },
+    "11584": {
+     "depth_chart_order": 1,
+     "team": "TB",
+     "years_exp": 2,
+     "adp": 47.33,
+     "position": "RB"
+    },
+    "11632": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 1,
+     "team": "NYG",
+     "years_exp": 2,
+     "adp": 28.33,
+     "position": "WR"
+    },
+    "11564": {
+     "depth_chart_order": 1,
+     "team": "NE",
+     "years_exp": 2,
+     "adp": 51.67,
+     "position": "QB"
+    },
+    "12512": {
+     "depth_chart_order": 1,
+     "team": "CLE",
+     "years_exp": 1,
+     "adp": 46.0,
+     "position": "RB"
+    },
+    "12518": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 1,
+     "team": "IND",
+     "years_exp": 1,
+     "adp": 50.0,
+     "position": "TE"
+    },
+    "8146": {
+     "depth_chart_order": 1,
+     "team": "NYJ",
+     "years_exp": 4,
+     "adp": 44.0,
+     "position": "WR"
+    },
+    "7525": {
+     "depth_chart_order": 1,
+     "team": "PHI",
+     "years_exp": 5,
+     "adp": 31.67,
+     "position": "WR"
+    },
+    "12526": {
+     "depth_chart_order": 1,
+     "team": "CAR",
+     "years_exp": 1,
+     "adp": 39.67,
+     "position": "WR"
+    },
+    "6770": {
+     "depth_chart_order": 1,
+     "team": "CIN",
+     "years_exp": 6,
+     "adp": 53.0,
+     "position": "QB"
+    },
+    "12514": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 1,
+     "team": "TB",
+     "years_exp": 1,
+     "adp": 43.67,
+     "position": "WR"
+    },
+    "6801": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 2,
+     "team": "CIN",
+     "years_exp": 6,
+     "adp": 40.33,
+     "position": "WR"
+    },
+    "12490": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 1,
+     "team": "JAX",
+     "years_exp": 1,
+     "adp": 57.0,
+     "position": "RB"
+    },
+    "6904": {
+     "depth_chart_order": 1,
+     "team": "PHI",
+     "years_exp": 6,
+     "adp": 61.67,
+     "position": "QB"
+    },
+    "5892": {
+     "depth_chart_order": 1,
+     "team": "HOU",
+     "years_exp": 7,
+     "adp": 47.33,
+     "position": "RB"
+    },
+    "8148": {
+     "depth_chart_order": 2,
+     "team": "DET",
+     "years_exp": 4,
+     "adp": 58.67,
+     "position": "WR"
+    },
+    "7553": {
+     "depth_chart_order": 1,
+     "team": "ATL",
+     "years_exp": 5,
+     "adp": 74.67,
+     "position": "TE"
+    },
+    "10859": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 1,
+     "team": "DET",
+     "years_exp": 3,
+     "adp": 72.67,
+     "position": "TE"
+    },
+    "12506": {
+     "depth_chart_order": 1,
+     "team": "CLE",
+     "years_exp": 1,
+     "adp": 69.67,
+     "position": "TE"
+    },
+    "11635": {
+     "depth_chart_order": 1,
+     "team": "LAC",
+     "years_exp": 2,
+     "adp": 40.67,
+     "position": "WR"
+    },
+    "3294": {
+     "depth_chart_order": 1,
+     "team": "DAL",
+     "years_exp": 10,
+     "adp": 80.33,
+     "position": "QB"
+    },
+    "2133": {
+     "depth_chart_order": 2,
+     "team": "LAR",
+     "years_exp": 12,
+     "adp": 56.33,
+     "position": "WR"
+    },
+    "11566": {
+     "depth_chart_order": 1,
+     "team": "WAS",
+     "years_exp": 2,
+     "adp": 62.67,
+     "position": "QB"
+    },
+    "9484": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 1,
+     "team": "GB",
+     "years_exp": 3,
+     "adp": 66.0,
+     "position": "TE"
+    },
+    "8183": {
+     "depth_chart_order": 1,
+     "team": "SF",
+     "years_exp": 4,
+     "adp": 111.0,
+     "position": "QB"
+    },
+    "5927": {
+     "depth_chart_order": 1,
+     "team": "WAS",
+     "years_exp": 7,
+     "adp": 54.67,
+     "position": "WR"
+    },
+    "1466": {
+     "depth_chart_order": 1,
+     "team": "KC",
+     "years_exp": 13,
+     "adp": 95.67,
+     "position": "TE"
+    },
+    "7526": {
+     "depth_chart_order": 1,
+     "team": "DEN",
+     "years_exp": 5,
+     "adp": 44.67,
+     "position": "WR"
+    },
+    "421": {
+     "depth_chart_order": 1,
+     "team": "LAR",
+     "years_exp": 17,
+     "adp": 105.67,
+     "position": "QB"
+    },
+    "2216": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 1,
+     "team": "SF",
+     "years_exp": 12,
+     "adp": 67.33,
+     "position": "WR"
+    },
+    "13286": {
+     "depth_chart_order": 1,
+     "team": "SEA",
+     "years_exp": 0,
+     "adp": 56.0,
+     "position": "RB"
+    },
+    "11620": {
+     "depth_chart_order": 2,
+     "team": "CHI",
+     "years_exp": 2,
+     "adp": 62.67,
+     "position": "WR"
+    },
+    "7523": {
+     "depth_chart_order": 1,
+     "team": "JAX",
+     "years_exp": 5,
+     "adp": 86.33,
+     "position": "QB"
+    },
+    "4217": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 1,
+     "team": "SF",
+     "years_exp": 9,
+     "adp": 87.67,
+     "position": "TE"
+    },
+    "11560": {
+     "depth_chart_order": 1,
+     "team": "CHI",
+     "years_exp": 2,
+     "adp": 73.33,
+     "position": "QB"
+    },
+    "12519": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 1,
+     "team": "CHI",
+     "years_exp": 1,
+     "adp": 54.0,
+     "position": "WR"
+    },
+    "5012": {
+     "depth_chart_order": 1,
+     "team": "BAL",
+     "years_exp": 8,
+     "adp": 122.67,
+     "position": "TE"
+    },
+    "5022": {
+     "depth_chart_order": 1,
+     "team": "PHI",
+     "years_exp": 8,
+     "adp": 122.33,
+     "position": "TE"
+    },
+    "12529": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 2,
+     "team": "NE",
+     "years_exp": 1,
+     "adp": 57.33,
+     "position": "RB"
+    },
+    "8228": {
+     "depth_chart_order": 1,
+     "team": "PIT",
+     "years_exp": 4,
+     "adp": 68.67,
+     "position": "RB"
+    },
+    "8167": {
+     "depth_chart_order": 1,
+     "team": "GB",
+     "years_exp": 4,
+     "adp": 65.33,
+     "position": "WR"
+    },
+    "4046": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 1,
+     "team": "KC",
+     "years_exp": 9,
+     "adp": 111.0,
+     "position": "QB"
+    },
+    "12508": {
+     "depth_chart_order": 1,
+     "team": "NYG",
+     "years_exp": 1,
+     "adp": 97.33,
+     "position": "QB"
+    },
+    "4983": {
+     "depth_chart_order": 1,
+     "team": "BUF",
+     "years_exp": 8,
+     "adp": 47.67,
+     "position": "WR"
+    },
+    "7611": {
+     "depth_chart_order": 1,
+     "team": "NE",
+     "years_exp": 5,
+     "adp": 69.33,
+     "position": "RB"
+    },
+    "3163": {
+     "depth_chart_order": 1,
+     "team": "DET",
+     "years_exp": 10,
+     "adp": 124.0,
+     "position": "QB"
+    },
+    "6797": {
+     "depth_chart_order": 1,
+     "team": "LAC",
+     "years_exp": 6,
+     "adp": 78.0,
+     "position": "QB"
+    },
+    "11563": {
+     "depth_chart_order": 1,
+     "team": "DEN",
+     "years_exp": 2,
+     "adp": 105.67,
+     "position": "QB"
+    },
+    "5967": {
+     "depth_chart_order": 1,
+     "team": "TEN",
+     "years_exp": 7,
+     "adp": 78.33,
+     "position": "RB"
+    },
+    "8131": {
+     "depth_chart_order": 1,
+     "team": "NYG",
+     "years_exp": 4,
+     "adp": 105.0,
+     "position": "TE"
+    },
+    "8142": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 2,
+     "team": "IND",
+     "years_exp": 4,
+     "adp": 94.67,
+     "position": "WR"
+    },
+    "10236": {
+     "depth_chart_order": 1,
+     "team": "BUF",
+     "years_exp": 3,
+     "adp": 102.33,
+     "position": "TE"
+    },
+    "6806": {
+     "depth_chart_order": 1,
+     "team": "DEN",
+     "years_exp": 6,
+     "adp": 88.67,
+     "position": "RB"
+    },
+    "8110": {
+     "depth_chart_order": 1,
+     "team": "DAL",
+     "years_exp": 4,
+     "adp": 119.67,
+     "position": "TE"
+    },
+    "11628": {
+     "depth_chart_order": 1,
+     "team": "ARI",
+     "years_exp": 2,
+     "adp": 76.67,
+     "position": "WR"
+    },
+    "5045": {
+     "depth_chart_order": 2,
+     "team": "DEN",
+     "years_exp": 8,
+     "adp": 88.33,
+     "position": "WR"
+    },
+    "5846": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 1,
+     "team": "PIT",
+     "years_exp": 7,
+     "adp": 82.0,
+     "position": "WR"
+    },
+    "7021": {
+     "depth_chart_order": 2,
+     "team": "PIT",
+     "years_exp": 6,
+     "adp": 78.0,
+     "position": "RB"
+    },
+    "9487": {
+     "depth_chart_order": 1,
+     "team": "JAX",
+     "years_exp": 3,
+     "adp": 68.67,
+     "position": "WR"
+    },
+    "9480": {
+     "depth_chart_order": 1,
+     "team": "JAX",
+     "years_exp": 3,
+     "adp": 176.33,
+     "position": "TE"
+    },
+    "3214": {
+     "depth_chart_order": 1,
+     "team": "NE",
+     "years_exp": 10,
+     "adp": 156.67,
+     "position": "TE"
+    },
+    "11631": {
+     "depth_chart_order": 2,
+     "team": "JAX",
+     "years_exp": 2,
+     "adp": 81.0,
+     "position": "WR"
+    },
+    "7002": {
+     "depth_chart_order": 1,
+     "team": "NO",
+     "years_exp": 6,
+     "adp": 142.33,
+     "position": "TE"
+    },
+    "7594": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 1,
+     "team": "CAR",
+     "years_exp": 5,
+     "adp": 87.67,
+     "position": "RB"
+    },
+    "5001": {
+     "depth_chart_order": 1,
+     "team": "HOU",
+     "years_exp": 8,
+     "adp": 184.67,
+     "position": "TE"
+    },
+    "10222": {
+     "depth_chart_order": 2,
+     "team": "GB",
+     "years_exp": 3,
+     "adp": 110.67,
+     "position": "WR"
+    },
+    "6819": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 2,
+     "team": "PIT",
+     "years_exp": 6,
+     "adp": 113.67,
+     "position": "WR"
+    },
+    "4892": {
+     "depth_chart_order": 1,
+     "team": "TB",
+     "years_exp": 8,
+     "adp": 146.67,
+     "position": "QB"
+    },
+    "13279": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 1,
+     "team": "TEN",
+     "years_exp": 0,
+     "adp": 76.33,
+     "position": "WR"
+    },
+    "5844": {
+     "depth_chart_order": 1,
+     "team": "MIN",
+     "years_exp": 7,
+     "adp": 177.0,
+     "position": "TE"
+    },
+    "12534": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 2,
+     "team": "CHI",
+     "years_exp": 1,
+     "adp": 99.0,
+     "position": "RB"
+    },
+    "5947": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 3,
+     "team": "JAX",
+     "years_exp": 7,
+     "adp": 146.0,
+     "position": "WR"
+    },
+    "11583": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 2,
+     "team": "CAR",
+     "years_exp": 2,
+     "adp": 81.67,
+     "position": "RB"
+    },
+    "12545": {
+     "depth_chart_order": 1,
+     "team": "NO",
+     "years_exp": 1,
+     "adp": 170.67,
+     "position": "QB"
+    },
+    "4037": {
+     "depth_chart_order": 2,
+     "team": "TB",
+     "years_exp": 9,
+     "adp": 86.67,
+     "position": "WR"
+    },
+    "9754": {
+     "depth_chart_order": 2,
+     "team": "LAC",
+     "years_exp": 3,
+     "adp": 106.0,
+     "position": "WR"
+    },
+    "9756": {
+     "depth_chart_order": 2,
+     "team": "MIN",
+     "years_exp": 3,
+     "adp": 108.67,
+     "position": "WR"
+    },
+    "12489": {
+     "depth_chart_order": 2,
+     "team": "DEN",
+     "years_exp": 1,
+     "adp": 87.0,
+     "position": "RB"
+    },
+    "10232": {
+     "depth_chart_order": 2,
+     "team": "ARI",
+     "years_exp": 3,
+     "adp": 87.67,
+     "position": "WR"
+    },
+    "7567": {
+     "depth_chart_order": 2,
+     "team": "TB",
+     "years_exp": 5,
+     "adp": 110.0,
+     "position": "RB"
+    },
+    "6804": {
+     "depth_chart_order": 1,
+     "team": "GB",
+     "years_exp": 6,
+     "adp": 145.67,
+     "position": "QB"
+    },
+    "5849": {
+     "depth_chart_order": 1,
+     "team": "MIN",
+     "years_exp": 7,
+     "adp": 132.67,
+     "position": "QB"
+    },
+    "8126": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 2,
+     "team": "TEN",
+     "years_exp": 4,
+     "adp": 129.33,
+     "position": "WR"
+    },
+    "11624": {
+     "depth_chart_order": 2,
+     "team": "KC",
+     "years_exp": 2,
+     "adp": 148.67,
+     "position": "WR"
+    },
+    "7600": {
+     "depth_chart_order": 1,
+     "team": "PIT",
+     "years_exp": 5,
+     "adp": 205.33,
+     "position": "TE"
+    },
+    "8408": {
+     "depth_chart_order": 1,
+     "team": "MIN",
+     "years_exp": 4,
+     "adp": 96.67,
+     "position": "RB"
+    },
+    "8136": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 2,
+     "team": "WAS",
+     "years_exp": 4,
+     "adp": 122.33,
+     "position": "RB"
+    },
+    "11603": {
+     "depth_chart_order": 1,
+     "team": "SEA",
+     "years_exp": 2,
+     "adp": 196.67,
+     "position": "TE"
+    },
+    "12501": {
+     "depth_chart_order": 3,
+     "team": "GB",
+     "years_exp": 1,
+     "adp": 136.33,
+     "position": "WR"
+    },
+    "4199": {
+     "depth_chart_order": 2,
+     "team": "MIN",
+     "years_exp": 9,
+     "adp": 124.33,
+     "position": "RB"
+    },
+    "12533": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 1,
+     "team": "WAS",
+     "years_exp": 1,
+     "adp": 101.0,
+     "position": "RB"
+    },
+    "4943": {
+     "depth_chart_order": 1,
+     "team": "SEA",
+     "years_exp": 8,
+     "adp": 155.67,
+     "position": "QB"
+    },
+    "9500": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 1,
+     "team": "IND",
+     "years_exp": 3,
+     "adp": 110.67,
+     "position": "WR"
+    },
+    "8210": {
+     "depth_chart_order": 1,
+     "team": "WAS",
+     "years_exp": 4,
+     "adp": 174.67,
+     "position": "TE"
+    },
+    "8172": {
+     "depth_chart_order": 1,
+     "team": "MIA",
+     "years_exp": 4,
+     "adp": 223.33,
+     "position": "TE"
+    },
+    "8134": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 2,
+     "team": "BUF",
+     "years_exp": 4,
+     "adp": 167.33,
+     "position": "WR"
+    },
+    "8111": {
+     "depth_chart_order": 1,
+     "team": "TB",
+     "years_exp": 4,
+     "adp": 245.0,
+     "position": "TE"
+    },
+    "11586": {
+     "depth_chart_order": 2,
+     "team": "LAR",
+     "years_exp": 2,
+     "adp": 93.0,
+     "position": "RB"
+    },
+    "2449": {
+     "depth_chart_order": 2,
+     "team": "WAS",
+     "years_exp": 11,
+     "adp": 108.0,
+     "position": "WR"
+    },
+    "8121": {
+     "depth_chart_order": 2,
+     "team": "NE",
+     "years_exp": 4,
+     "adp": 153.67,
+     "position": "WR"
+    },
+    "13330": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 2,
+     "team": "NYJ",
+     "years_exp": 0,
+     "adp": 192.33,
+     "position": "TE"
+    },
+    "5872": {
+     "depth_chart_order": 2,
+     "team": "SF",
+     "years_exp": 7,
+     "adp": 148.33,
+     "position": "WR"
+    },
+    "12493": {
+     "depth_chart_order": 1,
+     "team": "LAC",
+     "years_exp": 1,
+     "adp": 189.67,
+     "position": "TE"
+    },
+    "13298": {
+     "depth_chart_order": 1,
+     "team": "CLE",
+     "years_exp": 0,
+     "adp": 123.33,
+     "position": "WR"
+    },
+    "13294": {
+     "depth_chart_order": 3,
+     "team": "PHI",
+     "years_exp": 0,
+     "adp": 109.67,
+     "position": "WR"
+    },
+    "12487": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 2,
+     "team": "LAR",
+     "years_exp": 1,
+     "adp": 183.67,
+     "position": "TE"
+    },
+    "8676": {
+     "depth_chart_order": 2,
+     "team": "SEA",
+     "years_exp": 4,
+     "adp": 149.67,
+     "position": "WR"
+    },
+    "11646": {
+     "depth_chart_order": 2,
+     "team": "CAR",
+     "years_exp": 2,
+     "adp": 164.33,
+     "position": "WR"
+    },
+    "8161": {
+     "depth_chart_order": 1,
+     "team": "MIA",
+     "years_exp": 4,
+     "adp": 161.0,
+     "position": "QB"
+    },
+    "5870": {
+     "depth_chart_order": 1,
+     "team": "IND",
+     "years_exp": 7,
+     "adp": 183.0,
+     "position": "QB"
+    },
+    "12502": {
+     "depth_chart_order": 1,
+     "team": "TEN",
+     "years_exp": 1,
+     "adp": 246.0,
+     "position": "TE"
+    },
+    "9758": {
+     "depth_chart_order": 1,
+     "team": "HOU",
+     "years_exp": 3,
+     "adp": 170.33,
+     "position": "QB"
+    },
+    "2505": {
+     "depth_chart_order": 1,
+     "team": "CAR",
+     "years_exp": 11,
+     "adp": 271.0,
+     "position": "TE"
+    },
+    "4993": {
+     "depth_chart_order": 1,
+     "team": "CIN",
+     "years_exp": 8,
+     "adp": 226.0,
+     "position": "TE"
+    },
+    "13417": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 3,
+     "team": "SF",
+     "years_exp": 0,
+     "adp": 109.33,
+     "position": "WR"
+    },
+    "4066": {
+     "depth_chart_order": 1,
+     "team": "DEN",
+     "years_exp": 9,
+     "adp": 258.0,
+     "position": "TE"
+    },
+    "10213": {
+     "depth_chart_order": 1,
+     "team": "LV",
+     "years_exp": 3,
+     "adp": 172.67,
+     "position": "WR"
+    },
+    "9508": {
+     "depth_chart_order": 2,
+     "team": "TEN",
+     "years_exp": 3,
+     "adp": 167.0,
+     "position": "RB"
+    },
+    "6783": {
+     "depth_chart_order": 3,
+     "team": "CLE",
+     "years_exp": 6,
+     "adp": 202.0,
+     "position": "WR"
+    },
+    "13346": {
+     "depth_chart_order": 2,
+     "team": "CLE",
+     "years_exp": 0,
+     "adp": 187.0,
+     "position": "WR"
+    },
+    "12498": {
+     "depth_chart_order": 1,
+     "team": "NYJ",
+     "years_exp": 1,
+     "adp": 345.0,
+     "position": "TE"
+    },
+    "9228": {
+     "depth_chart_order": 1,
+     "team": "CAR",
+     "years_exp": 3,
+     "adp": 178.0,
+     "position": "QB"
+    },
+    "11655": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 2,
+     "team": "NYG",
+     "years_exp": 2,
+     "adp": 163.67,
+     "position": "RB"
+    },
+    "11618": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 3,
+     "team": "TB",
+     "years_exp": 2,
+     "adp": 210.5,
+     "position": "WR"
+    },
+    "7571": {
+     "depth_chart_order": 2,
+     "team": "BAL",
+     "years_exp": 5,
+     "adp": 137.4,
+     "position": "WR"
+    },
+    "6865": {
+     "depth_chart_order": 1,
+     "team": "LAR",
+     "years_exp": 6,
+     "adp": 272.0,
+     "position": "TE"
+    },
+    "8180": {
+     "depth_chart_order": 2,
+     "team": "LV",
+     "years_exp": 4,
+     "adp": 174.33,
+     "position": "WR"
+    },
+    "12474": {
+     "depth_chart_order": 2,
+     "team": "HOU",
+     "years_exp": 1,
+     "adp": 148.0,
+     "position": "RB"
+    },
+    "9482": {
+     "depth_chart_order": 2,
+     "team": "LV",
+     "years_exp": 3,
+     "adp": 354.0,
+     "position": "TE"
+    },
+    "13281": {
+     "injury_status": "IR",
+     "depth_chart_order": 10,
+     "team": "NO",
+     "years_exp": 0,
+     "adp": 118.0,
+     "position": "WR"
+    },
+    "10219": {
+     "depth_chart_order": 2,
+     "team": "JAX",
+     "years_exp": 3,
+     "adp": 148.33,
+     "position": "RB"
+    },
+    "9753": {
+     "injury_status": "PUP",
+     "depth_chart_order": 4,
+     "team": "SEA",
+     "years_exp": 3,
+     "adp": 156.0,
+     "position": "RB"
+    },
+    "13349": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 2,
+     "team": "PHI",
+     "years_exp": 0,
+     "adp": 260.0,
+     "position": "TE"
+    },
+    "5906": {
+     "depth_chart_order": 2,
+     "team": "BUF",
+     "years_exp": 7,
+     "adp": 357.0,
+     "position": "TE"
+    },
+    "7049": {
+     "depth_chart_order": 3,
+     "team": "MIN",
+     "years_exp": 6,
+     "adp": 187.0,
+     "position": "WR"
+    },
+    "11581": {
+     "depth_chart_order": 1,
+     "team": "GB",
+     "years_exp": 2,
+     "adp": 103.67,
+     "position": "RB"
+    },
+    "11597": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 2,
+     "team": "NYG",
+     "years_exp": 2,
+     "adp": 284.0,
+     "position": "TE"
+    },
+    "9479": {
+     "depth_chart_order": 2,
+     "team": "PIT",
+     "years_exp": 3,
+     "adp": 351.0,
+     "position": "TE"
+    },
+    "11610": {
+     "depth_chart_order": 1,
+     "team": "MIA",
+     "years_exp": 2,
+     "adp": 188.5,
+     "position": "WR"
+    },
+    "13293": {
+     "depth_chart_order": 3,
+     "team": "BAL",
+     "years_exp": 0,
+     "adp": 154.33,
+     "position": "WR"
+    },
+    "11625": {
+     "depth_chart_order": 2,
+     "team": "NYJ",
+     "years_exp": 2,
+     "adp": 215.5,
+     "position": "WR"
+    },
+    "11834": {
+     "depth_chart_order": 2,
+     "team": "NO",
+     "years_exp": 2,
+     "adp": 219.0,
+     "position": "WR"
+    },
+    "4039": {
+     "depth_chart_order": 3,
+     "team": "SEA",
+     "years_exp": 9,
+     "adp": 200.67,
+     "position": "WR"
+    },
+    "6826": {
+     "depth_chart_order": 2,
+     "team": "CHI",
+     "years_exp": 6,
+     "adp": 356.0,
+     "position": "TE"
+    },
+    "12522": {
+     "depth_chart_order": 1,
+     "team": "TEN",
+     "years_exp": 1,
+     "adp": 180.67,
+     "position": "QB"
+    },
+    "13274": {
+     "depth_chart_order": 3,
+     "team": "PIT",
+     "years_exp": 0,
+     "adp": 263.5,
+     "position": "WR"
+    },
+    "8698": {
+     "depth_chart_order": 2,
+     "team": "SF",
+     "years_exp": 4,
+     "adp": 275.0,
+     "position": "TE"
+    },
+    "9504": {
+     "depth_chart_order": 2,
+     "team": "HOU",
+     "years_exp": 3,
+     "adp": 162.5,
+     "position": "WR"
+    },
+    "1373": {
+     "depth_chart_order": 1,
+     "team": "NYJ",
+     "years_exp": 13,
+     "adp": 227.5,
+     "position": "QB"
+    },
+    "12469": {
+     "depth_chart_order": 2,
+     "team": "CLE",
+     "years_exp": 1,
+     "adp": 177.5,
+     "position": "RB"
+    },
+    "13276": {
+     "depth_chart_order": 3,
+     "team": "NYJ",
+     "years_exp": 0,
+     "adp": 210.5,
+     "position": "WR"
+    },
+    "13285": {
+     "depth_chart_order": 2,
+     "team": "NYG",
+     "years_exp": 0,
+     "adp": 193.5,
+     "position": "WR"
+    },
+    "11783": {
+     "depth_chart_order": 3,
+     "team": "DAL",
+     "years_exp": 2,
+     "adp": 227.5,
+     "position": "WR"
+    },
+    "1479": {
+     "depth_chart_order": 3,
+     "team": "IND",
+     "years_exp": 13,
+     "adp": 172.67,
+     "position": "WR"
+    },
+    "13296": {
+     "depth_chart_order": 2,
+     "team": "MIA",
+     "years_exp": 0,
+     "adp": 208.0,
+     "position": "WR"
+    },
+    "12521": {
+     "depth_chart_order": 2,
+     "team": "SEA",
+     "years_exp": 1,
+     "adp": 363.0,
+     "position": "TE"
+    },
+    "13434": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 2,
+     "team": "MIA",
+     "years_exp": 0,
+     "adp": 376.0,
+     "position": "TE"
+    },
+    "5995": {
+     "depth_chart_order": 2,
+     "team": "BAL",
+     "years_exp": 7,
+     "adp": 207.0,
+     "position": "RB"
+    },
+    "8154": {
+     "depth_chart_order": 2,
+     "team": "ATL",
+     "years_exp": 4,
+     "adp": 154.0,
+     "position": "RB"
+    },
+    "8132": {
+     "depth_chart_order": 2,
+     "team": "ARI",
+     "years_exp": 4,
+     "adp": 146.33,
+     "position": "RB"
+    },
+    "5850": {
+     "injury_status": "NA",
+     "depth_chart_order": 4,
+     "team": "GB",
+     "years_exp": 7,
+     "adp": 56.0,
+     "position": "RB"
+    },
+    "4033": {
+     "depth_chart_order": 2,
+     "team": "LAC",
+     "years_exp": 9,
+     "adp": 180.33,
+     "position": "TE"
+    },
+    "13400": {
+     "depth_chart_order": 7,
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 381.0,
+     "position": "TE"
+    },
+    "13435": {
+     "injury_status": "PUP",
+     "depth_chart_order": 4,
+     "team": "CLE",
+     "years_exp": 0,
+     "adp": 382.0,
+     "position": "TE"
+    },
+    "12509": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 3,
+     "team": "LAC",
+     "years_exp": 1,
+     "adp": 218.5,
+     "position": "WR"
+    },
+    "13413": {
+     "depth_chart_order": 4,
+     "team": "KC",
+     "years_exp": 0,
+     "adp": 192.0,
+     "position": "WR"
+    },
+    "13278": {
+     "depth_chart_order": 4,
+     "team": "LAR",
+     "years_exp": 0,
+     "adp": 383.0,
+     "position": "TE"
+    },
+    "3321": {
+     "injury_status": "Questionable",
+     "team": "FA",
+     "years_exp": 10,
+     "adp": 223.33,
+     "position": "WR"
+    },
+    "12497": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 4,
+     "team": "SEA",
+     "years_exp": 1,
+     "adp": 280.0,
+     "position": "WR"
+    },
+    "4147": {
+     "depth_chart_order": 2,
+     "team": "CIN",
+     "years_exp": 9,
+     "adp": 270.0,
+     "position": "RB"
+    },
+    "6149": {
+     "depth_chart_order": 4,
+     "team": "NYG",
+     "years_exp": 7,
+     "adp": 355.0,
+     "position": "WR"
+    },
+    "13301": {
+     "depth_chart_order": 3,
+     "team": "WAS",
+     "years_exp": 0,
+     "adp": 268.0,
+     "position": "WR"
+    },
+    "9511": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 2,
+     "team": "LAC",
+     "years_exp": 3,
+     "adp": 169.67,
+     "position": "RB"
+    },
+    "13282": {
+     "depth_chart_order": 4,
+     "team": "CIN",
+     "years_exp": 0,
+     "adp": 384.0,
+     "position": "TE"
+    },
+    "6039": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 2,
+     "team": "BUF",
+     "years_exp": 7,
+     "adp": 241.0,
+     "position": "RB"
+    },
+    "7828": {
+     "depth_chart_order": 2,
+     "team": "KC",
+     "years_exp": 5,
+     "adp": 379.0,
+     "position": "TE"
+    },
+    "12535": {
+     "depth_chart_order": 3,
+     "team": "DET",
+     "years_exp": 1,
+     "adp": 219.0,
+     "position": "WR"
+    },
+    "13305": {
+     "depth_chart_order": 2,
+     "team": "LV",
+     "years_exp": 0,
+     "adp": 129.0,
+     "position": "RB"
+    },
+    "13317": {
+     "depth_chart_order": 4,
+     "team": "TB",
+     "years_exp": 0,
+     "adp": 250.5,
+     "position": "WR"
+    },
+    "96": {
+     "depth_chart_order": 1,
+     "team": "PIT",
+     "years_exp": 21,
+     "adp": 180.33,
+     "position": "QB"
+    },
+    "11626": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 3,
+     "team": "CAR",
+     "years_exp": 2,
+     "adp": 367.0,
+     "position": "WR"
+    },
+    "12540": {
+     "depth_chart_order": 5,
+     "team": "TEN",
+     "years_exp": 1,
+     "adp": 349.0,
+     "position": "WR"
+    },
+    "9225": {
+     "depth_chart_order": 2,
+     "team": "PHI",
+     "years_exp": 3,
+     "adp": 164.67,
+     "position": "RB"
+    },
+    "9486": {
+     "depth_chart_order": 2,
+     "team": "PHI",
+     "years_exp": 3,
+     "adp": 182.5,
+     "position": "WR"
+    },
+    "8188": {
+     "depth_chart_order": 3,
+     "team": "KC",
+     "years_exp": 4,
+     "adp": 370.0,
+     "position": "WR"
+    },
+    "3257": {
+     "depth_chart_order": 1,
+     "team": "ARI",
+     "years_exp": 10,
+     "adp": 220.0,
+     "position": "QB"
+    },
+    "12492": {
+     "depth_chart_order": 3,
+     "team": "DEN",
+     "years_exp": 1,
+     "adp": 236.5,
+     "position": "WR"
+    },
+    "13342": {
+     "injury_status": "IR",
+     "depth_chart_order": 5,
+     "team": "KC",
+     "years_exp": 0,
+     "adp": 391.0,
+     "position": "TE"
+    },
+    "10226": {
+     "depth_chart_order": 3,
+     "team": "CIN",
+     "years_exp": 3,
+     "adp": 346.0,
+     "position": "WR"
+    },
+    "7694": {
+     "depth_chart_order": 2,
+     "team": "CAR",
+     "years_exp": 5,
+     "adp": 439.0,
+     "position": "TE"
+    },
+    "12536": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 3,
+     "team": "HOU",
+     "years_exp": 1,
+     "adp": 293.0,
+     "position": "WR"
+    },
+    "13421": {
+     "depth_chart_order": 2,
+     "team": "NE",
+     "years_exp": 0,
+     "adp": 432.0,
+     "position": "TE"
+    },
+    "10231": {
+     "depth_chart_order": 2,
+     "team": "ARI",
+     "years_exp": 3,
+     "adp": 396.0,
+     "position": "TE"
+    },
+    "11600": {
+     "depth_chart_order": 3,
+     "team": "CAR",
+     "years_exp": 2,
+     "adp": 482.0,
+     "position": "TE"
+    },
+    "8225": {
+     "depth_chart_order": 2,
+     "team": "TEN",
+     "years_exp": 4,
+     "adp": 404.0,
+     "position": "TE"
+    },
+    "4981": {
+     "depth_chart_order": 3,
+     "team": "TEN",
+     "years_exp": 8,
+     "adp": 215.0,
+     "position": "WR"
+    },
+    "8800": {
+     "depth_chart_order": 2,
+     "team": "DAL",
+     "years_exp": 4,
+     "adp": 225.0,
+     "position": "RB"
+    },
+    "13319": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 3,
+     "team": "NO",
+     "years_exp": 0,
+     "adp": 409.0,
+     "position": "TE"
+    },
+    "7716": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 2,
+     "team": "WAS",
+     "years_exp": 5,
+     "adp": 441.0,
+     "position": "TE"
+    },
+    "11637": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 3,
+     "team": "BUF",
+     "years_exp": 2,
+     "adp": 264.0,
+     "position": "WR"
+    },
+    "8127": {
+     "depth_chart_order": 3,
+     "team": "LAC",
+     "years_exp": 4,
+     "adp": 411.0,
+     "position": "TE"
+    },
+    "5857": {
+     "depth_chart_order": 2,
+     "team": "NO",
+     "years_exp": 7,
+     "adp": 414.0,
+     "position": "TE"
+    },
+    "8917": {
+     "depth_chart_order": 4,
+     "team": "DAL",
+     "years_exp": 4,
+     "adp": 359.0,
+     "position": "WR"
+    },
+    "1339": {
+     "team": "FA",
+     "years_exp": 13,
+     "adp": 418.0,
+     "position": "TE"
+    },
+    "6271": {
+     "depth_chart_order": 3,
+     "team": "ATL",
+     "years_exp": 7,
+     "adp": 361.0,
+     "position": "WR"
+    },
+    "12483": {
+     "depth_chart_order": 3,
+     "team": "LV",
+     "years_exp": 1,
+     "adp": 292.0,
+     "position": "WR"
+    },
+    "4144": {
+     "depth_chart_order": 2,
+     "team": "GB",
+     "years_exp": 9,
+     "adp": 420.0,
+     "position": "TE"
+    },
+    "11575": {
+     "depth_chart_order": 3,
+     "team": "BUF",
+     "years_exp": 2,
+     "adp": 180.67,
+     "position": "RB"
+    },
+    "8119": {
+     "depth_chart_order": 2,
+     "team": "ATL",
+     "years_exp": 4,
+     "adp": 276.0,
+     "position": "WR"
+    },
+    "13337": {
+     "depth_chart_order": 2,
+     "team": "KC",
+     "years_exp": 0,
+     "adp": 171.33,
+     "position": "RB"
+    },
+    "13401": {
+     "team": "DAL",
+     "years_exp": 0,
+     "adp": 425.0,
+     "position": "TE"
+    },
+    "11599": {
+     "depth_chart_order": 3,
+     "team": "HOU",
+     "years_exp": 2,
+     "adp": 431.0,
+     "position": "TE"
+    },
+    "13345": {
+     "depth_chart_order": 3,
+     "team": "DEN",
+     "years_exp": 0,
+     "adp": 152.0,
+     "position": "RB"
+    },
+    "13322": {
+     "depth_chart_order": 3,
+     "team": "CHI",
+     "years_exp": 0,
+     "adp": 427.0,
+     "position": "TE"
+    },
+    "3202": {
+     "depth_chart_order": 2,
+     "team": "ATL",
+     "years_exp": 10,
+     "adp": 430.0,
+     "position": "TE"
+    },
+    "3271": {
+     "depth_chart_order": 3,
+     "team": "LAR",
+     "years_exp": 10,
+     "adp": 434.0,
+     "position": "TE"
+    },
+    "13408": {
+     "depth_chart_order": 3,
+     "team": "JAX",
+     "years_exp": 0,
+     "adp": 435.0,
+     "position": "TE"
+    },
+    "12658": {
+     "depth_chart_order": 3,
+     "team": "BUF",
+     "years_exp": 1,
+     "adp": 437.0,
+     "position": "TE"
+    },
+    "13288": {
+     "depth_chart_order": 3,
+     "team": "TEN",
+     "years_exp": 0,
+     "adp": 220.5,
+     "position": "RB"
+    },
+    "13324": {
+     "depth_chart_order": 2,
+     "team": "BAL",
+     "years_exp": 0,
+     "adp": 440.0,
+     "position": "TE"
+    },
+    "7090": {
+     "depth_chart_order": 3,
+     "team": "NYG",
+     "years_exp": 6,
+     "adp": 276.5,
+     "position": "WR"
+    },
+    "13422": {
+     "injury_status": "IR",
+     "depth_chart_order": 6,
+     "team": "TEN",
+     "years_exp": 0,
+     "adp": 443.0,
+     "position": "TE"
+    },
+    "6001": {
+     "depth_chart_order": 3,
+     "team": "CIN",
+     "years_exp": 7,
+     "adp": 444.0,
+     "position": "TE"
+    },
+    "13357": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 445.0,
+     "position": "TE"
+    },
+    "5973": {
+     "depth_chart_order": 2,
+     "team": "MIN",
+     "years_exp": 7,
+     "adp": 447.0,
+     "position": "TE"
+    },
+    "10871": {
+     "depth_chart_order": 2,
+     "team": "DAL",
+     "years_exp": 3,
+     "adp": 448.0,
+     "position": "TE"
+    },
+    "9494": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 4,
+     "team": "DEN",
+     "years_exp": 3,
+     "adp": 364.0,
+     "position": "WR"
+    },
+    "13307": {
+     "depth_chart_order": 2,
+     "team": "HOU",
+     "years_exp": 0,
+     "adp": 457.0,
+     "position": "TE"
+    },
+    "11593": {
+     "depth_chart_order": 3,
+     "team": "DAL",
+     "years_exp": 2,
+     "adp": 458.0,
+     "position": "TE"
+    },
+    "13320": {
+     "depth_chart_order": 4,
+     "team": "ATL",
+     "years_exp": 0,
+     "adp": 239.0,
+     "position": "WR"
+    },
+    "5848": {
+     "depth_chart_order": 4,
+     "team": "PHI",
+     "years_exp": 7,
+     "adp": 365.0,
+     "position": "WR"
+    },
+    "13311": {
+     "depth_chart_order": 5,
+     "team": "MIA",
+     "years_exp": 0,
+     "adp": 210.5,
+     "position": "WR"
+    },
+    "13273": {
+     "depth_chart_order": 4,
+     "team": "BAL",
+     "years_exp": 0,
+     "adp": 468.0,
+     "position": "TE"
+    },
+    "6869": {
+     "depth_chart_order": 2,
+     "team": "DEN",
+     "years_exp": 6,
+     "adp": 470.0,
+     "position": "TE"
+    },
+    "11596": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 3,
+     "team": "WAS",
+     "years_exp": 2,
+     "adp": 471.0,
+     "position": "TE"
+    },
+    "13299": {
+     "depth_chart_order": 2,
+     "team": "JAX",
+     "years_exp": 0,
+     "adp": 473.0,
+     "position": "TE"
+    },
+    "11627": {
+     "depth_chart_order": 5,
+     "team": "DEN",
+     "years_exp": 2,
+     "adp": 287.0,
+     "position": "WR"
+    },
+    "12467": {
+     "depth_chart_order": 3,
+     "team": "SF",
+     "years_exp": 1,
+     "adp": 238.5,
+     "position": "RB"
+    },
+    "7891": {
+     "depth_chart_order": 2,
+     "team": "DET",
+     "years_exp": 5,
+     "adp": 474.0,
+     "position": "TE"
+    },
+    "5010": {
+     "injury_status": "Questionable",
+     "team": "FA",
+     "years_exp": 8,
+     "adp": 476.0,
+     "position": "TE"
+    },
+    "9501": {
+     "depth_chart_order": 3,
+     "team": "NE",
+     "years_exp": 3,
+     "adp": 289.0,
+     "position": "WR"
+    },
+    "4035": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 4,
+     "team": "NO",
+     "years_exp": 9,
+     "adp": 158.67,
+     "position": "RB"
+    },
+    "11647": {
+     "depth_chart_order": 3,
+     "team": "LAC",
+     "years_exp": 2,
+     "adp": 227.0,
+     "position": "RB"
+    },
+    "8177": {
+     "injury_status": "IR",
+     "depth_chart_order": 4,
+     "team": "PHI",
+     "years_exp": 4,
+     "adp": 479.0,
+     "position": "TE"
+    },
+    "13402": {
+     "depth_chart_order": 5,
+     "team": "BUF",
+     "years_exp": 0,
+     "adp": 369.0,
+     "position": "WR"
+    },
+    "4454": {
+     "depth_chart_order": 3,
+     "team": "ARI",
+     "years_exp": 9,
+     "adp": 358.0,
+     "position": "WR"
+    },
+    "13533": {
+     "depth_chart_order": 4,
+     "team": "NO",
+     "years_exp": 0,
+     "adp": 371.0,
+     "position": "WR"
+    },
+    "4137": {
+     "injury_status": "IR",
+     "depth_chart_order": 4,
+     "team": "ARI",
+     "years_exp": 9,
+     "adp": 216.0,
+     "position": "RB"
+    },
+    "11435": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 3,
+     "team": "SEA",
+     "years_exp": 3,
+     "adp": 278.0,
+     "position": "RB"
+    },
+    "13268": {
+     "depth_chart_order": 5,
+     "team": "BAL",
+     "years_exp": 0,
+     "adp": 373.0,
+     "position": "WR"
+    },
+    "13329": {
+     "depth_chart_order": 4,
+     "team": "LV",
+     "years_exp": 0,
+     "adp": 374.0,
+     "position": "WR"
+    },
+    "11370": {
+     "depth_chart_order": 2,
+     "team": "GB",
+     "years_exp": 3,
+     "adp": 240.0,
+     "position": "RB"
+    },
+    "13394": {
+     "depth_chart_order": 5,
+     "team": "JAX",
+     "years_exp": 0,
+     "adp": 375.0,
+     "position": "WR"
+    },
+    "8205": {
+     "injury_status": "IR",
+     "depth_chart_order": 4,
+     "team": "DET",
+     "years_exp": 4,
+     "adp": 160.67,
+     "position": "RB"
+    },
+    "9506": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 3,
+     "team": "TB",
+     "years_exp": 3,
+     "adp": 248.0,
+     "position": "RB"
+    },
+    "12457": {
+     "team": "PHI",
+     "years_exp": 1,
+     "adp": 247.5,
+     "position": "RB"
+    },
+    "13411": {
+     "depth_chart_order": 4,
+     "team": "CHI",
+     "years_exp": 0,
+     "adp": 378.0,
+     "position": "WR"
+    },
+    "11576": {
+     "depth_chart_order": 2,
+     "team": "NYJ",
+     "years_exp": 2,
+     "adp": 175.67,
+     "position": "RB"
+    },
+    "12499": {
+     "depth_chart_order": 4,
+     "team": "TEN",
+     "years_exp": 1,
+     "adp": 380.0,
+     "position": "WR"
+    },
+    "11643": {
+     "depth_chart_order": 2,
+     "team": "MIA",
+     "years_exp": 2,
+     "adp": 228.5,
+     "position": "RB"
+    },
+    "13269": {
+     "depth_chart_order": 2,
+     "team": "LV",
+     "years_exp": 0,
+     "adp": 168.0,
+     "position": "QB"
+    },
+    "8181": {
+     "depth_chart_order": 3,
+     "team": "LV",
+     "years_exp": 4,
+     "adp": 516.0,
+     "position": "TE"
+    },
+    "12473": {
+     "depth_chart_order": 4,
+     "team": "CAR",
+     "years_exp": 1,
+     "adp": 520.0,
+     "position": "TE"
+    },
+    "4054": {
+     "depth_chart_order": 2,
+     "team": "IND",
+     "years_exp": 9,
+     "adp": 521.0,
+     "position": "TE"
+    },
+    "9502": {
+     "injury_status": "IR",
+     "depth_chart_order": 6,
+     "team": "HOU",
+     "years_exp": 3,
+     "adp": 225.5,
+     "position": "WR"
+    },
+    "10212": {
+     "depth_chart_order": 3,
+     "team": "GB",
+     "years_exp": 3,
+     "adp": 523.0,
+     "position": "TE"
+    },
+    "13405": {
+     "depth_chart_order": 3,
+     "team": "WAS",
+     "years_exp": 0,
+     "adp": 237.0,
+     "position": "RB"
+    },
+    "6803": {
+     "injury_status": "DNR",
+     "depth_chart_order": 9,
+     "team": "SF",
+     "years_exp": 6,
+     "adp": 293.0,
+     "position": "WR"
+    },
+    "11571": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 3,
+     "team": "NYJ",
+     "years_exp": 2,
+     "adp": 366.0,
+     "position": "RB"
+    },
+    "12503": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 4,
+     "team": "CLE",
+     "years_exp": 1,
+     "adp": 372.0,
+     "position": "WR"
+    },
+    "7842": {
+     "depth_chart_order": 3,
+     "team": "SF",
+     "years_exp": 5,
+     "adp": 532.0,
+     "position": "TE"
+    },
+    "4381": {
+     "team": "FA",
+     "years_exp": 9,
+     "adp": 533.0,
+     "position": "TE"
+    },
+    "5008": {
+     "depth_chart_order": 3,
+     "team": "BAL",
+     "years_exp": 8,
+     "adp": 534.0,
+     "position": "TE"
+    },
+    "5985": {
+     "depth_chart_order": 4,
+     "team": "HOU",
+     "years_exp": 7,
+     "adp": 537.0,
+     "position": "TE"
+    },
+    "13433": {
+     "depth_chart_order": 6,
+     "team": "PIT",
+     "years_exp": 0,
+     "adp": 540.0,
+     "position": "TE"
+    },
+    "12544": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 3,
+     "team": "JAX",
+     "years_exp": 1,
+     "adp": 295.0,
+     "position": "RB"
+    },
+    "13414": {
+     "depth_chart_order": 2,
+     "team": "SF",
+     "years_exp": 0,
+     "adp": 170.0,
+     "position": "RB"
+    },
+    "8145": {
+     "depth_chart_order": 3,
+     "team": "NYJ",
+     "years_exp": 4,
+     "adp": 542.0,
+     "position": "TE"
+    },
+    "8147": {
+     "depth_chart_order": 4,
+     "team": "CAR",
+     "years_exp": 4,
+     "adp": 385.0,
+     "position": "WR"
+    },
+    "4177": {
+     "depth_chart_order": 4,
+     "team": "NE",
+     "years_exp": 9,
+     "adp": 377.0,
+     "position": "WR"
+    },
+    "10227": {
+     "depth_chart_order": 2,
+     "team": "TB",
+     "years_exp": 3,
+     "adp": 550.0,
+     "position": "TE"
+    },
+    "7536": {
+     "depth_chart_order": 4,
+     "team": "JAX",
+     "years_exp": 5,
+     "adp": 551.0,
+     "position": "TE"
+    },
+    "13429": {
+     "depth_chart_order": 3,
+     "team": "MIA",
+     "years_exp": 0,
+     "adp": 552.0,
+     "position": "TE"
+    },
+    "7075": {
+     "depth_chart_order": 3,
+     "team": "ATL",
+     "years_exp": 6,
+     "adp": 553.0,
+     "position": "TE"
+    },
+    "11606": {
+     "team": "FA",
+     "years_exp": 1,
+     "adp": 561.0,
+     "position": "TE"
+    },
+    "7946": {
+     "injury_status": "Questionable",
+     "team": "FA",
+     "years_exp": 5,
+     "adp": 562.0,
+     "position": "TE"
+    },
+    "8885": {
+     "team": "FA",
+     "years_exp": 4,
+     "adp": 563.0,
+     "position": "TE"
+    },
+    "5970": {
+     "team": "BUF",
+     "years_exp": 7,
+     "adp": 386.0,
+     "position": "WR"
+    },
+    "13846": {
+     "team": "ATL",
+     "years_exp": 0,
+     "adp": 564.0,
+     "position": "TE"
+    },
+    "11820": {
+     "team": "TB",
+     "years_exp": 2,
+     "adp": 566.0,
+     "position": "TE"
+    },
+    "4950": {
+     "injury_status": "IR",
+     "depth_chart_order": 7,
+     "team": "SF",
+     "years_exp": 8,
+     "adp": 387.0,
+     "position": "WR"
+    },
+    "10214": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 5,
+     "team": "LAR",
+     "years_exp": 3,
+     "adp": 583.0,
+     "position": "TE"
+    },
+    "5409": {
+     "team": "CIN",
+     "years_exp": 8,
+     "adp": 585.0,
+     "position": "TE"
+    },
+    "4189": {
+     "depth_chart_order": 3,
+     "team": "SEA",
+     "years_exp": 9,
+     "adp": 586.0,
+     "position": "TE"
+    },
+    "11433": {
+     "depth_chart_order": 3,
+     "team": "DEN",
+     "years_exp": 3,
+     "adp": 587.0,
+     "position": "TE"
+    },
+    "11371": {
+     "injury_status": "IR",
+     "depth_chart_order": 5,
+     "team": "NE",
+     "years_exp": 3,
+     "adp": 589.0,
+     "position": "TE"
+    },
+    "7568": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 5,
+     "team": "HOU",
+     "years_exp": 5,
+     "adp": 590.0,
+     "position": "TE"
+    },
+    "8489": {
+     "depth_chart_order": 3,
+     "team": "IND",
+     "years_exp": 4,
+     "adp": 594.0,
+     "position": "TE"
+    },
+    "11201": {
+     "depth_chart_order": 2,
+     "team": "CLE",
+     "years_exp": 3,
+     "adp": 606.0,
+     "position": "TE"
+    },
+    "10210": {
+     "depth_chart_order": 4,
+     "team": "NE",
+     "years_exp": 3,
+     "adp": 615.0,
+     "position": "TE"
+    },
+    "13121": {
+     "depth_chart_order": 3,
+     "team": "MIN",
+     "years_exp": 1,
+     "adp": 616.0,
+     "position": "TE"
+    },
+    "4995": {
+     "depth_chart_order": 3,
+     "team": "LV",
+     "years_exp": 8,
+     "adp": 617.0,
+     "position": "TE"
+    },
+    "7602": {
+     "depth_chart_order": 3,
+     "team": "TEN",
+     "years_exp": 5,
+     "adp": 620.0,
+     "position": "TE"
+    },
+    "10218": {
+     "depth_chart_order": 4,
+     "team": "HOU",
+     "years_exp": 3,
+     "adp": 413.0,
+     "position": "WR"
+    },
+    "12482": {
+     "injury_status": "IR",
+     "depth_chart_order": 7,
+     "team": "GB",
+     "years_exp": 1,
+     "adp": 423.0,
+     "position": "WR"
+    },
+    "3634": {
+     "depth_chart_order": 3,
+     "team": "CHI",
+     "years_exp": 10,
+     "adp": 461.0,
+     "position": "WR"
+    },
+    "8484": {
+     "depth_chart_order": 3,
+     "team": "TB",
+     "years_exp": 4,
+     "adp": 630.0,
+     "position": "TE"
+    },
+    "3048": {
+     "depth_chart_order": 4,
+     "team": "NYG",
+     "years_exp": 11,
+     "adp": 631.0,
+     "position": "TE"
+    },
+    "8041": {
+     "team": "NE",
+     "years_exp": 5,
+     "adp": 632.0,
+     "position": "TE"
+    },
+    "4602": {
+     "depth_chart_order": 3,
+     "team": "PIT",
+     "years_exp": 9,
+     "adp": 633.0,
+     "position": "TE"
+    },
+    "7531": {
+     "depth_chart_order": 5,
+     "team": "CAR",
+     "years_exp": 5,
+     "adp": 634.0,
+     "position": "TE"
+    },
+    "5133": {
+     "depth_chart_order": 3,
+     "team": "DET",
+     "years_exp": 8,
+     "adp": 638.0,
+     "position": "TE"
+    },
+    "13424": {
+     "depth_chart_order": 2,
+     "team": "IND",
+     "years_exp": 0,
+     "adp": 260.0,
+     "position": "RB"
+    },
+    "11570": {
+     "depth_chart_order": 3,
+     "team": "BAL",
+     "years_exp": 2,
+     "adp": 398.0,
+     "position": "RB"
+    },
+    "13331": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "TE"
+    },
+    "13430": {
+     "injury_status": "Questionable",
+     "team": "GB",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "TE"
+    },
+    "13432": {
+     "team": "SF",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "TE"
+    },
+    "13292": {
+     "team": "PIT",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "TE"
+    },
+    "14061": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "TE"
+    },
+    "13321": {
+     "team": "LAR",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "TE"
+    },
+    "14055": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "TE"
+    },
+    "13355": {
+     "injury_status": "IR",
+     "depth_chart_order": 6,
+     "team": "DAL",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "TE"
+    },
+    "13085": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "TE"
+    },
+    "13810": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "TE"
+    },
+    "14062": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "TE"
+    },
+    "13834": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "TE"
+    },
+    "13577": {
+     "depth_chart_order": 6,
+     "team": "DEN",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "TE"
+    },
+    "14029": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "TE"
+    },
+    "13407": {
+     "injury_status": "IR",
+     "depth_chart_order": 6,
+     "team": "IND",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "TE"
+    },
+    "13205": {
+     "injury_status": "Questionable",
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "TE"
+    },
+    "13280": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "TE"
+    },
+    "14069": {
+     "injury_status": "IR",
+     "team": "NYJ",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "TE"
+    },
+    "13870": {
+     "injury_status": "IR",
+     "depth_chart_order": 7,
+     "team": "WAS",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "TE"
+    },
+    "13712": {
+     "injury_status": "IR",
+     "depth_chart_order": 7,
+     "team": "CHI",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "TE"
+    },
+    "13308": {
+     "depth_chart_order": 5,
+     "team": "TB",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "TE"
+    },
+    "13630": {
+     "team": "LAC",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "TE"
+    },
+    "13158": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "TE"
+    },
+    "13580": {
+     "depth_chart_order": 5,
+     "team": "CLE",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "TE"
+    },
+    "13806": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "TE"
+    },
+    "13827": {
+     "depth_chart_order": 6,
+     "team": "NE",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "TE"
+    },
+    "13913": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "TE"
+    },
+    "13879": {
+     "injury_status": "IR",
+     "depth_chart_order": 7,
+     "team": "ARI",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "TE"
+    },
+    "13312": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "TE"
+    },
+    "12531": {
+     "injury_status": "IR",
+     "depth_chart_order": 4,
+     "team": "CAR",
+     "years_exp": 1,
+     "adp": 400.0,
+     "position": "RB"
+    },
+    "13380": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 4,
+     "team": "LAC",
+     "years_exp": 0,
+     "adp": 401.0,
+     "position": "WR"
+    },
+    "13270": {
+     "depth_chart_order": 3,
+     "team": "LAR",
+     "years_exp": 0,
+     "adp": 403.0,
+     "position": "WR"
+    },
+    "13420": {
+     "depth_chart_order": 3,
+     "team": "NO",
+     "years_exp": 0,
+     "adp": 406.0,
+     "position": "WR"
+    },
+    "8135": {
+     "depth_chart_order": 4,
+     "team": "WAS",
+     "years_exp": 4,
+     "adp": 416.0,
+     "position": "WR"
+    },
+    "3286": {
+     "depth_chart_order": 4,
+     "team": "SF",
+     "years_exp": 10,
+     "adp": 408.0,
+     "position": "WR"
+    },
+    "12471": {
+     "depth_chart_order": 3,
+     "team": "IND",
+     "years_exp": 1,
+     "adp": 424.0,
+     "position": "RB"
+    },
+    "12641": {
+     "depth_chart_order": 5,
+     "team": "WAS",
+     "years_exp": 1,
+     "adp": 410.0,
+     "position": "WR"
+    },
+    "11199": {
+     "depth_chart_order": 4,
+     "team": "DAL",
+     "years_exp": 3,
+     "adp": 288.0,
+     "position": "RB"
+    },
+    "11629": {
+     "depth_chart_order": 4,
+     "team": "BAL",
+     "years_exp": 2,
+     "adp": 446.0,
+     "position": "WR"
+    },
+    "12718": {
+     "depth_chart_order": 4,
+     "team": "LAR",
+     "years_exp": 1,
+     "adp": 392.0,
+     "position": "WR"
+    },
+    "12504": {
+     "depth_chart_order": 3,
+     "team": "GB",
+     "years_exp": 1,
+     "adp": 200.0,
+     "position": "RB"
+    },
+    "12495": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 3,
+     "team": "MIA",
+     "years_exp": 1,
+     "adp": 291.0,
+     "position": "RB"
+    },
+    "12476": {
+     "injury_status": "IR",
+     "depth_chart_order": 7,
+     "team": "NO",
+     "years_exp": 1,
+     "adp": 419.0,
+     "position": "RB"
+    },
+    "13348": {
+     "team": "JAX",
+     "years_exp": 0,
+     "adp": 421.0,
+     "position": "RB"
+    },
+    "8117": {
+     "depth_chart_order": 4,
+     "team": "MIA",
+     "years_exp": 4,
+     "adp": 277.0,
+     "position": "WR"
+    },
+    "7670": {
+     "depth_chart_order": 4,
+     "team": "BUF",
+     "years_exp": 5,
+     "adp": 426.0,
+     "position": "WR"
+    },
+    "13338": {
+     "depth_chart_order": 3,
+     "team": "MIA",
+     "years_exp": 0,
+     "adp": 428.0,
+     "position": "WR"
+    },
+    "11577": {
+     "depth_chart_order": 3,
+     "team": "PHI",
+     "years_exp": 2,
+     "adp": 417.0,
+     "position": "RB"
+    },
+    "12547": {
+     "depth_chart_order": 5,
+     "team": "NE",
+     "years_exp": 1,
+     "adp": 429.0,
+     "position": "WR"
+    },
+    "11623": {
+     "depth_chart_order": 7,
+     "team": "LAR",
+     "years_exp": 2,
+     "adp": 483.0,
+     "position": "WR"
+    },
+    "13302": {
+     "injury_status": "IR",
+     "depth_chart_order": 5,
+     "team": "BAL",
+     "years_exp": 0,
+     "adp": 282.0,
+     "position": "RB"
+    },
+    "12485": {
+     "depth_chart_order": 5,
+     "team": "TB",
+     "years_exp": 1,
+     "adp": 405.0,
+     "position": "WR"
+    },
+    "13477": {
+     "depth_chart_order": 4,
+     "team": "CIN",
+     "years_exp": 0,
+     "adp": 436.0,
+     "position": "WR"
+    },
+    "11608": {
+     "depth_chart_order": 4,
+     "team": "NYJ",
+     "years_exp": 2,
+     "adp": 438.0,
+     "position": "WR"
+    },
+    "12505": {
+     "depth_chart_order": 5,
+     "team": "KC",
+     "years_exp": 1,
+     "adp": 422.0,
+     "position": "WR"
+    },
+    "12523": {
+     "depth_chart_order": 5,
+     "team": "CAR",
+     "years_exp": 1,
+     "adp": 442.0,
+     "position": "WR"
+    },
+    "13309": {
+     "injury_status": "Questionable",
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 449.0,
+     "position": "WR"
+    },
+    "7496": {
+     "team": "IND",
+     "years_exp": 6,
+     "adp": 450.0,
+     "position": "WR"
+    },
+    "11588": {
+     "team": "HOU",
+     "years_exp": 2,
+     "adp": 452.0,
+     "position": "RB"
+    },
+    "12496": {
+     "depth_chart_order": 4,
+     "team": "MIN",
+     "years_exp": 1,
+     "adp": 453.0,
+     "position": "WR"
+    },
+    "13316": {
+     "team": "TB",
+     "years_exp": 0,
+     "adp": 455.0,
+     "position": "WR"
+    },
+    "12670": {
+     "depth_chart_order": 5,
+     "team": "LAC",
+     "years_exp": 1,
+     "adp": 415.0,
+     "position": "WR"
+    },
+    "2197": {
+     "team": "FA",
+     "years_exp": 12,
+     "adp": 456.0,
+     "position": "WR"
+    },
+    "7528": {
+     "depth_chart_order": 3,
+     "team": "NYG",
+     "years_exp": 5,
+     "adp": 209.0,
+     "position": "RB"
+    },
+    "6130": {
+     "depth_chart_order": 4,
+     "team": "NYG",
+     "years_exp": 7,
+     "adp": 217.0,
+     "position": "RB"
+    },
+    "11237": {
+     "depth_chart_order": 2,
+     "team": "DET",
+     "years_exp": 3,
+     "adp": 286.0,
+     "position": "RB"
+    },
+    "12455": {
+     "depth_chart_order": 3,
+     "team": "KC",
+     "years_exp": 1,
+     "adp": 459.0,
+     "position": "RB"
+    },
+    "13327": {
+     "injury_status": "Questionable",
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 460.0,
+     "position": "RB"
+    },
+    "12048": {
+     "depth_chart_order": 2,
+     "team": "SEA",
+     "years_exp": 2,
+     "adp": 215.0,
+     "position": "RB"
+    },
+    "2078": {
+     "depth_chart_order": 5,
+     "team": "NYG",
+     "years_exp": 12,
+     "adp": 232.0,
+     "position": "WR"
+    },
+    "5086": {
+     "team": "FA",
+     "years_exp": 8,
+     "adp": 463.0,
+     "position": "WR"
+    },
+    "2374": {
+     "team": "FA",
+     "years_exp": 11,
+     "adp": 464.0,
+     "position": "WR"
+    },
+    "12543": {
+     "depth_chart_order": 3,
+     "team": "CIN",
+     "years_exp": 1,
+     "adp": 462.0,
+     "position": "RB"
+    },
+    "13347": {
+     "depth_chart_order": 3,
+     "team": "MIN",
+     "years_exp": 0,
+     "adp": 259.0,
+     "position": "RB"
+    },
+    "4098": {
+     "team": "FA",
+     "years_exp": 9,
+     "adp": 465.0,
+     "position": "RB"
+    },
+    "6154": {
+     "injury_status": "IR",
+     "depth_chart_order": 7,
+     "team": "TB",
+     "years_exp": 7,
+     "adp": 466.0,
+     "position": "WR"
+    },
+    "11630": {
+     "depth_chart_order": 4,
+     "team": "PIT",
+     "years_exp": 2,
+     "adp": 469.0,
+     "position": "WR"
+    },
+    "11640": {
+     "team": "FA",
+     "years_exp": 1,
+     "adp": 472.0,
+     "position": "WR"
+    },
+    "13297": {
+     "depth_chart_order": 4,
+     "team": "ARI",
+     "years_exp": 0,
+     "adp": 475.0,
+     "position": "WR"
+    },
+    "13079": {
+     "depth_chart_order": 5,
+     "team": "CHI",
+     "years_exp": 1,
+     "adp": 477.0,
+     "position": "WR"
+    },
+    "11579": {
+     "depth_chart_order": 3,
+     "team": "NO",
+     "years_exp": 2,
+     "adp": 478.0,
+     "position": "RB"
+    },
+    "11168": {
+     "depth_chart_order": 5,
+     "team": "LAR",
+     "years_exp": 3,
+     "adp": 480.0,
+     "position": "WR"
+    },
+    "5938": {
+     "depth_chart_order": 6,
+     "team": "DEN",
+     "years_exp": 7,
+     "adp": 481.0,
+     "position": "WR"
+    },
+    "13333": {
+     "depth_chart_order": 6,
+     "team": "IND",
+     "years_exp": 0,
+     "adp": 484.0,
+     "position": "WR"
+    },
+    "13403": {
+     "injury_status": "Questionable",
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 485.0,
+     "position": "RB"
+    },
+    "1379": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 4,
+     "team": "SF",
+     "years_exp": 13,
+     "adp": 491.0,
+     "position": "RB"
+    },
+    "4351": {
+     "depth_chart_order": 5,
+     "team": "NYJ",
+     "years_exp": 9,
+     "adp": 522.0,
+     "position": "WR"
+    },
+    "2749": {
+     "injury_status": "Questionable",
+     "team": "FA",
+     "years_exp": 11,
+     "adp": 524.0,
+     "position": "RB"
+    },
+    "11574": {
+     "depth_chart_order": 4,
+     "team": "LV",
+     "years_exp": 2,
+     "adp": 525.0,
+     "position": "RB"
+    },
+    "13419": {
+     "team": "KC",
+     "years_exp": 0,
+     "adp": 526.0,
+     "position": "RB"
+    },
+    "7562": {
+     "depth_chart_order": 6,
+     "team": "LAR",
+     "years_exp": 5,
+     "adp": 278.0,
+     "position": "WR"
+    },
+    "11569": {
+     "team": "FA",
+     "years_exp": 1,
+     "adp": 527.0,
+     "position": "RB"
+    },
+    "7561": {
+     "injury_status": "Questionable",
+     "team": "FA",
+     "years_exp": 5,
+     "adp": 528.0,
+     "position": "RB"
+    },
+    "8204": {
+     "depth_chart_order": 4,
+     "team": "GB",
+     "years_exp": 4,
+     "adp": 531.0,
+     "position": "WR"
+    },
+    "4219": {
+     "injury_status": "IR",
+     "depth_chart_order": 4,
+     "team": "WAS",
+     "years_exp": 9,
+     "adp": 530.0,
+     "position": "RB"
+    },
+    "4663": {
+     "team": "FA",
+     "years_exp": 9,
+     "adp": 191.0,
+     "position": "RB"
+    },
+    "11650": {
+     "depth_chart_order": 7,
+     "team": "WAS",
+     "years_exp": 2,
+     "adp": 536.0,
+     "position": "WR"
+    },
+    "4234": {
+     "team": "FA",
+     "years_exp": 9,
+     "adp": 538.0,
+     "position": "WR"
+    },
+    "13315": {
+     "team": "LAR",
+     "years_exp": 0,
+     "adp": 535.0,
+     "position": "RB"
+    },
+    "4718": {
+     "team": "LV",
+     "years_exp": 9,
+     "adp": 539.0,
+     "position": "RB"
+    },
+    "12860": {
+     "team": "LAC",
+     "years_exp": 1,
+     "adp": 541.0,
+     "position": "WR"
+    },
+    "7039": {
+     "team": "LV",
+     "years_exp": 6,
+     "adp": 548.0,
+     "position": "WR"
+    },
+    "7607": {
+     "team": "TEN",
+     "years_exp": 5,
+     "adp": 543.0,
+     "position": "RB"
+    },
+    "10235": {
+     "depth_chart_order": 3,
+     "team": "CHI",
+     "years_exp": 3,
+     "adp": 544.0,
+     "position": "RB"
+    },
+    "11439": {
+     "team": "CLE",
+     "years_exp": 3,
+     "adp": 545.0,
+     "position": "RB"
+    },
+    "8116": {
+     "team": "GB",
+     "years_exp": 4,
+     "adp": 546.0,
+     "position": "RB"
+    },
+    "11510": {
+     "depth_chart_order": 3,
+     "team": "DAL",
+     "years_exp": 3,
+     "adp": 547.0,
+     "position": "RB"
+    },
+    "8208": {
+     "depth_chart_order": 4,
+     "team": "DEN",
+     "years_exp": 4,
+     "adp": 549.0,
+     "position": "RB"
+    },
+    "4992": {
+     "team": "FA",
+     "years_exp": 8,
+     "adp": 554.0,
+     "position": "WR"
+    },
+    "11617": {
+     "depth_chart_order": 6,
+     "team": "CLE",
+     "years_exp": 2,
+     "adp": 555.0,
+     "position": "WR"
+    },
+    "11921": {
+     "injury_status": "Questionable",
+     "team": "FA",
+     "years_exp": 2,
+     "adp": 558.0,
+     "position": "WR"
+    },
+    "12539": {
+     "depth_chart_order": 6,
+     "team": "NYJ",
+     "years_exp": 1,
+     "adp": 559.0,
+     "position": "WR"
+    },
+    "11651": {
+     "injury_status": "PUP",
+     "depth_chart_order": 6,
+     "team": "SF",
+     "years_exp": 2,
+     "adp": 556.0,
+     "position": "RB"
+    },
+    "12738": {
+     "team": "FA",
+     "years_exp": 1,
+     "adp": 557.0,
+     "position": "RB"
+    },
+    "8195": {
+     "depth_chart_order": 3,
+     "team": "LAR",
+     "years_exp": 4,
+     "adp": 560.0,
+     "position": "RB"
+    },
+    "6853": {
+     "team": "FA",
+     "years_exp": 6,
+     "adp": 565.0,
+     "position": "WR"
+    },
+    "13150": {
+     "depth_chart_order": 5,
+     "team": "PHI",
+     "years_exp": 1,
+     "adp": 567.0,
+     "position": "WR"
+    },
+    "13318": {
+     "team": "CIN",
+     "years_exp": 0,
+     "adp": 568.0,
+     "position": "WR"
+    },
+    "13356": {
+     "team": "JAX",
+     "years_exp": 0,
+     "adp": 569.0,
+     "position": "WR"
+    },
+    "13410": {
+     "injury_status": "IR",
+     "depth_chart_order": 10,
+     "team": "LV",
+     "years_exp": 0,
+     "adp": 570.0,
+     "position": "WR"
+    },
+    "10444": {
+     "team": "NO",
+     "years_exp": 3,
+     "adp": 571.0,
+     "position": "WR"
+    },
+    "13336": {
+     "team": "DEN",
+     "years_exp": 0,
+     "adp": 572.0,
+     "position": "WR"
+    },
+    "4171": {
+     "team": "FA",
+     "years_exp": 9,
+     "adp": 573.0,
+     "position": "WR"
+    },
+    "8200": {
+     "team": "NO",
+     "years_exp": 4,
+     "adp": 575.0,
+     "position": "WR"
+    },
+    "11034": {
+     "depth_chart_order": 5,
+     "team": "ARI",
+     "years_exp": 3,
+     "adp": 576.0,
+     "position": "WR"
+    },
+    "6960": {
+     "team": "FA",
+     "years_exp": 6,
+     "adp": 577.0,
+     "position": "WR"
+    },
+    "5185": {
+     "team": "FA",
+     "years_exp": 7,
+     "adp": 578.0,
+     "position": "WR"
+    },
+    "8254": {
+     "depth_chart_order": 4,
+     "team": "TEN",
+     "years_exp": 4,
+     "adp": 579.0,
+     "position": "RB"
+    },
+    "11299": {
+     "team": "CHI",
+     "years_exp": 3,
+     "adp": 580.0,
+     "position": "RB"
+    },
+    "9757": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 2,
+     "team": "NO",
+     "years_exp": 3,
+     "adp": 581.0,
+     "position": "RB"
+    },
+    "12516": {
+     "team": "TEN",
+     "years_exp": 1,
+     "adp": 582.0,
+     "position": "RB"
+    },
+    "4082": {
+     "team": "FA",
+     "years_exp": 9,
+     "adp": 584.0,
+     "position": "WR"
+    },
+    "10216": {
+     "team": "FA",
+     "years_exp": 3,
+     "adp": 588.0,
+     "position": "RB"
+    },
+    "6938": {
+     "team": "FA",
+     "years_exp": 6,
+     "adp": 591.0,
+     "position": "RB"
+    },
+    "8139": {
+     "team": "NO",
+     "years_exp": 4,
+     "adp": 592.0,
+     "position": "RB"
+    },
+    "7587": {
+     "depth_chart_order": 6,
+     "team": "WAS",
+     "years_exp": 5,
+     "adp": 593.0,
+     "position": "WR"
+    },
+    "11994": {
+     "depth_chart_order": 6,
+     "team": "TB",
+     "years_exp": 2,
+     "adp": 597.0,
+     "position": "WR"
+    },
+    "12520": {
+     "team": "TEN",
+     "years_exp": 1,
+     "adp": 599.0,
+     "position": "WR"
+    },
+    "12541": {
+     "injury_status": "IR",
+     "depth_chart_order": 9,
+     "team": "LV",
+     "years_exp": 1,
+     "adp": 600.0,
+     "position": "WR"
+    },
+    "2359": {
+     "depth_chart_order": 4,
+     "team": "JAX",
+     "years_exp": 11,
+     "adp": 595.0,
+     "position": "RB"
+    },
+    "8207": {
+     "team": "ATL",
+     "years_exp": 4,
+     "adp": 596.0,
+     "position": "RB"
+    },
+    "8129": {
+     "team": "PHI",
+     "years_exp": 4,
+     "adp": 598.0,
+     "position": "RB"
+    },
+    "12542": {
+     "depth_chart_order": 6,
+     "team": "NE",
+     "years_exp": 1,
+     "adp": 602.0,
+     "position": "WR"
+    },
+    "8527": {
+     "depth_chart_order": 5,
+     "team": "LV",
+     "years_exp": 4,
+     "adp": 603.0,
+     "position": "WR"
+    },
+    "12472": {
+     "depth_chart_order": 3,
+     "team": "CLE",
+     "years_exp": 1,
+     "adp": 601.0,
+     "position": "RB"
+    },
+    "13946": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 604.0,
+     "position": "RB"
+    },
+    "4274": {
+     "team": "CAR",
+     "years_exp": 9,
+     "adp": 608.0,
+     "position": "WR"
+    },
+    "6659": {
+     "team": "WAS",
+     "years_exp": 7,
+     "adp": 605.0,
+     "position": "RB"
+    },
+    "12475": {
+     "team": "SEA",
+     "years_exp": 1,
+     "adp": 609.0,
+     "position": "WR"
+    },
+    "10867": {
+     "injury_status": "IR",
+     "depth_chart_order": 6,
+     "team": "SEA",
+     "years_exp": 3,
+     "adp": 610.0,
+     "position": "WR"
+    },
+    "7595": {
+     "depth_chart_order": 5,
+     "team": "CLE",
+     "years_exp": 5,
+     "adp": 611.0,
+     "position": "WR"
+    },
+    "13491": {
+     "depth_chart_order": 6,
+     "team": "PIT",
+     "years_exp": 0,
+     "adp": 612.0,
+     "position": "WR"
+    },
+    "13047": {
+     "team": "SEA",
+     "years_exp": 1,
+     "adp": 607.0,
+     "position": "RB"
+    },
+    "3269": {
+     "team": "BAL",
+     "years_exp": 10,
+     "adp": 613.0,
+     "position": "WR"
+    },
+    "4040": {
+     "injury_status": "Questionable",
+     "team": "FA",
+     "years_exp": 9,
+     "adp": 614.0,
+     "position": "WR"
+    },
+    "11377": {
+     "injury_status": "PUP",
+     "depth_chart_order": 8,
+     "team": "BUF",
+     "years_exp": 3,
+     "adp": 619.0,
+     "position": "WR"
+    },
+    "5154": {
+     "team": "BUF",
+     "years_exp": 8,
+     "adp": 622.0,
+     "position": "WR"
+    },
+    "11729": {
+     "depth_chart_order": 3,
+     "team": "DET",
+     "years_exp": 2,
+     "adp": 618.0,
+     "position": "RB"
+    },
+    "6945": {
+     "injury_status": "Questionable",
+     "team": "FA",
+     "years_exp": 6,
+     "adp": 621.0,
+     "position": "RB"
+    },
+    "11762": {
+     "team": "IND",
+     "years_exp": 2,
+     "adp": 624.0,
+     "position": "WR"
+    },
+    "13516": {
+     "depth_chart_order": 4,
+     "team": "MIN",
+     "years_exp": 0,
+     "adp": 623.0,
+     "position": "RB"
+    },
+    "8168": {
+     "depth_chart_order": 5,
+     "team": "GB",
+     "years_exp": 4,
+     "adp": 625.0,
+     "position": "WR"
+    },
+    "6427": {
+     "depth_chart_order": 4,
+     "team": "IND",
+     "years_exp": 7,
+     "adp": 626.0,
+     "position": "WR"
+    },
+    "1426": {
+     "team": "FA",
+     "years_exp": 13,
+     "adp": 628.0,
+     "position": "WR"
+    },
+    "12515": {
+     "team": "FA",
+     "years_exp": 1,
+     "adp": 627.0,
+     "position": "RB"
+    },
+    "12634": {
+     "depth_chart_order": 5,
+     "team": "SF",
+     "years_exp": 1,
+     "adp": 629.0,
+     "position": "WR"
+    },
+    "13101": {
+     "team": "FA",
+     "years_exp": 1,
+     "adp": 635.0,
+     "position": "WR"
+    },
+    "2750": {
+     "team": "FA",
+     "years_exp": 11,
+     "adp": 636.0,
+     "position": "WR"
+    },
+    "11616": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 6,
+     "team": "SF",
+     "years_exp": 2,
+     "adp": 637.0,
+     "position": "WR"
+    },
+    "6820": {
+     "team": "FA",
+     "years_exp": 6,
+     "adp": 258.0,
+     "position": "RB"
+    },
+    "7757": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 5,
+     "team": "PIT",
+     "years_exp": 5,
+     "adp": 639.0,
+     "position": "WR"
+    },
+    "3200": {
+     "team": "FA",
+     "years_exp": 10,
+     "adp": 640.0,
+     "position": "WR"
+    },
+    "11320": {
+     "depth_chart_order": 6,
+     "team": "KC",
+     "years_exp": 3,
+     "adp": 641.0,
+     "position": "WR"
+    },
+    "12699": {
+     "depth_chart_order": 6,
+     "team": "BAL",
+     "years_exp": 1,
+     "adp": 642.0,
+     "position": "WR"
+    },
+    "13830": {
+     "team": "NE",
+     "years_exp": 0,
+     "adp": 251.0,
+     "position": "WR"
+    },
+    "13862": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 268.0,
+     "position": "WR"
+    },
+    "13861": {
+     "team": "HOU",
+     "years_exp": 0,
+     "adp": 314.0,
+     "position": "WR"
+    },
+    "13760": {
+     "team": "WAS",
+     "years_exp": 0,
+     "adp": 317.0,
+     "position": "WR"
+    },
+    "13600": {
+     "team": "TEN",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13108": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13409": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13898": {
+     "injury_status": "IR",
+     "depth_chart_order": 11,
+     "team": "LV",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13554": {
+     "depth_chart_order": 9,
+     "team": "JAX",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13805": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13608": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "12913": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13905": {
+     "team": "KC",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13916": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13973": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13604": {
+     "injury_status": "IR",
+     "depth_chart_order": 10,
+     "team": "LAC",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13749": {
+     "team": "CLE",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13658": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13744": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13632": {
+     "team": "LAC",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13647": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13264": {
+     "depth_chart_order": 8,
+     "team": "CIN",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "14020": {
+     "team": "TB",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13582": {
+     "team": "DAL",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13325": {
+     "team": "DAL",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13619": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13353": {
+     "injury_status": "IR",
+     "depth_chart_order": 10,
+     "team": "CAR",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13696": {
+     "team": "BUF",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13674": {
+     "team": "GB",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13670": {
+     "team": "ARI",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13392": {
+     "injury_status": "IR",
+     "depth_chart_order": 8,
+     "team": "KC",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "12966": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13850": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13825": {
+     "team": "NYJ",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13662": {
+     "team": "SF",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13967": {
+     "injury_status": "Questionable",
+     "team": "NE",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13849": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13313": {
+     "team": "SEA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13776": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13904": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "14067": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "14037": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13962": {
+     "team": "NE",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13726": {
+     "depth_chart_order": 6,
+     "team": "DAL",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13963": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13343": {
+     "team": "ATL",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13890": {
+     "team": "MIN",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13941": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13929": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13645": {
+     "team": "JAX",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "14034": {
+     "injury_status": "Sus",
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13326": {
+     "injury_status": "Questionable",
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "14038": {
+     "team": "MIN",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13698": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13222": {
+     "injury_status": "Questionable",
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "14085": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13770": {
+     "depth_chart_order": 9,
+     "team": "GB",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13161": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13708": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13621": {
+     "team": "MIN",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13663": {
+     "team": "SF",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13981": {
+     "team": "DEN",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13541": {
+     "team": "HOU",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13743": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "WR"
+    },
+    "13352": {
+     "injury_status": "Questionable",
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "RB"
+    },
+    "13906": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "RB"
+    },
+    "13418": {
+     "team": "WAS",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "RB"
+    },
+    "13438": {
+     "depth_chart_order": 6,
+     "team": "NYJ",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "RB"
+    },
+    "14086": {
+     "team": "WAS",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "RB"
+    },
+    "13603": {
+     "team": "LAC",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "RB"
+    },
+    "13852": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "RB"
+    },
+    "13909": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "RB"
+    },
+    "13423": {
+     "depth_chart_order": 3,
+     "team": "PIT",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "RB"
+    },
+    "13339": {
+     "team": "IND",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "RB"
+    },
+    "13416": {
+     "team": "LV",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "RB"
+    },
+    "14080": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "RB"
+    },
+    "13300": {
+     "injury_status": "NA",
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "RB"
+    },
+    "13780": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "RB"
+    },
+    "13277": {
+     "team": "NO",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "RB"
+    },
+    "13937": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "RB"
+    },
+    "13328": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "RB"
+    },
+    "13595": {
+     "team": "ATL",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "RB"
+    },
+    "13779": {
+     "team": "NYJ",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "RB"
+    },
+    "14041": {
+     "team": "IND",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "RB"
+    },
+    "14008": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "RB"
+    },
+    "13844": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "RB"
+    },
+    "13291": {
+     "injury_status": "Questionable",
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "RB"
+    },
+    "13436": {
+     "team": "CIN",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "RB"
+    },
+    "13725": {
+     "injury_status": "IR",
+     "depth_chart_order": 7,
+     "team": "NYJ",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "RB"
+    },
+    "13022": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "RB"
+    },
+    "14021": {
+     "injury_status": "Questionable",
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "RB"
+    },
+    "13778": {
+     "injury_status": "IR",
+     "depth_chart_order": 7,
+     "team": "KC",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "RB"
+    },
+    "14082": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "RB"
+    },
+    "13437": {
+     "team": "HOU",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "RB"
+    },
+    "14064": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "RB"
+    },
+    "11559": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 2,
+     "team": "ATL",
+     "years_exp": 2,
+     "adp": 183.0,
+     "position": "QB"
+    },
+    "4017": {
+     "depth_chart_order": 1,
+     "team": "CLE",
+     "years_exp": 9,
+     "adp": 202.0,
+     "position": "QB"
+    },
+    "12524": {
+     "depth_chart_order": 2,
+     "team": "CLE",
+     "years_exp": 1,
+     "adp": 210.0,
+     "position": "QB"
+    },
+    "6768": {
+     "depth_chart_order": 1,
+     "team": "ATL",
+     "years_exp": 6,
+     "adp": 235.0,
+     "position": "QB"
+    },
+    "13272": {
+     "depth_chart_order": 3,
+     "team": "ARI",
+     "years_exp": 0,
+     "adp": 360.0,
+     "position": "QB"
+    },
+    "1166": {
+     "depth_chart_order": 1,
+     "team": "LV",
+     "years_exp": 14,
+     "adp": 185.0,
+     "position": "QB"
+    },
+    "7591": {
+     "depth_chart_order": 2,
+     "team": "KC",
+     "years_exp": 5,
+     "adp": 388.0,
+     "position": "QB"
+    },
+    "19": {
+     "depth_chart_order": 2,
+     "team": "CIN",
+     "years_exp": 18,
+     "adp": 397.0,
+     "position": "QB"
+    },
+    "13306": {
+     "depth_chart_order": 4,
+     "team": "CLE",
+     "years_exp": 0,
+     "adp": 399.0,
+     "position": "QB"
+    },
+    "6011": {
+     "depth_chart_order": 2,
+     "team": "ARI",
+     "years_exp": 7,
+     "adp": 402.0,
+     "position": "QB"
+    },
+    "2028": {
+     "injury_status": "NA",
+     "team": "FA",
+     "years_exp": 11,
+     "adp": 407.0,
+     "position": "QB"
+    },
+    "7527": {
+     "depth_chart_order": 2,
+     "team": "SF",
+     "years_exp": 5,
+     "adp": 249.0,
+     "position": "QB"
+    },
+    "13303": {
+     "depth_chart_order": 2,
+     "team": "NYJ",
+     "years_exp": 0,
+     "adp": 433.0,
+     "position": "QB"
+    },
+    "12511": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 4,
+     "team": "PIT",
+     "years_exp": 1,
+     "adp": 451.0,
+     "position": "QB"
+    },
+    "13289": {
+     "depth_chart_order": 2,
+     "team": "PIT",
+     "years_exp": 0,
+     "adp": 454.0,
+     "position": "QB"
+    },
+    "9229": {
+     "depth_chart_order": 3,
+     "team": "IND",
+     "years_exp": 3,
+     "adp": 467.0,
+     "position": "QB"
+    },
+    "7585": {
+     "depth_chart_order": 2,
+     "team": "HOU",
+     "years_exp": 5,
+     "adp": 509.0,
+     "position": "QB"
+    },
+    "12470": {
+     "depth_chart_order": 2,
+     "team": "IND",
+     "years_exp": 1,
+     "adp": 499.0,
+     "position": "QB"
+    },
+    "7610": {
+     "depth_chart_order": 2,
+     "team": "LAC",
+     "years_exp": 5,
+     "adp": 487.0,
+     "position": "QB"
+    },
+    "12510": {
+     "depth_chart_order": 3,
+     "team": "SEA",
+     "years_exp": 1,
+     "adp": 488.0,
+     "position": "QB"
+    },
+    "12500": {
+     "depth_chart_order": 4,
+     "team": "JAX",
+     "years_exp": 1,
+     "adp": 505.0,
+     "position": "QB"
+    },
+    "11565": {
+     "depth_chart_order": 2,
+     "team": "MIN",
+     "years_exp": 2,
+     "adp": 489.0,
+     "position": "QB"
+    },
+    "13275": {
+     "depth_chart_order": 2,
+     "team": "LAR",
+     "years_exp": 0,
+     "adp": 490.0,
+     "position": "QB"
+    },
+    "2307": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 2,
+     "team": "WAS",
+     "years_exp": 11,
+     "adp": 492.0,
+     "position": "QB"
+    },
+    "11557": {
+     "team": "DAL",
+     "years_exp": 2,
+     "adp": 502.0,
+     "position": "QB"
+    },
+    "827": {
+     "depth_chart_order": 2,
+     "team": "GB",
+     "years_exp": 15,
+     "adp": 493.0,
+     "position": "QB"
+    },
+    "11256": {
+     "depth_chart_order": 2,
+     "team": "CHI",
+     "years_exp": 3,
+     "adp": 498.0,
+     "position": "QB"
+    },
+    "2306": {
+     "depth_chart_order": 2,
+     "team": "NYG",
+     "years_exp": 11,
+     "adp": 494.0,
+     "position": "QB"
+    },
+    "9999": {
+     "team": "FA",
+     "years_exp": 3,
+     "adp": 495.0,
+     "position": "QB"
+    },
+    "7083": {
+     "depth_chart_order": 2,
+     "team": "BAL",
+     "years_exp": 6,
+     "adp": 496.0,
+     "position": "QB"
+    },
+    "11562": {
+     "depth_chart_order": 2,
+     "team": "NO",
+     "years_exp": 2,
+     "adp": 497.0,
+     "position": "QB"
+    },
+    "3161": {
+     "depth_chart_order": 3,
+     "team": "MIN",
+     "years_exp": 10,
+     "adp": 500.0,
+     "position": "QB"
+    },
+    "9230": {
+     "depth_chart_order": 2,
+     "team": "PHI",
+     "years_exp": 3,
+     "adp": 501.0,
+     "position": "QB"
+    },
+    "10217": {
+     "team": "FA",
+     "years_exp": 3,
+     "adp": 503.0,
+     "position": "QB"
+    },
+    "4179": {
+     "depth_chart_order": 2,
+     "team": "DET",
+     "years_exp": 9,
+     "adp": 504.0,
+     "position": "QB"
+    },
+    "11292": {
+     "depth_chart_order": 2,
+     "team": "NE",
+     "years_exp": 3,
+     "adp": 506.0,
+     "position": "QB"
+    },
+    "1837": {
+     "team": "FA",
+     "years_exp": 12,
+     "adp": 507.0,
+     "position": "QB"
+    },
+    "6136": {
+     "depth_chart_order": 2,
+     "team": "DEN",
+     "years_exp": 7,
+     "adp": 508.0,
+     "position": "QB"
+    },
+    "4464": {
+     "team": "JAX",
+     "years_exp": 9,
+     "adp": 510.0,
+     "position": "QB"
+    },
+    "3976": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 2,
+     "team": "TEN",
+     "years_exp": 9,
+     "adp": 513.0,
+     "position": "QB"
+    },
+    "12486": {
+     "injury_status": "IR",
+     "depth_chart_order": 3,
+     "team": "CLE",
+     "years_exp": 1,
+     "adp": 514.0,
+     "position": "QB"
+    },
+    "829": {
+     "depth_chart_order": 3,
+     "team": "PHI",
+     "years_exp": 15,
+     "adp": 515.0,
+     "position": "QB"
+    },
+    "4972": {
+     "depth_chart_order": 3,
+     "team": "PIT",
+     "years_exp": 8,
+     "adp": 517.0,
+     "position": "QB"
+    },
+    "2152": {
+     "injury_status": "NA",
+     "team": "FA",
+     "years_exp": 12,
+     "adp": 518.0,
+     "position": "QB"
+    },
+    "260": {
+     "team": "CIN",
+     "years_exp": 18,
+     "adp": 519.0,
+     "position": "QB"
+    },
+    "5127": {
+     "depth_chart_order": 2,
+     "team": "BUF",
+     "years_exp": 8,
+     "adp": 512.0,
+     "position": "QB"
+    },
+    "13221": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "QB"
+    },
+    "13295": {
+     "depth_chart_order": 3,
+     "team": "NE",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "QB"
+    },
+    "13599": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "QB"
+    },
+    "13310": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "QB"
+    },
+    "13557": {
+     "depth_chart_order": 4,
+     "team": "WAS",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "QB"
+    },
+    "13802": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "QB"
+    },
+    "13428": {
+     "team": "JAX",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "QB"
+    },
+    "13415": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 3,
+     "team": "CAR",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "QB"
+    },
+    "13335": {
+     "depth_chart_order": 4,
+     "team": "PHI",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "QB"
+    },
+    "13597": {
+     "injury_status": "IR",
+     "depth_chart_order": 4,
+     "team": "LAR",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "QB"
+    },
+    "13425": {
+     "depth_chart_order": 3,
+     "team": "TB",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "QB"
+    },
+    "13404": {
+     "depth_chart_order": 4,
+     "team": "KC",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "QB"
+    },
+    "13350": {
+     "depth_chart_order": 4,
+     "team": "BAL",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "QB"
+    },
+    "13314": {
+     "team": "DET",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "QB"
+    },
+    "13602": {
+     "depth_chart_order": 4,
+     "team": "ATL",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "QB"
+    },
+    "LAR": {
+     "team": "LAR",
+     "adp": 108.33,
+     "position": "DEF"
+    },
+    "11533": {
+     "depth_chart_order": 1,
+     "team": "DAL",
+     "years_exp": 3,
+     "adp": 115.33,
+     "position": "K"
+    },
+    "2747": {
+     "depth_chart_order": 1,
+     "team": "SEA",
+     "years_exp": 11,
+     "adp": 151.67,
+     "position": "K"
+    },
+    "HOU": {
+     "team": "HOU",
+     "adp": 111.67,
+     "position": "DEF"
+    },
+    "SEA": {
+     "team": "SEA",
+     "adp": 126.67,
+     "position": "DEF"
+    },
+    "3451": {
+     "depth_chart_order": 1,
+     "team": "HOU",
+     "years_exp": 10,
+     "adp": 144.67,
+     "position": "K"
+    },
+    "NE": {
+     "team": "NE",
+     "adp": 171.33,
+     "position": "DEF"
+    },
+    "MIN": {
+     "team": "MIN",
+     "adp": 187.0,
+     "position": "DEF"
+    },
+    "JAX": {
+     "team": "JAX",
+     "adp": 190.0,
+     "position": "DEF"
+    },
+    "8259": {
+     "injury_status": "Questionable",
+     "depth_chart_order": 1,
+     "team": "LAC",
+     "years_exp": 4,
+     "adp": 146.67,
+     "position": "K"
+    },
+    "12015": {
+     "depth_chart_order": 1,
+     "team": "LAR",
+     "years_exp": 2,
+     "adp": 193.33,
+     "position": "K"
+    },
+    "PHI": {
+     "team": "PHI",
+     "adp": 146.67,
+     "position": "DEF"
+    },
+    "DET": {
+     "team": "DET",
+     "adp": 224.0,
+     "position": "DEF"
+    },
+    "11539": {
+     "depth_chart_order": 1,
+     "team": "DET",
+     "years_exp": 3,
+     "adp": 194.33,
+     "position": "K"
+    },
+    "11786": {
+     "depth_chart_order": 1,
+     "team": "JAX",
+     "years_exp": 2,
+     "adp": 169.67,
+     "position": "K"
+    },
+    "11792": {
+     "depth_chart_order": 1,
+     "team": "MIN",
+     "years_exp": 2,
+     "adp": 217.33,
+     "position": "K"
+    },
+    "DEN": {
+     "team": "DEN",
+     "adp": 124.33,
+     "position": "DEF"
+    },
+    "6650": {
+     "depth_chart_order": 1,
+     "team": "TB",
+     "years_exp": 7,
+     "adp": 233.33,
+     "position": "K"
+    },
+    "BAL": {
+     "team": "BAL",
+     "adp": 190.67,
+     "position": "DEF"
+    },
+    "2020": {
+     "depth_chart_order": 1,
+     "team": "CHI",
+     "years_exp": 12,
+     "adp": 245.0,
+     "position": "K"
+    },
+    "650": {
+     "depth_chart_order": 1,
+     "team": "ATL",
+     "years_exp": 19,
+     "adp": 171.0,
+     "position": "K"
+    },
+    "11058": {
+     "depth_chart_order": 1,
+     "team": "NYJ",
+     "years_exp": 3,
+     "adp": 163.7,
+     "position": "K"
+    },
+    "12711": {
+     "depth_chart_order": 1,
+     "team": "BAL",
+     "years_exp": 1,
+     "adp": 209.67,
+     "position": "K"
+    },
+    "4227": {
+     "depth_chart_order": 1,
+     "team": "KC",
+     "years_exp": 9,
+     "adp": 197.67,
+     "position": "K"
+    },
+    "5189": {
+     "depth_chart_order": 1,
+     "team": "SF",
+     "years_exp": 8,
+     "adp": 209.33,
+     "position": "K"
+    },
+    "DAL": {
+     "team": "DAL",
+     "adp": 211.33,
+     "position": "DEF"
+    },
+    "7839": {
+     "depth_chart_order": 1,
+     "team": "CIN",
+     "years_exp": 5,
+     "adp": 208.33,
+     "position": "K"
+    },
+    "PIT": {
+     "team": "PIT",
+     "adp": 193.67,
+     "position": "DEF"
+    },
+    "3678": {
+     "depth_chart_order": 1,
+     "team": "DEN",
+     "years_exp": 10,
+     "adp": 230.5,
+     "position": "K"
+    },
+    "7042": {
+     "depth_chart_order": 1,
+     "team": "BUF",
+     "years_exp": 6,
+     "adp": 230.0,
+     "position": "K"
+    },
+    "KC": {
+     "team": "KC",
+     "adp": 237.67,
+     "position": "DEF"
+    },
+    "CAR": {
+     "team": "CAR",
+     "adp": 335.0,
+     "position": "DEF"
+    },
+    "LAC": {
+     "team": "LAC",
+     "adp": 196.33,
+     "position": "DEF"
+    },
+    "NYG": {
+     "team": "NYG",
+     "adp": 215.0,
+     "position": "DEF"
+    },
+    "GB": {
+     "team": "GB",
+     "adp": 221.67,
+     "position": "DEF"
+    },
+    "CHI": {
+     "team": "CHI",
+     "adp": 218.67,
+     "position": "DEF"
+    },
+    "1945": {
+     "depth_chart_order": 1,
+     "team": "PIT",
+     "years_exp": 12,
+     "adp": 221.0,
+     "position": "K"
+    },
+    "BUF": {
+     "team": "BUF",
+     "adp": 209.5,
+     "position": "DEF"
+    },
+    "SF": {
+     "team": "SF",
+     "adp": 220.33,
+     "position": "DEF"
+    },
+    "IND": {
+     "team": "IND",
+     "adp": 337.0,
+     "position": "DEF"
+    },
+    "ATL": {
+     "team": "ATL",
+     "adp": 164.8,
+     "position": "DEF"
+    },
+    "NO": {
+     "team": "NO",
+     "adp": 179.1,
+     "position": "DEF"
+    },
+    "TB": {
+     "team": "TB",
+     "adp": 175.8,
+     "position": "DEF"
+    },
+    "12713": {
+     "depth_chart_order": 1,
+     "team": "NE",
+     "years_exp": 1,
+     "adp": 230.67,
+     "position": "K"
+    },
+    "4195": {
+     "depth_chart_order": 1,
+     "team": "PHI",
+     "years_exp": 9,
+     "adp": 173.0,
+     "position": "K"
+    },
+    "CIN": {
+     "team": "CIN",
+     "adp": 338.0,
+     "position": "DEF"
+    },
+    "6528": {
+     "depth_chart_order": 1,
+     "team": "TEN",
+     "years_exp": 7,
+     "adp": 344.0,
+     "position": "K"
+    },
+    "WAS": {
+     "team": "WAS",
+     "adp": 340.0,
+     "position": "DEF"
+    },
+    "CLE": {
+     "team": "CLE",
+     "adp": 239.0,
+     "position": "DEF"
+    },
+    "10955": {
+     "depth_chart_order": 1,
+     "team": "ARI",
+     "years_exp": 3,
+     "adp": 341.0,
+     "position": "K"
+    },
+    "ARI": {
+     "team": "ARI",
+     "adp": 342.0,
+     "position": "DEF"
+    },
+    "12961": {
+     "depth_chart_order": 1,
+     "team": "CAR",
+     "years_exp": 1,
+     "adp": 339.0,
+     "position": "K"
+    },
+    "TEN": {
+     "team": "TEN",
+     "adp": 290.0,
+     "position": "DEF"
+    },
+    "11261": {
+     "depth_chart_order": 1,
+     "team": "CLE",
+     "years_exp": 4,
+     "adp": 343.0,
+     "position": "K"
+    },
+    "6083": {
+     "depth_chart_order": 1,
+     "team": "LV",
+     "years_exp": 7,
+     "adp": 352.0,
+     "position": "K"
+    },
+    "LV": {
+     "team": "LV",
+     "adp": 347.0,
+     "position": "DEF"
+    },
+    "NYJ": {
+     "team": "NYJ",
+     "adp": 348.0,
+     "position": "DEF"
+    },
+    "MIA": {
+     "team": "MIA",
+     "adp": 350.0,
+     "position": "DEF"
+    },
+    "5095": {
+     "depth_chart_order": 1,
+     "team": "NO",
+     "years_exp": 8,
+     "adp": 336.0,
+     "position": "K"
+    },
+    "12185": {
+     "depth_chart_order": 1,
+     "team": "IND",
+     "years_exp": 2,
+     "adp": 287.0,
+     "position": "K"
+    },
+    "13968": {
+     "depth_chart_order": 1,
+     "team": "WAS",
+     "years_exp": 0,
+     "adp": 353.0,
+     "position": "K"
+    },
+    "13545": {
+     "depth_chart_order": 1,
+     "team": "GB",
+     "years_exp": 0,
+     "adp": 211.33,
+     "position": "K"
+    },
+    "13833": {
+     "depth_chart_order": 1,
+     "team": "NYG",
+     "years_exp": 0,
+     "adp": 362.0,
+     "position": "K"
+    },
+    "7922": {
+     "depth_chart_order": 1,
+     "team": "MIA",
+     "years_exp": 5,
+     "adp": 368.0,
+     "position": "K"
+    },
+    "4233": {
+     "injury_status": "Questionable",
+     "team": "FA",
+     "years_exp": 9,
+     "adp": 389.0,
+     "position": "K"
+    },
+    "1433": {
+     "team": "FA",
+     "years_exp": 13,
+     "adp": 390.0,
+     "position": "K"
+    },
+    "10937": {
+     "team": "BAL",
+     "years_exp": 3,
+     "adp": 393.0,
+     "position": "K"
+    },
+    "5119": {
+     "team": "NYJ",
+     "years_exp": 8,
+     "adp": 394.0,
+     "position": "K"
+    },
+    "11653": {
+     "team": "NO",
+     "years_exp": 2,
+     "adp": 395.0,
+     "position": "K"
+    },
+    "13066": {
+     "injury_status": "Questionable",
+     "team": "FA",
+     "years_exp": 1,
+     "adp": 412.0,
+     "position": "K"
+    },
+    "4666": {
+     "team": "FA",
+     "years_exp": 9,
+     "adp": 486.0,
+     "position": "K"
+    },
+    "503": {
+     "injury_status": "Questionable",
+     "team": "FA",
+     "years_exp": 17,
+     "adp": 281.0,
+     "position": "K"
+    },
+    "5230": {
+     "team": "FA",
+     "years_exp": 7,
+     "adp": 301.0,
+     "position": "K"
+    },
+    "17": {
+     "team": "FA",
+     "years_exp": 20,
+     "adp": 511.0,
+     "position": "K"
+    },
+    "8258": {
+     "team": "FA",
+     "years_exp": 4,
+     "adp": 529.0,
+     "position": "K"
+    },
+    "12548": {
+     "team": "GB",
+     "years_exp": 4,
+     "adp": 574.0,
+     "position": "K"
+    },
+    "13211": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "K"
+    },
+    "13804": {
+     "team": "LV",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "K"
+    },
+    "13813": {
+     "team": "FA",
+     "years_exp": 0,
+     "adp": 934.0,
+     "position": "K"
+    }
+   }
   }
  ]
 }
