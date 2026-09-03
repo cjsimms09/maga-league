@@ -1,7 +1,7 @@
 {
  "_territory": "relay probe; C consumes; results are the free-odds census",
  "_ask": "Cory 2026-08-21: Explore free Vegas odds we can get",
- "captured_at": "2026-08-27T22:27:14.081454Z",
+ "captured_at": "2026-09-03T16:34:54.822147Z",
  "sources": {
   "espn": {
    "status": 403,
@@ -10,7 +10,7 @@
   },
   "bovada": {
    "status": 200,
-   "bytes": 625969,
+   "bytes": 911631,
    "known_positive": [
     {
      "game": "New England Patriots @ Seattle Seahawks",
@@ -25,56 +25,77 @@
     {
      "game": "New England Patriots @ Seattle Seahawks",
      "market": "Total",
-     "handicap": "44.5"
+     "handicap": "44.0"
     }
    ],
-   "markets_seen": 48,
-   "prop_mentions": 0,
+   "markets_seen": 72,
+   "prop_mentions": 384,
    "verdict": "POSITIVE \u2014 real lines on real games"
   },
   "bovada_event_props": {
    "status": 200,
-   "bytes": 625969,
+   "bytes": 911631,
    "event_link": "/football/nfl/new-england-patriots-seattle-seahawks-202609092020",
    "event_status": 200,
-   "event_bytes": 39618,
-   "prop_markets": 0,
-   "anytime_td_mentions": 0,
-   "known_positive": [],
-   "verdict": "REACHABLE-NO-POSITIVE (status 200) \u2014 treat as untested, not as no"
+   "event_bytes": 155241,
+   "prop_markets": 16,
+   "anytime_td_mentions": 2,
+   "known_positive": [
+    {
+     "prop": "Total Passing Yards - Drake Maye (NE)"
+    },
+    {
+     "prop": "Total Passing Yards - Sam Darnold (SEA)"
+    },
+    {
+     "prop": "Total Rushing Yards - Drake Maye (NE)"
+    }
+   ],
+   "verdict": "POSITIVE \u2014 real lines on real games"
   },
   "bovada_census": {
    "status": 200,
-   "bytes": 625969,
+   "bytes": 911631,
    "display_groups": {
     "Game Lines": 16,
-    "Alternate Lines": 16,
-    "Score Props": 16,
-    "Game Props": 17,
-    "Correct Score": 16
+    "Alternate Lines": 18,
+    "TD Scorer Props": 2,
+    "Passing Props": 2,
+    "Passing Yards": 2,
+    "Rushing Yards": 2,
+    "Receiving Props": 2,
+    "Receiving Yards": 2,
+    "Touchdown Props": 3,
+    "Score Props": 17,
+    "Game Props": 18,
+    "Correct Score": 17
    },
    "market_types": {
-    "Total Points Range": 17,
-    "Moneyline": 16,
-    "Point Spread": 16,
-    "Total": 16,
-    "Spread": 16,
-    "Total Points": 16,
-    "Both teams to score 10 or more points?": 16,
-    "Both teams to score 13 or more points?": 16,
-    "Both teams to score 14 or more points?": 16,
-    "Both teams to score 17 or more points?": 16,
-    "Both teams to score 21 or more points?": 16,
-    "Both teams to score 24 or more points?": 16,
-    "Both teams to score 27 or more points?": 16,
-    "Both teams to score 30 or more points?": 16,
-    "Both teams to score 34 or more points?": 16,
-    "Odd/Even Total Points": 16,
-    "Winning Margin": 16,
-    "Dynamic Winning Margin": 16,
-    "To Win and Allow 0 Points": 16,
-    "Correct Score Range": 16,
-    "Will the game go to Overtime?": 14
+    "Moneyline": 24,
+    "Point Spread": 24,
+    "Total": 24,
+    "Both teams to score 10 or more points?": 21,
+    "Winning Margin": 21,
+    "Total Points Range": 21,
+    "To Win and Allow 0 Points": 21,
+    "Odd/Even Total Points": 21,
+    "Correct Score Range": 21,
+    "Dynamic Winning Margin": 20,
+    "Both teams to score 14 or more points?": 19,
+    "Both teams to score 17 or more points?": 19,
+    "Spread": 17,
+    "Total Points": 17,
+    "Both teams to score 13 or more points?": 17,
+    "Both teams to score 21 or more points?": 17,
+    "Both teams to score 24 or more points?": 17,
+    "Both teams to score 27 or more points?": 17,
+    "Both teams to score 30 or more points?": 17,
+    "Both teams to score 34 or more points?": 17,
+    "Will the game go to Overtime?": 15,
+    "Total Touchdowns": 5,
+    "Both Teams To Score": 4,
+    "Both teams to score 7 or more points?": 4,
+    "Double Chance": 4
    },
    "known_positive": [
     {
@@ -87,7 +108,7 @@
   },
   "polymarket": {
    "status": 200,
-   "bytes": 834402,
+   "bytes": 658434,
    "events": 20,
    "known_positive": [
     {
@@ -96,7 +117,7 @@
     },
     {
      "event": "Will Aaron Rodgers retire before next season?",
-     "price_yes": 0.011
+     "price_yes": 0.009
     },
     {
      "event": "Who will attend Taylor Swift and Travis Kelce's wedding?",
