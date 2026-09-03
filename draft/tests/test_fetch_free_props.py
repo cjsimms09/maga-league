@@ -152,6 +152,14 @@ def test_the_written_file_loads_through_the_arms_own_reader(tmp_path):
     assert loaded and loaded["3"] == r["players"]["3"]["points"] and len(loaded) == 32
 
 
+def test_props_snapshot_path_accepts_the_suffix_arg_main_actually_passes(tmp_path):
+    # Regression: main() calls props_snapshot_path(out_dir, season, week, suffix)
+    # every run, suffix or not (register: TypeError 09-02/09-03, fetch_weekly_props's
+    # 3-arg version was imported instead of weekly_props_arm's 4-arg one).
+    assert ffp.props_snapshot_path(tmp_path, 2026, 1, "").name == "weekly_props_2026_w1.json"
+    assert ffp.props_snapshot_path(tmp_path, 2026, 1, "_sun").name == "weekly_props_2026_w1_sun.json"
+
+
 def test_REFUSAL_ARM_no_sleeper_qb_or_too_few_players_writes_nothing():
     r = ffp.build_week([sp_row("2", "receptions", 5.5)], ud_doc([]), BOARD, SCORING)
     bad = ffp.self_check(r)
