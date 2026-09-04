@@ -25,7 +25,10 @@ name: Weekly grade runner
 # read from its own schedule logs; this job proves the code both loops share.
 on:
   schedule:
-    - cron: '30 13 * * 2'
+    # 12:30 UTC Tuesday — after Netlify's grade-cron (12:00Z) and BEFORE the
+    # 13:00Z Tuesday witness routine that verifies the grade (was 13:30Z, which
+    # the witness could not see; relay 09-04)
+    - cron: '30 12 * * 2'
   workflow_dispatch: {}
 
 permissions:
