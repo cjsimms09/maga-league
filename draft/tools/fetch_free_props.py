@@ -67,11 +67,18 @@ sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(ROOT / "draft"))
 
 from fetch_weekly_props import (  # noqa: E402
-    MARKET_TO_STAT, board_index, match_player, implied_points, props_snapshot_path,
+    MARKET_TO_STAT, board_index, match_player, implied_points,
 )
 from fetch_historical_props import (  # noqa: E402
     american_to_prob, devig_pair, anytime_td_to_expected_tds,
 )
+# NOT fetch_weekly_props.props_snapshot_path (season, week only — no suffix
+# param): that mismatch crashed every scheduled run 09-02/09-03
+# (TypeError: takes 3 positional arguments but 4 were given) before this
+# writer ever wrote a file. weekly_props_arm's version is the one with the
+# `suffix` param this file actually calls, and it is the same filename
+# contract the arm reads.
+from weekly_props_arm import props_snapshot_path  # noqa: E402
 
 FORMULA_VERSION = "props_weekly_v1+free_v1"
 UA = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",

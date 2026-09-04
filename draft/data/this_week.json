@@ -1,6 +1,6 @@
 {
  "_rule": "THE ROSTER RULE: any statement about Cory's roster or matchup cites THIS file (fresh within 3 days) or live Sleeper \u2014 never an older artifact.",
- "generated_at": "2026-09-01T17:21:35+00:00",
+ "generated_at": "2026-09-04T16:55:15+00:00",
  "season": "2026",
  "week": 1,
  "cory": {
@@ -40,7 +40,7 @@
    "pos": "WR",
    "team": "CHI",
    "starter": false,
-   "injury": null,
+   "injury": "Questionable",
    "game": "at CAR (Sun)",
    "home": false,
    "kickoff_utc": "2026-09-13T17:00:00.000Z"
@@ -150,7 +150,7 @@
    "pos": "RB",
    "team": "KC",
    "starter": true,
-   "injury": "Questionable",
+   "injury": null,
    "game": "vs DEN (Mon)",
    "home": true,
    "kickoff_utc": "2026-09-15T00:15:00.000Z"
@@ -273,7 +273,7 @@
    "pos": "RB",
    "team": "CHI",
    "starter": true,
-   "injury": null,
+   "injury": "Questionable",
    "game": "at CAR (Sun)",
    "home": false,
    "kickoff_utc": "2026-09-13T17:00:00.000Z"

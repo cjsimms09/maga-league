@@ -459,10 +459,51 @@ def main() -> int:  # pragma: no cover  (egress; CI only)
              "REFUSING rather than archiving under a guess")
         return 1
 
+    # ── `season_type == 'regular'` IS NOT THE SAME AS THE WEEK EXISTING ──────
+    #
+    # THIRD INSTANCE OF ONE ROOT CAUSE (A, 2026-09-04; registers 438, 440, and
+    # now this). Sleeper flips `season_type` to 'regular' the moment preseason
+    # ends -- 2026-08-30, ELEVEN DAYS before week 1's first game -- so from that
+    # day the guard above passes, the projection endpoints return `7628 rows, 0
+    # with stats`, and the run VOIDs and exits 1. Measured, from run
+    # 33789366180 (2026-09-03): exactly that, and it will repeat every Thursday
+    # until the games exist. A job red by design for a fortnight is a job nobody
+    # reads, and then the first REAL void looks like the expected ones.
+    #
+    # ⚠️ CANNOT-SAY DOES NOT SKIP (rule 3e). `week_is_live` returns None when the
+    # schedule cannot answer, and None falls through to the normal path -- a
+    # missing schedule must never become a silent season-long refusal to
+    # archive. Once the window opens, an empty response is a hard failure again.
+    # The clock is injectable so both arms are provable today, not in September.
+    # ARCHIVE_NOW (register 438/440/482's own injection point) drives BOTH
+    # clock-dependent gates below, so a test that fixes the clock once gets a
+    # single consistent "now" rather than two that can disagree.
+    now_env = os.environ.get("ARCHIVE_NOW") or None
+    now = (datetime.fromisoformat(now_env.replace("Z", "+00:00")) if now_env
+          else datetime.now(timezone.utc))
+
+    if not args.week:
+        sys.path.insert(0, str(HERE))
+        try:
+            from capture_window import week_is_live  # noqa: WPS433
+            if week_is_live(str(season), int(week), now=now_env) is False:
+                print(f"week {week} of {season} is not live yet -- its games are more "
+                      f"than the capture window away, so a provider that returns no "
+                      f"stats is EXPECTED, not a failure. Exiting CLEAN and archiving "
+                      f"nothing. (registers 438/440/482: `season_type` flips to "
+                      f"'regular' up to eleven days before week 1's first game.) "
+                      f"⚠️ Once the window opens, an empty response is a hard failure "
+                      f"again and this job goes red.")
+                return 0
+        except Exception as exc:                       # noqa: BLE001
+            print(f"  ! capture_window unavailable ({type(exc).__name__}: {exc}); "
+                  f"proceeding as before -- cannot-say never skips")
+
+    # ── register 475/477's class, applied here: the boundary is real kickoff,
+    # not a cron time (ROUTES.md 2026-09-02, A -> C) ─────────────────────────
     archive_dir = _archive_dir()
     out_path = archive_dir / f"weekly_projection_archive_{season}_w{week}.json"
     kick = first_kickoff_utc(week, season)
-    now = datetime.now(timezone.utc)
     if frozen_check(out_path.exists(), now, kick) == "frozen":
         # merge-never-clobber (register 475/477's class): the earlier
         # pre-kickoff snapshot is the forward-guarantee record and a later

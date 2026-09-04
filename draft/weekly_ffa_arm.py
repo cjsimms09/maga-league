@@ -236,5 +236,18 @@ def load_ffa_arm(data_dir: Path, season: int, week: int, snapshot: dict,
     if not out:
         diag.update(status="absent", note="capture present but no player carried ≥%d sources" % MIN_SOURCES)
         return None, diag
-    diag.update(status="priced", note=f"{len(out)} players from ≥{MIN_SOURCES} of {len(WEEKLY_SOURCES)} sources")
+    # ⚠ THE NOTE COUNTS THE SOURCES THAT ACTUALLY CONTRIBUTED, NOT THE ONES WE
+    # ASKED (A, 09-02, found in the week-1 rehearsal). It read "≥2 of 4
+    # sources" on a run where the scale guard had dropped CBS — a diagnostic
+    # that overstates the blend's breadth is how "four sources" got into
+    # register 478 in the first place.
+    contributing = [s for s in WEEKLY_SOURCES
+                    if s not in season_scale and per_src_joined.get(s)]
+    diag["contributing_sources"] = contributing
+    diag.update(status="priced",
+                note=("%d players from ≥%d of %d contributing source(s): %s%s"
+                      % (len(out), MIN_SOURCES, len(contributing),
+                         ", ".join(contributing) or "none",
+                         (" (season-scale, dropped: %s)" % ", ".join(sorted(season_scale)))
+                         if season_scale else "")))
     return out, diag

@@ -249,3 +249,68 @@ def test_build_archive_doc_stamps_captured_after_first_kickoff_true():
                                 SCORING, "x", False,
                                 captured_after_first_kickoff=True)
     assert doc["captured_after_first_kickoff"] is True
+
+
+# ── THE PRE-WINDOW SKIP (A, 2026-09-04; registers 438/440/482) ───────────────
+#
+# Sleeper flips `season_type` to 'regular' up to eleven days before week 1's
+# first game, so the existing guard passes and the projection endpoints return
+# rows with no stats. Run 33789366180 (09-03) VOIDed and exited 1 on exactly
+# that, and would have repeated every Thursday until the games existed.
+#
+# Both arms are exercised here rather than only in September: the clock is
+# injected through ARCHIVE_NOW, and `egress_main` is replaced by a function
+# that FAILS if it is reached, so a skip that does not actually skip cannot
+# pass this test.
+
+def _stub_state(monkeypatch, week=1, season=2026):
+    import weekly_proj_snapshot as WPS
+    monkeypatch.setattr(WPS, "nfl_state",
+                        lambda *a, **k: {"season_type": "regular",
+                                         "week": week, "season": season})
+
+
+def test_BEFORE_the_capture_window_main_exits_clean_and_never_calls_egress(monkeypatch, capsys):
+    """MUTATION: drop the week_is_live gate — main() reaches egress_main, the
+    provider answers with 0 stat rows, and the job is red every Thursday for a
+    fortnight before the season starts."""
+    _stub_state(monkeypatch)
+    def _must_not_run(*a, **k):                      # pragma: no cover
+        raise AssertionError("egress_main was called before the capture window")
+    monkeypatch.setattr(WPA, "egress_main", _must_not_run)
+    monkeypatch.setattr(sys, "argv", ["weekly_projection_archive.py"])
+    monkeypatch.setenv("ARCHIVE_NOW", "2026-09-04T21:00:00Z")
+    assert WPA.main() == 0
+    out = capsys.readouterr().out
+    assert "not live yet" in out and "Exiting CLEAN" in out
+
+
+def test_INSIDE_the_window_it_does_NOT_skip(monkeypatch):
+    """The control: the same code path with the clock inside week 1's window
+    must reach egress. Without this arm the test above would also pass on a
+    gate that skips ALWAYS."""
+    _stub_state(monkeypatch)
+    reached = {}
+    def _reached(season, week, **kwargs):
+        reached["args"] = (season, week)
+        return {"status": "VOID", "reason": "stub — reached egress"}
+    monkeypatch.setattr(WPA, "egress_main", _reached)
+    monkeypatch.setattr(sys, "argv", ["weekly_projection_archive.py"])
+    monkeypatch.setenv("ARCHIVE_NOW", "2026-09-09T13:00:00Z")
+    assert WPA.main() == 1                            # the stub VOID, not the gate
+    assert reached["args"] == (2026, 1)
+
+
+def test_AN_EXPLICIT_WEEK_ARGUMENT_BYPASSES_THE_GATE(monkeypatch):
+    """A human asking for a specific week has said what they want; the gate is
+    for the unattended cron. MUTATION: gate the explicit path too — a backfill
+    dispatch for a past week silently does nothing."""
+    reached = {}
+    monkeypatch.setattr(WPA, "egress_main",
+                        lambda s, w, **kwargs: reached.setdefault("args", (s, w)) and None
+                        or {"status": "VOID", "reason": "stub"})
+    monkeypatch.setattr(sys, "argv", ["weekly_projection_archive.py",
+                                      "--week", "1", "--season", "2026"])
+    monkeypatch.setenv("ARCHIVE_NOW", "2026-09-04T21:00:00Z")
+    assert WPA.main() == 1
+    assert reached["args"] == (2026, 1)

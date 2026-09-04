@@ -2243,6 +2243,14 @@
    "source_season": 2024,
    "position": "RB"
   },
+  "7531": {
+   "mean": 0.044,
+   "sd": 0.088,
+   "cv": 1.9843,
+   "n_weeks": 9,
+   "source_season": 2025,
+   "position": "TE"
+  },
   "7536": {
    "mean": 0.75,
    "sd": 1.082,
@@ -2803,6 +2811,14 @@
    "source_season": 2025,
    "position": "WR"
   },
+  "8583": {
+   "mean": 1.45,
+   "sd": 2.451,
+   "cv": 1.6903,
+   "n_weeks": 6,
+   "source_season": 2025,
+   "position": "TE"
+  },
   "8676": {
    "mean": 6.729,
    "sd": 4.764,
@@ -3069,14 +3085,14 @@
   },
   "RB": {
    "measured": 92,
-   "fallback": 61
+   "fallback": 64
   },
   "WR": {
    "measured": 152,
-   "fallback": 110
+   "fallback": 111
   },
   "TE": {
-   "measured": 87,
+   "measured": 89,
    "fallback": 61
   }
  }
