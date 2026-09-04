@@ -3,7 +3,7 @@
  "_what": "REPORT ONLY. The champion weekly projection beside the props-implied points on Cory's live roster, and the lineup each would start. The second lineup uses P357's blend rule (props where a line exists, champion elsewhere) \u2014 its prior art made visible, not the arm entering the grader early.",
  "season": 2026,
  "week": 1,
- "generated": "2026-09-02T01:21:22.353997+00:00",
+ "generated": "2026-09-03T17:24:54.134400+00:00",
  "roster_source": "THIS-WEEK.md generated 2026-09-01T17:21:35+00:00",
  "champion_source": "BUILT LOCALLY from the board and lines \u2014 not the Thursday snapshot",
  "champion_arm": "v1_pull3",
@@ -37,10 +37,10 @@
    "team": "KC",
    "injury": "",
    "player_id": "10229",
-   "champion": 8.72,
-   "blend_prior": 12.8,
+   "champion": 8.78,
+   "blend_prior": 12.88,
    "props": 11.58,
-   "props_minus_champion": 2.86
+   "props_minus_champion": 2.8
   },
   {
    "st": true,
@@ -49,10 +49,10 @@
    "team": "CHI",
    "injury": "",
    "player_id": "11560",
-   "champion": 18.91,
-   "blend_prior": 21.49,
+   "champion": 18.92,
+   "blend_prior": 21.5,
    "props": 20.94,
-   "props_minus_champion": 2.03
+   "props_minus_champion": 2.02
   },
   {
    "st": false,
@@ -85,10 +85,10 @@
    "team": "CLE",
    "injury": "",
    "player_id": "12512",
-   "champion": 7.73,
-   "blend_prior": 9.78,
+   "champion": 7.68,
+   "blend_prior": 9.72,
    "props": 10.95,
-   "props_minus_champion": 3.22
+   "props_minus_champion": 3.27
   },
   {
    "st": false,
@@ -97,10 +97,10 @@
    "team": "KC",
    "injury": "",
    "player_id": "13337",
-   "champion": 2.3,
-   "blend_prior": 2.3,
+   "champion": 2.31,
+   "blend_prior": 2.31,
    "props": 1.66,
-   "props_minus_champion": -0.64
+   "props_minus_champion": -0.65
   },
   {
    "st": true,
@@ -109,10 +109,10 @@
    "team": "LAR",
    "injury": "",
    "player_id": "2133",
-   "champion": 9.78,
+   "champion": 9.79,
    "blend_prior": 11.67,
    "props": 10.6,
-   "props_minus_champion": 0.82
+   "props_minus_champion": 0.81
   },
   {
    "st": true,
@@ -121,10 +121,10 @@
    "team": "BAL",
    "injury": "",
    "player_id": "3198",
-   "champion": 13.42,
+   "champion": 13.43,
    "blend_prior": 16.27,
    "props": 14.76,
-   "props_minus_champion": 1.34
+   "props_minus_champion": 1.33
   },
   {
    "st": false,
@@ -133,10 +133,10 @@
    "team": "DEN",
    "injury": "",
    "player_id": "5045",
-   "champion": 7.84,
-   "blend_prior": 8.98,
+   "champion": 7.89,
+   "blend_prior": 9.03,
    "props": 8.41,
-   "props_minus_champion": 0.57
+   "props_minus_champion": 0.52
   },
   {
    "st": true,
@@ -157,10 +157,10 @@
    "team": "CIN",
    "injury": "Questionable",
    "player_id": "7564",
-   "champion": 16.27,
-   "blend_prior": 17.5,
+   "champion": 16.28,
+   "blend_prior": 17.51,
    "props": 16.9,
-   "props_minus_champion": 0.63
+   "props_minus_champion": 0.62
   },
   {
    "st": false,
@@ -169,10 +169,10 @@
    "team": "WAS",
    "injury": "Questionable",
    "player_id": "8136",
-   "champion": 5.73,
-   "blend_prior": 7.58,
+   "champion": 5.64,
+   "blend_prior": 7.45,
    "props": 2.24,
-   "props_minus_champion": -3.49
+   "props_minus_champion": -3.4
   },
   {
    "st": true,
@@ -181,10 +181,10 @@
    "team": "KC",
    "injury": "Questionable",
    "player_id": "8151",
-   "champion": 11.14,
-   "blend_prior": 13.77,
+   "champion": 11.2,
+   "blend_prior": 13.85,
    "props": 13.42,
-   "props_minus_champion": 2.28
+   "props_minus_champion": 2.22
   },
   {
    "st": false,
@@ -193,10 +193,10 @@
    "team": "JAX",
    "injury": "",
    "player_id": "9487",
-   "champion": 7.01,
-   "blend_prior": 9.49,
+   "champion": 7.05,
+   "blend_prior": 9.55,
    "props": 9.69,
-   "props_minus_champion": 2.68
+   "props_minus_champion": 2.64
   },
   {
    "st": false,
@@ -275,11 +275,11 @@
  ],
  "valuation": {
   "champion_lineup": {
-   "by_champion": 84.96,
+   "by_champion": 85.12,
    "by_props_blend": 96.54
   },
   "props_blend_lineup": {
-   "by_champion": 82.91,
+   "by_champion": 83.01,
    "by_props_blend": 96.89
   }
  },
@@ -296,10 +296,10 @@
     "team": "KC",
     "injury": "",
     "player_id": "11624",
-    "champion": 6.29,
-    "blend_prior": 8.29,
+    "champion": 6.33,
+    "blend_prior": 8.34,
     "props": 6.77,
-    "props_minus_champion": 0.48
+    "props_minus_champion": 0.44
    },
    {
     "st": true,
@@ -321,7 +321,7 @@
     "injury": "",
     "player_id": "3294",
     "champion": 17.73,
-    "blend_prior": 22.32,
+    "blend_prior": 22.33,
     "props": 20.44,
     "props_minus_champion": 2.71
    },
@@ -333,7 +333,7 @@
     "injury": "",
     "player_id": "4037",
     "champion": 5.87,
-    "blend_prior": 8.34,
+    "blend_prior": 8.35,
     "props": 9.19,
     "props_minus_champion": 3.32
    },
@@ -368,10 +368,10 @@
     "team": "WAS",
     "injury": "",
     "player_id": "5927",
-    "champion": 5.7,
-    "blend_prior": 9.85,
+    "champion": 5.6,
+    "blend_prior": 9.68,
     "props": 9.42,
-    "props_minus_champion": 3.72
+    "props_minus_champion": 3.82
    },
    {
     "st": true,
@@ -380,10 +380,10 @@
     "team": "CHI",
     "injury": "",
     "player_id": "6790",
-    "champion": 10.36,
+    "champion": 10.37,
     "blend_prior": 12.27,
     "props": 7.62,
-    "props_minus_champion": -2.74
+    "props_minus_champion": -2.75
    },
    {
     "st": true,
@@ -404,10 +404,10 @@
     "team": "CAR",
     "injury": "Questionable",
     "player_id": "7594",
-    "champion": 7.03,
+    "champion": 7.04,
     "blend_prior": 8.66,
     "props": 3.34,
-    "props_minus_champion": -3.69
+    "props_minus_champion": -3.7
    },
    {
     "st": false,
@@ -440,10 +440,10 @@
     "team": "DAL",
     "injury": "",
     "player_id": "8137",
-    "champion": 12.19,
+    "champion": 12.2,
     "blend_prior": 12.96,
     "props": 11.97,
-    "props_minus_champion": -0.22
+    "props_minus_champion": -0.23
    },
    {
     "st": true,
@@ -452,10 +452,10 @@
     "team": "ATL",
     "injury": "",
     "player_id": "9509",
-    "champion": 15.31,
-    "blend_prior": 17.66,
+    "champion": 15.13,
+    "blend_prior": 17.46,
     "props": 18.57,
-    "props_minus_champion": 3.26
+    "props_minus_champion": 3.44
    },
    {
     "st": true,
@@ -530,11 +530,11 @@
   ],
   "valuation": {
    "champion_lineup": {
-    "by_champion": 83.87,
+    "by_champion": 83.72,
     "by_props_blend": 85.51
    },
    "props_blend_lineup": {
-    "by_champion": 72.33,
+    "by_champion": 72.06,
     "by_props_blend": 94.24
    }
   },
@@ -544,9 +544,9 @@
  "matchup": {
   "opponent": "Richard2121",
   "by_champion": {
-   "mine": 84.96,
-   "theirs": 83.87,
-   "gap": 1.09
+   "mine": 85.12,
+   "theirs": 83.72,
+   "gap": 1.4
   },
   "by_props_blend": {
    "mine": 96.89,
