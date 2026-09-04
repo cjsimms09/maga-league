@@ -57,6 +57,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -408,6 +409,40 @@ def main() -> int:  # pragma: no cover  (egress; CI only)
         print("! could not determine season/week and none was supplied -- "
              "REFUSING rather than archiving under a guess")
         return 1
+
+    # ── `season_type == 'regular'` IS NOT THE SAME AS THE WEEK EXISTING ──────
+    #
+    # THIRD INSTANCE OF ONE ROOT CAUSE (A, 2026-09-04; registers 438, 440, and
+    # now this). Sleeper flips `season_type` to 'regular' the moment preseason
+    # ends -- 2026-08-30, ELEVEN DAYS before week 1's first game -- so from that
+    # day the guard above passes, the projection endpoints return `7628 rows, 0
+    # with stats`, and the run VOIDs and exits 1. Measured, from run
+    # 33789366180 (2026-09-03): exactly that, and it will repeat every Thursday
+    # until the games exist. A job red by design for a fortnight is a job nobody
+    # reads, and then the first REAL void looks like the expected ones.
+    #
+    # ⚠️ CANNOT-SAY DOES NOT SKIP (rule 3e). `week_is_live` returns None when the
+    # schedule cannot answer, and None falls through to the normal path -- a
+    # missing schedule must never become a silent season-long refusal to
+    # archive. Once the window opens, an empty response is a hard failure again.
+    # The clock is injectable so both arms are provable today, not in September.
+    if not args.week:
+        sys.path.insert(0, str(HERE))
+        try:
+            from capture_window import week_is_live  # noqa: WPS433
+            now = os.environ.get("ARCHIVE_NOW") or None
+            if week_is_live(str(season), int(week), now=now) is False:
+                print(f"week {week} of {season} is not live yet -- its games are more "
+                      f"than the capture window away, so a provider that returns no "
+                      f"stats is EXPECTED, not a failure. Exiting CLEAN and archiving "
+                      f"nothing. (registers 438/440/482: `season_type` flips to "
+                      f"'regular' up to eleven days before week 1's first game.) "
+                      f"⚠️ Once the window opens, an empty response is a hard failure "
+                      f"again and this job goes red.")
+                return 0
+        except Exception as exc:                       # noqa: BLE001
+            print(f"  ! capture_window unavailable ({type(exc).__name__}: {exc}); "
+                  f"proceeding as before -- cannot-say never skips")
 
     doc = egress_main(season, week)
     if doc.get("status") == "VOID":
