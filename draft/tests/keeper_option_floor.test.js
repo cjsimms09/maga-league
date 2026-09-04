@@ -42,6 +42,10 @@ const KEEP = require(path.join(ROOT, 'draft', 'tools', 'keepers_of.js'));
 let pass = 0, fail = 0;
 const ck = (n, c, d) => { c ? (pass++, console.log('PASS  ' + n))
   : (fail++, console.log('FAIL  ' + n + (d !== undefined ? '\n        -> ' + JSON.stringify(d) : ''))); };
+/* Draft-era premise: the subject is the PRE-DRAFT board and today's is a
+ * September one. Asserts before the draft, reports after — register 484;
+ * _draft_era_premise.js carries the measurement. */
+const ckEra = require('./_draft_era_premise.js').eraCheck(ck);
 
 const D = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
 const pool = D.players.filter(p => p.position && p.proj_mean != null && p.vorp != null);
@@ -93,7 +97,7 @@ PICKS.forEach(PICK => {
    *
    * A bar nobody derived, failing because the board moved, is not a finding.
    * But the DECAY is one, so it is reported below rather than deleted. */
-  ck('pick 17 — positive option values exist and survive the floor ('
+  ckEra('pick 17 — positive option values exist and survive the floor ('
     + posN + ' positive), so flooring did NOT retire the term: premise (1) of '
     + 'the old hold is measurably false under the measured ramp',
     posN > 0, { positive: posN, max: max });
@@ -181,7 +185,7 @@ PICKS.forEach(PICK => {
   const neg = ks.filter(k => k < 0).length;
   ck('pick 17 surface — zero negative keeper terms reach the published score '
     + '(was 586/587 in the held state)', neg === 0, { negative_published: neg });
-  ck('...and the term still contributes — some published score carries a '
+  ckEra('...and the term still contributes — some published score carries a '
     + 'positive keeper component, so the fix did not silently retire a live '
     + 'weight-1 term', ks.some(k => k > 1e-9), { max: Math.max.apply(null, ks) });
 }

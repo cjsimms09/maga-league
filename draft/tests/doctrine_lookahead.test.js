@@ -42,6 +42,10 @@ const ck = (n, c, d) => {
   if (c) { pass++; console.log('PASS  ' + n); }
   else { fail++; console.log('FAIL  ' + n + (d !== undefined ? '  — ' + String(JSON.stringify(d)).slice(0, 300) : '')); }
 };
+/* Draft-era premise: the subject is the PRE-DRAFT board and today's is a
+ * September one. Asserts before the draft, reports after — register 484;
+ * _draft_era_premise.js carries the measurement. */
+const ckEra = require('./_draft_era_premise.js').eraCheck(ck);
 const { baseline, doctrines } = DL.scoreAll();
 
 // ── 1. THE BASELINE IS THE SAME PLAN THE SCHEDULE TOOL REPORTS ──────────
@@ -304,7 +308,7 @@ const { baseline, doctrines } = DL.scoreAll();
    * board happens to be in. */
   {
     const qbDeadlinePick = SS.SCHED[DL.shapeOf('early_qb').deadlines[0].byPickIdx];
-    ck('KNOWN POSITIVE: the two deadline doctrines are in OPPOSITE states on '
+    ckEra('KNOWN POSITIVE: the two deadline doctrines are in OPPOSITE states on '
       + 'this board — one satisfied and free, one binding and priced — so both '
       + 'directions of zero-iff-satisfied are measured here rather than one '
       + 'being taken on trust',
