@@ -151,6 +151,15 @@ def test_KNOWN_POSITIVE_the_committed_week_1_capture_prices_real_players():
     assert len(out) >= 3, (out, diag)
     assert all(5.0 < v < 40.0 for v in out.values()), out
     assert diag["season_scale_sources_dropped"] == ["CBS"], diag["season_scale_sources_dropped"]
+    # THE NOTE COUNTS WHAT CONTRIBUTED, NOT WHAT WAS ASKED. It read "≥2 of 4
+    # sources" on this exact capture while CBS was being dropped — the same
+    # overstatement that put "four weekly sources" into register 478.
+    #
+    # MUTATION: report len(WEEKLY_SOURCES) — every Tuesday log claims a
+    # four-source blend the arm did not compute.
+    assert diag["contributing_sources"] == ["ESPN", "FleaFlicker", "NumberFire"], diag
+    assert "of 3 contributing source(s)" in diag["note"], diag["note"]
+    assert "dropped: CBS" in diag["note"], diag["note"]
     # and every weekly-scale source joined something
     assert all(diag["per_source_joined"][s] >= 1 for s in ("ESPN", "FleaFlicker", "NumberFire")), diag["per_source_joined"]
 
