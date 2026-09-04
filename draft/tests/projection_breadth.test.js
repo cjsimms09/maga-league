@@ -115,25 +115,70 @@ ok('CONTROL — the flippers are SPECIFIC: `v1_pace` does not accidentally '
 });
 
 // ── 3. THE DEADLINE IS THE MECHANISM ──────────────────────────────────────
+/* ⚠️ DATE-INDEPENDENT ON PURPOSE (A, 2026-09-04, register 485). This arm used
+ * to survey at 2026-09-04 and assert `problems.length >= 4`, which silently
+ * encoded "four axes share the 09-03 date". Moving a date legitimately — which
+ * the tool's own message invites — then broke the fail arm, so the test put
+ * pressure on the exact behaviour it exists to protect. It now surveys past
+ * EVERY committed date, so it proves the mechanism fires without pinning which
+ * axes are late this week. */
 ok('FAIL ARM — an axis past its committed date with no live arm FAILS, and the '
   + 'message names the axis', () => {
-  const s = B.survey(fake(['v1']), '2026-09-04');   // past the 09-03 commitments
-  assert.ok(s.problems.length >= 4, JSON.stringify(s.problems));
+  const s = B.survey(fake(['v1']), '2099-01-01');   // past every committed date
+  const dated = B.AXES.filter((a) => a.by !== null && !a.retired).length;
+  assert.ok(dated >= 4, 'the registry should carry several dated axes');
+  assert.strictEqual(s.problems.length, dated, JSON.stringify(s.problems));
   assert.ok(s.problems.some((p) => /"usage"/.test(p)), JSON.stringify(s.problems));
   assert.ok(s.problems.every((p) => /WITH A REASON/.test(p)));
 });
 
+/* ── A RETIRED AXIS IS ANSWERED, NOT MISSING (register 485) ─────────────── */
+ok('a RETIRED axis never goes overdue — pace was graded inert twice and a gate '
+  + 'that demands an arm for it forever contradicts the measurement', () => {
+  const s = B.survey(fake(['v1']), '2099-01-01');
+  assert.deepStrictEqual(s.problems.filter((p) => /"pace"/.test(p)), []);
+  const row = s.rows.find((r) => r.id === 'pace');
+  assert.strictEqual(row.overdue, false);
+  assert.ok(/graded INERT/.test(row.retired || ''), row.retired);
+});
+
+ok('FAIL ARM — WITHOUT the retirement the same axis IS flagged, so retiring is '
+  + 'doing the work rather than the date being unreachable', () => {
+  const saved = B.AXES.find((a) => a.id === 'pace').retired;
+  B.AXES.find((a) => a.id === 'pace').retired = null;
+  try {
+    const s = B.survey(fake(['v1']), '2099-01-01');
+    assert.ok(s.problems.some((p) => /"pace"/.test(p)), JSON.stringify(s.problems));
+  } finally { B.AXES.find((a) => a.id === 'pace').retired = saved; }
+});
+
+ok('CONTROL — a retirement must be a REASON, not a bare flag: every retired '
+  + 'axis states the grade that retired it', () => {
+  B.AXES.filter((a) => a.retired).forEach((a) => {
+    assert.strictEqual(typeof a.retired, 'string');
+    assert.ok(a.retired.length > 60, a.id + ': ' + a.retired);
+  });
+});
+
+ok('CONTROL — a retired axis STILL REVIVES if an arm ships on it, so this is '
+  + 'not a delete', () => {
+  const s = B.survey(fake(['v1', 'v1_pace']), '2099-01-01');
+  assert.strictEqual(s.rows.find((r) => r.id === 'pace').state, 'LIVE');
+});
+
 ok('CONTROL — the same survey BEFORE the date is clean, so the check is a '
   + 'deadline and not a permanent red', () => {
-  const s = B.survey(fake(['v1']), '2026-09-02');
+  const s = B.survey(fake(['v1']), '2026-09-02');   // before every committed date
   assert.deepStrictEqual(s.problems.filter((p) => /"usage"/.test(p)), []);
 });
 
 ok('CONTROL — shipping the arm clears the deadline even after it passes, which '
   + 'is the only way a guard like this stays respected', () => {
-  const s = B.survey(fake(['v1', 'v1_tgt_share']), '2026-09-04');
+  const s = B.survey(fake(['v1', 'v1_tgt_share']), '2099-01-01');
   assert.deepStrictEqual(s.problems.filter((p) => /"usage"/.test(p)), []);
-  assert.ok(s.problems.some((p) => /"pace"/.test(p)), 'the others should still fire');
+  //: `props` rather than `pace` — pace is retired on its grade now, so the
+  //: "others still fire" half needs an axis that is genuinely still owed.
+  assert.ok(s.problems.some((p) => /"props"/.test(p)), 'the others should still fire');
 });
 
 ok('CONTROL — an axis with no committed date is never overdue', () => {

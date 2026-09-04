@@ -104,7 +104,7 @@ walk-forward grading and a clean null before it prices anything Cory acts on.
 
 | # | step | by |
 |---|---|---|
-| 1 | **Tier-1 arms for the four committed axes** (P27–P30) | **09-03**, before week 1 |
+| 1 | ~~**Tier-1 arms for the four committed axes** (P27–P30)~~ **MISSED, and re-dated per axis rather than in a block (A, 2026-09-04, register 485)** — the single 09-03 date went past with none of the four live, and `projection_breadth.js` failed the build as designed. Each axis now carries the date the work is *actually* committed to, with the reason in the code beside it: **usage 09-15** (D's backtest, plan item ⑤) · **props 09-17** (P354's own stated default; the capture already runs Wed/Thu and `props_weekly_v1` grades weekly — what is missing is the `DEFAULT_ARMS` entry) · **efficiency 09-29** (the ≤3-arms/week explorer cap is full through week 2: `v1_blend_pull3`, `ffa4_weekly`, then props) · **pace RETIRED on its grade, not re-dated** — measured inert twice, both folds, pooled miss 4.018 vs 4.010 and 4.365 vs 4.360, start/sit unchanged to 3dp; it is on Cory's page as a dead axis. **An axis we answered is not breadth we are missing.** | per axis above |
 | 2 | **BEST-OF-K reporting** in the Tuesday grader — the arm count is about to grow | **09-10** |
 | 3 | **Preregistered blends** (market+usage, market+efficiency) once Tier 1 has ~4 weeks of grades | **10-08** |
 | 4 | **Walk-forward stacker** with the random-weight null, once Tier 1 has ~8 weeks | **11-05** |
