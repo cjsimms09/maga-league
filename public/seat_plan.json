@@ -46,13 +46,13 @@
   "wire_per_week": {
     "QB": 23.38,
     "RB": 7.8,
-    "WR": 10.6,
+    "WR": 10.5,
     "TE": 11.6
   },
   "wire_n": {
     "QB": 83,
     "RB": 143,
-    "WR": 115,
+    "WR": 117,
     "TE": 83
   },
   "wire_note": "Realized median points in the week a player was added off waivers, pooled 2023-25 over the FULL sample of 424 scored acquisitions (of 764 adds; the rest are K/DEF, which nflverse weekly cannot score, or men who did not play that week and are counted ABSENT rather than zero). This REPLACES a constant that was the median of per-week cell medians over the 96 acquisitions that cleared a min_n=5 REPORTING filter — at QB and TE that was one week each.",
