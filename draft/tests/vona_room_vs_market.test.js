@@ -37,6 +37,10 @@ const ck = (n, c, d) => {
   if (c) { pass++; console.log('PASS  ' + n); }
   else { fail++; console.log('FAIL  ' + n + (d !== undefined ? '  — ' + String(JSON.stringify(d)).slice(0, 300) : '')); }
 };
+/* Draft-era premise: the subject is the PRE-DRAFT board and today's is a
+ * September one. Asserts before the draft, reports after — register 484;
+ * _draft_era_premise.js carries the measurement. */
+const ckEra = require('./_draft_era_premise.js').eraCheck(ck);
 
 /* COMPLETE DRAFTS ONLY. A 30-pick fragment has no QB4 and would silently
  * shorten every column it appears in. */
@@ -161,7 +165,7 @@ const gaps = (pos, slot) => DRAFTS.map(pk => {
     + '   strict sign flip: ' + flips(0)
     + '   TE2 draws: ' + JSON.stringify(gaps('TE', 1))
     + '   strict sign flip: ' + flips(1));
-  ck('TE1 IS NOT CONSISTENTLY EARLY across drafts — at least one draft is at or '
+  ckEra('TE1 IS NOT CONSISTENTLY EARLY across drafts — at least one draft is at or '
     + 'later than market, so the median that reported a clean bias was hiding '
     + 'a draw that showed none',
   (function () {

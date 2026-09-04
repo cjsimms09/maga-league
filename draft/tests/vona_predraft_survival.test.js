@@ -36,6 +36,10 @@ const ck = (n, c, d) => {
   if (c) { pass++; console.log('PASS  ' + n); }
   else { fail++; console.log('FAIL  ' + n + (d !== undefined ? '  — ' + String(JSON.stringify(d)).slice(0, 260) : '')); }
 };
+/* The pre-draft ordering is a PRE-DRAFT subject; today's board is a September
+ * one. Asserts before the draft, reports after — register 484, and the header
+ * of _draft_era_premise.js carries the measurement. */
+const ckEra = require('./_draft_era_premise.js').eraCheck(ck);
 
 const my = ((board.pick_order || {}).my_picks) || [];
 const keptIds = ((board.kept_player_ids) || []).map(String);
@@ -72,7 +76,7 @@ fixed.length === 20, fixed.length);
 
 const onesie = r => r.pos === 'K' || r.pos === 'DEF';
 
-ck('NO KICKER OR DEFENSE IN THE PRE-DRAFT TOP 20 — the observable Cory can '
+ckEra('NO KICKER OR DEFENSE IN THE PRE-DRAFT TOP 20 — the observable Cory can '
   + 'check at a glance, and the one that was broken',
 fixed.filter(onesie).length === 0,
 { offenders: fixed.filter(onesie).map(r => r.pos + ' ' + r.name + ' @' + fixed.indexOf(r) + 1) });

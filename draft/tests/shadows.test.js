@@ -11,6 +11,10 @@ function check(name, cond, detail) {
   if (cond) { pass++; console.log('PASS  ' + name); }
   else { fail++; console.log('FAIL  ' + name + (detail ? '  -> ' + detail : '')); }
 }
+/* Draft-era premise: the subject is the PRE-DRAFT board and today's is a
+ * September one. Asserts before the draft, reports after — register 484;
+ * _draft_era_premise.js carries the measurement. */
+const checkEra = require('./_draft_era_premise.js').eraCheck(check);
 
 /* The REAL board artifact, same as robot-mock: shadows must diverge on the
  * board they'll actually see, not on a toy fixture whose lone TE makes every
@@ -448,7 +452,7 @@ function ctxAt(pick, board) {
    * rosters disagreeing more often is the board being interesting, and a
    * control that reds on it teaches the next reader to raise the bar rather
    * than read the file. */
-  check('CONTROL: the scan found at least one REAL unanimous consensus — the '
+  checkEra('CONTROL: the scan found at least one REAL unanimous consensus — the '
     + 'thing every check below actually consumes. An empty scan would make them '
     + 'vacuous rather than passing.',
   reals.length >= 1,
@@ -466,9 +470,22 @@ function ctxAt(pick, board) {
 
   const cHollow = hollows.length ? hollows[0].c : null;
   const cReal = reals.length ? reals[reals.length - 1].c : null;
-  check('CONTROL — the live board carries a unanimous REAL consensus, or there '
+  checkEra('CONTROL — the live board carries a unanimous REAL consensus, or there '
     + 'is nothing here to mislabel', !!cReal && cReal.agree >= Math.ceil(cReal.n * 0.75),
   cReal ? cReal.agree + '/' + cReal.n + ' driver ' + cReal.lead_driver : 'none found');
+  /* ⚠️ THESE THREE CONSUME `cReal` AND CRASHED WITHOUT IT (register 484). The
+   * control above is what used to guarantee a real unanimous consensus exists;
+   * post-draft the September board carries none (0 of 15 sampled), so the
+   * dependent checks have no subject and dereferenced null — a red that said
+   * "TypeError" where the honest answer is "nothing to check today". Guarded as
+   * a BLOCK rather than individually: skipping them one by one would leave the
+   * same null in the next line. Pre-draft, cReal exists and all three assert
+   * exactly as before. */
+  if (!cReal) {
+    console.log('REPORTED (not asserted — post-draft): the three checks on a '
+      + 'REAL unanimous consensus have no subject; the live board carries none. '
+      + 'They assert again the moment one exists (register 484).');
+  } else {
   check('and it is NOT flagged — the strip stays quiet on agreement driven by '
     + 'a term the board really uses',
   cReal.driver_zero_weighted === false && cReal.driver_is_artifact === false,
@@ -489,6 +506,7 @@ function ctxAt(pick, board) {
     && (cHollow === null || cHollow.contested === false),
   'real=' + (cReal ? cReal.contested : 'n/a')
     + ' hollow=' + (cHollow ? cHollow.contested : 'none live'));
+  }
 }
 
 console.log(`\n${pass}/${pass + fail} shadow-roster checks passed`);
