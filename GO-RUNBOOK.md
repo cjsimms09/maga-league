@@ -83,6 +83,35 @@ walls are load-bearing.
 | **Sunday pre-slate** | 13:30 Sun | verify the Sunday alert + lineup capture fired with real content; Cory's lineup page renders sane |
 | **Weekly explorer** | 15:00 Mon | the curiosity organ: read the outside world (public analysis, market moves, our own residuals) and file at MOST three new preregistered hypotheses — file to the ledger ONLY, never touch a model; three good questions beat ten weak ones |
 
+**📬 WHERE A FIRING'S WORK LANDS — read this before you push (relay, 2026-09-04).**
+Each scheduled session is created with its OWN outcome branch (`claude/lucid-hawking-*`,
+`claude/happy-faraday-*`, `claude/beautiful-pascal-*`, …) and **nobody reads those
+branches**: the 09-02 Wednesday audit report, the 09-02/09-03 GO-sweep closes and a
+fix for a crashing props writer all sat on them until the relay cherry-picked them a
+day or two later. The rule that already governs every lane applies to a firing too —
+**mailbox files (`ROUTES.md`, `CORY-ASKS.md`, `DEFECT-REGISTER.md`, `OPEN-QUESTIONS.md`,
+`PREDICTION-LEDGER.md`, `A-DECISIONS.md`) and every report under `draft/audit/` push
+STRAIGHT TO `main` (CLAUDE.md Rule 1b)**, with the rebase-retry loop and never a bare push:
+
+```
+for i in 1 2 3 4 5; do git fetch -q origin main; git rebase -q origin/main || { echo REBASE-CONFLICT; break; }
+  if git push -q origin HEAD:main; then echo PUSHED; break; fi; sleep $((2**i)); done
+git show origin/main:<file> | grep -c '<something you wrote>'     # verify before you report it done
+```
+
+A small, tested fix to a TOOL that is red on the sweep (the props writer's import,
+09-03) may go to main the same way when it carries its test; anything larger — views,
+engine, workflows — stays on your branch with a ROUTES row to A naming the branch and
+sha. A report that only reached your branch is a finding nobody acted on — the relay's
+own failure class.
+
+**⏱ Two clock facts for the firings.** (1) The Tuesday witness fires 13:00Z; the
+repo-side grade (`weekly-grade.yml`) runs 12:30Z, after Netlify's grade-cron at 12:00Z,
+so the witness sees a finished grade — if it does not, that is the finding. (2) Week 1
+opens WEDNESDAY night (2026-09-10T00:20Z); the Thursday 19:00Z firing is after that
+kickoff, so a one-shot pre-lock fires 2026-09-09T21:00Z. The UTC crons do not move when
+US clocks fall back on 11-01; every local time in this table is one hour later from then.
+
 The explorer's discipline is the whole point: an organism that learns is one
 that files falsifiable claims and lets the gates kill them, not one that
 edits itself on enthusiasm. (The Learning Engine's residual-driven generator
