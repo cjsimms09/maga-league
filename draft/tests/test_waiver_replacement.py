@@ -597,8 +597,17 @@ def test_the_RECORD_IS_OVERLAID_BY_THE_LIVE_BOARD_so_corrections_still_land():
 # Ratchet tightened 2026-08-21 as the test itself prescribed when the gap
 # closed 9 -> 8 on the post-keeper-lock board ('good news that must be
 # recorded'): 4080 resolved, so it leaves the known-unresolvable set.
-KNOWN_UNRESOLVABLE_IDS = {"5916", "7045", "7066", "7617"}
-KNOWN_UNRESOLVABLE_ACQUISITIONS = 8
+# Ratchet tightened again 2026-09-04 (relay, GO sweep): the nightly board
+# rebuild's own gate has now caught the same close 8 -> 6 on THREE
+# independent fresh builds (runs 33631410982 09-02, 33756992672 09-03,
+# 33873851539 09-04, all `len(got) == 6` with survivors 5916/7045/7617) and
+# named the exact prune in its own assertion message every time — 7066 now
+# resolves, so it leaves the set. D routed this twice (ROUTES.md 09-02,
+# 09-04) with the fix ready and unmerged; landing it directly here per the
+# GO-RUNBOOK's "small, tested TOOL fix" exception rather than waiting a
+# fourth night on a board that is now 3+ days stale, 6 days from week 1.
+KNOWN_UNRESOLVABLE_IDS = {"5916", "7045", "7617"}
+KNOWN_UNRESOLVABLE_ACQUISITIONS = 6
 
 
 def _unresolvable():
