@@ -2741,7 +2741,7 @@
    "proj_clay_scored": 6.7,
    "matched_board": false
   },
-  "clay:connor heyward:RB": {
+  "8181": {
    "name": "Connor Heyward",
    "clay_name": "Connor Heyward",
    "position": "RB",
@@ -2760,7 +2760,7 @@
     "targ_pct": 1.0
    },
    "proj_clay_scored": 6.6,
-   "matched_board": false
+   "matched_board": true
   },
   "clay:michael burton:RB": {
    "name": "Michael Burton",
@@ -2804,7 +2804,7 @@
    "proj_clay_scored": 6.3,
    "matched_board": true
   },
-  "clay:max bredeson:RB": {
+  "13516": {
    "name": "Max Bredeson",
    "clay_name": "Max Bredeson",
    "position": "RB",
@@ -2823,7 +2823,7 @@
     "targ_pct": 1.0
    },
    "proj_clay_scored": 6.2,
-   "matched_board": false
+   "matched_board": true
   },
   "clay:andrew beck:RB": {
    "name": "Andrew Beck",
@@ -9280,14 +9280,12 @@
    "TE": 80
   },
   "kickers": 32,
-  "matched_to_board": 382,
-  "unmatched_total": 36,
+  "matched_to_board": 384,
+  "unmatched_total": 34,
   "unmatched": [
    "Alec Ingold (RB)",
    "Adam Prentice (RB)",
-   "Connor Heyward (RB)",
    "Michael Burton (RB)",
-   "Max Bredeson (RB)",
    "Andrew Beck (RB)",
    "Riley Nowakowski (RB)",
    "Reggie Gilliam (RB)",
@@ -9307,12 +9305,14 @@
    "Jonathan Mingo (WR)",
    "Brycen Tremayne (WR)",
    "Jalen Reagor (WR)",
-   "Braxton Berrios (WR)"
+   "Braxton Berrios (WR)",
+   "Charlie Jones (WR)",
+   "Myles Price (WR)"
   ]
  },
  "positional_plausibility_violations": [],
  "agreement_vs_sleeper_spearman": {
-  "n": 382,
-  "spearman": 0.986
+  "n": 384,
+  "spearman": 0.9858
  }
 }
