@@ -484,8 +484,17 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
   // it asserts a RANGE around it rather than a snapshot.
   check('12-team redraft keeps the original default',
     f12.BENCH_DISCOUNT === E.CFG.BENCH_DISCOUNT, f12.BENCH_DISCOUNT);
-  check('shallow leagues mark QB and TE as streamable, deep ones do not',
-    f10.STREAMABLE_LATE.indexOf('QB') !== -1 && f12.STREAMABLE_LATE.indexOf('QB') === -1);
+  /* The `STREAMABLE_LATE` check that stood here is gone with the field
+   * (register E7, 09-05). It asserted a literal `formatDefaults` had just
+   * written, for a value no consumer read — a test that could never fail for a
+   * reason anyone cared about, which is register 23's class. Deleting the field
+   * without its test would have left a green suite pinning nothing; deleting
+   * the test without the field would have left the field unpinned. Both go. */
+  check('FAIL ARM for that deletion — STREAMABLE_LATE is really gone from the '
+    + 'format defaults, so a future re-add is a deliberate act with a fold '
+    + 'behind it rather than a quiet revival',
+  !('STREAMABLE_LATE' in f10) && !('STREAMABLE_LATE' in f12),
+  Object.keys(f10).join(','));
   check('the format change explains itself', /replacement level is high/.test(f10.why), f10.why);
 
   // Derived, not hand-set: expanding the league must move it back on its own.
