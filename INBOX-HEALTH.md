@@ -7,31 +7,43 @@ by hand, so it cannot quietly stop being true.
 Two questions, measured:
 **is anyone answering**, and **is any finished work invisible from `main`**.
 
-_Last measured: 2026-09-04 04:13 UTC_
+_Last measured: 2026-09-05 14:17 UTC_
 
 ```
 ============================================================================
 ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
-  1027 items · 328 open · 323 of those carry a DEFAULT (silence resolves them)
-  0 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
-  of 5 open item(s) with no default: 1 SAY they ask for nothing · 0 are BROADCASTS (same
-  header in 3+ inboxes — a rule, not four decisions) · 4 declare NEITHER, so nobody
+  1033 items · 334 open · 327 of those carry a DEFAULT (silence resolves them)
+  5 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
+  of 7 open item(s) with no default: 1 SAY they ask for nothing · 0 are BROADCASTS (same
+  header in 3+ inboxes — a rule, not four decisions) · 6 declare NEITHER, so nobody
   can tell whether a decision is owed. That last number is the real state of the inbox.
   NEITHER IS SUBTRACTED: "no ask" is a loophole anyone can type, so the baseline stays
   comparable and the split prints beside it. Only the broadcast half is unfakeable —
   rewording is precisely what stops it matching.
 
+  waiting on:
+       2     3d oldest   A/C
+       2     3d oldest   B
+       1     3d oldest   A
+
+  the five oldest:
+    3d  2026-09-02 · D → A/C · 🟠 **THE BOARD IS REFUSED ON ONE TEST AND IT FAILED ON GOOD NEWS — THE WA
+    3d  2026-09-02 · D → A/C · ⚠️ **CORRECTING MY OWN FILING WITHIN THE HOUR: MY PREREG IS P366, NOT P36
+    3d  2026-09-02 · D → A · ⛔ **I AM WITHDRAWING MY OWN RECOMMENDATION FROM LAST NIGHT: P347'S 2024 FOL
+    3d  2026-09-02 · A → B · 🔴 **YOUR MATCHUP ODDS REFUSED CORY'S OWN LINEUP EVERY WEEK — FIXED IN YOUR
+    3d  2026-09-02 · A → B · 🔴→✅ **CI WENT RED ON `member.js:2539` AND I FIXED IT IN YOUR FILE (three r
+
   DOES THE LOOP VISIBLY CLOSE? — ticked share by sender→recipient
   (a low rate is a QUESTION: real backlog, or answered and never ticked?)
     E → B                     15 items    13% ticked    0 open with NO default
-    relay → E                 16 items    19% ticked    0 open with NO default
-    E → A                    110 items    26% ticked    0 open with NO default
+    relay → E                 17 items    18% ticked    0 open with NO default
+    E → A                    111 items    26% ticked    0 open with NO default
     Cory (via relay) → A       6 items    33% ticked    0 open with NO default
     relay → D                 19 items    42% ticked    0 open with NO default
-    A → E                     21 items    48% ticked    1 open with NO default
-    relay → A                138 items    58% ticked    0 open with NO default
-    D → A                    112 items    58% ticked    3 open with NO default
+    A → E                     23 items    43% ticked    3 open with NO default
+    D → A                    113 items    58% ticked    3 open with NO default
+    relay → A                139 items    58% ticked    0 open with NO default
     D → C                      5 items    60% ticked    0 open with NO default
     A → A                     82 items    67% ticked    1 open with NO default
     relay → C                 32 items    69% ticked    0 open with NO default
@@ -54,9 +66,10 @@ ROUTES RESPONSE CHECK — is anyone answering?
     B → E                     14 items   100% ticked    0 open with NO default
     relay/PM → E              10 items   100% ticked    0 open with NO default
 
-  baseline 0  ->  now 0
+  baseline 0  ->  now 5
 
-  Holding at the baseline. Not worse.
+  ❌ THE BACKLOG GREW BY 5. Answer them, add a DEFAULT so silence resolves them, or SEND BACK.
+     A ratchet that only reports is the thing that failed here already.
 ============================================================================
 ```
 
@@ -64,16 +77,17 @@ ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
 LANE STATUS — work that exists but `main` cannot see
 ============================================================================
-  ⚠️  177 commits    37h old  claude/data-stewardship-setup-bo5h9j
-  ⚠️  109 commits    85h old  claude/fantasy-football-research-926y6z
-  ⚠️   79 commits    39h old  claude/external-ingest-program-1xfinj
-  ⚠️    8 commits    37h old  claude/warroom-shell-rebuild-0817
-  ⚠️    3 commits    14h old  claude/happy-faraday-zub3fh
-        2 commits     9h old  claude/beautiful-pascal-b8voov
-        2 commits    85h old  claude/happy-faraday-qsy49d
-        2 commits    38h old  claude/happy-faraday-s5di70
-        1 commits    62h old  claude/happy-faraday-b6jnbe
-        1 commits    40h old  claude/lucid-hawking-ky6kkk
+  ⚠️  180 commits    34h old  claude/data-stewardship-setup-bo5h9j
+  ⚠️  109 commits   119h old  claude/fantasy-football-research-926y6z
+  ⚠️   80 commits    16h old  claude/external-ingest-program-1xfinj
+  ⚠️    8 commits    71h old  claude/warroom-shell-rebuild-0817
+  ⚠️    3 commits    48h old  claude/happy-faraday-zub3fh
+        2 commits    43h old  claude/beautiful-pascal-b8voov
+        2 commits   119h old  claude/happy-faraday-qsy49d
+        2 commits    72h old  claude/happy-faraday-s5di70
+        1 commits    96h old  claude/happy-faraday-b6jnbe
+        1 commits     0h old  claude/happy-faraday-umhfxu
+        1 commits    74h old  claude/lucid-hawking-ky6kkk
 
   ⚠️  5 branch(es) look STRANDED — 3+ commits, 12h+ old, unmerged.
      ROUTES.md cannot show you these: it lists what a lane WROTE DOWN,
