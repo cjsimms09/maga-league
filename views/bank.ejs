@@ -338,6 +338,37 @@ season until settled.</p>
           <% if (t.venmo) { %><a class="btn gold small" href="<%= t.venmo.url %>" target="_blank" rel="noopener">Venmo <%= t.to %></a>
           <% } else { %><span class="muted" style="font-size:.72rem">no Venmo on file for <%= t.to %></span><% } %>
         </li>
+        <%# SITE-REVIEW-2026-09-02 item ③ (catalog 7): "a debt can never be
+            resolved on the site." Owner-facing mark-as-paid, mirroring the
+            already-shipped sidebets rule -- the RECEIVER's mark is the fact,
+            the PAYER's mark is a claim the receiver confirms. Hub-routed
+            settlement means the counterparty is always the commissioner. %>
+        <% if (t.owner_side === owner.id && t.direction === 'owes_hub') { %>
+          <li class="settle-row settle-action">
+            <% if (t.claim) { %>
+              <span class="muted" style="font-size:.78rem">You said you paid on <%= fmtDate(t.claim.claimed_at) %> — waiting on <b><%= t.to %></b> to confirm.</span>
+              <form method="post" action="/bank/settle/withdraw" style="display:inline"><button class="btn small" type="submit">Withdraw</button></form>
+            <% } else { %>
+              <form method="post" action="/bank/settle/claim" style="display:inline">
+                <button class="btn small navy" type="submit">I paid this →</button>
+              </form>
+            <% } %>
+          </li>
+        <% } else if (t.owner_side === owner.id && t.direction === 'hub_owes') { %>
+          <li class="settle-row settle-action">
+            <form method="post" action="/bank/settle/received" style="display:inline">
+              <button class="btn small navy" type="submit">I received it →</button>
+            </form>
+          </li>
+        <% } else if (isCommish && t.direction === 'owes_hub' && t.claim) { %>
+          <li class="settle-row settle-action">
+            <span class="muted" style="font-size:.78rem"><b><%= t.from %></b> says they paid on <%= fmtDate(t.claim.claimed_at) %>.</span>
+            <form method="post" action="/bank/settle/confirm" style="display:inline">
+              <input type="hidden" name="owner_id" value="<%= t.owner_side %>">
+              <button class="btn small gold" type="submit">Confirm received →</button>
+            </form>
+          </li>
+        <% } %>
       <% } %>
     </ul>
     <p class="muted" style="margin:.6rem 0 0; font-size:.78rem">
