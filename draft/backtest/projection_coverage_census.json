@@ -3,11 +3,11 @@
  "_question": "which players can a three-way weekly grade actually compare?",
  "_limit": "SEASON projections used as the pre-season proxy for the WEEKLY universes. Re-test at week 1 from real weekly snapshots.",
  "measured_from": {
-  "fantasypros": "2026-09-04",
-  "sleeper": "2026-09-04"
+  "fantasypros": "2026-09-05",
+  "sleeper": "2026-09-05"
  },
  "universes": {
-  "fantasypros": 422,
+  "fantasypros": 458,
   "own_weekly_v1": 493,
   "sleeper": 700
  },
@@ -26,6 +26,7 @@
    "4017",
    "9502",
    "11292",
+   "11569",
    "11581",
    "11583",
    "11616",
@@ -42,105 +43,105 @@
     "name": "Deshaun Watson",
     "position": "QB",
     "proj_mean": 155.28,
-    "adp": 200.0
+    "adp": 199.0
    },
    {
     "player_id": "11583",
     "name": "Jonathon Brooks",
     "position": "RB",
     "proj_mean": 142.6,
-    "adp": 81.67
+    "adp": 81.33
    },
    {
     "player_id": "11581",
     "name": "MarShawn Lloyd",
     "position": "RB",
     "proj_mean": 95.67,
-    "adp": 99.67
+    "adp": 97.67
    },
    {
     "player_id": "12467",
     "name": "Jordan James",
     "position": "RB",
     "proj_mean": 54.2,
-    "adp": 239.5
+    "adp": 237.5
    },
    {
     "player_id": "9502",
     "name": "Tank Dell",
     "position": "WR",
     "proj_mean": 43.4,
-    "adp": 232.0
+    "adp": 237.0
    },
    {
     "player_id": "12511",
     "name": "Will Howard",
     "position": "QB",
     "proj_mean": 24.5,
-    "adp": 448.0
+    "adp": 456.0
    },
    {
     "player_id": "2078",
     "name": "Odell Beckham",
     "position": "WR",
     "proj_mean": 23.0,
-    "adp": 230.0
+    "adp": 246.0
    },
    {
     "player_id": "11292",
     "name": "Tommy DeVito",
     "position": "QB",
     "proj_mean": 13.38,
-    "adp": 502.0
+    "adp": 511.0
+   },
+   {
+    "player_id": "11569",
+    "name": "Jarquez Hunter",
+    "position": "RB",
+    "proj_mean": 8.6,
+    "adp": 536.0
    },
    {
     "player_id": "13516",
     "name": "Max Bredeson",
     "position": "RB",
     "proj_mean": 2.8,
-    "adp": 623.0
-   },
-   {
-    "player_id": "11616",
-    "name": "Jacob Cowing",
-    "position": "WR",
-    "proj_mean": 1.2,
-    "adp": 637.0
+    "adp": 631.0
    }
   ]
  },
  "shared_population": {
-  "n": 386,
+  "n": 421,
   "by_position": {
-   "WR": 144,
-   "TE": 98,
-   "RB": 82,
+   "WR": 164,
+   "TE": 103,
+   "RB": 92,
    "QB": 62
   },
-  "share_of_sleeper": 0.5514,
-  "share_of_fantasypros": 0.9147,
-  "share_of_ours": 0.783
+  "share_of_sleeper": 0.6014,
+  "share_of_fantasypros": 0.9192,
+  "share_of_ours": 0.854
  },
  "nesting": {
   "fantasypros_subset_of_sleeper": false,
   "fantasypros_subset_of_ours": false,
   "ours_subset_of_sleeper": false,
   "in_ours_not_fantasypros": {
-   "n": 106,
+   "n": 71,
    "by_position": {
-    "WR": 48,
-    "RB": 28,
-    "TE": 19,
+    "WR": 28,
+    "RB": 19,
+    "TE": 13,
     "QB": 11
    }
   },
   "in_fantasypros_not_ours": {
-   "n": 35,
+   "n": 36,
    "by_position": {
     "null": 22,
-    "RB": 5,
-    "QB": 4,
-    "WR": 4
+    "RB": 6,
+    "WR": 4,
+    "QB": 4
    }
   },
   "in_fantasypros_not_sleeper": {
@@ -207,7 +208,7 @@
  },
  "recommended_grading_populations": {
   "primary_three_way": {
-   "n": 386,
+   "n": 421,
    "why": "the only set all three sources price; nested, so no partial-overlap adjudication is needed"
   },
   "secondary_two_way_vs_sleeper": {

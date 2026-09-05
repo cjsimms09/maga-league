@@ -4,13 +4,13 @@ _my keepers + my picks (34, 41, 54…) on the PREDICTED board · 200 paired room
 
 | archetype | mean edge $ | 95% CI | decisions ≠ control | verdict |
 |---|---|---|---|---|
-| late_qb | +7.12 | [-21.25, 35.5] | 5.5 | parked: CI includes $0 |
+| late_qb | +24.88 | [-3.25, 52.0] | 5.4 | parked: CI includes $0 |
+| wr_anchor | +7.75 | [-9.25, 24.88] | 2.4 | parked: CI includes $0 |
+| zero_rb | +6.62 | [-15.12, 27.88] | 2.1 | parked: CI includes $0 |
+| hero_rb | +6.62 | [-14.25, 28.62] | 2.1 | parked: CI includes $0 |
 | robust_rb | +0.00 | [0.0, 0.0] | 0.0 | parked: CI includes $0 |
 | early_qb | +0.00 | [0.0, 0.0] | 0.0 | parked: CI includes $0 |
-| wr_anchor | -2.12 | [-21.5, 19.0] | 2.4 | parked: CI includes $0 |
-| zero_rb | -13.88 | [-34.5, 7.38] | 2.3 | parked: CI includes $0 |
-| hero_rb | -13.88 | [-36.62, 7.5] | 2.3 | parked: CI includes $0 |
-| elite_te | -19.62 | [-45.38, 9.12] | 3.3 | parked: CI includes $0 |
+| elite_te | -13.00 | [-36.75, 9.88] | 3.3 | parked: CI includes $0 |
 
 **Caveats:** money proxy v1: simulated weeks from proj_mean/weekly_sd normals · playoff $ INCLUDED (bracket resim, 53% of the pot); bracket seeding is by season total points — this room has no schedule, so it cannot seed by record · predicted opponent slates (2 intel, 7 model) — regenerates when real designations land · opponents = per-seat models fitted from three seasons of real drafts (heterogeneous=True); the room does not adapt to my sequencing · MY seat is VORP-greedy inside each archetype's constraint, while the grader scores proj_mean of the best startable lineup — two currencies. See the control-validity gate. · paired seeds: candidate vs control share room AND weekly luck — deltas isolate sequencing
 
