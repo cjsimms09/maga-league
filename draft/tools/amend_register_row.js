@@ -59,6 +59,7 @@ const ROOT = path.join(__dirname, '..', '..');
 const REGISTER = path.join(ROOT, 'DEFECT-REGISTER.md');
 const CELLS = 7;                     // '' | id | body | owner | status | action | ''
 const BUF = 64 * 1024 * 1024;        // register 391 — never the 1MB default
+const canon = require(path.join(ROOT, 'draft', 'tools', 'register_recheck_check.js'));
 
 const splitCells = line => line.split(/(?<!\\)\|/);
 const hasBarePipe = s => /(^|[^\\])\|/.test(s);
@@ -171,6 +172,35 @@ function selfTest() {
   ck('KNOWN NEGATIVE — one date stays one date',
     liveDates('unblocked by nothing, owner A, recheck 09-02.').length === 1);
 
+  /* ── THE ZERO-DATE REGRESSION (register 485's third error, 09-05) ─────────
+   * The rule under test is `datesBefore > 0 && after === 0` on an OPEN row.
+   * The known positive is the ACTUAL text that stripped 485's date: an
+   * amendment full of prose and shas and not one `recheck MM-DD`. */
+  const strip = (before, after, closed) =>
+    !closed && liveDates(before).length > 0 && liveDates(after).length === 0;
+
+  const realAmendment = '⛔ **CORRECTION BY A: "Python suite green" WAS FALSE.** '
+    + 'The claim went into commit `dbf5b2bf`\'s message and to Cory.';
+  ck('⭐ KNOWN POSITIVE — the real 485 amendment: a dated open row amended to '
+    + 'text carrying no date is CAUGHT. This is the case the tool caused and '
+    + 'shipped, and no other guard could see it: an invisible row cannot be '
+    + 'overdue, so the overdue count moves the WRONG WAY',
+  strip('the breadth debt, owner A, recheck 09-15', realAmendment, false));
+
+  ck('  FAIL ARM — the same amendment WITH the date restated is allowed, so the '
+    + 'guard is reading the date rather than refusing every replacement',
+  !strip('the breadth debt, owner A, recheck 09-15',
+    realAmendment + ' Next: usage is first due, recheck 09-15.', false));
+
+  ck('  a row that was ALREADY undated stays amendable — the guard is a '
+    + 'regression, not a floor; a tool that blocks improving a bad row is a '
+    + 'tool people route around',
+  !strip('no date here at all, owner A', realAmendment, false));
+
+  ck('  and a row being CLOSED by the same edit is exempt — nothing chases a '
+    + 'closed row, so its retired date is not owed',
+  !strip('owner A, recheck 09-15', realAmendment, true));
+
   console.log('\n' + pass + '/' + (pass + fail) + ' self-tests passed');
   return fail ? 1 : 0;
 }
@@ -215,6 +245,7 @@ function main() {
 
   const today = arg('--today') || new Date().toISOString().slice(0, 10);
   const overdueBefore = overdueCount(today);
+  const datesBefore = liveDates(lines[ix]).length;
 
   if (bodyFile) cells[2] = ' ' + load(bodyFile) + ' ';
   if (status) cells[CELLS - 3] = ' ' + status.trim() + ' ';
@@ -227,11 +258,34 @@ function main() {
   const worse = (overdueBefore != null && overdueAfter != null && overdueAfter > overdueBefore);
   /* Two live dates only matter while the row is OPEN — a closed row is not
    * chased by anything, so its retired date is harmless. */
-  const closedNow = /\b(closed|resolved|ruled|withdrawn|superseded|retracted)\b/i
-    .test(cells[CELLS - 3]);
+  /* The canonical vocabulary, not a fourth private copy of it. Register 469 /
+   * A-DECISIONS D10 — this list was the third one found and it is missing
+   * nothing today, but a hand-rolled list is exactly what drifted in the other
+   * three. `isClosed` takes the status cell, which is what this passes it. */
+  const closedNow = canon.isClosed({ status: cells[CELLS - 3] });
   const dates = closedNow ? [] : liveDates(lines[ix]);
   const ambiguous = dates.length > 1;
-  if (!g.ok || worse || ambiguous) {
+
+  /* ⚠️⚠️ ZERO DATES IS THE OTHER HALF, AND THIS TOOL CAUSED THE FAILURE IT DID
+   * NOT GUARD. Register 400 taught it to refuse TWO live dates. Amending row
+   * 485 on 2026-09-04 hit the mirror image: `--action-file` REPLACES the action
+   * cell, the replacement text did not restate `recheck 09-15`, and the row
+   * came out OPEN AND UNDATED — invisible to `register_recheck_check.js`, which
+   * is `CLAUDE.md`'s own headline failure, and it reached `main` in `73b90ef7`
+   * before the live-register arm caught it.
+   *
+   * Every guard passed, exactly as in the 253 incident: the column count was
+   * right, the overdue count did not RISE (an invisible row cannot be overdue
+   * — the metric moves the wrong way, which is why `worse` could never see
+   * this), and test_defect_register.py was green.
+   *
+   * The rule is a REGRESSION, not a floor: refuse only when this edit removed
+   * the row's last live date. A row that was already undated stays amendable —
+   * a tool that refuses to let you improve a bad row is a tool people route
+   * around, and undated rows are reported by the checker on their own. */
+  const strippedDate = !closedNow && datesBefore > 0 && dates.length === 0;
+
+  if (!g.ok || worse || ambiguous || strippedDate) {
     fs.writeFileSync(REGISTER, before);
     console.error('\n⛔ GUARD FAILED amending row ' + id
       + (ambiguous ? ' — the row now carries TWO LIVE RECHECK DATES (' + dates.join(', ')
@@ -239,6 +293,10 @@ function main() {
         + 'retired one as "recheck WAS MM-DD" and say why (register 400).'
       : worse ? ' — the overdue count went ' + overdueBefore + ' -> ' + overdueAfter
         + ', so this edit put the row past its own recheck date (register 374).'
+      : strippedDate ? ' — the row had ' + datesBefore + ' live recheck date(s) '
+        + 'and now has NONE, so it would be an OPEN UNDATED row: invisible to '
+        + 'register_recheck_check.js forever. --action-file REPLACES the cell; '
+        + 'restate the "recheck MM-DD" in your new text (or close the row).'
         : ' — test_defect_register.py'));
     console.error('   DEFECT-REGISTER.md has been REVERTED; nothing was left half-written.');
     if (g.out) console.error(g.out);
