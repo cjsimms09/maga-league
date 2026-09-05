@@ -192,6 +192,31 @@ KNOWN_PARTICIPANTS = {
     "tier_rank_cbs", "tier_rank_espn", "tier_rank_clay", "tier_rank_fftoday",
     "tier_size_cbs", "tier_size_espn", "tier_size_clay", "tier_size_fftoday",
     "tier_drop_cbs", "tier_drop_espn", "tier_drop_clay", "tier_drop_fftoday",
+    # `tier_drop_ownmodel` — ADDED 2026-09-04 (A) AFTER MEASURING, as this
+    # list's own message demands, and it is the same per-source family as every
+    # line above: `alt_source_rankings.py` runs the board's own assign_tiers on
+    # a shadow copy priced by each source, so the own-model column is the SAME
+    # function on a near-identical input.
+    #
+    # WHAT THE SWEEP ACTUALLY FOUND, and why it is not "our blend is the own
+    # model rescaled": it flagged `tier_drop`, `tier_drop_clay` and
+    # `tier_drop_fantasypros` as multiples of this one in 3 of 10 CELLS
+    # (worst_cell_cv 0.0 inside those three). Across the whole board they are
+    # nothing of the kind — blend against own model over 388 players carrying
+    # both: median ratio 1.000, **cv 0.677**, where a true constant multiple
+    # has cv ~ 0. That reproduces the 08-20 entry's own figure for our model
+    # (cv 0.685) on a different column, which is the corroboration worth having.
+    #
+    # Three cells go constant for a mundane reason: where a tier holds few
+    # players and the sources agree on the boundary, every drop inside it is the
+    # same number, so the ratio is 1.0 by arithmetic rather than by copying.
+    #
+    # AND THE RISK THIS SWEEP GUARDS AGAINST DOES NOT APPLY: the danger is a
+    # field that LOOKS independent being a rescaled copy, so a study weights
+    # both and reports a null it did not earn. This one wears its source in the
+    # name, nothing weights it, and it exists for one purpose — re-ranking when
+    # Cory flips the source toggle.
+    "tier_drop_ownmodel",
     "replacement_cbs", "replacement_espn", "replacement_clay", "replacement_fftoday",
     "proj_used_cbs", "proj_used_espn", "proj_used_clay", "proj_used_fftoday",
     "overall_rank_cbs", "overall_rank_espn", "overall_rank_clay", "overall_rank_fftoday",
