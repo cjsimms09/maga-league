@@ -538,6 +538,12 @@ def main() -> dict:
     corr = correlation_gate(pair_results, positions)
     result = {
         "_territory": "TERRITORY: D",
+        #: THE CONVENTION (relay, routed to D 2026-09-02, register 304): the
+        #: artifact names the prediction it GRADES, because nothing can infer
+        #: that -- a file may cite six P-ids in its prose and grade one. Read
+        #: by test_graded_artifacts_match_the_ledger.py, which fails if the
+        #: ledger row for a stamped id is still asking for work.
+        "graded": ["P151"],
         "_note": "P151 grade -- PREDICTION-LEDGER.md P151 / "
                  "CEILING-PROGRAM-PREREG-2026-08-20.md SS4. Written by "
                  "p151_target_share_trend.py.",

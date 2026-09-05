@@ -53,6 +53,7 @@ CONTROLS, all three gating the exit code:
 from __future__ import annotations
 
 import json
+import hashlib as _hashlib
 import random
 import sys
 from pathlib import Path
@@ -245,7 +246,20 @@ def control_synthetic_recovery() -> dict:
     BUMP = 6.0
 
     def inject(pid, week, d, a):
-        if hash((pid, week)) % 3 == 0:
+        # ⚠️ WAS `hash((pid, week)) % 3` UNTIL 2026-09-02, AND THAT MADE THIS
+        # CONTROL IRREPRODUCIBLE. Python randomises string hashing per process
+        # (PYTHONHASHSEED), so WHICH player-weeks got the planted step changed
+        # on every run: `mean_slope` came back 13.161, then 12.601, then 12.751
+        # on identical inputs. A control whose sample is redrawn every run
+        # cannot be checked by anyone, which is the opposite of what a control
+        # is for — and it is rule 3f landing on the control itself.
+        #
+        # The GRADE was never affected and that was verified rather than
+        # assumed: n_player_weeks, every fold n and every delta_mae are
+        # byte-identical across four runs, so P327's FALSE verdict rests on
+        # reproducible numbers. Only this control's reported slope moved.
+        if int(_hashlib.blake2b(f"{pid}|{week}".encode(),
+                                digest_size=8).hexdigest(), 16) % 3 == 0:
             return d + 0.30, a + BUMP
         return d, a
     cache = {s: season_rows(s, inject=inject) for s in TARGET_SEASONS}
@@ -308,6 +322,12 @@ def main() -> int:
         print("  %s %s %s" % ("OK " if v["ok"] else "!! ", k,
                               json.dumps({x: y for x, y in v.items() if x != "requirement"})[:200]))
     out = {"_territory": "TERRITORY: D — draft/backtest/opportunity_delta_arm.py",
+           #: THE CONVENTION (relay, routed to D 2026-09-02, register 304): the
+           #: artifact names the prediction it GRADES, because nothing can infer
+           #: that -- a file may cite six P-ids in its prose and grade one. Read
+           #: by test_graded_artifacts_match_the_ledger.py, which fails if the
+           #: ledger row for a stamped id is still asking for work.
+           "graded": ["P327"],
            "_what": "P327 opportunity-delta arm: trailing-3-week share CHANGE beyond baseline_pg.",
            "seasons": list(TARGET_SEASONS), "first_week": FIRST_WEEK, "trail": TRAIL,
            "n_player_weeks": len(pooled), "folds": folds, "folds_cleared": cleared,

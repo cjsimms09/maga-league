@@ -272,6 +272,34 @@ def main():
         print(f" 🔴 registry unreadable: {type(e).__name__}: {e}")
         red.append(f"source_registry.json unreadable — {e}")
 
+    # ── STRANDED WORK ───────────────────────────────────────────
+    # Finished, CI-green work that is on no branch and not on main. ROUTES
+    # cannot show this: it lists what a lane WROTE DOWN, and an unrouted
+    # commit looks exactly like an idle lane. Five real pieces were found
+    # stranded on 2026-09-05, one of them three days old and owner-facing.
+    # A sweep that CANNOT RUN (no network) says so — it never reports clean.
+    print("\n── STRANDED WORK ───────────────────────────────────────────")
+    try:
+        sw = subprocess.run([sys.executable, str(ROOT / "draft" / "tools" / "stranded_work_sweep.py"), "--json"],
+                            capture_output=True, text=True, timeout=600)
+        if sw.returncode == 2 or not sw.stdout.strip():
+            print("   ⚠ could not sweep (API unreachable) — NOT a clean result, no claim made")
+        else:
+            d = json.loads(sw.stdout)
+            n = len(d["stranded_work"])
+            print(f"   {d['commits_tested']} CI-tested commits · {d['on_main']} on main · "
+                  f"{d['on_a_live_branch']} on a live branch · {len(d['resolved'])} recovered/superseded")
+            if n:
+                print(f" 🔴 {n} commit(s) of finished work are on NO branch and not on main:")
+                for r in d["stranded_work"][:6]:
+                    print(f"     {r['sha'][:10]}  {r['when']}  {r['title'][:70]}")
+                red.append(f"{n} stranded commit(s) — finished work nobody can use "
+                           f"(python3 draft/tools/stranded_work_sweep.py)")
+            else:
+                print("   ✅ nothing stranded — every tested commit is on main or on a branch someone holds")
+    except Exception as e:  # noqa: BLE001
+        print(f"   ⚠ sweep did not complete ({type(e).__name__}) — NOT a clean result")
+
     print("\n── VERDICT ─────────────────────────────────────────────────")
     if red:
         print(f" 🔴 {len(red)} item(s) need action — this list IS the agenda:")
