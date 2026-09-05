@@ -40,6 +40,47 @@ ok('FAIL ARM — an OPEN row is not picked up. This check is about protecting '
     row('9b', '🔴 OPEN', 'broken in `src/dashboard.js`'), '2026-08-18', 7), []);
 });
 
+/* ── THE VOCABULARY PORT (register 469, A-DECISIONS D10, 09-05) ────────────
+ * This tool carried its own status word list and it was wrong in BOTH
+ * directions on the live register: it read `✅ FIXED` / `✅ BUILT` as closed
+ * (26 rows) and RETRACTED / WITHDRAWN as open (3 rows: 44, 220, 323). The
+ * second is the dangerous half — a terminal row this guard cannot see is a
+ * merge risk it reports clean. Both directions get a check, and the statuses
+ * are taken VERBATIM from the rows that were misread rather than invented. */
+ok('WITHDRAWN and RETRACTED are terminal — the words the private list never '
+  + 'carried, and the direction where a miss makes this guard report a real '
+  + 'merge risk as clean (live rows 44, 220, 323)', () => {
+  for (const status of ['⚠️ RETRACTED, kept for the record 08-18',
+    '❌ **WITHDRAWN — see E1** 08-18', '✅ SUPERSEDED 08-18']) {
+    const rows = R.recentlyClosedRows(
+      row('9x', status, 'lived in `src/dashboard.js`'), '2026-08-18', 7);
+    assert.strictEqual(rows.length, 1, status + ' must be read as terminal');
+  }
+});
+
+ok('FAIL ARM — `✅ FIXED` and `✅ BUILT` are NOT terminal. The vocabulary is '
+  + 'explicit that they describe work done rather than a row closed, and this '
+  + 'tool used to count both (26 live rows), so the port must visibly change '
+  + 'that answer and not merely agree with the old list', () => {
+  for (const status of ['✅ FIXED 08-18', '✅ BUILT', '✅ BUILT — needs wiring']) {
+    assert.deepStrictEqual(R.recentlyClosedRows(
+      row('9y', status, 'in `src/dashboard.js`'), '2026-08-18', 7), [],
+    status + ' must NOT be read as terminal');
+  }
+});
+
+ok('the status is the SECOND-FROM-LAST cell, not a positional guess — an '
+  + 'escaped pipe inside a cell must not shift the column (five statuses were '
+  + 'misread that way on 08-18), and a sixth column must not break the read', () => {
+  //: escaped pipe in the `what` cell, terminal status still found
+  const escaped = '| 9z | fixed `src/dashboard.js`, WR 10.5 \\| 117 | **A** | ✅ CLOSED 08-18 | next |';
+  assert.strictEqual(R.recentlyClosedRows(escaped, '2026-08-18', 7).length, 1);
+  //: FAIL ARM for the same row — an OPEN status at that position is not picked up,
+  //: so the check above is finding the status rather than matching prose anywhere
+  const open = escaped.replace('✅ CLOSED 08-18', '🔴 OPEN');
+  assert.deepStrictEqual(R.recentlyClosedRows(open, '2026-08-18', 7), []);
+});
+
 ok('a close older than the window drops out — an old fix has long since '
   + 'propagated into every live branch, and reporting it is the noise that '
   + 'gets a check switched off', () => {

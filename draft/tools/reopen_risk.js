@@ -91,7 +91,30 @@ function git(cmd) {
   });
 }
 
-const TERMINAL = /(✅|CLOSED|RESOLVED|APPLIED|FIXED|RULED)/;
+/* ⚠️ NO PRIVATE STATUS WORD LIST. Register 469 (D) found three tools reading
+ * the register against their own hand-rolled vocabularies;
+ * `stale_row_sweep.py` was fixed on 09-02 and this was one of the two left.
+ * A ruled the port on 09-05 (A-DECISIONS D10) and measured this tool's
+ * divergence against the canonical vocabulary first, on the live register:
+ *
+ *   20 rows read TERMINAL that the vocabulary calls OPEN  (`✅ FIXED`,
+ *      `✅ BUILT` — `claimed_done` words, work done but the row not closed)
+ *    3 rows read OPEN that the vocabulary calls TERMINAL  (44, 220, 323 —
+ *      RETRACTED and WITHDRAWN, which this list never carried)
+ *
+ * (Counted over the numeric ids this tool actually walks; the same sweep over
+ * every id including the E- and DS-prefixed rows reads 26 and 3.)
+ *
+ * The 20 are harmless here — an extra row in a risk report costs a glance.
+ * THE THREE ARE NOT: this guard exists to ask "would merging this branch
+ * reopen something we just closed", and a terminal row it cannot see is a
+ * merge risk it silently reports clean. That is rule 3e's shape, in the one
+ * direction a guard must never fail.
+ *
+ * Read from the file, with a loud exit and no fallback, exactly as
+ * `register_recheck_check.js` does — a silent fallback to a private list is
+ * how the two guards drifted apart in the first place (register 313). */
+const canon = require('./register_recheck_check.js');
 
 /**
  * MAILBOXES ARE EXCLUDED, AND NOT AS A CONVENIENCE.
@@ -130,14 +153,18 @@ function recentlyClosedRows(text, todayISO, days) {
   const cutoff = new Date(todayISO + 'T00:00:00Z').getTime() - days * 86400000;
   const year = Number(todayISO.slice(0, 4));
   const out = [];
-  for (const line of String(text).split('\n')) {
-    if (!line.startsWith('| ')) continue;
-    const cells = line.split(/(?<!\\)\|/);
-    if (cells.length < 6) continue;
-    const id = cells[1].trim();
+  /* ONE PARSER. This walked the table itself and took cells[4] as the status —
+   * a POSITIONAL guess that happens to be right for the register's five
+   * columns and is wrong the day a column is added. `canon.rows()` takes the
+   * second-from-last cell and splits on unescaped pipes only, which is the
+   * reading that survived nine escaped-pipe rows misreading five statuses on
+   * 08-18. Register 469 / A-DECISIONS D10. */
+  for (const r of canon.rows(String(text))) {
+    const line = r.line;
+    const id = r.id;
     if (!/^\d+[a-z]?$/.test(id)) continue;
-    const status = cells[4] || '';
-    if (!TERMINAL.test(status)) continue;
+    const status = r.status || '';
+    if (!canon.isClosed(r)) continue;
     /* The close DATE lives in the status cell as MM-DD ("✅ CLOSED 08-18"). No
      * date means we cannot tell recent from ancient, and treating undated as
      * recent is the safe direction: it can only add a row to a report. */

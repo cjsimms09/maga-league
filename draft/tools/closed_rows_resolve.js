@@ -46,9 +46,37 @@ const ROOT = path.join(__dirname, '..', '..');
 const BUF = 64 * 1024 * 1024;                       // register 391
 const REGISTER = path.join(ROOT, 'DEFECT-REGISTER.md');
 
-/* The same terminal-status vocabulary register_recheck_check.js enforces:
- * FIXED / BUILT / GRADED are deliberately NOT terminal here either. */
-const TERMINAL = /✅|\bCLOSED\b/;
+/* ⚠️ NO PRIVATE STATUS WORD LIST — AND THIS TOOL'S PORT IS NOT THE SAME PORT
+ * `reopen_risk.js` GOT, BECAUSE IT ASKS A DIFFERENT QUESTION.
+ *
+ * The list here was `/✅|\bCLOSED\b/`, and A-DECISIONS D10's REC was "same
+ * pass, same port" for both tools. Measured on the live register first
+ * (rule 3i — the divergence, not a guess about it):
+ *
+ *   21 rows THE OLD PARSER COULD NOT SEE AT ALL — 495 of the register's 516
+ *      numbered rows. It split on the LITERAL `' | '`, so any row whose cells
+ *      were not padded with single spaces vanished, and a vanished row looks
+ *      exactly like a clean one from outside (rule 3e). That is a bigger hole
+ *      than the vocabulary and nobody had counted it.
+ *   16 rows it read OPEN that the vocabulary calls TERMINAL   (2b `RULED`,
+ *      39 `RESOLVED`, 44 `RETRACTED`, 220, 5q …) — sixteen rows whose
+ *      citations this guard has never once checked
+ *    1 row it read TERMINAL that the vocabulary calls OPEN    (83)
+ *
+ * The 21 and the 16 are the reason to port. `claimed_done` is the reason NOT
+ * to port it identically to `reopen_risk.js`: a pure `terminal`-only read
+ * would have dropped every `✅ FIXED` / `✅ BUILT` row, and a row
+ * reading `✅ FIXED in <sha>` is precisely where a dead citation lives — that
+ * is register 424's own shape, a fix claimed against a sha nothing can
+ * resolve. So the population here is `terminal` ∪ `claimed_done`, which the
+ * vocabulary file already separates for exactly this reason, and the report
+ * names the two buckets rather than blurring them. Ruled by A 2026-09-05
+ * (A-DECISIONS D10, SEND BACK on the REC's "same port", YES on the port).
+ *
+ * Loud exit, no fallback: a silent revert to a private list is how the guards
+ * drifted apart in the first place (register 313). */
+const canon = require('./register_recheck_check.js');
+const inScope = (r) => canon.isClosed(r) || canon.claimsDone(r);
 
 /* A backticked path with a real extension. Requires a directory separator or a
  * known top-level file, so `true` and `ok:` never match. */
@@ -80,17 +108,40 @@ const LOOKS_LIKE_A_WORD = /^[a-f]+$/;
  * never silently); anything shorter is checked like any other sha. */
 const RUN_ID = /^[0-9]{10,}$/;
 
+/* ⚠️⚠️ A SHA IN THIS REGISTER IS NOT NECESSARILY A SHA IN THIS REPOSITORY, and
+ * the vocabulary port found that out the hard way. Widening the row population
+ * (register 469 / D10, 09-05) surfaced exactly one new hash finding — row 442's
+ * `1955daa`, reported as "DOES NOT RESOLVE AT ALL", which is register 424's
+ * most serious shape. It is not that at all: row 442's own sentence reads
+ * *"the SAME ffanalytics commit `1955daa` both days"*. It is an UPSTREAM sha,
+ * in a repository this checkout has never had, and `git cat-file` in here can
+ * only ever say no.
+ *
+ * Caught by reading the row instead of the report — which is the whole of rule
+ * 3i, and the first new finding the port produced was this false positive.
+ *
+ * Named rather than pattern-matched. A heuristic over the English around a
+ * backtick ("if the sentence says ffanalytics…") is precisely the kind of
+ * guess this file refuses everywhere else, and it would go wrong silently. An
+ * allowlist goes wrong loudly: the entry names the row, the upstream project
+ * and the reason, and a new foreign citation shows up as a finding until
+ * somebody looks at it. */
+const FOREIGN_SHAS = new Map([
+  ['1955daa', 'row 442 — an ffanalytics (upstream R package) commit, cited to '
+    + 'show the SCRAPER was unchanged across two days while its output went '
+    + '442/416 rows to 0/0. Never resolvable in this repository.'],
+]);
+
+/* ONE PARSER. This split on the literal `' | '` and took cells[3] — a
+ * positional guess that also silently dropped any row whose cells were not
+ * padded with spaces. `canon.rows()` takes the second-from-last cell and
+ * splits on UNESCAPED pipes only, the reading that survived the nine
+ * escaped-pipe rows which misread five statuses on 08-18. Register 469 / D10.
+ * `.text` is kept as the key name so `refsIn` and the self-test are unchanged. */
 function rows(text) {
-  const out = [];
-  text.split('\n').forEach(line => {
-    if (!line.startsWith('| ')) return;
-    const cells = line.slice(1).split(' | ');
-    if (cells.length < 5) return;
-    const id = cells[0].replace(/[*`]/g, '').trim();
-    if (!/^\d+[a-z]?$/.test(id)) return;
-    out.push({ id: id, status: cells[3] || '', text: line });
-  });
-  return out;
+  return canon.rows(text)
+    .map(r => ({ id: String(r.id).replace(/[*`]/g, '').trim(), status: r.status, text: r.line }))
+    .filter(r => /^\d+[a-z]?$/.test(r.id));
 }
 
 function refsIn(rowText) {
@@ -136,10 +187,10 @@ function isWrittenBySomeTool(rel) {
 function audit() {
   const text = fs.readFileSync(REGISTER, 'utf8');
   const findings = [];
-  let closed = 0, refsChecked = 0, skippedWords = 0;
+  let closed = 0, claimed = 0, refsChecked = 0, skippedWords = 0, foreign = 0;
   rows(text).forEach(r => {
-    if (!TERMINAL.test(r.status)) return;
-    closed++;
+    if (!inScope(r)) return;
+    canon.isClosed(r) ? closed++ : claimed++;
     const { paths, hashes, skipped } = refsIn(r.text);
     skippedWords += skipped.length;
     paths.forEach(p => {
@@ -173,14 +224,22 @@ function audit() {
       || hashes.some(h => hashState(h) === 'on_head');
     hashes.forEach(h => {
       refsChecked++;
+      if (FOREIGN_SHAS.has(h)) { foreign++; return; }
       const st = hashState(h);
       if (st === 'on_head') return;
       findings.push({ id: r.id, ref: h,
         kind: corroborated ? 'stale_citation_artifact_present' : st });
     });
   });
-  return { closed_rows: closed, refs_checked: refsChecked,
-           hexish_words_skipped: skippedWords, findings: findings };
+  /* Two buckets, never one number: `closed_rows` are rows the vocabulary calls
+   * terminal, `claimed_done_rows` are rows saying the work is done without
+   * closing (`✅ FIXED`, `BUILT`, `GRADED`). A dead citation means something
+   * different in each — the first is register 424, the second is a row that
+   * still owes its close and now cannot prove it. */
+  return { closed_rows: closed, claimed_done_rows: claimed,
+           rows_examined: closed + claimed, refs_checked: refsChecked,
+           hexish_words_skipped: skippedWords, foreign_shas_skipped: foreign,
+           findings: findings };
 }
 
 function selfTest() {
@@ -190,13 +249,44 @@ function selfTest() {
 
   const row = (id, status, body) => `| ${id} | ${body} | **A** | ${status} | act |`;
 
+  const one = (id, status) => rows(row(id, status, 'x'))[0];
+
   ck('a CLOSED row is examined and an OPEN one is not',
     rows(row('1', '✅ CLOSED', 'x')).length === 1
-    && TERMINAL.test(rows(row('1', '✅ CLOSED', 'x'))[0].status)
-    && !TERMINAL.test(rows(row('2', '🟠 OPEN', 'x'))[0].status));
+    && inScope(one('1', '✅ CLOSED'))
+    && !inScope(one('2', '🟠 OPEN')));
 
-  ck('  and FIXED is NOT terminal, the same rule register_recheck_check uses',
-    !TERMINAL.test('🟡 FIXED — verify'));
+  /* ── THE VOCABULARY PORT (register 469, A-DECISIONS D10, 09-05) ──────────
+   * Statuses taken VERBATIM from the live rows this tool used to misread, in
+   * both directions, rather than invented (register 121). */
+  ck('  RULED / RESOLVED / WITHDRAWN / RETRACTED / SUPERSEDED are terminal — '
+    + 'ten live rows (2b, 39, E29, 44, 220 …) whose citations the private '
+    + '`/✅|CLOSED/` list never once checked',
+    ['RULED · flag post-draft', 'RESOLVED', '❌ **WITHDRAWN — see E1**',
+      '⚠️ RETRACTED, kept for the record', '✅ SUPERSEDED 09-01']
+      .every(s => canon.isClosed(one('3', s))));
+
+  ck('  and FIXED is NOT terminal, the same rule register_recheck_check uses — '
+    + 'but it IS in scope HERE as `claimed_done`, because `✅ FIXED in <sha>` '
+    + 'is exactly where register 424\'s dead citation lived',
+    !canon.isClosed(one('4', '🟡 FIXED — verify'))
+    && inScope(one('4', '🟡 FIXED — verify'))
+    && inScope(one('5', '✅ BUILT — needs wiring')));
+
+  ck('  FAIL ARM — a status that also says OPEN is NOT claiming done, whatever '
+    + 'else the sentence contains, so widening to `claimed_done` does not drag '
+    + 'live rows in',
+    !inScope(one('6', '🟠 OPEN — measured, NOT acted on'))
+    && !inScope(one('7', '🟡 OPEN — headline FIXED, one measurement owed')));
+
+  ck('  the status is the SECOND-FROM-LAST cell — an escaped pipe must not '
+    + 'shift the column (five statuses were misread that way on 08-18)',
+    (() => {
+      const esc = '| 8 | body with `a.js`, WR 10.5 \\| 117 | **A** | ✅ CLOSED 09-01 | act |';
+      const got = rows(esc);
+      return got.length === 1 && inScope(got[0])
+        && !inScope(rows(esc.replace('✅ CLOSED 09-01', '🟠 OPEN'))[0]);
+    })());
 
   const r = refsIn('see `draft/tools/thing.js` at `8d738033` and `1511426f`');
   ck('backticked paths and hashes are both extracted',
@@ -245,9 +335,12 @@ function main() {
   if (process.argv.includes('--self-test')) return selfTest();
   const rep = audit();
   console.log('CLOSED ROWS — does what they point at exist on this checkout?\n');
-  console.log('  ' + rep.closed_rows + ' terminal row(s) · ' + rep.refs_checked
+  console.log('  ' + rep.closed_rows + ' terminal row(s) + '
+    + rep.claimed_done_rows + ' claimed-done row(s) = ' + rep.rows_examined
+    + ' examined · ' + rep.refs_checked
     + ' backticked reference(s) checked · ' + rep.hexish_words_skipped
-    + ' hex-looking word(s) skipped\n');
+    + ' hex-looking word(s) skipped · ' + rep.foreign_shas_skipped
+    + ' upstream sha(s) skipped by name\n');
   if (!rep.findings.length) {
     console.log('  ✅ every backticked file and commit in a CLOSED row resolves here.');
   } else {
