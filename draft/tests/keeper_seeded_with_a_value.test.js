@@ -47,6 +47,19 @@ const withKeeperValuation = new Function(lift('withKeeperValuation')
 const BOARD = path.join(ROOT, 'public', 'draft_data.json');
 if (!fs.existsSync(BOARD)) { console.log('SKIP  no built board'); process.exit(0); }
 const art = JSON.parse(fs.readFileSync(BOARD, 'utf8'));
+
+/* ⚠️ MY SEAT ONLY, AND BOTH FIXTURES TAKE IT. Register 276's defect, found here
+ * 2026-09-05 by the class sweep register 437 asked for and never got. `art` is
+ * the real board, and since the 08-22 rebuild `kept_players` carries ALL TEN
+ * TEAMS' 23 keepers — so this suite was seeding a 23-man roster while its own
+ * prose says *"he holds three keepers"*. `rawSeed` and `seeded` are compared
+ * head to head, so they MUST take the same filter: filtering one alone makes
+ * every difference an artifact of the fixture. (Caught exactly that way — the
+ * half-filtered version reported 116 of 120 name slots moving, which read as a
+ * finding and was my own error.) */
+const MY_SLOT_FOR_KEEPERS = Number((art.league || {}).my_draft_slot);
+const MY_KEPT = (art.kept_players || [])
+  .filter(k => Number(k.team_slot) === MY_SLOT_FOR_KEEPERS);
 const board = art.players, league = art.league, teams = league.teams || 10;
 const RP = art.replacement.replacement_points;
 
@@ -72,7 +85,10 @@ ck('kept_players NOW carry vorp (E17 shipped at the source) — absence returnin
 }
 
 // ─────────────────────── 3. the seeding now supplies it
-const seeded = art.kept_players.map(k => withKeeperValuation(k, art));
+//: `MY_KEPT` again — the same population `rawSeed` takes. The two are compared
+//: head to head in the name-slot check below, so filtering one and not the
+//: other makes every difference an artifact of the fixture.
+const seeded = MY_KEPT.map(k => withKeeperValuation(k, art));
 ck('every seeded keeper carries a finite, positive vorp',
   seeded.every(k => Number.isFinite(k.vorp) && k.vorp > 0),
   seeded.map(k => k.name + '=' + k.vorp));
@@ -111,7 +127,10 @@ ck('an already-valued row is not overwritten',
  * E18 stops the bar asserting things about rows it cannot value; E17 is what
  * makes Cory's keepers valued enough to be counted at all. Without E17, E18
  * alone would have produced a different false statement. */
-const rawSeed = art.kept_players.map(k => Object.assign({}, k, { is_keeper: true, vorp: 0 }));
+//: `MY_KEPT` — his three, not the league's 23; see the note at the top. The
+//: numbers this section asserts (the third-best keeper bar, "beats Derrick
+//: Henry") were computed against ten managers' rosters at once until 09-05.
+const rawSeed = MY_KEPT.map(k => Object.assign({}, k, { is_keeper: true, vorp: 0 }));
 function ctxAt(pick, ks) {
   return { league: league, board: board, roster: ks.slice(),
     currentKeepers: ks.filter(p => p.is_keeper), currentPick: pick };

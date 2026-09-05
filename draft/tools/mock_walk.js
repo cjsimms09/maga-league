@@ -57,9 +57,25 @@ function opponentPick(pool) {
   return best;
 }
 
+/* ⚠️ `kept_players` IS THE WHOLE LEAGUE'S 23 KEEPERS, NOT MINE — register 276's
+ * defect, found here 2026-09-05 by running the sweep register 437 asked for and
+ * never got. The two uses below are NOT the same list and this file used one
+ * for both:
+ *
+ *   · OFF THE BOARD  — all 23. Every keeper is unavailable to everybody.
+ *   · MY ROSTER      — the 3 at my own seat. Chase, Henry, Walker at slot 8.
+ *
+ * Seeding `myRoster` with 23 is a phantom roster: it tells every roster-aware
+ * term I already hold three times a full starting lineup, so `need` is
+ * satisfied everywhere and the walk suppresses exactly the positions I still
+ * need. That is register 276's measured mechanism, in a tool nobody had
+ * checked. `roster_construction.js:80` already does it right
+ * (`filter(k => Number(k.team_slot) === MY)`) — that file is the control, and
+ * the two disagreeing was the whole finding. */
 const drafted = new Set();
 KEEPERS.forEach(k => drafted.add(String(k.player_id)));
-const myRoster = KEEPERS.map(k => Object.assign({}, k, { is_keeper: true }));
+const MY_KEEPERS = KEEPERS.filter(k => Number(k.team_slot) === Number(MY_SLOT));
+const myRoster = MY_KEEPERS.map(k => Object.assign({}, k, { is_keeper: true }));
 const mySeen = [];
 
 const POS_MAX = { QB: 450, RB: 400, WR: 400, TE: 300, K: 200, DEF: 200 };
@@ -185,7 +201,10 @@ const left = ALL.filter(x => !drafted.has(String(x.player_id)));
 const playable = left.filter(x => (x.team || 'FA') !== 'FA' && Number(x.proj_mean) > 0);
 
 console.log('MOCK WALK — ' + MY_PICKS.length + ' of my picks across a ' + TOTAL + '-pick draft');
-console.log('  seat ' + MY_SLOT + ', keepers ' + KEEPERS.map(k => k.name).join('/') + '\n');
+//: MY keepers, not the league's 23 — the header used to print all of them,
+//: which is how a phantom roster reads as correct on screen.
+console.log('  seat ' + MY_SLOT + ', keepers ' + MY_KEEPERS.map(k => k.name).join('/')
+  + '  (' + KEEPERS.length + ' kept league-wide, all off the board)\n');
 console.log('  MY BOARD, PICK BY PICK:');
 mySeen.forEach(s => console.log('    ' + String(s.pick).padStart(3) + '  '
   + s.pos.padEnd(4) + ' ' + s.name.padEnd(24) + ' score ' + s.score.toFixed(2)));
