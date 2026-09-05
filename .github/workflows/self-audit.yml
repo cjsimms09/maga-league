@@ -41,10 +41,35 @@ jobs:
           amber=(); hard=()
 
           echo "== test suites =="
-          pip install pytest -q
+          # ⚠️ THIS LINE READ `pip install pytest -q` AND THE AUDIT HAD NEVER
+          # RUN A SINGLE PYTHON TEST — register 428 (D, 08-28). SELF-AUDIT.md
+          # reported RED on 08-17, 08-24 and 08-31, every run in its history,
+          # and there is no green entry to compare against. The cause was not
+          # the suite: `draft/requirements.txt` lists pandas, numpy,
+          # nfl_data_py, requests, lxml, html5lib, beautifulsoup4 and openpyxl,
+          # several of which are imported AT COLLECTION TIME, so pytest aborted
+          # before running anything and the audit reported "test suite red"
+          # about a suite it had not executed. A red that means "did not run"
+          # is worse than no check at all: it looks like protection and it is a
+          # constant.
+          #
+          # One source of truth with ci.yml's own Python deps step — a
+          # hardcoded package list IS the venv-gap class, four instances of it
+          # (ci.yml:150-162). pytest is in the file.
+          pip install -r draft/requirements.txt -q
           npm install --no-audit --no-fund >/dev/null 2>&1
           py_ok=1; js_ok=1
-          python -m pytest draft/tests -q || py_ok=0
+          # ⚠️ AND THE INVOCATION MUST MATCH ci.yml's, OR THIS AUDIT IS RED
+          # FOREVER FOR A SECOND REASON. `-m "not repo_parity"` excludes the
+          # nodes that are red BY DESIGN against live state (ci.yml:308-318);
+          # running them here would make this gate permanently red, which is
+          # the failure ci.yml documents in that same comment — "a permanently
+          # red gate confirms nothing", and B's matchup failures sat unnoticed
+          # for fifteen hours inside exactly such a standing red. `tools` is
+          # included for the same reason it is there: that tree carries suites
+          # too. The pins still run in CI's own next step, where their red is
+          # visible without repainting the run.
+          python -m pytest draft/tests tools -q -m "not repo_parity" || py_ok=0
           for t in alerts app-wiring attribution authority backtest betlogic bundling_guard engine keeperlock keepers ledger \
                    claimfix doctrine mcts movement_line predledger prefs rawarchive reconcile shadows sidebets stack_routes strategies sync update venmo; do
             node draft/tests/$t.test.js >/dev/null 2>&1 || js_ok=0

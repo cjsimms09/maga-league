@@ -102,11 +102,11 @@
  "n_matched": 248,
  "n_unmatched": 2,
  "match_methods": {
-  "first-initial+pos": 196,
+  "first-initial+pos": 195,
   "first-initial+pos+closest-rank": 2,
   "last-name+pos+team": 1,
   "first-initial+pos+team": 4,
-  "initials": 23,
+  "initials": 24,
   "def-team": 21,
   "initials+pos": 1
  },
@@ -1592,8 +1592,8 @@
    "pts_rec": 0,
    "pts_kick": 0,
    "pts_def": 0,
-   "sleeper_id": "11560",
-   "match_method": "first-initial+pos"
+   "sleeper_id": "13554",
+   "match_method": "initials"
   },
   {
    "rank": 71,
