@@ -46,6 +46,19 @@
             </div>
           <% } %>
           <div><%= m.text %></div>
+          <%# REACTIONS (site review 09-02, item ⑥, catalog 13's other half):
+              🔥 💀 🤡, one tap toggles your own — cheap, and the thing that
+              makes a chat feel alive. Any message, including your own. %>
+          <div class="chat-reactions">
+            <% for (const em of ['🔥', '💀', '🤡']) {
+                 const ids = (m.reactions && m.reactions[em]) || [];
+                 const mineOn = ids.includes(owner.id); %>
+              <form method="post" action="/chat/<%= mid %>/react" class="asis chat-react-form">
+                <input type="hidden" name="emoji" value="<%= em %>">
+                <button type="submit" class="chat-react<%= mineOn ? ' mine' : '' %>" title="<%= em %>"><%= em %><% if (ids.length) { %> <span class="chat-react-n"><%= ids.length %></span><% } %></button>
+              </form>
+            <% } %>
+          </div>
         </div>
       </div>
     <% } %>

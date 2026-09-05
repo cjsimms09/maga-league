@@ -376,6 +376,23 @@ jobs:
               print(f"proj_series {today}: complete ({sorted(got)})")
           PYEOF
 
+      - name: Source universe drift — content-side check beside the presence check (register 444)
+        # The completeness step above asks whether each source WROTE A ROW
+        # today; it never looks inside. That is exactly how the 08-27 Sleeper
+        # free-agent drop (Nick Chubb, Trey Benson) stayed silent for five
+        # days — every day printed "complete" while the archive quietly lost
+        # players our board still prices. `source_universe_drift.py` reads
+        # inside the row and classifies every departure against the live
+        # board, flagging only the ones still priced by us (register 444,
+        # STILL OPEN item: "the drift monitor is not yet wired into the
+        # nightly"). Report-only like the step above: it exits non-zero only
+        # if its OWN controls fail (the tool itself broke), never on drift
+        # found, so continue-on-error keeps a third party's churn from ever
+        # blocking Cory's board.
+        if: github.event.inputs.snapshot != 'true'
+        continue-on-error: true
+        run: python3 draft/tools/source_universe_drift.py | tee -a "$GITHUB_STEP_SUMMARY"
+
       - name: Regenerate the in-season derived stores from the fresh board
         # The regeneration hook made mechanical: every artifact rebuild (which
         # includes slot-assignment and keeper-designation changes flowing into
@@ -1040,13 +1057,16 @@ jobs:
           # workflow (so the gate stopped failing on a stale census) but not into
           # this list — so CI graded a fresh census and committed the old one, and
           # the repo's copy stayed one rebuild behind for every consumer but the gate.
-          PATHS="public/draft_data.json public/board_ds.json public/board_sleeper.json public/board_own.json public/board_fp.json public/source_boards.json public/conditional_value_2026.json draft/data/conditional_value_2026.json public/opponent_need_2026.json draft/data/blended_projection.json draft/config/keepers.json draft/config/league_config.json draft/data/league_history.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md draft/data/adp_series.json draft/data/proj_series.json draft/data/player_positions.json draft/backtest/projection_coverage_census.json draft/data/roster_state_series.json public/world_state_override.json draft/data/draft_day_consistency.json draft/data/playoff_sos_2026.json draft/data/variance_inputs_2026.json"
+          PATHS="public/draft_data.json public/board_ds.json public/board_sleeper.json public/board_own.json public/board_fp.json public/source_boards.json public/conditional_value_2026.json draft/data/conditional_value_2026.json public/opponent_need_2026.json draft/data/blended_projection.json draft/config/keepers.json draft/config/league_config.json draft/data/league_history.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md draft/data/adp_series.json draft/data/proj_series.json draft/data/player_positions.json draft/backtest/projection_coverage_census.json draft/data/roster_state_series.json public/world_state_override.json draft/data/draft_day_consistency.json draft/data/playoff_sos_2026.json draft/data/variance_inputs_2026.json draft/data/source_universe_drift.json"
           # ⬆️ The last two ADDED 2026-08-31 with the step that regenerates them
           # (register 86). Added IN THE SAME EDIT deliberately: the note above
           # records that wiring a regeneration in here without adding its output
           # to this list made CI grade a fresh artifact and commit the stale one,
           # and that is a trap you fall into once by forgetting and twice by not
-          # reading your own warning.
+          # reading your own warning. source_universe_drift.json ADDED
+          # 2026-09-05 with the step that writes it (register 444), for the
+          # same reason: leaving a fresh report ungraded on the runner is the
+          # exact failure mode this comment already names.
           EXISTING=""
           for p in $PATHS; do [ -e "$p" ] && EXISTING="$EXISTING $p"; done
           if [ -z "$EXISTING" ] || git diff --quiet -- $EXISTING; then
