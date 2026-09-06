@@ -177,5 +177,33 @@ function weeklyPrices(season, week, opts) {
   };
 }
 
+/* WHICH NUMBER PRICES A ROSTER ROW, and how good it is.
+ *
+ * Lives here rather than inline in the lineup route so it can be tested at all.
+ * The week-1 case is the whole point: a roster row before any game has been
+ * played carries no `proj` (sleeper.rosterView never sets one — the field is
+ * read in the route and assigned nowhere in src/sleeper.js), no seasonPts and
+ * no wkPts, so every source below the blend returns 0 and the optimizer has
+ * nothing to rank. That is exactly what Cory saw.
+ *
+ * Ranked best-first. `rank` lets a caller report the BEST source in play rather
+ * than the last one it happened to use — a lineup mixing a real projection with
+ * a season average should describe itself as the projection.
+ */
+const SOURCE_RANK = { 'fp+sleeper': 4, sleeper: 3, 'season-avg': 2, 'last-week': 1, none: 0 };
+
+function chooseProjection(row, blended) {
+  const r = row || {};
+  if (Number.isFinite(Number(blended))) return { proj: Number(blended), src: 'fp+sleeper' };
+  if (r.proj != null) return { proj: Number(r.proj), src: 'sleeper' };
+  if (r.seasonPts != null && r.gp) return { proj: Number(r.seasonPts) / Number(r.gp), src: 'season-avg' };
+  if (r.wkPts != null) return { proj: Number(r.wkPts), src: 'last-week' };
+  return { proj: 0, src: 'none' };
+}
+
+function betterSource(a, b) {
+  return (SOURCE_RANK[b] || 0) > (SOURCE_RANK[a] || 0) ? b : a;
+}
+
 module.exports = { weeklyPrices, scaleGuard, ownWeekly, PROJ_GAMES,
-  WEEKLY_MAX_MEDIAN, SEASON_LIKE_MEDIAN };
+  WEEKLY_MAX_MEDIAN, SEASON_LIKE_MEDIAN, chooseProjection, betterSource, SOURCE_RANK };

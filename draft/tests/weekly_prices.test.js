@@ -92,3 +92,53 @@ const seasonVals = weeklyVals.map(v => v * 17);
 }
 
 console.log('weekly_prices: 5/5 — weekly passes, season rescales, zero tail caught, ambiguous refused, real archive 90/90');
+
+/* ── WHICH NUMBER PRICES A ROSTER ROW ─────────────────────────────────────────
+ * The known positive is the shape that produced Cory's bug: a week-1 roster row
+ * carries no proj (sleeper.rosterView never sets that field), no seasonPts and
+ * no wkPts. Every source below the blend returns 0, so before this the lineup
+ * optimizer had ten players tied at zero and nothing to recommend.
+ */
+const WEEK1_ROW = { id: '9221', pos: 'RB', proj: null, seasonPts: null, gp: null, wkPts: null };
+
+// 6 — KNOWN POSITIVE: week 1, no history anywhere, and the blend prices it.
+{
+  const bare = WP.chooseProjection(WEEK1_ROW, undefined);
+  assert.strictEqual(bare.proj, 0, 'without a blend a week-1 row is still 0 — that was the bug');
+  assert.strictEqual(bare.src, 'none');
+
+  const priced = WP.chooseProjection(WEEK1_ROW, 17.58);
+  assert.strictEqual(priced.proj, 17.58, 'the blend must price a week-1 row');
+  assert.strictEqual(priced.src, 'fp+sleeper');
+}
+
+// 7 — the fallbacks still work, in order, when there is no blend. A week with no
+//     archive must behave exactly as it did before rather than lose a number.
+{
+  assert.deepStrictEqual(
+    WP.chooseProjection({ proj: 12, seasonPts: 90, gp: 9, wkPts: 5 }, undefined),
+    { proj: 12, src: 'sleeper' });
+  assert.deepStrictEqual(
+    WP.chooseProjection({ proj: null, seasonPts: 90, gp: 9, wkPts: 5 }, undefined),
+    { proj: 10, src: 'season-avg' });
+  assert.deepStrictEqual(
+    WP.chooseProjection({ proj: null, seasonPts: null, gp: null, wkPts: 5 }, undefined),
+    { proj: 5, src: 'last-week' });
+}
+
+// 8 — the blend OUTRANKS every fallback, including a live sleeper projection.
+{
+  const r = { proj: 12, seasonPts: 90, gp: 9, wkPts: 5 };
+  assert.strictEqual(WP.chooseProjection(r, 17.58).src, 'fp+sleeper');
+}
+
+// 9 — the reported source is the BEST in play, whatever order rows arrive in.
+{
+  assert.strictEqual(['none', 'season-avg', 'fp+sleeper', 'last-week']
+    .reduce((a, b) => WP.betterSource(a, b), null), 'fp+sleeper');
+  assert.strictEqual(['none', 'last-week'].reduce((a, b) => WP.betterSource(a, b), null), 'last-week');
+  // and it never downgrades
+  assert.strictEqual(WP.betterSource('fp+sleeper', 'none'), 'fp+sleeper');
+}
+
+console.log('weekly_prices: +4 — week-1 row priced by the blend, fallbacks intact and ordered, best source reported');

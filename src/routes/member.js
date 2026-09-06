@@ -3754,14 +3754,43 @@ async function liveOptimizeFor(world, owners, me) {
     const wk = (matchup && matchup.week) || (sData && sData.state && sData.state.week) || null;
     const inactive = [];   // players the guard zeroed — surfaced so an absence is explained
     const questionable = [];  // players kept at full projection while tagged Q/DBT
+    /* ⚠️ THIS TOOL HAD NEVER USED A PROJECTION. Measured 2026-09-06 on Cory's
+     * "lineup optimizer isn't giving any recommendation for this week":
+     * `sleeper.rosterView` builds its rows with wkPts / seasonPts / gp / bye /
+     * game and NO `proj` field — nothing in src/sleeper.js ever assigns one —
+     * so the `r.proj != null` branch below is dead code and always has been.
+     * What actually priced a lineup was season-average-to-date, or last week's
+     * points. In WEEK 1 both are empty, every player came back at 0, projSource
+     * read 'none', and the tool that exists to say what to start had nothing to
+     * rank. All season it was ranking on realized points, never a forecast.
+     *
+     * So a real forward projection goes first: the week's committed archive,
+     * FantasyPros and Sleeper averaged where both price a player, each passed
+     * through a scale guard (Sleeper's "weekly" rows are SEASON totals — see
+     * src/weekly_prices.js). Cory, 2026-09-06: "Should it default to fantasy
+     * pros and sleeper projection mean until our model is better?" — yes, and
+     * our own model stays out of this blend until its first grade on 09-15,
+     * because nothing ships to a surface ahead of a graded prior.
+     *
+     * The old sources stay BELOW it as fallbacks, so a week with no archive
+     * behaves exactly as it does today rather than losing a recommendation. */
+    let wkPrices = {};
+    try {
+      const seasonNo = Number((sData && sData.state && sData.state.season) || 0);
+      if (seasonNo && wk) {
+        wkPrices = require('../weekly_prices').weeklyPrices(seasonNo, Number(wk), {}).byId || {};
+      }
+    } catch (e) { wkPrices = {}; }
+    const WPmod = require('../weekly_prices');
     const rosterIn = roster.rows.filter(r => r.pos && r.pos !== '?').map(r => {
-      let proj = null, src = null;
-      if (r.proj != null) { proj = Number(r.proj); src = 'sleeper'; }
-      else if (r.seasonPts != null && r.gp) { proj = Number(r.seasonPts) / Number(r.gp); src = 'season-avg'; }
-      else if (r.wkPts != null) { proj = Number(r.wkPts); src = 'last-week'; }
-      else { proj = 0; src = 'none'; }
-      if (src === 'sleeper') projSource = 'sleeper';
-      else if (projSource !== 'sleeper') projSource = src;
+      // Selection lives in weekly_prices.chooseProjection so it is testable;
+      // the week-1 all-nulls case is its known positive.
+      const picked = WPmod.chooseProjection(r, wkPrices[String(r.id)]);
+      const proj = picked.proj, src = picked.src;
+      // The page names ONE source, so it names the BEST one in play: a lineup
+      // mixing a real projection with a season average should describe itself
+      // as the projection, not the average.
+      projSource = WPmod.betterSource(projSource, src);
       // A player ruled OUT (or on bye once A exposes it) cannot score — force the
       // projection to zero so the solver never seats him. Without this, the
       // season-avg/last-week fallbacks above hand a benched player a full
