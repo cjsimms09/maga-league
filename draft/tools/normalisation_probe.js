@@ -16,7 +16,14 @@ console.log('THRESHOLDS (all fixed constants, all in "composite points"):');
 ['COIN_FLIP_GAP','TIE_THRESHOLD','CLOSE_GAP','PATHS_BAND','STAGE2_CAP_T'].forEach(k=>
   console.log('  '+k.padEnd(16)+CFG[k]));
 const drafted=new Set(); K.forEach(k=>drafted.add(String(k.player_id)));
-const roster=K.map(k=>Object.assign({},k,{is_keeper:true}));
+/* ⚠️ ALL 23 GO OFF THE BOARD; ONLY MY 3 ARE MY ROSTER. Register 276's defect,
+ * found here 2026-09-05 by the class sweep register 437 asked for. `K` is the
+ * whole league's keepers since the 08-22 rebuild, so `K.map(...)` handed every
+ * threshold in this probe a roster three times full — `need` satisfied
+ * everywhere, gaps measured against a lineup nobody has. */
+const MY_SLOT=Number((b.league||{}).my_draft_slot);
+const roster=K.filter(k=>Number(k.team_slot)===MY_SLOT)
+  .map(k=>Object.assign({},k,{is_keeper:true}));
 function oppPick(pool){let best=null;for(const p of pool){const a=p.adp==null?9999:+p.adp;if(!best||a<best._a){best=p;best._a=a;}}return best;}
 console.log('\npick   top    #2gap   #5gap  #10gap  |  band12 admits  coinflip?  close?');
 for(let i=0;i<MY.length;i++){

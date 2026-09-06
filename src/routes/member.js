@@ -1424,6 +1424,31 @@ router.get('/bank', aw(async (req, res) => {
     }
   }
 
+  // SITE-REVIEW-2026-09-02 item ③ (catalog 7): "a debt can never be resolved
+  // on the site" -- transfers are recomputed fresh every render (a pure
+  // function of live balances), so marking one paid means writing a real
+  // ledger entry the same way /admin/payment already does (L.addEntry, type
+  // 'payment', signed from the owner's point of view) -- this adds an
+  // OWNER-FACING two-step path to that same trusted write, mirroring
+  // sidebets.markLeg's shipped rule (receiver's mark IS the fact; payer's
+  // mark is a CLAIM the other side confirms). Hub-routed settlement means
+  // every transfer's counterparty is the commissioner, so "the other side"
+  // is Cory when an owner owes, and the owner themself when Cory owes them
+  // -- so "I received it" needs no confirmation, same as the sidebets rule
+  // for a receiver's mark.
+  const settleClaims = await getDoc(`settlement-claims:${season.year}`, {});
+  for (const t of (settlement && settlement.transfers) || []) {
+    if (bankId == null) continue;
+    const ownerSide = t.from_id === bankId ? t.to_id : (t.to_id === bankId ? t.from_id : null);
+    if (ownerSide == null) continue;               // not a hub transfer -- no claim UI possible
+    t.owner_side = ownerSide;
+    t.direction = t.from_id === bankId ? 'hub_owes' : 'owes_hub';
+    const claim = settleClaims[String(ownerSide)];
+    // A stale claim (amount no longer matches the live transfer, because
+    // balances moved since it was made) is never trusted or shown.
+    t.claim = (claim && claim.direction === t.direction && Math.abs(claim.amount - t.amount) < 0.005) ? claim : null;
+  }
+
   // Whose ledger sits at the top. Yours by default; clicking a name in the
   // league ledger below swaps it, which is how you get from "who owes what" to
   // "why does he owe that" without a separate page.
@@ -1630,6 +1655,91 @@ router.get('/bank', aw(async (req, res) => {
     flags: MK.ownerFlags(owners, flagOf,
       MK.goatOwnerId(await sleeper.bundle(world.config.sleeper_league_id), world.config.sleeper_map || {})),
   });
+}));
+
+/* SITE-REVIEW-2026-09-02 item ③ -- the four settlement-claim actions.
+ * Recomputes the CURRENT transfer for the acting owner server-side rather
+ * than trusting a submitted amount (money-adjacent input, never trust the
+ * client for the number). All four redirect to /bank#settlement. */
+async function currentHubTransfer(world, owners, ownerId) {
+  const season = H.currentSeason(world.seasons);
+  const bal = L.balances(world.ledger, owners);
+  const bankId = (owners.find(o => o.is_commissioner) || {}).id;
+  if (bankId == null) return null;
+  const s = SET.settlementReport(
+    owners.map(o => ({ owner_id: o.id, name: o.name, net: bal[o.id] ? bal[o.id].balance : 0 })),
+    () => null, bankId);
+  const t = (s.transfers || []).find(x => x.from_id === Number(ownerId) || x.to_id === Number(ownerId));
+  if (!t) return null;
+  return { season, bankId, transfer: t,
+    direction: t.from_id === bankId ? 'hub_owes' : 'owes_hub' };
+}
+
+router.post('/bank/settle/claim', aw(async (req, res) => {
+  const ctx = await currentHubTransfer(req.world, H.activeOwners(req.world.owners), req.owner.id);
+  // Only the DEBTOR can claim -- the payer's mark is a claim, never the fact
+  // (sidebets.markLeg's rule, mirrored). The creditor confirms it below.
+  if (ctx && ctx.direction === 'owes_hub') {
+    await mutateDoc(`settlement-claims:${ctx.season.year}`, {}, claims => {
+      claims[String(req.owner.id)] = { direction: 'owes_hub', amount: ctx.transfer.amount, claimed_at: now() };
+      return claims;
+    });
+  }
+  res.redirect('/bank#settlement');
+}));
+
+router.post('/bank/settle/withdraw', aw(async (req, res) => {
+  const season = H.currentSeason(req.world.seasons);
+  await mutateDoc(`settlement-claims:${season.year}`, {}, claims => {
+    delete claims[String(req.owner.id)];
+    return claims;
+  });
+  res.redirect('/bank#settlement');
+}));
+
+router.post('/bank/settle/received', aw(async (req, res) => {
+  const ctx = await currentHubTransfer(req.world, H.activeOwners(req.world.owners), req.owner.id);
+  // The RECEIVER's mark is the fact (sidebets.markLeg's rule): only the owner
+  // the hub currently owes can use this, and it writes the ledger entry
+  // immediately, no confirmation needed -- exactly the /admin/payment
+  // 'i_paid' shape (money went OUT of the commissioner), same sign
+  // convention, same trusted write.
+  if (ctx && ctx.direction === 'hub_owes') {
+    await L.addEntry({
+      owner_id: req.owner.id, year: ctx.season.year, type: 'payment',
+      amount: -Math.abs(ctx.transfer.amount),
+      desc: `Settlement payment received, confirmed by ${req.owner.name}`,
+    });
+    await mutateDoc(`settlement-claims:${ctx.season.year}`, {}, claims => {
+      delete claims[String(req.owner.id)];
+      return claims;
+    });
+  }
+  res.redirect('/bank#settlement');
+}));
+
+router.post('/bank/settle/confirm', requireCommissioner, aw(async (req, res) => {
+  const ownerId = parseInt(req.body.owner_id, 10);
+  const season = H.currentSeason(req.world.seasons);
+  const claims = await getDoc(`settlement-claims:${season.year}`, {});
+  const claim = claims[String(ownerId)];
+  // Re-check against the LIVE transfer, not the claim's own stored amount --
+  // balances can move between the claim and the confirm.
+  const ctx = ownerId ? await currentHubTransfer(req.world, H.activeOwners(req.world.owners), ownerId) : null;
+  if (claim && claim.direction === 'owes_hub' && ctx && ctx.direction === 'owes_hub'
+      && Math.abs(ctx.transfer.amount - claim.amount) < 0.005) {
+    const debtor = H.ownerById(req.world.owners, ownerId);
+    await L.addEntry({
+      owner_id: ownerId, year: season.year, type: 'payment',
+      amount: Math.abs(ctx.transfer.amount),
+      desc: `Settlement payment confirmed by ${req.owner.name}${debtor ? ` (from ${debtor.name})` : ''}`,
+    });
+    await mutateDoc(`settlement-claims:${season.year}`, {}, c => {
+      delete c[String(ownerId)];
+      return c;
+    });
+  }
+  res.redirect('/bank#settlement');
 }));
 
 /**
@@ -2978,6 +3088,29 @@ router.get('/matchup', aw(async (req, res) => {
 // worst picker — sit right here where the league already argues. The engine is
 // src/routes/pickem.js; this is the HTTP surface, same split as the optimizer.
 
+// SITE-REVIEW-2026-09-02 item ⑦ — "owners vs the machine is an engagement
+// hook we already have the data for." The data is `MW.matchupOdds()`, the
+// SAME pre-kick win-probability call `/scoreboard` and `/matchup` already
+// use — this is not a new model, just a new consumer of one. A synthetic,
+// non-owner participant so it can never collide with a real owner_id.
+const PICKEM_MODEL = { id: -1, name: 'The Model' };
+
+// The model's pick per game: the side MW.matchupOdds() favors. Honest
+// refusal, not a guess, when odds can't be computed (missing starters) —
+// same convention matchupOdds itself uses.
+function computeModelPicks(games, week, startersByOwner) {
+  const picks = {};
+  for (const g of games) {
+    const sa = startersByOwner[String(g.a.id)], sb = startersByOwner[String(g.b.id)];
+    if (!sa || !sb) continue;
+    try {
+      const o = MW.matchupOdds(sa, sb, { week });
+      if (o && o.ok) picks[g.id] = o.pWin >= 0.5 ? g.a.id : g.b.id;
+    } catch (e) { /* no pick — honest refusal, not a guess */ }
+  }
+  return picks;
+}
+
 // Everything the pick'em pages need, gathered once. Shared by GET /pickem and
 // the compact strip the matchup page shows.
 async function pickemContext(world, me, { wantBoards = true } = {}) {
@@ -3007,12 +3140,29 @@ async function pickemContext(world, me, { wantBoards = true } = {}) {
   // Live points for THIS week, straight off the scoreboard — provisional game
   // leaders while the week is in play (final grading uses the cached week points).
   let livePts = null;
+  const startersByOwner = {};
   if (sData && Array.isArray(sData.matchups)) {
     livePts = {};
     for (const m of sData.matchups) {
       const oid = map[String(m.roster_id)];
       if (oid != null) livePts[String(oid)] = Math.round((m.points || 0) * 100) / 100;
+      if (oid != null && Array.isArray(m.starters) && m.starters.length) startersByOwner[String(oid)] = m.starters;
     }
+  }
+
+  // THE MODEL'S PICKS (item ⑦) — computed and frozen ONCE, the first time
+  // anyone loads this page after lock, off the starters AT LOCK TIME (same
+  // "freeze so scoring never depends on re-reaching Sleeper" rule the slate
+  // itself follows a few lines up). mutateDoc makes the freeze atomic: a race
+  // between two owners loading /pickem right at kickoff can only compute the
+  // same deterministic picks once, never overwrite an already-frozen card.
+  let modelPicks = null;
+  if (locked) {
+    const mKey = `pickem-model:${seasonYear}:${weekNo}`;
+    const mDoc = await mutateDoc(mKey, null, cur =>
+      cur ? undefined  // already frozen -- deliberate no-write, resolves to the existing doc
+          : { picks: computeModelPicks(games, weekNo, startersByOwner), computed_at: now() });
+    modelPicks = mDoc.picks;
   }
 
   // The split + who-backed-whom is public only after lock — before that a pick
@@ -3034,6 +3184,7 @@ async function pickemContext(world, me, { wantBoards = true } = {}) {
     configured: !!leagueId, nameOf,
     picksMade: Object.keys(myPicks).length,
     goatId: MK.goatOwnerId(sData, map),
+    modelPicks, modelId: PICKEM_MODEL.id,
   };
   if (!wantBoards) return ctx;
 
@@ -3056,7 +3207,18 @@ async function pickemContext(world, me, { wantBoards = true } = {}) {
     if (wp && Object.keys(wp).length) { try { await setDoc(frozenKey(seasonYear, w), wp); } catch (e) { /* freeze is best-effort */ } }
     return wp;
   };
-  const sb = await PE.seasonBoard(seasonYear, weekNo, owners, finalOnly);
+  // THE MODEL, RANKED ON THE SAME BOARD (item ⑦) — a synthetic participant,
+  // not backfilled: it only has a card for weeks from whenever this shipped
+  // forward (no historical starters to derive past weeks' picks from), so it
+  // starts exactly the way a new pick'em entrant would.
+  const modelParticipant = [{
+    ...PICKEM_MODEL,
+    picksFor: async w => {
+      const doc = await getDoc(`pickem-model:${seasonYear}:${w}`, null);
+      return doc ? doc.picks : null;
+    },
+  }];
+  const sb = await PE.seasonBoard(seasonYear, weekNo, owners, finalOnly, modelParticipant);
 
   // All-time: every season with pick'em data, summed forever. The resolver reads
   // FROZEN points for any season (so prior years survive the rollover), falling
@@ -4462,6 +4624,31 @@ router.post('/chat/:id/delete', aw(async (req, res) => {
     await H.store.del(key);
   }
   res.redirect('/chat#end');
+}));
+
+// SITE-REVIEW-2026-09-02 item ⑥ (catalog 13, the other half — edit/delete/
+// reply already shipped): reactions. Any owner, any message (including their
+// own -- an emoji is a reaction, not a vote, and refusing self-reactions is a
+// rule nobody asked for). One tap TOGGLES that owner's reaction to that emoji
+// on that message; a second tap on the SAME emoji removes it. No cap on how
+// many of the three emoji one owner can put on one message -- 🔥 AND 💀 on
+// the same message is a real reaction, not a bug.
+const CHAT_REACTIONS = ['🔥', '💀', '🤡'];
+router.post('/chat/:id/react', aw(async (req, res) => {
+  const key = 'chat:' + req.params.id;
+  const emoji = String(req.body.emoji || '');
+  if (CHAT_REACTIONS.includes(emoji)) {
+    await mutateDoc(key, null, msg => {
+      if (!msg) return undefined;              // no message, no write
+      msg.reactions = msg.reactions || {};
+      const set = new Set(msg.reactions[emoji] || []);
+      const me = req.owner.id;
+      if (set.has(me)) set.delete(me); else set.add(me);
+      msg.reactions[emoji] = [...set];
+      return msg;
+    });
+  }
+  res.redirect(req.body.back === 'home' ? '/#locker' : '/chat#end');
 }));
 
 router.get('/rules', aw(async (req, res) => {

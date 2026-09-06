@@ -2548,9 +2548,23 @@
       scarcity: Number(scarcity.toFixed(3)),
       keeper_relief: Number(relief.toFixed(3)),
       BENCH_DISCOUNT: Number(benchDiscount.toFixed(3)),
-      // Streaming is worth more when a startable option is always available, so
-      // the positions you can stream get pushed later.
-      STREAMABLE_LATE: teams <= 10 ? ['QB', 'TE', 'K', 'DEF'] : ['K', 'DEF'],
+      /* ⛔ `STREAMABLE_LATE` WAS HERE AND IT WAS READ BY NOTHING — deleted
+       * 2026-09-05 (A, register E7, A-DECISIONS D11). It computed
+       * `teams <= 10 ? ['QB','TE','K','DEF'] : ['K','DEF']`, `applyFormatDefaults`
+       * copied only `BENCH_DISCOUNT`, and its single consumer was a test
+       * asserting the literal this function had just written. A league-shape
+       * judgement that runs on every build, is pinned by a test, and reaches no
+       * decision is worse than no judgement: it reads as a live feature.
+       *
+       * Deleted rather than wired because WIRING IT IS A DRAFT-ORDER CHANGE and
+       * the draft was 08-22. The measurement is not lost — it was already taken
+       * and it is why this is a 2027 question rather than a shrug:
+       * `draft/audit/streamable_late_is_never_read_2026-08-17.md` puts
+       * ADP-minus-board-rank at TE at +12.3 in the top 150 (n=17) and +16.7 in
+       * the 70-150 band (n=10), and finds the same effect ABSENT at QB. So the
+       * hypothesis has a measured consequence, at one position, of a size worth
+       * testing — that belongs in the 2027 draft-design work with a fold behind
+       * it, not in a field nothing reads. */
       why: teams <= 10
         ? teams + ' teams and ' + keepers + ' keepers: only ' + lockedAway
           + ' players leave the pool, so replacement level is high, the wire stays '

@@ -105,6 +105,13 @@ engine, workflows — stays on your branch with a ROUTES row to A naming the bra
 sha. A report that only reached your branch is a finding nobody acted on — the relay's
 own failure class.
 
+**AND BEFORE YOU COMMIT: `python3 draft/tools/dirty_artifact_check.py`.** A full
+`pytest draft/tests` run rewrites five committed artifacts, two of which the board
+reads (register 489). They get swept into whatever commit comes next — that happened
+three times in one evening on 09-05, and each time the only thing that caught it was
+`git rebase` refusing to run with unstaged changes. The check names which are dirty
+and prints the `git checkout --` that restores them.
+
 **⏱ Two clock facts for the firings.** (1) The Tuesday witness fires 13:00Z; the
 repo-side grade (`weekly-grade.yml`) runs 12:30Z, after Netlify's grade-cron at 12:00Z,
 so the witness sees a finished grade — if it does not, that is the finding. (2) Week 1

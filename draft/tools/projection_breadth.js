@@ -84,28 +84,58 @@ const AXES = [
   {
     id: 'usage',
     name: 'Usage share (targets / carries / snap share)',
-    by: '2026-09-03',
+    //: 09-03 -> 09-15 (A, 2026-09-04). IN-SEASON-EDGE-PLAN item 5 commits D to
+    //: backtesting usage through weekly_arms_2025_backtest and filing the
+    //: number, TRUE or FALSE, by 09-15 — the screen this program requires
+    //: before an arm ships. Moved to the date that work is actually committed
+    //: to, not a date nobody owns. Register 485.
+    by: '2026-09-15',
     live: (arms) => arms.some((a) => /usage|share|tgt|snap/i.test(a.name)),
     evidence: ['snap_share_arm.json'],
   },
   {
     id: 'efficiency',
     name: 'Air yards / EPA / CPOE',
-    by: '2026-09-03',
+    //: 09-03 -> 09-29 (A, 2026-09-04). The explorer cap is >=3 arms/week and it
+    //: is FULL through week 2: v1_blend_pull3 (P359) and ffa4_weekly (P365)
+    //: entered 09-02, the props arm enters week 2 (P354). Efficiency queues
+    //: behind them by the cap this design set for itself, and section 5's own
+    //: warning — fitting on too little and believing it — is the reason not to
+    //: jump the queue. Register 485.
+    by: '2026-09-29',
     live: (arms) => arms.some((a) => /epa|cpoe|air|eff/i.test(a.name)),
     evidence: ['advanced_efficiency_study.json'],
   },
   {
     id: 'pace',
     name: 'Team pace (plays per game)',
+    //: RETIRED ON A GRADE, not moved (A, 2026-09-04, register 485). Pace was
+    //: measured twice and came back null both times: a tempo tilt on the season
+    //: model, then a prior-season pace tilt on the weekly number in BOTH
+    //: backtest folds — pooled miss 4.018 vs 4.010 and 4.365 vs 4.360,
+    //: start/sit unchanged to the third decimal (game_env_lab.json). It is on
+    //: Cory's own page as a dead axis (WHAT-STUCK entry 8). An axis we answered
+    //: is not breadth we are missing, and a gate that demands an arm for it
+    //: forever contradicts the measurement it was built to respect.
     by: '2026-09-03',
+    retired: 'graded INERT twice (season tilt + weekly tilt, both 2024 and 2025 '
+      + 'folds): pooled miss 4.018 vs 4.010 and 4.365 vs 4.360, start/sit '
+      + 'unchanged to 3dp. game_env_lab.json; WHAT-STUCK entry 8. Revives '
+      + 'automatically if any arm on this axis ever ships.',
     live: (arms) => arms.some((a) => /pace/i.test(a.name)),
     evidence: ['pace_arm.json'],
   },
   {
     id: 'props',
     name: 'Sportsbook player props (weekly)',
-    by: '2026-09-03',
+    //: 09-03 -> 09-17 (A, 2026-09-04). P354 ships the props arm live as a
+    //: weekly challenger for WEEK 2, and IN-SEASON-EDGE-PLAN item 1 states its
+    //: own default in the same words: "if unbuilt by 09-17, the relay files the
+    //: build as a routed patch". The capture is already running (free writer,
+    //: Wed/Thu) and props_weekly_v1 grades as a study arm each Tuesday; what is
+    //: missing is the DEFAULT_ARMS entry, which is what this gate measures.
+    //: Register 485.
+    by: '2026-09-17',
     live: (arms) => arms.some((a) => /prop/i.test(a.name)),
     evidence: ['props_week1_arm.json'],
   },
@@ -180,8 +210,18 @@ function survey(src, todayStr) {
   const today = Date.parse(todayStr);
   const rows = AXES.map((a) => {
     const state = classify(a, arms);
-    const overdue = state !== 'LIVE' && a.by !== null && Date.parse(a.by) < today;
-    return { id: a.id, name: a.name, by: a.by, state: state, overdue: overdue };
+    /* ── A RETIRED AXIS IS ANSWERED, NOT MISSING (A, 2026-09-04, register 485).
+     * `retired` means the signal was MEASURED AND FOUND INERT, with the grade
+     * named in `retired`. Chasing an arm for it forever is the opposite of
+     * what the measurement said, and a permanent red is how a gate stops being
+     * read. It is deliberately NOT a mute: the row still prints, still carries
+     * its reason, and REVIVES the moment somebody ships an arm on that axis
+     * (`live` still classifies it LIVE), which is what a re-measurement would
+     * look like. Retiring one requires a graded verdict — never a shrug. */
+    const overdue = state !== 'LIVE' && !a.retired
+      && a.by !== null && Date.parse(a.by) < today;
+    return { id: a.id, name: a.name, by: a.by, state: state, overdue: overdue,
+      retired: a.retired || null };
   });
   const problems = rows.filter((r) => r.overdue).map((r) =>
     `AXIS "${r.id}" (${r.name}) has NO LIVE ARM and its committed date ${r.by} has `

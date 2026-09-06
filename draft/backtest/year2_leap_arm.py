@@ -254,6 +254,12 @@ def main():
         print("  %s %s %s" % ("OK " if v["ok"] else "!! ", k,
                               json.dumps({x: y for x, y in v.items() if x != "why"})))
     out = {"_territory": "TERRITORY: D — draft/backtest/year2_leap_arm.py",
+           #: THE CONVENTION (relay, routed to D 2026-09-02, register 304): the
+           #: artifact names the prediction it GRADES, because nothing can infer
+           #: that -- a file may cite six P-ids in its prose and grade one. Read
+           #: by test_graded_artifacts_match_the_ledger.py, which fails if the
+           #: ledger row for a stamped id is still asking for work.
+           "graded": ["P326"],
            "_what": "P326 year-2 leap arm, priced against our own draft market's round curve.",
            "seasons": list(SEASONS), "counts": dict(counts), "pairs": len(diffs),
            "mean_paired_diff": round(mean, 2), "ci95": [round(lo, 2), round(hi, 2)],

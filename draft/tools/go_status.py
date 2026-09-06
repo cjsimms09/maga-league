@@ -25,7 +25,7 @@ acts on each line.
 
 Run:  python3 draft/tools/go_status.py          (network: api.github.com only)
 """
-import json, math, subprocess, sys, urllib.request
+import json, math, re, subprocess, sys, urllib.request
 from datetime import datetime, timezone
 
 REPO = "cjsimms09/maga-league"
@@ -87,6 +87,27 @@ WATCHED = [
 # a human-readable reason otherwise — so the caller never re-derives the rule.
 SUBJECTS = ("Draft board: rebuild", "Player board: rebuild")
 STALE_AFTER_DAYS = 2
+
+
+def gate_hot_lines(lines):
+    """Which lines of a gate tool's output are ACTIONABLE, and the one to
+    show inline when space allows only one.
+
+    Register 488, 2026-09-05: the caller used to print `(hot or lines)[-1]`
+    — the LAST matching line, alone — as if it were "the" reason a gate
+    failed. `register_recheck_check.js` failed on 21 simultaneously-overdue
+    rows the same day this was found, and the sweep's own report showed
+    exactly ONE of them, picked by nothing more meaningful than sort order.
+    The other 20 were invisible to "go"'s own agenda until someone ran the
+    tool directly and read the whole thing by hand — which is the exact
+    failure this file exists to prevent one layer up (a capture that ran and
+    was not looked at). Returns (hot_lines, one_line_to_show) so the caller
+    can both print an accurate count and keep a single-line summary.
+    """
+    hot = [l for l in lines
+           if "✗" in l or "OVERDUE" in l or "due 20" in l
+           or re.match(r"\s*\d+\s+2\d{3}-\d\d-\d\d\s+and\s+", l)]
+    return hot, (hot or lines)[-1].strip()
 
 
 def board_freshness(log_text, now):
@@ -182,13 +203,15 @@ def main():
         # information (caught by the first GO sweep, commit a2e5f3d2).
         combined = (p.stdout + "\n" + p.stderr).strip()
         lines = combined.splitlines() or ["(no output)"]
-        # surface the ACTIONABLE line (an overdue/failing row), not whatever
-        # happens to print last — the whole point is an agenda, not a shrug
-        hot = [l for l in lines if "✗" in l or "OVERDUE" in l or "due 20" in l]
-        tail = (hot or lines)[-1].strip()
-        print(f" {'✅' if ok else '🔴'} {tool.split('/')[-1]:30} {tail[:90]}")
+        hot, tail = gate_hot_lines(lines)
+        count_note = f" [{len(hot)} actionable line(s)]" if len(hot) > 1 else ""
+        print(f" {'✅' if ok else '🔴'} {tool.split('/')[-1]:30} {tail[:90]}{count_note}")
         if not ok:
-            red.append(f"{tool}: exit {p.returncode} — {tail[:120]}")
+            if len(hot) > 1:
+                red.append(f"{tool}: exit {p.returncode} — {len(hot)} rows need action, "
+                            f"e.g. {tail[:100]} (run the tool directly for the full list)")
+            else:
+                red.append(f"{tool}: exit {p.returncode} — {tail[:120]}")
 
     print("\n── BOARD FRESHNESS ─────────────────────────────────────────")
     # ⚠️ TWO SUBJECTS, BOTH REQUIRED (A, 2026-08-31, register 447 — touching the
@@ -248,6 +271,34 @@ def main():
     except Exception as e:  # noqa: BLE001
         print(f" 🔴 registry unreadable: {type(e).__name__}: {e}")
         red.append(f"source_registry.json unreadable — {e}")
+
+    # ── STRANDED WORK ───────────────────────────────────────────
+    # Finished, CI-green work that is on no branch and not on main. ROUTES
+    # cannot show this: it lists what a lane WROTE DOWN, and an unrouted
+    # commit looks exactly like an idle lane. Five real pieces were found
+    # stranded on 2026-09-05, one of them three days old and owner-facing.
+    # A sweep that CANNOT RUN (no network) says so — it never reports clean.
+    print("\n── STRANDED WORK ───────────────────────────────────────────")
+    try:
+        sw = subprocess.run([sys.executable, str(ROOT / "draft" / "tools" / "stranded_work_sweep.py"), "--json"],
+                            capture_output=True, text=True, timeout=600)
+        if sw.returncode == 2 or not sw.stdout.strip():
+            print("   ⚠ could not sweep (API unreachable) — NOT a clean result, no claim made")
+        else:
+            d = json.loads(sw.stdout)
+            n = len(d["stranded_work"])
+            print(f"   {d['commits_tested']} CI-tested commits · {d['on_main']} on main · "
+                  f"{d['on_a_live_branch']} on a live branch · {len(d['resolved'])} recovered/superseded")
+            if n:
+                print(f" 🔴 {n} commit(s) of finished work are on NO branch and not on main:")
+                for r in d["stranded_work"][:6]:
+                    print(f"     {r['sha'][:10]}  {r['when']}  {r['title'][:70]}")
+                red.append(f"{n} stranded commit(s) — finished work nobody can use "
+                           f"(python3 draft/tools/stranded_work_sweep.py)")
+            else:
+                print("   ✅ nothing stranded — every tested commit is on main or on a branch someone holds")
+    except Exception as e:  # noqa: BLE001
+        print(f"   ⚠ sweep did not complete ({type(e).__name__}) — NOT a clean result")
 
     print("\n── VERDICT ─────────────────────────────────────────────────")
     if red:

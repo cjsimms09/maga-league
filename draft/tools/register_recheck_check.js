@@ -56,7 +56,13 @@ function rows(text) {
       .split(/(?<!\\)\|/).map(c => c.trim());
     if (cells.length < 4) continue;
     if (/^(#|what|question)$/i.test(cells[0])) continue;
-    out.push({ id: cells[0], status: cells[cells.length - 2], all: cells.join(' ') });
+    /* `line` is the raw row, added 2026-09-05 so the OTHER register tools can
+     * stop carrying their own line-walkers: `closed_rows_resolve.js` and
+     * `reopen_risk.js` both need the full row text to pull backticked paths and
+     * shas out of it, and that need was the whole reason they each re-parsed
+     * the table by hand and drifted (register 469, D10). Additive — every
+     * existing consumer reads `id`/`status`/`all`. */
+    out.push({ id: cells[0], status: cells[cells.length - 2], all: cells.join(' '), line: t });
   }
   return out;
 }

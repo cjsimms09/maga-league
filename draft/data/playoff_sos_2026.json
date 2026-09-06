@@ -4,7 +4,7 @@
  "provenance": {
   "method": "For each 2025 player-week in the component store, fantasy points under the league's own scoring table (public/draft_data.json league.scoring) are credited AGAINST that week's opponent defense, derived from the vegas store's complete 2025 pairings (272 games; the component store carries team but not opponent). Per-game = total / games the defense actually played. A team's playoff softness at a position = mean of its 2026 week-15/16/17 opponents' per-game allowed; rank 1 = softest, ties broken by team code A-Z. Team codes normalized through adp.TEAM_ALIASES (board vocabulary, LA->LAR).",
   "sources": {
-   "board": "public/draft_data.json (built_at 2026-09-04T14:31:48Z)",
+   "board": "public/draft_data.json (built_at 2026-09-05T11:58:10Z)",
    "components": "draft/backtest/component_stats_2025.json (fetched 2026-08-18)",
    "pairings": "draft/backtest/vegas_lines_2021_2026.json (fetched 2026-08-18)",
    "schedule": "draft/data/playoff_sched_2026.json (fetched 2026-08-16)"
@@ -28,8 +28,8 @@
     17
    ]
   },
-  "players_ranked": 547,
-  "players_absent": 112
+  "players_ranked": 544,
+  "players_absent": 115
  },
  "defense_allowed_2025": {
   "ARI": {
@@ -7659,23 +7659,6 @@
    "avg_allowed_per_game": 24.75,
    "softness_rank": 18
   },
-  "8181": {
-   "name": "Connor Heyward",
-   "position": "TE",
-   "team": "LV",
-   "opponents": {
-    "15": "DEN",
-    "16": "TEN",
-    "17": "ARI"
-   },
-   "opp_allowed_per_game": {
-    "15": 10.86,
-    "16": 11.45,
-    "17": 13.79
-   },
-   "avg_allowed_per_game": 12.03,
-   "softness_rank": 6
-  },
   "5409": {
    "name": "Tanner Hudson",
    "position": "TE",
@@ -8662,23 +8645,6 @@
    "avg_allowed_per_game": 19.36,
    "softness_rank": 24
   },
-  "11371": {
-   "name": "Julian Hill",
-   "position": "TE",
-   "team": "NE",
-   "opponents": {
-    "15": "KC",
-    "16": "NYJ",
-    "17": "DEN"
-   },
-   "opp_allowed_per_game": {
-    "15": 8.59,
-    "16": 12.55,
-    "17": 10.86
-   },
-   "avg_allowed_per_game": 10.67,
-   "softness_rank": 16
-  },
   "7568": {
    "name": "Brevin Jordan",
    "position": "TE",
@@ -8695,6 +8661,23 @@
    },
    "avg_allowed_per_game": 9.15,
    "softness_rank": 28
+  },
+  "11371": {
+   "name": "Julian Hill",
+   "position": "TE",
+   "team": "NE",
+   "opponents": {
+    "15": "KC",
+    "16": "NYJ",
+    "17": "DEN"
+   },
+   "opp_allowed_per_game": {
+    "15": 8.59,
+    "16": 12.55,
+    "17": 10.86
+   },
+   "avg_allowed_per_game": 10.67,
+   "softness_rank": 16
   },
   "13402": {
    "name": "Skyler Bell",
@@ -9920,23 +9903,6 @@
    "avg_allowed_per_game": 26.6,
    "softness_rank": 8
   },
-  "12476": {
-   "name": "Devin Neal",
-   "position": "RB",
-   "team": "NO",
-   "opponents": {
-    "15": "TB",
-    "16": "ARI",
-    "17": "ATL"
-   },
-   "opp_allowed_per_game": {
-    "15": 19.85,
-    "16": 24.68,
-    "17": 19.65
-   },
-   "avg_allowed_per_game": 21.39,
-   "softness_rank": 5
-  },
   "11577": {
    "name": "Will Shipley",
    "position": "RB",
@@ -10021,6 +9987,23 @@
    },
    "avg_allowed_per_game": 18.12,
    "softness_rank": 31
+  },
+  "8181": {
+   "name": "Connor Heyward",
+   "position": "RB",
+   "team": "LV",
+   "opponents": {
+    "15": "DEN",
+    "16": "TEN",
+    "17": "ARI"
+   },
+   "opp_allowed_per_game": {
+    "15": 15.6,
+    "16": 19.95,
+    "17": 24.68
+   },
+   "avg_allowed_per_game": 20.08,
+   "softness_rank": 15
   },
   "8204": {
    "name": "Bo Melton",
@@ -10736,40 +10719,6 @@
    "avg_allowed_per_game": 18.47,
    "softness_rank": 29
   },
-  "13760": {
-   "name": "Jaden Bradley",
-   "position": "WR",
-   "team": "WAS",
-   "opponents": {
-    "15": "ATL",
-    "16": "MIN",
-    "17": "JAX"
-   },
-   "opp_allowed_per_game": {
-    "15": 27.72,
-    "16": 19.34,
-    "17": 25.06
-   },
-   "avg_allowed_per_game": 24.04,
-   "softness_rank": 22
-  },
-  "13554": {
-   "name": "CJ Williams",
-   "position": "WR",
-   "team": "JAX",
-   "opponents": {
-    "15": "HOU",
-    "16": "DAL",
-    "17": "WAS"
-   },
-   "opp_allowed_per_game": {
-    "15": 20.94,
-    "16": 33.25,
-    "17": 28.85
-   },
-   "avg_allowed_per_game": 27.68,
-   "softness_rank": 5
-  },
   "13600": {
    "name": "Tyren Montgomery",
    "position": "WR",
@@ -10804,6 +10753,23 @@
    "avg_allowed_per_game": 25.1,
    "softness_rank": 17
   },
+  "13554": {
+   "name": "CJ Williams",
+   "position": "WR",
+   "team": "JAX",
+   "opponents": {
+    "15": "HOU",
+    "16": "DAL",
+    "17": "WAS"
+   },
+   "opp_allowed_per_game": {
+    "15": 20.94,
+    "16": 33.25,
+    "17": 28.85
+   },
+   "avg_allowed_per_game": 27.68,
+   "softness_rank": 5
+  },
   "13905": {
    "name": "Omari Evans",
    "position": "WR",
@@ -10820,23 +10786,6 @@
    },
    "avg_allowed_per_game": 23.87,
    "softness_rank": 25
-  },
-  "13604": {
-   "name": "Sincere Brown",
-   "position": "WR",
-   "team": "LAC",
-   "opponents": {
-    "15": "SF",
-    "16": "MIA",
-    "17": "KC"
-   },
-   "opp_allowed_per_game": {
-    "15": 25.89,
-    "16": 24.25,
-    "17": 21.87
-   },
-   "avg_allowed_per_game": 24.0,
-   "softness_rank": 23
   },
   "13749": {
    "name": "Kole Wilson",
@@ -11109,6 +11058,23 @@
    },
    "avg_allowed_per_game": 26.12,
    "softness_rank": 9
+  },
+  "13760": {
+   "name": "Jaden Bradley",
+   "position": "WR",
+   "team": "WAS",
+   "opponents": {
+    "15": "ATL",
+    "16": "MIN",
+    "17": "JAX"
+   },
+   "opp_allowed_per_game": {
+    "15": 27.72,
+    "16": 19.34,
+    "17": 25.06
+   },
+   "avg_allowed_per_game": 24.04,
+   "softness_rank": 22
   },
   "13343": {
    "name": "Vinny Anthony",
@@ -11840,23 +11806,6 @@
    },
    "avg_allowed_per_game": 20.3,
    "softness_rank": 13
-  },
-  "13725": {
-   "name": "Dominic Richardson",
-   "position": "RB",
-   "team": "NYJ",
-   "opponents": {
-    "15": "ARI",
-    "16": "NE",
-    "17": "MIN"
-   },
-   "opp_allowed_per_game": {
-    "15": 24.68,
-    "16": 16.56,
-    "17": 17.97
-   },
-   "avg_allowed_per_game": 19.74,
-   "softness_rank": 20
   },
   "13778": {
    "name": "EJ Smith",
@@ -12623,6 +12572,23 @@
    "avg_allowed_per_game": 17.54,
    "softness_rank": 25
   },
+  "13314": {
+   "name": "Luke Altmyer",
+   "position": "QB",
+   "team": "DET",
+   "opponents": {
+    "15": "MIN",
+    "16": "NYG",
+    "17": "CHI"
+   },
+   "opp_allowed_per_game": {
+    "15": 12.88,
+    "16": 21.16,
+    "17": 21.9
+   },
+   "avg_allowed_per_game": 18.65,
+   "softness_rank": 21
+  },
   "13557": {
    "name": "Athan Kaliakmanis",
    "position": "QB",
@@ -12724,23 +12690,6 @@
    },
    "avg_allowed_per_game": 20.12,
    "softness_rank": 11
-  },
-  "13314": {
-   "name": "Luke Altmyer",
-   "position": "QB",
-   "team": "DET",
-   "opponents": {
-    "15": "MIN",
-    "16": "NYG",
-    "17": "CHI"
-   },
-   "opp_allowed_per_game": {
-    "15": 12.88,
-    "16": 21.16,
-    "17": 21.9
-   },
-   "avg_allowed_per_game": 18.65,
-   "softness_rank": 21
   },
   "13602": {
    "name": "Jack Strand",
@@ -12947,6 +12896,12 @@
    "team": "FA",
    "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
   },
+  "12476": {
+   "name": "Devin Neal",
+   "position": "RB",
+   "team": "FA",
+   "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
+  },
   "12738": {
    "name": "Phil Mafah",
    "position": "RB",
@@ -13087,6 +13042,12 @@
   },
   "13973": {
    "name": "Keelan Marion",
+   "position": "WR",
+   "team": "FA",
+   "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
+  },
+  "13604": {
+   "name": "Sincere Brown",
    "position": "WR",
    "team": "FA",
    "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
@@ -13351,6 +13312,12 @@
   },
   "13291": {
    "name": "Kejon Owens",
+   "position": "RB",
+   "team": "FA",
+   "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
+  },
+  "13725": {
+   "name": "Dominic Richardson",
    "position": "RB",
    "team": "FA",
    "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"

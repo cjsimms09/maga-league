@@ -151,22 +151,46 @@ def main() -> int:
               ("   " + str(c.get("got"))) if c.get("got") is not None else ""))
     if not all_ok:
         print("\n  !! A CONTROL FAILED. Nothing below is a measurement.\n")
+    # register 345 (D): a WARNING over a full table is not a refusal. This
+    # module printed "Nothing below is a measurement." and then printed the
+    # measurement -- and on the contaminated store the table it printed carried
+    # "P153 FALSE", the inverse of this module's own published result, which a reader can lift into a document without ever
+    # seeing the line above it. Its sibling archetype_need_curve.py already
+    # gets this right ("refusing to report numbers", then stops). Numbers
+    # travelling out of a log into prose is this project's own failure mode
+    # (register 5h, three times), so the numbers stop at the log.
+    #
+    # The COMPUTATION and the ARTIFACT are deliberately untouched, and that
+    # was verified rather than assumed: with a control failing, `--json` still
+    # writes the full artifact carrying `controls_all_passed: false`, and the
+    # process still exits 1. Suppressing the WRITE would blind the machines
+    # instead of the reader, which is backwards -- this module's own gate at
+    # line 38 is exactly that pattern in the other direction, refusing on
+    # measured_need_curve.json's `controls_all_passed` rather than on anything
+    # it read off a screen. A downstream check must be able to see the failed
+    # flag; a human must not be able to lift the table.
+    #
+    # (Applied by A 2026-09-05 from D's patch. The paragraph above is shared
+    # with measured_need_curve.py, where it was written; its "suppressing the
+    # write would blind the downstream gate" sentence named THAT module's
+    # artifact, and is restated here for this one.)
+    say = print if all_ok else (lambda *a, **k: None)
 
-    print("\n  %-5s %12s %14s %16s" % ("pos", "streamable", "roster-weeks", "measured 2nd-body"))
+    say("\n  %-5s %12s %14s %16s" % ("pos", "streamable", "roster-weeks", "measured 2nd-body"))
     curve = MEASURED["curve"]
     need2 = {}
     for q in POSITIONS:
         s = stream[q]
         m = (curve.get(q) or [None, None])[1]
         need2[q] = (m * (1 - s)) if (s is not None and m is not None) else None
-        print("  %-5s %11s %14d %16s" % (q, ("%.3f" % s) if s is not None else "—",
+        say("  %-5s %11s %14d %16s" % (q, ("%.3f" % s) if s is not None else "—",
               total[q], ("%.3f" % m) if m is not None else "—"))
 
-    print("\n  ⇒ need for a SECOND body = measured start rate x (1 - streamability)")
-    print("  %-5s %10s   %10s   %10s" % ("pos", "measured", "streamable", "NEED"))
+    say("\n  ⇒ need for a SECOND body = measured start rate x (1 - streamability)")
+    say("  %-5s %10s   %10s   %10s" % ("pos", "measured", "streamable", "NEED"))
     for q in POSITIONS:
         m = (curve.get(q) or [None, None])[1]
-        print("  %-5s %10s   %10s   %10s" % (q,
+        say("  %-5s %10s   %10s   %10s" % (q,
               ("%.3f" % m) if m is not None else "—",
               ("%.3f" % stream[q]) if stream[q] is not None else "—",
               ("%.3f" % need2[q]) if need2[q] is not None else "—"))
@@ -179,9 +203,9 @@ def main() -> int:
     p154 = {"need_2nd_QB": round(need2["QB"], 4) if need2["QB"] is not None else None}
     p154["TRUE"] = need2["QB"] is not None and 0 < need2["QB"] < 0.15
 
-    print("\n  P153 (K/DEF > QB/TE > RB/WR, and QB−RB ≥ 0.25): %s   gap %s"
+    say("\n  P153 (K/DEF > QB/TE > RB/WR, and QB−RB ≥ 0.25): %s   gap %s"
           % ("TRUE" if p153["TRUE"] else "FALSE", p153["qb_minus_rb"]))
-    print("  P154 (2nd-QB need in (0, 0.15)): %s   got %s"
+    say("  P154 (2nd-QB need in (0, 0.15)): %s   got %s"
           % ("TRUE" if p154["TRUE"] else "FALSE", p154["need_2nd_QB"]))
 
     rep = {"_territory": "TERRITORY: A — draft/backtest/streamability.py",

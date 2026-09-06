@@ -63,6 +63,24 @@ keepers (Chase, Henry, Walker among them) and the member matchup odds refused
 your lineup every week. **Changed for you:** both fixed; a guard now catches
 any new reader that forgets keepers. *(register 476)*
 
+### 11. Three things you can now do on the site that you could not on Friday
+**Tested:** all three were BUILT on 09-02 with their own tests, and none of
+them ever reached the live site — the commits were on no branch at all, so
+the features existed and nobody could use them. Found on 09-05 by checking
+the site for a feature that was reported as shipped. **Found:** six pieces of
+finished work in that state, six days of them. **Changed for you:** they are
+live now. **Mark as paid** — the money loop that could not close: you or an
+owner taps "I paid this", the person owed confirms, and the ledger records it
+the same way the commissioner's own admin page always did. When you owe an
+owner, they clear it themselves with no confirmation. If balances move between
+the claim and the confirm, the claim is refused rather than applied to the
+wrong number. **Pick'em vs the model** — the model's picks freeze at lock,
+show up with everyone else's, and get graded on the same board. You against
+the machine, every week. **Chat reactions** — 🔥 💀 🤡 on any locker-room
+message. **Do:** nothing. The daily GO now sweeps for this failure by itself,
+so work that reaches nobody shows up as a red line the next morning instead of
+sitting for three days. *(`stranded_work_sweep.py`; site review items 3, 6, 7)*
+
 ## ❌ DID NOT STICK — stop expecting these
 
 ### 6. The Vegas game-total tilt adds almost nothing on top of the prior

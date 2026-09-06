@@ -1,5 +1,8 @@
 {
  "_territory": "TERRITORY: D \u2014 draft/backtest/year2_leap_arm.py",
+ "graded": [
+  "P326"
+ ],
  "_what": "P326 year-2 leap arm, priced against our own draft market's round curve.",
  "seasons": [
   2023,
