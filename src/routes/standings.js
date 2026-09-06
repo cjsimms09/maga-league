@@ -101,6 +101,66 @@ function actualPlayoffTeams(season) {
 }
 
 // --- team strength from weeks 1..throughWeek (the forward-test input) ----------
+/* A fantasy team's week-to-week scoring spread, MEASURED on this league rather
+ * than guessed: across 2023-25, 30 team-seasons, the within-team weekly sd is
+ * median 21.3 / mean 20.7. Used only for a preseason projection, where there is
+ * no sample to take an sd from. A season's own sd replaces it the moment games
+ * are played (teamStrength). */
+const DEFAULT_WEEKLY_SD = 21;
+
+/* PROJECTED WEEKLY MEAN PER ROSTER, from the starters a season actually has.
+ *
+ * The preseason input `projectStandings` needs: for each roster, the sum of its
+ * STARTERS' weekly projections. Uses the week's own starters (post-draft, real)
+ * and proj_feed's pricing, so the analyzer's projection and the lineup tool's
+ * numbers come from one source and cannot disagree on screen.
+ *
+ * REFUSES A ROSTER IT CANNOT PRICE rather than returning a smaller number: a
+ * team summed over 7 of 9 starters is not a weaker team, it is a different
+ * quantity, and on a playoff-odds table it is indistinguishable from a real one.
+ * `matchupGap` in proj_feed takes the same position for the same reason.
+ *
+ * ⚠️ THE BOARD ALONE CANNOT PRICE A ROSTER, AND THE REASON IS STRUCTURAL.
+ * `public/draft_data.json` is the AVAILABLE pool — drafted and kept players are
+ * removed from it — so pricing rosters off the board means pricing them off the
+ * one list guaranteed not to contain them. Measured 2026-09-06: 23 of the 90
+ * week-1 starters were absent, and they were the league's best players (Gibbs,
+ * Chase, Henry, Jeanty, A.J. Brown, Jonathan Taylor). Nine of ten rosters were
+ * unpriceable; the tenth priced only because its whole lineup happened to still
+ * sit in the pool.
+ *
+ * So `opts.weeklyById` — the week's own committed projection snapshot
+ * (own_weekly_<season>_w<week>.json, which prices ROSTERED players) — takes
+ * precedence, and the board is the fallback for what it does not carry (K and
+ * DEF, which have no proj_ownmodel upstream). Board ∪ snapshot covered 90/90.
+ */
+function projMeansFromStarters(season, feed, opts) {
+  const o = opts || {};
+  const week = o.week || (LO.regularSeasonWeeks(season) || [1])[0];
+  const entries = ((season.weeks || {})[String(week)]) || [];
+  const PF = require('../proj_feed');
+  const wk = o.weeklyById || {};
+  const means = {}, unpriced = {}, sources = {};
+  for (const e of entries) {
+    if (!e || e.roster_id == null) continue;
+    const starters = (e.starters || []).filter(id => id != null && id !== '0');
+    if (!starters.length) { unpriced[e.roster_id] = ['no starters recorded']; continue; }
+    // snapshot first, board second — and record which priced each starter so a
+    // reader can tell a projected team from a half-projected one.
+    const fromSnap = starters.filter(id => Number.isFinite(Number(wk[String(id)])));
+    const rest = starters.filter(id => !Number.isFinite(Number(wk[String(id)])));
+    const r = PF.rosterProjections(rest, feed);
+    const bad = (r.missing || []).concat(
+      (r.rows || []).filter(x => x.proj == null).map(x => x.id));
+    if (bad.length) { unpriced[e.roster_id] = bad; continue; }
+    means[e.roster_id] =
+      fromSnap.reduce((s, id) => s + Number(wk[String(id)]), 0)
+      + (r.rows || []).reduce((s, x) => s + Number(x.proj), 0);
+    sources[e.roster_id] = { snapshot: fromSnap.length, board: (r.rows || []).length };
+  }
+  return { means, unpriced, sources };
+}
+
 function teamStrength(season, throughWeek) {
   const fws = LO.fieldWeeklyScores(season);
   const weeks = LO.regularSeasonWeeks(season).filter(w => w <= throughWeek);
@@ -145,10 +205,51 @@ function projectStandings(season, opts) {
   const weeks = LO.regularSeasonWeeks(season);
   const wm = LO.weeklyMatchups(season);
   const fws = LO.fieldWeeklyScores(season);
-  const strength = teamStrength(season, throughWeek > 0 ? throughWeek : weeks[weeks.length - 1]);
-  // When throughWeek=0 (pure preseason projection over history) we have no prior
-  // weeks, so strength() would be empty; caller passes projected means instead via
-  // opts.projMeans {rid: mean}. For validation we always use throughWeek>=1.
+  /* ── PRESEASON: PROJECTED MEANS, OR NOTHING ──────────────────────────────
+   * `opts.projMeans {rid: mean}` was documented here on the line below and
+   * READ NOWHERE — one comment, zero implementations (relay, 2026-09-06).
+   * That is why THE ANALYZER SHOWED 2025 WEEK 9 four days before the 2026
+   * opener: with no preseason path, the page could only offer a season that
+   * had already been played.
+   *
+   * The failure mode if you simply point it at 2026 is worse than the bug.
+   * A not-yet-played season is harvested with its real schedule and real
+   * post-draft rosters but ALL-ZERO points, so teamStrength() returns ten
+   * teams at mean 0, sd 0 — every game a coin flip, every probability
+   * identical, drawn as a confident table. That is exactly the shape this
+   * page's own banner warns about ("a table that looks confident and says
+   * nothing"), and Rule 3d says a uniform result is a bug report.
+   *
+   * So preseason is served by projected means or it REFUSES. It never falls
+   * back to strength computed over placeholder zeros. */
+  let strength;
+  if (throughWeek === 0) {
+    const pm = opts.projMeans;
+    if (!pm || !Object.keys(pm).length) {
+      const e = new Error('preseason projection needs opts.projMeans '
+        + '(no games played, so team strength cannot come from results)');
+      e.code = 'NO_PROJ_MEANS';
+      throw e;
+    }
+    // A projection is not a sample: there is nothing to shrink toward the
+    // league mean, so mean_shrunk IS the mean. sd is the week-to-week spread
+    // of a fantasy team's score — supplied by the caller when it has been
+    // measured, else this league's own historical spread.
+    const sd = Number(opts.projSd) > 0 ? Number(opts.projSd) : DEFAULT_WEEKLY_SD;
+    strength = {};
+    for (const rid of Object.keys(pm)) {
+      const mean = Number(pm[rid]);
+      if (!Number.isFinite(mean)) continue;
+      strength[rid] = { rid: Number(rid), mean, mean_shrunk: mean, sd, gp: 0 };
+    }
+    if (!Object.keys(strength).length) {
+      const e = new Error('preseason projection: opts.projMeans held no finite means');
+      e.code = 'NO_PROJ_MEANS';
+      throw e;
+    }
+  } else {
+    strength = teamStrength(season, throughWeek);
+  }
   const rids = Object.keys(strength).map(Number);
   const lockedWeeks = weeks.filter(w => w <= throughWeek);
   const futureWeeks = weeks.filter(w => w > throughWeek);
@@ -292,6 +393,7 @@ function validateStandings(seasonYears, checkpoints) {
 module.exports = {
   actualStandings, actualPlayoffTeams, teamStrength, projectStandings,
   validateStandings, seedOrder, PLAYOFF_SPOTS,
+  projMeansFromStarters, DEFAULT_WEEKLY_SD,
 };
 
 // Run directly for a readout: node src/routes/standings.js
