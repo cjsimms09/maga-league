@@ -4374,7 +4374,14 @@ router.get('/analyzer', requireCommissioner, aw(async (req, res) => {
           const art = JSON.parse(fs.readFileSync(
             process.env.DRAFT_DATA_PATH
               || path.join(__dirname, '..', '..', 'public', 'draft_data.json'), 'utf8'));
-          boardPlayers = art.players || [];
+          /* `players` PLUS `kept_players` — the register-80 split. The two lists
+           * are DISJOINT: the 23 keepers live only in the second one, and they
+           * are the best players in the league (CeeDee Lamb, Gibbs, Chase,
+           * Henry). Reading `players` alone drops every one of them, which is
+           * why register 476 records ten consumers bitten by this before —
+           * eleven now, because the first cut of THIS code did it too and I
+           * mistook the result for "the board excludes rostered players". */
+          boardPlayers = (art.players || []).concat(art.kept_players || []);
         } catch (e) { boardPlayers = []; }
         const feed = PF.buildFeed(boardPlayers, { week: 1 });
         projMeans = ST.projMeansFromStarters(seasonObj, feed,

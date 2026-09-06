@@ -5,15 +5,27 @@
  * isn't giving any recommendation for this week. Should it default to fantasy
  * pros and sleeper projection mean until our model is better?"
  *
- * THE BUG BEHIND BOTH SYMPTOMS IS A UNIVERSE, NOT A SOURCE.
- * `public/draft_data.json` is the AVAILABLE draft pool — drafted and kept
- * players are removed from it. Every tool that prices a ROSTERED player from
- * the board is reading the one list guaranteed not to contain him. Measured on
- * 2026 week 1: 23 of the 90 starters absent, and they are the league's best
- * players — Gibbs, Chase, Henry, Jeanty, A.J. Brown, Jonathan Taylor. Nine of
- * ten rosters could not be priced at all. That is why the analyzer fell back to
- * 2025 and why the lineup optimizer had nothing to say in week 1. Changing the
- * projection SOURCE fixes none of it; the universe has to change.
+ * ⚠️ FIRST, A CORRECTION I OWE THIS FILE. Its first version said the board is
+ * "the AVAILABLE pool, drafted and kept players removed from it", on the
+ * evidence that 23 of the 90 week-1 starters were missing and they were the
+ * league's best players. THAT DIAGNOSIS WAS WRONG. `public/draft_data.json`
+ * splits into two disjoint lists (register 80): `players` (738) and
+ * `kept_players` (23). Together they cover 90/90. I read only the first, and
+ * the 23 "missing stars" were exactly the 23 keepers. Register 476 already
+ * recorded ten consumers bitten by that split; this was the eleventh, and it
+ * was found by reading register 476 rather than by any check of mine.
+ *
+ * WHAT SURVIVES THE CORRECTION, because it is a different claim: the board
+ * carries SEASON totals, which proj_feed divides by 17 to get a week. That is a
+ * flat season rate — the same number in week 1 and week 12, blind to opponent,
+ * injury and role. A weekly archive is a genuinely better instrument for a
+ * weekly decision, which is what these tools make. So the archive is preferred
+ * on its merits, not because the board "cannot" price a roster.
+ *
+ * THE WEEK-1 SYMPTOM HAD ITS OWN CAUSE, unrelated to either: the lineup
+ * optimizer never read the board at all. It priced from Sleeper's roster view —
+ * season-average-to-date, else last week — and in week 1 both are empty, so
+ * every player came back 0 and there was nothing to rank.
  *
  * ⚠️ AND THE OBVIOUS FIX HAS A 17x TRAP IN IT.
  * `weekly_projection_archive_<season>_w<week>.json` carries the whole league

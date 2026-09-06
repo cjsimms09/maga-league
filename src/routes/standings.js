@@ -120,19 +120,22 @@ const DEFAULT_WEEKLY_SD = 21;
  * quantity, and on a playoff-odds table it is indistinguishable from a real one.
  * `matchupGap` in proj_feed takes the same position for the same reason.
  *
- * ⚠️ THE BOARD ALONE CANNOT PRICE A ROSTER, AND THE REASON IS STRUCTURAL.
- * `public/draft_data.json` is the AVAILABLE pool — drafted and kept players are
- * removed from it — so pricing rosters off the board means pricing them off the
- * one list guaranteed not to contain them. Measured 2026-09-06: 23 of the 90
- * week-1 starters were absent, and they were the league's best players (Gibbs,
- * Chase, Henry, Jeanty, A.J. Brown, Jonathan Taylor). Nine of ten rosters were
- * unpriceable; the tenth priced only because its whole lineup happened to still
- * sit in the pool.
+ * ⚠️ THE FEED MUST BE BUILT FROM `players` PLUS `kept_players`, AND I GOT THIS
+ * WRONG FIRST (relay, 2026-09-06 — correction recorded because the wrong
+ * version is more plausible than the right one). `public/draft_data.json`
+ * splits the board in two disjoint lists (register 80): 738 available players
+ * and 23 KEEPERS. Reading `players` alone drops exactly those 23 — and they are
+ * the best players in the league (CeeDee Lamb, Gibbs, Chase, Henry, Jeanty,
+ * A.J. Brown, Jonathan Taylor). Nine of ten rosters then failed to price, and I
+ * read that as "the board is the available pool and structurally excludes
+ * rostered players". IT DOES NOT. Register 476 records ten consumers bitten by
+ * this split before me; every other one in this repo concatenates both lists.
+ * A caller passing a feed built from `players` alone will still refuse most
+ * rosters, so build it from both.
  *
- * So `opts.weeklyById` — the week's own committed projection snapshot
- * (own_weekly_<season>_w<week>.json, which prices ROSTERED players) — takes
- * precedence, and the board is the fallback for what it does not carry (K and
- * DEF, which have no proj_ownmodel upstream). Board ∪ snapshot covered 90/90.
+ * `opts.weeklyById` is still preferred over the board, but for a different and
+ * honest reason: it carries a real WEEKLY projection, where the board carries a
+ * season total that proj_feed divides by 17. The board remains the fallback.
  */
 function projMeansFromStarters(season, feed, opts) {
   const o = opts || {};
