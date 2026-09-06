@@ -4261,7 +4261,23 @@ router.get('/lineup/accuracy', requireCommissioner, aw(async (req, res) => {
 router.get('/analyzer', requireCommissioner, aw(async (req, res) => {
   const ST = require('./standings');
   const history = LO.harvest();
-  const seasons = LO.defaultSeasons(history);           // harvested seasons, newest last
+  /* ⚠️ NOT LO.defaultSeasons() — IT ANSWERS A DIFFERENT QUESTION, AND THAT IS
+   * WHY THIS PAGE SHOWED 2025 WEEK 9 FOUR DAYS BEFORE THE 2026 OPENER.
+   * `defaultSeasons()` filters out the current calendar year on purpose: it
+   * lists seasons that can be BACKTESTED, for the lineup optimizer's grading.
+   * The analyzer asks "which season should I show", and for a page whose
+   * subtitle is "rest-of-season, every team" the answer is the season being
+   * played. Same helper, different question (Cory, 2026-09-06).
+   *
+   * A season qualifies here if it has a SCHEDULE — matchups to simulate — which
+   * is true of an unplayed season from the day the draft ends. */
+  const seasons = (history.seasons || [])
+    .map(s => String(s.season))
+    .filter(y => {
+      const so = LO.seasonOf(history, y);
+      return so && (LO.regularSeasonWeeks(so) || []).length;
+    })
+    .sort();
   const wanted = String(req.query.season || seasons[seasons.length - 1] || '');
   const seasonObj = LO.seasonOf(history, wanted);
   const weeks = seasonObj ? LO.regularSeasonWeeks(seasonObj) : [];
@@ -4286,9 +4302,21 @@ router.get('/analyzer', requireCommissioner, aw(async (req, res) => {
       liveLeague = sData.league;      // only THIS season's cut applies to it
     }
   } catch (e) { /* Sleeper unreachable: fall through to the checkpoint */ }
+  /* HOW MANY WEEKS HAVE ACTUALLY BEEN PLAYED — not how many are scheduled.
+   * An unplayed season is harvested with its full schedule and its real
+   * post-draft rosters, but every points column is 0.0. Reading `lastWeek` as
+   * "weeks of results" is what would make a preseason board out of placeholder
+   * zeros: ten teams at mean 0, every game a coin flip, drawn confidently.
+   * A week counts as played only if somebody scored in it. */
+  const playedWeek = weeks.reduce((acc, w) => {
+    const entries = ((seasonObj && seasonObj.weeks) || {})[String(w)] || [];
+    return entries.some(e => Number(e && e.points) > 0) ? w : acc;
+  }, 0);
   const defaultWeek = liveWeek && liveWeek <= lastWeek ? liveWeek
-    : (lastWeek ? Math.max(1, Math.min(lastWeek - 1, Math.round(lastWeek * 0.6))) : 0);
-  const throughWeek = Number.isFinite(qWeek) ? Math.max(1, Math.min(qWeek, lastWeek)) : defaultWeek;
+    : (playedWeek ? Math.max(1, Math.min(playedWeek, Math.round(lastWeek * 0.6))) : 0);
+  // 0 is a legitimate answer now (preseason), so the floor is 0, not 1.
+  const throughWeek = Number.isFinite(qWeek)
+    ? Math.max(0, Math.min(qWeek, lastWeek)) : defaultWeek;
 
   let rows = [], validation = null, err = null, projSpots = ST.PLAYOFF_SPOTS;
   if (seasonObj) {
@@ -4297,7 +4325,34 @@ router.get('/analyzer', requireCommissioner, aw(async (req, res) => {
       // definition /matchup and the standings column read — not the engine's
       // default. `proj.spots` is then what the page draws its line at, so the
       // line and the odds beside it can never describe different playoff fields.
+      /* PRESEASON NEEDS PROJECTED MEANS, because there are no results to take
+       * team strength from. Priced off the week's committed projection archive
+       * (FantasyPros + Sleeper, each scale-guarded) rather than the draft board:
+       * the board is the AVAILABLE pool, so it is missing every rostered player
+       * — 23 of 90 week-1 starters, including Gibbs, Chase and Henry. See
+       * src/weekly_prices.js. If the means cannot be built, projectStandings
+       * throws NO_PROJ_MEANS and the page shows that reason instead of a
+       * coin-flip table. */
+      let projMeans = null;
+      if (throughWeek === 0) {
+        const WP = require('../weekly_prices');
+        const PF = require('../proj_feed');
+        const wk = WP.weeklyPrices(Number(wanted), 1, {});
+        // Same artifact path the waiver page uses, DRAFT_DATA_PATH honoured so
+        // tests can point it at a scratch board instead of the real one.
+        let boardPlayers = [];
+        try {
+          const art = JSON.parse(fs.readFileSync(
+            process.env.DRAFT_DATA_PATH
+              || path.join(__dirname, '..', '..', 'public', 'draft_data.json'), 'utf8'));
+          boardPlayers = art.players || [];
+        } catch (e) { boardPlayers = []; }
+        const feed = PF.buildFeed(boardPlayers, { week: 1 });
+        projMeans = ST.projMeansFromStarters(seasonObj, feed,
+          { week: (weeks[0] || 1), weeklyById: wk.byId }).means;
+      }
       const proj = ST.projectStandings(seasonObj, { throughWeek, sims: 3000, seed: 4242,
+        projMeans,
         // A past season is graded on the engine's default; only the live
         // season gets the league's current cut.
         spots: liveLeague ? PO.playoffCut(liveLeague) : ST.PLAYOFF_SPOTS });

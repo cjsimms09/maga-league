@@ -46,8 +46,26 @@ const flat = h => h.replace(/<[^>]+>/g, ' ').replace(/&#39;/g, "'").replace(/&am
 
   // The season the analyzer defaults to, and a week well away from both the
   // final week and the 60% checkpoint it used to fall back on.
+  /* ⚠️ NOT LO.defaultSeasons() — the analyzer stopped using it on 2026-09-06.
+   * That helper lists seasons that can be BACKTESTED and so excludes the
+   * current year; the analyzer shows the season being PLAYED. This fixture
+   * mocked Sleeper's live bundle for defaultSeasons()' last entry, so once the
+   * page began defaulting to the live season the mock described a season the
+   * page was not showing, the live-week branch could not fire, and this test
+   * failed while the behaviour it guards was correct.
+   *
+   * The assertion below is unchanged in intent — "a live bundle for the season
+   * on screen beats the fallback checkpoint" — it just has to name the season
+   * the page actually shows. Mirrors the route's own rule: any harvested season
+   * with a schedule, newest last. */
   const history = LO.harvest();
-  const seasons = LO.defaultSeasons(history);
+  const seasons = (history.seasons || [])
+    .map(s => String(s.season))
+    .filter(y => {
+      const so = LO.seasonOf(history, y);
+      return so && (LO.regularSeasonWeeks(so) || []).length;
+    })
+    .sort();
   const year = String(seasons[seasons.length - 1]);
   const seasonObj = LO.seasonOf(history, year);
   const weeks = LO.regularSeasonWeeks(seasonObj);
