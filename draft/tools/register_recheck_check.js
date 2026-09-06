@@ -506,7 +506,51 @@ function main() {
       console.log(`     ${x.r.id.padEnd(5)} ${x.dates.join('  and  ')}`));
   }
 
-  return (a.overdue.length || a.ambiguous.length) ? 1 : 0;
+  /* ── A DATE CLUSTER IS A WALL, AND IT TURNS THIS CHECK INTO NOISE ─────────
+   * MEASURED 2026-09-06, four days before kickoff: 119 open rows shared the
+   * single date 09-05, and when it passed, `main` went red on a hundred rows
+   * at once. Nobody can work a hundred rows in a day, so the only available
+   * move is to roll the whole block — which is what had already happened
+   * (93 rows read `recheck WAS ... rolled to`, 33 read `date bulk-moved`).
+   * Each roll re-clustered, so the wall rebuilt itself on a new date. The
+   * queue behind that one was worse: 42 rows due on week-1 Sunday, 23 on
+   * kickoff day.
+   *
+   * A backlog that can only ever be bulk-rolled is not a backlog anyone is
+   * working, and a check that goes red on a hundred rows teaches people to
+   * ignore it — which is exactly what register 300 says happened to `main`
+   * for nine days.
+   *
+   * So: no single day may hold more than CLUSTER_CAP open rows. This is a
+   * capacity statement, not a style rule — it forces a date to mean "someone
+   * will actually look on this day".
+   *
+   * A FAR-FUTURE DATE IS EXEMPT, AND THAT IS NOT A LOOPHOLE. The harm here is
+   * a day nobody can work arriving while the season is running, forcing a bulk
+   * roll. `recheck 2027-06-01` on 19 rows is the opposite: a deliberate
+   * next-offseason parking lot, named as one, that no in-season session will
+   * ever be asked to clear. Capping it would push work INTO the season to
+   * satisfy a rule aimed at protecting the season. Horizon is 90 days. */
+  const CLUSTER_CAP = 10;
+  const HORIZON_DAYS = 90;
+  // `today` is a YYYY-MM-DD string here, not a Date — parse before adding days.
+  const horizon = new Date(Date.parse(`${today}T00:00:00Z`) + HORIZON_DAYS * 864e5)
+    .toISOString().slice(0, 10);
+  const byDay = new Map();
+  for (const x of a.dated || []) {
+    if (!x || !x.due) continue;
+    if (x.due > horizon) continue;
+    byDay.set(x.due, (byDay.get(x.due) || 0) + 1);
+  }
+  const walls = [...byDay.entries()].filter(([, n]) => n > CLUSTER_CAP).sort();
+  if (walls.length) {
+    console.log(`\n  🔴 ${walls.length} date(s) carry more than ${CLUSTER_CAP} open rows.`
+      + '\n     A day nobody can work is a day that will be bulk-rolled, and a rolled'
+      + '\n     block re-clusters on the next date. Spread them by severity instead:');
+    walls.forEach(([d, n]) => console.log(`     ${d}: ${n} rows`));
+  }
+
+  return (a.overdue.length || a.ambiguous.length || walls.length) ? 1 : 0;
 }
 
 if (require.main === module) process.exitCode = main();
