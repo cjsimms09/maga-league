@@ -29,7 +29,10 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..', '..');
 const H = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data', 'league_history.json'), 'utf8'));
 const POS = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data', 'player_positions.json'), 'utf8')).positions;
-const B = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
+/* THE PINNED DRAFT-DAY BOARD — see _draft_era_premise.js. Register 484 (i),
+ * 2026-09-06: this compares historical drafts against the MARKET ADP the board
+ * carried, and the live board's ADP is a September one. */
+const B = require('./_draft_era_premise.js').pinnedBoard();
 const DOC = path.join(ROOT, 'draft', 'backtest', 'VONA-ROOM-VS-MARKET.md');
 
 let pass = 0, fail = 0;

@@ -19,7 +19,12 @@ const checkEra = require('./_draft_era_premise.js').eraCheck(check);
 /* The REAL board artifact, same as robot-mock: shadows must diverge on the
  * board they'll actually see, not on a toy fixture whose lone TE makes every
  * weighting agree. */
-const ART = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'public', 'draft_data.json'), 'utf8'));
+/* THE PINNED DRAFT-DAY BOARD, not the live one (register 484 (i), 2026-09-06).
+ * This suite's consensus scan asks whether the STRATEGIES agree somewhere on
+ * the board Cory drafted from; on a September board the pool's top is already
+ * rostered and the question has a different subject. `pinnedBoard()` refuses
+ * if the file is ever swapped — see _draft_era_premise.js. */
+const ART = require('./_draft_era_premise.js').pinnedBoard();
 const ALL = ART.players.filter(p => p.proj_mean > 0);
 function makeBoard() { return ALL.slice(0, 120); }
 const LEAGUE = ART.league;
@@ -383,7 +388,7 @@ function ctxAt(pick, board) {
    * catch it" question by measurement: `contested` reads false on the
    * hollow case and the real one alike — it cannot tell them apart, and
    * that is exactly why the separate artifact signal exists. */
-  const B2 = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
+  const B2 = require('./_draft_era_premise.js').pinnedBoard();  // draft-day, register 484 (i)
   const keepers = (B2.kept_players || []).slice();
   const priced = B2.players.filter(x => x.adp != null).slice().sort((a, b) => a.adp - b.adp);
   const liveCase = (pick) => {

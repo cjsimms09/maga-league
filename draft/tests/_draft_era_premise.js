@@ -88,4 +88,83 @@ function eraCheck(ck, opts) {
   };
 }
 
-module.exports = { draftDate, postDraft, eraCheck };
+/* ── THE DURABLE FIX: THE BOARD CORY ACTUALLY DRAFTED FROM ─────────────────
+ *
+ * Settled 2026-09-06 (register 484 (i)). The stopgap above exists because a
+ * draft-era assertion was pointed at the LIVE board; the fix is to point it at
+ * a pinned one. The open question was WHICH pin, and the candidate on disk was
+ * wrong in a way that only reading it revealed.
+ *
+ * ⛔ `draft/data/pre_draft_freeze_2026.json` IS NOT IT, AND IT SAYS SO ITSELF.
+ * Its `status` is "PROVISIONAL" and its `status_reason` reads: "validated
+ * against PREDICTED keeper state: the keeper lock has not passed ... Cory's 5f:
+ * the pre-lock run is a rehearsal. Re-take after the slate confirms." Its
+ * source artifact is dated 2026-08-16, `opponent_keepers_applied` is 0, and it
+ * carries 682 players — the 680 Cory drafted from plus the two the lock had not
+ * yet removed. THE RE-TAKE NEVER HAPPENED. Repointing at it would have swapped
+ * one wrong premise for another, which is exactly what register 484 warned.
+ *
+ * ✅ THE REAL ONE IS `4750fbce`'s `public/draft_data.json`, committed here as
+ * `draft/data/draft_day_board_2026-08-22.json`. Established rather than
+ * assumed:
+ *
+ *   built_at 2026-08-22T03:43:05Z, committed 03:51:53Z
+ *   680 players · 23 kept — exactly the pool register 256 records
+ *   the draft began 2026-08-22 6:00 PM CDT (league_config, Cory's ruling
+ *     "Yes it's 6pm") = 23:00Z, so this board stood for 19 hours before it
+ *   and NO other rebuild of public/draft_data.json landed between them —
+ *     git log over 08-21..08-24 shows 4750fbce then nothing until 08-24
+ *
+ * So this is the board that was on screen when he picked, not a reconstruction
+ * of one.
+ *
+ * ⚠️⚠️ AND IT CARRIES A KNOWN DEFECT, WHICH IS EXACTLY WHY IT IS THE RIGHT PIN
+ * AND MUST NEVER BE "CORRECTED". Its published replacement levels are
+ * REGISTER 283's PRE-LOCK ONES:
+ *
+ *     pinned (draft day)   RB 147.8 · WR 142.9 · TE 138.0 · QB 347.8
+ *     corrected (08-27)    RB 181.1 · WR 170.3 · TE 141.7 · QB 350.8
+ *
+ * `apply_vorp` ran over the DRAFTABLE pool while `starter_counts` stayed
+ * league-wide, so every RB was priced +29.6 and every WR +23.7 VORP points
+ * above every TE. A landed the fix as `5b676028` on 08-27 — FIVE DAYS AFTER
+ * THE DRAFT. So the tilt against tight ends was live in the room.
+ *
+ * MEASURED 2026-09-06 as a paired counterfactual over all 478 JS suites, run
+ * twice with only the board swapped: exactly THREE are board-dependent, and
+ * all three fail on this pin for that single reason — `c1_agreement`,
+ * `dollar_replacement_baseline`, `keeper_lock_reorders_the_board`. They are
+ * not broken; they are correctly detecting register 283 in the board that had
+ * it, which is a control on this pin's authenticity rather than a problem with
+ * it.
+ *
+ * ⛔ DO NOT PATCH THE REPLACEMENT LEVELS IN THIS FILE. A draft-era suite asks
+ * "what did the board he drafted from say", and the answer includes the
+ * defect. Patching it would answer a counterfactual — what a corrected board
+ * would have said — while still being labelled draft day, which is the exact
+ * substitution register 484 was filed about. The three suites above therefore
+ * stay pointed at the LIVE board, where their subject is a correct one. */
+const PINNED = path.join(ROOT, 'draft', 'data', 'draft_day_board_2026-08-22.json');
+
+/** The draft-day board, with its identity checked on every load.
+ *
+ * ⚠️ THE CHECK IS NOT CEREMONY. A pinned artifact that can be silently
+ * replaced is a pin in name only, and the whole point of this file is that a
+ * draft-era assertion must not quietly change its subject. If these numbers
+ * ever stop matching, every suite reading this board REFUSES rather than
+ * measuring something else. */
+function pinnedBoard() {
+  const b = JSON.parse(fs.readFileSync(PINNED, 'utf8'));
+  const players = (b.players || []).length;
+  const kept = (b.kept_players || []).length;
+  if (players !== 680 || kept !== 23 || b.built_at !== '2026-08-22T03:43:05Z') {
+    throw new Error('PINNED BOARD IS NOT THE DRAFT-DAY BOARD: got '
+      + players + ' players / ' + kept + ' kept / built_at ' + b.built_at
+      + ' — expected 680 / 23 / 2026-08-22T03:43:05Z. Something replaced '
+      + 'draft/data/draft_day_board_2026-08-22.json. Do not "fix" this by '
+      + 'updating the numbers; re-extract from commit 4750fbce.');
+  }
+  return b;
+}
+
+module.exports = { draftDate, postDraft, eraCheck, pinnedBoard, PINNED };

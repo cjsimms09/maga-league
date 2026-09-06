@@ -29,7 +29,15 @@ global.window = global;
 require(path.join(ROOT, 'public/js/draft/survival.js'));
 require(path.join(ROOT, 'public/js/draft/composite.js'));
 const E = require(path.join(ROOT, 'public/js/draft/engine.js'));
-const board = require(path.join(ROOT, 'public/draft_data.json'));
+/* ⚠️ THE PINNED DRAFT-DAY BOARD, NOT THE LIVE ONE (register 484 (i), fixed
+ * 2026-09-06). This suite asserts a property of the board Cory DRAFTED FROM —
+ * no kicker or defense in its top 20 — and it was reading `public/draft_data
+ * .json`, which the nightly rebuild moves. That is how five draft-era suites
+ * flipped together on 09-04 and took main's CI down for 42 hours without a
+ * single defect in anything shipped. `_draft_era_premise.pinnedBoard()` reads
+ * 4750fbce's board — 680 players, 23 kept, built 19 hours before the 23:00Z
+ * start — and REFUSES if that file is ever swapped. */
+const board = require('./_draft_era_premise.js').pinnedBoard();
 
 let pass = 0, fail = 0;
 const ck = (n, c, d) => {

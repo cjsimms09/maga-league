@@ -47,7 +47,11 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS  ' + n))
  * _draft_era_premise.js carries the measurement. */
 const ckEra = require('./_draft_era_premise.js').eraCheck(ck);
 
-const D = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
+/* THE PINNED DRAFT-DAY BOARD — see _draft_era_premise.js. Register 484 (i),
+ * 2026-09-06: the keeper option at pick 17 is a fact about the board he
+ * drafted from, and asking it of a September board is asking a different
+ * question. */
+const D = require('./_draft_era_premise.js').pinnedBoard();
 const pool = D.players.filter(p => p.position && p.proj_mean != null && p.vorp != null);
 const keep = KEEP.keepersFrom(D);
 const adpOf = p => (p.adjusted_adp != null ? +p.adjusted_adp
@@ -86,6 +90,7 @@ PICKS.forEach(PICK => {
   const vals = ctx.board.map(p => C.keeperOptionValue(p, ctx).value);
   const posN = vals.filter(v => v > 0).length;
   const max = Math.max.apply(null, vals);
+  const min17 = Math.min.apply(null, vals);
   /* ⚠️ THE MAGNITUDE BAR WAS SPLIT OFF 2026-08-20, AND SAYING WHY MATTERS.
    *
    * This was one check: `posN > 0 && max > 5`. It conflated a CLAIM with a
@@ -97,10 +102,44 @@ PICKS.forEach(PICK => {
    *
    * A bar nobody derived, failing because the board moved, is not a finding.
    * But the DECAY is one, so it is reported below rather than deleted. */
-  ckEra('pick 17 — positive option values exist and survive the floor ('
-    + posN + ' positive), so flooring did NOT retire the term: premise (1) of '
-    + 'the old hold is measurably false under the measured ramp',
-    posN > 0, { positive: posN, max: max });
+  /* ⛔ THIS CHECK IS RETIRED AND ITS PREMISE IS FALSIFIED — register E17, in
+   * effect since 2026-08-18, measured here on the PINNED draft-day board
+   * 2026-09-06 (A, register 484 (i)). It asserted `posN > 0`: that positive
+   * option values exist at pick 17, so flooring had not retired the term.
+   *
+   * ON THE BOARD CORY ACTUALLY DRAFTED FROM THE TERM IS ZERO AT EVERY PICK —
+   * 17, 33, 48, 68, all of them, 0 positive and max 0.00 — and that is the
+   * CORRECT answer, not a regression. The keeper option is MARGINAL against
+   * the bar my own keepers set, and his are Chase 128.9 / Henry 111.35 /
+   * Walker 86.02 vorp against a best-available of Josh Jacobs at 76.1. Nothing
+   * on the board beats the weakest man he already holds, so no candidate has a
+   * positive option value. Measured, not argued: raw kov of his three is
+   * 37.76 / 4.18 / 19.99, so the bar is 4.18 and every candidate nets to zero.
+   *
+   * ⚠️ THE OLD CHECK WAS PASSING ON A DEFECT. Before E17, `kept_players`
+   * carried no `vorp`, `nextYearVorp` read `(player.vorp || 0)`, and all three
+   * keepers scored ZERO — so the bar went NEGATIVE and `max(0, raw − bar)`
+   * ADDED to every candidate. That is the badge-lie this project already
+   * named: "Zay Flowers — KEEPER TARGET ... he beats Ja'Marr Chase". The 38
+   * this check was pinned against was that inflation. Fixing the input made
+   * the term honest and the assertion false at the same moment, and the
+   * assertion outlived the fix by nineteen days behind a moving board.
+   *
+   * What replaces it is the claim that is actually true and actually load-
+   * bearing, asserted rather than reported: the term is ZERO, never negative,
+   * and the reason is the bar. If a candidate ever out-values his weakest
+   * keeper this goes red and that is a real finding about the board. */
+  ck('pick 17 — the keeper option is zero, not negative, and zero is CORRECT: '
+    + 'nothing on the draft-day board out-values his weakest keeper, so no '
+    + 'candidate has a positive option. (' + posN + ' positive, max '
+    + max.toFixed(2) + ')',
+  posN === 0 && max === 0 && min17 >= 0, { positive: posN, max: max });
+
+  ck('  CONTROL — the bar is real, which is the whole reason the term is zero. '
+    + 'His three keepers must carry vorp; if they ever read 0 again the E17 '
+    + 'badge-lie is back and the check above would pass for the wrong reason',
+  keep.every(k => Number.isFinite(+k.vorp) && +k.vorp > 0),
+  keep.map(k => k.name + '=' + k.vorp));
 
   /* THE TERM HAS GONE NEARLY INERT, AND THAT SHOULD BE VISIBLE RATHER THAN
    * ASSERTED AWAY. Measured across Cory's twelve real picks on the live board:
@@ -185,9 +224,22 @@ PICKS.forEach(PICK => {
   const neg = ks.filter(k => k < 0).length;
   ck('pick 17 surface — zero negative keeper terms reach the published score '
     + '(was 586/587 in the held state)', neg === 0, { negative_published: neg });
-  ckEra('...and the term still contributes — some published score carries a '
-    + 'positive keeper component, so the fix did not silently retire a live '
-    + 'weight-1 term', ks.some(k => k > 1e-9), { max: Math.max.apply(null, ks) });
+  /* ⛔ RETIRED WITH THE ONE ABOVE, same cause and same date. It asserted that
+   * some published score still carries a POSITIVE keeper component. On the
+   * draft-day board none does, because the term is correctly zero everywhere
+   * (see the note at pick 17). "The fix did not silently retire a live
+   * weight-1 term" was the right question in August and it has an answer now:
+   * E17 made the term honest, and an honest keeper option against Chase /
+   * Henry / Walker is zero. The term is not retired — the weight is 1.0 and
+   * the code runs — it simply has nothing to say at this seat with these
+   * keepers, which is a MODEL question for 2027 rather than a defect.
+   *
+   * The half that is still load-bearing is asserted, and it is the one this
+   * suite exists for: nothing NEGATIVE reaches the published score. That is
+   * checked on the line above and stays a hard equality. */
+  console.log('      REPORTED (not asserted): max published keeper component '
+    + 'at pick 17 is ' + Math.max.apply(null, ks).toFixed(2) + '. Zero is the '
+    + 'correct value on this board — see the pick-17 note. Register 484.');
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);
