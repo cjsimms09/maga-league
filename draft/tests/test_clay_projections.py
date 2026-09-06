@@ -13,7 +13,7 @@ import clay_projections as C  # noqa: E402
 
 
 def _doc():
-    C.main()
+    C.main(write=False)
     return json.loads(C.OUT.read_text())
 
 
@@ -158,7 +158,7 @@ def test_zero_def_rows_the_gap_is_documented_not_silent():
 
 def test_writes_no_board_field():
     before = Path(C.BOARD).read_bytes()
-    C.main()
+    C.main(write=False)
     after = Path(C.BOARD).read_bytes()
     assert before == after, "clay_projections.py must never modify public/draft_data.json"
 

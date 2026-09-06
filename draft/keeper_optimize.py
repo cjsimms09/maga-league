@@ -134,7 +134,17 @@ def main() -> int:
                 d["alternative_vorp"], d["surplus"]))
     text = "\n".join(lines)
     print(text)
-    open(os.path.join(ROOT, "draft", "KEEPER-OPTIMIZER.txt"), "w").write(text + "\n")
+    # ⚠️ `--no-write` EXISTS FOR THE TEST, NOT FOR OPERATORS. Register 489
+    # (A, 2026-09-05): test_keeper_optimize_kept_players runs this as a
+    # subprocess and asserts on STDOUT ONLY, but the run also rewrote
+    # draft/KEEPER-OPTIMIZER.txt, so every pytest left the tree dirty and the
+    # regenerated report got swept into unrelated commits — twice in an hour.
+    # The report moved Cory's keeper surplus 168.4 -> 174.3 on one of those
+    # runs with the recommendation unchanged, which is exactly the kind of
+    # number that travels out of a file into prose. The pipeline invocation is
+    # unchanged: no flag, still writes.
+    if "--no-write" not in sys.argv:
+        open(os.path.join(ROOT, "draft", "KEEPER-OPTIMIZER.txt"), "w").write(text + "\n")
     return 0
 
 

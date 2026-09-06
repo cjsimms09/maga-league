@@ -56,7 +56,10 @@ def test_kept_players_carry_proj_mean_AND_stamped_vorp():
 
 
 def test_optimizer_recommends_the_real_keepers_not_a_kicker():
-    r = subprocess.run([sys.executable, str(ROOT / "draft" / "keeper_optimize.py")],
+    #: `--no-write` because this test reads STDOUT ONLY — without it the run
+    #: rewrote draft/KEEPER-OPTIMIZER.txt on every pytest (register 489).
+    r = subprocess.run([sys.executable, str(ROOT / "draft" / "keeper_optimize.py"),
+                        "--no-write"],
                        capture_output=True, text=True, timeout=600)
     out = r.stdout
     assert "keep 0 — nobody" not in out, out[:600]

@@ -18,7 +18,7 @@ import draftsharks_parse as D  # noqa: E402
 
 
 def _players():
-    return {r["rank"]: r for r in D.main()["players"]}
+    return {r["rank"]: r for r in D.main(write=False)["players"]}
 
 
 # ── THE SECOND, INDEPENDENT PATH (register 452) ─────────────────────────────
@@ -61,7 +61,7 @@ def test_the_independent_scan_can_actually_find_players():
     what licenses reading the scan's silence on the unmatched rows as a real
     "these players are gone" rather than as a broken probe.
     """
-    doc = D.main()
+    doc = D.main(write=False)
     scan = _independent_board_scan()
     assert scan, "the scan indexed nothing at all — it cannot report an absence"
     matched = [r for r in doc["players"] if r["sleeper_id"] is not None]
@@ -81,7 +81,7 @@ def test_all_250_ranks_present_no_gaps():
 
 
 def test_no_parse_errors():
-    doc = D.main()
+    doc = D.main(write=False)
     assert doc["n_parse_errors_pts_file"] == 0
     assert doc["n_parse_errors_ceil_file"] == 0
 
@@ -190,7 +190,7 @@ def test_crosswalk_matches_every_player_uniquely():
     unmatched rows are; on the 08-26 board, 250 matched, 0 unmatched, 0
     not-refindable.
     """
-    doc = D.main()
+    doc = D.main(write=False)
     ids = [r["sleeper_id"] for r in doc["players"]]
     matched = [i for i in ids if i is not None]
     assert len(matched) == len(set(matched)), (
@@ -220,7 +220,7 @@ def test_the_unmatched_rows_are_unmatched_and_not_silently_zero_filled():
     """The other half of what `n_unmatched == 0` used to buy: it also meant
     nobody could ship a row that LOOKED matched and was not. Dropping it for a
     floor would have lost that, so it is asserted directly instead."""
-    doc = D.main()
+    doc = D.main(write=False)
     for r in doc["players"]:
         if r["sleeper_id"] is None:
             assert not r.get("name_board"), (
@@ -244,7 +244,7 @@ def test_the_uniqueness_check_still_fires_on_a_REAL_collision():
     UNMATCHED row does NOT fire it, which is the exact distinction the change
     above turns on.
     """
-    doc = D.main()
+    doc = D.main(write=False)
     rows = [dict(r) for r in doc["players"]]
 
     def uniq(rs):
@@ -308,7 +308,7 @@ def test_cross_file_identity_join_survives_the_two_captures_disagreeing_on_order
     # numbers. Joining by raw rank number silently pairs one player's
     # floor/ceiling with a DIFFERENT player's category split here; joining
     # on (team, position, position_rank) does not.
-    doc = D.main()
+    doc = D.main(write=False)
     assert doc["n_join_mismatches"] == 8
     players = _players()
     checks = {

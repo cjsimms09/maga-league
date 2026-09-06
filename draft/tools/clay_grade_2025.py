@@ -61,8 +61,13 @@ def _board_stamp():
         #: An unreadable board is reported, never silently omitted — a missing
         #: stamp and a stamp saying "no board" must not print the same.
         return {"error": f"{type(exc).__name__}: {exc}"}
-def main() -> dict:
-    clay_doc = build_store(2025)
+def main(write: bool = True) -> dict:
+    """`write=False` grades WITHOUT touching the committed artifact.
+
+    Register 489 (A, 2026-09-05) — see clay_projections.build_store for the
+    incident. The CLI path still writes.
+    """
+    clay_doc = build_store(2025, write=write)
 
     # VERSION GATE, not narrated -- checked. The printed date (2025-09-04) IS
     # 2025 Week 1 kickoff day, so it alone cannot prove a clean preseason
@@ -165,7 +170,8 @@ def main() -> dict:
         "cells": cells,
         "skill_cells": skill_cells,
     }
-    OUT.write_text(json.dumps(doc, indent=1))
+    if write:
+        OUT.write_text(json.dumps(doc, indent=1))
 
     print("CLAY 2025 GRADE — against realized 2025 outcomes\n")
     print(f"  clay players (2025): {len(clay_doc['players'])}")

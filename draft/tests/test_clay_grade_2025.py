@@ -17,7 +17,7 @@ import clay_grade_2025 as G  # noqa: E402
 
 
 def _doc():
-    return G.main()
+    return G.main(write=False)
 
 
 def test_population_accounts_for_every_player():
@@ -68,13 +68,13 @@ def test_min_n_is_imported_not_redeclared():
 def test_writes_no_board_field():
     board = Path(G.ROOT) / "public" / "draft_data.json"
     before = board.read_bytes()
-    G.main()
+    G.main(write=False)
     after = board.read_bytes()
     assert before == after
 
 
 def test_output_is_written():
-    G.main()
+    G.main(write=False)
     doc = json.loads(G.OUT.read_text())
     assert doc["population"]["graded_total"] > 300
 
@@ -88,12 +88,16 @@ def test_refuses_to_grade_if_the_gate_is_not_confirmed(monkeypatch):
     # FAIL ARM: the refusal in main() must actually fire, not just exist as
     # an unreached branch. Monkeypatch build_store to return an otherwise
     # real doc with the gate flipped to unconfirmed.
-    real = G.build_store(2025)
+    real = G.build_store(2025, write=False)
     bad = {**real, "version_gate": {"status": "in_season_or_unverifiable",
                                      "why": "test fixture"}}
-    monkeypatch.setattr(G, "build_store", lambda year: bad)
+    #: `**_` absorbs the `write=` kwarg main() now forwards (register 489). A
+    #: stub with a narrower signature than the thing it replaces fails on the
+    #: CALL rather than on the behaviour, which is a test failing for the wrong
+    #: reason — exactly what happened when this flag was threaded through.
+    monkeypatch.setattr(G, "build_store", lambda year, **_: bad)
     try:
-        G.main()
+        G.main(write=False)
         raised = False
     except SystemExit:
         raised = True

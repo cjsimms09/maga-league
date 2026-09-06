@@ -336,7 +336,18 @@ def verify_preseason_edition(players: dict, cfg: dict, guide_updated: str | None
     }
 
 
-def build_store(year: int) -> dict:
+def build_store(year: int, write: bool = True) -> dict:
+    """`write=False` builds the document WITHOUT touching the committed store.
+
+    ⚠️ Register 489 (A, 2026-09-05). `main()` always wrote, and the test suite
+    calls it, so every `pytest` run rewrote `clay_projections_2025.json` and
+    `clay_projections_2026.json` — board-adjacent stores — and left the tree
+    dirty. Twice in one hour those regenerated files were swept into commits
+    about something else. The danger is provenance, not staleness: a board
+    input produced by a test run, in an unrelated commit, is a number Cory
+    could read that no pipeline produced and no reviewer approved. The CLI
+    path still writes; the pipeline is unchanged.
+    """
     cfg = YEAR_CONFIG[year]
     text = source_text(cfg)
     lines = text.split("\n")
@@ -494,7 +505,8 @@ def build_store(year: int) -> dict:
         "agreement_vs_sleeper_spearman": agree_vs_sleeper,
     }
     out = cfg["out"]
-    out.write_text(json.dumps(doc, indent=1))
+    if write:
+        out.write_text(json.dumps(doc, indent=1))
 
     print(f"CLAY {year} PROJECTIONS — scored under OUR table\n")
     print(f"  by position: {doc['coverage']['by_position']}  kickers: {len(k_players)}")
@@ -504,7 +516,7 @@ def build_store(year: int) -> dict:
     print(f"  agreement vs Sleeper (Spearman): n={agree_vs_sleeper['n']} "
           f"rho={agree_vs_sleeper['spearman']}")
     print(f"  guide_updated: {guide_updated}  version_gate: {version_gate['status']}")
-    print(f"\n  wrote {out.relative_to(ROOT)}")
+    print(f"\n  {'wrote' if write else 'built (not written)'} {out.relative_to(ROOT)}")
     return doc
 
 
@@ -514,8 +526,8 @@ def build_store(year: int) -> dict:
 OUT = YEAR_CONFIG[2026]["out"]
 
 
-def main(year: int = 2026) -> dict:
-    return build_store(year)
+def main(year: int = 2026, write: bool = True) -> dict:
+    return build_store(year, write=write)
 
 
 if __name__ == "__main__":

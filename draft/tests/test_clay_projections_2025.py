@@ -13,7 +13,7 @@ import clay_projections as C  # noqa: E402
 
 
 def _doc():
-    return C.build_store(2025)
+    return C.build_store(2025, write=False)
 
 
 def test_known_positive_2025_gibbs():
@@ -55,7 +55,7 @@ def test_positional_plausibility_still_holds_on_2025():
 def test_2026_store_is_unaffected_by_building_2025():
     # both years share BOARD/lookup_board/etc -- building 2025 must not leak
     # state into the 2026 store or its own known-positive control.
-    doc26 = C.main()
+    doc26 = C.main(write=False)
     assert doc26["coverage"]["by_position"] == {"QB": 40, "RB": 111, "WR": 187, "TE": 80}
 
 
@@ -93,5 +93,5 @@ def test_kickoff_check_fail_arm_actually_fires():
 
 
 def test_2026_needs_no_kickoff_check_the_date_alone_suffices():
-    doc26 = C.main()
+    doc26 = C.main(write=False)
     assert doc26["version_gate"]["status"] == "preseason_by_date"

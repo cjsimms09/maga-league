@@ -482,7 +482,27 @@ def match_draftsharks_player(row: dict, index: dict, ADP) -> tuple[str | None, s
     return None, ""
 
 
-def main() -> dict:
+def main(write: bool = True) -> dict:
+    """`write=False` returns the document WITHOUT touching the committed store.
+
+    ⚠️ THIS PARAMETER EXISTS BECAUSE `main()` ALWAYS WROTE, AND SEVEN TESTS
+    CALL IT. Register 489 (A, 2026-09-05): every `pytest` run — including a
+    single `-k` filtered one — rewrote `draft/data/draftsharks_projections_
+    2026.json`, so the tree came out dirty and the regenerated store got swept
+    into whatever commit came next. It happened TWICE in an hour: once into
+    `7b5fde47` alongside five other artifacts, and again into `5e7b4563` one
+    commit after I filed the row describing it. A guard that depends on the
+    author remembering is not a guard.
+
+    The danger is provenance, not staleness. This store is a board input; a
+    version of it produced by a test run, inside a commit about something
+    else, is a number Cory could read that no pipeline produced and no
+    reviewer approved.
+
+    The CLI path below still writes — the pipeline is unchanged. Only the
+    library path is now silent by default for callers who pass `write=False`,
+    which is every test.
+    """
     pts = parse_pts()
     ceil = parse_ceil()
 
@@ -619,8 +639,13 @@ def main() -> dict:
     }
 
     out_path = DATA / "draftsharks_projections_2026.json"
-    out_path.write_text(json.dumps(doc, indent=1))
-    print(f"wrote {out_path.name}: {len(players)} players, "
+    if write:
+        out_path.write_text(json.dumps(doc, indent=1))
+    #: the counts print either way — a caller that asked not to write still
+    #: wants the parse report, and suppressing it would hide a parse error
+    #: from anyone running this as a library.
+    print(f"{'wrote' if write else 'parsed (not written)'} {out_path.name}: "
+          f"{len(players)} players, "
           f"{len(pts_errs)} pts errors, {len(ceil_errs)} ceil errors, "
           f"{order_violations} floor>ceil violations, "
           f"{doc['n_matched']}/{len(players)} crosswalk-matched "
