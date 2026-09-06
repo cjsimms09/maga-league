@@ -59,7 +59,22 @@ OWED = [
     {
         "what": "the January reconstruction is in the Annual's mandate",
         "owed_by": datetime.date(2026, 9, 6),
-        "detector": lambda: _reads(".github/workflows/annual.yml", "reconstruct"),
+        # ⚠️ THE DETECTOR WAS `"reconstruct" in annual.yml` AND THAT IS TOO
+        # WEAK — I satisfied it by accident while wiring the real thing.
+        # A COMMENT containing the word passes a substring test, so a future
+        # edit could delete the mandate step, leave the comment behind, and
+        # this gate would stay green over nothing. Landing the step and
+        # noticing that is the same act (A, 2026-09-06).
+        #
+        # It now requires the two things that make the step REAL rather than
+        # mentioned: the mandate must actually instruct a reconstruction of
+        # the candidate field from residuals, and it must carry the no-input
+        # contract this commitment's own `and_do_not` demands — the literal
+        # line the run prints when there is nothing to read, which is what
+        # makes "wired" observable in a September dry run.
+        "detector": lambda: _reads(
+            ".github/workflows/annual.yml", "JANUARY RECONSTRUCTION")
+        and _reads(".github/workflows/annual.yml", "RECONSTRUCTION: no input"),
         "why": "specified and never wired — the fourth instance of that shape. "
                "The mandate covers grading, corrections and B's generators; "
                "candidate-field-from-residuals is absent.",

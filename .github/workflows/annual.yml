@@ -66,6 +66,29 @@ jobs:
           #   2) THEN B's content generators run FROM the corrected numbers — chapter,
           #      records book, settlement, season-sealing, two-stage draft board — so a
           #      chapter never cites a figure the same run later fixes.
+          #   3) LAST, the JANUARY RECONSTRUCTION: rebuild the candidate field from
+          #      the season's graded RESIDUALS. Added 2026-09-06 by A, on the dated
+          #      commitment in draft/tests/test_owed_by_date.py, which went red on
+          #      its own date — "specified and never wired, the fourth instance of
+          #      that shape."
+          #
+          #      WHY IT IS LAST AND WHY IT ONLY PROPOSES. annual-button.md's
+          #      deterministic-update principle: computation moves the weights
+          #      (evidence_weight.recompute, a function Cory can inspect), the prompt
+          #      only PROPOSES. Novel hypothesis generation from residuals is "the
+          #      one part that can't be fully deterministic", so it "stays a PROPOSAL
+          #      (a reviewable PR that registers a pre-registered experiment), never
+          #      an auto-install." Running it last means the residuals it reads are
+          #      the CORRECTED ones from step 1.
+          #
+          #      ⚠️ AND IT MUST ANNOUNCE AN EMPTY INPUT. The commitment's own
+          #      and-do-not: "a mandate step that reports no input is observably
+          #      wired; one never invoked is indistinguishable from one that does not
+          #      exist." So the mandate below requires the literal line
+          #      `RECONSTRUCTION: no input — <what was missing>` when there is
+          #      nothing to read. A dry run in September, with no season graded, is
+          #      supposed to print exactly that — and printing it is the proof the
+          #      step is wired.
           # Everything is a PULL REQUEST; dry_run marks them DRY-RUN and never merges.
           MANDATE="You are the MFGA Annual Improvement Cycle (mode=$MODE, dry_run=$DRY_RUN).
           Read docs/queued/annual-button.md for the full contract, plus THE-ANNUAL.md (if
@@ -74,7 +97,24 @@ jobs:
           the corrected money table, final standings and bracket order FIRST; (2) ONLY
           THEN invoke B's content generators (chapter, records book, settlement, season
           sealing, two-stage draft board) from those corrected numbers — never let a
-          chapter cite a number a later step in this same run changes. Output ALL changes
+          chapter cite a number a later step in this same run changes; (3) LAST, run the
+          JANUARY RECONSTRUCTION — rebuild the candidate field from the season's graded
+          RESIDUALS (the corrected ones from step 1, which is why this is last). Read the
+          graded rows in PREDICTION-LEDGER.md and the component grades, take what the
+          season's outcomes did NOT explain, and reconstruct from them a field of
+          CANDIDATE hypotheses for next year. Each candidate is a PRE-REGISTERED
+          experiment — arms, bar, grade-by date, and the null it is tested against —
+          filed as its own PR. You PROPOSE ONLY: never set a weight, never install a
+          candidate, never edit MEASURED_WEIGHTS; the weights move by
+          evidence_weight.recompute, which is a function Cory can inspect, and that is
+          binding (docs/queued/annual-button.md, deterministic-update principle). A
+          candidate with no defensible null PROPOSES NOTHING and says so. IF THERE IS
+          NOTHING TO READ — no graded residuals, no component grades, an ungraded season
+          — you MUST print the literal line 'RECONSTRUCTION: no input — <what was
+          missing>' and produce no candidates. Do not skip this step silently and do not
+          invent a field to fill it: a step that reports no input is observably wired,
+          and one never invoked is indistinguishable from one that does not exist.
+          Output ALL changes
           as PULL REQUESTS (one per logical change), each PR body carrying the evidence,
           the prior value, the rollback line, and the grade-next-year registration; plus
           ANNUAL-CYCLE-REPORT.md summarizing done / proposed-below-bar / the three
