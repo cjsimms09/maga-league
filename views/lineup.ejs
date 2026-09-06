@@ -8,12 +8,23 @@
 <%
   const money0 = n => '$' + Math.round(Number(n || 0)).toLocaleString('en-US');
   const signed = n => (n >= 0 ? '+' : '') + money0(n);
+  /* `fp+sleeper` is the real forward projection, added 2026-09-06 (register
+   * 427). Until then the FIRST branch of liveOptimizeFor's cascade — `r.proj`,
+   * labelled "live projections" — could never execute, because sleeper.js's
+   * players() builds {name,pos,team,rank,inj} and assigns no `proj` anywhere.
+   * So the page always fell to a realized-points label while PROMISING a
+   * forecast was coming ("live projections drop in when Sleeper supplies
+   * them"), which is the false promise 427 asked to remove. It is removed by
+   * making the promise true rather than by softening the copy. */
   const SRC_LABEL = {
+    'fp+sleeper': "this week's projection (FantasyPros + Sleeper, on our scoring)",
     sleeper: 'live projections',
-    'season-avg': "this season's per-game average (live projections drop in when Sleeper supplies them)",
-    'last-week': "last week's points (a stopgap until projections land)",
+    'season-avg': "this season's per-game average (no weekly projection for this week yet)",
+    'last-week': "last week's points (no weekly projection for this week yet)",
     none: 'no projection data yet',
   };
+  // A real forward projection needs no "treat these as directional" caveat.
+  const PROJ_IS_FORECAST = { 'fp+sleeper': true, sleeper: true };
   const G = (typeof guide !== 'undefined' && guide) || {};
 %>
 
@@ -112,7 +123,7 @@
           <% } %>
           <%- include('partials/_wr_explain', { ex: G.posture }) %>
           <p class="lo-verdict-why"><%= posture.why %></p>
-          <p class="muted lo-src">Projections: <%= SRC_LABEL[projSource] || 'unknown source' %>.<% if (!live.projPending && projSource && projSource !== 'sleeper') { %> <b>Treat the dollar figures as directional, not precise, until live projections land.</b><% } %><% if (!live.projPending && !live.oppKnown) { %> Opponent modelled as a <b>typical team score (<%= Math.round((live.assumptions && live.assumptions.oppMean) || 0) %>)</b> until theirs lands — not the week's winning score, which would make every week look like a long shot.<% } %></p>
+          <p class="muted lo-src">Projections: <%= SRC_LABEL[projSource] || 'unknown source' %>.<% if (!live.projPending && projSource && !PROJ_IS_FORECAST[projSource]) { %> <b>Treat the dollar figures as directional, not precise, until live projections land.</b><% } %><% if (!live.projPending && !live.oppKnown) { %> Opponent modelled as a <b>typical team score (<%= Math.round((live.assumptions && live.assumptions.oppMean) || 0) %>)</b> until theirs lands — not the week's winning score, which would make every week look like a long shot.<% } %></p>
         </div>
       </div>
     <% } %>
