@@ -41,6 +41,8 @@ EXEMPT = {
     "src/routes/member.js": "the waiver page, same as waiver_reco.js",
     "src/routes/admin.js": "the war-room shell and draft order; no in-season projection",
     "src/proj_feed.js": "buildFeed() has no caller in src/ or netlify/ — the header names the board, the code never reads it",
+    "src/routes/standings.js": "mentions draft_data.json only in a correction comment; the actual board read (players + kept_players) happens in member.js:4384, which already builds the feed correctly before passing it in",
+    "src/weekly_prices.js": "mentions draft_data.json only in a correction comment explaining a past misdiagnosis; it prices from FantasyPros/Sleeper weekly archives and never opens the board in code",
 }
 
 

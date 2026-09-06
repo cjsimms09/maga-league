@@ -87,6 +87,9 @@ RESOLVED = {
     "51ed106bb7c67dcb068c82ca376f089ea4306f82": "SUPERSEDED — A landed the same waiver ratchet (8 -> 6) as 884b2250 on 09-04. Verified: KNOWN_UNRESOLVABLE_ACQUISITIONS = 6 on main.",
     "3c41a272fc516e0a72967817a1869764d404efa9": "SUPERSEDED — same waiver ratchet as 51ed106b; A's 884b2250 is the copy on main.",
     "84cc14e4bea7115bb41eee0d7405a0c1a17212f6": "SUPERSEDED — the 09-05 daily routine pushed the same GO sweep to main as 937cda10. Verified: register 488 is on main.",
+    "53cf26088f1c544d1f0297eb630e700d78dcc24f": "SUPERSEDED 09-06 — its SITE-REVIEW-2026-09-02.md items 3/6/7 update is a subset of what's on main now: main's text for all three carries the fuller 09-05-recovery notes (mark-as-paid/chat-reactions/pick'em-vs-model), verified by reading the file on main.",
+    "7560262164f013cdc04a39e77ef35492df1ff837": "SUPERSEDED 09-06 — a 2026-09-04 sync merge; its two distinguishing pieces (weekly-grade.yml cron '30 12 * * 2', the weekly_projection_archive conflict resolution) are both verified live on main.",
+    "bc707793465808415ec2a41c302afd1a52a51117": "SUPERSEDED 09-06 — a 2026-09-06T05:00 GO-sweep sync merge (30 commits) predating this session's main; verified its distinguishing content (source_universe_drift step, register 444) is already on main by a different path.",
 }
 
 
@@ -105,7 +108,33 @@ def git(*args):
 
 
 def on_main(sha):
-    return git("merge-base", "--is-ancestor", sha, "origin/main").returncode == 0
+    """Is `sha` an ancestor of origin/main?
+
+    MEASURED 2026-09-06 (register — the GO sweep that found this): a plain
+    shallow clone (this container's default) only fetches ~50 commits of
+    history, so `git merge-base --is-ancestor` errors on any older sha with
+    "Not a valid object name" and the function returns False — a commit that
+    landed on main DAYS ago reads as freshly STRANDED. One run of this tool
+    on a fresh container reported 30 stranded commits; 27 of them were
+    already on main and only looked stranded because the local clone could
+    not see that far back (`git fetch --depth=500` and re-running dropped it
+    to 3). Local git is a Rule-3f probe that has silently never had its
+    control checked against a shallow clone — the GitHub compare API does
+    not depend on how much history this checkout happens to hold, so it is
+    the primary check; local git is kept only as a fast path when it can
+    answer without erroring.
+    """
+    r = git("merge-base", "--is-ancestor", sha, "origin/main")
+    if r.returncode == 0:
+        return True
+    if "Not a valid object name" not in (r.stderr or "") and "unknown revision" not in (r.stderr or ""):
+        # local git resolved both refs and said "not an ancestor" — trust it.
+        return False
+    try:
+        cmp = _get(f"{API}/compare/main...{sha}")
+    except urllib.error.HTTPError:
+        return False
+    return cmp.get("status") in ("identical", "behind")
 
 
 def heads_a_branch(sha):

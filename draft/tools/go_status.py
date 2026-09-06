@@ -176,10 +176,35 @@ def last_run(workflow, attempts=2):
     return (f"api-error: {type(last_err).__name__}", None, None)
 
 
+def _ensure_full_history():
+    """The board-freshness walk below is `git log origin/main` with NO commit
+    limit, on purpose (see the comment at that call) — but a shallow clone
+    (this container's default on a fresh session: ~50 commits) truncates that
+    walk SILENTLY, with no error, no shorter list either — `git log` just
+    stops where the shallow boundary is. Measured 2026-09-06: a fresh
+    container's default depth put the last publish commit outside the
+    window and this tool reported "no publish commit found" on a board that
+    had in fact published the day before; the same shallow depth also made
+    `stranded_work_sweep.py` report 27 false stranded commits. Unshallow once
+    per run so the "no commit limit on purpose" comment is actually true
+    regardless of what depth the container happened to check out at.
+    """
+    shallow = subprocess.run(["git", "rev-parse", "--is-shallow-repository"],
+                              capture_output=True, text=True).stdout.strip()
+    if shallow != "true":
+        return
+    r = subprocess.run(["git", "fetch", "--unshallow", "origin", "main"],
+                        capture_output=True, text=True, timeout=120)
+    if r.returncode != 0:
+        subprocess.run(["git", "fetch", "--depth=5000", "origin", "main"],
+                        capture_output=True, text=True, timeout=120)
+
+
 def main():
     now = datetime.now(timezone.utc)
     print(f"GO STATUS — {now.isoformat(timespec='seconds')}\n")
     red = []
+    _ensure_full_history()
 
     print("── CAPTURE HEALTH ──────────────────────────────────────────")
     for wf, what in WATCHED:
