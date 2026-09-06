@@ -1,6 +1,6 @@
 # THIS WEEK — coryjsimms, week 1 (2026)
 
-**Generated 2026-09-04T16:55:15+00:00 from LIVE Sleeper. THE ROSTER RULE: any statement about
+**Generated 2026-09-06T14:21:26+00:00 from LIVE Sleeper. THE ROSTER RULE: any statement about
 Cory's roster or matchup cites this file (fresh within 3 days) or live
 Sleeper — a frozen seat plan or tournament artifact is never a source for
 who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
@@ -17,9 +17,9 @@ who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
 | S | Caleb Williams | QB | CHI | at CAR (Sun) | 24.8 (-2.5) |  |
 |   | Rome Odunze | WR | CHI | at CAR (Sun) | 24.8 (-2.5) | Questionable |
 | S | Harrison Mevis | K | LAR | vs SF (Thu) | 26.0 (-4) |  |
-|   | Quinshon Judkins | RB | CLE | at JAX (Sun) | 16.2 (+8) |  |
+| S | Quinshon Judkins | RB | CLE | at JAX (Sun) | 16.2 (+8) |  |
 |   | Emmett Johnson | RB | KC | vs DEN (Mon) | 23.0 (-2.5) |  |
-| S | Davante Adams | WR | LAR | vs SF (Thu) | 26.0 (-4) |  |
+|   | Davante Adams | WR | LAR | vs SF (Thu) | 26.0 (-4) |  |
 | S | Derrick Henry | RB | BAL | at IND (Sun) | 25.5 (-3.5) |  |
 |   | Courtland Sutton | WR | DEN | at KC (Mon) | 20.5 (+2.5) |  |
 | S | Juwan Johnson | TE | NO | at DET (Sun) | 21.5 (+7) |  |
