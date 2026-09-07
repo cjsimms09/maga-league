@@ -24,7 +24,25 @@ name: Weekly projection archive (Sleeper + FantasyPros, raw + scored)
 
 on:
   schedule:
+    # WEDNESDAY 20:30 UTC — BEFORE a Wednesday-night opener, and 30 minutes
+    # after own-weekly-proj.yml's 20:00Z Wednesday run so this file's stated
+    # invariant ("own_weekly_<season>_w<week>.json already exists on disk when
+    # this captures the same week") still holds on the short week.
+    #
+    # WHY IT WAS MISSING: the header below says the Thursday slot is "still
+    # pre-kickoff: the week's earliest game is Thursday night". Register 477
+    # measured week 1's opener at 2026-09-10T00:20Z — a WEDNESDAY night in US
+    # time — so the Thursday 15:00Z run lands ~15h after it. own-weekly-proj.yml
+    # and free-props-writer.yml were both given Wednesday crons for exactly this
+    # reason; this emitter is the third with the same defect and was missed
+    # because nothing in the week-1 path read it until the analyzer and the
+    # lineup optimizer began pricing from it (2026-09-06).
+    - cron: '30 20 * * 3'     # Wednesdays 20:30 UTC — before a Wednesday-night opener
     - cron: '0 15 * * 4'      # Thursdays 15:00 UTC — after own_weekly, pre-kickoff
+    #   ^ on a short week this fires AFTER kickoff; the tool now refuses to
+    #     overwrite an existing snapshot once the week has started, so the
+    #     Wednesday capture stands rather than being replaced by post-kickoff
+    #     data still stamped "captured before this week's earliest kickoff".
   workflow_dispatch:
     inputs:
       week:

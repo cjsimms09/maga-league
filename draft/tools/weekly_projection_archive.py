@@ -451,6 +451,46 @@ def main() -> int:  # pragma: no cover  (egress; CI only)
 
     ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
     out_path = ARCHIVE_DIR / f"weekly_projection_archive_{season}_w{week}.json"
+
+    # ── A PRE-KICKOFF SNAPSHOT MAY NOT BE REWRITTEN AFTER KICKOFF ────────────
+    #
+    # Every file this tool writes carries `kickoff_boundary: "captured before
+    # this week's earliest kickoff"`, and until now that was a STAMP, not a
+    # guard — the header says the boundary is "enforced" by the workflow's
+    # Thursday 15:00Z cron. That premise is FALSE for a short week: register 477
+    # measured week 1's opener at 2026-09-10T00:20Z, so the Thursday run lands
+    # ~15h AFTER kickoff and would overwrite a good Wednesday snapshot with
+    # post-kickoff data still labelled pre-kickoff. own-weekly-proj.yml and
+    # free-props-writer.yml were both given Wednesday crons for exactly this;
+    # this emitter is the third with the defect and never got one (added in the
+    # same commit). It matters more now than it did last week, because the
+    # analyzer and the lineup optimizer both price from this file.
+    #
+    # Reuses weekly_own_projection.first_kickoff_utc rather than re-deriving the
+    # kickoff: register 467's lesson is that two implementations sharing a name
+    # is how a grade ends up measuring a cousin of the thing that ships.
+    # CANNOT-SAY NEVER BLOCKS (rule 3e): if the kickoff cannot be resolved, or
+    # no snapshot exists yet, the write proceeds as before.
+    if out_path.exists():
+        try:
+            sys.path.insert(0, str(DRAFT))
+            from weekly_own_projection import first_kickoff_utc  # noqa: WPS433
+            now_s = os.environ.get("ARCHIVE_NOW")
+            now = (datetime.fromisoformat(now_s.replace("Z", "+00:00")) if now_s
+                   else datetime.now(timezone.utc))
+            ko = first_kickoff_utc(int(week), int(season))
+            if ko and now >= ko:
+                print(f"REFUSING to rewrite {out_path.name}: week {week} kicked off at "
+                      f"{ko.isoformat()} and it is now {now.isoformat()}. The existing "
+                      f"snapshot is the pre-kickoff one and it is the forward guarantee; "
+                      f"overwriting it would keep the `captured before this week's "
+                      f"earliest kickoff` stamp on post-kickoff data (register 477). "
+                      f"Exiting CLEAN — nothing to do, not a failure.", file=sys.stderr)
+                return 0
+        except Exception as exc:                       # noqa: BLE001
+            print(f"  ! kickoff boundary unavailable ({type(exc).__name__}: {exc}); "
+                  f"writing as before -- cannot-say never blocks")
+
     out_path.write_text(json.dumps(doc, indent=1))
     # register 223 — the archive's output must reach the grader's reader too
     mirrored = mirror_to_proj_series(
