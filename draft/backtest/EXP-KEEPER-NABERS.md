@@ -7,9 +7,9 @@ _anchor: **FANTASYPROS** (MFL live: False) · flat-cost keeper model · 200 pair
 | player | pos | proj | VORP | ADP | exp |
 |---|---|---|---|---|---|
 | Chase | WR | 271.8 | 101.5 | 3.0 | 5 |
-| Henry | RB | 259.1 | 78.05 | 18.3 | 10 |
-| Walker | RB | 233.8 | 52.72 | 16.7 | 4 |
-| Nabers | WR | 195.5 | 25.2 | 6.0 | 2 |
+| Henry | RB | 259.1 | 78.05 | 16.3 | 10 |
+| Walker | RB | 233.8 | 52.72 | 16.0 | 4 |
+| Nabers | WR | 195.5 | 25.2 | 5.8 | 2 |
 
 ## (A) Raw surplus — every slate, ranked
 
@@ -37,10 +37,10 @@ _surplus = Σ keeper VORP − Σ cost of the first k picks (103.91+62.08+36.2)_
 
 | slate | E[$] | vs current (95% CI) | RB kept | RB drafted (mean, VORP) |
 |---|---|---|---|---|
-| Chase+Henry+Walker | 854 | — (control) | 2 | 2.02 @ -50.8 |
-| Chase+Henry+Nabers | 786 | -67.2 [-91.0, -44.38] | 1 | 3.01 @ -48.7 |
-| Chase+Nabers+Walker | 752 | -101.1 [-128.88, -74.38] | 1 | 3.02 @ -48.6 |
-| Chase+Henry | 712 | -142.1 [-175.75, -107.25] | 1 | 2.56 @ -46.7 |
+| Chase+Henry+Walker | 874 | — (control) | 2 | 2.23 @ -58.1 |
+| Chase+Henry+Nabers | 798 | -75.5 [-95.0, -55.38] | 1 | 3.23 @ -55.1 |
+| Chase+Nabers+Walker | 773 | -100.6 [-126.25, -75.12] | 1 | 3.23 @ -54.8 |
+| Chase+Henry | 691 | -182.6 [-214.5, -152.5] | 1 | 2.85 @ -52.6 |
 
 ## The bias flag (Cory's hypothesis, applied to THIS decision)
 
@@ -52,9 +52,9 @@ _surplus = Σ keeper VORP − Σ cost of the first k picks (103.91+62.08+36.2)_
 
 | experience | n | VORP rank − ADP rank (+ = we rank below market) |
 |---|---|---|
-| rookie(0) | 91 | +13.1 |
-| 2nd-yr(1) | 86 | +14.4 |
-| 3rd-yr(2) | 63 | +19.6 |
-| vet(3+) | 328 | -11.2 |
+| rookie(0) | 92 | +17.6 |
+| 2nd-yr(1) | 84 | +15.9 |
+| 3rd-yr(2) | 65 | +13.9 |
+| vet(3+) | 330 | -11.7 |
 
 **Caveats:** anchor = FANTASYPROS; MFL not live yet, so ranked by FFC (source grade prefers MFL directionally — flagged, not yet wired to the live board) · surplus is flat-cost (top_picks_flat): keeping k forfeits your first k picks · MC dollars are the v1 proxy (proj-normal weeks + weekly-high + regular-season); rankings travel, absolute $ are harness-dependent · bias probe is model-vs-MARKET cross-sectional; a bias SHARED by model+market needs realized outcomes (Lab test #1) and BBM at scale (test #3)

@@ -2,8 +2,8 @@
  "meta": {
   "generated_from": "opening_script.py \u2014 derives from board + REAL designations (supersede) + predicted slates (fill); regenerate on any input change",
   "fingerprint": {
-   "board_built_at": "2026-09-01T15:29:04Z",
-   "board_content_hash": "d587ed4b6b94",
+   "board_built_at": "2026-09-05T11:58:10Z",
+   "board_content_hash": "3bf1ca76b713",
    "my_slot": 8,
    "my_keepers_hash": "a6963871266e",
    "predicted_slates_hash": "631e6d3d04d9",
@@ -72,21 +72,21 @@
     "pick": 33,
     "candidates": [
      {
+      "player_id": "5850",
+      "name": "Josh Jacobs",
+      "position": "RB",
+      "vorp": 42.8,
+      "survival": 0.61,
+      "adp": 38.4,
+      "_onesie_reach": false
+     },
+     {
       "player_id": "11564",
       "name": "Drake Maye",
       "position": "QB",
       "vorp": 23.2,
-      "survival": 0.34,
-      "adp": 29.0,
-      "_onesie_reach": false
-     },
-     {
-      "player_id": "12518",
-      "name": "Tyler Warren",
-      "position": "TE",
-      "vorp": 22.2,
       "survival": 0.28,
-      "adp": 27.9,
+      "adp": 28.4,
       "_onesie_reach": false
      },
      {
@@ -94,8 +94,8 @@
       "name": "Joe Burrow",
       "position": "QB",
       "vorp": 17.4,
-      "survival": 0.35,
-      "adp": 29.9,
+      "survival": 0.34,
+      "adp": 30.2,
       "_onesie_reach": false
      },
      {
@@ -103,8 +103,8 @@
       "name": "Davante Adams",
       "position": "WR",
       "vorp": 14.6,
-      "survival": 0.6,
-      "adp": 34.0,
+      "survival": 0.48,
+      "adp": 32.8,
       "_onesie_reach": false
      },
      {
@@ -112,8 +112,8 @@
       "name": "Jalen Hurts",
       "position": "QB",
       "vorp": 13.2,
-      "survival": 0.64,
-      "adp": 38.0,
+      "survival": 0.69,
+      "adp": 39.2,
       "_onesie_reach": false
      }
     ]
@@ -122,12 +122,21 @@
     "pick": 48,
     "candidates": [
      {
+      "player_id": "5850",
+      "name": "Josh Jacobs",
+      "position": "RB",
+      "vorp": 42.8,
+      "survival": 0.31,
+      "adp": 38.4,
+      "_onesie_reach": false
+     },
+     {
       "player_id": "11566",
       "name": "Jayden Daniels",
       "position": "QB",
       "vorp": 9.1,
       "survival": 0.26,
-      "adp": 39.8,
+      "adp": 40.3,
       "_onesie_reach": false
      },
      {
@@ -144,8 +153,8 @@
       "name": "Harold Fannin",
       "position": "TE",
       "vorp": 7.9,
-      "survival": 0.42,
-      "adp": 46.3,
+      "survival": 0.44,
+      "adp": 47.0,
       "_onesie_reach": false
      },
      {
@@ -153,17 +162,8 @@
       "name": "Kyle Pitts",
       "position": "TE",
       "vorp": 7.6,
-      "survival": 0.57,
+      "survival": 0.56,
       "adp": 50.5,
-      "_onesie_reach": false
-     },
-     {
-      "player_id": "3294",
-      "name": "Dak Prescott",
-      "position": "QB",
-      "vorp": 6.7,
-      "survival": 0.89,
-      "adp": 56.3,
       "_onesie_reach": false
      }
     ]
@@ -185,7 +185,7 @@
       "name": "Kyle Pitts",
       "position": "TE",
       "vorp": 7.6,
-      "survival": 0.43,
+      "survival": 0.44,
       "adp": 50.5,
       "_onesie_reach": false
      },
@@ -194,8 +194,17 @@
       "name": "Dak Prescott",
       "position": "QB",
       "vorp": 6.7,
-      "survival": 0.69,
-      "adp": 56.3,
+      "survival": 0.7,
+      "adp": 56.5,
+      "_onesie_reach": false
+     },
+     {
+      "player_id": "9484",
+      "name": "Tucker Kraft",
+      "position": "TE",
+      "vorp": 4.8,
+      "survival": 0.26,
+      "adp": 41.6,
       "_onesie_reach": false
      },
      {
@@ -204,16 +213,7 @@
       "position": "QB",
       "vorp": 3.0,
       "survival": 1.0,
-      "adp": 86.3,
-      "_onesie_reach": false
-     },
-     {
-      "player_id": "421",
-      "name": "Matthew Stafford",
-      "position": "QB",
-      "vorp": 1.4,
-      "survival": 0.98,
-      "adp": 80.3,
+      "adp": 90.3,
       "_onesie_reach": false
      }
     ]
@@ -224,21 +224,21 @@
     "pick": 33,
     "candidates": [
      {
+      "player_id": "5850",
+      "name": "Josh Jacobs",
+      "position": "RB",
+      "vorp": 42.8,
+      "survival": 0.61,
+      "adp": 38.4,
+      "_onesie_reach": false
+     },
+     {
       "player_id": "11564",
       "name": "Drake Maye",
       "position": "QB",
       "vorp": 23.2,
-      "survival": 0.34,
-      "adp": 29.0,
-      "_onesie_reach": false
-     },
-     {
-      "player_id": "12518",
-      "name": "Tyler Warren",
-      "position": "TE",
-      "vorp": 22.2,
       "survival": 0.28,
-      "adp": 27.9,
+      "adp": 28.4,
       "_onesie_reach": false
      },
      {
@@ -246,8 +246,8 @@
       "name": "Joe Burrow",
       "position": "QB",
       "vorp": 17.4,
-      "survival": 0.35,
-      "adp": 29.9,
+      "survival": 0.34,
+      "adp": 30.2,
       "_onesie_reach": false
      },
      {
@@ -255,8 +255,8 @@
       "name": "Davante Adams",
       "position": "WR",
       "vorp": 14.6,
-      "survival": 0.6,
-      "adp": 34.0,
+      "survival": 0.48,
+      "adp": 32.8,
       "_onesie_reach": false
      },
      {
@@ -264,8 +264,8 @@
       "name": "Jalen Hurts",
       "position": "QB",
       "vorp": 13.2,
-      "survival": 0.64,
-      "adp": 38.0,
+      "survival": 0.69,
+      "adp": 39.2,
       "_onesie_reach": false
      }
     ]
@@ -274,12 +274,21 @@
     "pick": 48,
     "candidates": [
      {
+      "player_id": "5850",
+      "name": "Josh Jacobs",
+      "position": "RB",
+      "vorp": 42.8,
+      "survival": 0.31,
+      "adp": 38.4,
+      "_onesie_reach": false
+     },
+     {
       "player_id": "11566",
       "name": "Jayden Daniels",
       "position": "QB",
       "vorp": 9.1,
       "survival": 0.26,
-      "adp": 39.8,
+      "adp": 40.3,
       "_onesie_reach": false
      },
      {
@@ -296,8 +305,8 @@
       "name": "Harold Fannin",
       "position": "TE",
       "vorp": 7.9,
-      "survival": 0.42,
-      "adp": 46.3,
+      "survival": 0.44,
+      "adp": 47.0,
       "_onesie_reach": false
      },
      {
@@ -305,17 +314,8 @@
       "name": "Kyle Pitts",
       "position": "TE",
       "vorp": 7.6,
-      "survival": 0.57,
+      "survival": 0.56,
       "adp": 50.5,
-      "_onesie_reach": false
-     },
-     {
-      "player_id": "3294",
-      "name": "Dak Prescott",
-      "position": "QB",
-      "vorp": 6.7,
-      "survival": 0.89,
-      "adp": 56.3,
       "_onesie_reach": false
      }
     ]
@@ -337,7 +337,7 @@
       "name": "Kyle Pitts",
       "position": "TE",
       "vorp": 7.6,
-      "survival": 0.43,
+      "survival": 0.44,
       "adp": 50.5,
       "_onesie_reach": false
      },
@@ -346,8 +346,17 @@
       "name": "Dak Prescott",
       "position": "QB",
       "vorp": 6.7,
-      "survival": 0.69,
-      "adp": 56.3,
+      "survival": 0.7,
+      "adp": 56.5,
+      "_onesie_reach": false
+     },
+     {
+      "player_id": "9484",
+      "name": "Tucker Kraft",
+      "position": "TE",
+      "vorp": 4.8,
+      "survival": 0.26,
+      "adp": 41.6,
       "_onesie_reach": false
      },
      {
@@ -356,16 +365,7 @@
       "position": "QB",
       "vorp": 3.0,
       "survival": 1.0,
-      "adp": 86.3,
-      "_onesie_reach": false
-     },
-     {
-      "player_id": "421",
-      "name": "Matthew Stafford",
-      "position": "QB",
-      "vorp": 1.4,
-      "survival": 0.98,
-      "adp": 80.3,
+      "adp": 90.3,
       "_onesie_reach": false
      }
     ]
