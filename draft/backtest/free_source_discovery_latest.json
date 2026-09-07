@@ -257,7 +257,7 @@
    "url": "https://gamma-api.polymarket.com/events?tag=nfl&active=true&limit=50",
    "shape": "\"markets\"|\"outcomePrices\"",
    "status": 200,
-   "bytes": 305073,
+   "bytes": 305081,
    "error": null,
    "verdict": "answers",
    "note": null
@@ -389,7 +389,7 @@
    "url": "https://api.open-meteo.com/v1/forecast?latitude=39.9&longitude=-75.17&hourly=temperature_2m,wind_speed_10m,precipitation_probability&forecast_days=7",
    "shape": "\"hourly\"",
    "status": 200,
-   "bytes": 5488,
+   "bytes": 5489,
    "error": null,
    "verdict": "answers",
    "note": null
