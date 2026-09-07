@@ -7,20 +7,28 @@ by hand, so it cannot quietly stop being true.
 Two questions, measured:
 **is anyone answering**, and **is any finished work invisible from `main`**.
 
-_Last measured: 2026-09-05 20:58 UTC_
+_Last measured: 2026-09-07 02:43 UTC_
 
 ```
 ============================================================================
 ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
-  1034 items · 330 open · 328 of those carry a DEFAULT (silence resolves them)
-  0 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
-  of 2 open item(s) with no default: 0 SAY they ask for nothing · 0 are BROADCASTS (same
-  header in 3+ inboxes — a rule, not four decisions) · 2 declare NEITHER, so nobody
+  1039 items · 335 open · 331 of those carry a DEFAULT (silence resolves them)
+  2 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
+  of 4 open item(s) with no default: 0 SAY they ask for nothing · 0 are BROADCASTS (same
+  header in 3+ inboxes — a rule, not four decisions) · 4 declare NEITHER, so nobody
   can tell whether a decision is owed. That last number is the real state of the inbox.
   NEITHER IS SUBTRACTED: "no ask" is a loophole anyone can type, so the baseline stays
   comparable and the split prints beside it. Only the broadcast half is unfakeable —
   rewording is precisely what stops it matching.
+
+  waiting on:
+       1     3d oldest   C
+       1     3d oldest   B
+
+  the five oldest:
+    3d  2026-09-04 · A → C · 🔴→🟢 **I FIXED A RED CAPTURE IN YOUR FILE — `weekly_projection_archive.py`
+    3d  2026-09-04 · A → B · ❓ **ONE QUESTION, AND IT DECIDES A GUARD'S SHAPE (register 483): does the w
 
   DOES THE LOOP VISIBLY CLOSE? — ticked share by sender→recipient
   (a low rate is a QUESTION: real backlog, or answered and never ticked?)
@@ -30,16 +38,16 @@ ROUTES RESPONSE CHECK — is anyone answering?
     Cory (via relay) → A       6 items    33% ticked    0 open with NO default
     relay → D                 19 items    42% ticked    0 open with NO default
     A → E                     23 items    48% ticked    2 open with NO default
-    relay → A                140 items    57% ticked    0 open with NO default
+    relay → A                143 items    56% ticked    2 open with NO default
     D → C                      5 items    60% ticked    0 open with NO default
     D → A                    113 items    60% ticked    0 open with NO default
     A → A                     82 items    68% ticked    0 open with NO default
     relay → C                 32 items    69% ticked    0 open with NO default
-    B → A                     68 items    71% ticked    0 open with NO default
+    B → A                     69 items    70% ticked    0 open with NO default
     A → D                     14 items    86% ticked    0 open with NO default
     A → C                     38 items    89% ticked    0 open with NO default
     C → C                     14 items    93% ticked    0 open with NO default
-    C → A                    135 items    95% ticked    0 open with NO default
+    C → A                    136 items    94% ticked    0 open with NO default
     relay → B                 21 items    95% ticked    0 open with NO default
     A → B                     74 items    99% ticked    0 open with NO default
     session E (red team) → A  13 items   100% ticked    0 open with NO default
@@ -54,9 +62,10 @@ ROUTES RESPONSE CHECK — is anyone answering?
     B → E                     14 items   100% ticked    0 open with NO default
     relay/PM → E              10 items   100% ticked    0 open with NO default
 
-  baseline 0  ->  now 0
+  baseline 0  ->  now 2
 
-  Holding at the baseline. Not worse.
+  ❌ THE BACKLOG GREW BY 2. Answer them, add a DEFAULT so silence resolves them, or SEND BACK.
+     A ratchet that only reports is the thing that failed here already.
 ============================================================================
 ```
 
@@ -64,21 +73,20 @@ ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
 LANE STATUS — work that exists but `main` cannot see
 ============================================================================
-  ⚠️  180 commits    41h old  claude/data-stewardship-setup-bo5h9j
-  ⚠️   80 commits    22h old  claude/external-ingest-program-1xfinj
-  ⚠️    8 commits    78h old  claude/warroom-shell-rebuild-0817
-  ⚠️    3 commits    55h old  claude/happy-faraday-zub3fh
-        2 commits    50h old  claude/beautiful-pascal-b8voov
-        2 commits    79h old  claude/happy-faraday-s5di70
-        1 commits   102h old  claude/happy-faraday-b6jnbe
-        1 commits     7h old  claude/happy-faraday-umhfxu
-        1 commits    80h old  claude/lucid-hawking-ky6kkk
+  ⚠️  180 commits    70h old  claude/data-stewardship-setup-bo5h9j
+  ⚠️   83 commits    22h old  claude/warroom-shell-rebuild-0817
+  ⚠️   82 commits    22h old  claude/external-ingest-program-1xfinj
+  ⚠️    3 commits    84h old  claude/happy-faraday-zub3fh
+        2 commits    79h old  claude/beautiful-pascal-b8voov
+        2 commits   108h old  claude/happy-faraday-s5di70
+        1 commits    36h old  claude/happy-faraday-umhfxu
+        1 commits   110h old  claude/lucid-hawking-ky6kkk
 
   ⚠️  4 branch(es) look STRANDED — 3+ commits, 12h+ old, unmerged.
      ROUTES.md cannot show you these: it lists what a lane WROTE DOWN,
      and an unrouted branch is indistinguishable from an idle lane.
 
-  (7 branch(es) older than 5d not shown — old divergence, not stranded work.)
+  (8 branch(es) older than 5d not shown — old divergence, not stranded work.)
 
   NEXT, BEFORE MERGING ANY OF THESE:
     node draft/tools/routes_branch_reconcile.js   — what work here is `main` blind to?
