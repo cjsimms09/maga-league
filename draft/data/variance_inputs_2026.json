@@ -3085,7 +3085,7 @@
   },
   "RB": {
    "measured": 93,
-   "fallback": 64
+   "fallback": 65
   },
   "WR": {
    "measured": 152,
@@ -3093,7 +3093,7 @@
   },
   "TE": {
    "measured": 88,
-   "fallback": 61
+   "fallback": 62
   }
  }
 }

@@ -2,7 +2,7 @@
  "_territory": "TERRITORY: D \u2014 source_universe_drift.py",
  "_what": "Day-over-day membership drift in each projection source's universe. The completeness check beside it asks whether a row was written; this asks what is inside it.",
  "_report_only": "Exits 0 on any amount of drift. Non-zero means the CONTROLS failed, i.e. this tool is broken.",
- "controls_all_passed": true,
+ "controls_all_passed": false,
  "sources": {
   "fantasypros": [
    {
@@ -646,6 +646,200 @@
      "13580",
      "8200"
     ]
+   },
+   {
+    "from": "2026-08-31",
+    "to": "2026-09-01",
+    "n_before": 401,
+    "n_after": 420,
+    "n_entrants": 32,
+    "n_departures": 13,
+    "departures_real": [
+     "11199",
+     "11588",
+     "11820",
+     "12515",
+     "12541",
+     "12738",
+     "13400",
+     "13403",
+     "4663",
+     "7561",
+     "8129",
+     "8200",
+     "9999"
+    ],
+    "departures_tie_truncated": [],
+    "departures_real_still_priced": [
+     "11199",
+     "11588",
+     "11820",
+     "12515",
+     "12541",
+     "12738",
+     "13400",
+     "13403",
+     "4663",
+     "7561",
+     "8129",
+     "8200",
+     "9999"
+    ],
+    "entrants": [
+     "11651",
+     "12472",
+     "12507",
+     "12527",
+     "13264",
+     "13423",
+     "13429",
+     "13577",
+     "2359",
+     "3198",
+     "4034",
+     "4866",
+     "4984",
+     "5859",
+     "6130",
+     "6786",
+     "6794",
+     "6813",
+     "7547",
+     "7564",
+     "7569",
+     "7602",
+     "8112",
+     "8130",
+     "8138",
+     "8527",
+     "9221",
+     "9224",
+     "9226",
+     "9488",
+     "9493",
+     "9509"
+    ]
+   },
+   {
+    "from": "2026-09-01",
+    "to": "2026-09-02",
+    "n_before": 420,
+    "n_after": 420,
+    "n_entrants": 2,
+    "n_departures": 2,
+    "departures_real": [
+     "4219",
+     "5409"
+    ],
+    "departures_tie_truncated": [],
+    "departures_real_still_priced": [
+     "4219",
+     "5409"
+    ],
+    "entrants": [
+     "11199",
+     "13400"
+    ]
+   },
+   {
+    "from": "2026-09-02",
+    "to": "2026-09-03",
+    "n_before": 420,
+    "n_after": 422,
+    "n_entrants": 2,
+    "n_departures": 0,
+    "departures_real": [],
+    "departures_tie_truncated": [],
+    "departures_real_still_priced": [],
+    "entrants": [
+     "11729",
+     "5133"
+    ]
+   },
+   {
+    "from": "2026-09-03",
+    "to": "2026-09-04",
+    "n_before": 422,
+    "n_after": 422,
+    "n_entrants": 0,
+    "n_departures": 0,
+    "departures_real": [],
+    "departures_tie_truncated": [],
+    "departures_real_still_priced": [],
+    "entrants": []
+   },
+   {
+    "from": "2026-09-04",
+    "to": "2026-09-05",
+    "n_before": 422,
+    "n_after": 458,
+    "n_entrants": 36,
+    "n_departures": 0,
+    "departures_real": [],
+    "departures_tie_truncated": [],
+    "departures_real_still_priced": [],
+    "entrants": [
+     "10867",
+     "11034",
+     "11299",
+     "11320",
+     "11371",
+     "11377",
+     "11439",
+     "11569",
+     "11574",
+     "11716",
+     "11762",
+     "11921",
+     "12476",
+     "12531",
+     "12541",
+     "12699",
+     "13121",
+     "2197",
+     "4040",
+     "4219",
+     "4274",
+     "4351",
+     "5409",
+     "5938",
+     "6154",
+     "7039",
+     "7496",
+     "7531",
+     "7536",
+     "7595",
+     "8147",
+     "8168",
+     "8195",
+     "8200",
+     "8208",
+     "8254"
+    ]
+   },
+   {
+    "from": "2026-09-05",
+    "to": "2026-09-06",
+    "n_before": 458,
+    "n_after": 458,
+    "n_entrants": 0,
+    "n_departures": 0,
+    "departures_real": [],
+    "departures_tie_truncated": [],
+    "departures_real_still_priced": [],
+    "entrants": []
+   },
+   {
+    "from": "2026-09-06",
+    "to": "2026-09-07",
+    "n_before": 458,
+    "n_after": 458,
+    "n_entrants": 0,
+    "n_departures": 0,
+    "departures_real": [],
+    "departures_tie_truncated": [],
+    "departures_real_still_priced": [],
+    "entrants": []
    }
   ],
   "sleeper": [
@@ -1560,6 +1754,166 @@
      "13861",
      "13981"
     ]
+   },
+   {
+    "from": "2026-08-31",
+    "to": "2026-09-01",
+    "n_before": 700,
+    "n_after": 700,
+    "n_entrants": 25,
+    "n_departures": 25,
+    "departures_real": [],
+    "departures_tie_truncated": [
+     "13277",
+     "13300",
+     "13328",
+     "13339",
+     "13352",
+     "13416",
+     "13418",
+     "13423",
+     "13438",
+     "13541",
+     "13595",
+     "13603",
+     "13621",
+     "13663",
+     "13743",
+     "13780",
+     "13852",
+     "13861",
+     "13906",
+     "13909",
+     "13937",
+     "13981",
+     "14008",
+     "14041",
+     "14080"
+    ],
+    "departures_real_still_priced": [],
+    "entrants": [
+     "12507",
+     "12527",
+     "13264",
+     "3198",
+     "4034",
+     "4866",
+     "4984",
+     "5859",
+     "6786",
+     "6794",
+     "6813",
+     "7536",
+     "7547",
+     "7564",
+     "7569",
+     "8112",
+     "8130",
+     "8138",
+     "8151",
+     "9221",
+     "9224",
+     "9226",
+     "9488",
+     "9493",
+     "9509"
+    ]
+   },
+   {
+    "from": "2026-09-01",
+    "to": "2026-09-02",
+    "n_before": 700,
+    "n_after": 700,
+    "n_entrants": 2,
+    "n_departures": 2,
+    "departures_real": [],
+    "departures_tie_truncated": [
+     "13161",
+     "13708"
+    ],
+    "departures_real_still_priced": [],
+    "entrants": [
+     "12185",
+     "7531"
+    ]
+   },
+   {
+    "from": "2026-09-02",
+    "to": "2026-09-03",
+    "n_before": 700,
+    "n_after": 700,
+    "n_entrants": 3,
+    "n_departures": 3,
+    "departures_real": [],
+    "departures_tie_truncated": [
+     "13222",
+     "13770",
+     "14085"
+    ],
+    "departures_real_still_priced": [],
+    "entrants": [
+     "12548",
+     "13554",
+     "13861"
+    ]
+   },
+   {
+    "from": "2026-09-03",
+    "to": "2026-09-04",
+    "n_before": 700,
+    "n_after": 700,
+    "n_entrants": 2,
+    "n_departures": 2,
+    "departures_real": [],
+    "departures_tie_truncated": [
+     "13861",
+     "13862"
+    ],
+    "departures_real_still_priced": [],
+    "entrants": [
+     "11716",
+     "8583"
+    ]
+   },
+   {
+    "from": "2026-09-04",
+    "to": "2026-09-05",
+    "n_before": 700,
+    "n_after": 700,
+    "n_entrants": 0,
+    "n_departures": 0,
+    "departures_real": [],
+    "departures_tie_truncated": [],
+    "departures_real_still_priced": [],
+    "entrants": []
+   },
+   {
+    "from": "2026-09-05",
+    "to": "2026-09-06",
+    "n_before": 700,
+    "n_after": 700,
+    "n_entrants": 1,
+    "n_departures": 1,
+    "departures_real": [],
+    "departures_tie_truncated": [
+     "13698"
+    ],
+    "departures_real_still_priced": [],
+    "entrants": [
+     "13705"
+    ]
+   },
+   {
+    "from": "2026-09-06",
+    "to": "2026-09-07",
+    "n_before": 700,
+    "n_after": 700,
+    "n_entrants": 0,
+    "n_departures": 0,
+    "departures_real": [],
+    "departures_tie_truncated": [],
+    "departures_real_still_priced": [],
+    "entrants": []
    }
   ]
  }
