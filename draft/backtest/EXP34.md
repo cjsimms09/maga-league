@@ -9,14 +9,14 @@ _(a season marked `harvest` had its realized recovered from league_history playe
 
 ## PRIMARY — rank correlation over the available pool
 
-- our ordering: mean rho 0.319 CI (0.227, 0.403)
-- market (ADP): mean rho 0.184 CI (0.1, 0.26)
-- **difference (our - market): 0.135 CI [0.051, 0.223] -> BEAT** over 34 picks
+- our ordering: mean rho 0.344 CI (0.261, 0.42)
+- market (ADP): mean rho 0.224 CI (0.161, 0.287)
+- **difference (our - market): 0.119 CI [0.022, 0.205] -> BEAT** over 34 picks
 
 ## Top-N set value (realized pts, our set vs market set)
 
 - top-5: our 243.701 vs market 147.946 (delta 95.755, beat)
-- top-10: our 195.546 vs market 139.023 (delta 56.523, beat)
+- top-10: our 202.064 vs market 143.657 (delta 58.407, beat)
 
 ## The deviation-edge surface (hit rate = took beat ADP-preferred available)
 
@@ -43,8 +43,8 @@ _(a season marked `harvest` had its realized recovered from league_history playe
 
 ### by MARKET DISPERSION (ADP stdev)
 
-- unanimous: n=4 hit=0.75 mean_delta=21.255 CI [5.25, 37.26] beat ⚠THIN
-- mid: n=17 hit=0.235 mean_delta=-12.406 CI [-48.975, 20.798] inconclusive
+- unanimous: n=5 hit=0.6 mean_delta=17.004 CI [2.1, 31.912] beat ⚠THIN
+- mid: n=16 hit=0.25 mean_delta=-13.181 CI [-53.351, 22.619] inconclusive
 - contested: n=13 hit=0.385 mean_delta=-0.314 CI [-62.035, 50.138] inconclusive
 
 ### tier-cliff proximity

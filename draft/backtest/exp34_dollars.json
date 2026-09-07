@@ -156,7 +156,7 @@
     {
       "band": "value(<=0)",
       "n": 38,
-      "n_deviations": 34,
+      "n_deviations": 35,
       "sum_dollars": -2350.0,
       "mean_dollars": -61.84
     },
@@ -176,10 +176,10 @@
     },
     {
       "band": "large",
-      "n": 5,
-      "n_deviations": 5,
+      "n": 6,
+      "n_deviations": 6,
       "sum_dollars": -300.0,
-      "mean_dollars": -60.0
+      "mean_dollars": -50.0
     }
   ],
   "traces": {
@@ -330,7 +330,7 @@
         {
           "pick_no": 113,
           "round": 12,
-          "chosen": "9756",
+          "chosen": "9754",
           "real": "13337",
           "used_fallback": false
         },
@@ -492,14 +492,14 @@
         {
           "pick_no": 97,
           "round": 10,
-          "chosen": "12530",
+          "chosen": "8144",
           "real": "8154",
           "used_fallback": false
         },
         {
           "pick_no": 104,
           "round": 11,
-          "chosen": "8144",
+          "chosen": "5849",
           "real": "12533",
           "used_fallback": false
         },
@@ -959,10 +959,10 @@
     }
   },
   "correlation_arm": {
-    "diff_mean": 0.135,
+    "diff_mean": 0.119,
     "diff_ci": [
-      0.051,
-      0.223
+      0.022,
+      0.205
     ],
     "verdict": "beat",
     "n_picks": 34
