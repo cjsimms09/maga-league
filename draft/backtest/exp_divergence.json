@@ -3,14 +3,14 @@
   "per_season": {
     "2026": {
       "n_room": 127,
-      "n_fp": 347,
+      "n_fp": 348,
       "n_realized": 0,
       "n": 0,
       "underpowered": true
     },
     "2025": {
       "n_room": 130,
-      "n_fp": 389,
+      "n_fp": 388,
       "n_realized": 0,
       "n": 0,
       "underpowered": true
