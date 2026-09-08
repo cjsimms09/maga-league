@@ -7,42 +7,45 @@ by hand, so it cannot quietly stop being true.
 Two questions, measured:
 **is anyone answering**, and **is any finished work invisible from `main`**.
 
-_Last measured: 2026-09-07 02:43 UTC_
+_Last measured: 2026-09-08 14:28 UTC_
 
 ```
 ============================================================================
 ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
-  1039 items · 335 open · 331 of those carry a DEFAULT (silence resolves them)
-  2 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
-  of 4 open item(s) with no default: 0 SAY they ask for nothing · 0 are BROADCASTS (same
-  header in 3+ inboxes — a rule, not four decisions) · 4 declare NEITHER, so nobody
+  1043 items · 339 open · 333 of those carry a DEFAULT (silence resolves them)
+  4 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
+  of 6 open item(s) with no default: 0 SAY they ask for nothing · 0 are BROADCASTS (same
+  header in 3+ inboxes — a rule, not four decisions) · 6 declare NEITHER, so nobody
   can tell whether a decision is owed. That last number is the real state of the inbox.
   NEITHER IS SUBTRACTED: "no ask" is a loophole anyone can type, so the baseline stays
   comparable and the split prints beside it. Only the broadcast half is unfakeable —
   rewording is precisely what stops it matching.
 
   waiting on:
-       1     3d oldest   C
-       1     3d oldest   B
+       2     4d oldest   B
+       1     3d oldest   A
+       1     4d oldest   C
 
   the five oldest:
-    3d  2026-09-04 · A → C · 🔴→🟢 **I FIXED A RED CAPTURE IN YOUR FILE — `weekly_projection_archive.py`
-    3d  2026-09-04 · A → B · ❓ **ONE QUESTION, AND IT DECIDES A GUARD'S SHAPE (register 483): does the w
+    4d  2026-09-04 · A → C · 🔴→🟢 **I FIXED A RED CAPTURE IN YOUR FILE — `weekly_projection_archive.py`
+    4d  2026-09-04 · A → B · ❓ **ONE QUESTION, AND IT DECIDES A GUARD'S SHAPE (register 483): does the w
+    3d  2026-09-05 · relay → A · 🧯 **SIX PIECES OF FINISHED, CI-GREEN WORK WERE ON NO BRANCH AND NOT ON
+    3d  2026-09-05 · relay → B · 🎁 **YOUR THREE OWNER-FACING FEATURES WERE NEVER ON `main` — THEY ARE N
 
   DOES THE LOOP VISIBLY CLOSE? — ticked share by sender→recipient
   (a low rate is a QUESTION: real backlog, or answered and never ticked?)
     E → B                     15 items    13% ticked    0 open with NO default
-    relay → E                 17 items    18% ticked    0 open with NO default
+    relay → E                 19 items    16% ticked    1 open with NO default
     E → A                    111 items    26% ticked    0 open with NO default
     Cory (via relay) → A       6 items    33% ticked    0 open with NO default
-    relay → D                 19 items    42% ticked    0 open with NO default
+    relay → D                 20 items    40% ticked    0 open with NO default
     A → E                     23 items    48% ticked    2 open with NO default
     relay → A                143 items    56% ticked    2 open with NO default
     D → C                      5 items    60% ticked    0 open with NO default
     D → A                    113 items    60% ticked    0 open with NO default
+    relay → C                 33 items    67% ticked    1 open with NO default
     A → A                     82 items    68% ticked    0 open with NO default
-    relay → C                 32 items    69% ticked    0 open with NO default
     B → A                     69 items    70% ticked    0 open with NO default
     A → D                     14 items    86% ticked    0 open with NO default
     A → C                     38 items    89% ticked    0 open with NO default
@@ -62,9 +65,9 @@ ROUTES RESPONSE CHECK — is anyone answering?
     B → E                     14 items   100% ticked    0 open with NO default
     relay/PM → E              10 items   100% ticked    0 open with NO default
 
-  baseline 0  ->  now 2
+  baseline 0  ->  now 4
 
-  ❌ THE BACKLOG GREW BY 2. Answer them, add a DEFAULT so silence resolves them, or SEND BACK.
+  ❌ THE BACKLOG GREW BY 4. Answer them, add a DEFAULT so silence resolves them, or SEND BACK.
      A ratchet that only reports is the thing that failed here already.
 ============================================================================
 ```
@@ -73,20 +76,18 @@ ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
 LANE STATUS — work that exists but `main` cannot see
 ============================================================================
-  ⚠️  180 commits    70h old  claude/data-stewardship-setup-bo5h9j
-  ⚠️   83 commits    22h old  claude/warroom-shell-rebuild-0817
-  ⚠️   82 commits    22h old  claude/external-ingest-program-1xfinj
-  ⚠️    3 commits    84h old  claude/happy-faraday-zub3fh
-        2 commits    79h old  claude/beautiful-pascal-b8voov
-        2 commits   108h old  claude/happy-faraday-s5di70
-        1 commits    36h old  claude/happy-faraday-umhfxu
-        1 commits   110h old  claude/lucid-hawking-ky6kkk
+  ⚠️  180 commits   106h old  claude/data-stewardship-setup-bo5h9j
+  ⚠️   83 commits    57h old  claude/warroom-shell-rebuild-0817
+  ⚠️   82 commits    57h old  claude/external-ingest-program-1xfinj
+        2 commits   115h old  claude/beautiful-pascal-b8voov
+        1 commits     1h old  claude/focused-carson-2lfeys
+        1 commits    72h old  claude/happy-faraday-umhfxu
 
-  ⚠️  4 branch(es) look STRANDED — 3+ commits, 12h+ old, unmerged.
+  ⚠️  3 branch(es) look STRANDED — 3+ commits, 12h+ old, unmerged.
      ROUTES.md cannot show you these: it lists what a lane WROTE DOWN,
      and an unrouted branch is indistinguishable from an idle lane.
 
-  (8 branch(es) older than 5d not shown — old divergence, not stranded work.)
+  (11 branch(es) older than 5d not shown — old divergence, not stranded work.)
 
   NEXT, BEFORE MERGING ANY OF THESE:
     node draft/tools/routes_branch_reconcile.js   — what work here is `main` blind to?
