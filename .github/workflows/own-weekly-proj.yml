@@ -34,7 +34,36 @@ on:
         description: 'NFL week override (blank = computed from the date; preseason is a clean skip)'
         required: false
   schedule:
-    - cron: '0 20 * * 3'   # Wednesdays 20:00 UTC — BEFORE a Wednesday-night opener (week 1 kicks off 00:20Z Thu; register 477)
+    # ⚠️⚠️ TWO WEDNESDAY FIRINGS, AND THE EARLY ONE IS THE LOAD-BEARING ONE.
+    #
+    # MEASURED 2026-09-08 (A) from this workflow's own four scheduled runs:
+    # GitHub fires it LATE, every time, and not by minutes.
+    #
+    #     scheduled            actually fired        delay
+    #     2026-08-20 14:00Z    14:27:22Z             0h27
+    #     2026-09-02 20:00Z    22:28:40Z             2h29
+    #     2026-09-03 14:00Z    17:24:38Z             3h25
+    #     2026-08-27 14:00Z    23:24:37Z             9h25
+    #
+    # Week 1's first game kicks off 2026-09-10T00:20Z, so a 20:00Z Wednesday
+    # cron carries 4h20 of margin — and ONE OF THE FOUR OBSERVED DELAYS IS
+    # 9h25, which would have fired at 05:24Z, FIVE HOURS AFTER KICKOFF.
+    #
+    # THAT FAILURE IS UNRECOVERABLE AND THIS SCRIPT ALREADY NAMES IT: past
+    # kickoff with no snapshot on disk, weekly_own_projection.py prints
+    # "MISSED: ... writing one now would be a hindsight number" and exits 1.
+    # The forward guarantee IS the pre-kickoff timestamp; there is no second
+    # chance at it, and the first grade is 09-15.
+    #
+    # 10:00Z absorbs the worst observed delay with five hours to spare. It
+    # costs NOTHING in line freshness: odds-capture.yml runs Thu 12:00Z and
+    # Sun 13:00Z, so there is no Wednesday capture and both Wednesday firings
+    # price off the same Sunday lines. If the 20:00Z run also lands before
+    # kickoff it simply overwrites with a fresher board, which is strictly
+    # better; a re-run before kickoff is allowed by design and only becomes a
+    # clean FROZEN no-op once the week has started.
+    - cron: '0 10 * * 3'   # Wednesdays 10:00 UTC — the one that must not miss
+    - cron: '0 20 * * 3'   # Wednesdays 20:00 UTC — refresh if it lands in time
     - cron: '0 14 * * 4'   # Thursdays 14:00 UTC, after the 12:00 odds capture; FROZEN (exit 0) once the week's first game has kicked off
 
 permissions:
