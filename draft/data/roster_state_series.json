@@ -78925,7 +78925,7 @@
   },
   {
    "date": "2026-09-08",
-   "n_players": 741,
+   "n_players": 742,
    "state": {
     "11604": {
      "depth_chart_order": 1,
@@ -79785,7 +79785,7 @@
     },
     "12487": {
      "injury_status": "Questionable",
-     "depth_chart_order": 2,
+     "depth_chart_order": 1,
      "team": "LAR",
      "years_exp": 1,
      "adp": 178.0,
@@ -79906,7 +79906,7 @@
     },
     "11655": {
      "injury_status": "Questionable",
-     "depth_chart_order": 3,
+     "depth_chart_order": 2,
      "team": "NYG",
      "years_exp": 2,
      "adp": 162.0,
@@ -79928,7 +79928,7 @@
      "position": "WR"
     },
     "6865": {
-     "depth_chart_order": 1,
+     "depth_chart_order": 2,
      "team": "LAR",
      "years_exp": 6,
      "adp": 271.5,
@@ -80599,7 +80599,7 @@
      "position": "RB"
     },
     "13324": {
-     "depth_chart_order": 3,
+     "depth_chart_order": 2,
      "team": "BAL",
      "years_exp": 0,
      "adp": 454.0,
@@ -80979,7 +80979,7 @@
      "position": "TE"
     },
     "5008": {
-     "depth_chart_order": 2,
+     "depth_chart_order": 3,
      "team": "BAL",
      "years_exp": 8,
      "adp": 553.0,
@@ -81547,7 +81547,7 @@
      "position": "WR"
     },
     "12718": {
-     "depth_chart_order": 6,
+     "depth_chart_order": 4,
      "team": "LAR",
      "years_exp": 1,
      "adp": 405.0,
@@ -81617,7 +81617,7 @@
      "position": "WR"
     },
     "11623": {
-     "depth_chart_order": 5,
+     "depth_chart_order": 6,
      "team": "LAR",
      "years_exp": 2,
      "adp": 498.0,
@@ -81712,7 +81712,7 @@
      "position": "WR"
     },
     "7528": {
-     "depth_chart_order": 2,
+     "depth_chart_order": 3,
      "team": "NYG",
      "years_exp": 5,
      "adp": 215.0,
@@ -81905,7 +81905,7 @@
      "position": "RB"
     },
     "7562": {
-     "depth_chart_order": 4,
+     "depth_chart_order": 5,
      "team": "LAR",
      "years_exp": 5,
      "adp": 545.0,
@@ -83423,6 +83423,12 @@
     },
     "13428": {
      "team": "JAX",
+     "years_exp": 0,
+     "adp": 950.0,
+     "position": "QB"
+    },
+    "13816": {
+     "team": "HOU",
      "years_exp": 0,
      "adp": 950.0,
      "position": "QB"
