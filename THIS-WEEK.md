@@ -1,6 +1,6 @@
 # THIS WEEK — coryjsimms, week 1 (2026)
 
-**Generated 2026-09-06T14:21:26+00:00 from LIVE Sleeper. THE ROSTER RULE: any statement about
+**Generated 2026-09-08T17:18:34+00:00 from LIVE Sleeper. THE ROSTER RULE: any statement about
 Cory's roster or matchup cites this file (fresh within 3 days) or live
 Sleeper — a frozen seat plan or tournament artifact is never a source for
 who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
@@ -14,41 +14,41 @@ who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
 | st | player | pos | team | game | implied | injury |
 |---|---|---|---|---|---|---|
 | S | Rashee Rice | WR | KC | vs DEN (Mon) | 23.0 (-2.5) |  |
-| S | Caleb Williams | QB | CHI | at CAR (Sun) | 24.8 (-2.5) |  |
-|   | Rome Odunze | WR | CHI | at CAR (Sun) | 24.8 (-2.5) | Questionable |
-| S | Harrison Mevis | K | LAR | vs SF (Thu) | 26.0 (-4) |  |
-| S | Quinshon Judkins | RB | CLE | at JAX (Sun) | 16.2 (+8) |  |
+| S | Caleb Williams | QB | CHI | at CAR (Sun) | 25.0 (-3) |  |
+|   | Rome Odunze | WR | CHI | at CAR (Sun) | 25.0 (-3) | Questionable |
+| S | Harrison Mevis | K | LAR | vs SF (Thu) | 25.8 (-3.5) |  |
+| S | Quinshon Judkins | RB | CLE | at JAX (Sun) | 16.0 (+8.5) |  |
 |   | Emmett Johnson | RB | KC | vs DEN (Mon) | 23.0 (-2.5) |  |
-|   | Davante Adams | WR | LAR | vs SF (Thu) | 26.0 (-4) |  |
-| S | Derrick Henry | RB | BAL | at IND (Sun) | 25.5 (-3.5) |  |
+|   | Davante Adams | WR | LAR | vs SF (Thu) | 25.8 (-3.5) |  |
+| S | Derrick Henry | RB | BAL | at IND (Sun) | 25.8 (-3.5) |  |
 |   | Courtland Sutton | WR | DEN | at KC (Mon) | 20.5 (+2.5) |  |
 | S | Juwan Johnson | TE | NO | at DET (Sun) | 21.5 (+7) |  |
 | S | Ja'Marr Chase | WR | CIN | vs TB (Sun) | 27.2 (-4) | Questionable |
-|   | Rachaad White | RB | WAS | at PHI (Sun) | 20.2 (+5) | Questionable |
+|   | Rachaad White | RB | WAS | at PHI (Sun) | 19.8 (+4.5) | Questionable |
 | S | Kenneth Walker | RB | KC | vs DEN (Mon) | 23.0 (-2.5) |  |
-|   | Parker Washington | WR | JAX | vs CLE (Sun) | 24.2 (-8) |  |
+|   | Parker Washington | WR | JAX | vs CLE (Sun) | 24.5 (-8.5) |  |
 |   | Zach Charbonnet | RB | SEA | vs NE (Wed) | 23.8 (-3.5) | PUP |
-| S | HOU D/ST | DEF | HOU | vs BUF (Sun) | 22.2 (0) |  |
+| S | HOU D/ST | DEF | HOU | vs BUF (Sun) | 22.8 (-1) |  |
 
 ## Opponent's roster
 
 | st | player | pos | team | game | implied | injury |
 |---|---|---|---|---|---|---|
 |   | Xavier Worthy | WR | KC | vs DEN (Mon) | 23.0 (-2.5) |  |
-| S | Will Reichard | K | MIN | vs GB (Sun) | 23.5 (-1.5) |  |
+| S | Will Reichard | K | MIN | vs GB (Sun) | 23.8 (-1.5) |  |
 | S | Dak Prescott | QB | DAL | at NYG (Sun) | 25.8 (-3) |  |
 |   | Chris Godwin | WR | TB | at CIN (Sun) | 23.2 (+4) |  |
-|   | Aaron Jones | RB | MIN | vs GB (Sun) | 23.5 (-1.5) |  |
-|   | Kyler Murray | QB | MIN | vs GB (Sun) | 23.5 (-1.5) |  |
-| S | Terry McLaurin | WR | WAS | at PHI (Sun) | 20.2 (+5) |  |
-| S | D'Andre Swift | RB | CHI | at CAR (Sun) | 24.8 (-2.5) | Questionable |
-| S | Nico Collins | WR | HOU | vs BUF (Sun) | 22.2 (0) |  |
-|   | Chuba Hubbard | RB | CAR | vs CHI (Sun) | 22.2 (+2.5) | Questionable |
+|   | Aaron Jones | RB | MIN | vs GB (Sun) | 23.8 (-1.5) |  |
+|   | Kyler Murray | QB | MIN | vs GB (Sun) | 23.8 (-1.5) |  |
+| S | Terry McLaurin | WR | WAS | at PHI (Sun) | 19.8 (+4.5) |  |
+| S | D'Andre Swift | RB | CHI | at CAR (Sun) | 25.0 (-3) | Questionable |
+| S | Nico Collins | WR | HOU | vs BUF (Sun) | 22.8 (-1) |  |
+|   | Chuba Hubbard | RB | CAR | vs CHI (Sun) | 22.0 (+3) | Questionable |
 |   | Rhamondre Stevenson | RB | NE | at SEA (Wed) | 20.2 (+3.5) |  |
-| S | Trey McBride | TE | ARI | at LAC (Sun) | 18.5 (+10) |  |
+| S | Trey McBride | TE | ARI | at LAC (Sun) | 18.8 (+10) |  |
 | S | George Pickens | WR | DAL | at NYG (Sun) | 25.8 (-3) |  |
 | S | Bijan Robinson | RB | ATL | at PIT (Sun) | 19.5 (+3.5) |  |
-| S | KC D/ST | DEF | KC | vs DEN (Mon) | 23.0 (-2.5) |  |
+| S | PIT D/ST | DEF | PIT | vs ATL (Sun) | 23.0 (-3.5) |  |
 
 ## Second opinion (props vs champion)
 

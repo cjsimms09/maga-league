@@ -1,6 +1,6 @@
 {
  "_rule": "THE ROSTER RULE: any statement about Cory's roster or matchup cites THIS file (fresh within 3 days) or live Sleeper \u2014 never an older artifact.",
- "generated_at": "2026-09-06T14:21:26+00:00",
+ "generated_at": "2026-09-08T17:18:34+00:00",
  "season": "2026",
  "week": 1,
  "cory": {
@@ -345,15 +345,15 @@
    "kickoff_utc": "2026-09-13T17:00:00.000Z"
   },
   {
-   "id": "KC",
-   "name": "KC D/ST",
+   "id": "PIT",
+   "name": "PIT D/ST",
    "pos": "DEF",
-   "team": "KC",
+   "team": "PIT",
    "starter": true,
    "injury": null,
-   "game": "vs DEN (Mon)",
+   "game": "vs ATL (Sun)",
    "home": true,
-   "kickoff_utc": "2026-09-15T00:15:00.000Z"
+   "kickoff_utc": "2026-09-13T17:00:00.000Z"
   }
  ],
  "named_gaps": [
