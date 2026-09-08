@@ -1,5 +1,5 @@
 {
- "next_numeric_id": 493,
+ "next_numeric_id": 495,
  "history": [
   {
    "id": 47,
@@ -1512,6 +1512,16 @@
   {
    "id": 492,
    "claimed_at": "2026-09-07"
+  },
+  {
+   "id": 493,
+   "claimed_at": "2026-09-08",
+   "note": "BURNED, NOT USED. Tuesday witness ran next_register_id.js standalone to check the watermark before knowing it would file a row, exactly the mistake this tool's own header warns against. No row carries 493; the grade-cron finding is filed at 494."
+  },
+  {
+   "id": 494,
+   "claimed_at": "2026-09-08",
+   "note": "Tuesday witness (2026-09-08): the live grade-cron Netlify function produced no new calibration snapshot on its 12:00Z schedule, measured through a working read path (mirror re-fetch succeeded, payload unchanged from 09-01)."
   }
  ]
 }
