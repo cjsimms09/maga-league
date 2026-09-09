@@ -2195,6 +2195,14 @@
    "source_season": 2025,
    "position": "WR"
   },
+  "7204": {
+   "mean": 0.07,
+   "sd": 0.221,
+   "cv": 3.1623,
+   "n_weeks": 10,
+   "source_season": 2025,
+   "position": "RB"
+  },
   "7496": {
    "mean": 1.2,
    "sd": 1.312,
@@ -3084,7 +3092,7 @@
    "fallback": 43
   },
   "RB": {
-   "measured": 93,
+   "measured": 94,
    "fallback": 66
   },
   "WR": {

@@ -4,7 +4,7 @@
  "provenance": {
   "method": "For each 2025 player-week in the component store, fantasy points under the league's own scoring table (public/draft_data.json league.scoring) are credited AGAINST that week's opponent defense, derived from the vegas store's complete 2025 pairings (272 games; the component store carries team but not opponent). Per-game = total / games the defense actually played. A team's playoff softness at a position = mean of its 2026 week-15/16/17 opponents' per-game allowed; rank 1 = softest, ties broken by team code A-Z. Team codes normalized through adp.TEAM_ALIASES (board vocabulary, LA->LAR).",
   "sources": {
-   "board": "public/draft_data.json (built_at 2026-09-09T00:49:51Z)",
+   "board": "public/draft_data.json (built_at 2026-09-09T15:42:25Z)",
    "components": "draft/backtest/component_stats_2025.json (fetched 2026-08-18)",
    "pairings": "draft/backtest/vegas_lines_2021_2026.json (fetched 2026-08-18)",
    "schedule": "draft/data/playoff_sched_2026.json (fetched 2026-08-16)"
@@ -28,7 +28,7 @@
     17
    ]
   },
-  "players_ranked": 547,
+  "players_ranked": 548,
   "players_absent": 117
  },
  "defense_allowed_2025": {
@@ -11568,6 +11568,23 @@
    },
    "avg_allowed_per_game": 20.39,
    "softness_rank": 12
+  },
+  "7204": {
+   "name": "Reggie Gilliam",
+   "position": "RB",
+   "team": "NE",
+   "opponents": {
+    "15": "KC",
+    "16": "NYJ",
+    "17": "DEN"
+   },
+   "opp_allowed_per_game": {
+    "15": 17.39,
+    "16": 26.18,
+    "17": 15.6
+   },
+   "avg_allowed_per_game": 19.72,
+   "softness_rank": 21
   },
   "11729": {
    "name": "Sione Vaki",

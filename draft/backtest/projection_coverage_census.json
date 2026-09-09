@@ -7,14 +7,14 @@
   "sleeper": "2026-09-09"
  },
  "universes": {
-  "fantasypros": 458,
-  "own_weekly_v1": 494,
+  "fantasypros": 459,
+  "own_weekly_v1": 495,
   "sleeper": 700
  },
  "silently_dropped_by_price_week": {
   "n": 170,
   "why": "no proj_ownmodel on the board row; price_week skips them and does not count or name them anywhere in the snapshot",
-  "on_board_skill": 664,
+  "on_board_skill": 665,
   "by_position": {
    "WR": 71,
    "RB": 48,
@@ -106,21 +106,21 @@
     "name": "Max Bredeson",
     "position": "RB",
     "proj_mean": 2.8,
-    "adp": 639.0
+    "adp": 640.0
    }
   ]
  },
  "shared_population": {
-  "n": 421,
+  "n": 422,
   "by_position": {
    "WR": 164,
    "TE": 103,
-   "RB": 92,
+   "RB": 93,
    "QB": 62
   },
-  "share_of_sleeper": 0.6014,
-  "share_of_fantasypros": 0.9192,
-  "share_of_ours": 0.8522
+  "share_of_sleeper": 0.6029,
+  "share_of_fantasypros": 0.9194,
+  "share_of_ours": 0.8525
  },
  "nesting": {
   "fantasypros_subset_of_sleeper": false,
@@ -209,11 +209,11 @@
  },
  "recommended_grading_populations": {
   "primary_three_way": {
-   "n": 421,
+   "n": 422,
    "why": "the only set all three sources price; nested, so no partial-overlap adjudication is needed"
   },
   "secondary_two_way_vs_sleeper": {
-   "n": 494,
+   "n": 495,
    "why": "what the wider universe does, where FantasyPros cannot follow. Reported beside the primary, never instead of it."
   }
  }
