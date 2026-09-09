@@ -39,9 +39,23 @@ ROOT = Path(__file__).resolve().parents[2]
 # after a full `pytest draft/tests` run on 2026-09-05, and its writer was
 # then found by grep. The writer is named so the next person can fix the
 # cause rather than re-discover the symptom.
+#
+# ✅ ONE OF THE FIVE NOW HAS THE DURABLE FIX (A, 2026-09-09, register 499):
+# `seat_disagreement.json`'s writer is opt-in (`SEAT_DISAGREEMENT_WRITE=1`) and
+# a full 5,397-test run leaves the tree clean. ⚠️ IT STAYS IN THIS MAP AS A
+# REGRESSION NET — an entry that is never dirty costs nothing, and dropping it
+# would remove the only thing that would notice the write coming back. The
+# other four still have the net and not the fix.
+#
+# ⚠️ AND THE COMMITTED COPY HAD ALREADY GONE WRONG BEFORE THE FIX LANDED, which
+# is the cost this whole file was written to prevent: `main` carried
+# `pick 108 · Xavier Worthy` while the code produced `pick 68 · Kyle Monangai`,
+# laundered in as a side effect of c6697cc3, a lineup-optimizer commit. Register
+# 378 had been reading it as E's evidence feed for six days.
 SUITE_WRITTEN = {
     "draft/KEEPER-OPTIMIZER.txt": "draft/keeper_optimize.py",
-    "draft/data/seat_disagreement.json": "draft/tests/test_roster_robustness.py",
+    "draft/data/seat_disagreement.json":
+        "draft/tests/test_roster_robustness.py — FIXED 09-09, opt-in only; kept as a net",
     "draft/data/clay_grade_2025.json": "draft/tools/clay_grade_2025.py",
     "draft/data/clay_projections_2025.json": "draft/tools/snapshot_add_clay.py / attach_multisource.py",
     "draft/data/clay_projections_2026.json": "draft/tools/snapshot_add_clay.py / attach_multisource.py",

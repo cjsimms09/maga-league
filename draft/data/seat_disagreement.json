@@ -1,6 +1,9 @@
 {
- "_territory": "TERRITORY: relay \u2014 written by test_roster_robustness on each run",
+ "_territory": "TERRITORY: relay \u2014 regenerated on demand, NOT on every test run",
  "_what": "seats where the engine pick is absent from the seat's own shortlist",
+ "_regenerate_with": "SEAT_DISAGREEMENT_WRITE=1 python -m pytest draft/tests/test_roster_robustness.py::test_seat_plan_roster_is_the_planned_fifteen",
+ "_stale_if": "the board has been rebuilt since generated_at \u2014 this is a BOARD-DEPENDENT output and nothing refreshes it automatically",
+ "generated_at": "2026-09-09T01:57:11+00:00",
  "count": 6,
  "of": 12,
  "seats": [
@@ -13,8 +16,8 @@
    "name": "Tony Pollard"
   },
   {
-   "pick": 108,
-   "name": "Xavier Worthy"
+   "pick": 68,
+   "name": "Kyle Monangai"
   },
   {
    "pick": 113,

@@ -259,14 +259,45 @@ def test_seat_plan_roster_is_the_planned_fifteen(dists):
     # below, unchanged) — a demotion that names nobody is the real defect.
     # The is-the-shortlist-wrong question stays open at register 378 (E,
     # 09-03) with the artifact as its evidence feed.
-    import json as _json, pathlib as _pl
+    # ⚠️ THIS WROTE THE ARTIFACT ON EVERY RUN UNTIL 2026-09-09, AND THAT IS
+    # EXACTLY WHY THE ARTIFACT WAS WRONG (register 489's class, register 499).
+    # A committed file that a TEST rewrites only reaches `main` when somebody
+    # happens to commit a dirty tree — so it does not track the code, it tracks
+    # who forgot to run `git status`. Measured: the committed copy said
+    # `pick 108, Xavier Worthy` and this code produces `pick 68, Kyle Monangai`
+    # (deterministic, checked twice). It was last committed as a SIDE EFFECT of
+    # c6697cc3, a lineup-optimizer change that has nothing to do with seats, and
+    # register 378 has been reading it as E's evidence feed ever since.
+    #
+    # So the write is now DELIBERATE and opt-in. To refresh it:
+    #
+    #   SEAT_DISAGREEMENT_WRITE=1 python -m pytest \
+    #       draft/tests/test_roster_robustness.py::test_seat_plan_roster_is_the_planned_fifteen
+    #
+    # ⚠️ AND IT IS DELIBERATELY NOT PINNED BY AN EQUALITY ASSERTION. The count
+    # is board-dependent — the comment above records that pinning `== 3` broke
+    # on a legitimate board rebuild — so asserting the committed seats equal
+    # today's would go red every night the board moves, which register 343 says
+    # costs that day's unbackfillable capture. Staleness is surfaced instead:
+    # the artifact stamps WHEN it was generated, and whoever reads it can see
+    # how old it is. Whether a board-dependent output belongs in committed data
+    # at all, or in the nightly board build, is the open half of register 499.
+    import json as _json, os as _os, pathlib as _pl, datetime as _dt
     _art = _pl.Path(__file__).resolve().parents[1] / "data" / "seat_disagreement.json"
-    _art.write_text(_json.dumps({
-        "_territory": "TERRITORY: relay — written by test_roster_robustness on each run",
-        "_what": "seats where the engine pick is absent from the seat's own shortlist",
-        "count": len(sup), "of": 12,
-        "seats": [{"pick": s.get("pick"), "name": s.get("name")} for s in sup],
-    }, indent=1))
+    if _os.environ.get("SEAT_DISAGREEMENT_WRITE") == "1":
+        _art.write_text(_json.dumps({
+            "_territory": "TERRITORY: relay — regenerated on demand, NOT on every test run",
+            "_what": "seats where the engine pick is absent from the seat's own shortlist",
+            "_regenerate_with": "SEAT_DISAGREEMENT_WRITE=1 python -m pytest "
+                                "draft/tests/test_roster_robustness.py"
+                                "::test_seat_plan_roster_is_the_planned_fifteen",
+            "_stale_if": "the board has been rebuilt since generated_at — this is a "
+                         "BOARD-DEPENDENT output and nothing refreshes it automatically",
+            "generated_at": _dt.datetime.now(_dt.timezone.utc)
+                                .replace(microsecond=0).isoformat(),
+            "count": len(sup), "of": 12,
+            "seats": [{"pick": s.get("pick"), "name": s.get("name")} for s in sup],
+        }, indent=1) + "\n")
     for s in sup:
         # the whole point of a demotion is that it still NAMES somebody
         assert s.get("name"), s
