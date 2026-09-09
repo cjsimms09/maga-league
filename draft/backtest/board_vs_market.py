@@ -435,6 +435,30 @@ DYNASTY_AGE_RHO = 0.25
 CONTROL_FFC_AGE_RHO = -0.200
 
 
+# FFC's target-share reading, the reception arm's falsification control. Same
+# status as CONTROL_FFC_AGE_RHO: a FIXED historical reading, not recomputed.
+CONTROL_FFC_TARGET_RHO = -0.321
+
+
+def _same_sign_verdict(live_rho, control_rho, refuted_because, not_refuted_because):
+    """The reception arm's mirror of `_flip_verdict`.
+
+    Here SAME sign is the refutation: a format cause predicts the effect
+    vanishes against a same-format market, so an effect that persists there
+    refutes it. Both numbers are quoted from the values actually used, so the
+    sentence cannot outlive them.
+    """
+    if live_rho is None:
+        return ("UNTESTABLE — no live rho on this board, so the control cannot "
+                "be applied either way (absence is not a refutation)")
+    same = (live_rho > 0) == (control_rho > 0)
+    return ("NOT ESTABLISHED. The reception-scoring explanation was %s "
+            "(live %+.3f vs FFC %+.3f)." % (refuted_because, live_rho, control_rho)
+            if same else
+            "REOPENED. %s (live %+.3f vs FFC %+.3f)."
+            % (not_refuted_because, live_rho, control_rho))
+
+
 def _flip_verdict(live_rho, control_rho, passes_because, fails_because):
     """PASSES only if the two rhos ACTUALLY have opposite signs, today.
 
@@ -847,11 +871,27 @@ def format_composition(archive, board, year="2026", top_n=DRAFT_RANGE,
             # drafts — which is why FantasyPros itself yields a constant column
             # here and no rho at all. The live hypothesis is therefore
             # drafters-versus-rankers, not scoring, and it is UNTESTED.
-            "cause": "NOT ESTABLISHED. The reception-scoring explanation was "
-                     "REFUTED by control: FFC is half-PPR at our league size and "
-                     "shows rho -0.321 against MFL's -0.301. A format cause "
-                     "predicts the effect vanishes there; it does not.",
-            "control_ffc_rho": -0.321,
+            # ⚠️⚠️ THE TWIN OF THE DYNASTY ARM'S DEFECT, AND IT SURVIVED THE FIX
+            # THAT REMOVED THAT ONE. On 2026-09-09 the dynasty arm's hardcoded
+            # "PASSES" verdict was made computed (register 497) — and THIS arm,
+            # four keys away in the same function, kept quoting "-0.301" as a
+            # LITERAL for a quantity measured live two lines above it as
+            # `target_share_rho_non_qb`. Fixing the instance in front of me and
+            # leaving its twin is precisely why this class keeps recurring: 31
+            # register rows already name it.
+            #
+            # The verdict here happens to still be TRUE — both rhos are negative,
+            # so the format explanation is still refuted — but it was true by
+            # luck, not by construction, and it would have gone on reading
+            # "REFUTED ... -0.301" on any board.
+            "cause": _same_sign_verdict(
+                rho, CONTROL_FFC_TARGET_RHO,
+                "REFUTED by control: FFC is half-PPR at our league size and "
+                "shows the SAME gradient. A format cause predicts the effect "
+                "vanishes there; it does not",
+                "NO LONGER refuted by this control — the signs now differ, so "
+                "the format explanation is back on the table and needs re-running"),
+            "control_ffc_rho": CONTROL_FFC_TARGET_RHO,
             "surviving_hypothesis": "two markets of REAL DRAFTS agree and differ "
                                     "from our board, whose adp is FantasyPros "
                                     "EXPERT CONSENSUS. Drafters vs rankers, "
