@@ -195,16 +195,36 @@ def test_all_32_sweep_correction_is_exactly_the_td_components():
         #  assertion names BOTH and requires the pair to be CONSISTENT, which
         #  is the part that actually has teeth -- an empty stamp must come with
         #  our own scoring, and a blend stamp must come with something else.
+        #: ⚠️⚠️ A FOURTH INSTANCE OF THE FUSED CLAIM, AND I MISSED IT WHILE
+        #: FIXING THE OTHER THREE. It read `mean == pytest.approx(new)` — a LIVE
+        #: board value against `new`, computed from the FROZEN 08-16 row — so it
+        #: carried the identical hidden assertion that the provider had not
+        #: moved, and it refused the very rebuild my fix was meant to unstick
+        #: (run 34368252198, `('ARI', ..., 70.0, 80.0)`).
+        #:
+        #: The comment directly above records a PREVIOUS session doing the same
+        #: thing to this same line: "I spent the night fixing exactly this class
+        #: and then committed a new instance of it." I then repeated it. The
+        #: laundering is why a plain grep misses it — the live value reaches the
+        #: assertion through the local `mean`, not through `BOARD_DEFS`.
+        #:
+        #: THE INTENT IS UNCHANGED and stated in the comment above: the stamp
+        #: and the value must be CONSISTENT. It is now checked LIVE-vs-LIVE —
+        #: no blend stamp means proj_mean is still our own scoring, which on a
+        #: pre-chain board is exactly `proj_baseline`, whatever the provider is
+        #: serving that day. Same teeth, no dependence on a frozen snapshot.
         src = str(BOARD_DEFS[pid].get("proj_mean_source") or "")
         mean = BOARD_DEFS[pid].get("proj_mean")
+        baseline = BOARD_DEFS[pid].get("proj_baseline")
         if src.startswith("blend:"):
             #: post-chain board -- proj_mean is the blend, so it may differ
             pass
         else:
             assert src == "", (pid, "unexpected proj_mean_source", src)
-            assert mean == pytest.approx(new), (
+            assert mean == pytest.approx(baseline), (
                 pid, "no blend stamp, so proj_mean must still be our own "
-                "scoring", mean, new)
+                "scoring — i.e. equal to this same board's proj_baseline",
+                mean, baseline)
         if comps:
             changed += 1
     assert changed == 11    # ARI CAR DAL DET HOU JAX LAR MIN NE NO SEA

@@ -58,6 +58,8 @@ import math
 import os
 import re
 import sys
+import urllib.error   #: explicit — it resolves via urllib.request today, but the
+                      #: HTTPError handler below must not rest on an import side effect
 import urllib.request
 from pathlib import Path
 
@@ -422,9 +424,47 @@ def merge_with_existing(new_doc: dict, existing: dict | None) -> dict:
 # ── IO ───────────────────────────────────────────────────────────────────────
 
 def _get(url, headers=None, timeout=40):
+    """GET + parse JSON, and on an HTTP error SAY WHAT THE SERVER SAID.
+
+    ⚠️ THIS DISCARDED THE ERROR BODY UNTIL 2026-09-09, AND THAT COST A DAY.
+    Register 504: `free-props-writer.yml` run 34359574615 died on a bare
+    `HTTP Error 426: Upgrade Required` from Underdog, and because the body went
+    in the bin the row had to ask C to hand-curl the endpoint from an
+    environment with egress just to learn what the server was asking for. A
+    WAF returning 403/426 almost always names the missing piece in the body or
+    a header; we were throwing away the answer and then going looking for it.
+
+    So the failure now carries its own diagnosis into the CI log. This is a
+    pure widening of what is reported — the success path is byte-for-byte what
+    it was, and the exception still propagates, so nothing downstream changes
+    its behaviour on either path.
+    """
     req = urllib.request.Request(url, headers={**UA, **(headers or {})})
-    with urllib.request.urlopen(req, timeout=timeout) as r:
-        return json.loads(r.read().decode("utf-8", "ignore"))
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            return json.loads(r.read().decode("utf-8", "ignore"))
+    except urllib.error.HTTPError as e:
+        #: read() can itself fail or be empty; a diagnostic that raises while
+        #: diagnosing would replace the real error with its own.
+        try:
+            body = e.read().decode("utf-8", "ignore")[:800]
+        except Exception as read_err:                    # noqa: BLE001
+            body = f"<error body unreadable: {read_err!r}>"
+        try:
+            hdrs = dict(e.headers or {})
+        except Exception:                                # noqa: BLE001
+            hdrs = {}
+        #: the headers a WAF uses to explain itself, plus anything naming a
+        #: protocol upgrade — the 426 case specifically.
+        interesting = {k: v for k, v in hdrs.items()
+                       if k.lower() in ("upgrade", "connection", "server", "retry-after",
+                                        "cf-ray", "cf-mitigated", "x-amzn-waf-action",
+                                        "content-type", "www-authenticate", "location")}
+        print(f"🔴 HTTP {e.code} from {url}")
+        print(f"   request headers sent: {sorted({**UA, **(headers or {})})}")
+        print(f"   response headers    : {interesting or '<none of interest>'}")
+        print(f"   response body[:800] : {body!r}")
+        raise
 
 
 def main(argv=None) -> int:
