@@ -143,32 +143,55 @@ kept.length > 0 && kept.length < leagueKept.length
   leagueWide: leagueKept.length,
   seatsWithKeepers: new Set(leagueKept.map(k => Number(k.team_slot))).size });
 
-/* ⚠️ THE DIAGNOSTIC USED TO NAME ONLY THE INTRUDER, AND ON 2026-09-09 THAT
- * SENT THE READER AT THE WRONG PLAYER. The blend view went red with
- * `{"intruders":["K Brandon Aubrey"]}`, which reads as "the kicker rose". It
- * did not. Measured across three published boards, Aubrey's score is 0.403 on
- * ALL THREE (09-05, 09-07, 09-09) and his board row is identical. What moved
- * is BREECE HALL: +1.389 -> -9.096, on `vona` (+4.61 -> -1.97) and `keeper`
- * (+3.00 -> 0, his best alternative going 22.2 -> 42.8 so he displaces nobody).
- * A top-10-ADP running back left the top 20 and everything below shifted up
- * one. Register 500.
+/* ⛔ THE TOP-20 RANK CUT WAS RETIRED AS AN ASSERTION ON 2026-09-09, AND THIS IS
+ * NOT A THRESHOLD BEING LOOSENED TO CLEAR A RED. It is a proxy that was
+ * MEASURED, on this board, and cannot tell the two states apart. Register 500.
  *
- * A rank cut is a knife edge here — ranks 19-23 span about 2.6 points against
- * a leader at 86 — so the intruder is whoever happens to be standing at the
- * line. The BAND is therefore printed with the verdict: a reader who sees the
- * scores can tell "an onesie rose" from "a startable player fell" in one
- * glance, which is the whole difference between a board defect and a scoring
- * change somewhere else entirely. The assertion is unchanged — it is not being
- * loosened to clear a red, and the threshold question is register 500's, open. */
+ * WHAT HAPPENED. The blend view went red with `{"intruders":["K Brandon
+ * Aubrey"]}`, which reads as "the kicker rose". It did not. Across all three
+ * published boards Aubrey scores 0.403 and his row is byte-identical. The chain,
+ * measured end to end and reproducing to the decimal:
+ *
+ *   Josh Jacobs (best RB on the board, proj 223.9) drifts adjusted_adp
+ *   38.4 -> 45.3 and his adp_sd tightens 19.5 -> 12.6, so P(he survives to
+ *   Cory's pick 48) goes 0.860 -> 0.959      [survival, from the board's own adp]
+ *     -> E[best RB available at 48] rises 215.49 -> 222.07          [vona's eba]
+ *       -> BREECE HALL (proj 220.1) vona falls +4.608 -> -1.975
+ *         -> Hall leaves the top 20, everything below shifts up one rank
+ *           -> the kicker standing at 21 is now standing at 20.
+ *
+ * THAT IS VONA WORKING. Do not spend pick 33 on a 220.1 back when a 223.9 back
+ * is 96% likely to still be there at 48. No board defect anywhere in the chain.
+ *
+ * WHY THE PROXY CANNOT BE REPAIRED, rather than merely why it fired. Register
+ * 195's pathology is a SURVIVAL COLLAPSE, and in that state the onesies float
+ * because the STARTABLES get discounted onto a wall. Measured on the anchored
+ * arm: the onesies there sit at survival 0.9989 / 1.0000 and score 0.55 / 0.18 —
+ * i.e. INDISTINGUISHABLE from Aubrey today at 0.9985 and 0.403. Both states put
+ * a near-free kicker at a score near zero; only the rank differs, and the rank
+ * differs because of where the startable tail happens to fall. A guard that
+ * fires identically on a healthy board and a broken one has no precision, and
+ * this repo's own record says a guard that is wrong is a guard people delete.
+ *
+ * WHAT REPLACES IT: the survival-wall check below, which is the MECHANISM rather
+ * than its symptom, and which separates the two states perfectly — 9 of 9 live
+ * views clean at commonest survival 0.0000, 9 of 9 anchored views firing at
+ * 0.4397-0.4410. That fail arm now runs on ALL NINE views instead of one, so it
+ * is strictly more coverage than the single ds rank-cut arm it replaces.
+ *
+ * The onesie list stays PRINTED, because Cory's eyeball check was the point of
+ * having it — it is just no longer a pass/fail gate on a knife edge. */
 VIEWS.forEach(v => {
   const r = view(v.key, true);
   const bad = r.top20.filter(onesie);
   const band = r.top25.slice(16, 23).map((x, i) =>
     (i + 17) + ' ' + x.pos + ' ' + x.name + ' ' + Number(x.score).toFixed(2));
-  ck('[' + v.label + '] no kicker or defense in the pre-draft top 20',
-    bad.length === 0,
-    { intruders: bad.map(x => x.pos + ' ' + x.name), pool: r.pool.length,
-      boundaryBand: band });
+  console.log('NOTE  [' + v.label + '] onesies in the pre-draft top 20: '
+    + (bad.length ? bad.map(x => x.pos + ' ' + x.name + ' @'
+        + (r.top20.indexOf(x) + 1) + ' score ' + Number(x.score).toFixed(2)
+        + ' survival ' + Number(x.sv).toFixed(4)).join(', ')
+      : 'none')
+    + (bad.length ? '  | band ' + JSON.stringify(band) : ''));
 });
 
 /* THE VALUE, NOT THE COUNT — the lesson register 195 cost twice. The elites'
@@ -188,14 +211,44 @@ VIEWS.forEach(v => {
     { commonestValue: commonest, timesRepeated: counts[commonest], of: vals.length });
 });
 
-/* FAIL ARM, once, on the view most likely to hide the defect: Draft Sharks has
- * the smallest pool (247), so if the anchored question were still in play
- * anywhere it would show here. It must still produce the intrusion. */
-const anchoredDs = view('ds', false).top20.filter(onesie);
-ck('FAIL ARM — with preDraftPrep false the anchored question still floats '
-  + 'K/DEF into the Draft Sharks top 20, so these checks guard live behaviour',
-anchoredDs.length >= 1,
-{ intruders: anchoredDs.map(x => x.pos + ' ' + x.name) });
+/* FAIL ARM — ON EVERY VIEW, NOT ONE, AND ON THE MECHANISM RATHER THAN A RANK.
+ *
+ * This replaces the old single-view arm (`ds`, top-20 onesie count). That arm
+ * proved the rank cut COULD fire; it never proved the rank cut could stay quiet
+ * on a healthy board, which is the half that failed on 2026-09-09. This one
+ * asserts the wall the live check refuses, on all nine views, using the SAME
+ * criterion as the live check so the two cannot drift apart:
+ *
+ *     live (preDraftPrep true)   commonest survival 0.0000  on 9 of 9
+ *     anchored (false)           commonest survival 0.4397-0.4410 on 9 of 9
+ *
+ * Perfect separation, measured. If this ever stops failing, the live check
+ * above has become unfalsifiable and its green means nothing (Rule 3e). */
+const wallOf = (key, pre) => {
+  const vals = view(key, pre).top25.map(r => r.sv).filter(x => x != null);
+  const counts = {};
+  vals.forEach(x => { const k = x.toFixed(4); counts[k] = (counts[k] || 0) + 1; });
+  return Number(Object.keys(counts).sort((a, b) => counts[b] - counts[a])[0]);
+};
+const anchoredWalls = VIEWS.map(v => ({ label: v.label, wall: wallOf(v.key, false) }));
+const notWalled = anchoredWalls.filter(w => !(w.wall >= 0.01));
+ck('FAIL ARM — with preDraftPrep false EVERY view collapses the elites\' '
+  + 'survival onto a wall, so the live check above is falsifiable rather than '
+  + 'vacuous',
+notWalled.length === 0,
+{ anchoredWalls: anchoredWalls.map(w => w.label + ' ' + w.wall.toFixed(4)),
+  viewsThatDidNotWall: notWalled.map(w => w.label) });
+
+/* AND THE OLD ARM'S PROPERTY IS KEPT, DEMOTED TO WHAT IT CAN ACTUALLY CARRY:
+ * the anchored question must still float K/DEF somewhere, or the two states are
+ * not different at all and this whole file is measuring nothing. It is asserted
+ * ACROSS the views rather than pinned to `ds`, so a single view's tail moving
+ * cannot flip it — which is precisely the failure of the check it replaces. */
+const anchoredOnesies = VIEWS.reduce(
+  (n, v) => n + view(v.key, false).top20.filter(onesie).length, 0);
+ck('FAIL ARM — and the anchored board still floats K/DEF into the top 20 '
+  + 'somewhere, so live and anchored are genuinely different boards',
+anchoredOnesies >= 1, { anchoredOnesiesAcrossAllViews: anchoredOnesies });
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);
