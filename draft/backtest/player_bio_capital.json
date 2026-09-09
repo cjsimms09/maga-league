@@ -11,8 +11,8 @@
  ],
  "population": {
   "total_bio_rows": 6518,
-  "matched_to_sleeper": 3902,
-  "unmatched_no_sleeper_id": 2616
+  "matched_to_sleeper": 3908,
+  "unmatched_no_sleeper_id": 2610
  },
  "unmatched_sample": [
   {
@@ -81701,6 +81701,34 @@
    "draft_team": null,
    "draft_capital": "UDFA"
   },
+  "11160": {
+   "gsis_id": "00-0038841",
+   "name": "Nick Whiteside",
+   "position": "DB",
+   "birth_date": "2000-05-01 00:00:00",
+   "age_by_season": {
+    "2021": null,
+    "2022": null,
+    "2023": null,
+    "2024": null,
+    "2025": null,
+    "2026": null
+   },
+   "rookie_year": 2023.0,
+   "is_rookie_by_season": {
+    "2021": false,
+    "2022": false,
+    "2023": true,
+    "2024": false,
+    "2025": false,
+    "2026": false
+   },
+   "draft_season": null,
+   "draft_round": null,
+   "draft_pick": null,
+   "draft_team": null,
+   "draft_capital": "UDFA"
+  },
   "9503": {
    "gsis_id": "00-0038843",
    "name": "Jacob Copeland",
@@ -92397,6 +92425,34 @@
    "draft_team": null,
    "draft_capital": "UDFA"
   },
+  "12138": {
+   "gsis_id": "00-0039783",
+   "name": "Anthony Goodlow",
+   "position": "DL",
+   "birth_date": "2000-07-25 00:00:00",
+   "age_by_season": {
+    "2021": null,
+    "2022": null,
+    "2023": null,
+    "2024": null,
+    "2025": null,
+    "2026": null
+   },
+   "rookie_year": 2024.0,
+   "is_rookie_by_season": {
+    "2021": false,
+    "2022": false,
+    "2023": false,
+    "2024": true,
+    "2025": false,
+    "2026": false
+   },
+   "draft_season": null,
+   "draft_round": null,
+   "draft_pick": null,
+   "draft_team": null,
+   "draft_capital": "UDFA"
+  },
   "11755": {
    "gsis_id": "00-0039789",
    "name": "Qwan'tez Stiggers",
@@ -98943,11 +98999,11 @@
     "2025": true,
     "2026": false
    },
-   "draft_season": 2025,
-   "draft_round": 7,
-   "draft_pick": 240,
-   "draft_team": "BUF",
-   "draft_capital": "7th"
+   "draft_season": null,
+   "draft_round": null,
+   "draft_pick": null,
+   "draft_team": null,
+   "draft_capital": "UDFA"
   },
   "12735": {
    "gsis_id": "00-0040240",
@@ -100438,6 +100494,34 @@
    "name": "Ulysses Bentley IV",
    "position": "RB",
    "birth_date": "2000-12-30 00:00:00",
+   "age_by_season": {
+    "2021": null,
+    "2022": null,
+    "2023": null,
+    "2024": null,
+    "2025": null,
+    "2026": null
+   },
+   "rookie_year": 2025,
+   "is_rookie_by_season": {
+    "2021": false,
+    "2022": false,
+    "2023": false,
+    "2024": false,
+    "2025": true,
+    "2026": false
+   },
+   "draft_season": null,
+   "draft_round": null,
+   "draft_pick": null,
+   "draft_team": null,
+   "draft_capital": "UDFA"
+  },
+  "12993": {
+   "gsis_id": "00-0040486",
+   "name": "Jah Joyner",
+   "position": "DL",
+   "birth_date": "NaT",
    "age_by_season": {
     "2021": null,
     "2022": null,
@@ -103797,7 +103881,7 @@
    "gsis_id": "00-0040531",
    "name": "Roc Taylor",
    "position": "WR",
-   "birth_date": "2001-09-26 00:00:00",
+   "birth_date": "NaT",
    "age_by_season": {
     "2021": null,
     "2022": null,
@@ -104553,7 +104637,7 @@
    "gsis_id": "00-0040912",
    "name": "Hank Beatty",
    "position": "WR",
-   "birth_date": "2003-09-20 00:00:00",
+   "birth_date": "NaT",
    "age_by_season": {
     "2021": null,
     "2022": null,
@@ -104609,7 +104693,7 @@
    "gsis_id": "00-0040922",
    "name": "Deontae Lawson",
    "position": "LB",
-   "birth_date": "2003-02-11 00:00:00",
+   "birth_date": "NaT",
    "age_by_season": {
     "2021": null,
     "2022": null,
@@ -104693,7 +104777,7 @@
    "gsis_id": "00-0040937",
    "name": "Dominic Richardson",
    "position": "RB",
-   "birth_date": "2001-04-12 00:00:00",
+   "birth_date": "NaT",
    "age_by_season": {
     "2021": null,
     "2022": null,
@@ -104750,6 +104834,34 @@
    "name": "Nyjalik Kelly",
    "position": "LB",
    "birth_date": "2004-10-29 00:00:00",
+   "age_by_season": {
+    "2021": null,
+    "2022": null,
+    "2023": null,
+    "2024": null,
+    "2025": null,
+    "2026": null
+   },
+   "rookie_year": 2026,
+   "is_rookie_by_season": {
+    "2021": false,
+    "2022": false,
+    "2023": false,
+    "2024": false,
+    "2025": false,
+    "2026": true
+   },
+   "draft_season": null,
+   "draft_round": null,
+   "draft_pick": null,
+   "draft_team": null,
+   "draft_capital": "UDFA"
+  },
+  "13906": {
+   "gsis_id": "00-0040946",
+   "name": "Jaden Nixon",
+   "position": "RB",
+   "birth_date": "NaT",
    "age_by_season": {
     "2021": null,
     "2022": null,
@@ -104889,7 +105001,35 @@
    "gsis_id": "00-0040964",
    "name": "EJ Smith",
    "position": "RB",
-   "birth_date": "2002-05-15 00:00:00",
+   "birth_date": "NaT",
+   "age_by_season": {
+    "2021": null,
+    "2022": null,
+    "2023": null,
+    "2024": null,
+    "2025": null,
+    "2026": null
+   },
+   "rookie_year": 2026,
+   "is_rookie_by_season": {
+    "2021": false,
+    "2022": false,
+    "2023": false,
+    "2024": false,
+    "2025": false,
+    "2026": true
+   },
+   "draft_season": null,
+   "draft_round": null,
+   "draft_pick": null,
+   "draft_team": null,
+   "draft_capital": "UDFA"
+  },
+  "13350": {
+   "gsis_id": "00-0040981",
+   "name": "Joe Fagnano",
+   "position": "QB",
+   "birth_date": "2001-03-31 00:00:00",
    "age_by_season": {
     "2021": null,
     "2022": null,
@@ -104945,7 +105085,7 @@
    "gsis_id": "00-0041004",
    "name": "Chase Roberts",
    "position": "WR",
-   "birth_date": "2001-01-21 00:00:00",
+   "birth_date": "NaT",
    "age_by_season": {
     "2021": null,
     "2022": null,
@@ -105977,34 +106117,6 @@
    "draft_team": "IND",
    "draft_capital": "5th"
   },
-  "13516": {
-   "gsis_id": "00-0041081",
-   "name": "Max Bredeson",
-   "position": "RB",
-   "birth_date": "2002-10-04 00:00:00",
-   "age_by_season": {
-    "2021": null,
-    "2022": null,
-    "2023": null,
-    "2024": null,
-    "2025": null,
-    "2026": null
-   },
-   "rookie_year": 2026,
-   "is_rookie_by_season": {
-    "2021": false,
-    "2022": false,
-    "2023": false,
-    "2024": false,
-    "2025": false,
-    "2026": true
-   },
-   "draft_season": 2026,
-   "draft_round": 5,
-   "draft_pick": 159,
-   "draft_team": "MIN",
-   "draft_capital": "5th"
-  },
   "13513": {
    "gsis_id": "00-0041083",
    "name": "Charles Demmings",
@@ -106653,7 +106765,7 @@
    "gsis_id": "00-0041129",
    "name": "Jam Miller",
    "position": "RB",
-   "birth_date": "2004-04-29 00:00:00",
+   "birth_date": "NaT",
    "age_by_season": {
     "2021": null,
     "2022": null,
@@ -106671,11 +106783,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": 2026,
-   "draft_round": 7,
-   "draft_pick": 245,
-   "draft_team": "NWE",
-   "draft_capital": "7th"
+   "draft_season": null,
+   "draft_round": null,
+   "draft_pick": null,
+   "draft_team": null,
+   "draft_capital": "UDFA"
   },
   "13580": {
    "gsis_id": "00-0041131",
@@ -106821,7 +106933,7 @@
    "gsis_id": "00-0041152",
    "name": "Kobe Prentice",
    "position": "WR",
-   "birth_date": "2004-03-10 00:00:00",
+   "birth_date": "NaT",
    "age_by_season": {
     "2021": null,
     "2022": null,
@@ -106877,34 +106989,6 @@
    "gsis_id": "00-0041158",
    "name": "Donaven McCulley",
    "position": "WR",
-   "birth_date": "2003-01-15 00:00:00",
-   "age_by_season": {
-    "2021": null,
-    "2022": null,
-    "2023": null,
-    "2024": null,
-    "2025": null,
-    "2026": null
-   },
-   "rookie_year": 2026,
-   "is_rookie_by_season": {
-    "2021": false,
-    "2022": false,
-    "2023": false,
-    "2024": false,
-    "2025": false,
-    "2026": true
-   },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
-  },
-  "13844": {
-   "gsis_id": "00-0041165",
-   "name": "Coleman Bennett",
-   "position": "RB",
    "birth_date": "NaT",
    "age_by_season": {
     "2021": null,
@@ -107045,7 +107129,7 @@
    "gsis_id": "00-0041199",
    "name": "Caullin Lacy",
    "position": "WR",
-   "birth_date": "2001-12-22 00:00:00",
+   "birth_date": "NaT",
    "age_by_season": {
     "2021": null,
     "2022": null,
@@ -107125,11 +107209,39 @@
    "draft_team": null,
    "draft_capital": "UDFA"
   },
+  "13650": {
+   "gsis_id": "00-0041218",
+   "name": "Bryan Thomas Jr.",
+   "position": "DL",
+   "birth_date": "2004-06-28 00:00:00",
+   "age_by_season": {
+    "2021": null,
+    "2022": null,
+    "2023": null,
+    "2024": null,
+    "2025": null,
+    "2026": null
+   },
+   "rookie_year": 2026,
+   "is_rookie_by_season": {
+    "2021": false,
+    "2022": false,
+    "2023": false,
+    "2024": false,
+    "2025": false,
+    "2026": true
+   },
+   "draft_season": null,
+   "draft_round": null,
+   "draft_pick": null,
+   "draft_team": null,
+   "draft_capital": "UDFA"
+  },
   "13946": {
    "gsis_id": "00-0041244",
    "name": "Jamal Haynes",
    "position": "RB",
-   "birth_date": "2002-10-05 00:00:00",
+   "birth_date": "NaT",
    "age_by_season": {
     "2021": null,
     "2022": null,
@@ -107353,7 +107465,7 @@
    "gsis_id": "00-0041301",
    "name": "Taurean York",
    "position": "LB",
-   "birth_date": "2005-06-21 00:00:00",
+   "birth_date": "NaT",
    "age_by_season": {
     "2021": null,
     "2022": null,
@@ -107493,7 +107605,35 @@
    "gsis_id": "00-0041329",
    "name": "Michael Heldman",
    "position": "LB",
-   "birth_date": "2003-03-10 00:00:00",
+   "birth_date": "NaT",
+   "age_by_season": {
+    "2021": null,
+    "2022": null,
+    "2023": null,
+    "2024": null,
+    "2025": null,
+    "2026": null
+   },
+   "rookie_year": 2026,
+   "is_rookie_by_season": {
+    "2021": false,
+    "2022": false,
+    "2023": false,
+    "2024": false,
+    "2025": false,
+    "2026": true
+   },
+   "draft_season": null,
+   "draft_round": null,
+   "draft_pick": null,
+   "draft_team": null,
+   "draft_capital": "UDFA"
+  },
+  "13971": {
+   "gsis_id": "00-0041338",
+   "name": "Caden Fordham",
+   "position": "LB",
+   "birth_date": "2002-10-21 00:00:00",
    "age_by_season": {
     "2021": null,
     "2022": null,
@@ -107829,7 +107969,7 @@
    "gsis_id": "00-0041403",
    "name": "Rohan Jones",
    "position": "TE",
-   "birth_date": "2001-10-07 00:00:00",
+   "birth_date": "NaT",
    "age_by_season": {
     "2021": null,
     "2022": null,
@@ -108889,6 +109029,34 @@
    "draft_team": "MIA",
    "draft_capital": "3rd"
   },
+  "13484": {
+   "gsis_id": "00-0041526",
+   "name": "Trey Moore",
+   "position": "LB",
+   "birth_date": "2003-05-05 00:00:00",
+   "age_by_season": {
+    "2021": null,
+    "2022": null,
+    "2023": null,
+    "2024": null,
+    "2025": null,
+    "2026": null
+   },
+   "rookie_year": 2026,
+   "is_rookie_by_season": {
+    "2021": false,
+    "2022": false,
+    "2023": false,
+    "2024": false,
+    "2025": false,
+    "2026": true
+   },
+   "draft_season": 2026,
+   "draft_round": 4,
+   "draft_pick": 130,
+   "draft_team": "MIA",
+   "draft_capital": "4th"
+  },
   "13479": {
    "gsis_id": "00-0041527",
    "name": "Kyle Louis",
@@ -108995,11 +109163,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": 2026,
-   "draft_round": 7,
-   "draft_pick": 232,
-   "draft_team": "LAR",
-   "draft_capital": "7th"
+   "draft_season": null,
+   "draft_round": null,
+   "draft_pick": null,
+   "draft_team": null,
+   "draft_capital": "UDFA"
   },
   "13298": {
    "gsis_id": "00-0041547",
@@ -109403,9 +109571,9 @@
   "missed_players": []
  },
  "rule_3e_control_rookie_udfa_rate": {
-  "checked": 75,
-  "udfa": 0,
-  "udfa_pct": 0.0,
+  "checked": 76,
+  "udfa": 1,
+  "udfa_pct": 1.3,
   "ok": true
  }
 }
