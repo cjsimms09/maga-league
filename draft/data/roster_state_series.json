@@ -83972,7 +83972,7 @@
   },
   {
    "date": "2026-09-09",
-   "n_players": 743,
+   "n_players": 744,
    "state": {
     "11604": {
      "depth_chart_order": 1,
@@ -84938,7 +84938,7 @@
      "depth_chart_order": 1,
      "team": "NYJ",
      "years_exp": 1,
-     "adp": 364.0,
+     "adp": 362.0,
      "position": "TE"
     },
     "9228": {
@@ -85001,7 +85001,7 @@
     },
     "13281": {
      "injury_status": "IR",
-     "depth_chart_order": 10,
+     "depth_chart_order": 11,
      "team": "NO",
      "years_exp": 0,
      "adp": 121.67,
@@ -85034,7 +85034,7 @@
      "depth_chart_order": 2,
      "team": "BUF",
      "years_exp": 7,
-     "adp": 374.0,
+     "adp": 373.0,
      "position": "TE"
     },
     "7049": {
@@ -85063,7 +85063,7 @@
      "depth_chart_order": 2,
      "team": "PIT",
      "years_exp": 3,
-     "adp": 368.0,
+     "adp": 367.0,
      "position": "TE"
     },
     "11610": {
@@ -85105,7 +85105,7 @@
      "depth_chart_order": 2,
      "team": "CHI",
      "years_exp": 6,
-     "adp": 373.0,
+     "adp": 372.0,
      "position": "TE"
     },
     "12522": {
@@ -85297,7 +85297,7 @@
     "6149": {
      "team": "FA",
      "years_exp": 7,
-     "adp": 372.0,
+     "adp": 371.0,
      "position": "WR"
     },
     "13301": {
@@ -85377,7 +85377,7 @@
      "depth_chart_order": 4,
      "team": "TEN",
      "years_exp": 1,
-     "adp": 366.0,
+     "adp": 365.0,
      "position": "WR"
     },
     "9225": {
@@ -85427,7 +85427,7 @@
      "depth_chart_order": 3,
      "team": "CIN",
      "years_exp": 3,
-     "adp": 365.0,
+     "adp": 363.0,
      "position": "WR"
     },
     "7694": {
@@ -85529,7 +85529,7 @@
      "depth_chart_order": 4,
      "team": "DAL",
      "years_exp": 4,
-     "adp": 376.0,
+     "adp": 375.0,
      "position": "WR"
     },
     "1339": {
@@ -85542,7 +85542,7 @@
      "depth_chart_order": 3,
      "team": "ATL",
      "years_exp": 7,
-     "adp": 377.0,
+     "adp": 376.0,
      "position": "WR"
     },
     "12483": {
@@ -85795,7 +85795,7 @@
      "depth_chart_order": 3,
      "team": "NE",
      "years_exp": 3,
-     "adp": 371.0,
+     "adp": 370.0,
      "position": "WR"
     },
     "4035": {
@@ -85832,7 +85832,7 @@
      "depth_chart_order": 3,
      "team": "ARI",
      "years_exp": 9,
-     "adp": 375.0,
+     "adp": 374.0,
      "position": "WR"
     },
     "13533": {
@@ -86218,7 +86218,7 @@
      "depth_chart_order": 4,
      "team": "NE",
      "years_exp": 3,
-     "adp": 631.0,
+     "adp": 632.0,
      "position": "TE"
     },
     "13121": {
@@ -86226,21 +86226,21 @@
      "depth_chart_order": 5,
      "team": "MIN",
      "years_exp": 1,
-     "adp": 632.0,
+     "adp": 633.0,
      "position": "TE"
     },
     "4995": {
      "depth_chart_order": 3,
      "team": "LV",
      "years_exp": 8,
-     "adp": 633.0,
+     "adp": 634.0,
      "position": "TE"
     },
     "7602": {
      "depth_chart_order": 3,
      "team": "TEN",
      "years_exp": 5,
-     "adp": 636.0,
+     "adp": 637.0,
      "position": "TE"
     },
     "10218": {
@@ -86269,41 +86269,41 @@
      "depth_chart_order": 3,
      "team": "TB",
      "years_exp": 4,
-     "adp": 646.0,
+     "adp": 647.0,
      "position": "TE"
     },
     "3048": {
      "depth_chart_order": 3,
      "team": "NYG",
      "years_exp": 11,
-     "adp": 647.0,
+     "adp": 648.0,
      "position": "TE"
     },
     "8041": {
      "team": "NE",
      "years_exp": 5,
-     "adp": 648.0,
+     "adp": 649.0,
      "position": "TE"
     },
     "4602": {
      "depth_chart_order": 3,
      "team": "PIT",
      "years_exp": 9,
-     "adp": 649.0,
+     "adp": 650.0,
      "position": "TE"
     },
     "7531": {
      "depth_chart_order": 5,
      "team": "CAR",
      "years_exp": 5,
-     "adp": 650.0,
+     "adp": 651.0,
      "position": "TE"
     },
     "5133": {
      "depth_chart_order": 3,
      "team": "DET",
      "years_exp": 8,
-     "adp": 654.0,
+     "adp": 655.0,
      "position": "TE"
     },
     "13424": {
@@ -87343,14 +87343,14 @@
      "depth_chart_order": 6,
      "team": "CLE",
      "years_exp": 5,
-     "adp": 627.0,
+     "adp": 628.0,
      "position": "WR"
     },
     "13491": {
      "depth_chart_order": 6,
      "team": "PIT",
      "years_exp": 0,
-     "adp": 628.0,
+     "adp": 629.0,
      "position": "WR"
     },
     "13047": {
@@ -87362,113 +87362,120 @@
     "3269": {
      "team": "BAL",
      "years_exp": 10,
-     "adp": 629.0,
+     "adp": 630.0,
      "position": "WR"
     },
     "4040": {
      "injury_status": "Questionable",
      "team": "FA",
      "years_exp": 9,
-     "adp": 630.0,
+     "adp": 631.0,
      "position": "WR"
+    },
+    "7204": {
+     "depth_chart_order": 3,
+     "team": "NE",
+     "years_exp": 6,
+     "adp": 627.0,
+     "position": "RB"
     },
     "11377": {
      "injury_status": "PUP",
      "depth_chart_order": 8,
      "team": "BUF",
      "years_exp": 3,
-     "adp": 635.0,
+     "adp": 636.0,
      "position": "WR"
     },
     "5154": {
      "team": "BUF",
      "years_exp": 8,
-     "adp": 638.0,
+     "adp": 639.0,
      "position": "WR"
     },
     "11729": {
      "depth_chart_order": 3,
      "team": "DET",
      "years_exp": 2,
-     "adp": 634.0,
+     "adp": 635.0,
      "position": "RB"
     },
     "6945": {
      "injury_status": "Questionable",
      "team": "FA",
      "years_exp": 6,
-     "adp": 637.0,
+     "adp": 638.0,
      "position": "RB"
     },
     "11762": {
      "team": "IND",
      "years_exp": 2,
-     "adp": 640.0,
+     "adp": 641.0,
      "position": "WR"
     },
     "13516": {
      "depth_chart_order": 4,
      "team": "MIN",
      "years_exp": 0,
-     "adp": 639.0,
+     "adp": 640.0,
      "position": "RB"
     },
     "8168": {
      "depth_chart_order": 5,
      "team": "GB",
      "years_exp": 4,
-     "adp": 641.0,
+     "adp": 642.0,
      "position": "WR"
     },
     "6427": {
      "depth_chart_order": 4,
      "team": "IND",
      "years_exp": 7,
-     "adp": 642.0,
+     "adp": 643.0,
      "position": "WR"
     },
     "1426": {
      "team": "FA",
      "years_exp": 13,
-     "adp": 644.0,
+     "adp": 645.0,
      "position": "WR"
     },
     "12515": {
      "team": "FA",
      "years_exp": 1,
-     "adp": 643.0,
+     "adp": 644.0,
      "position": "RB"
     },
     "12634": {
      "depth_chart_order": 6,
      "team": "SF",
      "years_exp": 1,
-     "adp": 645.0,
+     "adp": 646.0,
      "position": "WR"
     },
     "13101": {
      "team": "FA",
      "years_exp": 1,
-     "adp": 651.0,
+     "adp": 652.0,
      "position": "WR"
     },
     "2750": {
      "team": "FA",
      "years_exp": 11,
-     "adp": 652.0,
+     "adp": 653.0,
      "position": "WR"
     },
     "11616": {
      "depth_chart_order": 5,
      "team": "SF",
      "years_exp": 2,
-     "adp": 653.0,
+     "adp": 654.0,
      "position": "WR"
     },
     "6820": {
      "team": "FA",
      "years_exp": 6,
-     "adp": 655.0,
+     "adp": 656.0,
      "position": "RB"
     },
     "7757": {
@@ -87476,27 +87483,27 @@
      "depth_chart_order": 5,
      "team": "PIT",
      "years_exp": 5,
-     "adp": 656.0,
+     "adp": 657.0,
      "position": "WR"
     },
     "3200": {
      "team": "FA",
      "years_exp": 10,
-     "adp": 657.0,
+     "adp": 658.0,
      "position": "WR"
     },
     "11320": {
      "depth_chart_order": 6,
      "team": "KC",
      "years_exp": 3,
-     "adp": 658.0,
+     "adp": 659.0,
      "position": "WR"
     },
     "12699": {
      "depth_chart_order": 6,
      "team": "BAL",
      "years_exp": 1,
-     "adp": 659.0,
+     "adp": 660.0,
      "position": "WR"
     },
     "12913": {
@@ -88672,7 +88679,7 @@
      "depth_chart_order": 1,
      "team": "NYJ",
      "years_exp": 3,
-     "adp": 355.0,
+     "adp": 352.0,
      "position": "K"
     },
     "12711": {
@@ -88734,7 +88741,7 @@
     },
     "CAR": {
      "team": "CAR",
-     "adp": 351.0,
+     "adp": 353.0,
      "position": "DEF"
     },
     "LAC": {
@@ -88776,22 +88783,22 @@
     },
     "IND": {
      "team": "IND",
-     "adp": 353.0,
+     "adp": 355.0,
      "position": "DEF"
     },
     "ATL": {
      "team": "ATL",
-     "adp": 162.6,
+     "adp": 162.9,
      "position": "DEF"
     },
     "NO": {
      "team": "NO",
-     "adp": 354.0,
+     "adp": 357.0,
      "position": "DEF"
     },
     "TB": {
      "team": "TB",
-     "adp": 356.0,
+     "adp": 358.0,
      "position": "DEF"
     },
     "12713": {
@@ -88810,19 +88817,19 @@
     },
     "CIN": {
      "team": "CIN",
-     "adp": 357.0,
+     "adp": 361.0,
      "position": "DEF"
     },
     "6528": {
      "depth_chart_order": 1,
      "team": "TEN",
      "years_exp": 7,
-     "adp": 363.0,
+     "adp": 360.0,
      "position": "K"
     },
     "WAS": {
      "team": "WAS",
-     "adp": 359.0,
+     "adp": 364.0,
      "position": "DEF"
     },
     "CLE": {
@@ -88834,19 +88841,19 @@
      "depth_chart_order": 1,
      "team": "ARI",
      "years_exp": 3,
-     "adp": 360.0,
+     "adp": 356.0,
      "position": "K"
     },
     "ARI": {
      "team": "ARI",
-     "adp": 361.0,
+     "adp": 366.0,
      "position": "DEF"
     },
     "12961": {
      "depth_chart_order": 1,
      "team": "CAR",
      "years_exp": 1,
-     "adp": 358.0,
+     "adp": 354.0,
      "position": "K"
     },
     "TEN": {
@@ -88858,14 +88865,14 @@
      "depth_chart_order": 1,
      "team": "CLE",
      "years_exp": 4,
-     "adp": 362.0,
+     "adp": 359.0,
      "position": "K"
     },
     "6083": {
      "depth_chart_order": 1,
      "team": "LV",
      "years_exp": 7,
-     "adp": 369.0,
+     "adp": 368.0,
      "position": "K"
     },
     "LV": {
@@ -88880,14 +88887,14 @@
     },
     "MIA": {
      "team": "MIA",
-     "adp": 367.0,
+     "adp": 377.0,
      "position": "DEF"
     },
     "5095": {
      "depth_chart_order": 1,
      "team": "NO",
      "years_exp": 8,
-     "adp": 352.0,
+     "adp": 351.0,
      "position": "K"
     },
     "12185": {
@@ -88901,7 +88908,7 @@
      "depth_chart_order": 1,
      "team": "WAS",
      "years_exp": 0,
-     "adp": 370.0,
+     "adp": 369.0,
      "position": "K"
     },
     "13545": {
