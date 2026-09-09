@@ -3,7 +3,7 @@
  "_what": "REPORT ONLY. The champion weekly projection beside the props-implied points on Cory's live roster, and the lineup each would start. The second lineup uses P357's blend rule (props where a line exists, champion elsewhere) \u2014 its prior art made visible, not the arm entering the grader early.",
  "season": 2026,
  "week": 1,
- "generated": "2026-09-09T14:10:40.571653+00:00",
+ "generated": "2026-09-09T22:23:10.229790+00:00",
  "roster_source": "THIS-WEEK.md generated 2026-09-09T13:37:28+00:00",
  "champion_source": "committed snapshot own_weekly_2026_w1.json",
  "champion_arm": "v1_pull3",
@@ -181,10 +181,10 @@
    "team": "KC",
    "injury": "23.0 (-2.5)",
    "player_id": "8151",
-   "champion": 11.21,
+   "champion": 11.2,
    "blend_prior": 13.85,
    "props": 13.72,
-   "props_minus_champion": 2.51
+   "props_minus_champion": 2.52
   },
   {
    "st": false,
@@ -275,11 +275,11 @@
  ],
  "valuation": {
   "champion_lineup": {
-   "by_champion": 85.13,
+   "by_champion": 85.12,
    "by_props_blend": 96.57
   },
   "props_blend_lineup": {
-   "by_champion": 83.07,
+   "by_champion": 83.06,
    "by_props_blend": 96.59
   }
  },
@@ -416,10 +416,10 @@
     "team": "NE",
     "injury": "20.2 (+3.5)",
     "player_id": "7611",
-    "champion": 6.61,
+    "champion": 6.6,
     "blend_prior": 9.39,
     "props": 11.26,
-    "props_minus_champion": 4.65
+    "props_minus_champion": 4.66
    },
    {
     "st": true,
@@ -534,7 +534,7 @@
     "by_props_blend": 82.78
    },
    "props_blend_lineup": {
-    "by_champion": 72.15,
+    "by_champion": 72.14,
     "by_props_blend": 94.92
    }
   },
@@ -544,9 +544,9 @@
  "matchup": {
   "opponent": "Richard2121",
   "by_champion": {
-   "mine": 85.13,
+   "mine": 85.12,
    "theirs": 83.89,
-   "gap": 1.24
+   "gap": 1.23
   },
   "by_props_blend": {
    "mine": 96.59,
