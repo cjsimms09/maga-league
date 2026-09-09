@@ -71,8 +71,15 @@ const seasonVals = weeklyVals.map(v => v * 17);
   if (fs.existsSync(arch) && fs.existsSync(hist)) {
     const r = WP.weeklyPrices(2026, 1, {});
     const sl = r.provenance.sources.sleeper_weekly;
-    assert.ok(Math.abs(sl.scale - 1 / 17) < 1e-9,
-      `sleeper_weekly must be recognised as season scale, got ${sl.scale}`);
+    /* CORRECTED 2026-09-09. This asserted that sleeper_weekly is RESCALED by
+     * 1/17. That was my error: the committed archive's Sleeper column is not
+     * mis-scaled, it is the SEASON endpoint standing in for a week (commit
+     * fb978f79 — 9,382 of 9,414 rows carry gp > 1.5, median 18.0). Dividing it
+     * by 17 yields a season average wearing a week's label, which is the
+     * "clean-looking lie" that lane deleted the file over. It must be REFUSED. */
+    assert.strictEqual(sl.scale, null,
+      'a season-shaped Sleeper payload must be refused, not rescaled');
+    assert.ok(/SEASON-shaped/.test(sl.refused || ''), sl.refused);
     assert.strictEqual(r.provenance.sources.fantasypros_weekly.scale, 1,
       'fantasypros_weekly is genuinely weekly and must not be rescaled');
 
@@ -142,3 +149,65 @@ const WEEK1_ROW = { id: '9221', pos: 'RB', proj: null, seasonPts: null, gp: null
 }
 
 console.log('weekly_prices: +4 — week-1 row priced by the blend, fallbacks intact and ordered, best source reported');
+
+/* ── SEASON PAYLOAD REFUSED, AND THE FLOOR THAT KEEPS THE KICKER PRICED ──────
+ * Added 2026-09-09, twenty hours before kickoff, after firing the archive
+ * workflow early and finding it VOIDs: Sleeper still has no week-1 data, so
+ * the file a reader gets is the corrupted 2026-08-20 one that fb978f79 deleted
+ * and 56b7a312 restored on territory grounds. Refusing it is right; refusing
+ * it silently would price every K and DEF at 0, and Cory's 09-02 ruling makes
+ * a kicker a REQUIRED starter.
+ */
+
+// 10 — the shape check, both arms, on synthetic payloads.
+{
+  const season = {}; const week = {};
+  for (let i = 0; i < 50; i++) {
+    season['s' + i] = { scored: 200 + i, raw: { gp: 18 } };
+    week['w' + i] = { scored: 12 + i * 0.1, raw: { gp: 1 } };
+  }
+  assert.strictEqual(WP.weekShapeCheck(season).seasonShaped, true, 'gp 18 is a season');
+  assert.strictEqual(WP.weekShapeCheck(week).seasonShaped, false, 'gp 1 is a week');
+  // one bye-week oddity must not void a real week — majority vote, not any-vote
+  const mostlyWeek = Object.assign({}, week, { odd: { scored: 9, raw: { gp: 4 } } });
+  assert.strictEqual(WP.weekShapeCheck(mostlyWeek).seasonShaped, false,
+    'a single odd row must not void a week-shaped payload');
+  // a payload with no gp field at all cannot say — and must not block
+  assert.strictEqual(WP.weekShapeCheck({ a: { scored: 5, raw: {} } }).seasonShaped, false);
+}
+
+// 11 — REAL DATA: the committed archive's Sleeper column is refused by name,
+//      FantasyPros survives, and every starter is still priced.
+{
+  const arch = path.join(ROOT, 'draft', 'data', 'weekly_projection_archive',
+    'weekly_projection_archive_2026_w1.json');
+  const hist = path.join(ROOT, 'draft', 'data', 'league_history.json');
+  const board = path.join(ROOT, 'public', 'draft_data.json');
+  if (fs.existsSync(arch) && fs.existsSync(hist) && fs.existsSync(board)) {
+    const r = WP.weeklyPrices(2026, 1, {});
+    assert.strictEqual(r.provenance.sources.sleeper_weekly.scale, null);
+    assert.ok(r.provenance.sources.fantasypros_weekly.priced > 300);
+
+    const h = JSON.parse(fs.readFileSync(hist, 'utf8'));
+    const s26 = (h.seasons || []).find(s => String(s.season) === '2026');
+    const starters = [];
+    ((s26.weeks || {})['1'] || []).forEach(e =>
+      (e.starters || []).forEach(id => { if (id != null) starters.push(String(id)); }));
+    const priced = starters.filter(id => Number.isFinite(r.byId[id]));
+    assert.strictEqual(priced.length, starters.length,
+      `refusing Sleeper must not leave a starter unpriced; ${starters.length - priced.length} were`);
+
+    // the floor is used, and ONLY where a weekly source could not price
+    assert.ok(r.provenance.floored_from_board > 0, 'the board floor should be carrying K/DEF');
+    const fpPriced = starters.filter(id => r.from[id] === 'fantasypros');
+    assert.ok(fpPriced.length >= 60, `expected most skill starters on FantasyPros, got ${fpPriced.length}`);
+    fpPriced.forEach(id => assert.notStrictEqual(r.from[id], 'board_season_rate',
+      'a player a weekly source priced must never be overwritten by the floor'));
+
+    // and nothing is season-scale any more
+    const bad = priced.filter(id => r.byId[id] > 45);
+    assert.deepStrictEqual(bad, [], 'no starter may price above 45 in a single week');
+  }
+}
+
+console.log('weekly_prices: +2 — season payload refused by shape, board floor keeps every starter priced');

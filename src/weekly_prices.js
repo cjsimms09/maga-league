@@ -120,9 +120,52 @@ function scaleGuard(rawById, label) {
     refused: `${label}: median ${med.toFixed(1)} sits between weekly and season scale; refusing to guess` };
 }
 
+/* ⚠️ A SEASON PAYLOAD IS REFUSED, NOT RESCALED — AND THIS CORRECTS MY OWN
+ * FIRST VERSION OF THIS FILE.
+ *
+ * The scale guard below divides a season-scale column by 17 and ships it. For a
+ * source that is merely mis-scaled that is right. For the archive's
+ * `sleeper_weekly` it is WRONG, and this repo already knew why before I wrote
+ * it: commit fb978f79 records that Sleeper's candidate list starts with
+ * `/projections/nfl/regular/{season}` — a template that never interpolates
+ * `{week}` — so this far from kickoff the per-week candidates return 0 rows,
+ * the SEASON endpoint wins the row-count ranking, and its rows are committed as
+ * "week 1". That lane added `week_shape_check()` and DELETED the corrupted
+ * artifact as "a clean-looking lie"; commit 56b7a312 then restored the file on
+ * territory grounds, not correctness grounds. It is still on `main`.
+ *
+ * Dividing that by 17 does not make it a week. It makes it a season AVERAGE
+ * wearing a week's label — a flat number, identical for week 1 and week 12,
+ * blind to opponent, injury and role. Measured on the committed file
+ * (2026-09-09): 9,414 of 9,414 Sleeper rows carry `gp > 1.5`, median `gp` 18.0.
+ *
+ * So the same predicate the archive uses is applied here, at the READER, since
+ * the corrupt file is what a reader actually gets: majority vote on `gp`,
+ * because one bye-week oddity should not void a real week but a payload where
+ * MOST rows report many games cannot be one week's projection. Register 467 —
+ * one predicate, not a second implementation with the same name.
+ */
+const SEASON_GP = 1.5;
+
+function weekShapeCheck(rowsById) {
+  const gps = Object.values(rowsById || {})
+    .map(r => r && r.raw && r.raw.gp)
+    .filter(g => typeof g === 'number' && Number.isFinite(g));
+  if (!gps.length) return { seasonShaped: false, n: 0, over: 0 };
+  const over = gps.filter(g => g > SEASON_GP).length;
+  return { seasonShaped: over > gps.length / 2, n: gps.length, over };
+}
+
 function sourceFromArchive(archive, key, label) {
   const m = (archive || {})[key];
   if (!m) return { byId: {}, refused: `${label}: absent from the archive` };
+  const shape = weekShapeCheck(m);
+  if (shape.seasonShaped) {
+    return { byId: {}, scale: null, median: null, seasonShaped: true,
+      refused: `${label}: SEASON-shaped payload standing in for one week — ${shape.over} of `
+        + `${shape.n} rows report gp > ${SEASON_GP}. Refused, not rescaled: /17 would turn a `
+        + `season average into a fake weekly number (fb978f79, week_shape_check).` };
+  }
   const raw = {};
   for (const [id, row] of Object.entries(m)) {
     const v = row && row.scored;
@@ -152,6 +195,38 @@ function ownWeekly(season, week) {
  * each source's median looked like, whether it was rescaled, and what was
  * refused — so a reader can always tell which source a number came from.
  */
+/* THE BOARD, AS A LAST RESORT AND LABELLED AS ONE.
+ *
+ * Refusing the season-shaped Sleeper column is right, but it takes K and DEF
+ * with it — FantasyPros' weekly feed carries neither, and Cory's 2026-09-02
+ * ruling makes a kicker a REQUIRED starter. Without a floor under them the
+ * lineup tool prices every K and DEF at 0, which is the exact symptom this
+ * whole change set exists to remove.
+ *
+ * So the board fills only what the weekly sources cannot, and it is honest
+ * about what it is: `proj_mean / 17`, a SEASON RATE, flat across the year.
+ * That is a poor weekly instrument and a fine floor for a slot that would
+ * otherwise be empty. It is never averaged into a real weekly projection —
+ * a player the archive priced keeps the archive's number.
+ *
+ * Reads `players` PLUS `kept_players` (register 80's split, register 476's ten
+ * bitten consumers, and my own eleventh).
+ */
+function boardWeekly(week) {
+  const art = readJson(path.join('public', 'draft_data.json'));
+  if (!art) return { byId: {}, refused: 'draft_data.json absent' };
+  const players = (art.players || []).concat(art.kept_players || []);
+  if (!players.length) return { byId: {}, refused: 'board carries no players' };
+  let PF;
+  try { PF = require('./proj_feed'); } catch (e) { return { byId: {}, refused: 'proj_feed unavailable' }; }
+  const feed = PF.buildFeed(players, { week });
+  const byId = {};
+  for (const [id, row] of Object.entries((feed && feed.players) || {})) {
+    if (Number.isFinite(Number(row && row.proj))) byId[String(id)] = Number(row.proj);
+  }
+  return { byId, refused: null, note: 'season rate: proj_mean/17 — a floor, not a weekly forecast' };
+}
+
 function weeklyPrices(season, week, opts) {
   const o = opts || {};
   const archive = readJson(path.join('draft', 'data', 'weekly_projection_archive',
@@ -159,6 +234,7 @@ function weeklyPrices(season, week, opts) {
   const fp = sourceFromArchive(archive, 'fantasypros_weekly', 'fantasypros_weekly');
   const sl = sourceFromArchive(archive, 'sleeper_weekly', 'sleeper_weekly');
   const own = o.includeOwn ? ownWeekly(season, week) : { byId: {}, refused: 'not requested' };
+  const board = o.boardFloor === false ? { byId: {}, refused: 'not requested' } : boardWeekly(week);
 
   const byId = {}, from = {};
   const ids = new Set([...Object.keys(fp.byId), ...Object.keys(sl.byId), ...Object.keys(own.byId)]);
@@ -171,6 +247,13 @@ function weeklyPrices(season, week, opts) {
     byId[id] = parts.reduce((s, p) => s + p[1], 0) / parts.length;
     from[id] = parts.map(p => p[0]).join('+');
   }
+  // the floor goes UNDER, never into, a real weekly number
+  let floored = 0;
+  for (const [id, v] of Object.entries(board.byId)) {
+    if (byId[id] === undefined && Number.isFinite(v)) {
+      byId[id] = v; from[id] = 'board_season_rate'; floored++;
+    }
+  }
   return {
     byId,
     from,
@@ -182,8 +265,11 @@ function weeklyPrices(season, week, opts) {
         fantasypros_weekly: { priced: Object.keys(fp.byId).length, median: fp.median, scale: fp.scale, refused: fp.refused || null },
         sleeper_weekly: { priced: Object.keys(sl.byId).length, median: sl.median, scale: sl.scale, refused: sl.refused || null },
         own_weekly: { priced: Object.keys(own.byId).length, median: own.median, scale: own.scale, refused: own.refused || null },
+        board_season_rate: { priced: Object.keys(board.byId).length, used_as_floor: floored,
+          refused: board.refused || null, note: board.note || null },
       },
       blended: Object.keys(byId).length,
+      floored_from_board: floored,
       rule: 'mean of the sources that priced a player; a source whose distribution is not weekly is rescaled by /17 or refused, never trusted by name',
     },
   };
@@ -218,4 +304,5 @@ function betterSource(a, b) {
 }
 
 module.exports = { weeklyPrices, scaleGuard, ownWeekly, PROJ_GAMES,
-  WEEKLY_MAX_MEDIAN, SEASON_LIKE_MEDIAN, chooseProjection, betterSource, SOURCE_RANK };
+  WEEKLY_MAX_MEDIAN, SEASON_LIKE_MEDIAN, chooseProjection, betterSource, SOURCE_RANK,
+  weekShapeCheck, boardWeekly, SEASON_GP };
