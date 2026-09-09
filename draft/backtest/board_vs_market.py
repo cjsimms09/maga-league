@@ -428,6 +428,30 @@ NULL_MAX_BAND_FRACTION = 0.5
 #: the null than it looks against zero.
 DYNASTY_AGE_RHO = 0.25
 
+# FFC — half-PPR, 10 teams, REDRAFT: our exact format, so it is the falsification
+# arm for a "this is a dynasty/keeper composition effect" claim. A FIXED
+# historical reading (2026-08), not recomputed per board, and named as a constant
+# so nobody mistakes it for today's measurement.
+CONTROL_FFC_AGE_RHO = -0.200
+
+
+def _flip_verdict(live_rho, control_rho, passes_because, fails_because):
+    """PASSES only if the two rhos ACTUALLY have opposite signs, today.
+
+    Added 2026-09-09 (A). The verdict this replaces was a hardcoded "PASSES"
+    string that could not go false, so the one thing the control existed to
+    detect — the flip disappearing — was the one thing it could not report.
+    A control whose verdict is a literal is not a control.
+    """
+    if live_rho is None:
+        return ("UNTESTABLE — no live rho on this board, so the flip cannot be "
+                "checked either way (absence is not a pass)")
+    flips = (live_rho > 0) != (control_rho > 0)
+    return ("PASSES — %s (live %+.3f vs FFC %+.3f)" % (passes_because, live_rho, control_rho)
+            if flips else
+            "FAILS — %s (live %+.3f vs FFC %+.3f, same sign)"
+            % (fails_because, live_rho, control_rho))
+
 #: ⚠ AND A VERDICT NEEDS A POPULATION THAT IS ACTUALLY THE DRAFT. The threshold
 #: above is a fraction of whatever got ranked, which is right — and which means a
 #: crosswalk that decays to twenty players would drop the bar to 1.3 slots and
@@ -731,10 +755,30 @@ def format_composition(archive, board, year="2026", top_n=DRAFT_RANGE,
             # keeper leagues (17.5% of the sampled pool) and FFC does not, so the
             # age gradient should reverse against a redraft-only market. It does.
             # The target gradient should have vanished. It did not.
-            "control_ffc_rho": -0.200,
-            "control": "PASSES — sign flips against FFC (redraft), which is what "
-                       "a dynasty/keeper composition predicts and what the "
-                       "reception arm failed to do.",
+            # ⚠️⚠️ THE VERDICT IS COMPUTED, NOT WRITTEN DOWN — AND IT USED TO BE
+            # WRITTEN DOWN. Until 2026-09-09 this key was the literal string
+            # "PASSES — sign flips against FFC (redraft) ...", so the module
+            # asserted a flip on EVERY board, forever, whatever its own live
+            # number said. `age_rho_non_qb` is measured from today's board; the
+            # FFC figure beside it is a fixed historical reading. When the live
+            # value moved from +0.425 to -0.056 the two stopped flipping and the
+            # module went on reporting that they did.
+            #
+            # That is register 5h's shape in a research verdict rather than a
+            # weight: a CLAIM outliving the MEASUREMENT it describes. It was
+            # caught only because
+            # test_board_format_composition::test_the_TWO_ARMS_carry_their_controls_and_they_disagree
+            # asserts the live number against the reported verdict, and it has
+            # been refusing the board publish since — correctly. The gate was
+            # right; the string was wrong.
+            "control_ffc_rho": CONTROL_FFC_AGE_RHO,
+            "control": _flip_verdict(rho, CONTROL_FFC_AGE_RHO,
+                                     "sign flips against FFC (redraft), which is "
+                                     "what a dynasty/keeper composition predicts "
+                                     "and what the reception arm failed to do",
+                                     "the sign no longer flips against FFC, so a "
+                                     "dynasty/keeper composition is no longer "
+                                     "what this arm shows"),
             # POSITIVE rho = older players go LATER on the market than on our
             # board, which is what paying for youth looks like from a redraft
             # board's side. Only the HIGH tail counts.

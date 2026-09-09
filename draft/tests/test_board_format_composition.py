@@ -832,31 +832,85 @@ def test_the_THIRD_ARM_is_tracked_by_the_trend_the_day_it_is_written():
         "the flip list does not include reception"
 
 
-def test_the_TWO_ARMS_carry_their_controls_and_they_disagree():
-    """The dynasty arm PASSES the control the reception arm FAILS, and the pair
-    is only meaningful together. Against FFC — half-PPR, 10 teams, REDRAFT:
+def test_each_ARM_REPORTS_the_verdict_its_own_live_numbers_support():
+    """The two arms are only meaningful together, and a verdict must be EARNED
+    on today's board rather than remembered from the day it was written.
 
-        age    MFL +0.425   FFC -0.200   sign FLIPS  -> format-specific
-        target MFL -0.301   FFC -0.321   same sign   -> not format
+    ⚠️⚠️ THIS TEST USED TO ASSERT `control_ffc_rho < 0 < age_rho_non_qb` — that
+    the dynasty sign FLIPS — and on 2026-09-08 it began refusing every board
+    publish. It was right to. The dynasty arm's `control` key was a HARDCODED
+    string reading "PASSES — sign flips against FFC", while `age_rho_non_qb` is
+    measured live, and the live value had moved:
 
-    MUTATION: drop either control field — the module reports two findings of
-    apparently equal standing when one has survived a falsification test and the
-    other has failed one."""
+        age (MFL, non-QB)   +0.425 when written   ->   -0.056 today
+        FFC control                                    -0.200 (fixed reading)
+
+    -0.056 and -0.200 have the SAME sign, so the flip is gone — and -0.056 sits
+    inside its own null band [-0.251, -0.018], so the effect is not merely
+    smaller, it is indistinguishable from null. The module went on reporting a
+    flip it no longer had. Register 5h's shape in a research verdict rather than
+    a weight: a CLAIM outliving the MEASUREMENT it describes.
+
+    Checked before it was called a defect: age is not missing — 653 of 740 board
+    rows carry it (88.2%), range 21-48, median 25. The correlation moved; the
+    data did not vanish.
+
+    So the assertion changes from "dynasty passes" (an empirical fact that
+    expired) to "each arm reports what its own numbers support" (the property
+    the docstring always wanted). That is strictly stronger: the old form could
+    only fail when the world moved, this one fails whenever the REPORT and the
+    MEASUREMENT disagree, which is the actual defect.
+    """
     import json as _json
     arch = _json.loads(open("draft/data/external_adp_series.json").read())
     board = _json.load(open("public/draft_data.json"))
     f = B.format_composition(arch, board, "2026", 150)
     dyn, rcp = f["dynasty"], f["reception"]
-    assert "PASSES" in dyn["control"], dyn
-    assert dyn["control_ffc_rho"] < 0 < dyn["age_rho_non_qb"], (dyn, "sign must flip")
+
+    # ── the dynasty arm's VERDICT must match its own two numbers ────────────
+    live, ctrl = dyn["age_rho_non_qb"], dyn["control_ffc_rho"]
+    assert live is not None and ctrl is not None, dyn
+    flips = (live > 0) != (ctrl > 0)
+    assert dyn["control"].startswith("PASSES" if flips else "FAILS"), (
+        f"the arm reports {dyn['control'][:40]!r} while live={live:+.3f} and "
+        f"FFC={ctrl:+.3f} {'DO' if flips else 'do NOT'} flip — the verdict and "
+        "the measurement disagree, which is the defect this test exists for")
+    #: and the numbers it quotes must be the ones it measured, not prose
+    assert f"{live:+.3f}" in dyn["control"] and f"{ctrl:+.3f}" in dyn["control"], dyn
+
+    # ── the reception arm is REFUTED, and that has not changed ──────────────
     assert "REFUTED" in rcp["cause"], rcp
-    # same sign is the refutation, and it must stay visible
     assert rcp["control_ffc_rho"] < 0 and rcp["target_share_rho_non_qb"] < 0, rcp
+
     # AND THE SPECIFICITY, which is why the measurement is kept at all
     sp = rcp["specificity"]
     assert abs(sp["wopr"]) > abs(sp["target_share"]) > abs(sp["proj_mean"]), sp
     assert abs(sp["proj_mean"]) < 0.05 and abs(sp["vorp"]) < 0.05, sp
     assert "no null on these" in sp["note"], sp
+
+
+def test_FAIL_ARM_the_dynasty_verdict_is_COMPUTED_and_can_say_PASSES():
+    """A verdict that can only ever say FAILS is as useless as one that could
+    only ever say PASSES — which is exactly what this key was before.
+
+    Drives the helper directly with a rho of the OPPOSITE sign to the FFC
+    control and requires the verdict to flip to PASSES, and with a same-sign
+    rho and requires FAILS. Without this, the test above is satisfied by a
+    module that hardcodes "FAILS" instead of "PASSES" and nothing improves.
+    """
+    ctrl = B.CONTROL_FFC_AGE_RHO
+    assert ctrl < 0, "the control reading is negative; this arm assumes that"
+
+    passes = B._flip_verdict(+0.425, ctrl, "it flips", "it does not")
+    assert passes.startswith("PASSES"), passes
+    assert "+0.425" in passes and "-0.200" in passes, passes
+
+    fails = B._flip_verdict(-0.056, ctrl, "it flips", "it does not")
+    assert fails.startswith("FAILS"), fails
+
+    #: absence is not a pass — a board with no measurable rho must not read green
+    none = B._flip_verdict(None, ctrl, "it flips", "it does not")
+    assert none.startswith("UNTESTABLE"), none
 
 
 # ── DO THE TWO MARKETS AGREE WITH EACH OTHER, OR WITH US? ───────────────────

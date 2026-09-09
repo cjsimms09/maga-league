@@ -72,13 +72,50 @@ def test_a_wednesday_cron_exists_and_fires_before_the_opener():
         f"a Wednesday cron exists but none fires before {ko.isoformat()}: {fired}"
 
 
+def _wed_minutes(workflow: str) -> list[int]:
+    """Wednesday cron firing times, in minutes past midnight UTC."""
+    import pathlib, re
+    txt = (pathlib.Path(__file__).resolve().parents[2]
+           / ".github" / "workflows" / workflow).read_text()
+    cs = [c for c in re.findall(r"^\s*-\s*cron:\s*'([^']+)'", txt, re.M)
+          if c.split()[-1] == "3"]
+    return sorted(int(c.split()[1]) * 60 + int(c.split()[0]) for c in cs)
+
+
 def test_the_wednesday_capture_still_follows_own_weekly():
-    """The file's own invariant: own_weekly must exist on disk first. own-weekly-proj
-    runs Wednesdays 20:00Z, so this must be later on the same day."""
-    wed = [c for c in _crons() if c.split()[-1] == "3"]
-    mins = [int(c.split()[1]) * 60 + int(c.split()[0]) for c in wed]
-    assert min(mins) >= 20 * 60, \
-        "the Wednesday archive must run at or after own-weekly-proj's 20:00Z"
+    """The file's own invariant: own_weekly must exist on disk first, so the
+    archive's EARLIEST Wednesday run must be at or after own-weekly-proj's.
+
+    ⚠️ THIS ASSERTED `>= 20 * 60` — own-weekly-proj's 20:00Z — AS A LITERAL, and
+    on 2026-09-09 it caught a change correctly for the wrong reason. Register 495
+    added a 10:00Z Wednesday cron to own-weekly-proj (the 20:00Z slot carried
+    4h20 of margin against a scheduler measured 9h25 late, on the one snapshot
+    that cannot be re-taken), and register 496 moved this archive to 10:30Z to
+    stay behind it. The pairing was still correct — 10:30 follows 10:00 — but
+    the literal said 20:00 and the test failed.
+
+    It now READS own-weekly-proj's own schedule, so the invariant is between the
+    two files rather than between one file and a number someone typed. Either
+    cron can move for a good reason and this keeps meaning the same thing; only
+    a schedule where the archive could run BEFORE its input fails it, which is
+    the property the docstring always described.
+    """
+    own = _wed_minutes("own-weekly-proj.yml")
+    arc = _wed_minutes("weekly-projection-archive.yml")
+    assert own, "own-weekly-proj has no Wednesday cron; this invariant has no anchor"
+    assert arc, "the archive has no Wednesday cron — register 496"
+    assert min(arc) >= min(own), (
+        f"the archive's earliest Wednesday run ({min(arc)//60:02d}:{min(arc)%60:02d}Z) "
+        f"is BEFORE own-weekly-proj's ({min(own)//60:02d}:{min(own)%60:02d}Z), so it "
+        "would capture a week whose own_weekly snapshot does not exist yet")
+
+
+def test_FAIL_ARM_an_archive_cron_before_its_input_is_caught():
+    """The invariant above is a >=, which is satisfiable by any schedule where
+    the two happen to coincide. Prove it can actually fail."""
+    assert not (9 * 60 + 30) >= (10 * 60), \
+        "an archive at 09:30Z against an input at 10:00Z must violate the rule"
+    assert (10 * 60 + 30) >= (10 * 60), "and 10:30Z against 10:00Z must satisfy it"
 
 
 def test_normal_weeks_still_kick_off_after_the_thursday_slot():
