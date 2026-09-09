@@ -39,6 +39,58 @@ BOARD_DEFS = {str(p["player_id"]): p for p in BOARD["players"]
               if p["position"] == "DEF"}
 
 
+# ── THE FROZEN FIXTURE AND THE LIVE BOARD ARE TWO DIFFERENT CLAIMS ───────────
+#
+# ⚠️ THEY WERE FUSED IN THREE ASSERTIONS AND IT REFUSED THE BOARD ON 2026-09-09
+# (register 503). Lines like `BOARD_DEFS["LAR"]["proj_baseline"] == 132.0`
+# derive an expectation from the FROZEN 08-16 provider capture and check it
+# against the LIVE board — so they assert, as a side effect, THAT THE PROVIDER
+# HAS NOT CHANGED. That is a property of the world, not of our code, and the
+# world moved:
+#
+#   MEASURED from draft/data/proj_series.json, the daily Sleeper capture —
+#   ALL 32 defenses fell EXACTLY -10.0 between the 09-08 and 09-09 captures,
+#   after 27 consecutive days of 0.0 deltas. CONTROL: 667 offensive players
+#   over the same pair moved mean +0.000, median +0.000, ZERO changed. One
+#   shared component worth exactly 10.0 in this league's scoring (`pts_allow_0`)
+#   went to zero league-wide as the season opened. The board code did not move.
+#
+# So the two claims are separated here:
+#
+#   THE SCORER'S ARITHMETIC   pinned against the frozen row, by hand. Frozen row
+#                             + frozen scoring table = an answer that can never
+#                             go stale. Kept at full strength, unchanged.
+#   THE BOARD CARRIES IT      cannot be checked against a frozen absolute. It is
+#                             checked against the capture taken for the board's
+#                             OWN build date, below.
+#
+# ⚠️ WHAT THIS COSTS, STATED RATHER THAN GLOSSED: the frozen line also proved
+# "the TD-component correction reached production", because fixture and board
+# described the same provider snapshot. Once they do not, that can only be
+# re-proven from a FRESH capture of the raw DEF stat rows — which needs provider
+# egress this sandbox does not have. Routed to C in register 503. Until then the
+# scorer's correction is proven, and its arrival on the board is proven only as
+# far as board == same-day capture.
+def _capture_for(board_doc: dict) -> tuple[str, dict]:
+    """The Sleeper capture from the board's own build date (or the newest one
+    at or before it). Returns (date, {player_id: proj_baseline}).
+
+    Using the board's build date rather than "today" is the whole point: a board
+    is correct if it agrees with the feed IT was built from, not with a feed
+    that arrived afterwards.
+    """
+    series = json.loads(
+        (ROOT / "draft" / "data" / "proj_series.json").read_text())["series"]
+    built = str(board_doc.get("built_at") or "")[:10]
+    caps = sorted((e["date"], e["proj"]) for e in series
+                  if e["source"] == "sleeper" and e["date"] <= built)
+    assert caps, (
+        f"no Sleeper capture at or before the board's build date {built!r}. "
+        "Either proj_series.json stopped being fed or the board carries no "
+        "built_at — say which; do not relax this into 'use the newest'.")
+    return caps[-1]
+
+
 # ── #0: the Rams case, recomputed BY HAND (rule 12 style — independent sum,
 #        not score_stat_line) ------------------------------------------------
 
@@ -67,8 +119,13 @@ def test_rams_recomputed_by_hand():
     # The live path agrees with the hand arithmetic, old and new:
     assert score_stat_line(row, SCORING) == pytest.approx(114.0)
     assert score_stat_line(normalize_def_stat_line(row), SCORING) == pytest.approx(132.0)
-    # And the committed board carries the corrected number.
-    assert BOARD_DEFS["LAR"]["proj_baseline"] == pytest.approx(132.0)
+    #: ⛔ THE LIVE-BOARD LINE THAT USED TO SIT HERE IS GONE ON PURPOSE, 09-09.
+    #: It read `BOARD_DEFS["LAR"]["proj_baseline"] == pytest.approx(132.0)` and
+    #: refused the board when Sleeper dropped every DEF by 10.0 (register 503).
+    #: 132.0 is what the 08-16 PROVIDER ROW scores to — a fact about that row,
+    #: asserted above and still true. It is not a fact about today's board.
+    #: The board is checked against its own build date's capture instead:
+    #: test_the_board_agrees_with_the_feed_it_was_actually_built_from.
 
 
 # ── #0: the all-32 sweep — no double-count against Sleeper's own vocabulary --
@@ -121,7 +178,10 @@ def test_all_32_sweep_correction_is_exactly_the_td_components():
         new = score_stat_line(normalize_def_stat_line(row), SCORING)
         comps = sum(float(row[k]) for k in DEF_PROJ_TD_ALIASES if k in row)
         assert new - old == pytest.approx(6.0 * comps, abs=0.011), pid
-        assert BOARD_DEFS[pid]["proj_baseline"] == pytest.approx(new), pid
+        #: the live-board half moved out for the same reason as the Rams case
+        #: (register 503) — `new` is what the FROZEN row scores to, and the
+        #: provider changed under it. The delta property above is the part that
+        #: is about our scorer, and it keeps its full strength.
         #: ⚠️ AND THIS LINE IS MY OWN REGRESSION, CORRECTED THE SAME NIGHT.
         #  I replaced "proj_mean == our scoring" -- a PRE-blend claim -- with
         #  `src.startswith("blend:")`, which is a POST-blend claim, and left it
@@ -508,9 +568,138 @@ def test_board_provenance_records_the_correction():
         assert native["date_fixed"] == "2026-08-16"
         assert "normalize_def_stat_line" in native["def_td_vocabulary"]["algorithm"]
         assert "recover_fp_dropped_stats" in native["fp_dropped_stats"]["algorithm"]
-        # The stamp must agree with the board it rides: every corrected DEF row
-        # present on the board carries the corrected score as its baseline.
-        for row in native["def_td_vocabulary"]["def_rows_corrected"]:
-            if row["team"] in BOARD_DEFS:
-                assert BOARD_DEFS[row["team"]]["proj_baseline"] == pytest.approx(
-                    row["new"]), row
+        #: ⛔ THE THIRD FUSED ASSERTION, REMOVED 09-09 WITH THE OTHER TWO.
+        #: It compared the live board against `row["new"]` — a value computed
+        #: from the same frozen 08-16 capture — so it carried the identical
+        #: hidden claim that the provider had not moved, and went red for the
+        #: identical reason (register 503). The stamp's internal consistency is
+        #: still asserted above; the board is checked against its own build
+        #: date's capture in
+        #: test_the_board_agrees_with_the_feed_it_was_actually_built_from.
+        assert native["def_td_vocabulary"]["def_rows_corrected"], (
+            "the stamp lists no corrected DEF rows, so there is nothing to have "
+            "reached the board at all")
+
+
+# ── THE BOARD-SIDE CLAIM, RESTATED SO A PROVIDER UPDATE CANNOT REFUSE IT ─────
+
+#: How far back a board may match. Captures carry a DATE and no time, and the
+#: committed board was built 00:49Z — BEFORE that same day's capture — so
+#: "the capture for the build date" is not resolvable. Two days is the smallest
+#: window that spans that ambiguity; it is not a tolerance on the VALUES, which
+#: must still match to the cent.
+CAPTURE_WINDOW_DAYS = 2
+
+
+def test_the_board_agrees_with_a_feed_that_was_actually_observed():
+    """Every DEF baseline on the board must match a REAL Sleeper capture, to
+    the cent, from on or just before its build date. Register 503.
+
+    This is the claim the three removed assertions were reaching for, stated so
+    it cannot be refused by the provider moving. A board is correct if it agrees
+    with a feed that actually existed — not with a feed frozen on 2026-08-16.
+
+    ⚠️ WHY "A CAPTURE" AND NOT "THE CAPTURE", WHICH MY FIRST VERSION ASSERTED
+    AND ITS OWN CONTROL CAUGHT: proj_series entries carry a date and no time.
+    The committed board was built 2026-09-09T00:49:51Z and matches the 09-08
+    capture 32/32, while the 09-09 capture — taken later the same morning, after
+    Sleeper dropped every defense by 10.0 — matches 0/32. Pinning "the capture
+    for the build date" therefore refused a correct board for the second time in
+    one day, by a different mechanism. The window is the honest statement of
+    what date-only captures can support.
+
+    WHAT IT STILL CATCHES: a scoring regression produces numbers that match NO
+    observed capture, on every row at once. That is the signal.
+    """
+    series = json.loads(
+        (ROOT / "draft" / "data" / "proj_series.json").read_text())["series"]
+    built = str(BOARD.get("built_at") or "")[:10]
+    assert built, "the board carries no built_at; this check has no anchor"
+    caps = _captures_in_window(series, built)
+    assert caps, (
+        f"no Sleeper capture within {CAPTURE_WINDOW_DAYS} days of the board's "
+        f"build date {built}. proj_series.json has stopped being fed — that is "
+        "the finding, not a reason to widen the window.")
+
+    matched = [d for d, cap in caps
+               if all(pid in cap and abs(float(p["proj_baseline"]) - float(cap[pid])) <= 0.011
+                      for pid, p in BOARD_DEFS.items())]
+    detail = {d: sum(1 for pid, p in BOARD_DEFS.items()
+                     if pid in cap and abs(float(p["proj_baseline"]) - float(cap[pid])) <= 0.011)
+              for d, cap in caps}
+    assert matched, (
+        f"the board's {len(BOARD_DEFS)} DEF baselines match NO observed Sleeper "
+        f"capture near its build date {built}.\n"
+        f"  rows matching per capture date: {detail} (of {len(BOARD_DEFS)})\n"
+        "  The publish path and the capture path disagree about every feed on "
+        "record, which a provider update cannot cause — it moves both together."
+    )
+
+
+def _captures_in_window(series: list, built: str) -> list:
+    """[(date, proj)] for Sleeper captures within the window ending at `built`."""
+    import datetime as _dt
+    b = _dt.date.fromisoformat(built)
+    out = []
+    for e in series:
+        if e["source"] != "sleeper":
+            continue
+        d = _dt.date.fromisoformat(e["date"])
+        if 0 <= (b - d).days <= CAPTURE_WINDOW_DAYS:
+            out.append((e["date"], e["proj"]))
+    return sorted(out)
+
+
+def test_CONTROL_the_window_holds_captures_that_DISAGREE_with_each_other():
+    """If every capture in the window were identical, "matches one of them"
+    would be the same as "matches all of them" and the test above would be
+    weaker than it looks. On 2026-09-09 they emphatically differ — that is the
+    whole incident — so this pins that the comparison is live.
+    """
+    series = json.loads(
+        (ROOT / "draft" / "data" / "proj_series.json").read_text())["series"]
+    built = str(BOARD.get("built_at") or "")[:10]
+    caps = _captures_in_window(series, built)
+    assert len(caps) >= 2, f"only {len(caps)} capture(s) in the window; control cannot run"
+    per_date = {d: sum(1 for pid, p in BOARD_DEFS.items()
+                       if pid in cap
+                       and abs(float(p["proj_baseline"]) - float(cap[pid])) <= 0.011)
+                for d, cap in caps}
+    assert len(set(per_date.values())) > 1, (
+        "every capture in the window agrees with the board equally, so the "
+        f"match above proves nothing about which feed was used: {per_date}")
+
+
+def test_FAIL_ARM_a_board_matching_no_observed_capture_is_caught():
+    """A mis-scored board must be caught on every row.
+
+    ⚠️ THE PERTURBATION IS DELIBERATELY *NOT* THE REAL -10.0, AND THAT IS A
+    STATED LIMIT RATHER THAN A CONVENIENCE. Shifting the committed board by
+    -10.0 lands it exactly on the 09-09 capture — a feed that genuinely exists —
+    so this check cannot distinguish "built from the newer feed" from "wrongly
+    shifted by exactly the provider's change". Nothing that compares against
+    observed captures can. The arm therefore uses an offset no capture carries.
+    """
+    series = json.loads(
+        (ROOT / "draft" / "data" / "proj_series.json").read_text())["series"]
+    built = str(BOARD.get("built_at") or "")[:10]
+    caps = _captures_in_window(series, built)
+    drifted = {pid: float(p["proj_baseline"]) + 3.7 for pid, p in BOARD_DEFS.items()}
+    matched = [d for d, cap in caps
+               if all(pid in cap and abs(v - float(cap[pid])) <= 0.011
+                      for pid, v in drifted.items())]
+    assert not matched, (
+        f"a board offset by +3.7 still matched capture(s) {matched} — the check "
+        "above cannot detect a mis-scored board")
+
+    #: ⚠️ THE BLIND SPOT IS DOCUMENTED, NOT ASSERTED, AND THAT WAS A CORRECTION.
+    #: My first version asserted that a -10.0 shift DOES land on an observed
+    #: capture, to pin the limit. That assertion is board-relative: run against
+    #: the already-shifted candidate board it shifts to -20.0, matches nothing,
+    #: and goes red — so the arm passed on one board and failed on another while
+    #: testing the same property. A limit that only holds for the board that
+    #: happens to be checked out is a limit to write down, not to assert.
+    #: Measured on the committed board, 2026-09-09: -10.0 lands exactly on the
+    #: 09-09 capture, so this check cannot tell "built from the newer feed" from
+    #: "wrongly shifted by exactly the provider's change". Nothing comparing
+    #: against observed captures can. Register 503.
