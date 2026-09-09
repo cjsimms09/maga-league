@@ -19,7 +19,26 @@ on:
     # AND before own-weekly-proj.yml's 20:00Z snapshot, whose props second
     # opinion READS this file: at 20:00 both fired together and the snapshot
     # raced a write that had not been pushed yet (relay, 09-02).
-    - cron: '30 19 * * 3'
+    # ⚠️ WEDNESDAY 09:30 UTC — THE SAFETY NET, added 2026-09-09 (relay) on A's
+    # register 495 measurement, which was applied to own-weekly-proj.yml and
+    # weekly-projection-archive.yml but not to this third emitter.
+    #
+    # A measured GitHub's scheduler across 93 scheduled runs in THIS repo:
+    # median delay 3h45, 97% more than an hour late, 39% more than FOUR hours,
+    # one firing 9h25 late. The 19:30Z slot below carries 4h50 against week 1's
+    # 00:20Z opener — it beats the median and loses to that 39% tail, so it is
+    # roughly a one-in-three chance of writing the week's props AFTER kickoff.
+    #
+    # EARLIER IS NOT STRICTLY BETTER FOR PROPS, and that is why this is added
+    # rather than the 19:30Z slot being moved: props are LINES, and a line
+    # captured in the morning is staler than one captured at teatime. So the
+    # late slot stays as the preferred capture and this one exists only so a
+    # delayed scheduler cannot leave the week with nothing. Safe because the
+    # writer MERGES and never clobbers (see the Thursday slot's note): an early
+    # capture followed by a late refresh keeps the freshest line per market,
+    # and if the late run is eaten by the delay the early one still stands.
+    - cron: '30 9 * * 3'      # Wednesdays 09:30 UTC — the one that must not miss
+    - cron: '30 19 * * 3'     # Wednesdays 19:30 UTC — preferred: fresher lines
     - cron: '20 12 * * 4'  # Thursday 12:20 UTC — the main pre-TNF snapshot; merges, never clobbers
     # Sunday 15:30 UTC — the CLOSING-LINE snapshot for P289, written to a SEPARATE
     # `_sun` file (PROPS_SNAPSHOT_SUFFIX below). The arm and the Tuesday grader
