@@ -3081,15 +3081,15 @@
  "board_coverage": {
   "QB": {
    "measured": 48,
-   "fallback": 42
+   "fallback": 43
   },
   "RB": {
    "measured": 93,
-   "fallback": 65
+   "fallback": 66
   },
   "WR": {
    "measured": 152,
-   "fallback": 111
+   "fallback": 112
   },
   "TE": {
    "measured": 88,

@@ -840,6 +840,30 @@
     "departures_tie_truncated": [],
     "departures_real_still_priced": [],
     "entrants": []
+   },
+   {
+    "from": "2026-09-07",
+    "to": "2026-09-08",
+    "n_before": 458,
+    "n_after": 458,
+    "n_entrants": 0,
+    "n_departures": 0,
+    "departures_real": [],
+    "departures_tie_truncated": [],
+    "departures_real_still_priced": [],
+    "entrants": []
+   },
+   {
+    "from": "2026-09-08",
+    "to": "2026-09-09",
+    "n_before": 458,
+    "n_after": 458,
+    "n_entrants": 0,
+    "n_departures": 0,
+    "departures_real": [],
+    "departures_tie_truncated": [],
+    "departures_real_still_priced": [],
+    "entrants": []
    }
   ],
   "sleeper": [
@@ -1906,6 +1930,30 @@
    {
     "from": "2026-09-06",
     "to": "2026-09-07",
+    "n_before": 700,
+    "n_after": 700,
+    "n_entrants": 0,
+    "n_departures": 0,
+    "departures_real": [],
+    "departures_tie_truncated": [],
+    "departures_real_still_priced": [],
+    "entrants": []
+   },
+   {
+    "from": "2026-09-07",
+    "to": "2026-09-08",
+    "n_before": 700,
+    "n_after": 700,
+    "n_entrants": 0,
+    "n_departures": 0,
+    "departures_real": [],
+    "departures_tie_truncated": [],
+    "departures_real_still_priced": [],
+    "entrants": []
+   },
+   {
+    "from": "2026-09-08",
+    "to": "2026-09-09",
     "n_before": 700,
     "n_after": 700,
     "n_entrants": 0,
