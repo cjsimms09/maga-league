@@ -84950,7 +84950,7 @@
     },
     "11655": {
      "injury_status": "Questionable",
-     "depth_chart_order": 2,
+     "depth_chart_order": 3,
      "team": "NYG",
      "years_exp": 2,
      "adp": 162.0,
@@ -85273,7 +85273,6 @@
      "position": "TE"
     },
     "3321": {
-     "injury_status": "Questionable",
      "team": "FA",
      "years_exp": 10,
      "adp": 217.33,
@@ -86534,7 +86533,7 @@
      "position": "WR"
     },
     "13270": {
-     "depth_chart_order": 5,
+     "depth_chart_order": 4,
      "team": "LAR",
      "years_exp": 0,
      "adp": 416.0,
@@ -86756,7 +86755,7 @@
      "position": "WR"
     },
     "7528": {
-     "depth_chart_order": 3,
+     "depth_chart_order": 2,
      "team": "NYG",
      "years_exp": 5,
      "adp": 215.0,
@@ -86949,7 +86948,7 @@
      "position": "RB"
     },
     "7562": {
-     "depth_chart_order": 4,
+     "depth_chart_order": 5,
      "team": "LAR",
      "years_exp": 5,
      "adp": 545.0,
