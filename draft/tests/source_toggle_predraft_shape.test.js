@@ -143,12 +143,32 @@ kept.length > 0 && kept.length < leagueKept.length
   leagueWide: leagueKept.length,
   seatsWithKeepers: new Set(leagueKept.map(k => Number(k.team_slot))).size });
 
+/* ⚠️ THE DIAGNOSTIC USED TO NAME ONLY THE INTRUDER, AND ON 2026-09-09 THAT
+ * SENT THE READER AT THE WRONG PLAYER. The blend view went red with
+ * `{"intruders":["K Brandon Aubrey"]}`, which reads as "the kicker rose". It
+ * did not. Measured across three published boards, Aubrey's score is 0.403 on
+ * ALL THREE (09-05, 09-07, 09-09) and his board row is identical. What moved
+ * is BREECE HALL: +1.389 -> -9.096, on `vona` (+4.61 -> -1.97) and `keeper`
+ * (+3.00 -> 0, his best alternative going 22.2 -> 42.8 so he displaces nobody).
+ * A top-10-ADP running back left the top 20 and everything below shifted up
+ * one. Register 500.
+ *
+ * A rank cut is a knife edge here — ranks 19-23 span about 2.6 points against
+ * a leader at 86 — so the intruder is whoever happens to be standing at the
+ * line. The BAND is therefore printed with the verdict: a reader who sees the
+ * scores can tell "an onesie rose" from "a startable player fell" in one
+ * glance, which is the whole difference between a board defect and a scoring
+ * change somewhere else entirely. The assertion is unchanged — it is not being
+ * loosened to clear a red, and the threshold question is register 500's, open. */
 VIEWS.forEach(v => {
   const r = view(v.key, true);
   const bad = r.top20.filter(onesie);
+  const band = r.top25.slice(16, 23).map((x, i) =>
+    (i + 17) + ' ' + x.pos + ' ' + x.name + ' ' + Number(x.score).toFixed(2));
   ck('[' + v.label + '] no kicker or defense in the pre-draft top 20',
     bad.length === 0,
-    { intruders: bad.map(x => x.pos + ' ' + x.name), pool: r.pool.length });
+    { intruders: bad.map(x => x.pos + ' ' + x.name), pool: r.pool.length,
+      boundaryBand: band });
 });
 
 /* THE VALUE, NOT THE COUNT — the lesson register 195 cost twice. The elites'
