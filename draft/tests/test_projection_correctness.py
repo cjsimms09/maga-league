@@ -12,6 +12,7 @@ draft/audit/projection_correctness_2026-08-16.md.
 """
 from __future__ import annotations
 
+import ast
 import json
 import sys
 from pathlib import Path
@@ -723,3 +724,91 @@ def test_FAIL_ARM_a_board_matching_no_observed_capture_is_caught():
     #: 09-09 capture, so this check cannot tell "built from the newer feed" from
     #: "wrongly shifted by exactly the provider's change". Nothing comparing
     #: against observed captures can. Register 503.
+
+
+# ── THE FILE GUARDS ITSELF AGAINST THE DEFECT IT HAS HAD FOUR TIMES ──────────
+
+def test_no_assertion_fuses_a_LIVE_value_with_a_FROZEN_one():
+    """No assertion here may compare a value derived from the LIVE board against
+    one derived from the FROZEN capture. Register 503.
+
+    ⚠️ FOUR INSTANCES, AND THE FOURTH WAS COMMITTED WHILE FIXING THE FIRST
+    THREE. Every one asserted, as an unwritten side effect, that the provider
+    had not changed — a property of the world, not of this code — and on
+    2026-09-09 the provider changed and refused the board twice in one day.
+
+    ⚠️ THE GUARD IS HERE AND NOT REPO-WIDE, DELIBERATELY, AND THAT IS MEASURED.
+    A sweep of draft/tests for files carrying BOTH a live-artifact root and a
+    frozen-fixture root returns TWO, and one of those (test_claim_integrity's
+    LABEL_SCOPE/TIER_WORDS) is a false positive — they are word lists, not
+    artifacts. A repo-wide guard would be one real site and one false alarm,
+    and a guard that is wrong half the time is a guard someone deletes.
+
+    ⚠️ AND IT TRACKS LOCALS, WHICH IS THE WHOLE POINT. The fourth instance read
+    `assert mean == pytest.approx(new)` — neither name mentions the board or
+    the fixture. My first sweep looked only at names inside the assert, returned
+    a confident ZERO on this file, and would have shipped as proof it was clean.
+    Rule 3e: a null from a probe that has never returned a positive is a bug
+    report, so the control below runs FIRST and this test fails if it stops
+    finding the real pre-fix code.
+    """
+    live_roots = {"BOARD", "BOARD_DEFS"}
+    frozen_roots = {"DEF_ROWS", "EVIDENCE", "SCORING"}
+
+    def fused(source: str) -> list:
+        def names(n):
+            return {x.id for x in ast.walk(n) if isinstance(x, ast.Name)}
+        out = []
+        for fn in [n for n in ast.walk(ast.parse(source))
+                   if isinstance(n, ast.FunctionDef)]:
+            live, frozen = set(), set()
+            for node in ast.walk(fn):
+                if isinstance(node, ast.Assign):
+                    r = names(node.value)
+                    tgt = {t.id for t in node.targets if isinstance(t, ast.Name)}
+                    if r & (live_roots | live):
+                        live |= tgt
+                    if r & (frozen_roots | frozen):
+                        frozen |= tgt
+            for node in ast.walk(fn):
+                if isinstance(node, ast.Assert):
+                    r = names(node.test)
+                    l, f = r & (live_roots | live), r & (frozen_roots | frozen)
+                    if l and f:
+                        out.append((fn.name, node.lineno, sorted(l), sorted(f)))
+        return out
+
+    #: KNOWN POSITIVE — the real line 205 as it stood before the fix, verbatim
+    #: from the refused run's traceback (rule 121: the code that actually broke,
+    #: not a shape I invented). If this stops firing, the sweep below proves
+    #: nothing and this test says so rather than passing quietly.
+    pre_fix = (
+        "def f():\n"
+        "    for pid, row in DEF_ROWS.items():\n"
+        "        new = score_stat_line(row, SCORING)\n"
+        "        mean = BOARD_DEFS[pid].get('proj_mean')\n"
+        "        assert mean == pytest.approx(new), (pid, 'x', mean, new)\n"
+    )
+    assert fused(pre_fix), (
+        "THE KNOWN POSITIVE FAILED: the sweep no longer catches the assertion "
+        "that refused the board on 2026-09-09, so a clean result below means "
+        "nothing. Fix this before trusting it.")
+
+    #: FAIL ARM — the repaired form must read clean, or the guard punishes the
+    #: fix and gets switched off.
+    repaired = pre_fix.replace(
+        "assert mean == pytest.approx(new)",
+        "assert mean == pytest.approx(BOARD_DEFS[pid].get('proj_baseline'))")
+    assert not fused(repaired), (
+        "the LIVE-vs-LIVE repair is flagged, so this guard would block the fix "
+        "it exists to protect")
+
+    here = fused(Path(__file__).read_text())
+    assert not here, (
+        "an assertion in this file compares a LIVE board value against a value "
+        "derived from the FROZEN capture. It cannot go false when the provider "
+        "moves — it goes false when the provider moves, and refuses the board.\n"
+        + "\n".join(f"  {n}:{ln}  live={l} frozen={f}" for n, ln, l, f in here)
+        + "\n  Compare live-to-live (see the proj_mean/proj_baseline pair) or "
+          "assert the frozen arithmetic without touching the board."
+    )
