@@ -4,8 +4,8 @@
  "_cannot": "THIS IS A PLAN, NOT A PREDICTION. It assumes the market drains in ADP order and that nobody reacts to him. It is what MLV WOULD do against that assumption, not what will happen.",
  "_the_cap_is_a_ruling": "K <= 1 and DEF <= 1 are IMPOSED from Cory's words (\"I won't draft 2 kickers and 2 def\"), not discovered. Measured: the cap is +45.8/+29.3 against the humans; excluding them entirely is -83.7/-211.3 with 0 of 30 rosters legal (register 134).",
  "_rule_reused": "public/js/draft/mlv.js — the SAME module the live panel calls, so the plan and the panel cannot disagree about what MLV thinks.",
- "built_from_board": "2026-09-01T15:29:04Z",
- "board_post_processed": "2026-09-01T15:38:18Z",
+ "built_from_board": "2026-09-09T15:42:25Z",
+ "board_post_processed": "2026-09-09T15:48:36Z",
  "_the_cliff": "MLV HAS AN OPINION ABOUT 6 OF CORY'S 12 PICKS AND NONE ABOUT THE REST. Once his nine starting slots are full every remaining player is worth exactly 0 to it, so those picks are stamped `chosen_by: \"board rank — MLV is indifferent\"` rather than dressed up as recommendations. Register 146.",
  "my_picks": [
   33,
@@ -43,7 +43,7 @@
     "name": "Josh Jacobs",
     "position": "RB",
     "team": "GB",
-    "adp": 18,
+    "adp": 45.3,
     "proj_mean": 223.9,
     "overall_rank": 3
    },
@@ -54,7 +54,7 @@
    "mlv_has_an_opinion": true,
    "chosen_by": "MLV",
    "tied_at_zero": null,
-   "board_available": 589,
+   "board_available": 595,
    "runners_up": [
     {
      "name": "Travis Etienne",
@@ -75,7 +75,7 @@
     "name": "Drake Maye",
     "position": "QB",
     "team": "NE",
-    "adp": 29,
+    "adp": 28.9,
     "proj_mean": 374,
     "overall_rank": 16
    },
@@ -86,7 +86,7 @@
    "mlv_has_an_opinion": true,
    "chosen_by": "MLV",
    "tied_at_zero": null,
-   "board_available": 574,
+   "board_available": 579,
    "runners_up": [
     {
      "name": "Davante Adams",
@@ -107,7 +107,7 @@
     "name": "Davante Adams",
     "position": "WR",
     "team": "LAR",
-    "adp": 34,
+    "adp": 34.2,
     "proj_mean": 184.9,
     "overall_rank": 25
    },
@@ -118,7 +118,7 @@
    "mlv_has_an_opinion": true,
    "chosen_by": "MLV",
    "tied_at_zero": null,
-   "board_available": 569,
+   "board_available": 574,
    "runners_up": [
     {
      "name": "Jameson Williams",
@@ -139,7 +139,7 @@
     "name": "Sam LaPorta",
     "position": "TE",
     "team": "DET",
-    "adp": 48.5,
+    "adp": 48.4,
     "proj_mean": 150.3,
     "overall_rank": 32
    },
@@ -150,7 +150,7 @@
    "mlv_has_an_opinion": true,
    "chosen_by": "MLV",
    "tied_at_zero": null,
-   "board_available": 554,
+   "board_available": 559,
    "runners_up": [
     {
      "name": "Harold Fannin",
@@ -171,9 +171,9 @@
     "name": "Houston Texans",
     "position": "DEF",
     "team": "HOU",
-    "adp": 89.8,
+    "adp": 90,
     "proj_mean": 122.7,
-    "overall_rank": 654
+    "overall_rank": 666
    },
    "marginal": 29.4,
    "why": "fills your open DEF slot",
@@ -182,7 +182,7 @@
    "mlv_has_an_opinion": true,
    "chosen_by": "MLV",
    "tied_at_zero": null,
-   "board_available": 549,
+   "board_available": 555,
    "runners_up": [
     {
      "name": "Denver Broncos",
@@ -203,9 +203,9 @@
     "name": "Brandon Aubrey",
     "position": "K",
     "team": "DAL",
-    "adp": 93.2,
+    "adp": 93.7,
     "proj_mean": 145.5,
-    "overall_rank": 655
+    "overall_rank": 667
    },
    "marginal": 19.8,
    "why": "fills your open K slot",
@@ -214,7 +214,7 @@
    "mlv_has_an_opinion": true,
    "chosen_by": "MLV",
    "tied_at_zero": null,
-   "board_available": 533,
+   "board_available": 539,
    "runners_up": [
     {
      "name": "Jason Myers",
@@ -235,39 +235,39 @@
     "name": "Kyle Monangai",
     "position": "RB",
     "team": "CHI",
-    "adp": 73.5,
+    "adp": 78.8,
     "proj_mean": 141.5,
     "overall_rank": 102
    },
    "marginal": 0,
-   "why": "MLV IS INDIFFERENT — all 452 remaining players are worth exactly 0 to it, because your nine starting slots are already full. Picked by your bench rule instead: +45 over what the wire gives you at RB, at a position you are still 1.78 short of the top-3-finisher shape.",
+   "why": "MLV IS INDIFFERENT — all 456 remaining players are worth exactly 0 to it, because your nine starting slots are already full. Picked by your bench rule instead: +45 over what the wire gives you at RB, at a position you are still 1.78 short of the top-3-finisher shape.",
    "wire_surplus": 44.6,
    "short_of_target": 1.78,
    "mlv_has_an_opinion": false,
    "chosen_by": "bench rule — need + surplus over the wire",
-   "tied_at_zero": 452,
-   "board_available": 527,
+   "tied_at_zero": 456,
+   "board_available": 533,
    "runners_up": []
   },
   {
    "pick": 108,
    "round": 8,
    "player": {
-    "name": "Rachaad White",
+    "name": "Kenny Gainwell",
     "position": "RB",
-    "team": "WAS",
-    "adp": 96.6,
-    "proj_mean": 134.6,
-    "overall_rank": 118
+    "team": "TB",
+    "adp": 86.3,
+    "proj_mean": 137.9,
+    "overall_rank": 109
    },
    "marginal": 0,
-   "why": "MLV IS INDIFFERENT — all 437 remaining players are worth exactly 0 to it, because your nine starting slots are already full. Picked by your bench rule instead: +38 over what the wire gives you at RB, at a position you are still 0.78 short of the top-3-finisher shape.",
-   "wire_surplus": 37.7,
+   "why": "MLV IS INDIFFERENT — all 442 remaining players are worth exactly 0 to it, because your nine starting slots are already full. Picked by your bench rule instead: +41 over what the wire gives you at RB, at a position you are still 0.78 short of the top-3-finisher shape.",
+   "wire_surplus": 41,
    "short_of_target": 0.78,
    "mlv_has_an_opinion": false,
    "chosen_by": "bench rule — need + surplus over the wire",
-   "tied_at_zero": 437,
-   "board_available": 512,
+   "tied_at_zero": 442,
+   "board_available": 518,
    "runners_up": []
   },
   {
@@ -277,18 +277,18 @@
     "name": "Jared Goff",
     "position": "QB",
     "team": "DET",
-    "adp": 99.4,
+    "adp": 98.5,
     "proj_mean": 340.6,
     "overall_rank": 60
    },
    "marginal": 0,
-   "why": "MLV IS INDIFFERENT — all 432 remaining players are worth exactly 0 to it, because your nine starting slots are already full. Picked by your bench rule instead: +23 over what the wire gives you at QB, at a position you are still 0.56 short of the top-3-finisher shape.",
+   "why": "MLV IS INDIFFERENT — all 437 remaining players are worth exactly 0 to it, because your nine starting slots are already full. Picked by your bench rule instead: +23 over what the wire gives you at QB, at a position you are still 0.56 short of the top-3-finisher shape.",
    "wire_surplus": 22.9,
    "short_of_target": 0.56,
    "mlv_has_an_opinion": false,
    "chosen_by": "bench rule — need + surplus over the wire",
-   "tied_at_zero": 432,
-   "board_available": 506,
+   "tied_at_zero": 437,
+   "board_available": 513,
    "runners_up": []
   },
   {
@@ -298,18 +298,18 @@
     "name": "Jakobi Meyers",
     "position": "WR",
     "team": "JAX",
-    "adp": 111.4,
+    "adp": 118.9,
     "proj_mean": 142.9,
     "overall_rank": 81
    },
    "marginal": 0,
-   "why": "MLV IS INDIFFERENT — all 422 remaining players are worth exactly 0 to it, because your nine starting slots are already full. Picked by your bench rule instead: +14 over what the wire gives you at WR, at a position you are still 3 short of the top-3-finisher shape.",
+   "why": "MLV IS INDIFFERENT — all 426 remaining players are worth exactly 0 to it, because your nine starting slots are already full. Picked by your bench rule instead: +14 over what the wire gives you at WR, at a position you are still 3 short of the top-3-finisher shape.",
    "wire_surplus": 13.9,
    "short_of_target": 3,
    "mlv_has_an_opinion": false,
    "chosen_by": "bench rule — need + surplus over the wire",
-   "tied_at_zero": 422,
-   "board_available": 494,
+   "tied_at_zero": 426,
+   "board_available": 500,
    "runners_up": []
   },
   {
@@ -319,18 +319,18 @@
     "name": "Xavier Worthy",
     "position": "WR",
     "team": "KC",
-    "adp": 117.1,
+    "adp": 121.8,
     "proj_mean": 140.8,
     "overall_rank": 87
    },
    "marginal": 0,
-   "why": "MLV IS INDIFFERENT — all 417 remaining players are worth exactly 0 to it, because your nine starting slots are already full. Picked by your bench rule instead: +12 over what the wire gives you at WR, at a position you are still 2 short of the top-3-finisher shape.",
+   "why": "MLV IS INDIFFERENT — all 420 remaining players are worth exactly 0 to it, because your nine starting slots are already full. Picked by your bench rule instead: +12 over what the wire gives you at WR, at a position you are still 2 short of the top-3-finisher shape.",
    "wire_surplus": 11.8,
    "short_of_target": 2,
    "mlv_has_an_opinion": false,
    "chosen_by": "bench rule — need + surplus over the wire",
-   "tied_at_zero": 417,
-   "board_available": 489,
+   "tied_at_zero": 420,
+   "board_available": 494,
    "runners_up": []
   },
   {
@@ -340,18 +340,18 @@
     "name": "Khalil Shakir",
     "position": "WR",
     "team": "BUF",
-    "adp": 139.1,
+    "adp": 139.2,
     "proj_mean": 131,
     "overall_rank": 100
    },
    "marginal": 0,
-   "why": "MLV IS INDIFFERENT — all 406 remaining players are worth exactly 0 to it, because your nine starting slots are already full. Picked by your bench rule instead: +2 over what the wire gives you at WR, at a position you are still 1 short of the top-3-finisher shape.",
+   "why": "MLV IS INDIFFERENT — all 410 remaining players are worth exactly 0 to it, because your nine starting slots are already full. Picked by your bench rule instead: +2 over what the wire gives you at WR, at a position you are still 1 short of the top-3-finisher shape.",
    "wire_surplus": 2,
    "short_of_target": 1,
    "mlv_has_an_opinion": false,
    "chosen_by": "bench rule — need + surplus over the wire",
-   "tied_at_zero": 406,
-   "board_available": 474,
+   "tied_at_zero": 410,
+   "board_available": 480,
    "runners_up": []
   }
  ],
@@ -361,27 +361,27 @@
  "board_rank_tilt": {
   "DEF": {
    "n": 24,
-   "median_ranks_earlier_than_market": -86.5
+   "median_ranks_earlier_than_market": -79.5
   },
   "K": {
-   "n": 24,
-   "median_ranks_earlier_than_market": -77
+   "n": 23,
+   "median_ranks_earlier_than_market": -68
   },
   "QB": {
-   "n": 36,
-   "median_ranks_earlier_than_market": 12.5
+   "n": 35,
+   "median_ranks_earlier_than_market": 13
   },
   "RB": {
-   "n": 74,
+   "n": 75,
    "median_ranks_earlier_than_market": -16
   },
   "TE": {
    "n": 39,
-   "median_ranks_earlier_than_market": 50
+   "median_ranks_earlier_than_market": 53
   },
   "WR": {
-   "n": 95,
-   "median_ranks_earlier_than_market": 12
+   "n": 91,
+   "median_ranks_earlier_than_market": 11
   }
  },
  "final_shape": {
