@@ -37,7 +37,20 @@ on:
     # reason; this emitter is the third with the same defect and was missed
     # because nothing in the week-1 path read it until the analyzer and the
     # lineup optimizer began pricing from it (2026-09-06).
-    - cron: '30 20 * * 3'     # Wednesdays 20:30 UTC — before a Wednesday-night opener
+    # ⚠️⚠️ AND 20:30Z IS NOT ENOUGH MARGIN — MEASURED, NOT ASSUMED (A, register
+    # 495, 2026-09-09). A Wednesday cron only beats the 00:20Z opener if the
+    # scheduler is roughly on time, and it is not: across 93 scheduled runs in
+    # THIS repo the median delay is 3h45, 97% are more than an hour late, 39%
+    # more than four hours, and own-weekly-proj.yml has one firing 9h25 late.
+    # 20:30Z carries 3h50, so the median delay alone eats it.
+    #
+    # 10:30Z keeps this file's own stated invariant EXACTLY — it is still 30
+    # minutes after own-weekly-proj.yml's earliest Wednesday run, which moved
+    # to 10:00Z in the same register row — while absorbing the worst observed
+    # delay with hours to spare. The 20:30Z run stays as the refresh: if it
+    # lands before kickoff it captures against a fresher own_weekly.
+    - cron: '30 10 * * 3'     # Wednesdays 10:30 UTC — the one that must not miss
+    - cron: '30 20 * * 3'     # Wednesdays 20:30 UTC — refresh if it lands in time
     - cron: '0 15 * * 4'      # Thursdays 15:00 UTC — after own_weekly, pre-kickoff
     #   ^ on a short week this fires AFTER kickoff; the tool now refuses to
     #     overwrite an existing snapshot once the week has started, so the
