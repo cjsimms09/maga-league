@@ -56,14 +56,18 @@ OBSERVED_MAX_DELAY_H = 9.41
 SAFETY_H = 2.0
 
 
-def _crons() -> list[str]:
-    """Cron lines from the workflow's `schedule:` block.
+def _crons(workflow: pathlib.Path | None = None) -> list[str]:
+    """Cron lines from a workflow's `schedule:` block.
 
     Read with a regex rather than a YAML parse on purpose: this must keep
     working if the file grows an anchor or a comment shape PyYAML dislikes, and
     the thing under test is one field.
+
+    ⚠️ TAKES A PATH so the sibling suite for THIS-WEEK.md can use THIS resolver
+    instead of writing a second one. Two definitions of one thing is how the
+    two cadences drifted apart in the first place (register 501).
     """
-    text = WORKFLOW.read_text()
+    text = (workflow or WORKFLOW).read_text()
     return re.findall(r"^\s*-\s*cron:\s*'([^']+)'", text, re.M)
 
 

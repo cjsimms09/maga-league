@@ -11,7 +11,28 @@ name: THIS-WEEK brief — the roster fact sheet every session cites
 
 on:
   schedule:
+    # ⚠️ WEDNESDAY WAS MISSING AND WEEK 1 KICKS OFF ON A WEDNESDAY.
+    # Registers 475/477 moved the SNAPSHOT cadence for that (own-weekly-proj
+    # now fires 10:00Z Wed) and left THIS cadence behind — the same defect,
+    # one surface over. Measured 2026-09-09, 11h before kickoff: the brief was
+    # last built 09-08 17:18Z and was quoting a second opinion generated
+    # 09-03 17:24Z, while a fresh one had been on disk since 09-09 11:22Z.
+    # On a Tue/Fri/Sun cadence the next rebuild was Friday — AFTER the first
+    # game. Cory's one page would have carried six-day-old numbers through the
+    # only week whose opener is a Wednesday.
+    #
+    # WHY 12:00Z SPECIFICALLY, and it is derived rather than picked:
+    #   · AFTER the Wednesday snapshot, so the brief reads that week's fresh
+    #     second opinion rather than the previous one (10:00Z fired -> the
+    #     second opinion landed 11:22Z today).
+    #   · BEFORE kickoff by more than this scheduler's worst OBSERVED delay.
+    #     GitHub has been measured 9h25 late on this repo
+    #     (test_weekly_snapshot_beats_kickoff.py, OBSERVED_MAX_DELAY_H = 9.41).
+    #     Week 1 kicks off 2026-09-10T00:20Z; 12:00Z leaves 12h20 of margin
+    #     against 9.41 + 2.0 safety = 11.41 needed. The Tue 13:30Z firing has
+    #     no margin at all on a Wednesday-opener week — it is the day before.
     - cron: '30 13 * * 2'   # Tue 13:30 UTC — waivers have cleared
+    - cron: '0 12 * * 3'    # Wed 12:00 UTC — after the Wed snapshot, before a Wed opener
     - cron: '30 13 * * 5'   # Fri 13:30 UTC — injury designations landing
     - cron: '30 11 * * 0'   # Sun 11:30 UTC — before the Sunday alert reads the world
   workflow_dispatch: {}
