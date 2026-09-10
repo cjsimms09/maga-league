@@ -3,7 +3,7 @@
  "_what": "REPORT ONLY. The champion weekly projection beside the props-implied points on Cory's live roster, and the lineup each would start. The second lineup uses P357's blend rule (props where a line exists, champion elsewhere) \u2014 its prior art made visible, not the arm entering the grader early.",
  "season": 2026,
  "week": 1,
- "generated": "2026-09-09T22:23:10.229790+00:00",
+ "generated": "2026-09-10T17:25:15.899883+00:00",
  "roster_source": "THIS-WEEK.md generated 2026-09-09T13:37:28+00:00",
  "champion_source": "committed snapshot own_weekly_2026_w1.json",
  "champion_arm": "v1_pull3",
