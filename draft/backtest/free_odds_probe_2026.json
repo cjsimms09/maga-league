@@ -1,7 +1,7 @@
 {
  "_territory": "relay probe; C consumes; results are the free-odds census",
  "_ask": "Cory 2026-08-21: Explore free Vegas odds we can get",
- "captured_at": "2026-09-03T16:34:54.822147Z",
+ "captured_at": "2026-09-10T16:33:49.744798Z",
  "sources": {
   "espn": {
    "status": 403,
@@ -10,118 +10,44 @@
   },
   "bovada": {
    "status": 200,
-   "bytes": 911631,
-   "known_positive": [
-    {
-     "game": "New England Patriots @ Seattle Seahawks",
-     "market": "Moneyline",
-     "handicap": null
-    },
-    {
-     "game": "New England Patriots @ Seattle Seahawks",
-     "market": "Point Spread",
-     "handicap": "3.5"
-    },
-    {
-     "game": "New England Patriots @ Seattle Seahawks",
-     "market": "Total",
-     "handicap": "44.0"
-    }
-   ],
-   "markets_seen": 72,
-   "prop_mentions": 384,
-   "verdict": "POSITIVE \u2014 real lines on real games"
+   "bytes": 2,
+   "known_positive": [],
+   "markets_seen": 0,
+   "prop_mentions": 0,
+   "verdict": "REACHABLE-NO-POSITIVE (status 200) \u2014 treat as untested, not as no"
   },
   "bovada_event_props": {
    "status": 200,
-   "bytes": 911631,
-   "event_link": "/football/nfl/new-england-patriots-seattle-seahawks-202609092020",
-   "event_status": 200,
-   "event_bytes": 155241,
-   "prop_markets": 16,
-   "anytime_td_mentions": 2,
-   "known_positive": [
-    {
-     "prop": "Total Passing Yards - Drake Maye (NE)"
-    },
-    {
-     "prop": "Total Passing Yards - Sam Darnold (SEA)"
-    },
-    {
-     "prop": "Total Rushing Yards - Drake Maye (NE)"
-    }
-   ],
-   "verdict": "POSITIVE \u2014 real lines on real games"
+   "bytes": 2,
+   "note": "no event link found in main payload",
+   "verdict": "REACHABLE-NO-POSITIVE (status 200) \u2014 treat as untested, not as no"
   },
   "bovada_census": {
    "status": 200,
-   "bytes": 911631,
-   "display_groups": {
-    "Game Lines": 16,
-    "Alternate Lines": 18,
-    "TD Scorer Props": 2,
-    "Passing Props": 2,
-    "Passing Yards": 2,
-    "Rushing Yards": 2,
-    "Receiving Props": 2,
-    "Receiving Yards": 2,
-    "Touchdown Props": 3,
-    "Score Props": 17,
-    "Game Props": 18,
-    "Correct Score": 17
-   },
-   "market_types": {
-    "Moneyline": 24,
-    "Point Spread": 24,
-    "Total": 24,
-    "Both teams to score 10 or more points?": 21,
-    "Winning Margin": 21,
-    "Total Points Range": 21,
-    "To Win and Allow 0 Points": 21,
-    "Odd/Even Total Points": 21,
-    "Correct Score Range": 21,
-    "Dynamic Winning Margin": 20,
-    "Both teams to score 14 or more points?": 19,
-    "Both teams to score 17 or more points?": 19,
-    "Spread": 17,
-    "Total Points": 17,
-    "Both teams to score 13 or more points?": 17,
-    "Both teams to score 21 or more points?": 17,
-    "Both teams to score 24 or more points?": 17,
-    "Both teams to score 27 or more points?": 17,
-    "Both teams to score 30 or more points?": 17,
-    "Both teams to score 34 or more points?": 17,
-    "Will the game go to Overtime?": 15,
-    "Total Touchdowns": 5,
-    "Both Teams To Score": 4,
-    "Both teams to score 7 or more points?": 4,
-    "Double Chance": 4
-   },
-   "known_positive": [
-    {
-     "census": "main-path"
-    }
-   ],
+   "bytes": 2,
+   "display_groups": {},
+   "market_types": {},
+   "known_positive": [],
    "futures_specials_status": 404,
    "futures_specials_bytes": 0,
-   "verdict": "POSITIVE \u2014 real lines on real games"
+   "verdict": "REACHABLE-NO-POSITIVE (status 200) \u2014 treat as untested, not as no"
   },
   "polymarket": {
    "status": 200,
-   "bytes": 658434,
+   "bytes": 891410,
    "events": 20,
    "known_positive": [
     {
-     "event": "Tush Push banned for 2026 NFL Season?",
-     "price_yes": 0.002
-    },
-    {
-     "event": "Will Aaron Rodgers retire before next season?",
-     "price_yes": 0.009
-    },
-    {
      "event": "Who will attend Taylor Swift and Travis Kelce's wedding?",
      "price_yes": 0.002
+    },
+    {
+     "event": "Chiefs Week 1 starting QB in 2026?",
+     "price_yes": 0.002
+    },
+    {
+     "event": "Will Cardi B and Stefon Diggs get engaged in 2026?",
+     "price_yes": 0.036
     }
    ],
    "verdict": "POSITIVE \u2014 real lines on real games"
