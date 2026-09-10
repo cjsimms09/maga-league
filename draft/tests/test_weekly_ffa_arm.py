@@ -136,11 +136,15 @@ def test_A_SEASON_SCALE_SOURCE_IS_DROPPED_FOR_THE_WEEK_by_name():
 
 
 def test_KNOWN_POSITIVE_the_committed_week_1_capture_prices_real_players():
-    """Rule 3e: the reader has returned a positive on the REAL file. The
-    09-02 control capture (register 478) is committed; against a snapshot
-    that names four real players it must price them from ≥2 sources at
-    WEEKLY-plausible points under the league's real table — and name CBS as
-    the season-scale source it drops (rule 3i: look at the distribution)."""
+    """Rule 3e: the reader has returned a positive on the REAL file.
+
+    Register 506: this pinned CBS as the season-scale source the guard always
+    drops, off the 09-02 capture (games=17, QB max 415). Re-measured on the
+    09-09 week-1 capture that is committed now (games=1, CBS QB median well
+    under WEEKLY_QB_MEDIAN_MAX): CBS answers weekly like the other three and
+    nothing is dropped. The guard is a per-capture measurement, not a fixed
+    property of the source — assert what THIS capture actually does, and
+    re-check the live diagnostics (not this comment) if it moves again."""
     data = ROOT / "draft" / "data"
     assert (data / "ffanalytics_raw_projections_w1.csv").exists(), "the week-1 capture is committed on main"
     real = [ALLEN, CHASE,
@@ -150,18 +154,12 @@ def test_KNOWN_POSITIVE_the_committed_week_1_capture_prices_real_players():
     assert diag["status"] == "priced", diag
     assert len(out) >= 3, (out, diag)
     assert all(5.0 < v < 40.0 for v in out.values()), out
-    assert diag["season_scale_sources_dropped"] == ["CBS"], diag["season_scale_sources_dropped"]
-    # THE NOTE COUNTS WHAT CONTRIBUTED, NOT WHAT WAS ASKED. It read "≥2 of 4
-    # sources" on this exact capture while CBS was being dropped — the same
-    # overstatement that put "four weekly sources" into register 478.
-    #
-    # MUTATION: report len(WEEKLY_SOURCES) — every Tuesday log claims a
-    # four-source blend the arm did not compute.
-    assert diag["contributing_sources"] == ["ESPN", "FleaFlicker", "NumberFire"], diag
-    assert "of 3 contributing source(s)" in diag["note"], diag["note"]
-    assert "dropped: CBS" in diag["note"], diag["note"]
+    assert diag["season_scale_sources_dropped"] == [], diag["season_scale_sources_dropped"]
+    assert diag["contributing_sources"] == ["CBS", "ESPN", "FleaFlicker", "NumberFire"], diag
+    assert "of 4 contributing source(s)" in diag["note"], diag["note"]
+    assert "dropped" not in diag["note"], diag["note"]
     # and every weekly-scale source joined something
-    assert all(diag["per_source_joined"][s] >= 1 for s in ("ESPN", "FleaFlicker", "NumberFire")), diag["per_source_joined"]
+    assert all(diag["per_source_joined"][s] >= 1 for s in ("CBS", "ESPN", "FleaFlicker", "NumberFire")), diag["per_source_joined"]
 
 
 def test_the_grader_scores_it_as_a_study_arm_on_its_own_and_the_shared_population():

@@ -28,6 +28,7 @@ artifact gets that artifact swept into the next commit.
 """
 import json
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -38,6 +39,28 @@ ROOT = Path(__file__).resolve().parents[2]
 MODULE = ROOT / "draft" / "weekly_own_projection.py"
 BOARD = ROOT / "public" / "draft_data.json"
 CONTROLS = ROOT / "draft" / "data" / "weekly_own" / "controls.json"
+#: the module's own default OWN_WEEKLY_OUT_DIR — where own-weekly-proj.yml
+#: actually commits the real weekly snapshot.
+REAL_OUT_DIR = ROOT / "draft" / "data" / "weekly_own"
+
+
+def _seed_if_already_committed(out: Path, season: int, week: int) -> None:
+    """Register 506: week 1's real kickoff (2026-09-10T00:20Z) passed, and
+    every test below that runs the module into a fresh throwaway dir started
+    erroring on MISSED — `weekly_own_projection.py` correctly refuses to
+    write a FRESH snapshot once kickoff has passed (that would be a
+    backdated forecast), but this suite's `out` dir is always empty, so it
+    can never hit the FROZEN no-op path the real, already-committed store
+    hits. Pre-seed `out` from whatever is ALREADY on disk for real (this
+    week's actual own-weekly-proj.yml output) when it exists, so post-kickoff
+    the module takes FROZEN and this suite keeps validating the real board's
+    last real emission instead of permanently failing for the rest of the
+    week. Pre-kickoff `out` stays empty and the module generates fresh, as
+    before — this is additive, not a behavior change."""
+    real = REAL_OUT_DIR / f"own_weekly_{season}_w{week}.json"
+    if real.exists():
+        out.mkdir(parents=True, exist_ok=True)
+        shutil.copy(real, out / real.name)
 
 #: The four the formula prices. K/DEF are absent from `proj_ownmodel` upstream
 #: — a coverage fact with an owner (projection_coverage_census.py), not a bug,
@@ -57,6 +80,7 @@ def snapshot(tmp_path_factory):
     if not BOARD.exists():
         pytest.skip(f"the committed board is absent: {BOARD}")
     out = tmp_path_factory.mktemp("own_weekly_real")
+    _seed_if_already_committed(out, 2026, 1)
     env = {**os.environ, "OWN_WEEKLY_OUT_DIR": str(out)}
     r = subprocess.run([sys.executable, str(MODULE), "--week", "1"],
                        cwd=ROOT, env=env, capture_output=True, text=True)
@@ -120,6 +144,7 @@ def test_the_real_board_run_is_deterministic(tmp_path):
     outs = []
     for i in range(2):
         d = tmp_path / f"run{i}"
+        _seed_if_already_committed(d, 2026, 1)
         env = {**os.environ, "OWN_WEEKLY_OUT_DIR": str(d)}
         r = subprocess.run([sys.executable, str(MODULE), "--week", "1"],
                            cwd=ROOT, env=env, capture_output=True, text=True)

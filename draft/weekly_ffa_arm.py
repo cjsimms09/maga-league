@@ -52,10 +52,14 @@ from weekly_own_projection import first_kickoff_utc  # noqa: E402
 ARM_NAME = "ffa4_weekly"
 #: the four sources that returned weekly rows on the 09-02 control
 #: (register 478); FantasyPros (top-10 leaderboard) and FFToday (season
-#: totals only) are excluded by name, as in the seasonal blend. ⚠️ CBS is
-#: asked but answers a week=N request with SEASON totals (measured 09-02:
-#: games=17, QB max 415) — the scale guard below drops it for the week, so
-#: in practice this is a THREE-source weekly arm until CBS serves weekly.
+#: totals only) are excluded by name, as in the seasonal blend. ⚠️ CBS was
+#: asked but answered a week=N request with SEASON totals AS MEASURED 09-02
+#: (games=17, QB max 415), which the scale guard below dropped for the week
+#: — so the arm ran as three sources until CBS served weekly. Register 506:
+#: re-measured on the 09-09 week-1 capture (games=1, QB Herbert 26.4), CBS
+#: now answers weekly like the other three and the guard passes it through —
+#: this is a live four-source blend whenever CBS's own capture is weekly-scale,
+#: not a fixed three. The guard decides per-capture; nothing here is static.
 WEEKLY_SOURCES = ("CBS", "ESPN", "FleaFlicker", "NumberFire")
 MIN_SOURCES = 2
 POSITIONS = ("QB", "RB", "WR", "TE")
