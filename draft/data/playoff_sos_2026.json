@@ -4,7 +4,7 @@
  "provenance": {
   "method": "For each 2025 player-week in the component store, fantasy points under the league's own scoring table (public/draft_data.json league.scoring) are credited AGAINST that week's opponent defense, derived from the vegas store's complete 2025 pairings (272 games; the component store carries team but not opponent). Per-game = total / games the defense actually played. A team's playoff softness at a position = mean of its 2026 week-15/16/17 opponents' per-game allowed; rank 1 = softest, ties broken by team code A-Z. Team codes normalized through adp.TEAM_ALIASES (board vocabulary, LA->LAR).",
   "sources": {
-   "board": "public/draft_data.json (built_at 2026-09-09T15:42:25Z)",
+   "board": "public/draft_data.json (built_at 2026-09-10T14:47:35Z)",
    "components": "draft/backtest/component_stats_2025.json (fetched 2026-08-18)",
    "pairings": "draft/backtest/vegas_lines_2021_2026.json (fetched 2026-08-18)",
    "schedule": "draft/data/playoff_sched_2026.json (fetched 2026-08-16)"
@@ -29,7 +29,7 @@
    ]
   },
   "players_ranked": 548,
-  "players_absent": 117
+  "players_absent": 118
  },
  "defense_allowed_2025": {
   "ARI": {
@@ -9002,23 +9002,6 @@
    "avg_allowed_per_game": 19.74,
    "softness_rank": 20
   },
-  "13430": {
-   "name": "RJ Maryland",
-   "position": "TE",
-   "team": "GB",
-   "opponents": {
-    "15": "MIA",
-    "16": "CHI",
-    "17": "HOU"
-   },
-   "opp_allowed_per_game": {
-    "15": 13.07,
-    "16": 10.18,
-    "17": 9.72
-   },
-   "avg_allowed_per_game": 10.99,
-   "softness_rank": 14
-  },
   "13432": {
    "name": "Khalil Dinkins",
    "position": "TE",
@@ -10565,6 +10548,23 @@
    },
    "avg_allowed_per_game": 24.13,
    "softness_rank": 19
+  },
+  "11569": {
+   "name": "Jarquez Hunter",
+   "position": "RB",
+   "team": "MIA",
+   "opponents": {
+    "15": "GB",
+    "16": "LAC",
+    "17": "BUF"
+   },
+   "opp_allowed_per_game": {
+    "15": 19.62,
+    "16": 16.99,
+    "17": 22.41
+   },
+   "avg_allowed_per_game": 19.67,
+   "softness_rank": 23
   },
   "7757": {
    "name": "Ben Skowronek",
@@ -12838,6 +12838,12 @@
    "team": "FA",
    "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
   },
+  "13430": {
+   "name": "RJ Maryland",
+   "position": "TE",
+   "team": "FA",
+   "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
+  },
   "14061": {
    "name": "Jeremiah Franklin",
    "position": "TE",
@@ -12952,6 +12958,12 @@
    "team": "FA",
    "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
   },
+  "7601": {
+   "name": "Rondale Moore",
+   "position": "WR",
+   "team": "FA",
+   "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
+  },
   "4663": {
    "name": "Austin Ekeler",
    "position": "RB",
@@ -13045,12 +13057,6 @@
   "4040": {
    "name": "JuJu Smith-Schuster",
    "position": "WR",
-   "team": "FA",
-   "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
-  },
-  "11569": {
-   "name": "Jarquez Hunter",
-   "position": "RB",
    "team": "FA",
    "reason": "no NFL team on the board (free agent or unmapped) \u2014 no playoff schedule exists for this player; absent, not zeroed"
   },

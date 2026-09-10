@@ -89028,11 +89028,11 @@
   },
   {
    "date": "2026-09-10",
-   "n_players": 744,
+   "n_players": 745,
    "state": {
     "11604": {
      "injury_status": "Doubtful",
-     "depth_chart_order": 1,
+     "depth_chart_order": 2,
      "team": "LV",
      "years_exp": 2,
      "adp": 22.33,
@@ -90031,7 +90031,7 @@
      "position": "RB"
     },
     "9482": {
-     "depth_chart_order": 2,
+     "depth_chart_order": 1,
      "team": "LV",
      "years_exp": 3,
      "adp": 293.0,
@@ -90303,7 +90303,7 @@
      "position": "WR"
     },
     "13278": {
-     "depth_chart_order": 5,
+     "depth_chart_order": 4,
      "team": "LAR",
      "years_exp": 0,
      "adp": 396.0,
@@ -90360,7 +90360,7 @@
     },
     "6039": {
      "injury_status": "Questionable",
-     "depth_chart_order": 2,
+     "depth_chart_order": 3,
      "team": "BUF",
      "years_exp": 7,
      "adp": 275.0,
@@ -90409,7 +90409,7 @@
      "position": "WR"
     },
     "12540": {
-     "depth_chart_order": 4,
+     "depth_chart_order": 5,
      "team": "TEN",
      "years_exp": 1,
      "adp": 365.0,
@@ -90592,7 +90592,7 @@
      "position": "TE"
     },
     "11575": {
-     "depth_chart_order": 3,
+     "depth_chart_order": 2,
      "team": "BUF",
      "years_exp": 2,
      "adp": 176.0,
@@ -90619,7 +90619,7 @@
      "position": "TE"
     },
     "11599": {
-     "depth_chart_order": 3,
+     "depth_chart_order": 2,
      "team": "HOU",
      "years_exp": 2,
      "adp": 444.0,
@@ -90732,7 +90732,7 @@
      "position": "WR"
     },
     "13307": {
-     "depth_chart_order": 2,
+     "depth_chart_order": 3,
      "team": "HOU",
      "years_exp": 0,
      "adp": 471.0,
@@ -90954,7 +90954,7 @@
      "position": "RB"
     },
     "12499": {
-     "depth_chart_order": 5,
+     "depth_chart_order": 4,
      "team": "TEN",
      "years_exp": 1,
      "adp": 393.0,
@@ -91183,7 +91183,7 @@
      "position": "WR"
     },
     "10214": {
-     "depth_chart_order": 4,
+     "depth_chart_order": 5,
      "team": "LAR",
      "years_exp": 3,
      "adp": 598.0,
@@ -91606,7 +91606,7 @@
      "position": "WR"
     },
     "11199": {
-     "depth_chart_order": 3,
+     "depth_chart_order": 4,
      "team": "DAL",
      "years_exp": 3,
      "adp": 283.0,
@@ -91922,6 +91922,12 @@
      "adp": 496.0,
      "position": "WR"
     },
+    "7601": {
+     "team": "FA",
+     "years_exp": 5,
+     "adp": 950.0,
+     "position": "WR"
+    },
     "13333": {
      "depth_chart_order": 6,
      "team": "IND",
@@ -91986,7 +91992,7 @@
      "position": "WR"
     },
     "11569": {
-     "team": "FA",
+     "team": "MIA",
      "years_exp": 1,
      "adp": 546.0,
      "position": "RB"
@@ -92082,7 +92088,7 @@
      "position": "RB"
     },
     "11510": {
-     "depth_chart_order": 4,
+     "depth_chart_order": 3,
      "team": "DAL",
      "years_exp": 3,
      "adp": 564.0,

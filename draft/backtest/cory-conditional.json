@@ -3,16 +3,46 @@
  "rooms": 200,
  "seed": 20260808,
  "control": "balanced",
- "enrolled": "balanced",
+ "enrolled": "late_qb",
  "leaderboard": [
   {
    "archetype": "late_qb",
-   "mean_edge": 18.38,
+   "mean_edge": 27.12,
    "ci95": [
-    -9.0,
-    43.75
+    0.62,
+    54.0
    ],
-   "mean_divergence": 5.5,
+   "mean_divergence": 5.4,
+   "verdict": "WINNER \u2014 enroll as THE PLAN"
+  },
+  {
+   "archetype": "zero_rb",
+   "mean_edge": 5.62,
+   "ci95": [
+    -15.25,
+    25.88
+   ],
+   "mean_divergence": 1.9,
+   "verdict": "parked: CI includes $0"
+  },
+  {
+   "archetype": "hero_rb",
+   "mean_edge": 5.62,
+   "ci95": [
+    -14.88,
+    25.0
+   ],
+   "mean_divergence": 1.9,
+   "verdict": "parked: CI includes $0"
+  },
+  {
+   "archetype": "elite_te",
+   "mean_edge": 0.75,
+   "ci95": [
+    -19.25,
+    22.38
+   ],
+   "mean_divergence": 3.5,
    "verdict": "parked: CI includes $0"
   },
   {
@@ -37,42 +67,12 @@
   },
   {
    "archetype": "wr_anchor",
-   "mean_edge": -0.38,
+   "mean_edge": -0.75,
    "ci95": [
-    -20.62,
-    18.62
+    -24.12,
+    21.25
    ],
    "mean_divergence": 2.2,
-   "verdict": "parked: CI includes $0"
-  },
-  {
-   "archetype": "zero_rb",
-   "mean_edge": -4.38,
-   "ci95": [
-    -21.12,
-    11.0
-   ],
-   "mean_divergence": 1.9,
-   "verdict": "parked: CI includes $0"
-  },
-  {
-   "archetype": "hero_rb",
-   "mean_edge": -4.38,
-   "ci95": [
-    -20.12,
-    11.38
-   ],
-   "mean_divergence": 1.9,
-   "verdict": "parked: CI includes $0"
-  },
-  {
-   "archetype": "elite_te",
-   "mean_edge": -14.25,
-   "ci95": [
-    -38.25,
-    9.38
-   ],
-   "mean_divergence": 3.5,
    "verdict": "parked: CI includes $0"
   }
  ],

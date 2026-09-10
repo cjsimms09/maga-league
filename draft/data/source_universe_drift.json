@@ -866,6 +866,18 @@
     "entrants": [
      "7204"
     ]
+   },
+   {
+    "from": "2026-09-09",
+    "to": "2026-09-10",
+    "n_before": 459,
+    "n_after": 459,
+    "n_entrants": 0,
+    "n_departures": 0,
+    "departures_real": [],
+    "departures_tie_truncated": [],
+    "departures_real_still_priced": [],
+    "entrants": []
    }
   ],
   "sleeper": [
@@ -1967,6 +1979,22 @@
     "departures_real_still_priced": [],
     "entrants": [
      "7204"
+    ]
+   },
+   {
+    "from": "2026-09-09",
+    "to": "2026-09-10",
+    "n_before": 700,
+    "n_after": 700,
+    "n_entrants": 1,
+    "n_departures": 1,
+    "departures_real": [],
+    "departures_tie_truncated": [
+     "13326"
+    ],
+    "departures_real_still_priced": [],
+    "entrants": [
+     "7601"
     ]
    }
   ]

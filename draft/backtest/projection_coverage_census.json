@@ -3,8 +3,8 @@
  "_question": "which players can a three-way weekly grade actually compare?",
  "_limit": "SEASON projections used as the pre-season proxy for the WEEKLY universes. Re-test at week 1 from real weekly snapshots.",
  "measured_from": {
-  "fantasypros": "2026-09-09",
-  "sleeper": "2026-09-09"
+  "fantasypros": "2026-09-10",
+  "sleeper": "2026-09-10"
  },
  "universes": {
   "fantasypros": 459,
@@ -12,11 +12,11 @@
   "sleeper": 700
  },
  "silently_dropped_by_price_week": {
-  "n": 170,
+  "n": 171,
   "why": "no proj_ownmodel on the board row; price_week skips them and does not count or name them anywhere in the snapshot",
-  "on_board_skill": 665,
+  "on_board_skill": 666,
   "by_position": {
-   "WR": 71,
+   "WR": 72,
    "RB": 48,
    "TE": 34,
    "QB": 17
