@@ -1,6 +1,6 @@
 # THIS WEEK — coryjsimms, week 1 (2026)
 
-**Generated 2026-09-09T13:37:28+00:00 from LIVE Sleeper. THE ROSTER RULE: any statement about
+**Generated 2026-09-11T17:04:24+00:00 from LIVE Sleeper. THE ROSTER RULE: any statement about
 Cory's roster or matchup cites this file (fresh within 3 days) or live
 Sleeper — a frozen seat plan or tournament artifact is never a source for
 who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
@@ -17,14 +17,14 @@ who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
 | S | Caleb Williams | QB | CHI | at CAR (Sun) | 25.0 (-3) |  |
 |   | Rome Odunze | WR | CHI | at CAR (Sun) | 25.0 (-3) | Questionable |
 | S | Harrison Mevis | K | LAR | vs SF (Thu) | 25.8 (-3.5) |  |
-| S | Quinshon Judkins | RB | CLE | at JAX (Sun) | 16.0 (+8.5) |  |
+|   | Quinshon Judkins | RB | CLE | at JAX (Sun) | 16.0 (+8.5) |  |
 |   | Emmett Johnson | RB | KC | vs DEN (Mon) | 23.0 (-2.5) |  |
-|   | Davante Adams | WR | LAR | vs SF (Thu) | 25.8 (-3.5) |  |
+| S | Davante Adams | WR | LAR | vs SF (Thu) | 25.8 (-3.5) |  |
 | S | Derrick Henry | RB | BAL | at IND (Sun) | 25.8 (-3.5) |  |
 |   | Courtland Sutton | WR | DEN | at KC (Mon) | 20.5 (+2.5) |  |
 | S | Juwan Johnson | TE | NO | at DET (Sun) | 21.5 (+7) |  |
-| S | Ja'Marr Chase | WR | CIN | vs TB (Sun) | 27.2 (-4) | Questionable |
-|   | Rachaad White | RB | WAS | at PHI (Sun) | 19.8 (+4.5) | Questionable |
+| S | Ja'Marr Chase | WR | CIN | vs TB (Sun) | 27.2 (-4) |  |
+|   | Rachaad White | RB | WAS | at PHI (Sun) | 19.8 (+4.5) |  |
 | S | Kenneth Walker | RB | KC | vs DEN (Mon) | 23.0 (-2.5) |  |
 |   | Parker Washington | WR | JAX | vs CLE (Sun) | 24.5 (-8.5) |  |
 |   | Zach Charbonnet | RB | SEA | vs NE (Wed) | 23.8 (-3.5) | PUP |
@@ -41,9 +41,9 @@ who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
 |   | Aaron Jones | RB | MIN | vs GB (Sun) | 23.8 (-1.5) |  |
 |   | Kyler Murray | QB | MIN | vs GB (Sun) | 23.8 (-1.5) |  |
 | S | Terry McLaurin | WR | WAS | at PHI (Sun) | 19.8 (+4.5) |  |
-| S | D'Andre Swift | RB | CHI | at CAR (Sun) | 25.0 (-3) | Questionable |
+| S | D'Andre Swift | RB | CHI | at CAR (Sun) | 25.0 (-3) |  |
 | S | Nico Collins | WR | HOU | vs BUF (Sun) | 22.8 (-1) |  |
-|   | Chuba Hubbard | RB | CAR | vs CHI (Sun) | 22.0 (+3) | Questionable |
+|   | Chuba Hubbard | RB | CAR | vs CHI (Sun) | 22.0 (+3) |  |
 |   | Rhamondre Stevenson | RB | NE | at SEA (Wed) | 20.2 (+3.5) |  |
 | S | Trey McBride | TE | ARI | at LAC (Sun) | 18.8 (+10) |  |
 | S | George Pickens | WR | DAL | at NYG (Sun) | 25.8 (-3) |  |
@@ -52,7 +52,7 @@ who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
 
 ## Second opinion (props vs champion)
 
-_Read from `draft/data/weekly_own/second_opinion_2026_w1.json` (generated 2026-09-09T11:22:53.495650+00:00; champion arm `v1_pull3`; 13 of 14 rostered skill players carry a line). REPORT ONLY — the props arm is P354's challenger, not the grader's input yet._
+_Read from `draft/data/weekly_own/second_opinion_2026_w1.json` (generated 2026-09-10T17:25:15.899883+00:00; champion arm `v1_pull3`; 13 of 14 rostered skill players carry a line). REPORT ONLY — the props arm is P354's challenger, not the grader's input yet._
 
 | st | player | pos | champion | props | props − champion |
 |---|---|---|---|---|---|
