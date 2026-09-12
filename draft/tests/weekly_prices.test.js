@@ -211,3 +211,107 @@ console.log('weekly_prices: +4 — week-1 row priced by the blend, fallbacks int
 }
 
 console.log('weekly_prices: +2 — season payload refused by shape, board floor keeps every starter priced');
+
+/* ── A BLEND MAY NOT CLAIM A PROVENANCE IT DOES NOT HAVE ─────────────────────
+ * Added 2026-09-12 for a defect I shipped on 09-09. `chooseProjection` returned
+ * `src: 'fp+sleeper'` for ANY finite blended number, so the `from` map that
+ * knows where the price came from was computed and thrown away.
+ *
+ * THE KNOWN POSITIVE IS THE LIVE TREE, not a fixture: week 2 has no archive
+ * until Wednesday, so every price it can produce is the board's season rate —
+ * and that is the week Cory sets a lineup for on Tuesday. The page called those
+ * numbers "this week's projection (FantasyPros + Sleeper, on our scoring)" AND
+ * suppressed its own directional caveat, because the caveat is keyed on the
+ * label. Two wrongs from one discarded field.
+ */
+
+// 12 — every label the `from` map can actually emit, mapped explicitly.
+{
+  assert.strictEqual(WP.srcForBlend('board_season_rate'), 'board-season-rate',
+    'THE BUG: a board season rate must never report itself as a weekly projection');
+  assert.strictEqual(WP.srcForBlend('fantasypros'), 'fp+sleeper');
+  assert.strictEqual(WP.srcForBlend('sleeper'), 'fp+sleeper');
+  assert.strictEqual(WP.srcForBlend('fantasypros+sleeper'), 'fp+sleeper');
+  assert.strictEqual(WP.srcForBlend('own_weekly'), 'own-weekly',
+    'our own model is a forecast, but it is not FantasyPros and must not say so');
+  assert.strictEqual(WP.srcForBlend('fantasypros+own_weekly'), 'fp+sleeper');
+  // FAIL-SAFE: a source added upstream loses the caveat on purpose, not by default
+  assert.strictEqual(WP.srcForBlend('some_new_source_2027'), 'blend-unknown');
+  assert.strictEqual(WP.srcForBlend(''), 'blend-unknown');
+  // and the pre-09-12 two-argument signature is untouched
+  assert.strictEqual(WP.srcForBlend(undefined), 'fp+sleeper');
+  assert.strictEqual(WP.srcForBlend(null), 'fp+sleeper');
+}
+
+// 13 — chooseProjection carries the label through without touching the number.
+{
+  const p = WP.chooseProjection(WEEK1_ROW, 17.58, 'board_season_rate');
+  assert.strictEqual(p.proj, 17.58, 'the fix must not change any number');
+  assert.strictEqual(p.src, 'board-season-rate');
+  assert.strictEqual(WP.chooseProjection(WEEK1_ROW, 17.58, 'fantasypros').src, 'fp+sleeper');
+  // two-arg callers behave exactly as before
+  assert.strictEqual(WP.chooseProjection(WEEK1_ROW, 17.58).src, 'fp+sleeper');
+}
+
+// 14 — THE VIEW'S OWN MAP: whatever a season rate reports must NOT be in the
+//      set that suppresses the directional caveat. Read out of the template, so
+//      re-adding it there fails here rather than on Cory's screen.
+{
+  const ejs = fs.readFileSync(path.join(ROOT, 'views', 'lineup.ejs'), 'utf8');
+  const m = ejs.match(/const PROJ_IS_FORECAST = \{([^}]*)\}/);
+  assert.ok(m, 'PROJ_IS_FORECAST not found in views/lineup.ejs — did it move?');
+  const forecastKeys = m[1].split(',').map(s => s.split(':')[0].trim().replace(/^['"]|['"]$/g, ''))
+    .filter(Boolean);
+  assert.ok(!forecastKeys.includes('board-season-rate'),
+    `a season rate must show the caveat; PROJ_IS_FORECAST = ${forecastKeys.join(', ')}`);
+  assert.ok(!forecastKeys.includes('blend-unknown'),
+    'an unnameable source must show the caveat');
+  // CONTROL: the set is not simply empty, or the assertions above prove nothing
+  assert.ok(forecastKeys.includes('fp+sleeper'),
+    'a real weekly projection should still suppress the caveat');
+  // and every label the module can emit has a human label on the page
+  const labels = ejs.match(/const SRC_LABEL = \{[\s\S]*?\n  \};/);
+  assert.ok(labels, 'SRC_LABEL not found in views/lineup.ejs');
+  ['board-season-rate', 'blend-unknown', 'own-weekly', 'fp+sleeper']
+    .forEach(k => assert.ok(labels[0].includes(`'${k}'`) || labels[0].includes(`${k}:`),
+      `SRC_LABEL has no entry for ${k}, so the page would print "unknown source"`));
+}
+
+// 15 — REAL DATA, BOTH ARMS: a week with no archive is labelled a season rate,
+//      and the week that HAS one is still labelled a projection. One arm alone
+//      would pass if the fix had simply downgraded everything.
+{
+  const hist = path.join(ROOT, 'draft', 'data', 'league_history.json');
+  if (fs.existsSync(hist)) {
+    const archDir = path.join(ROOT, 'draft', 'data', 'weekly_projection_archive');
+    const has = w => fs.existsSync(path.join(archDir,
+      `weekly_projection_archive_2026_w${w}.json`));
+    // the first week 1..17 with no archive: the live "next week" case
+    let bare = null;
+    for (let w = 1; w <= 17 && bare === null; w++) if (!has(w)) bare = w;
+    if (bare !== null) {
+      const r = WP.weeklyPrices(2026, bare, {});
+      const srcs = new Set(Object.values(r.from || {}));
+      assert.deepStrictEqual([...srcs], ['board_season_rate'],
+        `week ${bare} has no archive, so every price must be the board floor; got ${[...srcs]}`);
+      const anyId = Object.keys(r.byId)[0];
+      assert.strictEqual(
+        WP.chooseProjection({ id: anyId, pos: 'RB' }, r.byId[anyId], r.from[anyId]).src,
+        'board-season-rate',
+        `week ${bare} must describe itself as a season rate, not a weekly projection`);
+    }
+    // CONTROL ARM: a week that DOES have an archive still reports a projection
+    if (has(1)) {
+      const r1 = WP.weeklyPrices(2026, 1, {});
+      const fpId = Object.keys(r1.from).find(id => r1.from[id] === 'fantasypros');
+      assert.ok(fpId, 'week 1 should have FantasyPros-priced players');
+      assert.strictEqual(
+        WP.chooseProjection({ id: fpId, pos: 'WR' }, r1.byId[fpId], r1.from[fpId]).src,
+        'fp+sleeper',
+        'the fix must not downgrade a real weekly projection');
+    }
+  }
+}
+
+console.log('weekly_prices: +4 — a blend can only claim the provenance it has; '
+  + "the no-archive week says so on the page, the archived week still doesn't");

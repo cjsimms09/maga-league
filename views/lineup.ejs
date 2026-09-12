@@ -18,13 +18,20 @@
    * making the promise true rather than by softening the copy. */
   const SRC_LABEL = {
     'fp+sleeper': "this week's projection (FantasyPros + Sleeper, on our scoring)",
+    'own-weekly': "this week's projection (our own weekly model, on our scoring)",
     sleeper: 'live projections',
+    'board-season-rate': "the board's season per-game rate — NO weekly projection for this week yet, so these numbers do not know this week's matchup",
+    'blend-unknown': 'a blended projection whose source this page cannot name',
     'season-avg': "this season's per-game average (no weekly projection for this week yet)",
     'last-week': "last week's points (no weekly projection for this week yet)",
     none: 'no projection data yet',
   };
-  // A real forward projection needs no "treat these as directional" caveat.
-  const PROJ_IS_FORECAST = { 'fp+sleeper': true, sleeper: true };
+  /* A real forward projection needs no "treat these as directional" caveat.
+     KEEP THIS LIST TIGHT: anything absent here shows the caveat, which is the
+     safe direction. `board-season-rate` was silently inside this set until
+     2026-09-12 — it reached the page as `fp+sleeper`, so a season average both
+     claimed to be a weekly projection and had its warning suppressed. */
+  const PROJ_IS_FORECAST = { 'fp+sleeper': true, 'own-weekly': true, sleeper: true };
   const G = (typeof guide !== 'undefined' && guide) || {};
 %>
 

@@ -288,11 +288,55 @@ function weeklyPrices(season, week, opts) {
  * than the last one it happened to use — a lineup mixing a real projection with
  * a season average should describe itself as the projection.
  */
-const SOURCE_RANK = { 'fp+sleeper': 4, sleeper: 3, 'season-avg': 2, 'last-week': 1, none: 0 };
+const SOURCE_RANK = {
+  'fp+sleeper': 6, 'own-weekly': 5, sleeper: 4, 'board-season-rate': 2,
+  'season-avg': 2, 'blend-unknown': 1, 'last-week': 1, none: 0,
+};
 
-function chooseProjection(row, blended) {
+/* WHAT THE BLEND IS ALLOWED TO CALL ITSELF — added 2026-09-12 (relay), and it
+ * is a defect I shipped three days earlier.
+ *
+ * `chooseProjection` used to hardcode `src: 'fp+sleeper'` for ANY finite
+ * blended number, throwing away the `from` map that knows where the number
+ * actually came from. Measured on the live tree for week 2, which is the week
+ * Cory sets a lineup for on Tuesday: `weeklyPrices(2026, 2)` prices 768
+ * players and EVERY ONE of them comes from `board_season_rate` — a season
+ * per-game rate off the board, because week 2's archive is not written until
+ * Wednesday. So the page printed "this week's projection (FantasyPros +
+ * Sleeper, on our scoring)" over season averages, and because
+ * `PROJ_IS_FORECAST['fp+sleeper']` is true it ALSO suppressed the "treat these
+ * as directional" caveat. A season average wearing a forecast's label with its
+ * warning removed, on the surface he decides from.
+ *
+ * `live.projPending` did not save it: that is `projSource === 'none' ||
+ * ev.mean < 1`, and a full board of season rates produces a healthy mean.
+ *
+ * The rule now: a blend may claim to be a forward projection only if a weekly
+ * forecast source is actually in it. An unrecognised label reports
+ * `blend-unknown`, which is deliberately NOT a forecast — a new source added
+ * upstream should lose the caveat on purpose, never by default.
+ */
+const FORECAST_FROM = new Set(['fantasypros', 'sleeper']);
+const OWN_FROM = 'own_weekly';
+const SEASON_RATE_FROM = 'board_season_rate';
+
+function srcForBlend(fromLabel) {
+  // undefined = a caller that does not track provenance (the pre-09-12
+  // signature, still used by tests that pass a bare number). Unchanged.
+  if (fromLabel == null) return 'fp+sleeper';
+  const parts = String(fromLabel).split('+').filter(Boolean);
+  if (!parts.length) return 'blend-unknown';
+  if (parts.some(p => FORECAST_FROM.has(p))) return 'fp+sleeper';
+  if (parts.every(p => p === OWN_FROM)) return 'own-weekly';
+  if (parts.every(p => p === SEASON_RATE_FROM)) return 'board-season-rate';
+  return 'blend-unknown';
+}
+
+function chooseProjection(row, blended, fromLabel) {
   const r = row || {};
-  if (Number.isFinite(Number(blended))) return { proj: Number(blended), src: 'fp+sleeper' };
+  if (Number.isFinite(Number(blended))) {
+    return { proj: Number(blended), src: srcForBlend(fromLabel) };
+  }
   if (r.proj != null) return { proj: Number(r.proj), src: 'sleeper' };
   if (r.seasonPts != null && r.gp) return { proj: Number(r.seasonPts) / Number(r.gp), src: 'season-avg' };
   if (r.wkPts != null) return { proj: Number(r.wkPts), src: 'last-week' };
@@ -305,4 +349,4 @@ function betterSource(a, b) {
 
 module.exports = { weeklyPrices, scaleGuard, ownWeekly, PROJ_GAMES,
   WEEKLY_MAX_MEDIAN, SEASON_LIKE_MEDIAN, chooseProjection, betterSource, SOURCE_RANK,
-  weekShapeCheck, boardWeekly, SEASON_GP };
+  weekShapeCheck, boardWeekly, SEASON_GP, srcForBlend };

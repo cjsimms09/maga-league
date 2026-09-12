@@ -3775,17 +3775,25 @@ async function liveOptimizeFor(world, owners, me) {
      * The old sources stay BELOW it as fallbacks, so a week with no archive
      * behaves exactly as it does today rather than losing a recommendation. */
     let wkPrices = {};
+    /* WHERE EACH PRICE CAME FROM, carried alongside the price itself. Taking
+     * only `.byId` and dropping `.from` is what let a board season-rate print
+     * as "this week's FantasyPros + Sleeper projection" for week 2 (the header
+     * note on srcForBlend has the measurement). The label is not decoration —
+     * it decides whether the page shows its own directional caveat. */
+    let wkFrom = {};
     try {
       const seasonNo = Number((sData && sData.state && sData.state.season) || 0);
       if (seasonNo && wk) {
-        wkPrices = require('../weekly_prices').weeklyPrices(seasonNo, Number(wk), {}).byId || {};
+        const wkRes = require('../weekly_prices').weeklyPrices(seasonNo, Number(wk), {});
+        wkPrices = wkRes.byId || {};
+        wkFrom = wkRes.from || {};
       }
-    } catch (e) { wkPrices = {}; }
+    } catch (e) { wkPrices = {}; wkFrom = {}; }
     const WPmod = require('../weekly_prices');
     const rosterIn = roster.rows.filter(r => r.pos && r.pos !== '?').map(r => {
       // Selection lives in weekly_prices.chooseProjection so it is testable;
       // the week-1 all-nulls case is its known positive.
-      const picked = WPmod.chooseProjection(r, wkPrices[String(r.id)]);
+      const picked = WPmod.chooseProjection(r, wkPrices[String(r.id)], wkFrom[String(r.id)]);
       const proj = picked.proj, src = picked.src;
       // The page names ONE source, so it names the BEST one in play: a lineup
       // mixing a real projection with a season average should describe itself
