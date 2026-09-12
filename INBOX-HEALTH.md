@@ -7,32 +7,20 @@ by hand, so it cannot quietly stop being true.
 Two questions, measured:
 **is anyone answering**, and **is any finished work invisible from `main`**.
 
-_Last measured: 2026-09-11 14:24 UTC_
+_Last measured: 2026-09-12 14:19 UTC_
 
 ```
 ============================================================================
 ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
-  1050 items · 342 open · 337 of those carry a DEFAULT (silence resolves them)
-  5 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
-  of 5 open item(s) with no default: 0 SAY they ask for nothing · 0 are BROADCASTS (same
-  header in 3+ inboxes — a rule, not four decisions) · 5 declare NEITHER, so nobody
+  1051 items · 338 open · 337 of those carry a DEFAULT (silence resolves them)
+  0 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
+  of 1 open item(s) with no default: 0 SAY they ask for nothing · 0 are BROADCASTS (same
+  header in 3+ inboxes — a rule, not four decisions) · 1 declare NEITHER, so nobody
   can tell whether a decision is owed. That last number is the real state of the inbox.
   NEITHER IS SUBTRACTED: "no ask" is a loophole anyone can type, so the baseline stays
   comparable and the split prints beside it. Only the broadcast half is unfakeable —
   rewording is precisely what stops it matching.
-
-  waiting on:
-       2     7d oldest   B
-       2     7d oldest   C
-       1     6d oldest   A
-
-  the five oldest:
-    7d  2026-09-04 · A → C · 🔴→🟢 **I FIXED A RED CAPTURE IN YOUR FILE — `weekly_projection_archive.py`
-    7d  2026-09-04 · A → B · ❓ **ONE QUESTION, AND IT DECIDES A GUARD'S SHAPE (register 483): does the w
-    6d  2026-09-05 · relay → A · 🧯 **SIX PIECES OF FINISHED, CI-GREEN WORK WERE ON NO BRANCH AND NOT ON
-    6d  2026-09-05 · relay → B · 🎁 **YOUR THREE OWNER-FACING FEATURES WERE NEVER ON `main` — THEY ARE N
-    3d  2026-09-08 · relay → C · 🔁 **REGISTER 492 FOLLOW-UP: STILL OPEN, NO COMMITS SINCE FILED, AND TO
 
   DOES THE LOOP VISIBLY CLOSE? — ticked share by sender→recipient
   (a low rate is a QUESTION: real backlog, or answered and never ticked?)
@@ -41,13 +29,13 @@ ROUTES RESPONSE CHECK — is anyone answering?
     E → A                    111 items    26% ticked    0 open with NO default
     Cory (via relay) → A       6 items    33% ticked    0 open with NO default
     relay → D                 20 items    40% ticked    0 open with NO default
-    A → E                     24 items    50% ticked    2 open with NO default
-    relay → A                145 items    56% ticked    2 open with NO default
+    relay → A                146 items    57% ticked    1 open with NO default
+    A → E                     24 items    58% ticked    0 open with NO default
     D → C                      5 items    60% ticked    0 open with NO default
     D → A                    113 items    60% ticked    0 open with NO default
-    relay → C                 33 items    67% ticked    1 open with NO default
     A → A                     83 items    67% ticked    0 open with NO default
     B → A                     69 items    70% ticked    0 open with NO default
+    relay → C                 33 items    70% ticked    0 open with NO default
     A → D                     14 items    86% ticked    0 open with NO default
     A → C                     38 items    89% ticked    0 open with NO default
     C → C                     14 items    93% ticked    0 open with NO default
@@ -66,10 +54,9 @@ ROUTES RESPONSE CHECK — is anyone answering?
     B → E                     14 items   100% ticked    0 open with NO default
     relay/PM → E              10 items   100% ticked    0 open with NO default
 
-  baseline 0  ->  now 5
+  baseline 0  ->  now 0
 
-  ❌ THE BACKLOG GREW BY 5. Answer them, add a DEFAULT so silence resolves them, or SEND BACK.
-     A ratchet that only reports is the thing that failed here already.
+  Holding at the baseline. Not worse.
 ============================================================================
 ```
 
@@ -77,7 +64,7 @@ ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
 LANE STATUS — work that exists but `main` cannot see
 ============================================================================
-        1 commits    73h old  claude/focused-carson-2lfeys
+        1 commits    97h old  claude/focused-carson-2lfeys
 
   (16 branch(es) older than 5d not shown — old divergence, not stranded work.)
 
