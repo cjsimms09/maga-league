@@ -1013,6 +1013,23 @@ function weekDrill(season, week, ownerDisplayName) {
   };
 }
 
+// THE HONESTY FIX (register 496, Cory's option ②, 2026-09-13). The cron fires
+// at a ruled 15:45Z (75 min before the early Sunday slate) but this repo's own
+// scheduler-delay measurement (register 495: median 3h45, 97% over an hour
+// late) means it lands after kickoff more often than not — two of its last
+// four firings did. The cron slot is NOT moved (moving it re-creates the
+// defect 15:45Z was chosen to fix, and it is Cory's cadence to change, not
+// code's) — this only labels a late-firing alert as late rather than letting
+// it read as timely. Kickoff is 1pm ET; the UTC hour flips at the US DST
+// fall-back (2026-11-01, GO-RUNBOOK's own note), so the boundary is dated
+// rather than a single hardcoded constant.
+const DST_FALLBACK_2026_UTC_MS = Date.UTC(2026, 10, 1, 6, 0, 0); // ~2am ET Nov 1
+function earlySundayKickoffUtcMs(now) {
+  const d = now instanceof Date ? now : new Date(now);
+  const hour = d.getTime() < DST_FALLBACK_2026_UTC_MS ? 17 : 18; // EDT then EST
+  return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), hour, 0, 0);
+}
+
 // THE SUNDAY ALERT — the thing that actually captures the leak: fires before
 // kickoff with the specific start/sit calls and what each is worth in dollars.
 // Formats an optimize() result into a concise, deliverable alert (email + the
@@ -1089,6 +1106,7 @@ function sundayAlert(result, opts = {}) {
 module.exports = {
   // engine
   optimize, bestLineup, inferPositions, slotsFromTemplate, DEFAULT_SLOTS, weekDrill, sundayAlert, weeklyPosture,
+  earlySundayKickoffUtcMs,
   activeProjection, isInactive, INACTIVE_INJURY, FLEX_ELIGIBLE, FLEX_SLOTS,
   positionSigmas, sigmaOf, weeklyHighBand, typicalTeamScore,
   pWin, pClearHigh, normCdf, lineupStats,

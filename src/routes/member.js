@@ -307,6 +307,9 @@ router.get('/api/sunday-alert', aw(async (req, res) => {
   // stamped in production stay stamped; only the Thursday scope suffixes.
   const scope = req.query.scope === 'thursday' ? 'thursday' : 'sunday';
   if (scope === 'thursday') alert.scope = 'thursday';
+  // Register 496 / option ②: label a late-firing Sunday alert as late rather
+  // than letting it read as timely (no cadence change — see lineup.js).
+  if (scope === 'sunday') alert.postKickoff = Date.now() >= LO.earlySundayKickoffUtcMs(new Date());
   const stampKey = `sunday-alert-sent:${season}:${weekNo}` + (scope === 'thursday' ? ':thu' : '');
   const already = await getDoc(stampKey, null);
   if (already) {

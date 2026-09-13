@@ -251,6 +251,20 @@ async function sundayAlert(owners, alert) {
   const tag = MODE[mode] || MODE.protect;
   let body = '';
 
+  // THE HONESTY LEAD (register 496, option ②, 2026-09-13). This alert is
+  // scheduled for 75 minutes before the early Sunday slate, but this repo's
+  // own measurement (register 495) found the scheduler running a median 3h45
+  // late — so it lands after kickoff more often than not, and used to say
+  // nothing about it. No cadence change: the cron slot stays exactly where
+  // Cory's constraints put it, and moving it re-creates the game-time-decision
+  // gap that slot was chosen to fix. This only stops a late alert from reading
+  // as timely.
+  if (alert.postKickoff) {
+    body += `<div style="font-size:12px;color:#8a6d3b;background:#fff8e1;padding:6px 10px;`
+          + `border-radius:4px;margin-bottom:12px">⏱ This alert fired after the early Sunday `
+          + `kickoff — some of today's game-time calls may already be locked.</div>`;
+  }
+
   // A DEAD SLOT LEADS. The alert now only arrives when there is something to do,
   // and this is one of the two things — a player in the lineup who cannot score.
   // It goes above the posture because it is not a probability judgement: he is
