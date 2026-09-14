@@ -8,8 +8,8 @@ _anchor: **FANTASYPROS** (MFL live: False) · flat-cost keeper model · 200 pair
 |---|---|---|---|---|---|
 | Chase | WR | 271.8 | 101.5 | 3.0 | 5 |
 | Henry | RB | 259.1 | 78.05 | 16.3 | 10 |
-| Walker | RB | 233.8 | 52.72 | 16.0 | 4 |
-| Nabers | WR | 195.5 | 25.2 | 5.8 | 2 |
+| Walker | RB | 233.8 | 52.72 | 15.7 | 4 |
+| Nabers | WR | 195.5 | 25.2 | 6.6 | 2 |
 
 ## (A) Raw surplus — every slate, ranked
 
@@ -37,14 +37,14 @@ _surplus = Σ keeper VORP − Σ cost of the first k picks (103.91+62.08+36.2)_
 
 | slate | E[$] | vs current (95% CI) | RB kept | RB drafted (mean, VORP) |
 |---|---|---|---|---|
-| Chase+Henry+Walker | 874 | — (control) | 2 | 2.23 @ -58.1 |
-| Chase+Henry+Nabers | 798 | -75.5 [-95.0, -55.38] | 1 | 3.23 @ -55.1 |
-| Chase+Nabers+Walker | 773 | -100.6 [-126.25, -75.12] | 1 | 3.23 @ -54.8 |
-| Chase+Henry | 691 | -182.6 [-214.5, -152.5] | 1 | 2.85 @ -52.6 |
+| Chase+Henry+Walker | 863 | — (control) | 2 | 2.32 @ -65.4 |
+| Chase+Henry+Nabers | 788 | -74.8 [-96.0, -54.62] | 1 | 3.35 @ -62.8 |
+| Chase+Nabers+Walker | 758 | -104.5 [-130.75, -78.62] | 1 | 3.35 @ -62.8 |
+| Chase+Henry | 736 | -126.9 [-159.88, -94.75] | 1 | 3.08 @ -61.9 |
 
 ## The bias flag (Cory's hypothesis, applied to THIS decision)
 
-- Nabers model VORP **25.2**; market-implied VORP (his ADP rank 6) **37.2** — model and market roughly agree.
+- Nabers model VORP **25.2**; market-implied VORP (his ADP rank 7) **36.8** — model and market roughly agree.
 - Breakeven to keep Nabers over **Walker**: VORP **52.72**; over **Henry**: VORP **78.05**.
 - So even trusting the market over our model, Nabers' value does not reach the breakeven; the bias would have to be very large AND unshared by the market to flip it.
 
@@ -52,9 +52,9 @@ _surplus = Σ keeper VORP − Σ cost of the first k picks (103.91+62.08+36.2)_
 
 | experience | n | VORP rank − ADP rank (+ = we rank below market) |
 |---|---|---|
-| rookie(0) | 92 | +17.6 |
-| 2nd-yr(1) | 84 | +15.9 |
-| 3rd-yr(2) | 65 | +13.9 |
-| vet(3+) | 330 | -11.7 |
+| rookie(0) | 92 | +20.1 |
+| 2nd-yr(1) | 84 | +19.3 |
+| 3rd-yr(2) | 65 | +14.7 |
+| vet(3+) | 332 | -13.3 |
 
 **Caveats:** anchor = FANTASYPROS; MFL not live yet, so ranked by FFC (source grade prefers MFL directionally — flagged, not yet wired to the live board) · surplus is flat-cost (top_picks_flat): keeping k forfeits your first k picks · MC dollars are the v1 proxy (proj-normal weeks + weekly-high + regular-season); rankings travel, absolute $ are harness-dependent · bias probe is model-vs-MARKET cross-sectional; a bias SHARED by model+market needs realized outcomes (Lab test #1) and BBM at scale (test #3)

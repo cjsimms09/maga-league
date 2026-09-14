@@ -2,8 +2,8 @@
  "meta": {
   "generated_from": "opening_script.py \u2014 derives from board + REAL designations (supersede) + predicted slates (fill); regenerate on any input change",
   "fingerprint": {
-   "board_built_at": "2026-09-09T15:42:25Z",
-   "board_content_hash": "5335054bf9b3",
+   "board_built_at": "2026-09-10T14:47:35Z",
+   "board_content_hash": "8866a24e83ab",
    "my_slot": 8,
    "my_keepers_hash": "a6963871266e",
    "predicted_slates_hash": "631e6d3d04d9",
@@ -11,8 +11,8 @@
   },
   "slot_provenance": "site-claimed \u2014 Sleeper draft order pending (regenerates on assignment)",
   "doctrine": {
-   "enrolled": "Balanced Value (the control)",
-   "why": "19b race ran; no archetype cleared the paired CI + even-money band"
+   "enrolled": "Late-QB",
+   "why": "19b Cory-conditional race: +$31/season vs control (CI [6.88, 56.75], 4.9 contested decisions/draft; v1 money proxy, Sept quantile re-run pre-registered); runner-up Robust-RB +$0"
   },
   "keeper_basis": {
    "designated_teams": 9,
@@ -76,8 +76,17 @@
       "name": "Josh Jacobs",
       "position": "RB",
       "vorp": 42.8,
-      "survival": 0.85,
+      "survival": 0.83,
       "adp": 45.3,
+      "_onesie_reach": false
+     },
+     {
+      "player_id": "11564",
+      "name": "Drake Maye",
+      "position": "QB",
+      "vorp": 23.2,
+      "survival": 0.26,
+      "adp": 28.9,
       "_onesie_reach": false
      },
      {
@@ -85,7 +94,7 @@
       "name": "Tyler Warren",
       "position": "TE",
       "vorp": 22.2,
-      "survival": 0.29,
+      "survival": 0.25,
       "adp": 27.0,
       "_onesie_reach": false
      },
@@ -94,7 +103,7 @@
       "name": "Joe Burrow",
       "position": "QB",
       "vorp": 17.4,
-      "survival": 0.28,
+      "survival": 0.31,
       "adp": 28.2,
       "_onesie_reach": false
      },
@@ -105,15 +114,6 @@
       "vorp": 14.6,
       "survival": 0.62,
       "adp": 34.2,
-      "_onesie_reach": false
-     },
-     {
-      "player_id": "6904",
-      "name": "Jalen Hurts",
-      "position": "QB",
-      "vorp": 13.2,
-      "survival": 0.67,
-      "adp": 37.4,
       "_onesie_reach": false
      }
     ]
@@ -126,7 +126,7 @@
       "name": "Josh Jacobs",
       "position": "RB",
       "vorp": 42.8,
-      "survival": 0.41,
+      "survival": 0.42,
       "adp": 45.3,
       "_onesie_reach": false
      },
@@ -153,7 +153,7 @@
       "name": "Kyle Pitts",
       "position": "TE",
       "vorp": 7.6,
-      "survival": 0.59,
+      "survival": 0.58,
       "adp": 50.9,
       "_onesie_reach": false
      },
@@ -162,7 +162,7 @@
       "name": "Dak Prescott",
       "position": "QB",
       "vorp": 6.7,
-      "survival": 0.89,
+      "survival": 0.9,
       "adp": 56.5,
       "_onesie_reach": false
      }
@@ -176,7 +176,7 @@
       "name": "Josh Jacobs",
       "position": "RB",
       "vorp": 42.8,
-      "survival": 0.26,
+      "survival": 0.28,
       "adp": 45.3,
       "_onesie_reach": false
      },
@@ -185,8 +185,17 @@
       "name": "Sam LaPorta",
       "position": "TE",
       "vorp": 8.6,
-      "survival": 0.42,
+      "survival": 0.41,
       "adp": 48.4,
+      "_onesie_reach": false
+     },
+     {
+      "player_id": "12506",
+      "name": "Harold Fannin",
+      "position": "TE",
+      "vorp": 7.9,
+      "survival": 0.25,
+      "adp": 47.2,
       "_onesie_reach": false
      },
      {
@@ -203,17 +212,8 @@
       "name": "Dak Prescott",
       "position": "QB",
       "vorp": 6.7,
-      "survival": 0.69,
+      "survival": 0.7,
       "adp": 56.5,
-      "_onesie_reach": false
-     },
-     {
-      "player_id": "9484",
-      "name": "Tucker Kraft",
-      "position": "TE",
-      "vorp": 4.8,
-      "survival": 0.28,
-      "adp": 41.7,
       "_onesie_reach": false
      }
     ]
@@ -228,8 +228,17 @@
       "name": "Josh Jacobs",
       "position": "RB",
       "vorp": 42.8,
-      "survival": 0.85,
+      "survival": 0.83,
       "adp": 45.3,
+      "_onesie_reach": false
+     },
+     {
+      "player_id": "11564",
+      "name": "Drake Maye",
+      "position": "QB",
+      "vorp": 23.2,
+      "survival": 0.26,
+      "adp": 28.9,
       "_onesie_reach": false
      },
      {
@@ -237,7 +246,7 @@
       "name": "Tyler Warren",
       "position": "TE",
       "vorp": 22.2,
-      "survival": 0.29,
+      "survival": 0.25,
       "adp": 27.0,
       "_onesie_reach": false
      },
@@ -246,7 +255,7 @@
       "name": "Joe Burrow",
       "position": "QB",
       "vorp": 17.4,
-      "survival": 0.28,
+      "survival": 0.31,
       "adp": 28.2,
       "_onesie_reach": false
      },
@@ -257,15 +266,6 @@
       "vorp": 14.6,
       "survival": 0.62,
       "adp": 34.2,
-      "_onesie_reach": false
-     },
-     {
-      "player_id": "6904",
-      "name": "Jalen Hurts",
-      "position": "QB",
-      "vorp": 13.2,
-      "survival": 0.67,
-      "adp": 37.4,
       "_onesie_reach": false
      }
     ]
@@ -278,7 +278,7 @@
       "name": "Josh Jacobs",
       "position": "RB",
       "vorp": 42.8,
-      "survival": 0.41,
+      "survival": 0.42,
       "adp": 45.3,
       "_onesie_reach": false
      },
@@ -305,7 +305,7 @@
       "name": "Kyle Pitts",
       "position": "TE",
       "vorp": 7.6,
-      "survival": 0.59,
+      "survival": 0.58,
       "adp": 50.9,
       "_onesie_reach": false
      },
@@ -314,7 +314,7 @@
       "name": "Dak Prescott",
       "position": "QB",
       "vorp": 6.7,
-      "survival": 0.89,
+      "survival": 0.9,
       "adp": 56.5,
       "_onesie_reach": false
      }
@@ -328,7 +328,7 @@
       "name": "Josh Jacobs",
       "position": "RB",
       "vorp": 42.8,
-      "survival": 0.26,
+      "survival": 0.28,
       "adp": 45.3,
       "_onesie_reach": false
      },
@@ -337,8 +337,17 @@
       "name": "Sam LaPorta",
       "position": "TE",
       "vorp": 8.6,
-      "survival": 0.42,
+      "survival": 0.41,
       "adp": 48.4,
+      "_onesie_reach": false
+     },
+     {
+      "player_id": "12506",
+      "name": "Harold Fannin",
+      "position": "TE",
+      "vorp": 7.9,
+      "survival": 0.25,
+      "adp": 47.2,
       "_onesie_reach": false
      },
      {
@@ -355,17 +364,8 @@
       "name": "Dak Prescott",
       "position": "QB",
       "vorp": 6.7,
-      "survival": 0.69,
+      "survival": 0.7,
       "adp": 56.5,
-      "_onesie_reach": false
-     },
-     {
-      "player_id": "9484",
-      "name": "Tucker Kraft",
-      "position": "TE",
-      "vorp": 4.8,
-      "survival": 0.28,
-      "adp": 41.7,
       "_onesie_reach": false
      }
     ]
