@@ -6,10 +6,10 @@ grader). Pre-registered: if naive wins, REPLACE the input; ships nothing (gate f
 
 ## RANKING (mean per-pick rho with realized)
 
-- blend 0.361 · naive 0.319 · market/ADP 0.164 (n=50 picks)
-- **naive − blend: -0.042 CI [-0.087, -0.001] → negative**
-- naive − market: 0.155 CI [0.055, 0.257] → positive
-- blend − market: 0.197 CI [0.121, 0.28] → positive
+- blend 0.365 · naive 0.316 · market/ADP 0.21 (n=45 picks)
+- **naive − blend: -0.049 CI [-0.097, -0.005] → negative**
+- naive − market: 0.105 CI [-0.008, 0.212] → inconclusive
+- blend − market: 0.154 CI [0.064, 0.241] → positive
 
 ## DOLLARS (value-greedy roster per source)
 

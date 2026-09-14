@@ -1,31 +1,31 @@
 {
   "experiment": "33b \u2014 naive as the projection source (tune-vs-replace)",
   "ranking": {
-    "n_picks": 50,
-    "rho_blend": 0.361,
-    "rho_naive": 0.319,
-    "rho_adp": 0.164,
+    "n_picks": 45,
+    "rho_blend": 0.365,
+    "rho_naive": 0.316,
+    "rho_adp": 0.21,
     "naive_minus_blend": {
-      "mean": -0.042,
+      "mean": -0.049,
       "ci95": [
-        -0.087,
-        -0.001
+        -0.097,
+        -0.005
       ],
       "verdict": "negative"
     },
     "naive_minus_adp": {
-      "mean": 0.155,
+      "mean": 0.105,
       "ci95": [
-        0.055,
-        0.257
+        -0.008,
+        0.212
       ],
-      "verdict": "positive"
+      "verdict": "inconclusive"
     },
     "blend_minus_adp": {
-      "mean": 0.197,
+      "mean": 0.154,
       "ci95": [
-        0.121,
-        0.28
+        0.064,
+        0.241
       ],
       "verdict": "positive"
     }
