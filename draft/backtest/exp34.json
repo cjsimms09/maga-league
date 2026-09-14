@@ -1,9 +1,9 @@
 {
   "experiment": "34 \u2014 recommendation-vs-market, policy-level (forgone-value unit)",
-  "n_decisions": 35,
+  "n_decisions": 33,
   "n_pool_picks": 35,
   "n_by_season": {
-    "2026": 8,
+    "2026": 6,
     "2025": 8,
     "2024": 7,
     "2023": 12
@@ -17,93 +17,93 @@
   "underpowered": true,
   "note": "n~41, underpowered; inconclusive => anchor binds HARDER (PRE-REGISTRATION-34)",
   "rank_correlation": {
-    "n_picks": 34,
-    "rho_our_mean": 0.344,
+    "n_picks": 32,
+    "rho_our_mean": 0.313,
     "rho_our_ci": [
-      0.261,
-      0.42
+      0.206,
+      0.411
     ],
-    "rho_market_mean": 0.224,
+    "rho_market_mean": 0.245,
     "rho_market_ci": [
-      0.161,
-      0.287
+      0.149,
+      0.338
     ],
-    "diff_mean": 0.119,
+    "diff_mean": 0.067,
     "diff_ci": [
-      0.022,
-      0.205
+      -0.031,
+      0.163
     ],
-    "verdict": "beat"
+    "verdict": "inconclusive"
   },
   "top5_set_value": {
     "n": 5,
-    "picks": 33,
-    "our_mean": 243.701,
-    "market_mean": 147.946,
-    "delta_mean": 95.755,
+    "picks": 31,
+    "our_mean": 259.424,
+    "market_mean": 157.491,
+    "delta_mean": 101.933,
     "delta_ci": [
-      72.271,
-      118.683
+      78.276,
+      124.877
     ],
     "verdict": "beat"
   },
   "top10_set_value": {
     "n": 10,
-    "picks": 30,
-    "our_mean": 202.064,
-    "market_mean": 143.657,
-    "delta_mean": 58.407,
+    "picks": 27,
+    "our_mean": 224.515,
+    "market_mean": 159.619,
+    "delta_mean": 64.896,
     "delta_ci": [
-      41.477,
-      74.588
+      48.006,
+      81.474
     ],
     "verdict": "beat"
   },
   "bands_forgone_value": [
     {
       "band": "value(<=0)",
-      "n": 17,
-      "hit_rate": 0.235,
-      "mean_delta": 24.694,
+      "n": 15,
+      "hit_rate": 0.267,
+      "mean_delta": 27.987,
       "ci": [
-        -1.235,
-        55.382
+        -1.34,
+        61.66
       ],
       "verdict": "inconclusive",
       "thin": false
     },
     {
       "band": "near-zero",
-      "n": 2,
-      "hit_rate": 1.0,
-      "mean_delta": 40.35,
+      "n": 3,
+      "hit_rate": 0.667,
+      "mean_delta": 26.9,
       "ci": [
-        38.18,
+        0.0,
         42.52
       ],
-      "verdict": "beat",
+      "verdict": "inconclusive",
       "thin": true
     },
     {
       "band": "moderate",
-      "n": 5,
-      "hit_rate": 0.4,
-      "mean_delta": -5.38,
+      "n": 6,
+      "hit_rate": 0.333,
+      "mean_delta": -4.483,
       "ci": [
-        -23.1,
-        15.28
+        -19.417,
+        12.5
       ],
       "verdict": "inconclusive",
       "thin": true
     },
     {
       "band": "large",
-      "n": 9,
-      "hit_rate": 0.444,
-      "mean_delta": -66.684,
+      "n": 8,
+      "hit_rate": 0.5,
+      "mean_delta": -75.02,
       "ci": [
-        -149.504,
-        5.416
+        -163.207,
+        6.212
       ],
       "verdict": "inconclusive",
       "thin": false
@@ -112,12 +112,12 @@
   "bands_adp_distance": [
     {
       "band": "<5",
-      "n": 25,
-      "hit_rate": 0.24,
-      "mean_delta": -13.784,
+      "n": 21,
+      "hit_rate": 0.286,
+      "mean_delta": -16.41,
       "ci": [
-        -51.132,
-        18.91
+        -60.772,
+        21.384
       ],
       "verdict": "inconclusive",
       "thin": false
@@ -198,12 +198,12 @@
     },
     {
       "band": "r12+",
-      "n": 6,
+      "n": 5,
       "hit_rate": 0.0,
-      "mean_delta": -95.157,
+      "mean_delta": -114.188,
       "ci": [
-        -195.697,
-        -3.467
+        -230.676,
+        -4.16
       ],
       "verdict": "lost",
       "thin": true
@@ -212,12 +212,12 @@
   "sensitivity_by_dispersion": [
     {
       "band": "unanimous",
-      "n": 5,
-      "hit_rate": 0.6,
-      "mean_delta": 17.004,
+      "n": 3,
+      "hit_rate": 1.0,
+      "mean_delta": 28.34,
       "ci": [
-        2.1,
-        31.912
+        10.5,
+        42.52
       ],
       "verdict": "beat",
       "thin": true
@@ -236,12 +236,12 @@
     },
     {
       "band": "contested",
-      "n": 13,
-      "hit_rate": 0.385,
-      "mean_delta": -0.314,
+      "n": 11,
+      "hit_rate": 0.455,
+      "mean_delta": -0.371,
       "ci": [
-        -62.035,
-        50.138
+        -75.076,
+        60.4
       ],
       "verdict": "inconclusive",
       "thin": false
@@ -282,12 +282,12 @@
       "took": "10229",
       "took_proj": 140.96,
       "took_realized": 0.0,
-      "adp_best": "10229",
-      "adp_best_proj": 140.96,
+      "adp_best": "7525",
+      "adp_best_proj": 148.19,
       "adp_best_realized": 0.0,
-      "forgone_value": 0.0,
-      "adp_distance": -15.7,
-      "dispersion": 2.0,
+      "forgone_value": 7.23,
+      "adp_distance": null,
+      "dispersion": null,
       "crosses_cliff": null,
       "took_tier": null,
       "adp_best_tier": null
@@ -299,12 +299,12 @@
       "took": "2133",
       "took_proj": 146.41,
       "took_realized": 0.0,
-      "adp_best": "7543",
-      "adp_best_proj": 100.74,
+      "adp_best": "2133",
+      "adp_best_proj": 146.41,
       "adp_best_realized": 0.0,
-      "forgone_value": -45.67,
-      "adp_distance": -10.4,
-      "dispersion": 3.6,
+      "forgone_value": 0.0,
+      "adp_distance": -11.0,
+      "dispersion": 4.7,
       "crosses_cliff": null,
       "took_tier": null,
       "adp_best_tier": null
@@ -320,8 +320,8 @@
       "adp_best_proj": 104.28,
       "adp_best_realized": 0.0,
       "forgone_value": 0.0,
-      "adp_distance": -19.2,
-      "dispersion": 6.5,
+      "adp_distance": -18.2,
+      "dispersion": 7.3,
       "crosses_cliff": null,
       "took_tier": null,
       "adp_best_tier": null
@@ -333,12 +333,12 @@
       "took": "9487",
       "took_proj": 92.53,
       "took_realized": 0.0,
-      "adp_best": "5045",
-      "adp_best_proj": 143.94,
+      "adp_best": "9487",
+      "adp_best_proj": 92.53,
       "adp_best_realized": 0.0,
-      "forgone_value": 51.41,
-      "adp_distance": -9.9,
-      "dispersion": 7.0,
+      "forgone_value": 0.0,
+      "adp_distance": -13.6,
+      "dispersion": 4.3,
       "crosses_cliff": null,
       "took_tier": null,
       "adp_best_tier": null
@@ -350,12 +350,12 @@
       "took": "5045",
       "took_proj": 143.94,
       "took_realized": 0.0,
-      "adp_best": "5045",
-      "adp_best_proj": 143.94,
+      "adp_best": "4037",
+      "adp_best_proj": 166.01,
       "adp_best_realized": 0.0,
-      "forgone_value": 0.0,
-      "adp_distance": -26.6,
-      "dispersion": 6.2,
+      "forgone_value": 22.07,
+      "adp_distance": null,
+      "dispersion": null,
       "crosses_cliff": null,
       "took_tier": null,
       "adp_best_tier": null
@@ -367,46 +367,12 @@
       "took": "11560",
       "took_proj": 249.54,
       "took_realized": 0.0,
-      "adp_best": "421",
-      "adp_best_proj": 215.82,
+      "adp_best": "10222",
+      "adp_best_proj": 132.97,
       "adp_best_realized": 0.0,
-      "forgone_value": -33.72,
-      "adp_distance": -4.4,
-      "dispersion": 13.4,
-      "crosses_cliff": null,
-      "took_tier": null,
-      "adp_best_tier": null
-    },
-    {
-      "season": 2026,
-      "round": 13,
-      "pick_no": 128,
-      "took": "9753",
-      "took_proj": 135.26,
-      "took_realized": 0.0,
-      "adp_best": "12501",
-      "adp_best_proj": null,
-      "adp_best_realized": null,
-      "forgone_value": null,
-      "adp_distance": 11.4,
-      "dispersion": 19.4,
-      "crosses_cliff": null,
-      "took_tier": null,
-      "adp_best_tier": null
-    },
-    {
-      "season": 2026,
-      "round": 15,
-      "pick_no": 148,
-      "took": "8136",
-      "took_proj": 133.54,
-      "took_realized": 0.0,
-      "adp_best": "5022",
-      "adp_best_proj": 99.27,
-      "adp_best_realized": 0.0,
-      "forgone_value": -34.27,
-      "adp_distance": -20.1,
-      "dispersion": 14.7,
+      "forgone_value": -116.57,
+      "adp_distance": null,
+      "dispersion": null,
       "crosses_cliff": null,
       "took_tier": null,
       "adp_best_tier": null

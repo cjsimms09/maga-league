@@ -156,7 +156,7 @@
     {
       "band": "value(<=0)",
       "n": 38,
-      "n_deviations": 35,
+      "n_deviations": 36,
       "sum_dollars": -2350.0,
       "mean_dollars": -61.84
     },
@@ -176,10 +176,10 @@
     },
     {
       "band": "large",
-      "n": 6,
-      "n_deviations": 6,
+      "n": 5,
+      "n_deviations": 5,
       "sum_dollars": -300.0,
-      "mean_dollars": -50.0
+      "mean_dollars": -60.0
     }
   ],
   "traces": {
@@ -274,90 +274,90 @@
         {
           "pick_no": 33,
           "round": 4,
-          "chosen": "10229",
+          "chosen": "7525",
           "real": "10229",
           "used_fallback": false
         },
         {
           "pick_no": 48,
           "round": 5,
-          "chosen": "7543",
+          "chosen": "2133",
           "real": "2133",
           "used_fallback": false
         },
         {
           "pick_no": 53,
           "round": 6,
-          "chosen": "2133",
+          "chosen": "11620",
           "real": "12512",
           "used_fallback": false
         },
         {
           "pick_no": 68,
           "round": 7,
-          "chosen": "11620",
+          "chosen": "7611",
           "real": "11620",
           "used_fallback": false
         },
         {
           "pick_no": 73,
           "round": 8,
-          "chosen": "12512",
+          "chosen": "9487",
           "real": "9487",
           "used_fallback": false
         },
         {
           "pick_no": 88,
           "round": 9,
-          "chosen": "5045",
+          "chosen": "4037",
           "real": "5045",
           "used_fallback": false
         },
         {
           "pick_no": 93,
           "round": 10,
-          "chosen": "9487",
+          "chosen": "10222",
           "real": "11560",
           "used_fallback": false
         },
         {
           "pick_no": 108,
           "round": 11,
-          "chosen": "421",
+          "chosen": "HOU",
           "real": "HOU",
           "used_fallback": false
         },
         {
           "pick_no": 113,
           "round": 12,
-          "chosen": "9754",
+          "chosen": "4227",
           "real": "13337",
           "used_fallback": false
         },
         {
           "pick_no": 128,
           "round": 13,
-          "chosen": "11560",
+          "chosen": "9753",
           "real": "9753",
-          "used_fallback": false
+          "used_fallback": true
         },
         {
           "pick_no": 133,
           "round": 14,
-          "chosen": "HOU",
+          "chosen": "12493",
           "real": "12493",
-          "used_fallback": false
+          "used_fallback": true
         },
         {
           "pick_no": 148,
           "round": 15,
-          "chosen": "5022",
+          "chosen": "8136",
           "real": "8136",
-          "used_fallback": false
+          "used_fallback": true
         }
       ],
       "our_fallbacks": 0,
-      "adp_fallbacks": 0
+      "adp_fallbacks": 3
     },
     "2025": {
       "our": [
@@ -959,17 +959,17 @@
     }
   },
   "correlation_arm": {
-    "diff_mean": 0.119,
+    "diff_mean": 0.067,
     "diff_ci": [
-      0.022,
-      0.205
+      -0.031,
+      0.163
     ],
-    "verdict": "beat",
-    "n_picks": 34
+    "verdict": "inconclusive",
+    "n_picks": 32
   },
   "agreement": {
-    "state": "THE INTERESTING RESULT: ranks better but earns same-or-less \u2014 the edge is in evaluating players, not in constructing rosters that fit this payout structure. Points at the PORTFOLIO DOCTRINE, not the projections.",
-    "ranks_better": true,
+    "state": "ranks_better=False, dollar_verdict=adp-earns-more",
+    "ranks_better": false,
     "dollar_verdict": "adp-earns-more"
   },
   "caveats": [],
