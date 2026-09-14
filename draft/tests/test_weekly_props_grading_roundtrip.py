@@ -99,7 +99,12 @@ def _run_grade(tmp_path, props_dir):
 
     actuals_doc = {"weeks": {"1": {
         "players": {**ACTUALS, **{f"pad{i}": 1.0 for i in range(250)}},
-        "teams": 26,
+        # 26 -> 32 on 2026-09-14 (register 521): the partial-actuals bar now
+        # comes from the schedule instead of the bye-week constant, and week 1
+        # plays 16 games = 32 teams with no byes. A fixture claiming 26 teams
+        # for week 1 was claiming a week that did not happen, and the grader
+        # now correctly refuses to grade it.
+        "teams": 32,
     }}}
     actuals_path = tmp_path / "actuals.json"
     actuals_path.write_text(json.dumps(actuals_doc))

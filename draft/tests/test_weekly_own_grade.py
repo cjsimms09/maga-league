@@ -226,7 +226,14 @@ def test_issue_text_carries_the_evidence_table():
 
 # ── main(): end to end through the workflow's env overrides ──────────────────
 
-def _setup_dir(tmp_path, weeks=(1,), actual_weeks=None, teams=26, n_pad=250):
+def _setup_dir(tmp_path, weeks=(1,), actual_weeks=None, teams=32, n_pad=250):
+    tmp_path = Path(tmp_path)
+    tmp_path.mkdir(parents=True, exist_ok=True)
+    # teams default 26 -> 32 on 2026-09-14: the partial-actuals bar now comes
+    # from the schedule (weeks 1-3 play 16 games = 32 teams) instead of the
+    # bye-week constant, so a fixture claiming 26 teams for week 1 is claiming
+    # a week that did not happen. The one caller that deliberately passes a low
+    # count (teams=10, "MNF not in yet") still refuses, as it should.
     own = tmp_path / "weekly_own"
     own.mkdir()
     for w in weeks:
@@ -385,9 +392,86 @@ def test_empty_ledger_carries_formula_per_arm():
     assert led["active_arms"][0]["formula"].startswith("proj_ownmodel/17")
 
 
+def _end_of(d):
+    """main()'s own reading of a --date: the END of that day, UTC."""
+    return dt.datetime.combine(d, dt.time(23, 59, 59), tzinfo=dt.timezone.utc)
+
+
 def test_week_games_complete_boundary():
-    assert not WG.week_games_complete(1, dt.date(2026, 9, 14))   # Monday
-    assert WG.week_games_complete(1, dt.date(2026, 9, 15))       # Tuesday
+    assert not WG.week_games_complete(1, dt.date(2026, 9, 14),
+                                      _end_of(dt.date(2026, 9, 14)))   # Monday
+    assert WG.week_games_complete(1, dt.date(2026, 9, 15),
+                                  _end_of(dt.date(2026, 9, 15)))       # Tuesday
+
+
+def test_the_DATE_gate_alone_would_call_week_1_finished_before_its_last_game_STARTS():
+    """THE KNOWN POSITIVE, and it is the live case (relay, 2026-09-14).
+
+    Week 1's window start + 6 days is 2026-09-15, so the date gate flips true
+    at 00:00Z — and the committed schedule says week 1's LAST kickoff is
+    2026-09-15T00:15:00Z. Fifteen minutes where the old predicate said the
+    week was complete and its final game had not kicked off, then ~3.5 more
+    while it was played.
+    """
+    assert WG.last_kickoff_utc(1) == dt.datetime(2026, 9, 15, 0, 15,
+                                                 tzinfo=dt.timezone.utc)
+    d = dt.date(2026, 9, 15)
+    at = lambda h, m: dt.datetime(2026, 9, 15, h, m, tzinfo=dt.timezone.utc)  # noqa: E731
+    assert not WG.week_games_complete(1, d, at(0, 5)), "final game has not kicked off"
+    assert not WG.week_games_complete(1, d, at(3, 0)), "final game is being played"
+    assert WG.week_games_complete(1, d, at(4, 16)), "settled — grade it"
+    # the live cron is 06:00Z Tuesday: it must still pass, or the grade slips
+    assert WG.week_games_complete(1, d, at(6, 0))
+
+
+def test_the_partial_guard_BAR_COMES_FROM_THE_SCHEDULE_not_a_bye_week_constant():
+    """The old bar could not see a week missing only its last game.
+
+    Week 1 schedules 16 games = 32 teams and has no byes. A stats release
+    without Monday night's DEN at KC carries 30 teams, and 30 >= the old
+    MIN_WEEK_TEAMS of 20 — so the guard whose own message reads "refusing to
+    half-grade" would have graded it. The only existing test of that guard
+    passes teams=10, a value a real MNF-missing week cannot produce.
+    """
+    assert WG.teams_scheduled(1) == 32
+    assert WG.MIN_WEEK_TEAMS == 20
+    # THE FAILURE THE OLD CONSTANT ALLOWED, stated as arithmetic:
+    assert 30 >= WG.MIN_WEEK_TEAMS, "30 teams cleared the old bar"
+    assert 30 < WG.teams_scheduled(1), "and is caught by the scheduled bar"
+    # a real bye week is lower, and its own scheduled count is the right bar
+    assert WG.teams_scheduled(6) == 28
+    # CONTROL — an unreadable schedule must fall back, never block
+    assert WG.teams_scheduled(1, schedule_path=Path("/nonexistent.json")) is None
+    assert WG.week_games_complete(1, dt.date(2026, 9, 15),
+                                  dt.datetime(2026, 9, 15, 0, 5,
+                                              tzinfo=dt.timezone.utc),
+                                  season=1999) is True
+
+
+def test_a_WEEK_1_MISSING_ONLY_MONDAY_NIGHT_IS_REFUSED_END_TO_END(tmp_path):
+    """The arithmetic above is not enough — this drives main().
+
+    30 teams is what week 1 looks like when the stats release lands without
+    DEN at KC. It clears the old constant (30 >= 20), so before this change
+    main() graded it, wrote the ledger, and never revisited the week: a
+    graded week is never re-graded. The grade would have been the FIRST of
+    the season, computed on 30 of 32 teams, permanently.
+    """
+    own, actuals, series = _setup_dir(tmp_path, teams=30)
+    env = _env(own, actuals, series, tmp_path)
+    assert _run_main(["--date", "2026-09-15"], env) == 0
+    ledger = own / "grades_2026.json"
+    assert not ledger.exists() or not (
+        json.loads(ledger.read_text()).get("weeks") or {}), \
+        "week 1 was graded on 30 of 32 teams — the half-grade this guard exists to refuse"
+
+    # CONTROL — the same run with the full slate DOES grade, so the assertion
+    # above is the guard biting and not the harness failing to grade anything.
+    own2, actuals2, series2 = _setup_dir(tmp_path / "full", teams=32)
+    env2 = _env(own2, actuals2, series2, tmp_path / "full")
+    assert _run_main(["--date", "2026-09-15"], env2) == 0
+    led2 = json.loads((own2 / "grades_2026.json").read_text())
+    assert "1" in (led2.get("weeks") or {}), "the full slate must grade"
 
 
 # ── BEST-OF-K: THE STANDING NULL RIDES EVERY PROMOTION (wired 08-18) ─────────

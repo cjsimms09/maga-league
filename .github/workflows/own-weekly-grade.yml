@@ -34,6 +34,24 @@ on:
         type: boolean
   schedule:
     - cron: '0 6 * * 2'   # Tuesdays 06:00 UTC, after MNF
+    # ⚠️ THE RETRY SLOT, added 2026-09-14 (relay) — WITHOUT IT A REFUSAL COSTS
+    # A WHOLE WEEK, because this is the only cron and the grader deliberately
+    # skips rather than half-grades.
+    #
+    # The 06:00Z slot carries very little margin: week 1's LAST kickoff is
+    # 2026-09-15T00:15Z (the committed schedule's own `weeks.1.last`), so the
+    # game ends around 03:30Z and the grader may not write until the nflverse
+    # stats release carries it. The same run's partial-actuals guard now
+    # refuses a week that is missing teams the schedule says played, so "the
+    # release is not complete yet" correctly produces a SKIP — and a skip on a
+    # Tuesday-only cron means the first grade of the season slides to 09-22.
+    #
+    # Safe to run twice by construction: a graded week is never re-graded
+    # (`if str(wk) in graded: continue`), which the suite asserts as
+    # idempotency, so the second slot either picks up what the first refused
+    # or no-ops. Ten hours later still lands on Tuesday even against A's
+    # register-495 scheduler measurement (median delay 3h45).
+    - cron: '0 16 * * 2'  # Tuesdays 16:00 UTC — picks up a morning refusal
 
 permissions:
   contents: write

@@ -120,6 +120,10 @@ from weekly_ffa_arm import ARM_NAME as FFA_ARM_NAME, load_ffa_arm  # noqa: E402
 SEASON = 2026
 MIN_WEEK_PLAYERS = 200   # a real NFL week has ~600 offensive player rows
 MIN_WEEK_TEAMS = 20      # bye weeks bottom out at 24 playing teams
+#: hours after a week's LAST kickoff before its games can be called finished —
+#: a game plus overtime, with room for the stat feed to settle. See
+#: week_games_complete().
+WEEK_SETTLE_HOURS = 4
 PROMOTION_MIN_WEEKS = 3
 PROMOTION_RECENT_WINDOW = 4
 PROMOTION_RECENT_WINS = 3
@@ -667,11 +671,85 @@ def empty_ledger(season: int) -> dict:
     }
 
 
-def week_games_complete(week: int, today: _dt.date) -> bool:
+def _schedule_week(week: int, season: int = SEASON,
+                   schedule_path: Path | None = None) -> dict | None:
+    """The committed schedule's row for one week, or None when it cannot be
+    read. One loader, so the two checks below cannot drift apart the way two
+    spellings of a kickoff predicate did in register 467."""
+    path = schedule_path or (HERE / "data" / f"nfl_schedule_{season}.json")
+    try:
+        wk = json.loads(path.read_text()).get("weeks", {}).get(str(week))
+        return wk if isinstance(wk, dict) else None
+    except (OSError, ValueError):
+        return None
+
+
+def last_kickoff_utc(week: int, season: int = SEASON,
+                     schedule_path: Path | None = None):
+    """The REAL last kickoff of a week, UTC, or None when unreadable."""
+    wk = _schedule_week(week, season, schedule_path)
+    try:
+        return _dt.datetime.fromisoformat(str(wk["last"]).replace("Z", "+00:00"))
+    except (KeyError, TypeError, ValueError):
+        return None
+
+
+def teams_scheduled(week: int, season: int = SEASON,
+                    schedule_path: Path | None = None):
+    """How many TEAMS the schedule says play that week — two per game — or
+    None when unreadable.
+
+    WHY THIS IS NOT A CONSTANT (relay, 2026-09-14). `MIN_WEEK_TEAMS = 20` is
+    calibrated for the emptiest bye week, so it cannot notice a week that is
+    merely missing its LAST GAME. Week 1 of 2026 schedules 16 games = 32
+    teams and has no byes; if the stats release lands without Monday night's
+    DEN at KC the actuals carry 30 teams, and 30 >= 20 sails straight through
+    a guard whose own message is "refusing to half-grade".
+
+    The one test of that guard passes `teams=10` with the comment "MNF not in
+    yet" — a value a real MNF-missing week cannot produce, so the guard has
+    only ever been fired by an input that cannot occur (Rule 3e). The bar has
+    to come from the schedule, not from a constant.
+    """
+    wk = _schedule_week(week, season, schedule_path)
+    try:
+        games = int(wk["games"])
+    except (KeyError, TypeError, ValueError):
+        return None
+    return games * 2 if games > 0 else None
+
+
+def week_games_complete(week: int, today: _dt.date, now=None,
+                        season: int = SEASON) -> bool:
     """A week's games run Thursday..Monday of its window; grade no earlier
-    than its Tuesday (window start + 6 days)."""
+    than its Tuesday (window start + 6 days) AND no earlier than its own last
+    game actually finishing.
+
+    THE DATE GATE ALONE IS NOT ENOUGH, measured 2026-09-14 (relay). Week 1's
+    window start + 6 days is 2026-09-15, so the date check flips true at
+    00:00Z that day — and the schedule says week 1's LAST kickoff is
+    2026-09-15T00:15:00Z. For the first fifteen minutes of the day this
+    returned True while the week's final game had not started, and it kept
+    returning True for the ~3.5 hours the game was being played. The 06:00Z
+    Tuesday cron happens to clear that by 2h, which is luck, not a guarantee:
+    a dispatch, an earlier slot, or a schedule where the last game runs later
+    all land inside the window.
+
+    `now` defaults to the real clock. Callers passing only a --date get the
+    END of that day, which is what a date-level "has this week finished"
+    question means and what keeps every date-driven test honest.
+    Unreadable schedule => the date gate alone decides: a cannot-say must
+    never block a grade that is otherwise due.
+    """
     start, _ = week_window(week)
-    return today >= start + _dt.timedelta(days=6)
+    if today < start + _dt.timedelta(days=6):
+        return False
+    last = last_kickoff_utc(week, season)
+    if last is None:
+        return True
+    if now is None:
+        now = _dt.datetime.now(_dt.timezone.utc)
+    return now >= last + _dt.timedelta(hours=WEEK_SETTLE_HOURS)
 
 
 # ── CI actuals fetch (network — CI only; tests use OWN_WEEKLY_ACTUALS) ───────
@@ -730,6 +808,12 @@ def main(argv: list | None = None) -> int:
             date = args[i + 1]
     today = (_dt.date.fromisoformat(date) if date
              else _dt.datetime.now(_dt.timezone.utc).date())
+    # An explicit --date is a DAY, so the "have this week's games finished"
+    # question is asked at the END of it; with no --date we are the live run
+    # and the real clock is the honest answer. See week_games_complete().
+    now_utc = (_dt.datetime.combine(today, _dt.time(23, 59, 59),
+                                    tzinfo=_dt.timezone.utc) if date
+               else _dt.datetime.now(_dt.timezone.utc))
 
     own_dir = Path(os.environ.get("OWN_WEEKLY_DIR")
                    or HERE / "data" / "weekly_own")
@@ -758,9 +842,12 @@ def main(argv: list | None = None) -> int:
         wk = int(snap["week"])
         if str(wk) in graded:
             continue
-        if not week_games_complete(wk, today):
-            print(f"week {wk}: games not complete until "
-                  f"{week_window(wk)[0] + _dt.timedelta(days=6)} — waiting")
+        if not week_games_complete(wk, today, now_utc, season):
+            last = last_kickoff_utc(wk, season)
+            when = (f"{last + _dt.timedelta(hours=WEEK_SETTLE_HOURS):%Y-%m-%d %H:%MZ}"
+                    if last else
+                    f"{week_window(wk)[0] + _dt.timedelta(days=6)}")
+            print(f"week {wk}: games not complete until {when} — waiting")
             continue
         pending.append((wk, snap))
     if not pending:
@@ -799,9 +886,14 @@ def main(argv: list | None = None) -> int:
                   "retried next run")
             continue
         players, teams = aw.get("players") or {}, aw.get("teams") or 0
-        if len(players) < MIN_WEEK_PLAYERS or teams < MIN_WEEK_TEAMS:
+        # The bar is what the SCHEDULE says played that week, not a constant
+        # calibrated for the emptiest bye week — see teams_scheduled(). An
+        # unreadable schedule falls back to the old floor rather than blocking.
+        need_teams = teams_scheduled(wk, season) or MIN_WEEK_TEAMS
+        if len(players) < MIN_WEEK_PLAYERS or teams < need_teams:
             print(f"week {wk}: PARTIAL actuals ({len(players)} players, "
-                  f"{teams} teams) — refusing to half-grade; retried next run")
+                  f"{teams} of {need_teams} scheduled teams) — refusing to "
+                  "half-grade; retried next run")
             continue
         provider_proj = provider_weeklies(series, wk)
         props_map = load_props_arm(props_dir, season, wk)
