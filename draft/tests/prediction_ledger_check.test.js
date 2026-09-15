@@ -131,6 +131,24 @@ ok('helpers behave', () => {
   assert.strictEqual(parseDate('soon', 2026), null);
 });
 
+// Found 2026-09-15 (GO sweep): the majority of the real ledger's grade-by
+// cells are full "YYYY-MM-DD", not the "MM-DD" every prior fixture used —
+// and the bare /(\d{2})-(\d{2})/ regex read "2026-09-06" as month 26, which
+// Date.UTC silently rolled ~2 years into the future, so a genuinely overdue
+// row parsed as due in 2028 and the checker reported it clean.
+ok('a full YYYY-MM-DD grade-by cell parses to that exact date, not a garbled one', () => {
+  const d = parseDate('2026-09-06', 2026);
+  assert.strictEqual(d.getUTCFullYear(), 2026);
+  assert.strictEqual(d.getUTCMonth(), 8); // September, 0-indexed
+  assert.strictEqual(d.getUTCDate(), 6);
+});
+
+ok('FAIL ARM — an OPEN row with a full YYYY-MM-DD grade-by in the past is caught as OVERDUE', () => {
+  const t = HEAD + '| P400 | x | 2026-08-01 | A | 2026-08-10 | OPEN | — | — |\n';
+  const p = check(t, '2026-08-20').problems;
+  assert.ok(/OVERDUE/.test(p[0]), p.join('\n'));
+});
+
 console.log(`\n${pass}/${pass} checks passed`);
 
 ok('FAIL ARM — an EMPTY BACKLOG fails, so the file cannot be satisfied by stopping', () => {

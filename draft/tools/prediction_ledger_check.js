@@ -124,11 +124,31 @@ function statusWord(cell) {
  * reported a clean ledger. Rule 3e exactly — a null that meant "asked wrong".
  * Callers now go through `made()`/an explicit YEAR; this throws rather than
  * hand back a lie. */
+/* ── A FULL YYYY-MM-DD CELL WAS READ AS MM-DD (found 2026-09-15, GO sweep) ──
+ *
+ * The bare `/(\d{2})-(\d{2})/` regex was written for cells like "08-23" but
+ * most of the ledger's later rows write the grade-by cell as a full ISO date
+ * ("2026-09-06"). Unanchored, the regex's first 2-digit-dash-2-digit match
+ * inside "2026-09-06" is "26-09" (the tail of the year plus the month) — it
+ * silently parsed as month 26, which `Date.UTC` normalizes forward by two
+ * years. Every YYYY-MM-DD row in the ledger was therefore reading as due
+ * around 2028, so the checker reported a clean "none overdue" while the
+ * actual majority-format cells were never checked at all — exactly the
+ * Rule 3e shape this project keeps finding elsewhere (a probe that returns
+ * a confident, clean, wrong answer). No unit fixture used a YYYY-MM-DD cell,
+ * so nothing caught it. Full-year cells are now matched first and used
+ * directly; bare MM-DD cells fall through to the old path unchanged. */
 function parseDate(cell, year) {
   if (!Number.isFinite(year)) {
     throw new TypeError('parseDate: year is required — see the note above this line');
   }
-  const m = String(cell || '').match(/(\d{2})-(\d{2})/);
+  const s = String(cell || '');
+  const full = s.match(/(\d{4})-(\d{2})-(\d{2})/);
+  if (full) {
+    const d = new Date(Date.UTC(Number(full[1]), Number(full[2]) - 1, Number(full[3])));
+    return Number.isFinite(d.getTime()) ? d : null;
+  }
+  const m = s.match(/(\d{2})-(\d{2})/);
   if (!m) return null;
   const d = new Date(Date.UTC(year, Number(m[1]) - 1, Number(m[2])));
   return Number.isFinite(d.getTime()) ? d : null;
