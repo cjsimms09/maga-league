@@ -1,0 +1,540 @@
+{
+ "_territory": "TERRITORY: A \u2014 produced by draft/tools/props_second_opinion.py",
+ "_what": "REPORT ONLY. The champion weekly projection beside the props-implied points on Cory's live roster, and the lineup each would start. The second lineup uses P357's blend rule (props where a line exists, champion elsewhere) \u2014 its prior art made visible, not the arm entering the grader early.",
+ "season": 2026,
+ "week": 2,
+ "generated": "2026-09-16T14:36:43.815768+00:00",
+ "roster_source": "THIS-WEEK.md generated 2026-09-15T17:42:44+00:00",
+ "champion_source": "committed snapshot own_weekly_2026_w2.json",
+ "champion_arm": "v1_pull3",
+ "props_source": "weekly_props_2026_w2.json (0 players)",
+ "controls": [
+  {
+   "id": "S1",
+   "what": "every rostered skill player resolves to a board id, or is named",
+   "ok": true,
+   "unmatched": []
+  },
+  {
+   "id": "S2",
+   "what": "the props file covers at least one rostered skill player",
+   "ok": false,
+   "covered": 0,
+   "of": 14
+  },
+  {
+   "id": "S3",
+   "what": "THIS-WEEK.md is fresh (<= 3 days) \u2014 the roster rule",
+   "generated": "2026-09-15T17:42:44+00:00",
+   "ok": true
+  }
+ ],
+ "table": [
+  {
+   "st": true,
+   "name": "Rashee Rice",
+   "pos": "WR",
+   "team": "KC",
+   "injury": "\u2014",
+   "player_id": "10229",
+   "champion": 9.38,
+   "blend_prior": 12.72,
+   "props": null,
+   "props_minus_champion": null
+  },
+  {
+   "st": true,
+   "name": "Caleb Williams",
+   "pos": "QB",
+   "team": "CHI",
+   "injury": "\u2014",
+   "player_id": "11560",
+   "champion": 24.27,
+   "blend_prior": 26.17,
+   "props": null,
+   "props_minus_champion": null
+  },
+  {
+   "st": false,
+   "name": "Rome Odunze",
+   "pos": "WR",
+   "team": "CHI",
+   "injury": "\u2014",
+   "player_id": "11620",
+   "champion": 7.42,
+   "blend_prior": 9.4,
+   "props": null,
+   "props_minus_champion": null
+  },
+  {
+   "st": true,
+   "name": "Harrison Mevis",
+   "pos": "K",
+   "team": "LAR",
+   "injury": "\u2014",
+   "player_id": "12015",
+   "champion": null,
+   "blend_prior": null,
+   "props": null,
+   "props_minus_champion": null
+  },
+  {
+   "st": false,
+   "name": "Quinshon Judkins",
+   "pos": "RB",
+   "team": "CLE",
+   "injury": "\u2014",
+   "player_id": "12512",
+   "champion": 7.44,
+   "blend_prior": 9.01,
+   "props": null,
+   "props_minus_champion": null
+  },
+  {
+   "st": false,
+   "name": "Emmett Johnson",
+   "pos": "RB",
+   "team": "KC",
+   "injury": "\u2014",
+   "player_id": "13337",
+   "champion": 3.83,
+   "blend_prior": 3.83,
+   "props": null,
+   "props_minus_champion": null
+  },
+  {
+   "st": true,
+   "name": "Davante Adams",
+   "pos": "WR",
+   "team": "LAR",
+   "injury": "\u2014",
+   "player_id": "2133",
+   "champion": 8.81,
+   "blend_prior": 10.31,
+   "props": null,
+   "props_minus_champion": null
+  },
+  {
+   "st": true,
+   "name": "Derrick Henry",
+   "pos": "RB",
+   "team": "BAL",
+   "injury": "\u2014",
+   "player_id": "3198",
+   "champion": 19.02,
+   "blend_prior": 21.21,
+   "props": null,
+   "props_minus_champion": null
+  },
+  {
+   "st": false,
+   "name": "Courtland Sutton",
+   "pos": "WR",
+   "team": "DEN",
+   "injury": "\u2014",
+   "player_id": "5045",
+   "champion": 6.88,
+   "blend_prior": 7.8,
+   "props": null,
+   "props_minus_champion": null
+  },
+  {
+   "st": true,
+   "name": "Juwan Johnson",
+   "pos": "TE",
+   "team": "NO",
+   "injury": "\u2014",
+   "player_id": "7002",
+   "champion": 8.26,
+   "blend_prior": 8.51,
+   "props": null,
+   "props_minus_champion": null
+  },
+  {
+   "st": true,
+   "name": "Ja'Marr Chase",
+   "pos": "WR",
+   "team": "CIN",
+   "injury": "\u2014",
+   "player_id": "7564",
+   "champion": 11.46,
+   "blend_prior": 12.28,
+   "props": null,
+   "props_minus_champion": null
+  },
+  {
+   "st": false,
+   "name": "Rachaad White",
+   "pos": "RB",
+   "team": "WAS",
+   "injury": "\u2014",
+   "player_id": "8136",
+   "champion": 5.49,
+   "blend_prior": 6.96,
+   "props": null,
+   "props_minus_champion": null
+  },
+  {
+   "st": true,
+   "name": "Kenneth Walker",
+   "pos": "RB",
+   "team": "KC",
+   "injury": "\u2014",
+   "player_id": "8151",
+   "champion": 17.27,
+   "blend_prior": 19.43,
+   "props": null,
+   "props_minus_champion": null
+  },
+  {
+   "st": false,
+   "name": "Parker Washington",
+   "pos": "WR",
+   "team": "JAX",
+   "injury": "\u2014",
+   "player_id": "9487",
+   "champion": 9.09,
+   "blend_prior": 10.82,
+   "props": null,
+   "props_minus_champion": null
+  },
+  {
+   "st": false,
+   "name": "Zach Charbonnet",
+   "pos": "RB",
+   "team": "SEA",
+   "injury": "\u2014",
+   "player_id": "9753",
+   "champion": 7.83,
+   "blend_prior": 6.73,
+   "props": null,
+   "props_minus_champion": null
+  },
+  {
+   "st": true,
+   "name": "HOU D/ST",
+   "pos": "DEF",
+   "team": "HOU",
+   "injury": "\u2014",
+   "player_id": null,
+   "champion": null,
+   "blend_prior": null,
+   "props": null,
+   "props_minus_champion": null
+  }
+ ],
+ "lineup_champion": [
+  "Caleb Williams",
+  "Derrick Henry",
+  "Kenneth Walker",
+  "Ja'Marr Chase",
+  "Rashee Rice",
+  "Juwan Johnson",
+  "Parker Washington",
+  "Harrison Mevis",
+  "HOU D/ST"
+ ],
+ "lineup_props_blend": [
+  "Caleb Williams",
+  "Derrick Henry",
+  "Kenneth Walker",
+  "Ja'Marr Chase",
+  "Rashee Rice",
+  "Juwan Johnson",
+  "Parker Washington",
+  "Harrison Mevis",
+  "HOU D/ST"
+ ],
+ "lineup_champion_ids": [
+  "11560",
+  "3198",
+  "8151",
+  "7564",
+  "10229",
+  "7002",
+  "9487",
+  "12015",
+  "HOU D/ST"
+ ],
+ "lineup_props_blend_ids": [
+  "11560",
+  "3198",
+  "8151",
+  "7564",
+  "10229",
+  "7002",
+  "9487",
+  "12015",
+  "HOU D/ST"
+ ],
+ "swaps": [],
+ "valuation": {
+  "champion_lineup": {
+   "by_champion": 98.75,
+   "by_props_blend": 98.75
+  },
+  "props_blend_lineup": {
+   "by_champion": 98.75,
+   "by_props_blend": 98.75
+  }
+ },
+ "skill_players_with_a_props_line": 0,
+ "skill_players_rostered": 14,
+ "opponent": {
+  "name": "cashworth",
+  "unmatched": [],
+  "table": [
+   {
+    "st": false,
+    "name": "Jayden Reed",
+    "pos": "WR",
+    "team": "GB",
+    "injury": "\u2014",
+    "player_id": "10222",
+    "champion": 4.06,
+    "blend_prior": 7.5,
+    "props": null,
+    "props_minus_champion": null
+   },
+   {
+    "st": false,
+    "name": "Dalton Kincaid",
+    "pos": "TE",
+    "team": "BUF",
+    "injury": "\u2014",
+    "player_id": "10236",
+    "champion": 8.7,
+    "blend_prior": 9.55,
+    "props": null,
+    "props_minus_champion": null
+   },
+   {
+    "st": true,
+    "name": "Sam LaPorta",
+    "pos": "TE",
+    "team": "DET",
+    "injury": "\u2014",
+    "player_id": "10859",
+    "champion": 7.15,
+    "blend_prior": 8.46,
+    "props": null,
+    "props_minus_champion": null
+   },
+   {
+    "st": false,
+    "name": "Marvin Harrison",
+    "pos": "WR",
+    "team": "ARI",
+    "injury": "\u2014",
+    "player_id": "11628",
+    "champion": 5.28,
+    "blend_prior": 7.15,
+    "props": null,
+    "props_minus_champion": null
+   },
+   {
+    "st": false,
+    "name": "Jaxson Dart",
+    "pos": "QB",
+    "team": "NYG",
+    "injury": "\u2014",
+    "player_id": "12508",
+    "champion": 18.32,
+    "blend_prior": 22.33,
+    "props": null,
+    "props_minus_champion": null
+   },
+   {
+    "st": true,
+    "name": "Ashton Jeanty",
+    "pos": "RB",
+    "team": "LV",
+    "injury": "\u2014",
+    "player_id": "12527",
+    "champion": 17.94,
+    "blend_prior": 16.54,
+    "props": null,
+    "props_minus_champion": null
+   },
+   {
+    "st": true,
+    "name": "Jeremiyah Love",
+    "pos": "RB",
+    "team": "ARI",
+    "injury": "\u2014",
+    "player_id": "13287",
+    "champion": 5.2,
+    "blend_prior": 11.55,
+    "props": null,
+    "props_minus_champion": null
+   },
+   {
+    "st": true,
+    "name": "Eddy Pineiro",
+    "pos": "K",
+    "team": "SF",
+    "injury": "\u2014",
+    "player_id": "5189",
+    "champion": null,
+    "blend_prior": null,
+    "props": null,
+    "props_minus_champion": null
+   },
+   {
+    "st": false,
+    "name": "Tony Pollard",
+    "pos": "RB",
+    "team": "TEN",
+    "injury": "\u2014",
+    "player_id": "5967",
+    "champion": 5.87,
+    "blend_prior": 7.49,
+    "props": null,
+    "props_minus_champion": null
+   },
+   {
+    "st": true,
+    "name": "Joe Burrow",
+    "pos": "QB",
+    "team": "CIN",
+    "injury": "\u2014",
+    "player_id": "6770",
+    "champion": 15.59,
+    "blend_prior": 19.93,
+    "props": null,
+    "props_minus_champion": null
+   },
+   {
+    "st": true,
+    "name": "Tee Higgins",
+    "pos": "WR",
+    "team": "CIN",
+    "injury": "\u2014",
+    "player_id": "6801",
+    "champion": 9.18,
+    "blend_prior": 9.86,
+    "props": null,
+    "props_minus_champion": null
+   },
+   {
+    "st": true,
+    "name": "Chase Brown",
+    "pos": "RB",
+    "team": "CIN",
+    "injury": "\u2014",
+    "player_id": "9224",
+    "champion": 13.78,
+    "blend_prior": 14.54,
+    "props": null,
+    "props_minus_champion": null
+   },
+   {
+    "st": false,
+    "name": "Quentin Johnston",
+    "pos": "WR",
+    "team": "LAC",
+    "injury": "\u2014",
+    "player_id": "9754",
+    "champion": 6.75,
+    "blend_prior": 7.39,
+    "props": null,
+    "props_minus_champion": null
+   },
+   {
+    "st": true,
+    "name": "Zay Flowers",
+    "pos": "WR",
+    "team": "BAL",
+    "injury": "\u2014",
+    "player_id": "9997",
+    "champion": 13.94,
+    "blend_prior": 15.45,
+    "props": null,
+    "props_minus_champion": null
+   },
+   {
+    "st": true,
+    "name": "JAX D/ST",
+    "pos": "DEF",
+    "team": "JAX",
+    "injury": "\u2014",
+    "player_id": null,
+    "champion": null,
+    "blend_prior": null,
+    "props": null,
+    "props_minus_champion": null
+   }
+  ],
+  "lineup_champion": [
+   "Jaxson Dart",
+   "Ashton Jeanty",
+   "Chase Brown",
+   "Zay Flowers",
+   "Tee Higgins",
+   "Dalton Kincaid",
+   "Sam LaPorta",
+   "Eddy Pineiro",
+   "JAX D/ST"
+  ],
+  "lineup_props_blend": [
+   "Jaxson Dart",
+   "Ashton Jeanty",
+   "Chase Brown",
+   "Zay Flowers",
+   "Tee Higgins",
+   "Dalton Kincaid",
+   "Sam LaPorta",
+   "Eddy Pineiro",
+   "JAX D/ST"
+  ],
+  "lineup_champion_ids": [
+   "12508",
+   "12527",
+   "9224",
+   "9997",
+   "6801",
+   "10236",
+   "10859",
+   "5189",
+   "JAX D/ST"
+  ],
+  "lineup_props_blend_ids": [
+   "12508",
+   "12527",
+   "9224",
+   "9997",
+   "6801",
+   "10236",
+   "10859",
+   "5189",
+   "JAX D/ST"
+  ],
+  "swaps": [],
+  "valuation": {
+   "champion_lineup": {
+    "by_champion": 89.01,
+    "by_props_blend": 89.01
+   },
+   "props_blend_lineup": {
+    "by_champion": 89.01,
+    "by_props_blend": 89.01
+   }
+  },
+  "skill_players_with_a_props_line": 0,
+  "skill_players_rostered": 13
+ },
+ "matchup": {
+  "opponent": "cashworth",
+  "by_champion": {
+   "mine": 98.75,
+   "theirs": 89.01,
+   "gap": 9.74
+  },
+  "by_props_blend": {
+   "mine": 98.75,
+   "theirs": 89.01,
+   "gap": 9.74
+  },
+  "note": "each side's best lineup under that opinion; K/DEF unpriced by both, so the gap is skill slots only"
+ }
+}
