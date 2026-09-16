@@ -7,14 +7,14 @@ by hand, so it cannot quietly stop being true.
 Two questions, measured:
 **is anyone answering**, and **is any finished work invisible from `main`**.
 
-_Last measured: 2026-09-15 14:18 UTC_
+_Last measured: 2026-09-16 17:37 UTC_
 
 ```
 ============================================================================
 ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
   1054 items · 341 open · 338 of those carry a DEFAULT (silence resolves them)
-  1 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
+  2 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
   of 3 open item(s) with no default: 0 SAY they ask for nothing · 0 are BROADCASTS (same
   header in 3+ inboxes — a rule, not four decisions) · 3 declare NEITHER, so nobody
   can tell whether a decision is owed. That last number is the real state of the inbox.
@@ -23,10 +23,11 @@ ROUTES RESPONSE CHECK — is anyone answering?
   rewording is precisely what stops it matching.
 
   waiting on:
-       1     3d oldest   A/C
+       2     4d oldest   A/C
 
   the five oldest:
-    3d  2026-09-12 · relay → A/C · 🔴 **DAILY GO SWEEP: 5 RED — draft-data.yml (509's drift continues + 
+    4d  2026-09-12 · relay → A/C · 🔴 **DAILY GO SWEEP: 5 RED — draft-data.yml (509's drift continues + 
+    3d  2026-09-13 · relay → A/C · 🔴 **DAILY GO SWEEP: SAME 6 RED CAPTURES AS 09-12, DRAFT-DATA.YML WOR
 
   DOES THE LOOP VISIBLY CLOSE? — ticked share by sender→recipient
   (a low rate is a QUESTION: real backlog, or answered and never ticked?)
@@ -60,9 +61,9 @@ ROUTES RESPONSE CHECK — is anyone answering?
     B → E                     14 items   100% ticked    0 open with NO default
     relay/PM → E              10 items   100% ticked    0 open with NO default
 
-  baseline 0  ->  now 1
+  baseline 0  ->  now 2
 
-  ❌ THE BACKLOG GREW BY 1. Answer them, add a DEFAULT so silence resolves them, or SEND BACK.
+  ❌ THE BACKLOG GREW BY 2. Answer them, add a DEFAULT so silence resolves them, or SEND BACK.
      A ratchet that only reports is the thing that failed here already.
 ============================================================================
 ```
@@ -71,8 +72,8 @@ ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
 LANE STATUS — work that exists but `main` cannot see
 ============================================================================
-        1 commits     1h old  claude/focused-carson-yexs5a
-        1 commits    48h old  claude/happy-faraday-ng1q2t
+        1 commits    28h old  claude/focused-carson-yexs5a
+        1 commits    75h old  claude/happy-faraday-ng1q2t
 
   (17 branch(es) older than 5d not shown — old divergence, not stranded work.)
 
