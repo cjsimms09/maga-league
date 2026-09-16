@@ -671,24 +671,55 @@ def _captures_in_window(series: list, built: str) -> list:
     return sorted(out)
 
 
-def test_CONTROL_the_window_holds_captures_that_DISAGREE_with_each_other():
-    """If every capture in the window were identical, "matches one of them"
-    would be the same as "matches all of them" and the test above would be
-    weaker than it looks. On 2026-09-09 they emphatically differ — that is the
-    whole incident — so this pins that the comparison is live.
+def test_CONTROL_the_capture_comparison_is_not_a_tautology():
+    """The comparison above must be able to REJECT a board, not just accept one.
+
+    ⛔⛔ THE PREVIOUS VERSION OF THIS CONTROL REFUSED THE BOARD FOR SIX DAYS AND
+    IT WAS MINE. It required that the captures in the window DISAGREE with each
+    other — `len(set(per_date.values())) > 1` — reasoning that identical
+    captures would make "matches one of them" vacuous. That is a property of
+    THE WORLD, not of this code, and the world went quiet: Sleeper's DEF numbers
+    have been stable since 2026-09-09, every capture agrees 32/32, so from
+    2026-09-11 the set had exactly one element and the control failed on every
+    rebuild. Board refused 09-11 through 09-16 (runs #154-#160), live board
+    stranded at 2026-09-10T14:47:35Z. Issue #29.
+
+    ⚠️ IT IS THE EXACT DEFECT CLASS THIS FILE ALREADY GUARDS AGAINST — a check
+    that fires when nothing is wrong — and I wrote it INTO the fix for that
+    class, on the same day, one function below the guard that exists to catch
+    it. The guard could not see it because it looks for live-vs-frozen fusion in
+    an assertion, and this was a live-vs-live comparison that happened to depend
+    on the world holding still.
+
+    THE REPLACEMENT IS DETERMINISTIC. Non-tautology is proven by showing the
+    comparison REJECTS something, using a perturbation this file controls rather
+    than a difference the provider has to supply. Quiet weeks are now the normal
+    case they always were.
     """
     series = json.loads(
         (ROOT / "draft" / "data" / "proj_series.json").read_text())["series"]
     built = str(BOARD.get("built_at") or "")[:10]
     caps = _captures_in_window(series, built)
-    assert len(caps) >= 2, f"only {len(caps)} capture(s) in the window; control cannot run"
-    per_date = {d: sum(1 for pid, p in BOARD_DEFS.items()
-                       if pid in cap
-                       and abs(float(p["proj_baseline"]) - float(cap[pid])) <= 0.011)
-                for d, cap in caps}
-    assert len(set(per_date.values())) > 1, (
-        "every capture in the window agrees with the board equally, so the "
-        f"match above proves nothing about which feed was used: {per_date}")
+    assert caps, (
+        f"no capture within {CAPTURE_WINDOW_DAYS} days of the build date {built} "
+        "— proj_series.json has stopped being fed, which IS the finding")
+
+    def matches(values):
+        return [d for d, cap in caps
+                if all(pid in cap and abs(v - float(cap[pid])) <= 0.011
+                       for pid, v in values.items())]
+
+    real = {pid: float(p["proj_baseline"]) for pid, p in BOARD_DEFS.items()}
+    assert matches(real), (
+        "the board matches NO capture in its window — that is the real signal, "
+        "and the test above should already have said so")
+    #: the same comparison, offered a board that is wrong by a margin no capture
+    #: carries, must reject it. If this ever passes, "matches a capture" has
+    #: become true of everything and the check above is decoration.
+    bogus = {pid: v + 3.7 for pid, v in real.items()}
+    assert not matches(bogus), (
+        "a board offset by +3.7 still matched a capture, so the comparison "
+        "accepts anything and proves nothing")
 
 
 def test_FAIL_ARM_a_board_matching_no_observed_capture_is_caught():
