@@ -11,8 +11,8 @@
  ],
  "population": {
   "total_bio_rows": 6518,
-  "matched_to_sleeper": 3908,
-  "unmatched_no_sleeper_id": 2610
+  "matched_to_sleeper": 3909,
+  "unmatched_no_sleeper_id": 2609
  },
  "unmatched_sample": [
   {
@@ -101609,34 +101609,6 @@
    "draft_team": null,
    "draft_capital": "UDFA"
   },
-  "13001": {
-   "gsis_id": "00-0040603",
-   "name": "Mario Williams",
-   "position": "WR",
-   "birth_date": "NaT",
-   "age_by_season": {
-    "2021": null,
-    "2022": null,
-    "2023": null,
-    "2024": null,
-    "2025": null,
-    "2026": null
-   },
-   "rookie_year": 2025,
-   "is_rookie_by_season": {
-    "2021": false,
-    "2022": false,
-    "2023": false,
-    "2024": false,
-    "2025": true,
-    "2026": false
-   },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
-  },
   "13000": {
    "gsis_id": "00-0040613",
    "name": "Shaun Dolac",
@@ -106901,6 +106873,34 @@
    "draft_team": "DEN",
    "draft_capital": "7th"
   },
+  "13706": {
+   "gsis_id": "00-0041148",
+   "name": "Aaron Hall",
+   "position": "DL",
+   "birth_date": "2003-04-18 00:00:00",
+   "age_by_season": {
+    "2021": null,
+    "2022": null,
+    "2023": null,
+    "2024": null,
+    "2025": null,
+    "2026": null
+   },
+   "rookie_year": 2026,
+   "is_rookie_by_season": {
+    "2021": false,
+    "2022": false,
+    "2023": false,
+    "2024": false,
+    "2025": false,
+    "2026": true
+   },
+   "draft_season": null,
+   "draft_round": null,
+   "draft_pick": null,
+   "draft_team": null,
+   "draft_capital": "UDFA"
+  },
   "13415": {
    "gsis_id": "00-0041149",
    "name": "Haynes King",
@@ -108249,7 +108249,7 @@
    "gsis_id": "00-0041448",
    "name": "Tyre West",
    "position": "DL",
-   "birth_date": "2003-01-18 00:00:00",
+   "birth_date": "NaT",
    "age_by_season": {
     "2021": null,
     "2022": null,
@@ -108267,11 +108267,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": 2026,
-   "draft_round": 7,
-   "draft_pick": 222,
-   "draft_team": "DET",
-   "draft_capital": "7th"
+   "draft_season": null,
+   "draft_round": null,
+   "draft_pick": null,
+   "draft_team": null,
+   "draft_capital": "UDFA"
   },
   "13572": {
    "gsis_id": "00-0041449",
@@ -108334,6 +108334,34 @@
    "name": "Luke Altmyer",
    "position": "QB",
    "birth_date": "2002-10-22 00:00:00",
+   "age_by_season": {
+    "2021": null,
+    "2022": null,
+    "2023": null,
+    "2024": null,
+    "2025": null,
+    "2026": null
+   },
+   "rookie_year": 2026,
+   "is_rookie_by_season": {
+    "2021": false,
+    "2022": false,
+    "2023": false,
+    "2024": false,
+    "2025": false,
+    "2026": true
+   },
+   "draft_season": null,
+   "draft_round": null,
+   "draft_pick": null,
+   "draft_team": null,
+   "draft_capital": "UDFA"
+  },
+  "13739": {
+   "gsis_id": "00-0041455",
+   "name": "Erick Hunter",
+   "position": "LB",
+   "birth_date": "2003-02-26 00:00:00",
    "age_by_season": {
     "2021": null,
     "2022": null,
@@ -109163,11 +109191,11 @@
     "2025": false,
     "2026": true
    },
-   "draft_season": null,
-   "draft_round": null,
-   "draft_pick": null,
-   "draft_team": null,
-   "draft_capital": "UDFA"
+   "draft_season": 2026,
+   "draft_round": 7,
+   "draft_pick": 232,
+   "draft_team": "LAR",
+   "draft_capital": "7th"
   },
   "13298": {
    "gsis_id": "00-0041547",
