@@ -83,6 +83,39 @@ jobs:
           else
             echo "$OUT"; exit 1
           fi
+      - name: Did our lineup beat the one Cory played? (decision grade)
+        # ⚠️ THE LOOP GRADED PROJECTIONS AND NEVER GRADED THE DECISION.
+        # league_history.json has carried every week's starters, bench,
+        # per-player points and the opponent's score all season, and nothing
+        # joined it back to what our model said. So we could report our MAE and
+        # not say whether following the model would have won a game. Cory,
+        # 2026-09-16: "we need to make sure we are trying to improve."
+        #
+        # Runs AFTER the projection grade and BEFORE the commit below, so its
+        # artifact rides the same `git add draft/data/weekly_own/`.
+        #
+        # ⚠️ IT IS ALLOWED TO FAIL WITHOUT TAKING THE PROJECTION GRADE WITH IT,
+        # and that is deliberate rather than lax. Its refusals are real (ACTUAL
+        # must reproduce Sleeper's own weekly total to the cent), but the
+        # projection grade is already computed at this point and losing it to a
+        # second tool's refusal would trade a certain loss for an uncertain one.
+        # The refusal is surfaced as ::error:: so it cannot pass unnoticed, and
+        # draft/tests/test_weekly_decision_grade.py fails the build independently
+        # if either control stops being able to fire. Same shape as the series
+        # rescue in draft-data.yml (register 343).
+        run: |
+          set +e
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            python3 draft/tools/weekly_decision_grade.py
+          else
+            python3 draft/tools/weekly_decision_grade.py --write
+          fi
+          rc=$?
+          if [ "$rc" != "0" ]; then
+            echo "::error::DECISION GRADE REFUSED (exit $rc) — its instrument check failed, so the lineup arms are NOT trustworthy this week. The projection grade below is unaffected. See draft/tools/weekly_decision_grade.py."
+          fi
+          exit 0
+
       - name: Commit the ledger
         if: ${{ github.event.inputs.dry_run != 'true' }}
         run: |

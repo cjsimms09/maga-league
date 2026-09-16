@@ -1,0 +1,46 @@
+{
+ "_territory": "TERRITORY: A \u2014 produced by draft/tools/weekly_decision_grade.py",
+ "_what": "Did our lineup beat the one Cory played? ACTUAL/CEILING are instrument checks; CHAMPION/PROPS are the arms under test.",
+ "_report_only": "promotes nothing, changes no weight",
+ "season": "2026",
+ "roster_id": 1,
+ "owner": "coryjsimms",
+ "weeks": [
+  {
+   "week": 1,
+   "actual": 135.76,
+   "ceiling": 154.06,
+   "left_on_bench": 18.3,
+   "starters_actual": [
+    "QB:11560",
+    "RB:3198",
+    "RB:8151",
+    "WR:7564",
+    "WR:10229",
+    "TE:7002",
+    "WR:2133",
+    "K:12015",
+    "DEF:HOU"
+   ],
+   "opponent": "Richard2121",
+   "opponent_points": 147.0,
+   "result": "L",
+   "margin": -11.24,
+   "ceiling_would_flip": true,
+   "champion": 135.76,
+   "champion_vs_actual": 0.0,
+   "champion_priced": 14,
+   "champion_would_flip": false,
+   "props": 137.66,
+   "props_vs_actual": 1.9,
+   "props_priced": 13,
+   "props_would_flip": false
+  }
+ ],
+ "summary": {
+  "weeks_graded": 1,
+  "left_on_bench_per_week": 18.3,
+  "champion_vs_actual_per_week": 0.0,
+  "props_vs_actual_per_week": 1.9
+ }
+}
