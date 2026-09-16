@@ -1,6 +1,6 @@
 {
  "_rule": "THE ROSTER RULE: any statement about Cory's roster or matchup cites THIS file (fresh within 3 days) or live Sleeper \u2014 never an older artifact.",
- "generated_at": "2026-09-15T17:42:44+00:00",
+ "generated_at": "2026-09-16T16:33:26+00:00",
  "season": "2026",
  "week": 2,
  "cory": {
@@ -57,6 +57,17 @@
    "kickoff_utc": "2026-09-22T00:15:00.000Z"
   },
   {
+   "id": "12501",
+   "name": "Matthew Golden",
+   "pos": "WR",
+   "team": "GB",
+   "starter": false,
+   "injury": null,
+   "game": "at NYJ (Sun)",
+   "home": false,
+   "kickoff_utc": "2026-09-20T17:00:00.000Z"
+  },
+  {
    "id": "12512",
    "name": "Quinshon Judkins",
    "pos": "RB",
@@ -83,7 +94,7 @@
    "name": "Davante Adams",
    "pos": "WR",
    "team": "LAR",
-   "starter": true,
+   "starter": false,
    "injury": null,
    "game": "vs NYG (Mon)",
    "home": true,
@@ -99,17 +110,6 @@
    "game": "vs NO (Sun)",
    "home": true,
    "kickoff_utc": "2026-09-20T17:00:00.000Z"
-  },
-  {
-   "id": "5045",
-   "name": "Courtland Sutton",
-   "pos": "WR",
-   "team": "DEN",
-   "starter": false,
-   "injury": null,
-   "game": "vs JAX (Sun)",
-   "home": true,
-   "kickoff_utc": "2026-09-20T20:05:00.000Z"
   },
   {
    "id": "7002",
@@ -134,17 +134,6 @@
    "kickoff_utc": "2026-09-20T17:00:00.000Z"
   },
   {
-   "id": "8136",
-   "name": "Rachaad White",
-   "pos": "RB",
-   "team": "WAS",
-   "starter": false,
-   "injury": null,
-   "game": "at DAL (Sun)",
-   "home": false,
-   "kickoff_utc": "2026-09-20T20:25:00.000Z"
-  },
-  {
    "id": "8151",
    "name": "Kenneth Walker",
    "pos": "RB",
@@ -160,7 +149,7 @@
    "name": "Parker Washington",
    "pos": "WR",
    "team": "JAX",
-   "starter": false,
+   "starter": true,
    "injury": null,
    "game": "at DEN (Sun)",
    "home": false,
@@ -182,11 +171,22 @@
    "name": "HOU D/ST",
    "pos": "DEF",
    "team": "HOU",
-   "starter": true,
+   "starter": false,
    "injury": null,
    "game": "vs CIN (Sun)",
    "home": true,
    "kickoff_utc": "2026-09-20T17:00:00.000Z"
+  },
+  {
+   "id": "SF",
+   "name": "SF D/ST",
+   "pos": "DEF",
+   "team": "SF",
+   "starter": true,
+   "injury": null,
+   "game": "vs MIA (Sun)",
+   "home": true,
+   "kickoff_utc": "2026-09-20T20:25:00.000Z"
   }
  ],
  "opponent_roster": [
@@ -279,6 +279,17 @@
    "kickoff_utc": "2026-09-20T20:25:00.000Z"
   },
   {
+   "id": "5872",
+   "name": "Deebo Samuel",
+   "pos": "WR",
+   "team": "SF",
+   "starter": false,
+   "injury": null,
+   "game": "vs MIA (Sun)",
+   "home": true,
+   "kickoff_utc": "2026-09-20T20:25:00.000Z"
+  },
+  {
    "id": "5967",
    "name": "Tony Pollard",
    "pos": "RB",
@@ -323,23 +334,12 @@
    "kickoff_utc": "2026-09-20T17:00:00.000Z"
   },
   {
-   "id": "9754",
-   "name": "Quentin Johnston",
-   "pos": "WR",
-   "team": "LAC",
-   "starter": false,
-   "injury": null,
-   "game": "vs LV (Sun)",
-   "home": true,
-   "kickoff_utc": "2026-09-20T20:05:00.000Z"
-  },
-  {
    "id": "9997",
    "name": "Zay Flowers",
    "pos": "WR",
    "team": "BAL",
    "starter": true,
-   "injury": "Out",
+   "injury": "Questionable",
    "game": "vs NO (Sun)",
    "home": true,
    "kickoff_utc": "2026-09-20T17:00:00.000Z"
