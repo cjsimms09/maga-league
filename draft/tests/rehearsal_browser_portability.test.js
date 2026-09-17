@@ -56,8 +56,24 @@ ck('the sandbox path is the container one, not a playwright convention',
 const HARDCODED = '/opt/pw-browsers';
 const DIRECT_LAUNCH = 'chromium.launch(';
 
+// COMMENTS ARE STRIPPED BEFORE SCANNING, and the reason is a real false positive
+// (2026-09-17). A new browser script documented this very defect in its header —
+// naming the sandbox path and the direct-launch call so the next reader would
+// reach for the helper — and the sweep flagged the FILE for the COMMENT while
+// its actual launch went through launchChromium(). A guard that fails a script
+// for explaining the rule teaches people to stop explaining it.
+//
+// Conservative on purpose: only whole-line comments and block comments come out.
+// A trailing `// ...` on a line of code is left in and would still be flagged,
+// which errs toward catching a real occurrence rather than missing one. Stripped
+// by line so that a `https://` in a string is never mistaken for a comment.
+function strip(src) {
+  return src.replace(/\/\*[\s\S]*?\*\//g, '')
+    .split('\n').filter(l => !/^\s*(\/\/|\*)/.test(l)).join('\n');
+}
 function scan(src) {
-  return { hardcoded: src.indexOf(HARDCODED) !== -1, direct: src.indexOf(DIRECT_LAUNCH) !== -1 };
+  const s = strip(src);
+  return { hardcoded: s.indexOf(HARDCODED) !== -1, direct: s.indexOf(DIRECT_LAUNCH) !== -1 };
 }
 
 // KNOWN-POSITIVE CONTROL. A sweep that cannot fail is not evidence. Prove the
@@ -67,6 +83,22 @@ const control = scan("const b = await chromium.launch({ executablePath: '/opt/pw
 ck('CONTROL: the scanner flags the original defective line', control.hardcoded && control.direct, control);
 ck('CONTROL: the scanner passes a helper-based launch',
   (() => { const c = scan('const b = await launchChromium();'); return !c.hardcoded && !c.direct; })());
+
+// The comment-stripping added 2026-09-17 needs its own pair: it must stop
+// flagging prose, and it must NOT have gone soft on code.
+ck('CONTROL: a comment NAMING the defect is not itself the defect',
+  (() => {
+    const c = scan("// never write chromium.launch({executablePath:'/opt/pw-browsers/chromium'})\n"
+                 + '/* nor /opt/pw-browsers in a block comment */\n'
+                 + 'const b = await launchChromium();');
+    return !c.hardcoded && !c.direct;
+  })());
+ck('CONTROL: stripping comments does NOT hide a real offence beside them',
+  (() => {
+    const c = scan("// this file explains chromium.launch( and /opt/pw-browsers\n"
+                 + "const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });");
+    return c.hardcoded && c.direct;
+  })());
 
 const offenders = [];
 for (const f of fs.readdirSync(TESTS)) {

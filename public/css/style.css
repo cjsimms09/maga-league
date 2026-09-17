@@ -3594,34 +3594,66 @@ body.is-champ .tabbar { box-shadow: inset 0 2px 0 rgba(245, 196, 69, .5), 0 -8px
   font-size: .58rem; padding: .1rem .45rem; border-radius: 999px; letter-spacing: .12em;
   background: var(--red); color: #fff;
 }
+/* ⛔ THIS BANNER WAS STILL WEARING THE OLD DARK THEME, AND IT WAS INVISIBLE.
+   Cory, 2026-09-17: "Font on rivalry game on home page needs fixed.. can't read
+   it." He could not: this file's own header says the site flipped to light and
+   "the override layer at the end of this file converts the chrome that was
+   hardcoded for the old dark theme" — and the rivalry banner was missed by that
+   conversion, so white text sat on a #f2f1ec panel.
+
+   MEASURED against --panel-soft, WCAG AA wants 4.5:1 for body text:
+
+       .riv-banner-name        #ffffff   1.13:1
+       .riv-banner-record      #ffffff   1.13:1
+       .riv-banner-blurb       #dfe6f5   1.11:1
+       .riv-banner-note        #c6cfe0   1.39:1
+       tone-friendship name    #9bf0c0   1.19:1   <- LIVE this week (THE DIVORCE)
+       tone-grudge name        #ff8a95   1.99:1
+       tone-lovehate name      #e2a8ff   1.65:1
+
+   Every one is below even the 3:1 large-text floor. The eyebrow and tag were
+   the ONLY readable lines, and only because they use --muted, which a previous
+   contrast pass had already darkened ("darkened for AA contrast on paper (Cory:
+   contrast pass)") — the pass fixed the variable and left the hardcoded colours
+   here behind. Same fix-the-instance-miss-the-twin shape as the rest of this
+   week.
+
+   Every replacement below was computed before it was written; the ratio is on
+   the line. draft/tests/rivalry_banner_contrast.test.js fails the build if any
+   of them regresses. */
 .riv-banner-name {
   font-family: var(--font-display); font-size: 1.55rem; font-weight: 900; letter-spacing: .04em;
-  color: #fff; margin: .25rem 0 .1rem; line-height: 1.05;
+  color: var(--navy); margin: .25rem 0 .1rem; line-height: 1.05;   /* 12.88:1 */
 }
-.riv-banner-tag { font-size: .8rem; color: var(--muted); font-style: italic; margin-bottom: .5rem; }
-.riv-banner-record { font-size: .95rem; color: #fff; font-weight: 700; font-variant-numeric: tabular-nums; }
-.riv-banner-note { font-size: .74rem; color: #c6cfe0; margin-top: .2rem; }
-.riv-banner-blurb { font-size: .84rem; line-height: 1.5; color: #dfe6f5; margin: .6rem auto 0; max-width: 46ch; }
+.riv-banner-tag { font-size: .8rem; color: var(--muted); font-style: italic; margin-bottom: .5rem; }  /* 7.93:1 */
+.riv-banner-record { font-size: .95rem; color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }  /* 15.50:1 */
+.riv-banner-note { font-size: .78rem; color: var(--muted); margin-top: .2rem; }   /* 7.93:1, and .74 -> .78rem */
+.riv-banner-blurb { font-size: .86rem; line-height: 1.55; color: var(--ink); margin: .6rem auto 0; max-width: 46ch; }  /* 15.50:1 */
 .riv-banner-link {
   display: inline-block; margin-top: .7rem; font-weight: 700; font-size: .82rem;
-  color: var(--gold-bright); text-decoration: none;
+  color: var(--blue); text-decoration: none;    /* 4.57:1 — gold-bright was 3.88, under AA for body */
 }
-.riv-banner-link:hover { color: #fff; }
+.riv-banner-link:hover { color: var(--navy); text-decoration: underline; }
 
 /* Tones. A left/right accent bar carries the colour so the palette reads at a glance. */
 .riv-banner.tone-grudge   { border-color: rgba(255,70,85,.6); box-shadow: inset 0 0 0 1px rgba(255,70,85,.15), 0 0 26px rgba(255,70,85,.12); background: linear-gradient(180deg, rgba(255,70,85,.08), var(--panel-soft)); }
-.riv-banner.tone-grudge   .riv-banner-name { color: #ff8a95; text-shadow: 0 0 18px rgba(255,70,85,.4); }
+.riv-banner.tone-grudge   .riv-banner-name { color: #a3121c; }   /* 6.98:1 — the glow was for a dark ground */
 .riv-banner.tone-lovehate { border-color: rgba(214,120,255,.55); background: linear-gradient(180deg, rgba(214,120,255,.08), var(--panel-soft)); }
-.riv-banner.tone-lovehate .riv-banner-name { color: #e2a8ff; }
+.riv-banner.tone-lovehate .riv-banner-name { color: #6b21a8; }   /* 7.71:1 */
 .riv-banner.tone-friendship { border-color: rgba(47,213,118,.45); background: linear-gradient(180deg, rgba(47,213,118,.07), var(--panel-soft)); }
-.riv-banner.tone-friendship .riv-banner-name { color: #9bf0c0; }
+.riv-banner.tone-friendship .riv-banner-name { color: #0f6b3d; }   /* 5.82:1 — LIVE this week */
 .riv-banner.tone-rivalry  { border-color: rgba(245,196,69,.55); background: linear-gradient(180deg, rgba(245,196,69,.08), var(--panel-soft)); }
-.riv-banner.tone-rivalry  .riv-banner-name { color: var(--gold-bright); }
+.riv-banner.tone-rivalry  .riv-banner-name { color: #8a5e14; }   /* 5.03:1 */
 /* The two Germans — black / red / gold. */
+/* The two Germans keep their flag — this tone's ground really IS dark, so white
+   text is right here and stays. The BOTTOM stop moved .25 -> .60 because the
+   gold band is the one place it was not: measured, white over #f5c445 under a
+   .25 black overlay is 2.89:1, under .60 it is 8.00:1. The flag still reads;
+   the blurb and the link sit on that band. */
 .riv-banner.tone-german {
   border: none; color: #fff;
   background:
-    linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.25)),
+    linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.60)),
     linear-gradient(180deg, #111 0 33%, #d4232e 33% 66%, #f5c445 66% 100%);
 }
 .riv-banner.tone-german .riv-banner-eyebrow,
@@ -3630,7 +3662,7 @@ body.is-champ .tabbar { box-shadow: inset 0 2px 0 rgba(245, 196, 69, .5), 0 -8px
 .riv-banner.tone-german .riv-banner-blurb,
 .riv-banner.tone-german .riv-banner-record,
 .riv-banner.tone-german .riv-banner-note { color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,.55); }
-.riv-banner.tone-german .riv-banner-link { color: #0b1020; font-weight: 800; }
+.riv-banner.tone-german .riv-banner-link { color: #ffe9a8; font-weight: 800; }   /* 6.65:1 — was #0b1020, which is 2.37:1 once the band is deepened */
 
 /* ── WAR ROOM v3 — mobile-first density (B). The recommendation owns the first
    fold; the plan / guarantee / status furniture moved beneath it and compacted.
