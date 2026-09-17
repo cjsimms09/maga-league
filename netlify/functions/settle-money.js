@@ -30,7 +30,7 @@
 // skip the lock.)
 
 const store = require('../../src/store');
-const { run } = require('./weekly-high-cron');
+const { run } = require('../../src/settle_money');
 
 exports.handler = async (event) => {
   store.initBlobs(event);

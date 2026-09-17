@@ -186,6 +186,23 @@
     </div>
   </div>
 
+  <%# "settle it now" (Cory, 2026-09-17). The same job the daily schedule runs,
+      on demand — because money won a week ago should not wait for a clock.
+      Needs no key: this page is already commissioner-only. %>
+  <div class="card col-span-2">
+    <h2>Settle the Money <span class="sub">runs by itself daily — this is the same job, now</span></h2>
+    <div class="body">
+      <p class="muted" style="margin:0 0 .6rem">
+        Records the weekly high point for every finished week that is not on the books yet,
+        plus any season award that is decided, and marks anything you have already paid as settled.
+        Safe to press twice — it never overwrites an entry that already exists.
+      </p>
+      <form method="post" action="/admin/settle-now">
+        <button class="btn" type="submit">💵 Settle the money now</button>
+      </form>
+    </div>
+  </div>
+
   <%# Cory, 2026-09-17: "I should be able to document that I sent it just so i
       know who I still owe money to." Every unpaid dollar the league owes,
       itemised. Marking one paid SETTLES that item — it does not add an opposite

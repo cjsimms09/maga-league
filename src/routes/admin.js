@@ -4,6 +4,7 @@ const router = express.Router();
 const H = require('../helpers');
 const L = require('../ledger');
 const PM = require('../payment_match');   // a payment settles a debt, never creates one
+const SETTLE = require('../settle_money'); // the weekly/award settling job, shared with the cron
 const sleeper = require('../sleeper');
 const notify = require('../notify');
 // CONCURRENCY (audit finding 1, 2026-08-16): owners / config / alerts /
@@ -366,6 +367,42 @@ async function recordPayment(req, { owner_id, amount, direction, note, year, des
   parts.push(...plan.warnings);
   return parts.join(' ');
 }
+
+// ⭐ SETTLE THE MONEY NOW — Cory, 2026-09-17: "settle it now."
+//
+// The same job the daily schedule runs, on demand, because "wait until 11:00Z"
+// is not an answer for money that was won a week ago. It needs no key and no
+// secret: this router is behind requireCommissioner, so pressing it is his own
+// authenticated action rather than a public write endpoint (which is why
+// netlify/functions/settle-money.js still demands one and this does not).
+//
+// Safe to press at any time and as often as he likes — the job records only
+// FINISHED weeks and never overwrites an existing entry, so a second press
+// records nothing and says so.
+router.post('/settle-now', aw(async (req, res) => {
+  let out;
+  try {
+    out = await SETTLE.run();
+  } catch (e) {
+    return back(res, 'ledger', msg(`Could not settle: ${(e && e.message) || e}`));
+  }
+  if (!out.ok) return back(res, 'ledger', msg(`Could not settle: ${out.error}`));
+
+  // Say exactly what moved. A job that reports "done" without naming the money
+  // is the same silence that let an unattributed week sit for a fortnight.
+  const parts = [];
+  for (const r of out.recorded || []) {
+    parts.push(r.week != null
+      ? `Week ${r.week}: ${r.owner} $${r.amount}`
+      : `${r.category}: ${r.owner} $${r.amount}`);
+  }
+  for (const m of out.matched || []) parts.push(`(week ${m.week} was already paid — matched and marked settled)`);
+  const unmapped = (out.skipped || []).filter(s => /UNMAPPED/.test(s.reason || ''));
+  for (const u of unmapped) parts.push(`🔴 ${u.week != null ? 'week ' + u.week : u.category}: ${u.reason}`);
+  back(res, 'ledger', msg(parts.length
+    ? `Settled — ${parts.join('; ')}.`
+    : `Nothing to settle: every finished week is already on the books (Sleeper week ${out.stateWeek}).`));
+}));
 
 // The whole register as a CSV — the commissioner's actual accounting file.
 router.get('/ledger.csv', aw(async (req, res) => {
