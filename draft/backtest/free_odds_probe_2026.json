@@ -1,7 +1,7 @@
 {
  "_territory": "relay probe; C consumes; results are the free-odds census",
  "_ask": "Cory 2026-08-21: Explore free Vegas odds we can get",
- "captured_at": "2026-09-10T16:33:49.744798Z",
+ "captured_at": "2026-09-17T17:10:29.840962Z",
  "sources": {
   "espn": {
    "status": 403,
@@ -10,31 +10,111 @@
   },
   "bovada": {
    "status": 200,
-   "bytes": 2,
-   "known_positive": [],
-   "markets_seen": 0,
-   "prop_mentions": 0,
-   "verdict": "REACHABLE-NO-POSITIVE (status 200) \u2014 treat as untested, not as no"
+   "bytes": 2198450,
+   "known_positive": [
+    {
+     "game": "Detroit Lions @ Buffalo Bills",
+     "market": "Moneyline",
+     "handicap": null
+    },
+    {
+     "game": "Detroit Lions @ Buffalo Bills",
+     "market": "Point Spread",
+     "handicap": "5.5"
+    },
+    {
+     "game": "Detroit Lions @ Buffalo Bills",
+     "market": "Total",
+     "handicap": "55.0"
+    }
+   ],
+   "markets_seen": 150,
+   "prop_mentions": 1060,
+   "verdict": "POSITIVE \u2014 real lines on real games"
   },
   "bovada_event_props": {
    "status": 200,
-   "bytes": 2,
-   "note": "no event link found in main payload",
-   "verdict": "REACHABLE-NO-POSITIVE (status 200) \u2014 treat as untested, not as no"
+   "bytes": 2198450,
+   "event_link": "/football/nfl/detroit-lions-buffalo-bills-202609172015",
+   "event_status": 200,
+   "event_bytes": 389720,
+   "prop_markets": 21,
+   "anytime_td_mentions": 16,
+   "known_positive": [
+    {
+     "prop": "Total Passing Touchdowns - Jared Goff (DET)"
+    },
+    {
+     "prop": "Total Passing Touchdowns - Josh Allen (BUF)"
+    },
+    {
+     "prop": "Total Passing Yards - Jared Goff (DET)"
+    }
+   ],
+   "verdict": "POSITIVE \u2014 real lines on real games"
   },
   "bovada_census": {
    "status": 200,
-   "bytes": 2,
-   "display_groups": {},
-   "market_types": {},
-   "known_positive": [],
+   "bytes": 2198450,
+   "display_groups": {
+    "Game Lines": 16,
+    "Alternate Lines": 19,
+    "TD Scorer Props": 15,
+    "First Drive Props": 15,
+    "Passing Props": 15,
+    "Passing Yards": 15,
+    "Rushing Yards": 15,
+    "Receiving Props": 15,
+    "Receiving Yards": 15,
+    "Kicking Props": 4,
+    "Sack Props": 1,
+    "Touchdown Props": 15,
+    "Score Props": 18,
+    "Game Props": 19,
+    "Correct Score": 18,
+    "Specials": 1,
+    "Squares": 1,
+    "Rushing Props": 6
+   },
+   "market_types": {
+    "Moneyline": 50,
+    "Point Spread": 50,
+    "Total": 50,
+    "Anytime Touchdown Scorer": 37,
+    "Spread": 34,
+    "Total Points": 34,
+    "Dynamic Winning Margin": 31,
+    "Total Points Range": 31,
+    "Total Touchdowns": 30,
+    "To Win and Allow 0 Points": 30,
+    "Odd/Even Total Points": 30,
+    "Correct Score Range": 30,
+    "Both teams to score 10 or more points?": 29,
+    "Both teams to score 14 or more points?": 22,
+    "Both teams to score 17 or more points?": 22,
+    "Winning Margin": 21,
+    "Will the game go to Overtime?": 18,
+    "Both teams to score 13 or more points?": 17,
+    "Both teams to score 21 or more points?": 17,
+    "Both teams to score 24 or more points?": 17,
+    "Both teams to score 27 or more points?": 17,
+    "Both teams to score 30 or more points?": 17,
+    "Both teams to score 34 or more points?": 17,
+    "First Touchdown Scorer": 15,
+    "First Drive Specials": 15
+   },
+   "known_positive": [
+    {
+     "census": "main-path"
+    }
+   ],
    "futures_specials_status": 404,
    "futures_specials_bytes": 0,
-   "verdict": "REACHABLE-NO-POSITIVE (status 200) \u2014 treat as untested, not as no"
+   "verdict": "POSITIVE \u2014 real lines on real games"
   },
   "polymarket": {
    "status": 200,
-   "bytes": 891410,
+   "bytes": 791246,
    "events": 20,
    "known_positive": [
     {
@@ -42,12 +122,12 @@
      "price_yes": 0.002
     },
     {
-     "event": "Chiefs Week 1 starting QB in 2026?",
-     "price_yes": 0.002
-    },
-    {
      "event": "Will Cardi B and Stefon Diggs get engaged in 2026?",
      "price_yes": 0.036
+    },
+    {
+     "event": "Pro Football: 2027 Champion",
+     "price_yes": 0.005
     }
    ],
    "verdict": "POSITIVE \u2014 real lines on real games"
