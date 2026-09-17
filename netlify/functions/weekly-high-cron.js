@@ -31,6 +31,7 @@ const L = require('../../src/ledger');
 const sleeper = require('../../src/sleeper');
 const WH = require('../../src/weekly_high');
 const SA = require('../../src/season_awards');
+const PM = require('../../src/payment_match');
 
 async function run() {
   const log = [];
@@ -54,6 +55,7 @@ async function run() {
 
   const recorded = [];
   const skipped = [];
+  const matched = [];
   for (const week of todo) {
     let scorer = null;
     try {
@@ -68,10 +70,25 @@ async function run() {
       skipped.push({ week, reason: decision.reason, detail: decision.detail });
       continue;
     }
-    await L.addEntry(decision.entry);
+    const created = await L.addEntry(decision.entry);
     recorded.push({ week, ...decision.scorer, amount: decision.entry.amount });
     log.push(`week ${week}: ${decision.scorer.owner} (${decision.scorer.team}) `
              + `${decision.scorer.points} pts -> $${decision.entry.amount}`);
+
+    // ⚠️ CORY OFTEN PAYS BEFORE THE JOB RUNS, and until 2026-09-17 that made the
+    // winner look like a DEBTOR: his standalone -$100 sat alone on the books
+    // until the prize landed, so the balances table read "Richard owes you
+    // $100" the day after Richard was paid. If an exact, unsettled payment for
+    // this prize is already there, settle the pair — the money moved, both
+    // sides know it, and neither should stay flagged as outstanding.
+    const paid = PM.matchPrizeToOpenPayment({ entries: await L.allEntries(), prize: created });
+    if (paid) {
+      const nice = `week ${week} high point`;
+      await L.setSettled(paid.id, true, `matched to ${nice}`, 'auto');
+      await L.setSettled(created.id, true, `already paid — matched to payment ${paid.id}`, 'auto');
+      matched.push({ week, owner: decision.scorer.owner, amount: Math.abs(paid.amount) });
+      log.push(`  ↳ already paid: matched to open payment ${paid.id}, both settled`);
+    }
   }
 
   // ── THE OTHER FIVE-SIXTHS OF THE MONEY ────────────────────────────────────
@@ -122,7 +139,7 @@ async function run() {
     log.push(`🔴 ${u.week != null ? 'week ' + u.week : u.category}: ${u.reason} ${JSON.stringify(u.detail || {})}`);
   }
 
-  return { ok: true, season: season.year, stateWeek, recorded, skipped, log,
+  return { ok: true, season: season.year, stateWeek, recorded, skipped, matched, log,
            needs_attention: unmapped.length > 0 };
 }
 

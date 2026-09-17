@@ -186,6 +186,41 @@
     </div>
   </div>
 
+  <%# Cory, 2026-09-17: "I should be able to document that I sent it just so i
+      know who I still owe money to." Every unpaid dollar the league owes,
+      itemised. Marking one paid SETTLES that item — it does not add an opposite
+      entry, which is what used to leave two open rows netting to "even" and, if
+      the prize had not been recorded yet, made the winner look like a debtor. %>
+  <div class="card col-span-2">
+    <h2>Who I Still Owe <span class="sub">unpaid winnings — tick one off when you send it</span></h2>
+    <div class="body tight">
+      <% if (!stillOwed.length) { %>
+        <p class="muted" style="padding:.6rem 0">Nothing outstanding — every prize on the books is marked paid.</p>
+      <% } else { %>
+      <table class="roll">
+        <tr><th>Owner</th><th>What for</th><th class="num">Amount</th><th></th></tr>
+        <% for (const row of stillOwed) { %>
+          <% row.items.forEach((it, i) => { %>
+          <tr>
+            <td><% if (i === 0) { %><b><%= row.name %></b><% if (row.items.length > 1) { %>
+              <span class="muted">(<%= money(row.total) %> total)</span><% } %><% } %></td>
+            <td><%= it.what %> <span class="muted"><%= it.year %></span></td>
+            <td class="num"><%= money(it.amount) %></td>
+            <td class="num">
+              <form class="asis" method="post" action="/admin/ledger/<%= it.id %>/settle">
+                <input type="hidden" name="back" value="ledger">
+                <input type="text" name="note" placeholder="Venmo…" maxlength="120" style="width:8rem">
+                <button class="btn small navy">✔ Mark paid</button>
+              </form>
+            </td>
+          </tr>
+          <% }) %>
+        <% } %>
+      </table>
+      <% } %>
+    </div>
+  </div>
+
   <div class="card col-span-2">
     <h2>
       The Register <span class="sub">every transaction ever — the source of truth</span>

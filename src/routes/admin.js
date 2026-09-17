@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const router = express.Router();
 const H = require('../helpers');
 const L = require('../ledger');
+const PM = require('../payment_match');   // a payment settles a debt, never creates one
 const sleeper = require('../sleeper');
 const notify = require('../notify');
 // CONCURRENCY (audit finding 1, 2026-08-16): owners / config / alerts /
@@ -250,6 +251,10 @@ router.get('/', aw(async (req, res) => {
     threshold: H.voteThreshold(world.config),
     contactStatus,
     balancesMap: bal, ledger: world.ledger, config: world.config,
+    // Cory, 2026-09-17: "I should be able to document that I sent it just so i
+    // know who I still owe money to." This is that list — every unpaid dollar
+    // the league owes, itemised, each with a one-tap "mark paid".
+    stillOwed: PM.outstandingPayouts(world.ledger, world.owners),
     payouts: H.payoutTable(season),
     alertRows: [...world.alerts].sort((a, b) => (b.active - a.active) || (a.created_at < b.created_at ? 1 : -1)),
     ownerRows: [...owners].sort((a, b) => (b.active - a.active) || a.name.localeCompare(b.name)),
@@ -304,21 +309,63 @@ router.post('/ledger', aw(async (req, res) => {
   const desc = String(req.body.desc || '').trim() || 'Manual entry';
   const note = String(req.body.note || '').trim().slice(0, 120);
   const year = parseInt(req.body.year, 10) || H.currentSeason(req.world.seasons).year;
+  let flash = '';
   if (Number.isFinite(raw) && raw !== 0 && owner_id) {
-    const negative = kind === 'charge' || kind === 'payment_sent' || kind === 'carry_debit';
-    const amount = Math.abs(raw) * (negative ? -1 : 1);
-    await L.addEntry({
-      owner_id, year,
-      // Carryover is its own type, not an adjustment: it is the one entry that
-      // is neither earned nor paid this season, and the chart gives it a column.
-      type: kind.startsWith('payment') ? 'payment'
-          : kind.startsWith('carry') ? 'carryover' : 'adjustment',
-      amount,
-      desc: desc + (note ? ` — ${note}` : ''),
-    });
+    if (kind.startsWith('payment')) {
+      // ⚠️ A PAYMENT SETTLES A DEBT, IT DOES NOT CREATE ONE. This used to append
+      // a standalone signed entry, so paying Richard $100 for a week-1 prize
+      // that had not been recorded yet made the site report that RICHARD OWED
+      // CORY $100 (2026-09-17). One decision module now owns this, shared with
+      // POST /payment below, so the two paths cannot drift.
+      flash = await recordPayment(req, {
+        owner_id, amount: Math.abs(raw),
+        direction: kind === 'payment_sent' ? 'out' : 'in', note, year, desc,
+      });
+    } else {
+      const negative = kind === 'charge' || kind === 'carry_debit';
+      const amount = Math.abs(raw) * (negative ? -1 : 1);
+      await L.addEntry({
+        owner_id, year,
+        // Carryover is its own type, not an adjustment: it is the one entry that
+        // is neither earned nor paid this season, and the chart gives it a column.
+        type: kind.startsWith('carry') ? 'carryover' : 'adjustment',
+        amount,
+        desc: desc + (note ? ` — ${note}` : ''),
+      });
+    }
   }
-  back(res, req.body.back || 'ledger');
+  back(res, req.body.back || 'ledger', flash ? msg(flash) : '');
 }));
+
+/**
+ * THE ONE PLACE A PAYMENT IS RECORDED. Both money forms call this.
+ *
+ * `applyPayment` decides (purely, and unit-tested in
+ * draft/tests/payment_match.test.js); this function does the writing and builds
+ * the sentence Cory reads back. It returns a flash message so the outcome is
+ * never silent — the old path's silence is what let a phantom debt sit on the
+ * books unnoticed until he happened to look at the balances table.
+ */
+async function recordPayment(req, { owner_id, amount, direction, note, year, desc }) {
+  const ledger = await L.allEntries();
+  const who = (H.ownerById(req.world.owners, owner_id) || {}).name || 'them';
+  const plan = PM.applyPayment({ entries: ledger, owner_id, amount, direction, note, year });
+
+  for (const s of plan.settle) {
+    await L.setSettled(s.id, true, s.note, req.owner && req.owner.name);
+  }
+  if (plan.entry) {
+    await L.addEntry({ ...plan.entry, desc: desc && desc !== 'Manual entry' ? `${desc}${note ? ` — ${note}` : ''}` : plan.entry.desc });
+  }
+
+  const dir = direction === 'out' ? 'Paid' : 'Received from';
+  const parts = [`${dir} ${who} $${Math.abs(amount).toFixed(2)}.`];
+  if (plan.settle.length) {
+    parts.push(`Marked paid: ${plan.settle.map(s => PM.describe(s.entry)).join(', ')}.`);
+  }
+  parts.push(...plan.warnings);
+  return parts.join(' ');
+}
 
 // The whole register as a CSV — the commissioner's actual accounting file.
 router.get('/ledger.csv', aw(async (req, res) => {
@@ -363,16 +410,20 @@ router.post('/ledger/settle-all/:ownerId', aw(async (req, res) => {
 
 // Record an actual cash movement of any amount against an owner's tab.
 // 'they_paid' = money came to the commissioner (+), 'i_paid' = went out (-).
+//
+// ⚠️ THE SECOND DOOR ONTO THE SAME ACT. This form and the ledger form above
+// both recorded payments, both by appending a standalone signed entry, and both
+// therefore had the same defect — two definitions of one thing (rule 11). They
+// now share `recordPayment`, so a payment settles what it pays off no matter
+// which screen it was typed into.
 router.post('/payment', aw(async (req, res) => {
   const owner_id = parseInt(req.body.owner_id, 10);
   const amount = Math.abs(parseFloat(req.body.amount));
-  const dir = req.body.direction === 'i_paid' ? -1 : 1;
   const note = String(req.body.note || '').trim().slice(0, 120);
   if (owner_id && Number.isFinite(amount) && amount > 0) {
-    await L.addEntry({
-      owner_id, year: H.currentSeason(req.world.seasons).year,
-      type: 'payment', amount: dir * amount,
-      desc: (dir === 1 ? 'Payment received' : 'Payment sent') + (note ? ` — ${note}` : ''),
+    await recordPayment(req, {
+      owner_id, amount, direction: req.body.direction === 'i_paid' ? 'out' : 'in',
+      note, year: H.currentSeason(req.world.seasons).year,
     });
   }
   res.redirect('/bank#owner-' + owner_id);

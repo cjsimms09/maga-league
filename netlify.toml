@@ -61,7 +61,23 @@
   #
   # It BACKFILLS every finished unrecorded week on its first run, and NEVER
   # overwrites an existing entry. See src/weekly_high.js for the rules.
-  schedule = "0 11 * * 2"
+  #
+  # ⚠️ DAILY, NOT TUESDAY-ONLY — changed 2026-09-17, and the reason is that the
+  # weekly version had already failed once before it ever ran. This function
+  # shipped at 04:06 UTC on Thursday 09-17, two days AFTER the Tuesday it fires
+  # on, so its first firing would have been 09-22 and week 1's $100 would have
+  # sat unattributed for a further five days. Cory found it the hard way: he
+  # paid the week 1 winner himself, and with no prize on the books the balances
+  # table reported that the winner OWED HIM $100.
+  #
+  # A once-a-week job is a once-a-week single point of failure: any miss — a
+  # deploy, a Sleeper hiccup, an outage — costs seven days, on a number that is
+  # real money. Running daily costs nothing and removes that entirely. It is
+  # safe at any cadence BY CONSTRUCTION: it only records FINISHED weeks and it
+  # never overwrites, so every run after the first is a no-op that logs "0 weeks
+  # needing a record". Tuesday is still when the money actually appears, because
+  # that is the first morning a week is finished.
+  schedule = "0 11 * * *"
 
 [functions."claims-cron"]
   # The measured wire baseline the waiver_claim resolver prices hold-priority
