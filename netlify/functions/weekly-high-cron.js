@@ -30,6 +30,7 @@ const H = require('../../src/helpers');
 const L = require('../../src/ledger');
 const sleeper = require('../../src/sleeper');
 const WH = require('../../src/weekly_high');
+const SA = require('../../src/season_awards');
 
 async function run() {
   const log = [];
@@ -73,10 +74,53 @@ async function run() {
              + `${decision.scorer.points} pts -> $${decision.entry.amount}`);
   }
 
+  // ── THE OTHER FIVE-SIXTHS OF THE MONEY ────────────────────────────────────
+  // Cory, 2026-09-17: "Same with all other winnings.. it shouldn't need claude
+  // to do these things." Regular-season and playoff prizes are decided by the
+  // same data and were settled by the same kind of unpressed button
+  // (POST /admin/awards). Same job, same cadence, same rules: only when
+  // DECIDED, never overwrite, never mark paid, shout on an unmapped winner.
+  // ⚠️ THE AWARDS HALF MUST NEVER TAKE THE WEEKLY HIGH DOWN WITH IT. The weekly
+  // $100 is already written by the time we get here; a missing `season.payouts`
+  // or a Sleeper bracket hiccup would otherwise throw, return 500, and make a
+  // successful weekly run look like a failed one. Awards degrade to "not
+  // settled this run" and say so; they are retried next Tuesday for free.
+  try {
+  const table = H.payoutTable(season);
+  const amounts = {};
+  for (const row of [...(table.reg || []), ...(table.playoff || [])]) {
+    if (row && row.category) amounts[row.category] = row.amount;
+  }
+  const ranked = sleeper.standings(data, map, owners);
+  const bracket = await sleeper.winnersBracket(leagueId);
+  const placements = sleeper.placementsFrom(bracket);
+  const ownerOf = (rid) => {
+    const row = ranked.find(r => Number(r.roster_id) === Number(rid));
+    return row ? row.owner_id : null;
+  };
+  const aw = SA.awardsToRecord(season, stateWeek, ranked, placements, amounts, world.ledger, ownerOf);
+  for (const e of aw.entries) {
+    const { _roster_id, ...entry } = e;
+    entry.desc = H.CATEGORY_LABELS[entry.category] || entry.category;
+    await L.addEntry(entry);
+    const who = (ranked.find(r => Number(r.roster_id) === Number(_roster_id)) || {});
+    recorded.push({ category: entry.category, owner: who.owner_name || entry.owner_id,
+                    team: who.team, amount: entry.amount });
+    log.push(`${entry.category}: ${who.owner_name || entry.owner_id} -> $${entry.amount}`);
+  }
+  for (const s2 of aw.skipped) skipped.push(s2);
+  log.push(`awards: ${aw.entries.length} recorded, ${aw.skipped.length} not yet decided or already present`);
+  } catch (e) {
+    skipped.push({ category: 'awards', reason: `award settling failed: ${e && e.message}` });
+    log.push(`⚠️ awards not settled this run: ${e && e.message} — the weekly high above is unaffected`);
+  }
+
   // An unmapped roster is the one skip that must be impossible to miss: it means
   // real money is going unattributed and will keep doing so every week.
   const unmapped = skipped.filter(s => /UNMAPPED/.test(s.reason || ''));
-  for (const u of unmapped) log.push(`🔴 week ${u.week}: ${u.reason} ${JSON.stringify(u.detail || {})}`);
+  for (const u of unmapped) {
+    log.push(`🔴 ${u.week != null ? 'week ' + u.week : u.category}: ${u.reason} ${JSON.stringify(u.detail || {})}`);
+  }
 
   return { ok: true, season: season.year, stateWeek, recorded, skipped, log,
            needs_attention: unmapped.length > 0 };

@@ -32,41 +32,57 @@ jobs:
   record:
     runs-on: ubuntu-latest
     steps:
-      - name: Invoke weekly-high-cron and show exactly what it recorded
+      - name: CONTROL — is the site up, and are scheduled functions HTTP-reachable?
+        # Run 1 of this workflow got HTTP 403 with an EMPTY body from
+        # weekly-high-cron. That is NOT this repo's handler (which answers JSON),
+        # so the cause is the platform. Before trusting any theory about why,
+        # probe three URLs whose answers are known-different — a reachable
+        # non-function, a scheduled function, and the unscheduled twin. Whatever
+        # is broken, this step names it instead of leaving a 403 to interpret.
+        run: |
+          set -uo pipefail
+          SITE="${{ github.event.inputs.site }}"; SITE="${SITE:-https://makefbgreatagain.netlify.app}"
+          for path in "/api/version" "/.netlify/functions/weekly-high-cron" "/.netlify/functions/settle-money"; do
+            code=$(curl -sS -o /tmp/probe.out -w '%{http_code}' --max-time 60 "$SITE$path" || echo 000)
+            printf '  %-46s HTTP %s  %s\n' "$path" "$code" "$(head -c 120 /tmp/probe.out | tr -d '\n')"
+          done
+          echo
+          echo "READING: /api/version 200 + weekly-high-cron 403 EMPTY = Netlify blocks HTTP on"
+          echo "         SCHEDULED functions, and settle-money (unscheduled) is the way in."
+
+      - name: Settle the money now (backfill) via the unscheduled twin
         env:
           KEY: ${{ secrets.WEEKLY_HIGH_CRON_KEY }}
         run: |
           set -uo pipefail
-          SITE="${{ github.event.inputs.site }}"
-          SITE="${SITE:-https://makefbgreatagain.netlify.app}"
-          URL="$SITE/.netlify/functions/weekly-high-cron"
-          # The key is only REQUIRED if the site has one configured. Sending an
-          # empty ?key= would be a manual hit with the wrong key and get a 403,
-          # so when we have no secret we call the bare URL — which the handler
-          # treats exactly like the schedule does.
-          if [ -n "${KEY:-}" ]; then URL="$URL?key=$KEY"; fi
-
-          code=$(curl -sS -o resp.json -w '%{http_code}' --max-time 120 "$URL" || echo 000)
-          echo "HTTP $code"
-          echo '--- response ---'
-          cat resp.json || true
-          echo
+          SITE="${{ github.event.inputs.site }}"; SITE="${SITE:-https://makefbgreatagain.netlify.app}"
+          if [ -z "${KEY:-}" ]; then
+            echo "::warning::WEEKLY_HIGH_CRON_KEY is not set as a repo secret, so the manual door"
+            echo "stays shut by design. NOTHING IS BROKEN: the Tuesday schedule does not use a key"
+            echo "and will settle everything on its own. Set the secret (and the matching Netlify"
+            echo "env var) only if you want to catch up WITHOUT waiting for Tuesday."
+            exit 0
+          fi
+          code=$(curl -sS -o resp.json -w '%{http_code}' --max-time 120 \
+                 "$SITE/.netlify/functions/settle-money?key=$KEY" || echo 000)
+          echo "HTTP $code"; cat resp.json || true; echo
           if [ "$code" != "200" ]; then
-            echo "::error::weekly-high-cron returned HTTP $code — nothing was recorded. Read the response above."
+            echo "::error::settle-money returned HTTP $code — nothing was recorded."
             exit 1
           fi
-          # Surface the two things worth seeing without reading JSON: what got
-          # recorded, and whether anything needs a human.
           python3 - <<'PY'
           import json
           d = json.load(open('resp.json'))
           rec = d.get('recorded') or []
-          print(f"recorded {len(rec)} week(s):")
+          print(f"recorded {len(rec)} item(s):")
           for r in rec:
-              print(f"  week {r.get('week')}: {r.get('owner')} ({r.get('team')}) "
-                    f"{r.get('points')} pts -> ${r.get('amount')}")
+              if r.get('week') is not None:
+                  print(f"  week {r['week']}: {r.get('owner')} ({r.get('team')}) {r.get('points')} pts -> ${r.get('amount')}")
+              else:
+                  print(f"  {r.get('category')}: {r.get('owner')} -> ${r.get('amount')}")
           for s in (d.get('skipped') or []):
-              print(f"  skipped week {s.get('week')}: {s.get('reason')}")
+              who = f"week {s['week']}" if s.get('week') is not None else s.get('category')
+              print(f"  skipped {who}: {s.get('reason')}")
           if d.get('needs_attention'):
               raise SystemExit("::error::a winning roster is not in config.sleeper_map — "
                                "real money is going unattributed. Fix the map and re-run.")

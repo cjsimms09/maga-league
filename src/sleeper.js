@@ -152,6 +152,33 @@ async function matchupsForWeek(leagueId, week) {
  * roster_id, `type` waiver|free_agent|trade, `status`, `created`). The human
  * side of the auto-derived tool-vs-actual WAIVER grade (register 466 ①):
  * what Cory actually claimed, off the same feed `wire()` above formats. */
+/* The winners bracket — the ONLY place the final placements live.
+ *
+ * Sleeper does not carry the bracket in the league bundle, and the placements
+ * are not derivable from standings: a 3-seed can win it. Each decided match
+ * carries `w` (winner) and `l` (loser); the two that name a PLACE carry `p`
+ * — p:1 is the final, p:3 the third-place game — which is exactly how
+ * history-data.js's buildBracket() reads the harvested copy. Same rule, live.
+ *
+ * Returns null on any failure rather than throwing: a missing bracket must
+ * leave the playoff awards unsettled, never half-settled. */
+async function winnersBracket(leagueId) {
+  try { return await fetchJson(`/v1/league/${leagueId}/winners_bracket`); } catch (e) { return null; }
+}
+
+/* placements {1..4: roster_id} from a winners bracket, or {} if undecided.
+ * ONE DEFINITION, shared with the settler — a second copy of this reading is
+ * how two surfaces come to disagree about who won (register 503). */
+function placementsFrom(bracket) {
+  const out = {};
+  for (const m of (bracket || [])) {
+    if (!m || m.w == null || m.l == null) continue;      // undecided match
+    if (m.p === 1) { out[1] = m.w; out[2] = m.l; }
+    if (m.p === 3) { out[3] = m.w; out[4] = m.l; }
+  }
+  return out;
+}
+
 async function transactionsForWeek(leagueId, week) {
   try { return await fetchJson(`/v1/league/${leagueId}/transactions/${week}`); } catch (e) { return null; }
 }
@@ -626,6 +653,7 @@ module.exports = {
   // a backstop nothing can reach is a backstop nothing can test. Rule 10.
   withFreshness,
   bundle, matchupsForWeek, transactionsForWeek, weekPointsByOwner, myMatchup,
+  winnersBracket, placementsFrom,
   standings, scoreboard, highScorer, teamName,
   autoMap, userMap, records, players, draftInfo, trendingAdds, WAR_POSITIONS,
   weekReview, wire, weekStats, seasonStats, rosterView, gamesForWeek,
