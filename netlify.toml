@@ -47,6 +47,22 @@
   # smoke-test the path before its day.
   schedule = "0 12 * * 2"
 
+[functions."weekly-high-cron"]
+  # Tuesday 11:00 UTC — after MNF ends the week and after grade-cron (12:00 is
+  # the same morning; order does not matter, they touch different docs), early
+  # enough that "recorded by Tuesday morning" survives a late run.
+  #
+  # WHY THIS EXISTS. POST /admin/weekly has always written the ledger entry that
+  # moves $100 into an owner's winnings — and it needed a human to press it.
+  # Nobody did, so /bank and every "winnings this year" number were empty all
+  # season while the games had already been played. Cory, 2026-09-17: "Every
+  # week the high point should be recorded and winnings for that week
+  # attributed.. this isn't hard." It is not; it was just manual.
+  #
+  # It BACKFILLS every finished unrecorded week on its first run, and NEVER
+  # overwrites an existing entry. See src/weekly_high.js for the rules.
+  schedule = "0 11 * * 2"
+
 [functions."claims-cron"]
   # The measured wire baseline the waiver_claim resolver prices hold-priority
   # claims against (see buildDecisionResolutions). Data read from disk at run

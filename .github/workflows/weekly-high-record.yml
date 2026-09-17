@@ -1,0 +1,73 @@
+name: Weekly high — record the winner and the $100 now
+
+# THE SCHEDULE IS NETLIFY'S; THIS IS THE HAND CRANK.
+#
+# `weekly-high-cron` runs Tuesday 11:00 UTC and records every finished,
+# unrecorded week. This workflow invokes the SAME function on demand, for the
+# two cases a weekly schedule cannot cover:
+#
+#   1. RIGHT NOW. The automation shipped mid-season with week 1 already played
+#      and nothing recorded. Waiting until Tuesday to attribute a $100 that was
+#      won a week ago is not an answer.
+#   2. After fixing a cause. If a week was skipped because the winning roster
+#      was not in `config.sleeper_map`, you fix the map and re-run — you do not
+#      wait seven days to find out whether the fix worked.
+#
+# It is safe to run at any time and as often as you like: the job NEVER
+# overwrites an existing entry, so a second run records nothing and says so.
+#
+# ⚠️ WHY A WORKFLOW AND NOT A CURL FROM THE DEV SANDBOX: the sandbox's egress
+# proxy cannot reach makefbgreatagain.netlify.app (verified — http 000). CI can.
+# Same reason every provider probe in this repo runs here.
+
+on:
+  workflow_dispatch:
+    inputs:
+      site:
+        description: 'Site base URL'
+        required: false
+        default: 'https://makefbgreatagain.netlify.app'
+
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Invoke weekly-high-cron and show exactly what it recorded
+        env:
+          KEY: ${{ secrets.WEEKLY_HIGH_CRON_KEY }}
+        run: |
+          set -uo pipefail
+          SITE="${{ github.event.inputs.site }}"
+          SITE="${SITE:-https://makefbgreatagain.netlify.app}"
+          URL="$SITE/.netlify/functions/weekly-high-cron"
+          # The key is only REQUIRED if the site has one configured. Sending an
+          # empty ?key= would be a manual hit with the wrong key and get a 403,
+          # so when we have no secret we call the bare URL — which the handler
+          # treats exactly like the schedule does.
+          if [ -n "${KEY:-}" ]; then URL="$URL?key=$KEY"; fi
+
+          code=$(curl -sS -o resp.json -w '%{http_code}' --max-time 120 "$URL" || echo 000)
+          echo "HTTP $code"
+          echo '--- response ---'
+          cat resp.json || true
+          echo
+          if [ "$code" != "200" ]; then
+            echo "::error::weekly-high-cron returned HTTP $code — nothing was recorded. Read the response above."
+            exit 1
+          fi
+          # Surface the two things worth seeing without reading JSON: what got
+          # recorded, and whether anything needs a human.
+          python3 - <<'PY'
+          import json
+          d = json.load(open('resp.json'))
+          rec = d.get('recorded') or []
+          print(f"recorded {len(rec)} week(s):")
+          for r in rec:
+              print(f"  week {r.get('week')}: {r.get('owner')} ({r.get('team')}) "
+                    f"{r.get('points')} pts -> ${r.get('amount')}")
+          for s in (d.get('skipped') or []):
+              print(f"  skipped week {s.get('week')}: {s.get('reason')}")
+          if d.get('needs_attention'):
+              raise SystemExit("::error::a winning roster is not in config.sleeper_map — "
+                               "real money is going unattributed. Fix the map and re-run.")
+          PY
