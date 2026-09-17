@@ -37,7 +37,13 @@
              const href = linkFor(y);
              const written = chapters.has(y);
              const preSleeper = y < 2023;
-             const inProgress = y === 2026;
+             // WAS `y === 2026` — the THIRD copy of that literal. history-data.js's
+             // season filter and lineup.js's Leak exclusion were the other two, and
+             // only lineup.js's was fixed by the Annual audit. A year hardcoded as
+             // "in progress" is wrong twice: it calls 2026 live forever, and it calls
+             // 2027 finished the day it starts. Derived from the season's own Sleeper
+             // status, so the January rollover needs no edit. Cory, 2026-09-17.
+             const inProgress = !!(A.byYear[y] && String(A.byYear[y].status || '').toLowerCase() !== 'complete');
         %>
           <% if (href) { %><a class="tl-row" href="<%= href %>"><% } else { %><div class="tl-row tl-dead"><% } %>
             <span class="tl-year"><%= y %></span>

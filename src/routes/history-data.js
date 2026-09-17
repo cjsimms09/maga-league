@@ -58,6 +58,24 @@ const FIRST_NAME = {
 // §8.1 — David and Marian are German; the other eight American.
 const GERMAN = new Set(['David', 'Marian']);
 
+/* PLAYED WEEKS, ascending — the one definition of "this week has happened".
+ *
+ * Defined ONCE and used by both the season filter and the week list, because
+ * two definitions of one thing is how the live season came to be excluded in
+ * one place and assumed present in another. A week counts as played when some
+ * team scored above zero: Sleeper creates all 18 week rows at season open with
+ * every entry at 0.00, so "the row exists" and "the games happened" are
+ * different questions and only the second one may move money.
+ *
+ * MEASURED 2026-09-17: 2026 -> [1]; 2023/2024/2025 -> all 18. So this is inert
+ * for every completed season and is exactly the current-season fix. */
+function playedWeeks(s) {
+  return Object.entries((s && s.weeks) || {})
+    .filter(([, entries]) => (entries || []).some(e => Number(e && e.points) > 0))
+    .map(([w]) => Number(w))
+    .sort((a, b) => a - b);
+}
+
 // ---------------------------------------------------------------------------
 // build() — the whole archive, memoised. Everything downstream reads this.
 // ---------------------------------------------------------------------------
@@ -85,7 +103,25 @@ function build() {
   };
 
   // Sleeper handle -> real first name, per season, keyed by roster_id.
-  const seasonsRaw = harvest.seasons.filter(s => String(s.season) !== '2026' && (s.weeks && Object.keys(s.weeks).length));
+  //
+  // ⛔ THIS READ `String(s.season) !== '2026'` UNTIL 2026-09-17, AND IT IS WHY
+  // THE SITE SHOWED NO WEEKLY-HIGH WINNER AND NO MONEY BANKED. Cory: "The site
+  // hasn't recorded weekly high point winner for the week and says no money
+  // banked.. this needs to happen every week by Tuesday morning!" The chronicle
+  // was not failing to compute the weekly high — it was filtering the entire
+  // current season out before computing anything.
+  //
+  // ⚠️ THE IDENTICAL LITERAL WAS ALREADY FOUND AND REMOVED FROM lineup.js BY
+  // THE ANNUAL AUDIT, AND THIS TWIN SURVIVED BECAUSE THIS FILE IS ON
+  // no_season_literals.test.js's EXCLUSION LIST — excluded on the reasoning
+  // "the chronicle IS years", which is true of the years it DISPLAYS and was
+  // never true of a filter that drops the live season. The exclusion made the
+  // twin invisible to the guard written to stop exactly this.
+  //
+  // NOW DERIVED, not pinned: a season belongs in the chronicle once it has a
+  // week somebody actually played. That is self-updating at the January
+  // rollover and needs no edit when 2027 starts.
+  const seasonsRaw = harvest.seasons.filter(s => playedWeeks(s).length);
   seasonsRaw.sort((a, b) => Number(b.season) - Number(a.season));
 
   const seasons = seasonsRaw.map(s => buildSeason(s, { playerName, playerPos, payouts }));
@@ -205,7 +241,14 @@ function buildSeason(s, ctx) {
   // Weekly box scores, normalised.  weeks[w] = [ {roster_id, matchup_id,
   // points, opt (optimal lineup pts), best (best single starter), benchTop } ]
   const weeks = {};
-  const weekList = Object.keys(s.weeks).map(Number).sort((a, b) => a - b);
+  // ⚠️ PLAYED WEEKS ONLY, AND THIS IS THE HALF THAT PROTECTS THE MONEY.
+  // Sleeper pre-creates all 18 week rows the moment a season opens, every entry
+  // sitting at 0.00. Including the live season without this filter would hand
+  // the weekly-high ledger sixteen unplayed weeks, crown a 0.00 "winner" in
+  // each, and bank $100 a time — $1,600 of money that does not exist, on a page
+  // whose whole job is to be right about money.
+  // Completed seasons are unaffected: 2023/2024/2025 have 18 played weeks of 18.
+  const weekList = playedWeeks(s);
   for (const w of weekList) {
     weeks[w] = s.weeks[w].map(m => {
       const opt = optimalLineup(m.players_points || {}, m.players || [], playerPos);
@@ -310,7 +353,10 @@ function buildSeason(s, ctx) {
   const allPlay = computeAllPlay(weeks, weekList, teams);
 
   const bracket = buildBracket(s.brackets, teams);
-  const money = pay ? computeMoney(year, pay, standings, weeklyHigh, bracket, teams) : null;
+  const money = pay
+    ? computeMoney(year, pay, standings, weeklyHigh, bracket, teams,
+                   String(s.status || '').toLowerCase() !== 'complete')
+    : null;
   const draft = buildDraftRecap(s.drafts, teams, playerName, playerPos);
   const superlatives = buildSuperlatives(weeks, weekList, games, teams, standings);
 
@@ -418,7 +464,7 @@ function buildBracket(brackets, teams) {
 }
 
 // ---- money (cross-checks against master_sheet per_owner_money) -------------
-function computeMoney(year, pay, standings, weeklyHigh, bracket, teams) {
+function computeMoney(year, pay, standings, weeklyHigh, bracket, teams, inProgress) {
   const rows = {};
   for (const r of Object.keys(teams).map(Number)) {
     rows[r] = { roster_id: r, name: teams[r].name, weekly: 0, regular_season: 0, playoffs: 0, total: 0 };
@@ -426,22 +472,47 @@ function computeMoney(year, pay, standings, weeklyHigh, bracket, teams) {
   // weekly highs (reg season only)
   const wAmt = (pay.weekly_high || {}).amount || 100;
   for (const wh of weeklyHigh) rows[wh.roster_id].weekly += wAmt;
-  // regular-season champ / runner-up by standings rank
+  // ⚠️ END-OF-SEASON PRIZES ARE NOT AWARDED TO AN IN-PROGRESS SEASON.
+  //
+  // A weekly high is SETTLED the moment its week ends — that is what makes it
+  // bankable and why it is added above unconditionally. The regular-season
+  // champ/runner-up and the playoff placements are decided at season END, and
+  // this function reads them off whoever currently sits at rank 1 and 2.
+  //
+  // That was harmless while the chronicle excluded the live season. Now that it
+  // does not (see playedWeeks), it would have told Cory after ONE GAME that
+  // Richard had won $250 of regular-season prize money on a 1-0 record, inside
+  // a `total` that also holds his genuinely banked $100. Two different kinds of
+  // number under one heading, on the page whose whole job is being right about
+  // money — and the more confident-looking half would have been the wrong one.
+  //
+  // So: settled money accrues live, unsettled money waits for the season to
+  // finish. `provisional` says which state this is rather than leaving a reader
+  // to infer it from a zero.
+  const complete = !inProgress;
   const rs = pay.regular_season || {};
   const rank1 = standings.find(s => s.rank === 1);
   const rank2 = standings.find(s => s.rank === 2);
-  if (rank1 && rs.champ) rows[rank1.roster_id].regular_season += rs.champ;
-  if (rank2 && rs.runner_up) rows[rank2.roster_id].regular_season += rs.runner_up;
+  if (complete && rank1 && rs.champ) rows[rank1.roster_id].regular_season += rs.champ;
+  if (complete && rank2 && rs.runner_up) rows[rank2.roster_id].regular_season += rs.runner_up;
   // playoff placements
   const po = pay.playoffs || {};
-  if (bracket && bracket.placements) {
+  if (complete && bracket && bracket.placements) {
     for (const place of [1, 2, 3, 4]) {
       const rid = bracket.placements[place];
       if (rid != null && po[String(place)]) rows[rid].playoffs += po[String(place)];
     }
   }
   for (const r of Object.values(rows)) r.total = round2(r.weekly + r.regular_season + r.playoffs);
-  return { rows, pot: pay.total_pot, buy_in: pay.buy_in };
+  return {
+    rows, pot: pay.total_pot, buy_in: pay.buy_in,
+    //: settled vs not, stated rather than inferred from a zero.
+    provisional: !!inProgress,
+    settled_note: inProgress
+      ? 'Weekly highs are settled and banked each week. Regular-season and '
+        + 'playoff prizes are decided at season end and are NOT included yet.'
+      : 'Season complete — all prizes settled.',
+  };
 }
 
 // ---- draft recap -----------------------------------------------------------

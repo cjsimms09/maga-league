@@ -53,7 +53,28 @@ name: League history export (the graders' input, on its own legs)
 on:
   workflow_dispatch: {}
   schedule:
-    - cron: '0 11 * * 2'   # Tuesdays 11:00 UTC
+    # ⚠️ MOVED 11:00Z -> 06:00Z ON 2026-09-17 SO "TUESDAY MORNING" SURVIVES THE
+    # SCHEDULER'S DELAY. Cory: "this needs to happen every week by Tuesday
+    # morning!" The 11:00Z cron is 07:00 ET, which sounds early enough — but
+    # GitHub fires this workflow LATE and the delay is what decides the answer.
+    # MEASURED on its own four scheduled runs:
+    #
+    #     scheduled        fired        = ET
+    #     08-25 11:00Z     11:23Z         07:23  Tue morning
+    #     09-01 11:00Z     15:22Z         11:22  Tue late morning
+    #     09-08 11:00Z     14:51Z         10:51  Tue late morning
+    #     09-15 11:00Z     15:25Z         11:25  Tue late morning
+    #
+    # Three of the last four landed after 10:50 ET, and this repo's worst
+    # OBSERVED delay is 9h25 (draft/tests/test_weekly_snapshot_beats_kickoff.py,
+    # OBSERVED_MAX_DELAY_H = 9.41) — which from 11:00Z lands 20:25Z = 16:25 ET.
+    # That is not morning; that is after work.
+    #
+    # 06:00Z is this repo's own established "after Monday Night Football" line
+    # (own-weekly-grade.yml uses it for the same reason), so the box scores are
+    # final. Typical delivery becomes ~02:30 ET — done before he wakes up — and
+    # even at the worst observed delay it lands 15:25Z = 11:25 ET, still morning.
+    - cron: '0 6 * * 2'    # Tuesdays 06:00 UTC — after MNF, early enough to survive the delay
 
 permissions:
   contents: write
@@ -170,10 +191,24 @@ jobs:
             echo "league_history.json unchanged — nothing to commit (the export is "
             echo "idempotent for completed seasons, so this is normal out of season)"
           else
-            # [skip deploy] — draft/data is not a served path, so this must never
-            # spend one of Cory's three daily Netlify builds (his 08-24 cadence
-            # ruling).
-            git commit -m "league_history: weekly export for the decision graders [skip deploy]"
+            # ⛔ THIS CARRIED [skip deploy] UNTIL 2026-09-17 AND THAT IS WHY THE
+            # SITE NEVER SHOWED THE WEEK'S HIGH SCORE. Cory: "The site hasn't
+            # recorded weekly high point winner for the week and says no money
+            # banked.. this needs to happen every week by Tuesday morning!"
+            #
+            # The old reasoning — "draft/data is not a served path, so this must
+            # never spend one of Cory's three daily Netlify builds (08-24 cadence
+            # ruling)" — was TRUE about the path and WRONG about the file. The
+            # chronicle (src/routes/history-data.js) reads league_history.json at
+            # server load and derives the weekly-high ledger and the money board
+            # from it, so this file is exactly "what a visitor receives". It was
+            # classified as Lab because of where it sits, not what it does.
+            #
+            # netlify-ignore.sh now names this ONE file as served, so the commit
+            # below builds. That is ONE build a week, on Tuesday — well inside
+            # the 2-3/day the cadence ruling asked for, and it is the cadence
+            # Cory just asked for in the same breath.
+            git commit -m "league_history: weekly export — the week's box scores, weekly high and money"
             # PUSH WITH A REBASE-RETRY (relay, 09-02): a plain `git push` loses the race
             # whenever another job or a session lands on main first — weekly-grade lost
             # its 09-01 artifacts that way ("! [rejected] main -> main (fetch first)"),

@@ -106,8 +106,28 @@ fi
 # SERVED files: anything that changes what a visitor's browser receives. Non-served
 # (draft/ Lab, docs/, scripts/, .github/, root *.md like STATUS/PARKED, *.json Lab
 # reports) does NOT rebuild the site — that is the batching that protects the budget.
-if printf '%s' "$RANGE_FILES" | grep -qE '^(views/|public/|src/|server-app\.js|package(-lock)?\.json|netlify\.toml|netlify/functions/)'; then
-  n="$(printf '%s' "$RANGE_FILES" | grep -cE '^(views/|public/|src/|server-app\.js|package(-lock)?\.json|netlify\.toml|netlify/functions/)')"
+#
+# ⚠️ DEFINED ONCE. This pattern was written out twice — once to test, once to
+# count — and a rule that exists in two places is a rule that will disagree with
+# itself. (Register 503's lesson, in a shell script.)
+#
+# ⛔ `draft/data/league_history.json` WAS MISSING AND IT COST THE WEEKLY HIGH.
+# Cory, 2026-09-17: "The site hasn't recorded weekly high point winner for the
+# week and says no money banked.. this needs to happen every week by Tuesday
+# morning!" The chronicle reads that file at server load, so it IS what a
+# visitor receives — but it lives under draft/, which this rule classifies as
+# Lab. The Tuesday export therefore landed the week's box scores and the site
+# never rebuilt to show them.
+#
+# ⚠️ NARROW ON PURPOSE — THE FILE, NOT THE DIRECTORY. `draft/data/` churns
+# daily (proj_series, adp_series, roster_state_series, the capture rail), and
+# adding the directory would rebuild the site several times a day and walk
+# straight back into the build-minute exhaustion this gate exists to prevent.
+# This file changes once a week, on Tuesday, which is exactly the cadence asked
+# for and costs one build.
+SERVED_RE='^(views/|public/|src/|server-app\.js|package(-lock)?\.json|netlify\.toml|netlify/functions/|draft/data/league_history\.json$)'
+if printf '%s' "$RANGE_FILES" | grep -qE "$SERVED_RE"; then
+  n="$(printf '%s' "$RANGE_FILES" | grep -cE "$SERVED_RE")"
 
   # ── CORY'S CADENCE RULING, 2026-08-24 ──────────────────────────────────────
   # "I want things updated but we shouldn't deploy 100x a day, 2-3xs a day is

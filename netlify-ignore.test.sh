@@ -65,6 +65,19 @@ TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
   add_served PKG      package.json
   add_served TOML     netlify.toml
   add_served FUNCS    netlify/functions/api.js
+  # THE WEEKLY HIGH'S PATH (2026-09-17). league_history.json lives under draft/
+  # — Lab territory — but the chronicle derives the weekly-high ledger and the
+  # money board from it at server load, so it IS served. It is named as ONE
+  # FILE, never the directory, and the pair below asserts both halves.
+  add_served HISTORY  draft/data/league_history.json
+  # …and its NEGATIVE twin: a sibling under the same directory must still SKIP,
+  # or the narrow rule has quietly become a wide one and draft/data's daily
+  # capture churn starts spending the build budget this gate exists to protect.
+  mkdir -p draft/data; echo churn > draft/data/proj_series.json
+  git add -A; git commit -qm 'lab: daily capture churn'
+  echo "SIBLING_BEFORE=$prev" >> served_refs.env
+  echo "SIBLING_AFTER=$(git rev-parse HEAD)" >> served_refs.env
+  prev="$(git rev-parse HEAD)"
 )
 . "$TMP/refs.env"
 . "$TMP/served_refs.env"
@@ -78,6 +91,11 @@ run "a served change under public/ deploys"          1 "$SERVED_PUBLIC_BEFORE"  
 run "a served change under src/ deploys"             1 "$SERVED_SRC_BEFORE"      "$SERVED_SRC_AFTER" DEPLOY_WINDOW_HOURS=0
 run "a change to server-app.js deploys"              1 "$SERVED_SERVERJS_BEFORE" "$SERVED_SERVERJS_AFTER" DEPLOY_WINDOW_HOURS=0
 run "a change to package.json deploys"               1 "$SERVED_PKG_BEFORE"      "$SERVED_PKG_AFTER" DEPLOY_WINDOW_HOURS=0
+# THE WEEKLY HIGH, BOTH DIRECTIONS. The first is Cory's 09-17 ask — the Tuesday
+# export must reach the site. The second is the guard on my own fix: if the rule
+# ever widens from the file to the directory, THIS one flips and says so.
+run "league_history.json deploys (the weekly high reaches the site)" 1 "$SERVED_HISTORY_BEFORE" "$SERVED_HISTORY_AFTER" DEPLOY_WINDOW_HOURS=0
+run "a SIBLING under draft/data/ still SKIPS (the rule is one file, not the dir)" 0 "$SIBLING_BEFORE" "$SIBLING_AFTER" DEPLOY_WINDOW_HOURS=0
 run "a change to netlify.toml deploys"               1 "$SERVED_TOML_BEFORE"     "$SERVED_TOML_AFTER" DEPLOY_WINDOW_HOURS=0
 run "a change under netlify/functions/ deploys"      1 "$SERVED_FUNCS_BEFORE"    "$SERVED_FUNCS_AFTER" DEPLOY_WINDOW_HOURS=0
 # docs-only since last build -> SKIP (budget batching)
