@@ -1,6 +1,6 @@
 {
  "_rule": "THE ROSTER RULE: any statement about Cory's roster or matchup cites THIS file (fresh within 3 days) or live Sleeper \u2014 never an older artifact.",
- "generated_at": "2026-09-16T16:33:26+00:00",
+ "generated_at": "2026-09-18T17:08:03+00:00",
  "season": "2026",
  "week": 2,
  "cory": {
@@ -46,17 +46,6 @@
    "kickoff_utc": "2026-09-20T17:00:00.000Z"
   },
   {
-   "id": "12015",
-   "name": "Harrison Mevis",
-   "pos": "K",
-   "team": "LAR",
-   "starter": true,
-   "injury": null,
-   "game": "vs NYG (Mon)",
-   "home": true,
-   "kickoff_utc": "2026-09-22T00:15:00.000Z"
-  },
-  {
    "id": "12501",
    "name": "Matthew Golden",
    "pos": "WR",
@@ -90,6 +79,17 @@
    "kickoff_utc": "2026-09-21T00:20:00.000Z"
   },
   {
+   "id": "2020",
+   "name": "Cairo Santos",
+   "pos": "K",
+   "team": "CHI",
+   "starter": true,
+   "injury": null,
+   "game": "vs MIN (Sun)",
+   "home": true,
+   "kickoff_utc": "2026-09-20T17:00:00.000Z"
+  },
+  {
    "id": "2133",
    "name": "Davante Adams",
    "pos": "WR",
@@ -117,7 +117,7 @@
    "pos": "TE",
    "team": "NO",
    "starter": true,
-   "injury": null,
+   "injury": "Questionable",
    "game": "at BAL (Sun)",
    "home": false,
    "kickoff_utc": "2026-09-20T17:00:00.000Z"
@@ -273,7 +273,7 @@
    "pos": "K",
    "team": "SF",
    "starter": true,
-   "injury": null,
+   "injury": "Questionable",
    "game": "vs MIA (Sun)",
    "home": true,
    "kickoff_utc": "2026-09-20T20:25:00.000Z"
@@ -306,7 +306,7 @@
    "pos": "QB",
    "team": "CIN",
    "starter": true,
-   "injury": null,
+   "injury": "Questionable",
    "game": "at HOU (Sun)",
    "home": false,
    "kickoff_utc": "2026-09-20T17:00:00.000Z"
@@ -345,15 +345,15 @@
    "kickoff_utc": "2026-09-20T17:00:00.000Z"
   },
   {
-   "id": "JAX",
-   "name": "JAX D/ST",
+   "id": "GB",
+   "name": "GB D/ST",
    "pos": "DEF",
-   "team": "JAX",
+   "team": "GB",
    "starter": true,
    "injury": null,
-   "game": "at DEN (Sun)",
+   "game": "at NYJ (Sun)",
    "home": false,
-   "kickoff_utc": "2026-09-20T20:05:00.000Z"
+   "kickoff_utc": "2026-09-20T17:00:00.000Z"
   }
  ],
  "named_gaps": [
