@@ -1,6 +1,6 @@
 # THIS WEEK — coryjsimms, week 2 (2026)
 
-**Generated 2026-09-18T17:08:03+00:00 from LIVE Sleeper. THE ROSTER RULE: any statement about
+**Generated 2026-09-20T14:48:10+00:00 from LIVE Sleeper. THE ROSTER RULE: any statement about
 Cory's roster or matchup cites this file (fresh within 3 days) or live
 Sleeper — a frozen seat plan or tournament artifact is never a source for
 who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
@@ -22,7 +22,7 @@ who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
 | S | Cairo Santos | K | CHI | vs MIN (Sun) | — |  |
 |   | Davante Adams | WR | LAR | vs NYG (Mon) | — |  |
 | S | Derrick Henry | RB | BAL | vs NO (Sun) | — |  |
-| S | Juwan Johnson | TE | NO | at BAL (Sun) | — | Questionable |
+| S | Juwan Johnson | TE | NO | at BAL (Sun) | — |  |
 | S | Ja'Marr Chase | WR | CIN | at HOU (Sun) | — |  |
 | S | Kenneth Walker | RB | KC | vs IND (Sun) | — |  |
 | S | Parker Washington | WR | JAX | at DEN (Sun) | — |  |
@@ -42,12 +42,12 @@ who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
 | S | Ashton Jeanty | RB | LV | at LAC (Sun) | — |  |
 | S | Jeremiyah Love | RB | ARI | vs SEA (Sun) | — |  |
 | S | Eddy Pineiro | K | SF | vs MIA (Sun) | — | Questionable |
-|   | Deebo Samuel | WR | SF | vs MIA (Sun) | — |  |
+| S | Deebo Samuel | WR | SF | vs MIA (Sun) | — |  |
 |   | Tony Pollard | RB | TEN | vs PHI (Sun) | — |  |
 | S | Joe Burrow | QB | CIN | at HOU (Sun) | — | Questionable |
 | S | Tee Higgins | WR | CIN | at HOU (Sun) | — |  |
 | S | Chase Brown | RB | CIN | at HOU (Sun) | — |  |
-| S | Zay Flowers | WR | BAL | vs NO (Sun) | — | Questionable |
+|   | Zay Flowers | WR | BAL | vs NO (Sun) | — | Out |
 | S | GB D/ST | DEF | GB | at NYJ (Sun) | — |  |
 
 ## Second opinion (props vs champion)

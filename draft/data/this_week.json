@@ -1,6 +1,6 @@
 {
  "_rule": "THE ROSTER RULE: any statement about Cory's roster or matchup cites THIS file (fresh within 3 days) or live Sleeper \u2014 never an older artifact.",
- "generated_at": "2026-09-18T17:08:03+00:00",
+ "generated_at": "2026-09-20T14:48:10+00:00",
  "season": "2026",
  "week": 2,
  "cory": {
@@ -117,7 +117,7 @@
    "pos": "TE",
    "team": "NO",
    "starter": true,
-   "injury": "Questionable",
+   "injury": null,
    "game": "at BAL (Sun)",
    "home": false,
    "kickoff_utc": "2026-09-20T17:00:00.000Z"
@@ -283,7 +283,7 @@
    "name": "Deebo Samuel",
    "pos": "WR",
    "team": "SF",
-   "starter": false,
+   "starter": true,
    "injury": null,
    "game": "vs MIA (Sun)",
    "home": true,
@@ -338,8 +338,8 @@
    "name": "Zay Flowers",
    "pos": "WR",
    "team": "BAL",
-   "starter": true,
-   "injury": "Questionable",
+   "starter": false,
+   "injury": "Out",
    "game": "vs NO (Sun)",
    "home": true,
    "kickoff_utc": "2026-09-20T17:00:00.000Z"
