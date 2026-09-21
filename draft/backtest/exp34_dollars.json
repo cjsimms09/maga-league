@@ -47,20 +47,20 @@
       "season": "2026",
       "our": {
         "weekly_high": 0.0,
-        "regular_season": 250.0,
-        "playoff": 675.0,
-        "total": 925.0,
-        "playoff_place": 1,
-        "made_playoffs": true,
+        "regular_season": 0.0,
+        "playoff": 0.0,
+        "total": 0.0,
+        "playoff_place": null,
+        "made_playoffs": false,
         "partial": false
       },
       "adp": {
         "weekly_high": 0.0,
-        "regular_season": 250.0,
-        "playoff": 675.0,
-        "total": 925.0,
-        "playoff_place": 1,
-        "made_playoffs": true,
+        "regular_season": 0.0,
+        "playoff": 0.0,
+        "total": 0.0,
+        "playoff_place": null,
+        "made_playoffs": false,
         "partial": false
       },
       "delta": {
@@ -157,8 +157,8 @@
       "band": "value(<=0)",
       "n": 38,
       "n_deviations": 36,
-      "sum_dollars": -2350.0,
-      "mean_dollars": -61.84
+      "sum_dollars": -1325.0,
+      "mean_dollars": -34.87
     },
     {
       "band": "near-zero",
@@ -959,17 +959,17 @@
     }
   },
   "correlation_arm": {
-    "diff_mean": 0.067,
+    "diff_mean": 0.171,
     "diff_ci": [
-      -0.031,
-      0.163
+      0.081,
+      0.262
     ],
-    "verdict": "inconclusive",
+    "verdict": "beat",
     "n_picks": 32
   },
   "agreement": {
-    "state": "ranks_better=False, dollar_verdict=adp-earns-more",
-    "ranks_better": false,
+    "state": "THE INTERESTING RESULT: ranks better but earns same-or-less \u2014 the edge is in evaluating players, not in constructing rosters that fit this payout structure. Points at the PORTFOLIO DOCTRINE, not the projections.",
+    "ranks_better": true,
     "dollar_verdict": "adp-earns-more"
   },
   "caveats": [],

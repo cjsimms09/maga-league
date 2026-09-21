@@ -9,22 +9,22 @@ _(a season marked `harvest` had its realized recovered from league_history playe
 
 ## PRIMARY — rank correlation over the available pool
 
-- our ordering: mean rho 0.313 CI (0.206, 0.411)
-- market (ADP): mean rho 0.245 CI (0.149, 0.338)
-- **difference (our - market): 0.067 CI [-0.031, 0.163] -> INCONCLUSIVE** over 32 picks
+- our ordering: mean rho 0.397 CI (0.331, 0.461)
+- market (ADP): mean rho 0.226 CI (0.151, 0.293)
+- **difference (our - market): 0.171 CI [0.081, 0.262] -> BEAT** over 32 picks
 
 ## Top-N set value (realized pts, our set vs market set)
 
-- top-5: our 259.424 vs market 157.491 (delta 101.933, beat)
-- top-10: our 224.515 vs market 159.619 (delta 64.896, beat)
+- top-5: our 261.541 vs market 159.363 (delta 102.178, beat)
+- top-10: our 226.229 vs market 161.095 (delta 65.133, beat)
 
 ## The deviation-edge surface (hit rate = took beat ADP-preferred available)
 
 ### by FORGONE VALUE (primary) (projected pts given up)
 
-- value(<=0): n=15 hit=0.267 mean_delta=27.987 CI [-1.34, 61.66] inconclusive
-- near-zero: n=3 hit=0.667 mean_delta=26.9 CI [0.0, 42.52] inconclusive ⚠THIN
-- moderate: n=6 hit=0.333 mean_delta=-4.483 CI [-19.417, 12.5] inconclusive ⚠THIN
+- value(<=0): n=15 hit=0.333 mean_delta=30.504 CI [0.397, 62.887] beat
+- near-zero: n=3 hit=1.0 mean_delta=27.6 CI [2.1, 42.52] beat ⚠THIN
+- moderate: n=6 hit=0.333 mean_delta=-5.183 CI [-20.033, 12.033] inconclusive ⚠THIN
 - large: n=8 hit=0.5 mean_delta=-75.02 CI [-163.207, 6.212] inconclusive
 
 ### by ADP DISTANCE (comparison — which unit predicts better is a finding) (spots)
@@ -37,8 +37,8 @@ _(a season marked `harvest` had its realized recovered from league_history playe
 ### by ROUND / remaining-picks decay (round band)
 
 - r1-3: n=4 hit=0.75 mean_delta=49.03 CI [3.55, 112.5] beat ⚠THIN
-- r4-7: n=13 hit=0.462 mean_delta=9.877 CI [-1.968, 22.3] inconclusive
-- r8-11: n=11 hit=0.273 mean_delta=10.587 CI [-30.28, 55.573] inconclusive
+- r4-7: n=13 hit=0.538 mean_delta=10.038 CI [-1.808, 22.348] inconclusive
+- r8-11: n=11 hit=0.364 mean_delta=13.638 CI [-29.518, 58.564] inconclusive
 - r12+: n=5 hit=0.0 mean_delta=-114.188 CI [-230.676, -4.16] lost ⚠THIN
 
 ### by MARKET DISPERSION (ADP stdev)
@@ -55,7 +55,7 @@ _(a season marked `harvest` had its realized recovered from league_history playe
 ## Caveats
 
 - pbp unavailable for [2025, 2026] (NameError); those seasons stay skipped
-- 2026: nflverse realized unavailable (pbp rebuild refused by cross-validation on 2024 — the gate working); RECOVERED from the harvest (league_history players_points, season totals, 151 players; roster-gated so a mid-season drop is truncated).
+- 2026: nflverse realized unavailable (pbp rebuild refused by cross-validation on 2024 — the gate working); RECOVERED from the harvest (league_history players_points, season totals, 152 players; roster-gated so a mid-season drop is truncated).
 - 2025: nflverse realized unavailable (pbp rebuild refused by cross-validation on 2024 — the gate working); RECOVERED from the harvest (league_history players_points, season totals, 254 players; roster-gated so a mid-season drop is truncated).
 
 ## What this does NOT settle
