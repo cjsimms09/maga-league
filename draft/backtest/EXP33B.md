@@ -6,14 +6,14 @@ grader). Pre-registered: if naive wins, REPLACE the input; ships nothing (gate f
 
 ## RANKING (mean per-pick rho with realized)
 
-- blend 0.365 · naive 0.316 · market/ADP 0.21 (n=45 picks)
-- **naive − blend: -0.049 CI [-0.097, -0.005] → negative**
-- naive − market: 0.105 CI [-0.008, 0.212] → inconclusive
-- blend − market: 0.154 CI [0.064, 0.241] → positive
+- blend 0.398 · naive 0.358 · market/ADP 0.21 (n=45 picks)
+- **naive − blend: -0.04 CI [-0.091, 0.004] → inconclusive**
+- naive − market: 0.147 CI [0.036, 0.254] → positive
+- blend − market: 0.188 CI [0.108, 0.269] → positive
 
 ## DOLLARS (value-greedy roster per source)
 
-- 2026: blend $925.0 · naive $925.0 · adp $925.0 (naive−blend $0.0)
+- 2026: blend $0.0 · naive $0.0 · adp $0.0 (naive−blend $0.0)
 - 2025: blend $0.0 · naive $0.0 · adp $200.0 (naive−blend $0.0)
 - 2024: blend $200.0 · naive $100.0 · adp $1025.0 (naive−blend $-100.0)
 - 2023: blend $0.0 · naive $0.0 · adp $800.0 (naive−blend $0.0)
