@@ -3,7 +3,7 @@
   "_note": "RAW ROWS ONLY. Nothing here is averaged, scored, or allowed near proj_mean. ffanalytics does NOT scrape Draft Sharks — it scrapes FantasySharks, a different company.",
   "season": 2026,
   "week": 0,
-  "scraped_at": "2026-09-21T12:42:10Z",
+  "scraped_at": "2026-09-22T11:29:35Z",
   "sources_asked": ["CBS", "ESPN", "FantasyPros", "FantasySharks", "FFToday", "FleaFlicker", "NumberFire", "FantasyFootballNerd", "NFL", "RTSports", "Walterfootball", "FantasyData"],
   "sources_returning_rows": ["CBS", "ESPN", "FantasyPros", "FFToday", "NumberFire", "Walterfootball"],
   "total_rows": 1900,
