@@ -35,12 +35,40 @@
    "props_vs_actual": 1.9,
    "props_priced": 13,
    "props_would_flip": false
+  },
+  {
+   "week": 2,
+   "actual": 135.12,
+   "ceiling": 138.12,
+   "left_on_bench": 3.0,
+   "starters_actual": [
+    "QB:11560",
+    "RB:3198",
+    "RB:8151",
+    "WR:7564",
+    "WR:10229",
+    "TE:7002",
+    "WR:2133",
+    "K:2020",
+    "DEF:SF"
+   ],
+   "opponent": "cashworth",
+   "opponent_points": 85.38,
+   "result": "W",
+   "margin": 49.74,
+   "ceiling_would_flip": false,
+   "champion": 110.92,
+   "champion_vs_actual": -24.2,
+   "champion_priced": 13,
+   "champion_would_flip": false,
+   "props": null,
+   "props_note": "no artifact for this week \u2014 absent, not zero"
   }
  ],
  "summary": {
-  "weeks_graded": 1,
-  "left_on_bench_per_week": 18.3,
-  "champion_vs_actual_per_week": 0.0,
+  "weeks_graded": 2,
+  "left_on_bench_per_week": 10.65,
+  "champion_vs_actual_per_week": -12.1,
   "props_vs_actual_per_week": 1.9
  }
 }
