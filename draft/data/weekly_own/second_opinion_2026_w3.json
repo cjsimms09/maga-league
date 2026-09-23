@@ -3,8 +3,8 @@
  "_what": "REPORT ONLY. The champion weekly projection beside the props-implied points on Cory's live roster, and the lineup each would start. The second lineup uses P357's blend rule (props where a line exists, champion elsewhere) \u2014 its prior art made visible, not the arm entering the grader early.",
  "season": 2026,
  "week": 3,
- "generated": "2026-09-23T14:42:56.854053+00:00",
- "roster_source": "THIS-WEEK.md generated 2026-09-22T17:40:41+00:00",
+ "generated": "2026-09-23T22:50:23.620744+00:00",
+ "roster_source": "THIS-WEEK.md generated 2026-09-23T16:32:40+00:00",
  "champion_source": "committed snapshot own_weekly_2026_w3.json",
  "champion_arm": "v1_pull3",
  "props_source": "weekly_props_2026_w3.json (0 players)",
@@ -20,12 +20,12 @@
    "what": "the props file covers at least one rostered skill player",
    "ok": false,
    "covered": 0,
-   "of": 13
+   "of": 14
   },
   {
    "id": "S3",
    "what": "THIS-WEEK.md is fresh (<= 3 days) \u2014 the roster rule",
-   "generated": "2026-09-22T17:40:41+00:00",
+   "generated": "2026-09-23T16:32:40+00:00",
    "ok": true
   }
  ],
@@ -43,7 +43,7 @@
    "props_minus_champion": null
   },
   {
-   "st": true,
+   "st": false,
    "name": "Caleb Williams",
    "pos": "QB",
    "team": "CHI",
@@ -128,6 +128,18 @@
   },
   {
    "st": true,
+   "name": "Jared Goff",
+   "pos": "QB",
+   "team": "DET",
+   "injury": "\u2014",
+   "player_id": "3163",
+   "champion": 24.71,
+   "blend_prior": 25.0,
+   "props": null,
+   "props_minus_champion": null
+  },
+  {
+   "st": true,
    "name": "Derrick Henry",
    "pos": "RB",
    "team": "BAL",
@@ -199,7 +211,7 @@
    "props_minus_champion": null
   },
   {
-   "st": false,
+   "st": true,
    "name": "HOU D/ST",
    "pos": "DEF",
    "team": "HOU",
@@ -209,22 +221,10 @@
    "blend_prior": null,
    "props": null,
    "props_minus_champion": null
-  },
-  {
-   "st": true,
-   "name": "SF D/ST",
-   "pos": "DEF",
-   "team": "SF",
-   "injury": "\u2014",
-   "player_id": null,
-   "champion": null,
-   "blend_prior": null,
-   "props": null,
-   "props_minus_champion": null
   }
  ],
  "lineup_champion": [
-  "Caleb Williams",
+  "Jared Goff",
   "Derrick Henry",
   "Kenneth Walker",
   "Ja'Marr Chase",
@@ -235,7 +235,7 @@
   "HOU D/ST"
  ],
  "lineup_props_blend": [
-  "Caleb Williams",
+  "Jared Goff",
   "Derrick Henry",
   "Kenneth Walker",
   "Ja'Marr Chase",
@@ -246,7 +246,7 @@
   "HOU D/ST"
  ],
  "lineup_champion_ids": [
-  "11560",
+  "3163",
   "3198",
   "8151",
   "7564",
@@ -257,7 +257,7 @@
   "HOU D/ST"
  ],
  "lineup_props_blend_ids": [
-  "11560",
+  "3163",
   "3198",
   "8151",
   "7564",
@@ -270,16 +270,16 @@
  "swaps": [],
  "valuation": {
   "champion_lineup": {
-   "by_champion": 103.38,
-   "by_props_blend": 103.38
+   "by_champion": 107.49,
+   "by_props_blend": 107.49
   },
   "props_blend_lineup": {
-   "by_champion": 103.38,
-   "by_props_blend": 103.38
+   "by_champion": 107.49,
+   "by_props_blend": 107.49
   }
  },
  "skill_players_with_a_props_line": 0,
- "skill_players_rostered": 13,
+ "skill_players_rostered": 14,
  "opponent": {
   "name": "MarianSaar",
   "unmatched": [],
@@ -297,7 +297,7 @@
     "props_minus_champion": null
    },
    {
-    "st": true,
+    "st": false,
     "name": "Drake Maye",
     "pos": "QB",
     "team": "NE",
@@ -405,7 +405,7 @@
     "props_minus_champion": null
    },
    {
-    "st": false,
+    "st": true,
     "name": "Bryce Young",
     "pos": "QB",
     "team": "CAR",
@@ -526,14 +526,14 @@
  "matchup": {
   "opponent": "MarianSaar",
   "by_champion": {
-   "mine": 103.38,
+   "mine": 107.49,
    "theirs": 95.93,
-   "gap": 7.45
+   "gap": 11.56
   },
   "by_props_blend": {
-   "mine": 103.38,
+   "mine": 107.49,
    "theirs": 95.93,
-   "gap": 7.45
+   "gap": 11.56
   },
   "note": "each side's best lineup under that opinion; K/DEF unpriced by both, so the gap is skill slots only"
  }
