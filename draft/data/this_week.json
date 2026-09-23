@@ -1,6 +1,6 @@
 {
  "_rule": "THE ROSTER RULE: any statement about Cory's roster or matchup cites THIS file (fresh within 3 days) or live Sleeper \u2014 never an older artifact.",
- "generated_at": "2026-09-22T17:40:41+00:00",
+ "generated_at": "2026-09-23T16:32:40+00:00",
  "season": "2026",
  "week": 3,
  "cory": {
@@ -28,8 +28,8 @@
    "name": "Caleb Williams",
    "pos": "QB",
    "team": "CHI",
-   "starter": true,
-   "injury": "Out",
+   "starter": false,
+   "injury": "Doubtful",
    "game": "vs PHI (Mon)",
    "home": true,
    "kickoff_utc": "2026-09-29T00:15:00.000Z"
@@ -99,6 +99,17 @@
    "game": "at DEN (Sun)",
    "home": false,
    "kickoff_utc": "2026-09-28T00:20:00.000Z"
+  },
+  {
+   "id": "3163",
+   "name": "Jared Goff",
+   "pos": "QB",
+   "team": "DET",
+   "starter": true,
+   "injury": null,
+   "game": "vs NYJ (Sun)",
+   "home": true,
+   "kickoff_utc": "2026-09-27T17:00:00.000Z"
   },
   {
    "id": "3198",
@@ -171,22 +182,11 @@
    "name": "HOU D/ST",
    "pos": "DEF",
    "team": "HOU",
-   "starter": false,
+   "starter": true,
    "injury": null,
    "game": "at IND (Sun)",
    "home": false,
    "kickoff_utc": "2026-09-27T17:00:00.000Z"
-  },
-  {
-   "id": "SF",
-   "name": "SF D/ST",
-   "pos": "DEF",
-   "team": "SF",
-   "starter": true,
-   "injury": null,
-   "game": "vs ARI (Sun)",
-   "home": true,
-   "kickoff_utc": "2026-09-27T20:05:00.000Z"
   }
  ],
  "opponent_roster": [
@@ -206,7 +206,7 @@
    "name": "Drake Maye",
    "pos": "QB",
    "team": "NE",
-   "starter": true,
+   "starter": false,
    "injury": null,
    "game": "at JAX (Sun)",
    "home": false,
@@ -229,7 +229,7 @@
    "pos": "RB",
    "team": "DEN",
    "starter": false,
-   "injury": "Out",
+   "injury": "Questionable",
    "game": "vs LAR (Sun)",
    "home": true,
    "kickoff_utc": "2026-09-28T00:20:00.000Z"
@@ -305,7 +305,7 @@
    "name": "Bryce Young",
    "pos": "QB",
    "team": "CAR",
-   "starter": false,
+   "starter": true,
    "injury": null,
    "game": "at CLE (Sun)",
    "home": false,
