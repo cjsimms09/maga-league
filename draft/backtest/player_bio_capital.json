@@ -10,9 +10,9 @@
   2026
  ],
  "population": {
-  "total_bio_rows": 6518,
-  "matched_to_sleeper": 3909,
-  "unmatched_no_sleeper_id": 2609
+  "total_bio_rows": 6519,
+  "matched_to_sleeper": 3913,
+  "unmatched_no_sleeper_id": 2606
  },
  "unmatched_sample": [
   {
@@ -95869,6 +95869,34 @@
    "draft_team": null,
    "draft_capital": "UDFA"
   },
+  "13130": {
+   "gsis_id": "00-0040066",
+   "name": "Jackson Woodard",
+   "position": "LB",
+   "birth_date": "2002-07-02 00:00:00",
+   "age_by_season": {
+    "2021": null,
+    "2022": null,
+    "2023": null,
+    "2024": null,
+    "2025": null,
+    "2026": null
+   },
+   "rookie_year": 2025,
+   "is_rookie_by_season": {
+    "2021": false,
+    "2022": false,
+    "2023": false,
+    "2024": false,
+    "2025": true,
+    "2026": false
+   },
+   "draft_season": null,
+   "draft_round": null,
+   "draft_pick": null,
+   "draft_team": null,
+   "draft_capital": "UDFA"
+  },
   "13047": {
    "gsis_id": "00-0040067",
    "name": "Jacardia Wright",
@@ -104101,6 +104129,34 @@
    "draft_team": "GNB",
    "draft_capital": "4th"
   },
+  "13305": {
+   "gsis_id": "00-0040878",
+   "name": "Mike Washington Jr.",
+   "position": "RB",
+   "birth_date": "2003-07-03 00:00:00",
+   "age_by_season": {
+    "2021": null,
+    "2022": null,
+    "2023": null,
+    "2024": null,
+    "2025": null,
+    "2026": null
+   },
+   "rookie_year": 2026,
+   "is_rookie_by_season": {
+    "2021": false,
+    "2022": false,
+    "2023": false,
+    "2024": false,
+    "2025": false,
+    "2026": true
+   },
+   "draft_season": 2026,
+   "draft_round": 4,
+   "draft_pick": 122,
+   "draft_team": "LVR",
+   "draft_capital": "4th"
+  },
   "13480": {
    "gsis_id": "00-0040880",
    "name": "LT Overton",
@@ -104463,6 +104519,34 @@
    "draft_round": 7,
    "draft_pick": 225,
    "draft_team": "TEN",
+   "draft_capital": "7th"
+  },
+  "13571": {
+   "gsis_id": "00-0040902",
+   "name": "Brandon Cleveland",
+   "position": "DL",
+   "birth_date": "2004-08-27 00:00:00",
+   "age_by_season": {
+    "2021": null,
+    "2022": null,
+    "2023": null,
+    "2024": null,
+    "2025": null,
+    "2026": null
+   },
+   "rookie_year": 2026,
+   "is_rookie_by_season": {
+    "2021": false,
+    "2022": false,
+    "2023": false,
+    "2024": false,
+    "2025": false,
+    "2026": true
+   },
+   "draft_season": 2026,
+   "draft_round": 7,
+   "draft_pick": 229,
+   "draft_team": "LVR",
    "draft_capital": "7th"
   },
   "13565": {
@@ -106873,6 +106957,34 @@
    "draft_team": "DEN",
    "draft_capital": "7th"
   },
+  "13949": {
+   "gsis_id": "00-0041139",
+   "name": "Damon Bankston",
+   "position": "RB",
+   "birth_date": "2003-04-25 00:00:00",
+   "age_by_season": {
+    "2021": null,
+    "2022": null,
+    "2023": null,
+    "2024": null,
+    "2025": null,
+    "2026": null
+   },
+   "rookie_year": 2026,
+   "is_rookie_by_season": {
+    "2021": false,
+    "2022": false,
+    "2023": false,
+    "2024": false,
+    "2025": false,
+    "2026": true
+   },
+   "draft_season": null,
+   "draft_round": null,
+   "draft_pick": null,
+   "draft_team": null,
+   "draft_capital": "UDFA"
+  },
   "13706": {
    "gsis_id": "00-0041148",
    "name": "Aaron Hall",
@@ -107605,7 +107717,7 @@
    "gsis_id": "00-0041329",
    "name": "Michael Heldman",
    "position": "LB",
-   "birth_date": "NaT",
+   "birth_date": "2003-03-10 00:00:00",
    "age_by_season": {
     "2021": null,
     "2022": null,
@@ -107912,7 +108024,7 @@
   "13433": {
    "gsis_id": "00-0041398",
    "name": "Riley Nowakowski",
-   "position": "TE",
+   "position": "RB",
    "birth_date": "2002-06-30 00:00:00",
    "age_by_season": {
     "2021": null,
@@ -109599,7 +109711,7 @@
   "missed_players": []
  },
  "rule_3e_control_rookie_udfa_rate": {
-  "checked": 76,
+  "checked": 77,
   "udfa": 1,
   "udfa_pct": 1.3,
   "ok": true
