@@ -1,7 +1,7 @@
 {
  "_territory": "relay probe; C consumes; results are the free-odds census",
  "_ask": "Cory 2026-08-21: Explore free Vegas odds we can get",
- "captured_at": "2026-09-17T17:10:29.840962Z",
+ "captured_at": "2026-09-24T17:24:30.203919Z",
  "sources": {
   "espn": {
    "status": 403,
@@ -10,98 +10,100 @@
   },
   "bovada": {
    "status": 200,
-   "bytes": 2198450,
+   "bytes": 3077934,
    "known_positive": [
     {
-     "game": "Detroit Lions @ Buffalo Bills",
+     "game": "Atlanta Falcons @ Green Bay Packers",
      "market": "Moneyline",
      "handicap": null
     },
     {
-     "game": "Detroit Lions @ Buffalo Bills",
+     "game": "Atlanta Falcons @ Green Bay Packers",
      "market": "Point Spread",
      "handicap": "5.5"
     },
     {
-     "game": "Detroit Lions @ Buffalo Bills",
+     "game": "Atlanta Falcons @ Green Bay Packers",
      "market": "Total",
-     "handicap": "55.0"
+     "handicap": "43.0"
     }
    ],
-   "markets_seen": 150,
-   "prop_mentions": 1060,
+   "markets_seen": 243,
+   "prop_mentions": 3372,
    "verdict": "POSITIVE \u2014 real lines on real games"
   },
   "bovada_event_props": {
    "status": 200,
-   "bytes": 2198450,
-   "event_link": "/football/nfl/detroit-lions-buffalo-bills-202609172015",
+   "bytes": 3077934,
+   "event_link": "/football/nfl/atlanta-falcons-green-bay-packers-202609242015",
    "event_status": 200,
-   "event_bytes": 389720,
-   "prop_markets": 21,
-   "anytime_td_mentions": 16,
+   "event_bytes": 415300,
+   "prop_markets": 23,
+   "anytime_td_mentions": 10,
    "known_positive": [
     {
-     "prop": "Total Passing Touchdowns - Jared Goff (DET)"
+     "prop": "Total Passing Touchdowns - Jordan Love (GB)"
     },
     {
-     "prop": "Total Passing Touchdowns - Josh Allen (BUF)"
+     "prop": "Total Passing Touchdowns - Michael Penix Jr. (ATL)"
     },
     {
-     "prop": "Total Passing Yards - Jared Goff (DET)"
+     "prop": "Total Passing Yards - Jordan Love (GB)"
     }
    ],
    "verdict": "POSITIVE \u2014 real lines on real games"
   },
   "bovada_census": {
    "status": 200,
-   "bytes": 2198450,
+   "bytes": 3077934,
    "display_groups": {
-    "Game Lines": 16,
-    "Alternate Lines": 19,
-    "TD Scorer Props": 15,
-    "First Drive Props": 15,
-    "Passing Props": 15,
-    "Passing Yards": 15,
+    "Game Lines": 19,
+    "Alternate Lines": 20,
+    "TD Scorer Props": 16,
+    "First Drive Props": 1,
+    "Passing Props": 16,
+    "Passing Yards": 16,
+    "Rushing Props": 11,
     "Rushing Yards": 15,
-    "Receiving Props": 15,
-    "Receiving Yards": 15,
-    "Kicking Props": 4,
+    "Receiving Props": 16,
+    "Receiving Yards": 16,
+    "Kicking Props": 6,
     "Sack Props": 1,
-    "Touchdown Props": 15,
-    "Score Props": 18,
-    "Game Props": 19,
-    "Correct Score": 18,
+    "Touchdown Props": 14,
+    "Def & ST Props": 1,
+    "Score Props": 21,
+    "Game Props": 21,
+    "Combined Yards": 1,
+    "Correct Score": 21,
     "Specials": 1,
-    "Squares": 1,
-    "Rushing Props": 6
+    "Squares": 1
    },
    "market_types": {
-    "Moneyline": 50,
-    "Point Spread": 50,
-    "Total": 50,
-    "Anytime Touchdown Scorer": 37,
+    "Moneyline": 81,
+    "Point Spread": 81,
+    "Total": 81,
+    "Dynamic Winning Margin": 53,
+    "Total Points Range": 53,
+    "Both teams to score 10 or more points?": 52,
+    "To Win and Allow 0 Points": 52,
+    "Odd/Even Total Points": 52,
+    "Winning Margin": 51,
+    "Correct Score Range": 51,
+    "Both teams to score 14 or more points?": 36,
+    "Both teams to score 17 or more points?": 36,
     "Spread": 34,
     "Total Points": 34,
-    "Dynamic Winning Margin": 31,
-    "Total Points Range": 31,
-    "Total Touchdowns": 30,
-    "To Win and Allow 0 Points": 30,
-    "Odd/Even Total Points": 30,
-    "Correct Score Range": 30,
-    "Both teams to score 10 or more points?": 29,
-    "Both teams to score 14 or more points?": 22,
-    "Both teams to score 17 or more points?": 22,
-    "Winning Margin": 21,
-    "Will the game go to Overtime?": 18,
-    "Both teams to score 13 or more points?": 17,
-    "Both teams to score 21 or more points?": 17,
-    "Both teams to score 24 or more points?": 17,
-    "Both teams to score 27 or more points?": 17,
-    "Both teams to score 30 or more points?": 17,
-    "Both teams to score 34 or more points?": 17,
-    "First Touchdown Scorer": 15,
-    "First Drive Specials": 15
+    "Both Teams To Score": 32,
+    "Both teams to score 7 or more points?": 32,
+    "Double Chance": 32,
+    "Total Touchdowns": 28,
+    "Anytime Touchdown Scorer": 25,
+    "Both teams to score 13 or more points?": 20,
+    "Both teams to score 21 or more points?": 20,
+    "Both teams to score 24 or more points?": 20,
+    "Both teams to score 27 or more points?": 20,
+    "Both teams to score 30 or more points?": 20,
+    "Both teams to score 34 or more points?": 20
    },
    "known_positive": [
     {
@@ -114,7 +116,7 @@
   },
   "polymarket": {
    "status": 200,
-   "bytes": 791246,
+   "bytes": 792988,
    "events": 20,
    "known_positive": [
     {
@@ -123,11 +125,11 @@
     },
     {
      "event": "Will Cardi B and Stefon Diggs get engaged in 2026?",
-     "price_yes": 0.036
+     "price_yes": 0.091
     },
     {
      "event": "Pro Football: 2027 Champion",
-     "price_yes": 0.005
+     "price_yes": 0.004
     }
    ],
    "verdict": "POSITIVE \u2014 real lines on real games"
