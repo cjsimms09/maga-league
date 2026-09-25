@@ -1,6 +1,6 @@
 {
  "_rule": "THE ROSTER RULE: any statement about Cory's roster or matchup cites THIS file (fresh within 3 days) or live Sleeper \u2014 never an older artifact.",
- "generated_at": "2026-09-23T16:32:40+00:00",
+ "generated_at": "2026-09-25T18:00:58+00:00",
  "season": "2026",
  "week": 3,
  "cory": {
@@ -84,7 +84,7 @@
    "pos": "K",
    "team": "CHI",
    "starter": true,
-   "injury": null,
+   "injury": "Questionable",
    "game": "vs PHI (Mon)",
    "home": true,
    "kickoff_utc": "2026-09-29T00:15:00.000Z"
@@ -94,7 +94,7 @@
    "name": "Davante Adams",
    "pos": "WR",
    "team": "LAR",
-   "starter": true,
+   "starter": false,
    "injury": null,
    "game": "at DEN (Sun)",
    "home": false,
@@ -160,7 +160,7 @@
    "name": "Parker Washington",
    "pos": "WR",
    "team": "JAX",
-   "starter": false,
+   "starter": true,
    "injury": null,
    "game": "vs NE (Sun)",
    "home": true,
@@ -218,7 +218,7 @@
    "pos": "WR",
    "team": "CAR",
    "starter": true,
-   "injury": null,
+   "injury": "Questionable",
    "game": "at CLE (Sun)",
    "home": false,
    "kickoff_utc": "2026-09-27T17:00:00.000Z"
@@ -229,7 +229,7 @@
    "pos": "RB",
    "team": "DEN",
    "starter": false,
-   "injury": "Questionable",
+   "injury": null,
    "game": "vs LAR (Sun)",
    "home": true,
    "kickoff_utc": "2026-09-28T00:20:00.000Z"
