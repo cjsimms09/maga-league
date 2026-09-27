@@ -1,6 +1,6 @@
 {
  "_rule": "THE ROSTER RULE: any statement about Cory's roster or matchup cites THIS file (fresh within 3 days) or live Sleeper \u2014 never an older artifact.",
- "generated_at": "2026-09-25T18:00:58+00:00",
+ "generated_at": "2026-09-27T15:46:13+00:00",
  "season": "2026",
  "week": 3,
  "cory": {
@@ -17,7 +17,7 @@
    "name": "Rashee Rice",
    "pos": "WR",
    "team": "KC",
-   "starter": true,
+   "starter": false,
    "injury": null,
    "game": "at MIA (Sun)",
    "home": false,
@@ -29,7 +29,7 @@
    "pos": "QB",
    "team": "CHI",
    "starter": false,
-   "injury": "Doubtful",
+   "injury": "Out",
    "game": "vs PHI (Mon)",
    "home": true,
    "kickoff_utc": "2026-09-29T00:15:00.000Z"
@@ -79,22 +79,11 @@
    "kickoff_utc": "2026-09-27T17:00:00.000Z"
   },
   {
-   "id": "2020",
-   "name": "Cairo Santos",
-   "pos": "K",
-   "team": "CHI",
-   "starter": true,
-   "injury": "Questionable",
-   "game": "vs PHI (Mon)",
-   "home": true,
-   "kickoff_utc": "2026-09-29T00:15:00.000Z"
-  },
-  {
    "id": "2133",
    "name": "Davante Adams",
    "pos": "WR",
    "team": "LAR",
-   "starter": false,
+   "starter": true,
    "injury": null,
    "game": "at DEN (Sun)",
    "home": false,
@@ -137,6 +126,17 @@
    "id": "7564",
    "name": "Ja'Marr Chase",
    "pos": "WR",
+   "team": "CIN",
+   "starter": true,
+   "injury": null,
+   "game": "at PIT (Sun)",
+   "home": false,
+   "kickoff_utc": "2026-09-27T17:00:00.000Z"
+  },
+  {
+   "id": "7839",
+   "name": "Evan McPherson",
+   "pos": "K",
    "team": "CIN",
    "starter": true,
    "injury": null,

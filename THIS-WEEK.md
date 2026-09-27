@@ -1,6 +1,6 @@
 # THIS WEEK — coryjsimms, week 3 (2026)
 
-**Generated 2026-09-25T18:00:58+00:00 from LIVE Sleeper. THE ROSTER RULE: any statement about
+**Generated 2026-09-27T15:46:13+00:00 from LIVE Sleeper. THE ROSTER RULE: any statement about
 Cory's roster or matchup cites this file (fresh within 3 days) or live
 Sleeper — a frozen seat plan or tournament artifact is never a source for
 who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
@@ -13,18 +13,18 @@ who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
 
 | st | player | pos | team | game | implied | injury |
 |---|---|---|---|---|---|---|
-| S | Rashee Rice | WR | KC | at MIA (Sun) | 28.5 (-11) |  |
-|   | Caleb Williams | QB | CHI | vs PHI (Mon) | 18.2 (+5) | Doubtful |
+|   | Rashee Rice | WR | KC | at MIA (Sun) | 28.5 (-11) |  |
+|   | Caleb Williams | QB | CHI | vs PHI (Mon) | 18.2 (+5) | Out |
 |   | Rome Odunze | WR | CHI | vs PHI (Mon) | 18.2 (+5) |  |
 |   | Matthew Golden | WR | GB | vs ATL (Thu) | 24.2 (-5.5) |  |
 |   | Quinshon Judkins | RB | CLE | vs CAR (Sun) | 19.8 (+2.5) |  |
 |   | Emmett Johnson | RB | KC | at MIA (Sun) | 28.5 (-11) |  |
-| S | Cairo Santos | K | CHI | vs PHI (Mon) | 18.2 (+5) | Questionable |
-|   | Davante Adams | WR | LAR | at DEN (Sun) | 23.5 (-2.5) |  |
+| S | Davante Adams | WR | LAR | at DEN (Sun) | 23.5 (-2.5) |  |
 | S | Jared Goff | QB | DET | vs NYJ (Sun) | 27.0 (-6.5) |  |
 | S | Derrick Henry | RB | BAL | at DAL (Sun) | 28.0 (-3.5) |  |
 | S | Juwan Johnson | TE | NO | vs LV (Sun) | 23.2 (-3) |  |
 | S | Ja'Marr Chase | WR | CIN | at PIT (Sun) | 22.8 (-3.5) |  |
+| S | Evan McPherson | K | CIN | at PIT (Sun) | 22.8 (-3.5) |  |
 | S | Kenneth Walker | RB | KC | at MIA (Sun) | 28.5 (-11) |  |
 | S | Parker Washington | WR | JAX | vs NE (Sun) | 24.2 (-3) |  |
 |   | Zach Charbonnet | RB | SEA | at WSH (Sun) | 23.5 (-7) | PUP |
