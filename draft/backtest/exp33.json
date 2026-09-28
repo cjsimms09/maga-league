@@ -13,7 +13,7 @@
         "cards": {
           "our_blend": {
             "n": 458,
-            "mae": 57.11,
+            "mae": 57.1,
             "rank_corr": 0.579,
             "top_decile": {
               "n": 458,
@@ -24,7 +24,7 @@
               "QB": {
                 "n": 68,
                 "mae": 125.45,
-                "rank_corr": 0.542,
+                "rank_corr": 0.543,
                 "top_decile": {
                   "n": 68,
                   "k": 7,
@@ -33,8 +33,8 @@
               },
               "RB": {
                 "n": 105,
-                "mae": 58.63,
-                "rank_corr": 0.698,
+                "mae": 58.66,
+                "rank_corr": 0.696,
                 "top_decile": {
                   "n": 105,
                   "k": 10,
@@ -43,8 +43,8 @@
               },
               "WR": {
                 "n": 172,
-                "mae": 46.71,
-                "rank_corr": 0.668,
+                "mae": 46.67,
+                "rank_corr": 0.669,
                 "top_decile": {
                   "n": 172,
                   "k": 17,
@@ -53,8 +53,8 @@
               },
               "TE": {
                 "n": 97,
-                "mae": 33.38,
-                "rank_corr": 0.616,
+                "mae": 33.39,
+                "rank_corr": 0.614,
                 "top_decile": {
                   "n": 97,
                   "k": 10,
@@ -97,7 +97,7 @@
               "QB": {
                 "n": 68,
                 "mae": 91.05,
-                "rank_corr": 0.615,
+                "rank_corr": 0.616,
                 "top_decile": {
                   "n": 68,
                   "k": 7,
@@ -117,7 +117,7 @@
               "WR": {
                 "n": 172,
                 "mae": 40.8,
-                "rank_corr": 0.739,
+                "rank_corr": 0.738,
                 "top_decile": {
                   "n": 172,
                   "k": 17,
@@ -127,7 +127,7 @@
               "TE": {
                 "n": 97,
                 "mae": 27.36,
-                "rank_corr": 0.684,
+                "rank_corr": 0.685,
                 "top_decile": {
                   "n": 97,
                   "k": 10,
@@ -347,8 +347,8 @@
         "cards": {
           "our_blend": {
             "n": 455,
-            "mae": 56.7,
-            "rank_corr": 0.606,
+            "mae": 56.71,
+            "rank_corr": 0.605,
             "top_decile": {
               "n": 455,
               "k": 46,
@@ -367,8 +367,8 @@
               },
               "RB": {
                 "n": 112,
-                "mae": 59.69,
-                "rank_corr": 0.533,
+                "mae": 59.74,
+                "rank_corr": 0.53,
                 "top_decile": {
                   "n": 112,
                   "k": 11,
@@ -388,7 +388,7 @@
               "TE": {
                 "n": 91,
                 "mae": 33.69,
-                "rank_corr": 0.644,
+                "rank_corr": 0.643,
                 "top_decile": {
                   "n": 91,
                   "k": 9,
@@ -441,7 +441,7 @@
               "RB": {
                 "n": 112,
                 "mae": 53.01,
-                "rank_corr": 0.587,
+                "rank_corr": 0.588,
                 "top_decile": {
                   "n": 112,
                   "k": 11,
@@ -461,7 +461,7 @@
               "TE": {
                 "n": 91,
                 "mae": 26.97,
-                "rank_corr": 0.724,
+                "rank_corr": 0.723,
                 "top_decile": {
                   "n": 91,
                   "k": 9,
