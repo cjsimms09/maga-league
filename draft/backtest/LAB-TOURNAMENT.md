@@ -27,20 +27,20 @@ _control: `arch:balanced` · seasons 2023, 2024 · null p95 **$20.00** (200 outc
 |---|---|---|---|---|---|
 | B0 | +70.00 | 100th | YES | 2023:WR×45,QB×41,RB×26 · 2024:WR×66,QB×42,RB×15 · 2026:WR×50,RB×27,QB×10 | CANDIDATE |
 | arch:zero_rb | +10.00 | 69th | no | 2023:WR×12,QB×9,TE×4 · 2024:QB×7,RB×5,TE×3 · 2026:RB×7,QB×5,WR×2 | — |
-| arch:hero_rb | +5.00 | 32th | no | 2023:QB×29,WR×12,TE×10 · 2024:QB×14,WR×8,RB×2 · 2026:RB×9,WR×3,QB×2 | — |
+| arch:hero_rb | +5.00 | 32th | no | 2023:QB×29,WR×12,TE×10 · 2024:QB×14,WR×8,RB×2 · 2026:RB×9,WR×4,QB×3 | — |
 | B3 | +0.00 | 0th | no | — | — |
-| arch:early_qb | +0.00 | 0th | no | 2023:WR×2,RB×1,QB×1 · 2024:QB×4,WR×2,RB×1 · 2026:QB×1,RB×1 | — |
-| arch:elite_te | +0.00 | 0th | no | 2024:RB×2,TE×2,WR×1 · 2026:TE×9,WR×3,RB×3 | — |
+| arch:early_qb | +0.00 | 0th | no | 2023:WR×2,QB×1,RB×1 · 2024:QB×4,WR×2,RB×1 · 2026:QB×1,RB×1 | — |
+| arch:elite_te | +0.00 | 0th | no | 2024:TE×2,RB×2,WR×1 · 2026:TE×9,WR×3,RB×3 | — |
 | arch:robust_rb | +0.00 | 0th | no | — | — |
 | arch:wr_anchor | +0.00 | 0th | no | 2023:WR×8,RB×1 · 2024:WR×3,QB×1 · 2026:WR×2 | — |
 | profile:default | +0.00 | 0th | no | — | — |
 | profile:keeper_builder | +0.00 | 0th | no | — | — |
 | profile:need_filler | +0.00 | 0th | no | 2023:QB×3,WR×2,RB×2 · 2024:RB×2,WR×2,QB×1 | — |
 | profile:scarcity | +0.00 | 0th | no | 2023:QB×1 · 2024:QB×3,RB×2,WR×2 · 2026:RB×3,WR×1 | — |
-| profile:tier_hunter | +0.00 | 0th | no | 2023:WR×2,QB×1,RB×1 · 2024:QB×3,RB×2,WR×2 | — |
+| profile:tier_hunter | +0.00 | 0th | no | 2023:WR×2,QB×1,RB×1 · 2024:QB×3,RB×2,WR×2 · 2026:WR×1 | — |
 | profile:upside_late | +0.00 | 0th | no | 2023:RB×6,WR×3,QB×1 · 2024:RB×9 · 2026:WR×14 | — |
-| profile:value_anchor | +0.00 | 0th | no | 2023:QB×5,RB×1,WR×1 · 2024:RB×2,TE×2,QB×2 · 2026:QB×5,RB×1 | — |
-| arch:late_qb | -5.00 | 0th | no | 2023:QB×4,RB×4,WR×1 · 2024:RB×7,WR×3 · 2026:WR×7,RB×5,FB×3 | — |
+| profile:value_anchor | +0.00 | 0th | no | 2023:QB×5,WR×1,RB×1 · 2024:RB×2,QB×2,TE×2 · 2026:QB×5,RB×1 | — |
+| arch:late_qb | -5.00 | 0th | no | 2023:QB×4,RB×4,WR×1 · 2024:RB×7,WR×3 · 2026:WR×8,RB×5,FB×2 | — |
 
 **WATCH flags (0):** none — a WATCH buys a Phase-H shadow seat, never weights; the live 2026 season is the legitimate tiebreaker for sub-threshold leans (new data, not re-tortured old data). **The install rule is untouched: nothing enters the engine below the pre-registered bar.**
 
