@@ -18,19 +18,19 @@
   "note": "n~41, underpowered; inconclusive => anchor binds HARDER (PRE-REGISTRATION-34)",
   "rank_correlation": {
     "n_picks": 32,
-    "rho_our_mean": 0.375,
+    "rho_our_mean": 0.377,
     "rho_our_ci": [
-      0.289,
-      0.451
+      0.292,
+      0.452
     ],
-    "rho_market_mean": 0.2,
+    "rho_market_mean": 0.203,
     "rho_market_ci": [
-      0.108,
-      0.279
+      0.111,
+      0.283
     ],
-    "diff_mean": 0.175,
+    "diff_mean": 0.174,
     "diff_ci": [
-      0.076,
+      0.075,
       0.275
     ],
     "verdict": "beat"

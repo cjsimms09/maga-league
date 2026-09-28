@@ -959,9 +959,9 @@
     }
   },
   "correlation_arm": {
-    "diff_mean": 0.175,
+    "diff_mean": 0.174,
     "diff_ci": [
-      0.076,
+      0.075,
       0.275
     ],
     "verdict": "beat",
