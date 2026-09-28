@@ -1,0 +1,40 @@
+name: Underdog 426 probe — what does the endpoint actually want?
+
+# REGISTER 504 HAS BEEN 🔴 ESCALATED SINCE 2026-09-09 AND ITS ASK WAS NEVER
+# ACTIONABLE. The row asks C to "hand-curl the endpoint from an environment with
+# real egress"; the sandbox cannot (its proxy rejects the CONNECT outright), and
+# twenty-two days later nobody had. Meanwhile free-props-writer has failed on
+# EVERY run since 09-06 and the props arm — which the in-season edge plan ranks
+# first — has had no fresh file since 09-04.
+#
+# CI has egress. That is the entire point: this is the hand-curl, automated, so
+# the question stops waiting on a human being at a laptop.
+#
+# It writes nothing, commits nothing and touches no artifact. It prints a table
+# of candidate requests and their responses, with a known-positive control
+# (Sleeper, the half of the writer that still works) so a row of "no"s can be
+# told apart from a runner with no network — which is rule 3e, and the exact
+# mistake that makes a broken probe look like a finding.
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Once a day while 504 is open. A vendor version gate can lift as quietly as
+    # it landed, and the control-negative arm detects exactly that: if the
+    # request the writer already makes starts working again, the answer is
+    # "change nothing, re-run the writer".
+    - cron: '25 14 * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Ask Underdog what it wants
+        run: python3 draft/tools/underdog_426_probe.py | tee -a "$GITHUB_STEP_SUMMARY"
