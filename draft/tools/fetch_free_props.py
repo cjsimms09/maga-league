@@ -16,7 +16,7 @@ controlled runs):
      crosswalk at all. `wager_type` is the stat (passing_yards, receptions,
      anytime_touchdowns ...), `options[].outcome_value` the line,
      `options[].payout_multiplier` each side's decimal price.
-  2. UNDERDOG       GET https://api.underdogfantasy.com/beta/v5/over_under_lines
+  2. UNDERDOG       GET https://api.underdogfantasy.com/v1/over_under_lines
      broadest coverage (all 16 games) and the only door pricing the joint
      `Rush + Rec TDs` line. Needs the name crosswalk (`fetch_weekly_props.
      board_index/match_player`, team-filtered — the Bijan/Brian lesson).
@@ -87,7 +87,47 @@ UA = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, 
       "Accept": "application/json, text/plain, */*"}
 SLEEPER_LINES = "https://api.sleeper.app/lines/available?sport=nfl"
 SLEEPER_STATE = "https://api.sleeper.app/v1/state/nfl"
-UNDERDOG_LINES = "https://api.underdogfantasy.com/beta/v5/over_under_lines"
+#: ⚠️ `v1`, NOT `beta/v5` — changed 2026-09-28, and the change is the whole fix
+#: for register 504.
+#:
+#: `beta/v5` began answering HTTP 426 on 2026-09-06 and this writer failed on
+#: EVERY run for twenty-two days, leaving the props arm on a 2026-09-04 file
+#: through three game weeks. The row stayed 🔴 ESCALATED the entire time because
+#: its ask was "hand-curl the endpoint from an environment with real egress" and
+#: no such environment was ever brought to it — the dev sandbox's proxy rejects
+#: the CONNECT outright.
+#:
+#: TWO THINGS UNSTUCK IT, and both are worth keeping in mind next time:
+#:   * the error BODY, logged here since 09-09 on this row's own recommendation,
+#:     had answered the question on the very next run and nobody read it. It
+#:     says `api_code: upgrade_required`, `"A new version is required to
+#:     continue"` — a vendor's own JSON error schema, so an application-level
+#:     CLIENT-VERSION gate, not the protocol upgrade or WAF the row spent
+#:     nineteen days weighing.
+#:   * CI has egress. `draft/tools/underdog_426_probe.py` is that hand-curl,
+#:     automated, so the question stopped waiting on a person at a laptop.
+#:
+#: MEASURED by that probe (run 3, 2026-09-28, with a known-positive control on
+#: Sleeper proving the runner's egress was real): every `beta/v5` and `beta/v6`
+#: arm returns 426 regardless of headers — `client-type`, `client-version`,
+#: `X-`prefixed spellings, an app-style User-Agent, all refused — and `v1`
+#: returns 200 on the headers this file ALREADY sends. So the gate is on the
+#: versioned path, not on us, and there is no version string to hardcode here
+#: that could silently expire the way a header would have.
+#:
+#: The payload shape was checked against what `parse_underdog` actually walks
+#: before this line was touched, because a 200 with a different shape would
+#: fetch cleanly, parse to nothing and trip the self-check for another day:
+#: `appearances`, `games` and `over_under_lines` are all present, with
+#: `over_under.appearance_stat.display_stat`, `appearance_id`, `stat_value` and
+#: `options[].choice/american_price/selection_header` exactly where the parser
+#: looks. The parser is unchanged.
+#:
+#: ⚠️ v1 carries MORE THAN NFL — 76 distinct `display_stat` values including
+#: tennis and baseball markets. The parser's existing NFL filter (it drops any
+#: line whose game's `sport_id` is not NFL) is what keeps that out, so do not
+#: remove it on the assumption the feed is football-only.
+UNDERDOG_LINES = "https://api.underdogfantasy.com/v1/over_under_lines"
 
 #: Sleeper Picks wager_type -> the arm's market key. Only markets the arm
 #: scores; anything else (first_touchdown, longest_reception) is ignored.
