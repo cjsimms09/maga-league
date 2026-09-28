@@ -331,6 +331,26 @@ jobs:
             python build.py --league-id "${{ github.event.inputs.league_id || '1374848328470102016' }}"
           fi
 
+      - name: Fill any bye the feed dropped — BEFORE the gate, which is the point
+        if: github.event.inputs.snapshot != 'true'
+        # ⚠️ PLACEMENT IS THE WHOLE FIX AND I GOT IT WRONG THE FIRST TIME.
+        #
+        # This was added on 2026-09-28 inside "Re-apply the blend…", which runs
+        # AFTER the acceptance gate. The gate therefore judged a board that had
+        # never been backfilled, so the eight bye failures it was written to
+        # clear (test_byes, test_actionable_board's "only 24 teams have a bye",
+        # and six int(None) TypeErrors in test_roster_robustness) would have
+        # blocked the publish exactly as before — a fix that runs after the
+        # exam it was meant to pass.
+        #
+        # So it runs HERE, immediately after the board is built and before
+        # anything judges it. It stays in the blend step too: that step
+        # regenerates board-derived artifacts after the gate, and the committed
+        # board must carry the byes as well as the judged one. Running twice
+        # costs nothing — it only ever fills a MISSING value and never
+        # overwrites the feed, so the second run is a no-op that says so.
+        run: python3 draft/tools/fill_byes_from_map.py
+
       - name: Is today's projection snapshot COMPLETE? (added 2026-08-18)
         # THE SERIES THIS TOUCHES IS NOT AN INPUT TO AN EXPERIMENT — IT IS THE
         # EXPERIMENT. Tracing PREDICTION-LEDGER P39 on 2026-08-18 established

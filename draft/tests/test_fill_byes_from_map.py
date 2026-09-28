@@ -117,3 +117,31 @@ def test_WRITING_is_idempotent_and_leaves_a_healthy_board_untouched(tmp_path):
     FB.main(["--board", str(p)])
     once = json.dumps(json.loads(p.read_text()), separators=(",", ":"), sort_keys=True)
     assert once == original, "a healthy board was modified by the backfill"
+
+
+def test_THE_BACKFILL_RUNS_BEFORE_THE_ACCEPTANCE_GATE():
+    """ORDER IS THE WHOLE FIX, and the first version had it wrong.
+
+    The backfill was originally added inside "Re-apply the blend…", which runs
+    AFTER the acceptance gate. The gate therefore judged a board that had never
+    been backfilled, and the eight bye failures this tool exists to clear would
+    have refused the publish exactly as before — a fix that runs after the exam
+    it was meant to pass, which is indistinguishable from no fix at all and
+    reads as green in every place a human looks.
+
+    A comment cannot hold this down; the steps are hundreds of lines apart.
+    """
+    import yaml
+    wf = yaml.safe_load((ROOT / ".github" / "workflows" / "draft-data.yml").read_text())
+    steps = [s.get("name") or "" for s in wf["jobs"]["build"]["steps"]]
+
+    gate = [i for i, n in enumerate(steps) if "Acceptance gate on the FRESH" in n]
+    assert len(gate) == 1, f"expected exactly one acceptance gate, found {len(gate)}"
+
+    fills = [i for i, s in enumerate(wf["jobs"]["build"]["steps"])
+             if "fill_byes_from_map.py" in (s.get("run") or "")]
+    assert fills, "nothing in draft-data.yml runs the bye backfill at all"
+    assert min(fills) < gate[0], (
+        f"the bye backfill runs only at step(s) {fills}, all AFTER the acceptance "
+        f"gate at {gate[0]} — the gate would judge a board the backfill never "
+        "touched, which is the exact defect this assertion was written for")
