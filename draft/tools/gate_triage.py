@@ -54,6 +54,20 @@ ADVISORY = {
         "repo hygiene: detects committed artifacts with no consumer. Scans "
         "source files for readers; a pass or fail is a statement about "
         "wiring, never about a player row.",
+    "draft/tests/test_proj_series_completeness.py":
+        "capture integrity, not board contents: it reads ONLY "
+        "draft/data/proj_series.json and adp_series.json and asserts that the "
+        "daily research capture has no missing days. A day lost in August "
+        "cannot make tonight's board wrong, and — this is the reason it had to "
+        "move — the gap can NEVER be filled (exp33 forbids retroactive "
+        "fetches), so as a blocking test it refuses the board FOREVER. That is "
+        "register 343's ratchet in its most durable form: 2026-09-21 was lost, "
+        "and from that day the nightly publish could not succeed again no "
+        "matter how good the board was. Eighteen days of refusal, every one of "
+        "them spending the alarm a real board defect needs — which is the exact "
+        "harm this file's own docstring was written about. It stays RED in CI "
+        "(ci.yml runs `pytest draft/tests` on its own) and in the GO sweep, so "
+        "nothing is silenced; it simply stops holding the board hostage.",
 }
 
 #: A THIRD CATEGORY, ADDED 2026-08-20 AND OFF BY DEFAULT.

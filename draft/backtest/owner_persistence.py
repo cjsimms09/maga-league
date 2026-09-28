@@ -100,7 +100,19 @@ def load(path=HISTORY) -> dict:
         elif isinstance(raw, list):
             txns = list(raw)
         txns = [x for x in txns if isinstance(x, dict)]
-        if (picks or txns) and SP.has_been_played(s):
+        #: ⚠️ `is_complete`, NOT `has_been_played` — widened 2026-09-28 for the
+        #: same reason 339 introduced the gate in the first place, one state
+        #: further along. 339's argument was "no games, no in-season behaviour to
+        #: measure"; a season TWO WEEKS old is the same argument at half volume.
+        #: 2026 contributes 38 transactions against 348-373 for a full season, so
+        #: it enters every per-owner rate as a short, noisy column and drags the
+        #: persistence estimates C-003 rests on — exactly the failure mode 339
+        #: documents, with football in it this time.
+        #:
+        #: Still deliberately the SAME one definition the money paths use rather
+        #: than a private threshold here, which is 339's other point and the
+        #: reason this stayed in `season_played`.
+        if (picks or txns) and SP.is_complete(s):
             out[str(s.get("season"))] = {"picks": picks, "transactions": txns}
     return out
 

@@ -442,11 +442,22 @@ def grade_actual(history: dict, payouts: dict, season) -> dict:
     standings = standings_from_scores(field, matchups, rs_weeks)
     placements = playoff_placements(s)
 
+    # ⚠️ A STANDINGS LEAD IS NOT A PRIZE, and until 2026-09-28 this paid as if it
+    # were: on 2026 it handed out the full $375 regular-season prize after TWO
+    # weeks of football, off a two-week table. Register 338 taught this file that
+    # an UNPLAYED season pays nothing; a PARTLY played one is the third state
+    # nobody had, and the weekly high is the only component that can be banked
+    # week by week. The live site never had the bug — `season_awards.js` refuses
+    # `reg_1`/`reg_2` until the regular season is over — so this was the Lab and
+    # the site disagreeing about the same dollars. `season_played` now owns the
+    # question for both.
+    rs_decided = SP.regular_season_is_over(s, len(rs_weeks) or 15)
+
     rosters = sorted({r for wk in field.values() for r in wk})
     per = {}
     for rid in rosters:
         wh = weekly_high_dollars(field, rs_weeks, pay, rid)
-        rs = regular_season_dollars(standings, pay, rid)
+        rs = regular_season_dollars(standings, pay, rid) if rs_decided else 0.0
         po = playoff_dollars(placements, pay, rid)
         per[rid] = {"weekly_high": wh, "regular_season": rs, "playoff": po,
                     "total": round(wh + rs + po, 2)}

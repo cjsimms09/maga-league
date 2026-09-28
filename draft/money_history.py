@@ -81,15 +81,50 @@ def analyse():
                       if isinstance(t.get("points"), (int, float))]
             if not scored:
                 continue
-            rid, hi = max(scored, key=lambda x: x[1])
-            name = _owner_name(s, rid)
+
+            #: ⚠️ REGISTER 338'S DEFECT, SURVIVING IN THE TWIN — found 2026-09-28.
+            #:
+            #: The season-level gate above (`played_seasons`) was the whole of
+            #: the 338 fix on this side, and it is not enough the moment a
+            #: season is PARTLY played. 2026 is a played season with two weeks
+            #: of football in it and thirteen more paying weeks sitting at a
+            #: ten-way 0.0 tie. `max` breaks that tie silently toward the first
+            #: roster in the list, so this loop was handing **$1,300 of weekly
+            #: high to roster 1 — Cory — for weeks nobody has played**, on the
+            #: Money Board he actually reads.
+            #:
+            #: `money_grade` never had this: it refuses a week whose top score
+            #: is <= 0. `season_played.week_has_a_single_high` was written for
+            #: exactly this and this file never called it. Fix the instance,
+            #: miss the twin.
+            #:
+            #: MEASURED before changing anything: across every played season
+            #: there are ZERO weeks with a tied positive high and exactly 13
+            #: zero-high paying weeks, all in 2026 — so this cannot move a
+            #: historical number, and `test_the_2023_2025_numbers_do_not_move`
+            #: pins that.
+            #:
+            #: Ties SPLIT rather than being refused outright, matching
+            #: `money_grade.weekly_high_winners` exactly. The two paths are a
+            #: cross-check of each other, and this file's own register-338 note
+            #: says it: "a cross-surface reconciliation is blind to any defect
+            #: both surfaces share." Agreeing by construction beats agreeing by
+            #: luck, even where the branch is inert today.
+            hi = max(pts for _, pts in scored)
+            if hi <= 0:
+                continue
+            winners = [rid for rid, pts in scored if pts == hi]
+            share = weekly_high_amt / len(winners)
+
             pays = int(wk) <= paying_weeks   # playoff weeks (16-18) do NOT pay the weekly high
-            threshold_rows.append((sk, int(wk), round(hi, 2), name, pays))
-            dollars.setdefault(name, {"weekly": 0.0, "seasons": set()})
-            dollars[name]["seasons"].add(sk)
-            if pays:
-                dollars[name]["weekly"] += weekly_high_amt
-                high_counts[sk][name] = high_counts[sk].get(name, 0) + 1
+            for rid in winners:
+                name = _owner_name(s, rid)
+                threshold_rows.append((sk, int(wk), round(hi, 2), name, pays))
+                dollars.setdefault(name, {"weekly": 0.0, "seasons": set()})
+                dollars[name]["seasons"].add(sk)
+                if pays:
+                    dollars[name]["weekly"] += share
+                    high_counts[sk][name] = high_counts[sk].get(name, 0) + 1
 
     # Playoff-finish money from the winners bracket. Sleeper marks placement
     # games with a "p" field: p=1 is the championship (w=1st, l=2nd), p=3 is the
@@ -133,6 +168,14 @@ def analyse():
         _playoff_dollars(sk, s)
         rs = (_season_pay(sk).get("regular_season")) or (pay.get("regular_season") or {})
         st = s.get("standings") or []
+        #: THE SAME THIRD STATE AGAIN (2026-09-28). `graded` only means the
+        #: season has STARTED. Sleeper publishes a standings table from week 1,
+        #: so this paid the full $375 regular-season prize off a two-week table.
+        #: A standings lead is not a prize; the live site has always refused it
+        #: until the regular season is over, and now so does the Lab and so does
+        #: this board. One definition, in `season_played`.
+        if not SP.regular_season_is_over(s, paying_weeks):
+            st = []
         if len(st) >= 1:
             dollars.setdefault(_owner_name(s, st[0].get("roster_id")), {"weekly": 0.0, "seasons": set()})
             dollars[_owner_name(s, st[0].get("roster_id"))].setdefault("rs", 0.0)

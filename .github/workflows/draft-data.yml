@@ -738,6 +738,16 @@ jobs:
           set -euo pipefail
           node draft/tools/blended_projection.js
           python3 draft/tools/attach_draftsharks.py
+          # A TEAM'S BYE IS A FIXED FACT OF THE SEASON — stop re-asking the feed.
+          # The 09-27 candidate board carried byes for 24 of 32 teams where the
+          # 09-10 published board had all 32, and that ONE upstream omission
+          # produced EIGHT blocking failures (test_byes, test_actionable_board,
+          # and six `int(None)` TypeErrors in test_roster_robustness), refusing
+          # the publish. `src/nfl_byes.json` already holds all 32, settled before
+          # the season started and unable to change. This fills only what is
+          # MISSING and never overwrites the feed, so a real schedule correction
+          # still lands while a silent omission no longer costs a night's board.
+          python3 draft/tools/fill_byes_from_map.py
           node draft/tools/source_boards.js
           # EXTENDED 2026-08-20, SAME NIGHT, FOR THE SAME REASON ONE LAYER OUT.
           # Wiring the three above exposed that FIVE MORE public/ artifacts are

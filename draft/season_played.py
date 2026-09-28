@@ -60,6 +60,56 @@ def has_been_played(season: dict) -> bool:
     return False
 
 
+def regular_season_is_over(season: dict, paying_weeks: int = 15) -> bool:
+    """True when every paying week of the regular season has real football in it.
+
+    ⚠️ THE CONCEPT THIS MODULE WAS MISSING, added 2026-09-28. Register 338 gave
+    it "has this season STARTED"; nothing ever asked "has it FINISHED", because
+    when 338 was written every season was one or the other. A season that is
+    PARTLY played is a third state, and it broke two money paths at once:
+
+      * `money_history` awarded the weekly high on thirteen 0.0 weeks — $1,300
+        to roster 1 on a tie `max` breaks silently (fixed in that file);
+      * both paths paid the FULL $375 regular-season prize after TWO weeks of
+        football, off a two-week standings table.
+
+    The second is the one this function exists for. A standings lead in week 2
+    is not a prize, and the live site has always known it — `season_awards.js`
+    refuses to settle `reg_1`/`reg_2` until the regular season is over. The Lab
+    did not, so the site and the Lab disagreed about the same dollars. One
+    definition, here, for both.
+    """
+    weeks = season.get("weeks") or {}
+    for w in range(1, int(paying_weeks) + 1):
+        entries = weeks.get(str(w)) or weeks.get(w) or []
+        pts = [t.get("points") for t in entries
+               if isinstance(t.get("points"), (int, float))]
+        if not pts or max(pts) <= 0:
+            return False
+    return True
+
+
+def playoffs_are_decided(season: dict) -> bool:
+    """True when the winners bracket has actually produced a champion.
+
+    Sleeper publishes the bracket's SHAPE before it is played, so a bracket that
+    exists says nothing; a placement game with a winner recorded does.
+    """
+    brackets = season.get("brackets") or {}
+    wb = brackets.get("winners") or brackets.get("winners_bracket") or []
+    return any(str(m.get("p")) == "1" and m.get("w") for m in wb or [])
+
+
+def is_complete(season: dict, paying_weeks: int = 15) -> bool:
+    """True when the season is finished: regular season played out AND a champion.
+
+    "Money out equals the pot" is an identity of a FINISHED season only. While a
+    season is in progress the pot is partly undistributed, and asserting the
+    identity against it reports correct behaviour as a defect.
+    """
+    return regular_season_is_over(season, paying_weeks) and playoffs_are_decided(season)
+
+
 def played_seasons(seasons) -> dict:
     """`{key: season}` filtered to the seasons that have actually been played.
 

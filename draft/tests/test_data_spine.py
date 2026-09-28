@@ -93,11 +93,37 @@ def test_career_totals_reconcile_per_owner():
 
 
 def test_league_wide_dollars_equal_the_summed_pots():
-    """Both paths must distribute exactly the summed era-correct pots — the
-    ultimate cross-surface fact (money in == money out, every surface agreeing)."""
-    board = _money_board_by_owner()
-    _, pay = MG.load_history(), MG.load_payouts()
-    board_total = sum(v["total"] for v in board.values())
-    expected = sum(MG.season_pay(pay, s)["total_pot"] for s in SEASONS)
-    assert board_total == pytest.approx(expected, abs=0.01), \
-        f"Money Board distributes {board_total}, era-correct pots sum to {expected}"
+    """Money in == money out — but only for a season that is actually OVER.
+
+    ⚠️ THIS ASSERTED THE IDENTITY OVER EVERY *STARTED* SEASON, and from the
+    moment 2026 kicked off that reported correct behaviour as a defect: an
+    in-progress season has most of its pot still undistributed, by design. The
+    identity belongs to a FINISHED season. Register 338 gave this family
+    "started"; `season_played.is_complete` is the half it was missing.
+
+    The in-progress season is not skipped — it gets the assertion that actually
+    applies to it, which is that it may not distribute MORE than its pot.
+    """
+    hist, pay = MG.load_history(), MG.load_payouts()
+    complete, in_progress = [], []
+    for s in SEASONS:
+        (complete if SP.is_complete(MG.season_of(hist, s)) else in_progress).append(s)
+
+    assert complete, "no finished season in the store — the identity has nothing to hold on"
+
+    distributed = {s: MG.grade_actual(hist, pay, s)["distributed"] for s in SEASONS}
+    for s in complete:
+        pot = MG.season_pay(pay, s)["total_pot"]
+        assert distributed[s] == pytest.approx(pot, abs=0.01), \
+            f"{s} is finished but distributes {distributed[s]} against a pot of {pot}"
+
+    for s in in_progress:
+        pot = MG.season_pay(pay, s)["total_pot"]
+        assert 0 <= distributed[s] < pot, \
+            f"{s} is still being played but distributes {distributed[s]} of a {pot} pot"
+
+    # and the Money Board's grand total is exactly what the grader distributes,
+    # season by season — the cross-surface half, which is the point of the file.
+    board_total = sum(v["total"] for v in _money_board_by_owner().values())
+    assert board_total == pytest.approx(sum(distributed.values()), abs=0.01), \
+        f"Money Board distributes {board_total}, the Lab grader {sum(distributed.values())}"

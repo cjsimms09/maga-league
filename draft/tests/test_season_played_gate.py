@@ -136,12 +136,31 @@ def test_the_LAB_GRADER_distributes_nothing_from_an_unplayed_season(history):
 
 def test_THE_LEAGUE_WIDE_TOTAL_IS_THE_POTS_AND_NOT_A_DOLLAR_MORE():
     """The headline, in the unit that pays. $13,375 was going out against
-    $11,500 of pots — the $1,875 gap WAS the unplayed season."""
+    $11,500 of pots — the $1,875 gap WAS the unplayed season.
+
+    ⚠️ AMENDED 2026-09-28 for the state neither 338 nor this test had: a season
+    that is PARTLY played. "Every started season has distributed its whole pot"
+    is false for a season still being played, and holding it there turned the
+    guard against correct behaviour — it went red the week football started and
+    took the nightly board publish down with it for eighteen days.
+
+    A finished season must distribute its pot exactly. An in-progress one must
+    distribute something less. Both are asserted; neither is skipped.
+    """
     board = MH.analyse()
     total = sum(r["total_$"] for r in board["dollar_standings"])
-    pay = MG.load_payouts()
-    expected = sum(MG.season_pay(pay, s)["total_pot"]
-                   for s in board["graded_seasons"])
+    pay, hist = MG.load_payouts(), MG.load_history()
+
+    expected = 0.0
+    for s in board["graded_seasons"]:
+        pot = MG.season_pay(pay, s)["total_pot"]
+        if SP.is_complete(MG.season_of(hist, s)):
+            expected += pot
+        else:
+            got = MG.grade_actual(hist, pay, s)["distributed"]
+            assert 0 <= got < pot, \
+                f"{s} is still being played but distributes {got} of a {pot} pot"
+            expected += got
     assert total == pytest.approx(expected, abs=0.01), (total, expected)
 
 
