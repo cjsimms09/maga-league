@@ -43,7 +43,7 @@ _value MAGNITUDE is ill-posed in isolation (with no competing term any w>0 gives
 | 0.0 | +0.0 | [0.0, 0.0] |
 | 0.5 | +0.4 | [-1.25, 2.06] |
 | 1.0 | +0.7 | [-11.25, 12.25] |
-| 1.5 | -87.5 | [-107.31, -67.81] |
+| 1.5 | -87.2 | [-106.88, -67.38] |
 | 2.0 | -90.1 | [-109.56, -69.94] |
 | 3.0 | -89.6 | [-108.94, -69.5] |
 
@@ -55,7 +55,7 @@ _value MAGNITUDE is ill-posed in isolation (with no competing term any w>0 gives
 | 0.5 | -24.2 | [-41.94, -6.62] |
 | 1.0 | -93.2 | [-117.0, -70.0] |
 | 1.5 | -122.9 | [-146.44, -98.69] |
-| 2.0 | -159.6 | [-185.81, -133.25] |
+| 2.0 | -159.3 | [-185.56, -133.06] |
 | 3.0 | -216.8 | [-245.5, -190.0] |
 
 ## Ceiling by payout component (does shape pay in weekly-high?)
