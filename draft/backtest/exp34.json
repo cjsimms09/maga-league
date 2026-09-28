@@ -18,31 +18,31 @@
   "note": "n~41, underpowered; inconclusive => anchor binds HARDER (PRE-REGISTRATION-34)",
   "rank_correlation": {
     "n_picks": 32,
-    "rho_our_mean": 0.397,
+    "rho_our_mean": 0.375,
     "rho_our_ci": [
-      0.331,
-      0.461
+      0.289,
+      0.451
     ],
-    "rho_market_mean": 0.226,
+    "rho_market_mean": 0.2,
     "rho_market_ci": [
-      0.151,
-      0.293
+      0.108,
+      0.279
     ],
-    "diff_mean": 0.171,
+    "diff_mean": 0.175,
     "diff_ci": [
-      0.081,
-      0.262
+      0.076,
+      0.275
     ],
     "verdict": "beat"
   },
   "top5_set_value": {
     "n": 5,
     "picks": 31,
-    "our_mean": 261.541,
-    "market_mean": 159.363,
-    "delta_mean": 102.178,
+    "our_mean": 263.334,
+    "market_mean": 160.98,
+    "delta_mean": 102.354,
     "delta_ci": [
-      78.647,
+      78.898,
       125.074
     ],
     "verdict": "beat"
@@ -50,12 +50,12 @@
   "top10_set_value": {
     "n": 10,
     "picks": 27,
-    "our_mean": 226.229,
-    "market_mean": 161.095,
-    "delta_mean": 65.133,
+    "our_mean": 227.544,
+    "market_mean": 162.206,
+    "delta_mean": 65.338,
     "delta_ci": [
-      48.423,
-      81.558
+      48.785,
+      81.661
     ],
     "verdict": "beat"
   },
@@ -64,10 +64,10 @@
       "band": "value(<=0)",
       "n": 15,
       "hit_rate": 0.333,
-      "mean_delta": 30.504,
+      "mean_delta": 30.959,
       "ci": [
-        0.397,
-        62.887
+        0.852,
+        63.067
       ],
       "verdict": "beat",
       "thin": false
@@ -75,23 +75,23 @@
     {
       "band": "near-zero",
       "n": 3,
-      "hit_rate": 1.0,
-      "mean_delta": 27.6,
+      "hit_rate": 0.667,
+      "mean_delta": 23.467,
       "ci": [
-        2.1,
+        -10.3,
         42.52
       ],
-      "verdict": "beat",
+      "verdict": "inconclusive",
       "thin": true
     },
     {
       "band": "moderate",
       "n": 6,
       "hit_rate": 0.333,
-      "mean_delta": -5.183,
+      "mean_delta": -6.4,
       "ci": [
-        -20.033,
-        12.033
+        -20.783,
+        11.0
       ],
       "verdict": "inconclusive",
       "thin": true
@@ -175,11 +175,11 @@
     {
       "band": "r4-7",
       "n": 13,
-      "hit_rate": 0.538,
-      "mean_delta": 10.038,
+      "hit_rate": 0.462,
+      "mean_delta": 9.085,
       "ci": [
-        -1.808,
-        22.348
+        -2.946,
+        21.891
       ],
       "verdict": "inconclusive",
       "thin": false
@@ -188,10 +188,10 @@
       "band": "r8-11",
       "n": 11,
       "hit_rate": 0.364,
-      "mean_delta": 13.638,
+      "mean_delta": 13.595,
       "ci": [
-        -29.518,
-        58.564
+        -29.898,
+        58.642
       ],
       "verdict": "inconclusive",
       "thin": false
@@ -271,7 +271,7 @@
   },
   "caveats": [
     "pbp unavailable for [2025, 2026] (NameError); those seasons stay skipped",
-    "2026: nflverse realized unavailable (pbp rebuild refused by cross-validation on 2024 \u2014 the gate working); RECOVERED from the harvest (league_history players_points, season totals, 152 players; roster-gated so a mid-season drop is truncated).",
+    "2026: nflverse realized unavailable (pbp rebuild refused by cross-validation on 2024 \u2014 the gate working); RECOVERED from the harvest (league_history players_points, season totals, 165 players; roster-gated so a mid-season drop is truncated).",
     "2025: nflverse realized unavailable (pbp rebuild refused by cross-validation on 2024 \u2014 the gate working); RECOVERED from the harvest (league_history players_points, season totals, 254 players; roster-gated so a mid-season drop is truncated)."
   ],
   "decisions": [
@@ -281,10 +281,10 @@
       "pick_no": 33,
       "took": "10229",
       "took_proj": 140.96,
-      "took_realized": 8.9,
+      "took_realized": 19.2,
       "adp_best": "7525",
       "adp_best_proj": 148.19,
-      "adp_best_realized": 6.8,
+      "adp_best_realized": 29.5,
       "forgone_value": 7.23,
       "adp_distance": null,
       "dispersion": null,
@@ -298,10 +298,10 @@
       "pick_no": 48,
       "took": "2133",
       "took_proj": 146.41,
-      "took_realized": 4.1,
+      "took_realized": 39.6,
       "adp_best": "2133",
       "adp_best_proj": 146.41,
-      "adp_best_realized": 4.1,
+      "adp_best_realized": 39.6,
       "forgone_value": 0.0,
       "adp_distance": -11.0,
       "dispersion": 4.7,
@@ -315,10 +315,10 @@
       "pick_no": 68,
       "took": "11620",
       "took_proj": 104.28,
-      "took_realized": 6.2,
+      "took_realized": 12.0,
       "adp_best": "11620",
       "adp_best_proj": 104.28,
-      "adp_best_realized": 6.2,
+      "adp_best_realized": 12.0,
       "forgone_value": 0.0,
       "adp_distance": -18.2,
       "dispersion": 7.3,
@@ -332,10 +332,10 @@
       "pick_no": 73,
       "took": "9487",
       "took_proj": 92.53,
-      "took_realized": 16.8,
+      "took_realized": 30.1,
       "adp_best": "9487",
       "adp_best_proj": 92.53,
-      "adp_best_realized": 16.8,
+      "adp_best_realized": 30.1,
       "forgone_value": 0.0,
       "adp_distance": -13.6,
       "dispersion": 4.3,
@@ -352,7 +352,7 @@
       "took_realized": 2.1,
       "adp_best": "4037",
       "adp_best_proj": 166.01,
-      "adp_best_realized": 6.3,
+      "adp_best_realized": 13.6,
       "forgone_value": 22.07,
       "adp_distance": null,
       "dispersion": null,
@@ -366,10 +366,10 @@
       "pick_no": 93,
       "took": "11560",
       "took_proj": 249.54,
-      "took_realized": 41.26,
+      "took_realized": 48.98,
       "adp_best": "10222",
       "adp_best_proj": 132.97,
-      "adp_best_realized": 3.5,
+      "adp_best_realized": 4.4,
       "forgone_value": -116.57,
       "adp_distance": null,
       "dispersion": null,
@@ -739,12 +739,12 @@
       "round": 7,
       "pick_no": 66,
       "took": "8138",
-      "took_proj": 88.13,
+      "took_proj": 83.0,
       "took_realized": 231.3,
       "adp_best": "4137",
       "adp_best_proj": 118.39,
       "adp_best_realized": 188.0,
-      "forgone_value": 30.26,
+      "forgone_value": 35.39,
       "adp_distance": 5.6,
       "dispersion": 8.9,
       "crosses_cliff": null,
