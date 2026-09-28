@@ -94,11 +94,21 @@ ARMS = [
 ]
 
 
-def probe(url, headers, timeout=30):
+def probe(url, headers, timeout=30, limit=4000):
+    """GET and return (status, body, headers).
+
+    ⚠️ `limit` EXISTS BECAUSE THE FIRST VERSION TRUNCATED AT 4000 BYTES
+    UNCONDITIONALLY, and the shape check then tried to json.loads() a cut-off
+    document and reported `Unterminated string at char 3969` — which reads
+    exactly like "the vendor sent us malformed JSON". It did not; I cut it in
+    half. The arm table wants a short body (ten arms of full payload is an
+    unreadable log); the shape check needs the whole thing. Rule 3f: the probe
+    written to answer a question returned confident, plausible, wrong output.
+    """
     req = urllib.request.Request(url, headers={**BASE, **headers})
     try:
         with urllib.request.urlopen(req, timeout=timeout) as r:
-            body = r.read(4000).decode("utf-8", "ignore")
+            body = (r.read() if limit is None else r.read(limit)).decode("utf-8", "ignore")
             return r.status, body, dict(r.headers)
     except urllib.error.HTTPError as e:
         try:
@@ -123,7 +133,8 @@ def api_code(body: str) -> str:
 #: another day believing it was wired. So the winning endpoint gets its SHAPE
 #: checked against what the parser actually reads, before anyone rewires it.
 def report_shape(url, headers):
-    code, body, _ = probe(url, headers)
+    # limit=None: the WHOLE document, or json.loads() is parsing a fragment.
+    code, body, _ = probe(url, headers, limit=None)
     print("=" * 78)
     print(f"SHAPE CHECK — does {url} carry what parse_underdog() reads?")
     print("=" * 78)
@@ -133,7 +144,8 @@ def report_shape(url, headers):
     try:
         doc = json.loads(body)
     except Exception as e:                                 # noqa: BLE001
-        print(f"   body did not parse as JSON ({e!r}); first 200: {body[:200]!r}")
+        print(f"   body did not parse as JSON ({e!r}); {len(body)} bytes read; "
+              f"first 200: {body[:200]!r}")
         return
 
     print(f"   top-level keys: {sorted(doc)}")
