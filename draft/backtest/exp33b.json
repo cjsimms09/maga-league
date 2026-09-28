@@ -4,28 +4,28 @@
     "n_picks": 45,
     "rho_blend": 0.377,
     "rho_naive": 0.349,
-    "rho_adp": 0.186,
+    "rho_adp": 0.187,
     "naive_minus_blend": {
       "mean": -0.028,
       "ci95": [
         -0.081,
-        0.021
+        0.022
       ],
       "verdict": "inconclusive"
     },
     "naive_minus_adp": {
-      "mean": 0.163,
+      "mean": 0.162,
       "ci95": [
-        0.051,
-        0.272
+        0.05,
+        0.271
       ],
       "verdict": "positive"
     },
     "blend_minus_adp": {
-      "mean": 0.19,
+      "mean": 0.189,
       "ci95": [
-        0.107,
-        0.277
+        0.106,
+        0.276
       ],
       "verdict": "positive"
     }
