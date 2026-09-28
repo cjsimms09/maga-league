@@ -117,6 +117,71 @@ def api_code(body: str) -> str:
         return ""
 
 
+#: The exact paths `fetch_free_props.parse_underdog` walks. A 200 is not a fix
+#: if the payload is shaped differently — that would fetch fine and parse to
+#: nothing, the writer's self-check would refuse, and we would have burned
+#: another day believing it was wired. So the winning endpoint gets its SHAPE
+#: checked against what the parser actually reads, before anyone rewires it.
+def report_shape(url, headers):
+    code, body, _ = probe(url, headers)
+    print("=" * 78)
+    print(f"SHAPE CHECK — does {url} carry what parse_underdog() reads?")
+    print("=" * 78)
+    if code != 200:
+        print(f"   HTTP {code} — nothing to inspect.")
+        return
+    try:
+        doc = json.loads(body)
+    except Exception as e:                                 # noqa: BLE001
+        print(f"   body did not parse as JSON ({e!r}); first 200: {body[:200]!r}")
+        return
+
+    print(f"   top-level keys: {sorted(doc)}")
+    for key in ("appearances", "games", "over_under_lines", "players"):
+        v = doc.get(key)
+        print(f"   {key:<18} {'MISSING' if v is None else f'{len(v)} row(s)'}")
+
+    apps = doc.get("appearances") or []
+    if apps:
+        a = apps[0]
+        print(f"   appearance[0] keys : {sorted(a)[:14]}")
+        print(f"     match_id={a.get('match_id')!r} sport_id={a.get('sport_id')!r}")
+    games = doc.get("games") or []
+    if games:
+        g = games[0]
+        print(f"   game[0] keys       : {sorted(g)[:14]}")
+        print(f"     title={g.get('title')!r} sport_id={g.get('sport_id')!r}")
+    lines = doc.get("over_under_lines") or []
+    if lines:
+        ln = lines[0]
+        ou = ln.get("over_under") or {}
+        ast = ou.get("appearance_stat") or {}
+        print(f"   line[0] keys       : {sorted(ln)[:14]}")
+        print(f"     stat_value={ln.get('stat_value')!r}")
+        print(f"     over_under.appearance_stat.display_stat={ast.get('display_stat')!r}")
+        print(f"     over_under.appearance_stat.appearance_id={ast.get('appearance_id')!r}")
+        opts = ln.get("options") or []
+        if opts:
+            o = opts[0]
+            print(f"     options[0]: choice={o.get('choice')!r} "
+                  f"american_price={o.get('american_price')!r} "
+                  f"selection_header={o.get('selection_header')!r}")
+        stats = sorted({((l.get('over_under') or {}).get('appearance_stat') or {}).get('display_stat')
+                        for l in lines} - {None})
+        print(f"   distinct display_stat values ({len(stats)}): {stats[:25]}")
+
+    needed = ["appearances", "games", "over_under_lines"]
+    missing = [k for k in needed if not doc.get(k)]
+    print()
+    if missing:
+        print(f"   🔴 parse_underdog() would find NOTHING: missing/empty {missing}.")
+        print("      A 200 with the wrong shape is not a fix — the parser needs rewriting")
+        print("      for this payload, or another key carries the same data under a new name.")
+    else:
+        print("   ✅ every path parse_underdog() walks is present. Swapping the URL is")
+        print("      the whole change; the parser can stay as it is.")
+
+
 def main() -> int:
     print("=" * 78)
     print("CONTROL (known-positive): Sleeper lines — the half of the writer that WORKS")
@@ -171,6 +236,14 @@ def main() -> int:
         print("    another free door (Sleeper Picks alone already primes the file), never a")
         print("    purchase.")
     print("=" * 78)
+
+    # The narrowest winner gets its payload shape checked against the parser.
+    win = next((r for r in results if r[0] and "control-negative" not in r[3]), None)
+    if win:
+        label = win[3]
+        url, headers = next((u, h) for l, u, h in ARMS if l == label)
+        print()
+        report_shape(url, headers)
     return 0
 
 
