@@ -63,12 +63,40 @@
    "champion_would_flip": false,
    "props": null,
    "props_note": "no artifact for this week \u2014 absent, not zero"
+  },
+  {
+   "week": 3,
+   "actual": 155.36,
+   "ceiling": 162.36,
+   "left_on_bench": 7.0,
+   "starters_actual": [
+    "QB:3163",
+    "RB:3198",
+    "RB:8151",
+    "WR:7564",
+    "WR:9487",
+    "TE:7002",
+    "WR:2133",
+    "K:7839",
+    "DEF:HOU"
+   ],
+   "opponent": "MarianSaar",
+   "opponent_points": 84.9,
+   "result": "W",
+   "margin": 70.46,
+   "ceiling_would_flip": false,
+   "champion": 155.36,
+   "champion_vs_actual": 0.0,
+   "champion_priced": 14,
+   "champion_would_flip": false,
+   "props": null,
+   "props_note": "no artifact for this week \u2014 absent, not zero"
   }
  ],
  "summary": {
-  "weeks_graded": 2,
-  "left_on_bench_per_week": 10.65,
-  "champion_vs_actual_per_week": -12.1,
+  "weeks_graded": 3,
+  "left_on_bench_per_week": 9.43,
+  "champion_vs_actual_per_week": -8.07,
   "props_vs_actual_per_week": 1.9
  }
 }
