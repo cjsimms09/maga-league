@@ -3,11 +3,11 @@
  "_what": "REPORT ONLY. The champion weekly projection beside the props-implied points on Cory's live roster, and the lineup each would start. The second lineup uses P357's blend rule (props where a line exists, champion elsewhere) \u2014 its prior art made visible, not the arm entering the grader early.",
  "season": 2026,
  "week": 4,
- "generated": "2026-09-30T16:15:49.219040+00:00",
- "roster_source": "THIS-WEEK.md generated 2026-09-29T18:44:54+00:00",
+ "generated": "2026-09-30T23:35:44.022723+00:00",
+ "roster_source": "THIS-WEEK.md generated 2026-09-30T17:51:28+00:00",
  "champion_source": "committed snapshot own_weekly_2026_w4.json",
  "champion_arm": "v1_pull3",
- "props_source": "weekly_props_2026_w4.json (324 players)",
+ "props_source": "weekly_props_2026_w4.json (328 players)",
  "controls": [
   {
    "id": "S1",
@@ -25,13 +25,13 @@
   {
    "id": "S3",
    "what": "THIS-WEEK.md is fresh (<= 3 days) \u2014 the roster rule",
-   "generated": "2026-09-29T18:44:54+00:00",
+   "generated": "2026-09-30T17:51:28+00:00",
    "ok": true
   }
  ],
  "table": [
   {
-   "st": true,
+   "st": false,
    "name": "Rashee Rice",
    "pos": "WR",
    "team": "KC",
@@ -39,8 +39,8 @@
    "player_id": "10229",
    "champion": 9.88,
    "blend_prior": 12.04,
-   "props": 5.03,
-   "props_minus_champion": -4.85
+   "props": 10.62,
+   "props_minus_champion": 0.74
   },
   {
    "st": false,
@@ -87,11 +87,11 @@
    "player_id": "13337",
    "champion": 3.55,
    "blend_prior": 3.55,
-   "props": 1.59,
-   "props_minus_champion": -1.96
+   "props": 4.74,
+   "props_minus_champion": 1.19
   },
   {
-   "st": false,
+   "st": true,
    "name": "Davante Adams",
    "pos": "WR",
    "team": "LAR",
@@ -99,8 +99,8 @@
    "player_id": "2133",
    "champion": 14.21,
    "blend_prior": 15.12,
-   "props": 14.16,
-   "props_minus_champion": -0.05
+   "props": 9.39,
+   "props_minus_champion": -4.82
   },
   {
    "st": true,
@@ -123,8 +123,8 @@
    "player_id": "3198",
    "champion": 19.02,
    "blend_prior": 20.5,
-   "props": 17.2,
-   "props_minus_champion": -1.82
+   "props": 17.22,
+   "props_minus_champion": -1.8
   },
   {
    "st": false,
@@ -147,8 +147,8 @@
    "player_id": "7002",
    "champion": 10.15,
    "blend_prior": 10.32,
-   "props": 7.85,
-   "props_minus_champion": -2.3
+   "props": 7.84,
+   "props_minus_champion": -2.31
   },
   {
    "st": true,
@@ -183,8 +183,8 @@
    "player_id": "8151",
    "champion": 18.19,
    "blend_prior": 19.59,
-   "props": 18.26,
-   "props_minus_champion": 0.07
+   "props": 17.52,
+   "props_minus_champion": -0.67
   },
   {
    "st": true,
@@ -195,8 +195,8 @@
    "player_id": "9487",
    "champion": 10.42,
    "blend_prior": 11.66,
-   "props": 12.8,
-   "props_minus_champion": 2.38
+   "props": 12.95,
+   "props_minus_champion": 2.53
   },
   {
    "st": false,
@@ -239,9 +239,9 @@
   "Kenneth Walker",
   "Derrick Henry",
   "Ja'Marr Chase",
-  "Davante Adams",
-  "Juwan Johnson",
   "Parker Washington",
+  "Juwan Johnson",
+  "Quinshon Judkins",
   "Evan McPherson",
   "HOU D/ST"
  ],
@@ -261,9 +261,9 @@
   "8151",
   "3198",
   "7564",
-  "2133",
-  "7002",
   "9487",
+  "7002",
+  "12512",
   "7839",
   "HOU D/ST"
  ],
@@ -271,16 +271,20 @@
   {
    "props_starts": "Caleb Williams",
    "champion_starts": "Jared Goff"
+  },
+  {
+   "props_starts": "Quinshon Judkins",
+   "champion_starts": "Davante Adams"
   }
  ],
  "valuation": {
   "champion_lineup": {
    "by_champion": 111.7,
-   "by_props_blend": 104.96
+   "by_props_blend": 99.61
   },
   "props_blend_lineup": {
-   "by_champion": 108.38,
-   "by_props_blend": 106.4
+   "by_champion": 101.83,
+   "by_props_blend": 103.02
   }
  },
  "skill_players_with_a_props_line": 11,
@@ -298,8 +302,8 @@
     "player_id": "10232",
     "champion": 8.65,
     "blend_prior": 9.12,
-    "props": 9.85,
-    "props_minus_champion": 1.2
+    "props": 10.65,
+    "props_minus_champion": 2.0
    },
    {
     "st": true,
@@ -310,8 +314,8 @@
     "player_id": "12526",
     "champion": 8.65,
     "blend_prior": 9.56,
-    "props": 12.57,
-    "props_minus_champion": 3.92
+    "props": 12.61,
+    "props_minus_champion": 3.96
    },
    {
     "st": true,
@@ -334,8 +338,8 @@
     "player_id": "421",
     "champion": 20.81,
     "blend_prior": 21.44,
-    "props": 18.56,
-    "props_minus_champion": -2.25
+    "props": 18.48,
+    "props_minus_champion": -2.33
    },
    {
     "st": true,
@@ -346,8 +350,8 @@
     "player_id": "4983",
     "champion": 9.33,
     "blend_prior": 10.14,
-    "props": 9.15,
-    "props_minus_champion": -0.18
+    "props": 9.27,
+    "props_minus_champion": -0.06
    },
    {
     "st": true,
@@ -382,8 +386,8 @@
     "player_id": "6786",
     "champion": 15.72,
     "blend_prior": 16.73,
-    "props": 13.77,
-    "props_minus_champion": -1.95
+    "props": 13.75,
+    "props_minus_champion": -1.97
    },
    {
     "st": true,
@@ -394,8 +398,8 @@
     "player_id": "6904",
     "champion": 20.01,
     "blend_prior": 21.13,
-    "props": 21.14,
-    "props_minus_champion": 1.13
+    "props": 21.16,
+    "props_minus_champion": 1.15
    },
    {
     "st": false,
@@ -418,8 +422,8 @@
     "player_id": "7553",
     "champion": 4.64,
     "blend_prior": 4.89,
-    "props": 5.32,
-    "props_minus_champion": 0.68
+    "props": 5.23,
+    "props_minus_champion": 0.59
    },
    {
     "st": false,
@@ -430,8 +434,8 @@
     "player_id": "7571",
     "champion": 6.01,
     "blend_prior": 7.18,
-    "props": 6.62,
-    "props_minus_champion": 0.61
+    "props": 6.57,
+    "props_minus_champion": 0.56
    },
    {
     "st": true,
@@ -442,8 +446,8 @@
     "player_id": "7588",
     "champion": 13.24,
     "blend_prior": 13.89,
-    "props": 13.26,
-    "props_minus_champion": 0.02
+    "props": 13.17,
+    "props_minus_champion": -0.07
    },
    {
     "st": true,
@@ -454,8 +458,8 @@
     "player_id": "8150",
     "champion": 15.58,
     "blend_prior": 14.47,
-    "props": 9.91,
-    "props_minus_champion": -5.67
+    "props": 9.96,
+    "props_minus_champion": -5.62
    },
    {
     "st": true,
@@ -535,11 +539,11 @@
   "valuation": {
    "champion_lineup": {
     "by_champion": 92.25,
-    "by_props_blend": 82.22
+    "by_props_blend": 82.2
    },
    "props_blend_lineup": {
     "by_champion": 90.04,
-    "by_props_blend": 89.53
+    "by_props_blend": 90.33
    }
   },
   "skill_players_with_a_props_line": 11,
@@ -553,9 +557,9 @@
    "gap": 19.45
   },
   "by_props_blend": {
-   "mine": 106.4,
-   "theirs": 89.53,
-   "gap": 16.87
+   "mine": 103.02,
+   "theirs": 90.33,
+   "gap": 12.69
   },
   "note": "each side's best lineup under that opinion; K/DEF unpriced by both, so the gap is skill slots only"
  }
