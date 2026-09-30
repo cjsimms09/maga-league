@@ -10,9 +10,9 @@
   2026
  ],
  "population": {
-  "total_bio_rows": 6519,
-  "matched_to_sleeper": 3913,
-  "unmatched_no_sleeper_id": 2606
+  "total_bio_rows": 6522,
+  "matched_to_sleeper": 3918,
+  "unmatched_no_sleeper_id": 2604
  },
  "unmatched_sample": [
   {
@@ -76241,6 +76241,34 @@
    "draft_team": null,
    "draft_capital": "UDFA"
   },
+  "11281": {
+   "gsis_id": "00-0038429",
+   "name": "Liam Anderson",
+   "position": "LB",
+   "birth_date": "2000-04-30 00:00:00",
+   "age_by_season": {
+    "2021": null,
+    "2022": null,
+    "2023": null,
+    "2024": null,
+    "2025": null,
+    "2026": null
+   },
+   "rookie_year": 2023.0,
+   "is_rookie_by_season": {
+    "2021": false,
+    "2022": false,
+    "2023": true,
+    "2024": false,
+    "2025": false,
+    "2026": false
+   },
+   "draft_season": null,
+   "draft_round": null,
+   "draft_pick": null,
+   "draft_team": null,
+   "draft_capital": "UDFA"
+  },
   "11288": {
    "gsis_id": "00-0038437",
    "name": "Donavan Mutin",
@@ -77142,6 +77170,34 @@
    "name": "Nikko Remigio",
    "position": "WR",
    "birth_date": "1999-11-04 00:00:00",
+   "age_by_season": {
+    "2021": null,
+    "2022": null,
+    "2023": null,
+    "2024": null,
+    "2025": null,
+    "2026": null
+   },
+   "rookie_year": 2023.0,
+   "is_rookie_by_season": {
+    "2021": false,
+    "2022": false,
+    "2023": true,
+    "2024": false,
+    "2025": false,
+    "2026": false
+   },
+   "draft_season": null,
+   "draft_round": null,
+   "draft_pick": null,
+   "draft_team": null,
+   "draft_capital": "UDFA"
+  },
+  "11325": {
+   "gsis_id": "00-0038521",
+   "name": "Reese Taylor",
+   "position": "DB",
+   "birth_date": "1999-08-27 00:00:00",
    "age_by_season": {
     "2021": null,
     "2022": null,
@@ -92341,6 +92397,34 @@
    "draft_team": null,
    "draft_capital": "UDFA"
   },
+  "12227": {
+   "gsis_id": "00-0039775",
+   "name": "Elias Neal",
+   "position": "LB",
+   "birth_date": "2001-09-11 00:00:00",
+   "age_by_season": {
+    "2021": null,
+    "2022": null,
+    "2023": null,
+    "2024": null,
+    "2025": null,
+    "2026": null
+   },
+   "rookie_year": 2024.0,
+   "is_rookie_by_season": {
+    "2021": false,
+    "2022": false,
+    "2023": false,
+    "2024": true,
+    "2025": false,
+    "2026": false
+   },
+   "draft_season": null,
+   "draft_round": null,
+   "draft_pick": null,
+   "draft_team": null,
+   "draft_capital": "UDFA"
+  },
   "12142": {
    "gsis_id": "00-0039776",
    "name": "Jaylen McCollough",
@@ -99738,6 +99822,34 @@
    "name": "Jacoby Jones",
    "position": "WR",
    "birth_date": "2001-07-18 00:00:00",
+   "age_by_season": {
+    "2021": null,
+    "2022": null,
+    "2023": null,
+    "2024": null,
+    "2025": null,
+    "2026": null
+   },
+   "rookie_year": 2025,
+   "is_rookie_by_season": {
+    "2021": false,
+    "2022": false,
+    "2023": false,
+    "2024": false,
+    "2025": true,
+    "2026": false
+   },
+   "draft_season": null,
+   "draft_round": null,
+   "draft_pick": null,
+   "draft_team": null,
+   "draft_capital": "UDFA"
+  },
+  "13176": {
+   "gsis_id": "00-0040318",
+   "name": "Ale Kaho",
+   "position": "LB",
+   "birth_date": "2000-04-07 00:00:00",
    "age_by_season": {
     "2021": null,
     "2022": null,
@@ -107858,6 +107970,34 @@
    "name": "Lander Barton",
    "position": "LB",
    "birth_date": "2003-12-30 00:00:00",
+   "age_by_season": {
+    "2021": null,
+    "2022": null,
+    "2023": null,
+    "2024": null,
+    "2025": null,
+    "2026": null
+   },
+   "rookie_year": 2026,
+   "is_rookie_by_season": {
+    "2021": false,
+    "2022": false,
+    "2023": false,
+    "2024": false,
+    "2025": false,
+    "2026": true
+   },
+   "draft_season": null,
+   "draft_round": null,
+   "draft_pick": null,
+   "draft_team": null,
+   "draft_capital": "UDFA"
+  },
+  "13633": {
+   "gsis_id": "00-0041381",
+   "name": "Rodney Shelley",
+   "position": "DB",
+   "birth_date": "2002-08-14 00:00:00",
    "age_by_season": {
     "2021": null,
     "2022": null,
