@@ -1,109 +1,130 @@
 {
  "_territory": "relay probe; C consumes; results are the free-odds census",
  "_ask": "Cory 2026-08-21: Explore free Vegas odds we can get",
- "captured_at": "2026-09-24T17:24:30.203919Z",
+ "captured_at": "2026-10-01T18:29:46.913083Z",
  "sources": {
   "espn": {
-   "status": 403,
-   "bytes": 0,
-   "verdict": "UNREACHABLE (status 403)"
+   "status": 200,
+   "bytes": 283922,
+   "events": 16,
+   "known_positive": [
+    {
+     "game": "PIT @ CLE",
+     "provider": "DraftKings",
+     "spread": 2.5,
+     "total": 38.5
+    },
+    {
+     "game": "IND VS WSH",
+     "provider": "DraftKings",
+     "spread": 3.5,
+     "total": 47.5
+    },
+    {
+     "game": "NE @ BUF",
+     "provider": "DraftKings",
+     "spread": -6.5,
+     "total": 48.5
+    }
+   ],
+   "games_with_lines": 16,
+   "verdict": "POSITIVE \u2014 real lines on real games"
   },
   "bovada": {
    "status": 200,
-   "bytes": 3077934,
+   "bytes": 3663940,
    "known_positive": [
     {
-     "game": "Atlanta Falcons @ Green Bay Packers",
+     "game": "Pittsburgh Steelers @ Cleveland Browns",
      "market": "Moneyline",
      "handicap": null
     },
     {
-     "game": "Atlanta Falcons @ Green Bay Packers",
+     "game": "Pittsburgh Steelers @ Cleveland Browns",
      "market": "Point Spread",
-     "handicap": "5.5"
+     "handicap": "-3.0"
     },
     {
-     "game": "Atlanta Falcons @ Green Bay Packers",
+     "game": "Pittsburgh Steelers @ Cleveland Browns",
      "market": "Total",
-     "handicap": "43.0"
+     "handicap": "37.5"
     }
    ],
-   "markets_seen": 243,
-   "prop_mentions": 3372,
+   "markets_seen": 240,
+   "prop_mentions": 4380,
    "verdict": "POSITIVE \u2014 real lines on real games"
   },
   "bovada_event_props": {
    "status": 200,
-   "bytes": 3077934,
-   "event_link": "/football/nfl/atlanta-falcons-green-bay-packers-202609242015",
+   "bytes": 3663940,
+   "event_link": "/football/nfl/pittsburgh-steelers-cleveland-browns-202610012015",
    "event_status": 200,
-   "event_bytes": 415300,
-   "prop_markets": 23,
+   "event_bytes": 446697,
+   "prop_markets": 25,
    "anytime_td_mentions": 10,
    "known_positive": [
     {
-     "prop": "Total Passing Touchdowns - Jordan Love (GB)"
+     "prop": "Total Passing Touchdowns - Aaron Rodgers (PIT)"
     },
     {
-     "prop": "Total Passing Touchdowns - Michael Penix Jr. (ATL)"
+     "prop": "Total Passing Touchdowns - Deshaun Watson (CLE)"
     },
     {
-     "prop": "Total Passing Yards - Jordan Love (GB)"
+     "prop": "Total Passing Yards - Aaron Rodgers (PIT)"
     }
    ],
    "verdict": "POSITIVE \u2014 real lines on real games"
   },
   "bovada_census": {
    "status": 200,
-   "bytes": 3077934,
+   "bytes": 3663940,
    "display_groups": {
-    "Game Lines": 19,
-    "Alternate Lines": 20,
+    "Game Lines": 16,
+    "Alternate Lines": 18,
     "TD Scorer Props": 16,
     "First Drive Props": 1,
     "Passing Props": 16,
     "Passing Yards": 16,
-    "Rushing Props": 11,
-    "Rushing Yards": 15,
+    "Rushing Props": 12,
+    "Rushing Yards": 16,
     "Receiving Props": 16,
     "Receiving Yards": 16,
-    "Kicking Props": 6,
+    "Kicking Props": 11,
     "Sack Props": 1,
-    "Touchdown Props": 14,
+    "Touchdown Props": 15,
     "Def & ST Props": 1,
-    "Score Props": 21,
-    "Game Props": 21,
-    "Combined Yards": 1,
-    "Correct Score": 21,
+    "Score Props": 18,
+    "Game Props": 18,
+    "Correct Score": 18,
     "Specials": 1,
     "Squares": 1
    },
    "market_types": {
-    "Moneyline": 81,
-    "Point Spread": 81,
-    "Total": 81,
-    "Dynamic Winning Margin": 53,
-    "Total Points Range": 53,
-    "Both teams to score 10 or more points?": 52,
-    "To Win and Allow 0 Points": 52,
-    "Odd/Even Total Points": 52,
-    "Winning Margin": 51,
-    "Correct Score Range": 51,
-    "Both teams to score 14 or more points?": 36,
-    "Both teams to score 17 or more points?": 36,
+    "Moneyline": 80,
+    "Point Spread": 80,
+    "Total": 80,
+    "Both teams to score 10 or more points?": 50,
+    "Winning Margin": 50,
+    "Dynamic Winning Margin": 50,
+    "Total Points Range": 50,
+    "To Win and Allow 0 Points": 50,
+    "Odd/Even Total Points": 50,
+    "Correct Score Range": 49,
+    "Anytime Touchdown Scorer": 45,
     "Spread": 34,
     "Total Points": 34,
+    "Both teams to score 14 or more points?": 34,
+    "Both teams to score 17 or more points?": 34,
     "Both Teams To Score": 32,
     "Both teams to score 7 or more points?": 32,
     "Double Chance": 32,
-    "Total Touchdowns": 28,
-    "Anytime Touchdown Scorer": 25,
-    "Both teams to score 13 or more points?": 20,
-    "Both teams to score 21 or more points?": 20,
-    "Both teams to score 24 or more points?": 20,
-    "Both teams to score 27 or more points?": 20,
-    "Both teams to score 30 or more points?": 20,
-    "Both teams to score 34 or more points?": 20
+    "Total Touchdowns": 29,
+    "Both teams to score 13 or more points?": 18,
+    "Both teams to score 21 or more points?": 18,
+    "Both teams to score 24 or more points?": 18,
+    "Both teams to score 27 or more points?": 18,
+    "Both teams to score 30 or more points?": 18,
+    "Both teams to score 34 or more points?": 18
    },
    "known_positive": [
     {
@@ -116,7 +137,7 @@
   },
   "polymarket": {
    "status": 200,
-   "bytes": 792988,
+   "bytes": 777575,
    "events": 20,
    "known_positive": [
     {
