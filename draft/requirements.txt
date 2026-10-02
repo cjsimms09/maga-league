@@ -13,3 +13,13 @@ lxml
 html5lib
 beautifulsoup4
 openpyxl
+# The board gate parses .github/workflows/draft-data.yml to assert the bye
+# backfill runs BEFORE the acceptance gate (test_fill_byes_from_map.py). That
+# test was added 2026-09-28 WITHOUT this line, and it is the only test in the
+# suite that imports yaml — so it raised ImportError in CI, was reported as a
+# plain FAILED, counted as an unclassified (therefore BLOCKING) failure, and
+# refused the board publish for four days. A test written to stop the board
+# being blocked became the thing blocking it. Exactly the gap the lxml note
+# above describes, which is why that note exists; it did not stop it happening
+# again, so test_test_deps_are_declared.py now does.
+pyyaml
