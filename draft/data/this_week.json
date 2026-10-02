@@ -1,6 +1,6 @@
 {
  "_rule": "THE ROSTER RULE: any statement about Cory's roster or matchup cites THIS file (fresh within 3 days) or live Sleeper \u2014 never an older artifact.",
- "generated_at": "2026-09-30T17:51:28+00:00",
+ "generated_at": "2026-10-02T18:34:33+00:00",
  "season": "2026",
  "week": 4,
  "cory": {
@@ -29,7 +29,7 @@
    "pos": "QB",
    "team": "CHI",
    "starter": false,
-   "injury": "Doubtful",
+   "injury": "Out",
    "game": "vs NYJ (Sun)",
    "home": true,
    "kickoff_utc": "2026-10-04T17:00:00.000Z"
@@ -195,7 +195,7 @@
    "name": "Michael Wilson",
    "pos": "WR",
    "team": "ARI",
-   "starter": false,
+   "starter": true,
    "injury": null,
    "game": "at NYG (Sun)",
    "home": false,
@@ -206,7 +206,7 @@
    "name": "Tetairoa McMillan",
    "pos": "WR",
    "team": "CAR",
-   "starter": true,
+   "starter": false,
    "injury": null,
    "game": "vs DET (Sun)",
    "home": true,
@@ -240,7 +240,7 @@
    "pos": "WR",
    "team": "BUF",
    "starter": true,
-   "injury": null,
+   "injury": "Questionable",
    "game": "vs NE (Sun)",
    "home": true,
    "kickoff_utc": "2026-10-04T17:00:00.000Z"
@@ -295,7 +295,7 @@
    "pos": "RB",
    "team": "NO",
    "starter": false,
-   "injury": "Out",
+   "injury": "IR",
    "game": "vs ATL (Mon)",
    "home": true,
    "kickoff_utc": "2026-10-06T00:15:00.000Z"
