@@ -1,6 +1,6 @@
 {
  "_rule": "THE ROSTER RULE: any statement about Cory's roster or matchup cites THIS file (fresh within 3 days) or live Sleeper \u2014 never an older artifact.",
- "generated_at": "2026-10-02T18:34:33+00:00",
+ "generated_at": "2026-10-04T15:57:18+00:00",
  "season": "2026",
  "week": 4,
  "cory": {
@@ -17,7 +17,7 @@
    "name": "Rashee Rice",
    "pos": "WR",
    "team": "KC",
-   "starter": false,
+   "starter": true,
    "injury": null,
    "game": "at LV (Sun)",
    "home": false,
@@ -72,7 +72,7 @@
    "name": "Davante Adams",
    "pos": "WR",
    "team": "LAR",
-   "starter": true,
+   "starter": false,
    "injury": null,
    "game": "at PHI (Sun)",
    "home": false,
@@ -240,7 +240,7 @@
    "pos": "WR",
    "team": "BUF",
    "starter": true,
-   "injury": "Questionable",
+   "injury": null,
    "game": "vs NE (Sun)",
    "home": true,
    "kickoff_utc": "2026-10-04T17:00:00.000Z"
@@ -262,7 +262,7 @@
    "pos": "TE",
    "team": "PHI",
    "starter": false,
-   "injury": "Doubtful",
+   "injury": "Out",
    "game": "vs LAR (Sun)",
    "home": true,
    "kickoff_utc": "2026-10-04T17:00:00.000Z"

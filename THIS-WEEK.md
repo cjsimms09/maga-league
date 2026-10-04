@@ -1,6 +1,6 @@
 # THIS WEEK — coryjsimms, week 4 (2026)
 
-**Generated 2026-10-02T18:34:33+00:00 from LIVE Sleeper. THE ROSTER RULE: any statement about
+**Generated 2026-10-04T15:57:18+00:00 from LIVE Sleeper. THE ROSTER RULE: any statement about
 Cory's roster or matchup cites this file (fresh within 3 days) or live
 Sleeper — a frozen seat plan or tournament artifact is never a source for
 who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
@@ -13,12 +13,12 @@ who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
 
 | st | player | pos | team | game | implied | injury |
 |---|---|---|---|---|---|---|
-|   | Rashee Rice | WR | KC | at LV (Sun) | 25.8 (-4) |  |
+| S | Rashee Rice | WR | KC | at LV (Sun) | 25.8 (-4) |  |
 |   | Caleb Williams | QB | CHI | vs NYJ (Sun) | 23.2 (-3.5) | Out |
 |   | Matthew Golden | WR | GB | at TB (Sun) | 21.0 (-3.5) |  |
 |   | Quinshon Judkins | RB | CLE | vs PIT (Thu) | 17.2 (+3) |  |
 |   | Emmett Johnson | RB | KC | at LV (Sun) | 25.8 (-4) |  |
-| S | Davante Adams | WR | LAR | at PHI (Sun) | 23.5 (-3) |  |
+|   | Davante Adams | WR | LAR | at PHI (Sun) | 23.5 (-3) |  |
 | S | Jared Goff | QB | DET | at CAR (Sun) | 27.5 (-3.5) |  |
 | S | Derrick Henry | RB | BAL | vs TEN (Sun) | 27.0 (-11.5) |  |
 |   | Tyreek Hill | WR | — | BYE | — |  |
@@ -38,9 +38,9 @@ who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
 |   | Tetairoa McMillan | WR | CAR | vs DET (Sun) | 24.0 (+3.5) |  |
 | S | Jason Myers | K | SEA | vs LAC (Sun) | 24.8 (-7) |  |
 |   | Matthew Stafford | QB | LAR | at PHI (Sun) | 23.5 (-3) |  |
-| S | DJ Moore | WR | BUF | vs NE (Sun) | 27.8 (-7) | Questionable |
+| S | DJ Moore | WR | BUF | vs NE (Sun) | 27.8 (-7) |  |
 | S | Dalton Schultz | TE | HOU | vs DAL (Sun) | 25.5 (-3) |  |
-|   | Dallas Goedert | TE | PHI | vs LAR (Sun) | 20.5 (+3) | Doubtful |
+|   | Dallas Goedert | TE | PHI | vs LAR (Sun) | 20.5 (+3) | Out |
 | S | CeeDee Lamb | WR | DAL | at HOU (Sun) | 22.5 (+3) |  |
 | S | Jalen Hurts | QB | PHI | vs LAR (Sun) | 20.5 (+3) |  |
 |   | Travis Etienne | RB | NO | vs ATL (Mon) | 25.0 (-2.5) | IR |
