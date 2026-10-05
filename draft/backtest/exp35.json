@@ -16,24 +16,24 @@
       "regression_weight": 0.0,
       "n": 764,
       "top_decile": 0.513,
-      "rank_corr": 0.636,
-      "mae": 47.8,
+      "rank_corr": 0.637,
+      "mae": 47.79,
       "is_shipped": false
     },
     {
       "regression_weight": 0.1,
       "n": 764,
-      "top_decile": 0.487,
+      "top_decile": 0.5,
       "rank_corr": 0.63,
-      "mae": 49.13,
+      "mae": 49.11,
       "is_shipped": false
     },
     {
       "regression_weight": 0.2,
       "n": 764,
-      "top_decile": 0.461,
+      "top_decile": 0.474,
       "rank_corr": 0.622,
-      "mae": 50.58,
+      "mae": 50.57,
       "is_shipped": false
     },
     {
@@ -41,7 +41,7 @@
       "n": 764,
       "top_decile": 0.395,
       "rank_corr": 0.604,
-      "mae": 53.09,
+      "mae": 53.1,
       "is_shipped": true
     },
     {
@@ -49,7 +49,7 @@
       "n": 764,
       "top_decile": 0.355,
       "rank_corr": 0.579,
-      "mae": 55.96,
+      "mae": 55.98,
       "is_shipped": false
     },
     {
@@ -57,14 +57,14 @@
       "n": 764,
       "top_decile": 0.329,
       "rank_corr": 0.528,
-      "mae": 60.44,
+      "mae": 60.45,
       "is_shipped": false
     },
     {
       "regression_weight": 1.0,
       "n": 764,
       "top_decile": 0.276,
-      "rank_corr": 0.243,
+      "rank_corr": 0.241,
       "mae": 67.83,
       "is_shipped": false
     }
@@ -82,68 +82,68 @@
       "curve": [
         {
           "regression_weight": 0.0,
-          "n": 109,
-          "top_decile": 0.455,
-          "rank_corr": 0.383,
-          "mae": 160.2,
+          "n": 119,
+          "top_decile": 0.5,
+          "rank_corr": 0.457,
+          "mae": 148.98,
           "is_shipped": false
         },
         {
           "regression_weight": 0.1,
-          "n": 109,
-          "top_decile": 0.455,
-          "rank_corr": 0.383,
-          "mae": 152.79,
+          "n": 119,
+          "top_decile": 0.5,
+          "rank_corr": 0.457,
+          "mae": 141.96,
           "is_shipped": false
         },
         {
           "regression_weight": 0.2,
-          "n": 109,
-          "top_decile": 0.455,
-          "rank_corr": 0.382,
-          "mae": 145.39,
+          "n": 119,
+          "top_decile": 0.417,
+          "rank_corr": 0.454,
+          "mae": 134.95,
           "is_shipped": false
         },
         {
           "regression_weight": 0.35,
-          "n": 109,
-          "top_decile": 0.364,
-          "rank_corr": 0.38,
-          "mae": 134.29,
+          "n": 119,
+          "top_decile": 0.417,
+          "rank_corr": 0.448,
+          "mae": 124.43,
           "is_shipped": true
         },
         {
           "regression_weight": 0.5,
-          "n": 109,
-          "top_decile": 0.364,
-          "rank_corr": 0.364,
-          "mae": 123.18,
+          "n": 119,
+          "top_decile": 0.417,
+          "rank_corr": 0.426,
+          "mae": 113.91,
           "is_shipped": false
         },
         {
           "regression_weight": 0.7,
-          "n": 109,
-          "top_decile": 0.364,
-          "rank_corr": 0.343,
-          "mae": 108.38,
+          "n": 119,
+          "top_decile": 0.417,
+          "rank_corr": 0.388,
+          "mae": 99.89,
           "is_shipped": false
         },
         {
           "regression_weight": 1.0,
-          "n": 109,
-          "top_decile": 0.182,
-          "rank_corr": 0.257,
-          "mae": 86.17,
+          "n": 119,
+          "top_decile": 0.333,
+          "rank_corr": 0.214,
+          "mae": 78.92,
           "is_shipped": false
         }
       ],
       "verdict": {
         "peak_weight": 0.0,
-        "peak_top_decile": 0.455,
-        "shipped_top_decile": 0.364,
+        "peak_top_decile": 0.5,
+        "shipped_top_decile": 0.417,
         "verdict": "CONFIRMS the pre-registration: top-decile peaks BELOW the shipped 0.35 (peak at 0.0). Over-regression is a real lever \u2014 but installing a new value is a separate gated SHIP decision, not done here."
       },
-      "naive_top_decile": 0.364
+      "naive_top_decile": 0.417
     },
     {
       "season": 2025,
@@ -153,7 +153,7 @@
           "n": 172,
           "top_decile": 0.529,
           "rank_corr": 0.626,
-          "mae": 70.13,
+          "mae": 70.11,
           "is_shipped": false
         },
         {
@@ -161,23 +161,23 @@
           "n": 172,
           "top_decile": 0.588,
           "rank_corr": 0.621,
-          "mae": 68.27,
+          "mae": 68.25,
           "is_shipped": false
         },
         {
           "regression_weight": 0.2,
           "n": 172,
           "top_decile": 0.529,
-          "rank_corr": 0.614,
-          "mae": 67.08,
+          "rank_corr": 0.613,
+          "mae": 67.06,
           "is_shipped": false
         },
         {
           "regression_weight": 0.35,
           "n": 172,
           "top_decile": 0.529,
-          "rank_corr": 0.606,
-          "mae": 67.13,
+          "rank_corr": 0.605,
+          "mae": 67.11,
           "is_shipped": true
         },
         {
@@ -185,7 +185,7 @@
           "n": 172,
           "top_decile": 0.529,
           "rank_corr": 0.587,
-          "mae": 68.62,
+          "mae": 68.6,
           "is_shipped": false
         },
         {
@@ -193,15 +193,15 @@
           "n": 172,
           "top_decile": 0.529,
           "rank_corr": 0.553,
-          "mae": 71.9,
+          "mae": 71.88,
           "is_shipped": false
         },
         {
           "regression_weight": 1.0,
           "n": 172,
           "top_decile": 0.353,
-          "rank_corr": 0.25,
-          "mae": 81.21,
+          "rank_corr": 0.256,
+          "mae": 81.19,
           "is_shipped": false
         }
       ],
@@ -221,23 +221,23 @@
           "n": 458,
           "top_decile": 0.543,
           "rank_corr": 0.617,
-          "mae": 53.64,
+          "mae": 53.61,
           "is_shipped": false
         },
         {
           "regression_weight": 0.1,
           "n": 458,
           "top_decile": 0.522,
-          "rank_corr": 0.61,
-          "mae": 54.28,
+          "rank_corr": 0.609,
+          "mae": 54.26,
           "is_shipped": false
         },
         {
           "regression_weight": 0.2,
           "n": 458,
           "top_decile": 0.5,
-          "rank_corr": 0.6,
-          "mae": 55.15,
+          "rank_corr": 0.599,
+          "mae": 55.17,
           "is_shipped": false
         },
         {
@@ -245,7 +245,7 @@
           "n": 458,
           "top_decile": 0.413,
           "rank_corr": 0.579,
-          "mae": 57.1,
+          "mae": 57.11,
           "is_shipped": true
         },
         {
@@ -253,23 +253,23 @@
           "n": 458,
           "top_decile": 0.391,
           "rank_corr": 0.552,
-          "mae": 59.7,
+          "mae": 59.72,
           "is_shipped": false
         },
         {
           "regression_weight": 0.7,
           "n": 458,
           "top_decile": 0.391,
-          "rank_corr": 0.507,
-          "mae": 64.02,
+          "rank_corr": 0.506,
+          "mae": 64.03,
           "is_shipped": false
         },
         {
           "regression_weight": 1.0,
           "n": 458,
           "top_decile": 0.326,
-          "rank_corr": 0.196,
-          "mae": 71.99,
+          "rank_corr": 0.193,
+          "mae": 72.0,
           "is_shipped": false
         }
       ],
@@ -287,9 +287,9 @@
         {
           "regression_weight": 0.0,
           "n": 455,
-          "top_decile": 0.5,
+          "top_decile": 0.522,
           "rank_corr": 0.646,
-          "mae": 52.69,
+          "mae": 52.66,
           "is_shipped": false
         },
         {
@@ -297,7 +297,7 @@
           "n": 455,
           "top_decile": 0.478,
           "rank_corr": 0.638,
-          "mae": 53.59,
+          "mae": 53.56,
           "is_shipped": false
         },
         {
@@ -305,7 +305,7 @@
           "n": 455,
           "top_decile": 0.457,
           "rank_corr": 0.627,
-          "mae": 54.65,
+          "mae": 54.63,
           "is_shipped": false
         },
         {
@@ -313,7 +313,7 @@
           "n": 455,
           "top_decile": 0.413,
           "rank_corr": 0.605,
-          "mae": 56.71,
+          "mae": 56.73,
           "is_shipped": true
         },
         {
@@ -321,29 +321,29 @@
           "n": 455,
           "top_decile": 0.391,
           "rank_corr": 0.576,
-          "mae": 59.29,
+          "mae": 59.31,
           "is_shipped": false
         },
         {
           "regression_weight": 0.7,
           "n": 455,
           "top_decile": 0.391,
-          "rank_corr": 0.524,
-          "mae": 63.59,
+          "rank_corr": 0.523,
+          "mae": 63.6,
           "is_shipped": false
         },
         {
           "regression_weight": 1.0,
           "n": 455,
           "top_decile": 0.326,
-          "rank_corr": 0.213,
+          "rank_corr": 0.209,
           "mae": 70.92,
           "is_shipped": false
         }
       ],
       "verdict": {
         "peak_weight": 0.0,
-        "peak_top_decile": 0.5,
+        "peak_top_decile": 0.522,
         "shipped_top_decile": 0.413,
         "verdict": "CONFIRMS the pre-registration: top-decile peaks BELOW the shipped 0.35 (peak at 0.0). Over-regression is a real lever \u2014 but installing a new value is a separate gated SHIP decision, not done here."
       },
