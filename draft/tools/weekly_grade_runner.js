@@ -185,11 +185,29 @@ function rec2UnlockCheck() {
         .map(w => w.week)).size;
     } catch (e) { /* unreadable store counts as 0 graded weeks, said below */ }
   }
-  return { weeks: weeks, needed: 17,
+  // ⚠️ THE SAME EXPIRED CONDITION AS weekly_realized.json, and found in the same
+  // pass (2026-10-05) because fixing one instance and missing its twin is this
+  // repo's most repeated defect. This line said "(store absent — correct until
+  // week 1)" whenever the count was zero, with no idea whether week 1 had
+  // happened — so it went on reassuring through the whole season.
+  //
+  // MEASURED: nflverse_weekly_points_2021 through _2025 are all on disk and
+  // _2026 is not. The store is not merely empty, it was never created this
+  // season, so "0/17 graded weeks" is not a schedule, it is a feed that never
+  // started. REC-2 genuinely cannot unlock until the season ends; that part was
+  // always true. What was false is calling an absent 2026 store EXPECTED after
+  // football has been played. Register 536.
+  const played = weeksOfFootballPlayed();
+  const presence = fs.existsSync(p) ? 'present but empty' : 'ABSENT';
+  const note = weeks === 0
+    ? (played === 0
+        ? ' (store ' + presence.toLowerCase() + ' — correct until week 1)'
+        : ' — 🔴 store ' + presence + ' after ' + played + ' week(s) of football, '
+          + 'so this is a feed that never started, not a schedule')
+    : '';
+  return { weeks: weeks, needed: 17, overdue: weeks === 0 && played > 0,
     line: 'REC-2 source-weights unlock: ' + weeks + '/17 graded 2026 weeks in the '
-      + 'committed store — unlocks ~2027-01'
-      + (weeks === 0 ? ' (store ' + (fs.existsSync(p) ? 'present but empty' : 'absent')
-        + ' — correct until week 1)' : '') };
+      + 'committed store — unlocks ~2027-01' + note };
 }
 
 /* (5) THE RECOMMENDATION ARTIFACT REFRESH — learning_loop.py consumes the
@@ -206,6 +224,41 @@ function refreshRecommendations() {
   return { ok: true, detail: String(r.stdout).trim().split('\n').join('; ') };
 }
 
+/* HOW MANY WEEKS OF FOOTBALL HAVE ACTUALLY BEEN PLAYED THIS SEASON.
+ *
+ * Read from the committed harvest, not a clock: a date check is a second source
+ * that can disagree with the scores, and this repo has spent weeks finding
+ * condition-bound rules whose condition expired unnoticed. A week counts only
+ * if somebody actually scored in it, which is the same test
+ * `season_played.has_been_played` applies on the Python side.
+ *
+ * Returns 0 when the harvest is missing or unreadable — the pre-season answer,
+ * which is the SAFE direction here: it keeps the benign message rather than
+ * raising a false alarm off a file that failed to load. */
+function weeksOfFootballPlayed(historyPath) {
+  try {
+    const hp = historyPath || path.join(ROOT, 'draft', 'data', 'league_history.json');
+    if (!fs.existsSync(hp)) return 0;
+    const doc = JSON.parse(fs.readFileSync(hp, 'utf8'));
+    const seasons = doc.seasons || [];
+    if (!seasons.length) return 0;
+    const latest = seasons
+      .map(s => String(s.season))
+      .sort()
+      .slice(-1)[0];
+    const s = seasons.find(x => String(x.season) === latest) || {};
+    const weeks = s.weeks || {};
+    let n = 0;
+    for (const k of Object.keys(weeks)) {
+      const rows = weeks[k] || [];
+      if (rows.some(r => typeof r.points === 'number' && r.points > 0)) n++;
+    }
+    return n;
+  } catch (e) {
+    return 0;
+  }
+}
+
 function main() {
   console.log('WEEKLY GRADE RUNNER — repo-side loop artifacts + pipe self-check\n');
 
@@ -216,9 +269,38 @@ function main() {
   console.log(`  declared ${doc.declared}, graded ${doc.graded}`
     + (doc.feed_error ? `  !! FEED ERROR: ${doc.feed_error}` : ''));
   const realized = path.join(ROOT, 'draft', 'data', 'weekly_realized.json');
+  const played = weeksOfFootballPlayed();
+  let realizedOverdue = false;
   if (!fs.existsSync(realized)) {
-    console.log('  weekly_realized.json ABSENT — correct until week 1; every row '
-      + 'names the input it awaits, and this run proves the writer executes.');
+    if (played === 0) {
+      console.log('  weekly_realized.json ABSENT — correct until week 1; every row '
+        + 'names the input it awaits, and this run proves the writer executes.');
+    } else {
+      // ⚠️ A CONDITION-BOUND REASSURANCE WHOSE CONDITION EXPIRED, found 2026-10-05.
+      //
+      // This branch printed "correct until week 1" UNCONDITIONALLY, and `ok`
+      // below never included it. So from the moment football started the runner
+      // went on calling a dead arm correct, in week after week of green-looking
+      // output: `declared 6, graded 0` every run, all season.
+      //
+      // And it will never stop being absent on its own: NOTHING IN THIS REPO
+      // WRITES weekly_realized.json. Every reference to it is a read, a comment
+      // or a test asserting its absence — `component_write.js`'s own loader says
+      // "TODAY THERE ARE NONE ... the function is the seam the weekly job
+      // fills", and no weekly job fills it.
+      //
+      // So past week 1 the absence stops being a schedule and becomes the
+      // finding: the component half of the learning loop cannot grade anything,
+      // and saying so quietly is how it stayed unnoticed. It is loud now, and it
+      // counts toward `ok`, because a learning loop that cannot learn is not a
+      // passing run.
+      realizedOverdue = true;
+      console.log(`  🔴 weekly_realized.json ABSENT after ${played} week(s) of football — `
+        + 'this is NO LONGER the expected pre-season state. The component arm has '
+        + `declared ${doc.declared} components and graded ${doc.graded} all season, `
+        + 'and nothing in this repo writes that file, so it cannot self-resolve. '
+        + 'Register 536.');
+    }
   }
   console.log(`  component self-check: ${doc.self_check.ok ? 'PASS' : 'FAIL'} — ${doc.self_check.detail}`);
 
@@ -241,7 +323,8 @@ function main() {
     const rr = refreshRecommendations();
     console.log(`recommendation artifact refresh: ${rr.ok ? 'OK' : 'FAIL'} — ${rr.detail}`);
 
-    const ok = doc.self_check.ok && !doc.feed_error && sc.ok && rr.ok;
+    const ok = doc.self_check.ok && !doc.feed_error && sc.ok && rr.ok
+                 && !realizedOverdue;
     console.log(ok
       ? '\nOK — artifacts written, both pipes compute, and the read side ran: '
         + 'weekly grades flow into the RECOMMENDATION artifact (era-stamped), '
@@ -253,6 +336,6 @@ function main() {
   });
 }
 
-module.exports = { selfCheckResolutionPipe, mirrorEvidenceWeights, rec2UnlockCheck,
+module.exports = { weeksOfFootballPlayed, selfCheckResolutionPipe, mirrorEvidenceWeights, rec2UnlockCheck,
   refreshRecommendations };
 if (require.main === module) main();
