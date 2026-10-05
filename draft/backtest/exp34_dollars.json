@@ -48,19 +48,19 @@
       "our": {
         "weekly_high": 0.0,
         "regular_season": 0.0,
-        "playoff": 0.0,
-        "total": 0.0,
-        "playoff_place": null,
-        "made_playoffs": false,
+        "playoff": 400.0,
+        "total": 400.0,
+        "playoff_place": 4,
+        "made_playoffs": true,
         "partial": false
       },
       "adp": {
         "weekly_high": 0.0,
         "regular_season": 0.0,
-        "playoff": 0.0,
-        "total": 0.0,
-        "playoff_place": null,
-        "made_playoffs": false,
+        "playoff": 400.0,
+        "total": 400.0,
+        "playoff_place": 4,
+        "made_playoffs": true,
         "partial": false
       },
       "delta": {
@@ -157,8 +157,8 @@
       "band": "value(<=0)",
       "n": 38,
       "n_deviations": 36,
-      "sum_dollars": -825.0,
-      "mean_dollars": -21.71
+      "sum_dollars": -925.0,
+      "mean_dollars": -24.34
     },
     {
       "band": "near-zero",
@@ -959,10 +959,10 @@
     }
   },
   "correlation_arm": {
-    "diff_mean": 0.174,
+    "diff_mean": 0.134,
     "diff_ci": [
-      0.075,
-      0.275
+      0.038,
+      0.232
     ],
     "verdict": "beat",
     "n_picks": 32

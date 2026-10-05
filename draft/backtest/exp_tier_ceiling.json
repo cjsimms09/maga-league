@@ -12,29 +12,29 @@
   "aggregate": {
     "0.10": {
       "n": 4,
-      "sum_wh_wins_delta": -0.566,
-      "sum_rank_delta": 1.666,
+      "sum_wh_wins_delta": -0.599,
+      "sum_rank_delta": 1.8,
       "sum_playoff_pts_delta": -54.68,
       "sum_dollars_delta": 0.0
     },
     "0.20": {
       "n": 4,
-      "sum_wh_wins_delta": -0.611,
-      "sum_rank_delta": 1.4,
+      "sum_wh_wins_delta": -0.652,
+      "sum_rank_delta": 1.667,
       "sum_playoff_pts_delta": -39.8,
       "sum_dollars_delta": 0.0
     },
     "0.30": {
       "n": 4,
-      "sum_wh_wins_delta": -0.794,
-      "sum_rank_delta": 2.266,
+      "sum_wh_wins_delta": -0.835,
+      "sum_rank_delta": 2.533,
       "sum_playoff_pts_delta": -70.28,
       "sum_dollars_delta": 0.0
     },
     "0.50": {
       "n": 4,
-      "sum_wh_wins_delta": -0.6,
-      "sum_rank_delta": 1.533,
+      "sum_wh_wins_delta": -0.641,
+      "sum_rank_delta": 1.8,
       "sum_playoff_pts_delta": -50.1,
       "sum_dollars_delta": 0.0
     }
@@ -44,33 +44,33 @@
       "season": "2026",
       "per_step": {
         "0.00": {
-          "dollars_total": 0.0,
-          "exp_weekly_high_wins": 1.5928,
-          "mean_weekly_rank": 1.267,
+          "dollars_total": 400.0,
+          "exp_weekly_high_wins": 1.6162,
+          "mean_weekly_rank": 1.4,
           "playoff_window_points": 0.0
         },
         "0.10": {
-          "dollars_total": 0.0,
-          "exp_weekly_high_wins": 1.5298,
-          "mean_weekly_rank": 1.4,
+          "dollars_total": 400.0,
+          "exp_weekly_high_wins": 1.5202,
+          "mean_weekly_rank": 1.667,
           "playoff_window_points": 0.0
         },
         "0.20": {
-          "dollars_total": 0.0,
-          "exp_weekly_high_wins": 1.5298,
-          "mean_weekly_rank": 1.4,
+          "dollars_total": 400.0,
+          "exp_weekly_high_wins": 1.5123,
+          "mean_weekly_rank": 1.8,
           "playoff_window_points": 0.0
         },
         "0.30": {
-          "dollars_total": 0.0,
-          "exp_weekly_high_wins": 1.5298,
-          "mean_weekly_rank": 1.4,
+          "dollars_total": 400.0,
+          "exp_weekly_high_wins": 1.5123,
+          "mean_weekly_rank": 1.8,
           "playoff_window_points": 0.0
         },
         "0.50": {
-          "dollars_total": 0.0,
-          "exp_weekly_high_wins": 1.5298,
-          "mean_weekly_rank": 1.4,
+          "dollars_total": 400.0,
+          "exp_weekly_high_wins": 1.5123,
+          "mean_weekly_rank": 1.8,
           "playoff_window_points": 0.0
         }
       }
@@ -182,6 +182,6 @@
     }
   ],
   "caveats": [],
-  "verdict": "NULL: no tier ceiling ramp beats pure mean on weekly-high win prob without hurting rank (best step 0.10: wh\u0394-0.566). Even the tier-graduated version doesn't pay here \u2014 the board's mean+VONA is the model, and more projection sites won't change that. Thin (n=seasons).",
+  "verdict": "NULL: no tier ceiling ramp beats pure mean on weekly-high win prob without hurting rank (best step 0.10: wh\u0394-0.599). Even the tier-graduated version doesn't pay here \u2014 the board's mean+VONA is the model, and more projection sites won't change that. Thin (n=seasons).",
   "note": "leak-free: mean is walk-forward, cv+tiers from prior-season weekly. step swept (pre-registered grid), not tuned. Graded vs step=0 (pure mean). Thin (n=seasons); the flat ceiling tilt was null, so the bar is: does ANY tier ramp beat pure mean on weekly-high win prob / dollars. Range from single-source cv; richer cross-dataset range is the post-draft data-hunt if a ramp clears."
 }

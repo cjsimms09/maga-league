@@ -18,44 +18,44 @@
   "note": "n~41, underpowered; inconclusive => anchor binds HARDER (PRE-REGISTRATION-34)",
   "rank_correlation": {
     "n_picks": 32,
-    "rho_our_mean": 0.377,
+    "rho_our_mean": 0.367,
     "rho_our_ci": [
-      0.292,
-      0.452
+      0.282,
+      0.442
     ],
-    "rho_market_mean": 0.203,
+    "rho_market_mean": 0.233,
     "rho_market_ci": [
-      0.111,
-      0.283
+      0.156,
+      0.299
     ],
-    "diff_mean": 0.174,
+    "diff_mean": 0.134,
     "diff_ci": [
-      0.075,
-      0.275
+      0.038,
+      0.232
     ],
     "verdict": "beat"
   },
   "top5_set_value": {
     "n": 5,
     "picks": 31,
-    "our_mean": 263.334,
-    "market_mean": 160.98,
-    "delta_mean": 102.354,
+    "our_mean": 264.444,
+    "market_mean": 162.197,
+    "delta_mean": 102.247,
     "delta_ci": [
-      78.898,
-      125.074
+      78.732,
+      125.021
     ],
     "verdict": "beat"
   },
   "top10_set_value": {
     "n": 10,
     "picks": 27,
-    "our_mean": 227.544,
-    "market_mean": 162.206,
-    "delta_mean": 65.338,
+    "our_mean": 228.446,
+    "market_mean": 163.095,
+    "delta_mean": 65.351,
     "delta_ci": [
-      48.785,
-      81.661
+      48.817,
+      81.665
     ],
     "verdict": "beat"
   },
@@ -76,9 +76,9 @@
       "band": "near-zero",
       "n": 3,
       "hit_rate": 0.667,
-      "mean_delta": 23.467,
+      "mean_delta": 24.4,
       "ci": [
-        -10.3,
+        -7.5,
         42.52
       ],
       "verdict": "inconclusive",
@@ -88,10 +88,10 @@
       "band": "moderate",
       "n": 6,
       "hit_rate": 0.333,
-      "mean_delta": -6.4,
+      "mean_delta": -7.067,
       "ci": [
-        -20.783,
-        11.0
+        -21.45,
+        10.567
       ],
       "verdict": "inconclusive",
       "thin": true
@@ -176,10 +176,10 @@
       "band": "r4-7",
       "n": 13,
       "hit_rate": 0.462,
-      "mean_delta": 9.085,
+      "mean_delta": 9.3,
       "ci": [
-        -2.946,
-        21.891
+        -2.708,
+        22.072
       ],
       "verdict": "inconclusive",
       "thin": false
@@ -188,10 +188,10 @@
       "band": "r8-11",
       "n": 11,
       "hit_rate": 0.364,
-      "mean_delta": 13.595,
+      "mean_delta": 13.231,
       "ci": [
-        -29.898,
-        58.642
+        -30.133,
+        58.342
       ],
       "verdict": "inconclusive",
       "thin": false
@@ -271,7 +271,7 @@
   },
   "caveats": [
     "pbp unavailable for [2025, 2026] (NameError); those seasons stay skipped",
-    "2026: nflverse realized unavailable (pbp rebuild refused by cross-validation on 2024 \u2014 the gate working); RECOVERED from the harvest (league_history players_points, season totals, 165 players; roster-gated so a mid-season drop is truncated).",
+    "2026: nflverse realized unavailable (pbp rebuild refused by cross-validation on 2024 \u2014 the gate working); RECOVERED from the harvest (league_history players_points, season totals, 181 players; roster-gated so a mid-season drop is truncated).",
     "2025: nflverse realized unavailable (pbp rebuild refused by cross-validation on 2024 \u2014 the gate working); RECOVERED from the harvest (league_history players_points, season totals, 254 players; roster-gated so a mid-season drop is truncated)."
   ],
   "decisions": [
@@ -281,10 +281,10 @@
       "pick_no": 33,
       "took": "10229",
       "took_proj": 140.96,
-      "took_realized": 19.2,
+      "took_realized": 31.5,
       "adp_best": "7525",
       "adp_best_proj": 148.19,
-      "adp_best_realized": 29.5,
+      "adp_best_realized": 39.0,
       "forgone_value": 7.23,
       "adp_distance": null,
       "dispersion": null,
@@ -298,10 +298,10 @@
       "pick_no": 48,
       "took": "2133",
       "took_proj": 146.41,
-      "took_realized": 39.6,
+      "took_realized": 56.8,
       "adp_best": "2133",
       "adp_best_proj": 146.41,
-      "adp_best_realized": 39.6,
+      "adp_best_realized": 56.8,
       "forgone_value": 0.0,
       "adp_distance": -11.0,
       "dispersion": 4.7,
@@ -332,10 +332,10 @@
       "pick_no": 73,
       "took": "9487",
       "took_proj": 92.53,
-      "took_realized": 30.1,
+      "took_realized": 41.6,
       "adp_best": "9487",
       "adp_best_proj": 92.53,
-      "adp_best_realized": 30.1,
+      "adp_best_realized": 41.6,
       "forgone_value": 0.0,
       "adp_distance": -13.6,
       "dispersion": 4.3,
@@ -352,7 +352,7 @@
       "took_realized": 2.1,
       "adp_best": "4037",
       "adp_best_proj": 166.01,
-      "adp_best_realized": 13.6,
+      "adp_best_realized": 17.6,
       "forgone_value": 22.07,
       "adp_distance": null,
       "dispersion": null,
