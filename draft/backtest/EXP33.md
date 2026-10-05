@@ -24,7 +24,7 @@ Sources raced: our_blend, naive, ffc_adp, sleeper_proj
 
   | source | MAE | rank_corr | top-decile | in verdict |
   |---|---|---|---|---|
-  | our_blend | 57.1 | 0.579 | 0.413 | yes |
+  | our_blend | 57.11 | 0.579 | 0.413 | yes |
   | naive | 45.59 | 0.704 | 0.587 | yes |
   | ffc_adp | None | 0.378 | 0.312 | yes |
   | sleeper_proj | 33.05 | 0.819 | 0.692 | **NO — leak-suspect** |
@@ -35,7 +35,7 @@ Sources raced: our_blend, naive, ffc_adp, sleeper_proj
 
   | source | MAE | rank_corr | top-decile | in verdict |
   |---|---|---|---|---|
-  | our_blend | 56.71 | 0.605 | 0.413 | yes |
+  | our_blend | 56.73 | 0.605 | 0.413 | yes |
   | naive | 46.25 | 0.704 | 0.565 | yes |
   | ffc_adp | None | 0.446 | 0.222 | yes |
   | sleeper_proj | 35.27 | 0.798 | 0.627 | **NO — leak-suspect** |
