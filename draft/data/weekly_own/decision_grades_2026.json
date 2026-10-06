@@ -91,12 +91,42 @@
    "champion_would_flip": false,
    "props": null,
    "props_note": "no artifact for this week \u2014 absent, not zero"
+  },
+  {
+   "week": 4,
+   "actual": 89.38,
+   "ceiling": 117.68,
+   "left_on_bench": 28.3,
+   "starters_actual": [
+    "QB:3163",
+    "RB:3198",
+    "RB:8151",
+    "WR:7564",
+    "WR:9487",
+    "TE:7002",
+    "WR:10229",
+    "K:7839",
+    "DEF:HOU"
+   ],
+   "opponent": "Sadbru",
+   "opponent_points": 146.92,
+   "result": "L",
+   "margin": -57.54,
+   "ceiling_would_flip": false,
+   "champion": 94.58,
+   "champion_vs_actual": 5.2,
+   "champion_priced": 14,
+   "champion_would_flip": false,
+   "props": 94.58,
+   "props_vs_actual": 5.2,
+   "props_priced": 11,
+   "props_would_flip": false
   }
  ],
  "summary": {
-  "weeks_graded": 3,
-  "left_on_bench_per_week": 9.43,
-  "champion_vs_actual_per_week": -8.07,
-  "props_vs_actual_per_week": 1.9
+  "weeks_graded": 4,
+  "left_on_bench_per_week": 14.15,
+  "champion_vs_actual_per_week": -4.75,
+  "props_vs_actual_per_week": 3.55
  }
 }
