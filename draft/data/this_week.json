@@ -1,15 +1,15 @@
 {
  "_rule": "THE ROSTER RULE: any statement about Cory's roster or matchup cites THIS file (fresh within 3 days) or live Sleeper \u2014 never an older artifact.",
- "generated_at": "2026-10-04T15:57:18+00:00",
+ "generated_at": "2026-10-06T18:57:42+00:00",
  "season": "2026",
- "week": 4,
+ "week": 5,
  "cory": {
   "user_id": "434915673219526656",
   "display": "coryjsimms"
  },
  "opponent": {
-  "display": "Sadbru",
-  "roster_id": 10
+  "display": "Schmelley",
+  "roster_id": 9
  },
  "my_roster": [
   {
@@ -17,11 +17,11 @@
    "name": "Rashee Rice",
    "pos": "WR",
    "team": "KC",
-   "starter": true,
-   "injury": null,
-   "game": "at LV (Sun)",
-   "home": false,
-   "kickoff_utc": "2026-10-04T20:25:00.000Z"
+   "starter": false,
+   "injury": "Questionable",
+   "game": "BYE",
+   "home": null,
+   "kickoff_utc": null
   },
   {
    "id": "11560",
@@ -30,9 +30,9 @@
    "team": "CHI",
    "starter": false,
    "injury": "Out",
-   "game": "vs NYJ (Sun)",
-   "home": true,
-   "kickoff_utc": "2026-10-04T17:00:00.000Z"
+   "game": "at GB (Sun)",
+   "home": false,
+   "kickoff_utc": "2026-10-11T20:25:00.000Z"
   },
   {
    "id": "12501",
@@ -41,20 +41,20 @@
    "team": "GB",
    "starter": false,
    "injury": null,
-   "game": "at TB (Sun)",
-   "home": false,
-   "kickoff_utc": "2026-10-04T17:00:00.000Z"
+   "game": "vs CHI (Sun)",
+   "home": true,
+   "kickoff_utc": "2026-10-11T20:25:00.000Z"
   },
   {
    "id": "12512",
    "name": "Quinshon Judkins",
    "pos": "RB",
    "team": "CLE",
-   "starter": false,
+   "starter": true,
    "injury": null,
-   "game": "vs PIT (Thu)",
-   "home": true,
-   "kickoff_utc": "2026-10-02T00:15:00.000Z"
+   "game": "at NYJ (Sun)",
+   "home": false,
+   "kickoff_utc": "2026-10-11T17:00:00.000Z"
   },
   {
    "id": "13337",
@@ -63,20 +63,20 @@
    "team": "KC",
    "starter": false,
    "injury": null,
-   "game": "at LV (Sun)",
-   "home": false,
-   "kickoff_utc": "2026-10-04T20:25:00.000Z"
+   "game": "BYE",
+   "home": null,
+   "kickoff_utc": null
   },
   {
    "id": "2133",
    "name": "Davante Adams",
    "pos": "WR",
    "team": "LAR",
-   "starter": false,
+   "starter": true,
    "injury": null,
-   "game": "at PHI (Sun)",
-   "home": false,
-   "kickoff_utc": "2026-10-04T17:00:00.000Z"
+   "game": "vs BUF (Mon)",
+   "home": true,
+   "kickoff_utc": "2026-10-13T00:15:00.000Z"
   },
   {
    "id": "3163",
@@ -85,9 +85,9 @@
    "team": "DET",
    "starter": true,
    "injury": null,
-   "game": "at CAR (Sun)",
+   "game": "at ARI (Sun)",
    "home": false,
-   "kickoff_utc": "2026-10-05T00:20:00.000Z"
+   "kickoff_utc": "2026-10-11T20:25:00.000Z"
   },
   {
    "id": "3198",
@@ -96,9 +96,9 @@
    "team": "BAL",
    "starter": true,
    "injury": null,
-   "game": "vs TEN (Sun)",
-   "home": true,
-   "kickoff_utc": "2026-10-04T17:00:00.000Z"
+   "game": "at ATL (Sun)",
+   "home": false,
+   "kickoff_utc": "2026-10-12T00:20:00.000Z"
   },
   {
    "id": "3321",
@@ -118,9 +118,9 @@
    "team": "NO",
    "starter": true,
    "injury": null,
-   "game": "vs ATL (Mon)",
+   "game": "vs MIN (Sun)",
    "home": true,
-   "kickoff_utc": "2026-10-06T00:15:00.000Z"
+   "kickoff_utc": "2026-10-11T17:00:00.000Z"
   },
   {
    "id": "7564",
@@ -128,10 +128,10 @@
    "pos": "WR",
    "team": "CIN",
    "starter": true,
-   "injury": null,
-   "game": "vs JAX (Sun)",
-   "home": true,
-   "kickoff_utc": "2026-10-04T17:00:00.000Z"
+   "injury": "Out",
+   "game": "at MIA (Sun)",
+   "home": false,
+   "kickoff_utc": "2026-10-11T17:00:00.000Z"
   },
   {
    "id": "7839",
@@ -140,20 +140,20 @@
    "team": "CIN",
    "starter": true,
    "injury": null,
-   "game": "vs JAX (Sun)",
-   "home": true,
-   "kickoff_utc": "2026-10-04T17:00:00.000Z"
+   "game": "at MIA (Sun)",
+   "home": false,
+   "kickoff_utc": "2026-10-11T17:00:00.000Z"
   },
   {
    "id": "8151",
    "name": "Kenneth Walker",
    "pos": "RB",
    "team": "KC",
-   "starter": true,
+   "starter": false,
    "injury": null,
-   "game": "at LV (Sun)",
-   "home": false,
-   "kickoff_utc": "2026-10-04T20:25:00.000Z"
+   "game": "BYE",
+   "home": null,
+   "kickoff_utc": null
   },
   {
    "id": "9487",
@@ -162,9 +162,9 @@
    "team": "JAX",
    "starter": true,
    "injury": null,
-   "game": "at CIN (Sun)",
-   "home": false,
-   "kickoff_utc": "2026-10-04T17:00:00.000Z"
+   "game": "vs PHI (Sun)",
+   "home": true,
+   "kickoff_utc": "2026-10-11T13:30:00.000Z"
   },
   {
    "id": "9753",
@@ -173,9 +173,9 @@
    "team": "SEA",
    "starter": false,
    "injury": "PUP",
-   "game": "vs LAC (Sun)",
+   "game": "vs SF (Sun)",
    "home": true,
-   "kickoff_utc": "2026-10-04T20:25:00.000Z"
+   "kickoff_utc": "2026-10-11T20:25:00.000Z"
   },
   {
    "id": "HOU",
@@ -184,176 +184,187 @@
    "team": "HOU",
    "starter": true,
    "injury": null,
-   "game": "vs DAL (Sun)",
-   "home": true,
-   "kickoff_utc": "2026-10-04T17:00:00.000Z"
+   "game": "at TEN (Sun)",
+   "home": false,
+   "kickoff_utc": "2026-10-11T17:00:00.000Z"
   }
  ],
  "opponent_roster": [
   {
-   "id": "10232",
-   "name": "Michael Wilson",
-   "pos": "WR",
-   "team": "ARI",
-   "starter": true,
-   "injury": null,
-   "game": "at NYG (Sun)",
-   "home": false,
-   "kickoff_utc": "2026-10-04T17:00:00.000Z"
-  },
-  {
-   "id": "12526",
-   "name": "Tetairoa McMillan",
-   "pos": "WR",
-   "team": "CAR",
-   "starter": false,
-   "injury": null,
-   "game": "vs DET (Sun)",
-   "home": true,
-   "kickoff_utc": "2026-10-05T00:20:00.000Z"
-  },
-  {
-   "id": "2747",
-   "name": "Jason Myers",
-   "pos": "K",
-   "team": "SEA",
-   "starter": true,
-   "injury": null,
-   "game": "vs LAC (Sun)",
-   "home": true,
-   "kickoff_utc": "2026-10-04T20:25:00.000Z"
-  },
-  {
-   "id": "421",
-   "name": "Matthew Stafford",
-   "pos": "QB",
-   "team": "LAR",
-   "starter": false,
-   "injury": null,
-   "game": "at PHI (Sun)",
-   "home": false,
-   "kickoff_utc": "2026-10-04T17:00:00.000Z"
-  },
-  {
-   "id": "4983",
-   "name": "DJ Moore",
-   "pos": "WR",
-   "team": "BUF",
-   "starter": true,
-   "injury": null,
-   "game": "vs NE (Sun)",
-   "home": true,
-   "kickoff_utc": "2026-10-04T17:00:00.000Z"
-  },
-  {
-   "id": "5001",
-   "name": "Dalton Schultz",
-   "pos": "TE",
-   "team": "HOU",
-   "starter": true,
-   "injury": null,
-   "game": "vs DAL (Sun)",
-   "home": true,
-   "kickoff_utc": "2026-10-04T17:00:00.000Z"
-  },
-  {
-   "id": "5022",
-   "name": "Dallas Goedert",
-   "pos": "TE",
-   "team": "PHI",
-   "starter": false,
-   "injury": "Out",
-   "game": "vs LAR (Sun)",
-   "home": true,
-   "kickoff_utc": "2026-10-04T17:00:00.000Z"
-  },
-  {
-   "id": "6786",
-   "name": "CeeDee Lamb",
-   "pos": "WR",
-   "team": "DAL",
-   "starter": true,
-   "injury": null,
-   "game": "at HOU (Sun)",
-   "home": false,
-   "kickoff_utc": "2026-10-04T17:00:00.000Z"
-  },
-  {
-   "id": "6904",
-   "name": "Jalen Hurts",
-   "pos": "QB",
-   "team": "PHI",
-   "starter": true,
-   "injury": null,
-   "game": "vs LAR (Sun)",
-   "home": true,
-   "kickoff_utc": "2026-10-04T17:00:00.000Z"
-  },
-  {
-   "id": "7543",
-   "name": "Travis Etienne",
+   "id": "11576",
+   "name": "Braelon Allen",
    "pos": "RB",
+   "team": "NYJ",
+   "starter": true,
+   "injury": null,
+   "game": "vs CLE (Sun)",
+   "home": true,
+   "kickoff_utc": "2026-10-11T17:00:00.000Z"
+  },
+  {
+   "id": "11792",
+   "name": "Will Reichard",
+   "pos": "K",
+   "team": "MIN",
+   "starter": true,
+   "injury": null,
+   "game": "at NO (Sun)",
+   "home": false,
+   "kickoff_utc": "2026-10-11T17:00:00.000Z"
+  },
+  {
+   "id": "12506",
+   "name": "Harold Fannin",
+   "pos": "TE",
+   "team": "CLE",
+   "starter": false,
+   "injury": null,
+   "game": "at NYJ (Sun)",
+   "home": false,
+   "kickoff_utc": "2026-10-11T17:00:00.000Z"
+  },
+  {
+   "id": "12507",
+   "name": "Omarion Hampton",
+   "pos": "RB",
+   "team": "LAC",
+   "starter": false,
+   "injury": null,
+   "game": "vs DEN (Sun)",
+   "home": true,
+   "kickoff_utc": "2026-10-11T20:05:00.000Z"
+  },
+  {
+   "id": "12529",
+   "name": "TreVeyon Henderson",
+   "pos": "RB",
+   "team": "NE",
+   "starter": false,
+   "injury": null,
+   "game": "vs LV (Sun)",
+   "home": true,
+   "kickoff_utc": "2026-10-11T17:00:00.000Z"
+  },
+  {
+   "id": "13281",
+   "name": "Jordyn Tyson",
+   "pos": "WR",
    "team": "NO",
    "starter": false,
    "injury": "IR",
-   "game": "vs ATL (Mon)",
+   "game": "vs MIN (Sun)",
    "home": true,
-   "kickoff_utc": "2026-10-06T00:15:00.000Z"
+   "kickoff_utc": "2026-10-11T17:00:00.000Z"
   },
   {
-   "id": "7553",
-   "name": "Kyle Pitts",
+   "id": "4217",
+   "name": "George Kittle",
    "pos": "TE",
-   "team": "ATL",
-   "starter": false,
-   "injury": null,
-   "game": "at NO (Mon)",
-   "home": false,
-   "kickoff_utc": "2026-10-06T00:15:00.000Z"
-  },
-  {
-   "id": "7571",
-   "name": "Rashod Bateman",
-   "pos": "WR",
-   "team": "BAL",
-   "starter": false,
-   "injury": null,
-   "game": "vs TEN (Sun)",
-   "home": true,
-   "kickoff_utc": "2026-10-04T17:00:00.000Z"
-  },
-  {
-   "id": "7588",
-   "name": "Javonte Williams",
-   "pos": "RB",
-   "team": "DAL",
+   "team": "SF",
    "starter": true,
    "injury": null,
-   "game": "at HOU (Sun)",
+   "game": "at SEA (Sun)",
    "home": false,
-   "kickoff_utc": "2026-10-04T17:00:00.000Z"
+   "kickoff_utc": "2026-10-11T20:25:00.000Z"
   },
   {
-   "id": "8150",
-   "name": "Kyren Williams",
+   "id": "4866",
+   "name": "Saquon Barkley",
    "pos": "RB",
+   "team": "PHI",
+   "starter": true,
+   "injury": "Out",
+   "game": "at JAX (Sun)",
+   "home": false,
+   "kickoff_utc": "2026-10-11T13:30:00.000Z"
+  },
+  {
+   "id": "5850",
+   "name": "Josh Jacobs",
+   "pos": "RB",
+   "team": "GB",
+   "starter": false,
+   "injury": "NA",
+   "game": "vs CHI (Sun)",
+   "home": true,
+   "kickoff_utc": "2026-10-11T20:25:00.000Z"
+  },
+  {
+   "id": "7523",
+   "name": "Trevor Lawrence",
+   "pos": "QB",
+   "team": "JAX",
+   "starter": true,
+   "injury": null,
+   "game": "vs PHI (Sun)",
+   "home": true,
+   "kickoff_utc": "2026-10-11T13:30:00.000Z"
+  },
+  {
+   "id": "7526",
+   "name": "Jaylen Waddle",
+   "pos": "WR",
+   "team": "DEN",
+   "starter": true,
+   "injury": null,
+   "game": "at LAC (Sun)",
+   "home": false,
+   "kickoff_utc": "2026-10-11T20:05:00.000Z"
+  },
+  {
+   "id": "8148",
+   "name": "Jameson Williams",
+   "pos": "WR",
+   "team": "DET",
+   "starter": true,
+   "injury": null,
+   "game": "at ARI (Sun)",
+   "home": false,
+   "kickoff_utc": "2026-10-11T20:25:00.000Z"
+  },
+  {
+   "id": "8183",
+   "name": "Brock Purdy",
+   "pos": "QB",
+   "team": "SF",
+   "starter": false,
+   "injury": null,
+   "game": "at SEA (Sun)",
+   "home": false,
+   "kickoff_utc": "2026-10-11T20:25:00.000Z"
+  },
+  {
+   "id": "9493",
+   "name": "Puka Nacua",
+   "pos": "WR",
    "team": "LAR",
    "starter": true,
    "injury": null,
-   "game": "at PHI (Sun)",
-   "home": false,
-   "kickoff_utc": "2026-10-04T17:00:00.000Z"
+   "game": "vs BUF (Mon)",
+   "home": true,
+   "kickoff_utc": "2026-10-13T00:15:00.000Z"
   },
   {
-   "id": "NYG",
-   "name": "NYG D/ST",
+   "id": "BAL",
+   "name": "BAL D/ST",
    "pos": "DEF",
-   "team": "NYG",
+   "team": "BAL",
+   "starter": false,
+   "injury": null,
+   "game": "at ATL (Sun)",
+   "home": false,
+   "kickoff_utc": "2026-10-12T00:20:00.000Z"
+  },
+  {
+   "id": "MIN",
+   "name": "MIN D/ST",
+   "pos": "DEF",
+   "team": "MIN",
    "starter": true,
    "injury": null,
-   "game": "vs ARI (Sun)",
-   "home": true,
-   "kickoff_utc": "2026-10-04T17:00:00.000Z"
+   "game": "at NO (Sun)",
+   "home": false,
+   "kickoff_utc": "2026-10-11T17:00:00.000Z"
   }
  ],
  "named_gaps": [
