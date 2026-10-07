@@ -22,10 +22,20 @@ name: Realized stats — bank what ACTUALLY happened, every week
 # nothing scheduled it, because when it was written every season it cared about
 # was already over. The condition expired the day week 1 kicked off.
 #
-# ── WHY IT RUNS HERE AND NOT FROM A DEV SESSION ──────────────────────────────
+# ── WHY IT RUNS HERE ─────────────────────────────────────────────────────────
 #
-# nflverse-data's release assets are 403 through the dev sandbox's egress proxy.
-# CI reaches them. Same reason every provider fetch in this repo runs here.
+# ⚠️ THE ORIGINAL VERSION OF THIS NOTE SAID *"nflverse-data's release assets are
+# 403 through the dev sandbox's egress proxy. CI reaches them."* THAT IS FALSE,
+# measured 2026-10-07: `.../releases/download/stats_player/
+# stats_player_week_2026.parquet` returns 200 from the dev sandbox. I asserted a
+# network limit without probing it, which is the shape rule 3i warns about —
+# and it mattered, because "only CI can see this" is how a fetch stops being
+# verifiable before it is dispatched.
+#
+# It runs here because the commit has to land on `main` on a schedule, not
+# because the data is out of reach. The *schedules* fetch does have a real
+# split: `github.com/nflverse/nfldata/raw/...` is 403 through the proxy while
+# `raw.githubusercontent.com/nflverse/nfldata/...` is 200.
 #
 # ── WHAT IT REFUSES TO DO ────────────────────────────────────────────────────
 #
@@ -85,7 +95,21 @@ jobs:
         run: |
           set -uo pipefail
           S="${{ steps.before.outputs.season }}"
+          # This one call writes FIVE stores: offensive components, kicker,
+          # team defense, the vegas closing lines, and (next step) advanced.
+          # Every one of them is committed below — an earlier version of this
+          # workflow fetched all five and committed two, so the kicker and DST
+          # stores were being built and thrown away each run.
           python3 draft/backtest/fetch_component_stats.py --seasons "$S" --force
+
+      - name: Fetch the season's advanced stats from nflverse
+        run: |
+          set -uo pipefail
+          S="${{ steps.before.outputs.season }}"
+          # Separate module, same defect: it carried a verbatim copy of the
+          # `<3000` annual floor and its season list stopped at 2025, so
+          # advanced_stats_2026 was missing for two independent reasons.
+          python3 draft/backtest/fetch_advanced_stats.py --seasons "$S" --force
 
       - name: Re-score components into the weekly points store
         run: |
@@ -107,12 +131,28 @@ jobs:
           import json, sys
           from pathlib import Path
           season, before = sys.argv[1], int(sys.argv[2])
-          comp = Path("draft/backtest") / f"component_stats_{season}.json"
-          pts  = Path("draft/backtest") / f"nflverse_weekly_points_{season}.json"
-          if not comp.exists() or not pts.exists():
-              raise SystemExit(f"::error::{season}: a store is missing after the build "
-                               f"(components={comp.exists()}, points={pts.exists()}) "
-                               f"— nothing will be committed")
+          B = Path("draft/backtest")
+          # Every store this workflow is responsible for, named so a partial
+          # run says WHICH half is missing rather than just "a store".
+          REQUIRED = {
+              "components": B / f"component_stats_{season}.json",
+              "kicker":     B / f"component_stats_kicker_{season}.json",
+              "def":        B / f"component_stats_def_{season}.json",
+              "advanced":   B / f"advanced_stats_{season}.json",
+              "points":     B / f"nflverse_weekly_points_{season}.json",
+          }
+          have = {k: p.exists() for k, p in REQUIRED.items()}
+          print("stores after the build: " + json.dumps(have))
+          missing = [k for k, ok in have.items() if not ok]
+          if missing:
+              raise SystemExit(f"::error::{season}: store(s) missing after the build: "
+                               f"{', '.join(missing)} — nothing will be committed. "
+                               "Check the fetch step's status records: a "
+                               "'refused_thin_week' or 'refused_incomplete' is the "
+                               "guard working; a 'refused_empty' or 'unreachable' is "
+                               "an upstream or URL problem.")
+          comp = REQUIRED["components"]
+          pts = REQUIRED["points"]
           d = json.loads(pts.read_text())
           weeks = d.get("weeks") or []
           rows = sum(w.get("row_count", 0) for w in weeks)
@@ -135,6 +175,10 @@ jobs:
           git config user.name  "draft-bot"
           git config user.email "actions@github.com"
           git add "draft/backtest/component_stats_${S}.json" \
+                  "draft/backtest/component_stats_kicker_${S}.json" \
+                  "draft/backtest/component_stats_def_${S}.json" \
+                  "draft/backtest/advanced_stats_${S}.json" \
+                  "draft/backtest/vegas_lines_2021_2026.json" \
                   "draft/backtest/nflverse_weekly_points_${S}.json" 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "no change — the week was already banked (safe to re-run)"

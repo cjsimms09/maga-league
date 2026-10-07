@@ -103,6 +103,77 @@ DAILY = [
 ]
 
 
+#: ── REALIZED OUTCOMES: WHAT ACTUALLY HAPPENED ────────────────────────────────
+#:
+#: A different shape from everything above — one file per SEASON with the weeks
+#: inside it, not one file per week — so these are read rather than globbed.
+#:
+#: They are in here because on 2026-10-07 every one of them held 2021-2025 and
+#: nothing for 2026. Five seasons of realized football on disk and none for the
+#: season being played, while the forecast captures above ran every week all
+#: season. A forecast with no outcome beside it cannot be graded, so the whole
+#: forward record was accumulating evidence that could not yet become a verdict
+#: — which is the difference between a season of data and a season of learning.
+#:
+#: ⚠️ AND NOTE `unbackfillable: False`. nflverse keeps its history, so nothing
+#: here was LOST — it can be fetched for any past week at any time. That is
+#: precisely why it went unnoticed for five weeks: no alarm could fire on
+#: irrecoverable loss, because there was none. The cost was not lost data, it
+#: was five weeks of not being able to grade anything.
+SEASON_STORES = [
+    {"key": "realized_components", "label": "realized component stats (offense)",
+     "path": "draft/backtest/component_stats_{season}.json",
+     "serves": "DRAFT+MANAGE — the outcome side of every grade. Without it no "
+               "projection arm, props arm or start/sit decision can be scored.",
+     "unbackfillable": False},
+    {"key": "realized_points", "label": "realized weekly points (this league's scoring)",
+     "path": "draft/backtest/nflverse_weekly_points_{season}.json",
+     "serves": "DRAFT+MANAGE — components re-scored on OUR rules; the number "
+               "every weekly grade compares a forecast against.",
+     "unbackfillable": False},
+    {"key": "realized_kicker", "label": "realized kicker stats",
+     "path": "draft/backtest/component_stats_kicker_{season}.json",
+     "serves": "DRAFT — the K ruling (required slot, dead-last pick) is only "
+               "gradeable against realized kicker weeks.",
+     "unbackfillable": False},
+    {"key": "realized_def", "label": "realized team-defense stats",
+     "path": "draft/backtest/component_stats_def_{season}.json",
+     "serves": "DRAFT+MANAGE — DST streaming is a weekly decision and it has "
+               "never been graded on a season we played.",
+     "unbackfillable": False},
+    {"key": "realized_advanced", "label": "realized advanced stats (usage/opportunity)",
+     "path": "draft/backtest/advanced_stats_{season}.json",
+     "serves": "DRAFT — target share, carries and air yards are the inputs "
+               "behind next year's projection work.",
+     "unbackfillable": False},
+]
+
+
+def store_weeks(path_tpl: str, season: str) -> set:
+    """Weeks actually present INSIDE a season store (not a filename scan)."""
+    p = ROOT / path_tpl.format(season=season)
+    if not p.exists():
+        return set()
+    try:
+        doc = json.loads(p.read_text(encoding="utf8"))
+    except Exception:                                        # noqa: BLE001
+        return set()
+    weeks = doc.get("weeks")
+    out = set()
+    if isinstance(weeks, dict):
+        for k, v in weeks.items():
+            if v:
+                out.add(int(k))
+    else:
+        for w in weeks or []:
+            n = w.get("row_count")
+            if n is None:
+                n = len(w.get("players") or w.get("teams") or ())
+            if n:
+                out.add(int(w["week"]))
+    return out
+
+
 def played_weeks(season: str) -> list:
     """Weeks with real football in them, read from the committed harvest."""
     p = ROOT / "draft" / "data" / "league_history.json"
@@ -177,6 +248,31 @@ def audit(season: str) -> dict:
         missing = [w for w in owed if w not in have]
         rows.append({**cap, "have": sorted(have), "missing": missing,
                      "owed": owed, "ok": not missing})
+    #: ⚠️ THE NEWEST PLAYED WEEK IS "PENDING", NOT "MISSING".
+    #:
+    #: Our harvest reads Sleeper, which settles a week within minutes of the
+    #: final whistle; nflverse publishes after that. The realized fetch runs
+    #: Tuesday 14:00Z and Monday night football ends around 03:00Z Tuesday, so
+    #: for part of every Tuesday the newest week legitimately does not exist
+    #: upstream yet. Alarming on it would make this tool cry wolf once a week
+    #: forever, and an alarm people learn to ignore is the exact failure this
+    #: file was written to fix.
+    #:
+    #: Deliberately NOT a measured lag — measured 2026-10-07 the two sources
+    #: AGREED (both weeks 1-4), so there is no lag size to encode and rule 3i
+    #: says not to invent one. This is a grace of exactly one week, justified
+    #: by the publication mechanism, and ANY older gap is a real finding.
+    realized = []
+    newest = owed[-1] if owed else None
+    for cap in SEASON_STORES:
+        have = store_weeks(cap["path"], season)
+        gaps = [w for w in owed if w not in have]
+        missing = [w for w in gaps if w != newest]
+        realized.append({**cap, "have": sorted(have), "missing": missing,
+                         "pending": [w for w in gaps if w == newest],
+                         "owed": owed, "ok": not missing,
+                         "present": (ROOT / cap["path"].format(season=season)).exists()})
+
     daily = []
     for d in DAILY:
         files = []
@@ -194,7 +290,8 @@ def audit(season: str) -> dict:
         daily.append({**d, "count": len(files), "newest": newest,
                       "pattern_ok": bool(files)})
     return {"season": season, "played_weeks": owed, "captures": rows,
-            "daily": daily, "pattern_problems": _pattern_control(season)}
+            "realized": realized, "daily": daily,
+            "pattern_problems": _pattern_control(season)}
 
 
 def main(argv=None) -> int:
@@ -206,7 +303,7 @@ def main(argv=None) -> int:
     res = audit(a.season)
     if a.json:
         print(json.dumps(res, indent=1))
-        return 1 if any(not r["ok"] for r in res["captures"]) else 0
+        return 1 if any(not r["ok"] for r in res["captures"] + res["realized"]) else 0
 
     owed = res["played_weeks"]
     print("=" * 74)
@@ -233,6 +330,25 @@ def main(argv=None) -> int:
             bad.append(r)
             print(f"     MISSING: weeks {r['missing']}"
                   + ("  ← UNBACKFILLABLE" if r.get("unbackfillable") else ""))
+        print(f"     serves : {r['serves']}")
+
+    print("\n" + "-" * 74)
+    print("REALIZED OUTCOMES — what actually happened, read from inside the store")
+    print("(backfillable from nflverse, so a gap is un-gradeable weeks, not lost data)")
+    for r in res["realized"]:
+        mark = "✅" if r["ok"] else "🔴"
+        print(f"\n{mark} {r['label']}")
+        if not r["present"]:
+            print("     have   : THE STORE DOES NOT EXIST for this season")
+        else:
+            print(f"     have   : weeks {r['have'] or 'NONE'}")
+        if r["missing"]:
+            bad.append(r)
+            print(f"     MISSING: weeks {r['missing']}  ← nothing from these "
+                  "weeks can be graded")
+        if r["pending"]:
+            print(f"     pending: week {r['pending']} — played, not yet published "
+                  "upstream (one week of grace, by design)")
         print(f"     serves : {r['serves']}")
 
     print("\n" + "-" * 74)

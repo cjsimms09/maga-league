@@ -98,8 +98,16 @@ sys.path.insert(0, str(HERE.parent))
 
 # 2026 appended 2026-08-16 for the v6 deployment (Cory: "YES on V6") — the
 # program doc §7 named the vegas store's week-1 lines for the deployment
-# season as a prerequisite. The 2026 COMPONENT store cannot exist yet (no
-# games played); only the vegas arm of the fetch gains a season.
+# season as a prerequisite.
+#
+# ⚠️ THE NEXT SENTENCE USED TO READ *"The 2026 COMPONENT store cannot exist yet
+# (no games played); only the vegas arm of the fetch gains a season."* TRUE
+# WHEN WRITTEN ON 2026-08-16, FALSE SINCE WEEK 1 KICKED OFF ON 09-10, and the
+# whole module was built around it: the annual size floors below, the ordering
+# of main(), and the fact that nothing ever scheduled this fetch. Every 2026
+# component store CAN exist and now must — `realized-stats-2026.yml` runs this
+# weekly, because a forecast with no outcome beside it cannot be graded and we
+# captured forecasts all season.
 SEASONS = (2021, 2022, 2023, 2024, 2025, 2026)
 FIRST_WEEK, LAST_WEEK = 1, 18          # regular season only; consumers trim to 17
 POSITION_GROUPS = ("QB", "RB", "WR", "TE")
@@ -108,8 +116,23 @@ URL_PRIMARY = ("https://github.com/nflverse/nflverse-data/releases/download/"
                "player_stats/player_stats_{year}.parquet")
 URL_FALLBACK = ("https://github.com/nflverse/nflverse-data/releases/download/"
                 "stats_player/stats_player_week_{year}.parquet")
+#: ⚠️ THE `.csv` ASSET IS GONE. Measured 2026-10-07, from CI and from the dev
+#: sandbox, same minute: `.../releases/download/schedules/games.csv` is a 404
+#: and `.../schedules/games.parquet` is a 200. The release dropped the CSV. Both
+#: the DST store and the vegas store read this one file, so both had been
+#: reporting `status: unreachable` — "team-week fetch succeeded but the
+#: schedules fetch (for points allowed) did not" — while the team-week parquet
+#: beside it downloaded fine.
+#:
+#: TWO INDEPENDENT PATHS, deliberately (rule 3e): the release asset, and the
+#: nfldata repo the release is built from. VERIFIED THE SAME DAY that they are
+#: the same data, not merely both present — for 2023 REG, all 272 games,
+#: `home_score`, `away_score`, `spread_line` and `total_line` are identical
+#: between them, element for element.
 URL_SCHEDULES = ("https://github.com/nflverse/nflverse-data/releases/download/"
-                 "schedules/games.csv")
+                 "schedules/games.parquet")
+URL_SCHEDULES_FALLBACK = ("https://raw.githubusercontent.com/nflverse/nfldata/"
+                          "master/data/games.csv")
 
 #: source column -> store key. Two source schemas exist; aliases map to ONE
 #: store key and the first present column wins (grade.py's put-vs-add lesson:
@@ -172,6 +195,153 @@ def _download(url: str, dest: Path) -> bool:
         return dest.stat().st_size > 1000
     except Exception:
         return False
+
+
+def load_games(workdir: Path) -> tuple:
+    """(games_df, tried) — the schedules frame, from whichever source answers.
+
+    Parquet first (the release asset, same family as every other fetch here),
+    then the nfldata CSV. Returns (None, tried) if neither answers, and the
+    caller records the miss: a schedules outage must degrade the DST and vegas
+    stores explicitly, never silently produce a store with zeros in it.
+    """
+    import pandas as pd
+    tried = []
+    for url, reader in ((URL_SCHEDULES, "parquet"), (URL_SCHEDULES_FALLBACK, "csv")):
+        dest = workdir / ("games.parquet" if reader == "parquet" else "games.csv")
+        ok = _download(url, dest)
+        tried.append({"url": url, "ok": ok})
+        if not ok:
+            continue
+        try:
+            df = (pd.read_parquet(dest, engine="fastparquet") if reader == "parquet"
+                  else pd.read_csv(dest))
+        except Exception:                                    # noqa: BLE001
+            tried[-1]["ok"] = False                          # a 404 body is not a frame
+            continue
+        return df, tried
+    return None, tried
+
+
+#: ── PER-WEEK FLOORS, MEASURED — NOT A SEASON TOTAL ───────────────────────────
+#:
+#: These replace three ANNUAL floors (`<3000` offensive player-weeks, `<400`
+#: kicker, `<400` team-weeks). Each was written when every season this fetcher
+#: had ever seen was already finished, and each then quietly became a rule that
+#: REFUSES THE SEASON ACTUALLY BEING PLAYED. Measured 2026-10-07, after week 4:
+#: the fetch reached nflverse, built 1,453 real offensive player-weeks, and
+#: threw them away as *"a bad fetch, not a season"*. Same for the kicker arm
+#: (128 real rows against a 400 floor).
+#:
+#: That is why five seasons of realized outcomes sit on disk and 2026 has none,
+#: while every forecast capture ran all season with nothing to grade against.
+#: The whole realized pipeline was built as a historical backfill and its
+#: assumptions expired the day week 1 kicked off.
+#:
+#: Set from the DISTRIBUTION, not by dividing the old annual floor by 18 (rule
+#: 3i). Across the five committed seasons, 90 season-weeks in each class:
+#:
+#:     offensive player-weeks   min 248   p10 266   median 310   max 365
+#:     kicker player-weeks      min  26   p10  28   median  31   max  33
+#:     team-weeks (DST)         min  26   p10  28   median  32   max  32
+#:     advanced player-weeks    min 280   p10 295   median 338   max 365
+#:
+#: The floor sits ~20% UNDER the observed minimum, so a legitimately thin week
+#: passes and a truncated payload does not. `test_realized_week_guard.py`
+#: re-derives these from the committed stores, so a future edit cannot raise a
+#: floor above reality without turning a test red.
+#:
+#: `advanced` lives here rather than in `fetch_advanced_stats.py` because that
+#: module carried a VERBATIM COPY of the `<3000` floor — found by sweeping for
+#: the defect class rather than the defect (rule 3g), and `advanced_stats_2026`
+#: was missing for exactly the same reason. One table, one guard: two
+#: definitions of one thing is register 11, and a copied floor is how the
+#: second one goes stale.
+PER_WEEK_FLOOR = {"offense": 200, "kicker": 20, "def": 20, "advanced": 220}
+
+
+def scored_weeks(games_df, season: int) -> set:
+    """REG weeks in which nflverse has a FINAL score, from the schedules data.
+
+    This is the coverage the stats fetch is held to, and it comes from a
+    DIFFERENT nflverse dataset than the one being checked — schedules against
+    player/team stats — which is what makes it a real check rather than the
+    payload vouching for itself.
+
+    Deliberately not a clock. `season_played.has_been_played` settled that
+    argument for money and the reason carries: a date is a second source that
+    can disagree with the scores, and this repo keeps finding condition-bound
+    rules whose condition expired quietly. A week is owed a row once somebody
+    has actually scored in it.
+    """
+    if games_df is None:
+        return set()
+    reg = games_df[(games_df["season"] == season)
+                   & (games_df["game_type"] == "REG")]
+    out = set()
+    for row in reg.to_dict("records"):
+        hs, aws = row.get("home_score"), row.get("away_score")
+        if hs is None or hs != hs or aws is None or aws != aws:
+            continue                     # unplayed/unpublished — not owed yet
+        wk = row.get("week")
+        if wk is not None and FIRST_WEEK <= int(wk) <= LAST_WEEK:
+            out.add(int(wk))
+    return out
+
+
+def week_coverage_problem(weeks: list, *, unit: str, expect_weeks: set) -> dict:
+    """None if this fetch is bankable; a refusal record if it is not.
+
+    THREE ways a fetch is bad, and the annual floor could only see the first:
+
+      * **empty** — no weeks at all.
+      * **thin** — a week whose row count is far below anything the five
+        committed seasons ever contained. This is the truncated-payload case
+        the annual floor was really guarding, expressed per week so it means
+        the same thing in October as in February.
+      * **incomplete** — a week that nflverse's own schedules say has been
+        PLAYED and SCORED, missing from the stats payload. For a finished
+        season that is "all 18 weeks", and for a season in progress it is
+        "weeks 1..N" — one rule, no expiring condition.
+
+    The coverage arm is also strictly STRONGER than the annual floor it
+    replaces, which matters because a floor being removed invites the
+    assumption that something was given up. MEASURED on the committed stores:
+    `<3000` passes a truncated payload holding weeks 1-10 of 2021 (3,004
+    rows), 1-11 of 2023 (3,237) or 1-9 of 2025 (3,029) — seven to nine weeks
+    of football missing from a finished season, banked without complaint. The
+    coverage arm refuses all three. ⚠️ An earlier draft of this comment said
+    *"weeks 1-10 of 2023, 3,100 rows"*; weeks 1-10 of 2023 is 2,965 rows,
+    which the old floor REFUSES. The figure was 310 x 10 off the median rather
+    than a count — rule 3i, committed into a code comment.
+
+    `expect_weeks` empty means the schedules frame was unreachable, so the
+    coverage arm cannot run; the thinness arm still does, and the caller
+    records that the check was degraded rather than passed.
+    """
+    floor = PER_WEEK_FLOOR[unit]
+    got = {int(w["week"]): len(w.get("players") or ()) for w in weeks}
+    if not got:
+        return {"status": "refused_empty",
+                "why": "the fetch produced no weeks at all"}
+
+    thin = sorted(w for w, n in got.items() if n < floor)
+    if thin:
+        return {"status": "refused_thin_week",
+                "why": (f"week(s) {thin} hold fewer than {floor} {unit} rows, "
+                        f"which is ~20% below the thinnest week in any of the "
+                        f"five committed seasons — a truncated payload, not a "
+                        f"thin week of football"),
+                "rows_by_week": got, "per_week_floor": floor}
+
+    missing = sorted(w for w in expect_weeks if w not in got)
+    if missing:
+        return {"status": "refused_incomplete",
+                "why": (f"nflverse's schedules have final scores for week(s) "
+                        f"{missing} and the stats payload does not — banking "
+                        f"this would record those weeks as 'nobody played'"),
+                "rows_by_week": got, "scored_weeks": sorted(expect_weeks)}
+    return None
 
 
 def _crosswalk() -> dict:
@@ -267,8 +437,14 @@ def build_season(df, crosswalk: dict) -> tuple[list, dict]:
 
 
 def fetch_season(season: int, crosswalk: dict, workdir: Path,
-                 force: bool = False) -> dict:
-    """Fetch + build + write one season's store. Returns a status record."""
+                 force: bool = False, expect_weeks: set = frozenset()) -> dict:
+    """Fetch + build + write one season's store. Returns a status record.
+
+    `expect_weeks` is the set of weeks nflverse's schedules say have been
+    scored (see `scored_weeks`); empty means the schedules frame was
+    unreachable and the coverage arm of the guard is skipped, which the status
+    record reports as `coverage_checked: false`.
+    """
     import pandas as pd
     tried = []
     raw = workdir / f"component_raw_{season}.parquet"
@@ -288,11 +464,10 @@ def fetch_season(season: int, crosswalk: dict, workdir: Path,
         return {"season": season, "status": "unreachable", "tried": tried}
 
     weeks, counts = build_season(df, crosswalk)
-    if counts["kept_player_weeks"] < 3000:
-        return {"season": season, "status": "refused_too_small",
-                "why": "a season with <3000 offensive player-weeks is a bad "
-                       "fetch, not a season — refused rather than committed",
-                "counts": counts, "tried": tried}
+    bad = week_coverage_problem(weeks, unit="offense", expect_weeks=expect_weeks)
+    if bad:
+        return {"season": season, **bad, "counts": counts, "tried": tried,
+                "coverage_checked": bool(expect_weeks)}
 
     src_url = next(t["url"] for t in tried if t["ok"])
     path = store_path(season)
@@ -340,12 +515,9 @@ def vegas_path() -> Path:
 def fetch_vegas(workdir: Path, force: bool = False) -> dict:
     """Fetch + trim + write the closing-lines store for SEASONS. One file —
     ~272 regular-season games per season, six fields per game."""
-    import pandas as pd
-    raw = workdir / "games.csv"
-    tried = [{"url": URL_SCHEDULES, "ok": _download(URL_SCHEDULES, raw)}]
-    if not tried[0]["ok"]:
+    df, tried = load_games(workdir)
+    if df is None:
         return {"store": "vegas", "status": "unreachable", "tried": tried}
-    df = pd.read_csv(raw)
     sub = df[(df["season"] >= SEASONS[0]) & (df["season"] <= SEASONS[-1])
              & (df["game_type"] == "REG")]
     seasons: dict[str, list] = {}
@@ -383,7 +555,7 @@ def fetch_vegas(workdir: Path, force: bool = False) -> dict:
                   "information. Context every Vegas feature must be read "
                   "against: EXP-WEEKLY-ENV's perfect-foresight team game-total "
                   "ceiling was +0.23 weekly MAE."),
-        "provenance": {"url": URL_SCHEDULES, "tried": tried,
+        "provenance": {"url": next(t["url"] for t in tried if t["ok"]), "tried": tried,
                        "fetched": _dt.date.today().isoformat(),
                        "season_type": "REG", "games_per_season": counts,
                        "games_without_lines_dropped": dropped},
@@ -644,7 +816,8 @@ def build_kicker_season(df, crosswalk: dict) -> tuple[list, dict]:
 
 
 def fetch_kicker_season(season: int, crosswalk: dict, workdir: Path,
-                        force: bool = False) -> dict:
+                        force: bool = False,
+                        expect_weeks: set = frozenset()) -> dict:
     """Fetch + build + write one season's KICKER store. Always URL_FALLBACK
     (KICKER_URL) — see the module note above for why URL_PRIMARY is never
     tried for kickers."""
@@ -662,11 +835,10 @@ def fetch_kicker_season(season: int, crosswalk: dict, workdir: Path,
                 "tried": [{"url": url, "ok": False}]}
 
     weeks, counts = build_kicker_season(df, crosswalk)
-    if counts["kept_player_weeks"] < 400:
-        return {"season": season, "status": "refused_too_small",
-                "why": "a season with <400 kicker player-weeks is a bad "
-                       "fetch, not a season — refused rather than committed",
-                "counts": counts, "tried": tried}
+    bad = week_coverage_problem(weeks, unit="kicker", expect_weeks=expect_weeks)
+    if bad:
+        return {"season": season, **bad, "counts": counts, "tried": tried,
+                "coverage_checked": bool(expect_weeks)}
 
     path = kicker_store_path(season)
     if path.exists() and not force:
@@ -1007,11 +1179,11 @@ def fetch_def_season(season: int, games_df, workdir: Path,
                        "(for points allowed) did not"}
 
     weeks, counts = build_def_season(df, games_df)
-    if counts["kept_team_weeks"] < 400:
-        return {"season": season, "status": "refused_too_small",
-                "why": "a season with <400 team-weeks is a bad fetch, not "
-                       "a season — refused rather than committed",
-                "counts": counts, "tried": tried}
+    bad = week_coverage_problem(weeks, unit="def",
+                                expect_weeks=scored_weeks(games_df, season))
+    if bad:
+        return {"season": season, **bad, "counts": counts, "tried": tried,
+                "coverage_checked": True}
 
     path = def_store_path(season)
     if path.exists() and not force:
@@ -1115,15 +1287,26 @@ def main() -> None:
     workdir = Path(tempfile.mkdtemp(prefix="component_stats_"))
     cw = _crosswalk()
     print(f"crosswalk: {len(cw)} gsis->sleeper pairs")
+
+    #: ⚠️ LOADED FIRST, not after the stats loops as it used to be. The
+    #: schedules frame is what tells every arm which weeks have actually been
+    #: SCORED, so the offensive and kicker guards cannot run without it. When
+    #: it was fetched last, those two arms had nothing to check coverage
+    #: against and leaned entirely on a season-total floor — which is how a
+    #: real four-week fetch came to be discarded as a bad one.
+    games_df, games_tried = load_games(workdir)
+    print(json.dumps({"schedules": {"ok": games_df is not None,
+                                    "tried": games_tried}}))
+
     for season in args.seasons:
-        res = fetch_season(season, cw, workdir, force=args.force)
+        expect = scored_weeks(games_df, season)
+        res = fetch_season(season, cw, workdir, force=args.force,
+                           expect_weeks=expect)
         print(json.dumps(res))
     for season in args.seasons:
-        res = fetch_kicker_season(season, cw, workdir, force=args.force)
+        res = fetch_kicker_season(season, cw, workdir, force=args.force,
+                                  expect_weeks=scored_weeks(games_df, season))
         print(json.dumps({"kicker": res}))
-    import pandas as _pd
-    games_raw = workdir / "def_games.csv"
-    games_df = _pd.read_csv(games_raw) if _download(URL_SCHEDULES, games_raw) else None
     for season in args.seasons:
         res = fetch_def_season(season, games_df, workdir, force=args.force)
         print(json.dumps({"def": res}))

@@ -141,7 +141,12 @@ sys.path.insert(0, str(HERE.parent))
 # state on disk.
 import fetch_component_stats as FCS  # noqa: E402
 
-SEASONS = (2021, 2022, 2023, 2024, 2025)
+#: ⚠️ 2026 ADDED 2026-10-07. The list used to stop at 2025, so the season being
+#: PLAYED was not even a default target of the fetch — a second expired
+#: condition sitting on top of the annual floor below, and either one alone was
+#: enough to leave `advanced_stats_2026` missing. A store that is only ever
+#: asked for finished seasons will only ever hold finished seasons.
+SEASONS = (2021, 2022, 2023, 2024, 2025, 2026)
 FIRST_WEEK, LAST_WEEK = 1, 18          # regular season only; consumers trim to 17
 POSITION_GROUPS = ("QB", "RB", "WR", "TE")
 
@@ -255,8 +260,14 @@ def build_season(df, crosswalk: dict) -> tuple[list, dict]:
 
 
 def fetch_season(season: int, crosswalk: dict, workdir: Path,
-                 force: bool = False) -> dict:
-    """Fetch + build + write one season's advanced-stats store."""
+                 force: bool = False, expect_weeks: set = frozenset()) -> dict:
+    """Fetch + build + write one season's advanced-stats store.
+
+    `expect_weeks` is the set of weeks nflverse's schedules say have been
+    scored (`FCS.scored_weeks`); empty means the schedules frame was
+    unreachable and the coverage arm is skipped, reported as
+    `coverage_checked: false`.
+    """
     import pandas as pd
     raw = workdir / f"advanced_raw_{season}.parquet"
     url = URL_ADVANCED.format(year=season)
@@ -272,11 +283,17 @@ def fetch_season(season: int, crosswalk: dict, workdir: Path,
         return {"season": season, "status": "unreachable", "tried": tried}
 
     weeks, counts = build_season(df, crosswalk)
-    if counts["kept_player_weeks"] < 3000:
-        return {"season": season, "status": "refused_too_small",
-                "why": "a season with <3000 offensive player-weeks is a bad "
-                       "fetch, not a season — refused rather than committed",
-                "counts": counts, "tried": tried}
+    #: ⚠️ THIS USED TO BE A VERBATIM COPY OF THE `<3000` ANNUAL FLOOR, with the
+    #: same consequence: `advanced_stats_2021..2025` are committed and
+    #: `advanced_stats_2026` was missing, because the real in-progress season
+    #: was discarded as "a bad fetch, not a season". Found by sweeping for the
+    #: defect class after fixing it next door, not by anyone reading here.
+    #: The guard and the floor table now live in ONE place (register 11).
+    bad = FCS.week_coverage_problem(weeks, unit="advanced",
+                                    expect_weeks=expect_weeks)
+    if bad:
+        return {"season": season, **bad, "counts": counts, "tried": tried,
+                "coverage_checked": bool(expect_weeks)}
 
     path = store_path(season)
     if path.exists() and not force:
@@ -352,8 +369,12 @@ def main() -> None:
     workdir = Path(tempfile.mkdtemp(prefix="advanced_stats_"))
     cw = FCS._crosswalk()
     print(f"crosswalk: {len(cw)} gsis->sleeper pairs")
+    games_df, games_tried = FCS.load_games(workdir)
+    print(json.dumps({"schedules": {"ok": games_df is not None,
+                                    "tried": games_tried}}))
     for season in args.seasons:
-        res = fetch_season(season, cw, workdir, force=args.force)
+        res = fetch_season(season, cw, workdir, force=args.force,
+                           expect_weeks=FCS.scored_weeks(games_df, season))
         print(json.dumps(res))
 
 

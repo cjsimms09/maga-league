@@ -130,3 +130,114 @@ def test_the_unbackfillable_rows_are_marked_as_such():
     keys = {c["key"]: c for c in A.CAPTURES}
     for k in ("sleeper_fp_archive", "own_weekly", "props"):
         assert keys[k].get("unbackfillable") is True, k
+
+
+# ── REALIZED OUTCOMES: the half of the season we were not banking at all ────
+
+def test_the_realized_stores_are_audited_and_marked_BACKFILLABLE():
+    """Every realized store held 2021-2025 and nothing for 2026, so the
+    forward captures above had nothing to be graded against all season.
+
+    `unbackfillable: False` is the honest label and it is the reason this
+    went unnoticed: nflverse keeps its history, so nothing was LOST and no
+    irrecoverable-loss alarm could fire. The cost was five weeks of being
+    unable to grade anything, which no existing instrument measured.
+    """
+    assert A.SEASON_STORES, "the realized stores are not audited at all"
+    keys = {c["key"] for c in A.SEASON_STORES}
+    assert {"realized_components", "realized_points", "realized_kicker",
+            "realized_def", "realized_advanced"} <= keys, sorted(keys)
+    for cap in A.SEASON_STORES:
+        assert cap.get("unbackfillable") is False, cap["key"]
+        assert cap.get("serves"), cap["key"]
+        assert "{season}" in cap["path"], cap["key"]
+
+
+def test_store_weeks_READS_INSIDE_the_file_rather_than_scanning_filenames(tmp_path, monkeypatch):
+    """A season store is one file with the weeks inside it, so the glob
+    matcher the forward captures use cannot see into it — a present-but-empty
+    store would read as full coverage."""
+    monkeypatch.setattr(A, "ROOT", tmp_path)
+    (tmp_path / "draft" / "backtest").mkdir(parents=True)
+    p = tmp_path / "draft" / "backtest" / "s_2026.json"
+    p.write_text(json.dumps({"weeks": [
+        {"week": 1, "players": {"a": {}, "b": {}}},
+        {"week": 2, "players": {}},                 # present but EMPTY
+        {"week": 3, "players": {"c": {}}},
+    ]}))
+    assert A.store_weeks("draft/backtest/s_{season}.json", "2026") == {1, 3}, \
+        "an empty week must not count as covered — it reads as 'nobody scored'"
+    assert A.store_weeks("draft/backtest/nope_{season}.json", "2026") == set()
+
+
+def test_store_weeks_handles_the_row_count_shape_too(tmp_path, monkeypatch):
+    """`nflverse_weekly_points_*` stores `row_count` rather than a players
+    dict. Reading one shape as the other is register 524's defect."""
+    monkeypatch.setattr(A, "ROOT", tmp_path)
+    (tmp_path / "draft" / "backtest").mkdir(parents=True)
+    (tmp_path / "draft" / "backtest" / "s_2026.json").write_text(json.dumps(
+        {"weeks": [{"week": 1, "row_count": 300}, {"week": 2, "row_count": 0}]}))
+    assert A.store_weeks("draft/backtest/s_{season}.json", "2026") == {1}
+
+
+def test_the_grace_period_forgives_ONLY_the_newest_played_week():
+    """⚠️ RULE 3f ON MY OWN MITIGATION. The one-week grace exists because
+    nflverse publishes after the final whistle and this fetch runs Tuesday
+    14:00Z, hours after Monday night ends — without it the audit would cry
+    wolf once a week forever. But a grace period is also a mechanism for
+    hiding a real gap, so it must be provably narrow: the newest week only,
+    never an older one, and never when the store is simply absent for weeks
+    that closed long ago.
+    """
+    res = A.audit("2026")
+    owed = res["played_weeks"]
+    newest = owed[-1]
+    for r in res["realized"]:
+        assert all(w == newest for w in r["pending"]), \
+            f"{r['key']} forgave {r['pending']} but only week {newest} is new"
+        assert newest not in r["missing"], \
+            f"{r['key']} reports the newest week as missing, not pending"
+        older = [w for w in owed[:-1] if w not in r["have"]]
+        assert r["missing"] == older, \
+            f"{r['key']}: every week but the newest must be demanded"
+
+
+def test_the_EXIT_CODE_tracks_the_realized_rows_too():
+    """⚠️ WRITTEN ONE WAY, THEN REWRITTEN. The first version asserted that a
+    realized gap EXISTS — true today, and it would have gone red the moment
+    the weekly fetch caught up, blocking the board for succeeding. A test must
+    never depend on a defect persisting; what belongs here is CONSISTENCY
+    between the row states and the exit code, with the ability to fire proved
+    on synthetic data (`test_CONTROL_a_realized_gap_IS_detected` below).
+    """
+    res = A.audit("2026")
+    assert res["realized"], "the realized rows vanished from the audit"
+    any_missing = any(not r["ok"] for r in res["captures"] + res["realized"])
+    assert A.main(["--season", "2026", "--json"]) == (1 if any_missing else 0)
+
+
+def test_CONTROL_a_realized_gap_IS_detected(tmp_path, monkeypatch):
+    """Rule 3e, on synthetic state so it holds whatever the live stores say.
+
+    Three weeks played, the store holds week 1 only: week 2 is a real gap and
+    week 3 is the newest, so it is pending. Exactly one row must be not-ok.
+    """
+    monkeypatch.setattr(A, "ROOT", tmp_path)
+    (tmp_path / "draft" / "backtest").mkdir(parents=True)
+    (tmp_path / "draft" / "data").mkdir(parents=True)
+    (tmp_path / "draft" / "data" / "league_history.json").write_text(json.dumps(
+        {"seasons": [{"season": 2026, "weeks": {
+            "1": [{"points": 100.0}], "2": [{"points": 90.0}],
+            "3": [{"points": 95.0}], "4": [{"points": 0.0}]}}]}))
+    monkeypatch.setattr(A, "SEASON_STORES", [
+        {"key": "r", "label": "r", "path": "draft/backtest/r_{season}.json",
+         "serves": "DRAFT", "unbackfillable": False}])
+    (tmp_path / "draft" / "backtest" / "r_2026.json").write_text(json.dumps(
+        {"weeks": [{"week": 1, "players": {"a": {}}}]}))
+
+    res = A.audit("2026")
+    assert res["played_weeks"] == [1, 2, 3], res["played_weeks"]
+    row = res["realized"][0]
+    assert row["missing"] == [2], row["missing"]
+    assert row["pending"] == [3], row["pending"]
+    assert row["ok"] is False
