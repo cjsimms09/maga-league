@@ -1,0 +1,65 @@
+name: Sleeper projections probe — why 7,630 rows and no stats?
+
+# BOTH 2027-GRADEABLE CAPTURES ARE DOWN ON THE SAME UPSTREAM RESPONSE.
+#
+#   weekly-proj-snapshot.yml       "the 2027-gradeable proj freeze"
+#   weekly-projection-archive.yml  "the 2027-gradeable weekly archive"
+#
+# Each asks Sleeper for the week's projections, gets 7,630 rows with zero
+# stats, and correctly refuses to bank an empty week. The archive therefore
+# holds ONE file — week 1, captured three weeks before kickoff — and every week
+# of real football this season is missing and unbackfillable, because Sleeper's
+# projection surface is live rather than an archive.
+#
+# That is the input the January-2027 experiment is graded on, so this is the
+# single most expensive gap in the season's evidence.
+#
+# The dev sandbox cannot reach api.sleeper.app (the egress proxy rejects it), so
+# the question could not be asked from there. CI can. Same move that answered
+# register 504's Underdog 426 in one run after three weeks of waiting on a human
+# to hand-curl it.
+#
+# Read-only: it writes nothing, commits nothing, touches no artifact.
+
+on:
+  workflow_dispatch:
+    inputs:
+      season:
+        description: 'Season'
+        required: false
+        default: '2026'
+      week:
+        description: 'Week to ask for'
+        required: false
+        default: ''
+  schedule:
+    # Daily while the captures are down. A shape change can revert as quietly as
+    # it landed, and the control-negative arm detects exactly that: if the URL
+    # the captures already send starts working, the answer is "change nothing".
+    - cron: '40 15 * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Ask Sleeper for a week of projections, eight ways
+        run: |
+          set -uo pipefail
+          SEASON="${{ github.event.inputs.season }}"; SEASON="${SEASON:-2026}"
+          WEEK="${{ github.event.inputs.week }}"
+          if [ -z "$WEEK" ]; then
+            # Ask Sleeper which week it is rather than hardcoding one, so the
+            # scheduled run keeps probing the CURRENT week as the season moves.
+            WEEK=$(curl -sS --max-time 30 https://api.sleeper.app/v1/state/nfl \
+                   | python3 -c 'import json,sys; print(json.load(sys.stdin).get("week") or 1)' 2>/dev/null || echo 1)
+          fi
+          echo "probing season=$SEASON week=$WEEK"
+          python3 draft/tools/sleeper_projections_probe.py --season "$SEASON" --week "$WEEK" \
+            | tee -a "$GITHUB_STEP_SUMMARY"
