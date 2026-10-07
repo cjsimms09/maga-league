@@ -12,20 +12,123 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "draft" / "backtest"))
 
 import lab_source_composition as L  # noqa: E402
 
+sys.path.insert(0, str(ROOT / "draft"))
+import config_schema as CS  # noqa: E402
+
 R = L.compose()
+
+#: ── ⚠️ THIS FILE'S POPULATION IS A DRAFT-WINDOW POPULATION (register 538) ────
+#:
+#: Every assertion below compares two ADP sources over the players they SHARE.
+#: ADP is a draft-season measurement, and the market that produces it winds down
+#: once drafts stop happening. MEASURED in CI on 2026-10-07: FFC's half-ppr
+#: 10-team board — the format this repo captures — serves 54 players, against
+#: 156 for 2025 and 178 for 2024 on the same endpoint, every arm HTTP 200 and
+#: both known positives populated. The archive's own curve is
+#: 233 -> 209 -> 187 -> 160 -> 154 -> 54.
+#:
+#: So `n_shared` fell to 132 and this file's CONTROL began refusing the board —
+#: `draft-data.yml` has not published since 2026-09-10, 26 days. The gate was
+#: RIGHT: `lab_source_composition.load()` keeps only the newest entry per
+#: source, so it was still ranking FantasyPros against FFC's last captured day
+#: in September.
+#:
+#: ⚠️ THE FIX IS NOT LOWERING 150, AND THAT IS THE WHOLE POINT. No post-draft
+#: ADP market meets a two-source agreement bar at any threshold anyone would
+#: accept, and a lower one would publish a board priced against a three-week-old
+#: snapshot — worse than not publishing. What was wrong is WHEN the requirement
+#: applies: it is a draft-window assertion that kept firing after kickoff, which
+#: is the same expired-condition class as the realized-stats floors and the
+#: capture's own `COLLAPSE_KEEP_FRACTION`.
+#:
+#: So the requirement is SCOPED, not weakened, against the date Cory ruled
+#: (`league_config.draft.start_date`, 2026-08-22) through the helper this repo
+#: already has. `draft_has_started` returns None for "do not know", and None is
+#: treated as IN the draft window here — an absent answer must not silently
+#: disable a guard.
+_CFG = json.loads((ROOT / "draft" / "config" / "league_config.json")
+                  .read_text(encoding="utf8"))
+POST_DRAFT = CS.draft_has_started(_CFG) is True
+
+#: The bar itself, unchanged, and the one place it is written.
+MIN_SHARED = 150
+COMPARABLE = R["n_shared"] >= MIN_SHARED
+
+#: ⚠️ IN-SEASON THE PRIMARY SOURCE STILL HAS TO BE THERE. Scoping the
+#: two-source comparison must not become "stop checking the board's pricing" —
+#: that would trade a false alarm for a blind spot. FantasyPros is what actually
+#: prices the in-season board, so its depth is asserted in BOTH windows.
+MIN_PRIMARY = 150
+
+
+def _skip_unless_comparable():
+    """Post-draft, a thin shared population makes the comparisons below
+    vacuous rather than wrong — so they skip BY NAME instead of refusing the
+    board. Pre-draft the CONTROL above has already failed and nothing reaches
+    here, which is what keeps this from being a way to silence a real defect.
+    """
+    if COMPARABLE:
+        return
+    pytest.skip(
+        f"only {R['n_shared']} players are shared by the two pricing sources "
+        f"(< {MIN_SHARED}) and the draft is over — the post-draft ADP market "
+        "cannot support a positional comparison (FFC's half-ppr board measured "
+        "at 54 players in CI against 156/178 for 2025/2024). SCOPED, not "
+        "lowered: register 538, and ffc-adp-probe.yml measures the source "
+        "daily. Pre-draft this same shortfall FAILS.")
 
 
 def test_CONTROL_the_two_pricing_sources_are_both_present_and_crosswalk():
-    """Everything below is vacuous if the sources did not both load."""
-    assert R["n_shared"] >= 150, (
-        f"only {R['n_shared']} crosswalked players — too few to measure a "
-        "positional median against")
+    """Everything below is vacuous if the sources did not both load.
+
+    SCOPED 2026-10-07 — see the module note. Inside the draft window this is
+    the original hard assertion; after it, a thin shared population is the
+    market winding down and the file's remaining assertions skip by name.
+    """
     assert set(R["per_pos"]) == {"QB", "RB", "WR", "TE"}
+
+    #: ALWAYS, both windows: the source that prices the board must be deep.
+    primary = R.get("n_primary") or len(R.get("primary_rows") or ()) or None
+    if primary is not None:
+        assert primary >= MIN_PRIMARY, (
+            f"the PRIMARY pricing source has only {primary} rows — that is a "
+            "board-pricing failure in any window, not a post-draft market")
+
+    if not POST_DRAFT:
+        assert R["n_shared"] >= MIN_SHARED, (
+            f"only {R['n_shared']} crosswalked players — too few to measure a "
+            "positional median against, and the draft has NOT started, so this "
+            "is a fetch or crosswalk defect rather than a winding-down market")
+        return
+
+    #: POST-DRAFT: record the state rather than refuse the board on it.
+    print(f"\npost-draft: {R['n_shared']} shared players "
+          f"({'measurable' if COMPARABLE else 'below ' + str(MIN_SHARED)})")
+
+
+def test_CONTROL_the_scoping_is_a_DATE_and_not_a_threshold_change():
+    """⚠️ RULE 3f ON MY OWN FIX. The failure mode of "scope it to the draft
+    window" is that someone later reads it as licence to lower the bar, and
+    then the board publishes priced against a dead source — which is strictly
+    worse than the 26 stale days this change is fixing.
+
+    So: the bar is still 150, it is still asserted inside the draft window, and
+    the primary source's depth is asserted in BOTH windows.
+    """
+    assert MIN_SHARED == 150, "the two-source bar was lowered, not scoped"
+    assert MIN_PRIMARY == 150, "the primary-source bar was lowered"
+    src = Path(__file__).read_text(encoding="utf8")
+    assert "POST_DRAFT" in src and "draft_has_started" in src
+    assert CS.draft_has_started(_CFG) is not None, (
+        "league_config.draft.start_date no longer answers, so POST_DRAFT would "
+        "fall back to the draft-window branch — safe, but say so out loud")
 
 
 def test_the_MFL_archive_the_contamination_was_measured_in_prices_NOTHING():
@@ -90,6 +193,7 @@ def test_THE_THRESHOLD_ITSELF_SITS_INSIDE_ITS_OWN_NULL():
 
 def test_the_TE_NUMBER_THAT_CARRIED_THE_OLD_ARGUMENT_IS_NOISE():
     """The specific retraction, asserted so it cannot quietly come back."""
+    _skip_unless_comparable()
     te = R["per_pos"]["TE"]
     assert not te["survives_null"], (
         f"TE {te['median_delta']} now escapes [{te['null_p05']}, "

@@ -125,7 +125,7 @@
         "status": "measured",
         "n": 44,
         "snapshot_date": "2026-08-22",
-        "mae": 163.59,
+        "mae": 163.6,
         "bias": 156.99,
         "mse": 38966.89,
         "spearman": 0.6653

@@ -50,21 +50,56 @@ const r = run();
 
 ck('CONTROL: the runner produced output at all', r.out.includes('WEEKLY GRADE RUNNER'), r.code);
 
-ck('CONTROL: football HAS been played, so the expired branch is the live one',
-   /after \d+ week\(s\) of football/.test(r.out),
-   r.out.split('\n').filter(l => l.includes('weekly_realized')).join(' | '));
+// ⚠️ REWRITTEN 2026-10-07, THE SAME DAY, BECAUSE THESE FOUR ASSERTED THE
+// DEFECT RATHER THAN THE MECHANISM — AND THEN THE DEFECT WAS FIXED.
+//
+// As first written they required the alarm to be FIRING: `🔴 weekly_realized
+// ABSENT`, `🔴 store ABSENT`, and `r.code === 1`. Both feeds were written later
+// the same day (the realized fetch's annual size floors were discarding the
+// in-progress season; build_weekly_realized.py now writes the grader's feed),
+// so the runner correctly went GREEN — and these four went red FOR SUCCEEDING.
+// Four assertions in the file whose whole subject is "a condition-bound
+// reassurance whose condition expired", expiring the other way.
+//
+// A test must never depend on a defect persisting. So each one now asserts the
+// CORRECT branch for whichever state is on disk, which exercises the mechanism
+// in both directions and holds whether the feeds are healthy or not.
 
-ck('the missing component feed is reported as a DEFECT, not as expected',
-   /🔴 weekly_realized\.json ABSENT after \d+ week\(s\)/.test(r.out));
+const FEED = path.join(ROOT, 'draft', 'data', 'weekly_realized.json');
+const PTS = path.join(ROOT, 'draft', 'backtest', 'nflverse_weekly_points_2026.json');
+const feedThere = fs.existsSync(FEED);
+const ptsThere = fs.existsSync(PTS);
+
+ck('CONTROL: the run reports its football-weeks count either way, so the '
+   + 'harvest gate is live rather than a branch nobody reaches',
+/week\(s\) of football/.test(r.out) || /\d+\/17 graded/.test(r.out),
+r.out.split('\n').filter(l => /realized|football|\/17/.test(l)).join(' | ').slice(0, 300));
+
+ck(feedThere
+  ? 'the component feed EXISTS, so the ABSENT alarm must NOT fire (it fired for '
+    + 'five weeks because nothing wrote the file)'
+  : 'the missing component feed is reported as a DEFECT, not as expected',
+feedThere
+  ? !/🔴 weekly_realized\.json ABSENT/.test(r.out)
+  : /🔴 weekly_realized\.json ABSENT after \d+ week\(s\)/.test(r.out));
 
 ck('  … and it no longer claims to be "correct until week 1"',
    !/weekly_realized\.json ABSENT — correct until week 1/.test(r.out));
 
-ck('the missing realized-points store is reported as a feed that never started',
-   /🔴 store ABSENT after \d+ week\(s\) of football/.test(r.out));
+ck(ptsThere
+  ? 'the realized-points store EXISTS, so it must be reported as a feed that '
+    + 'STARTED — X/17 progress, not a never-started absence'
+  : 'the missing realized-points store is reported as a feed that never started',
+ptsThere
+  ? (/\d+\/17 graded/.test(r.out) && !/🔴 store ABSENT/.test(r.out))
+  : /🔴 store ABSENT after \d+ week\(s\) of football/.test(r.out));
 
-ck('A DEAD LEARNING ARM MAKES THE RUN RED — the whole point',
-   r.code === 1, { code: r.code });
+ck(feedThere && ptsThere
+  ? 'BOTH LEARNING FEEDS ALIVE -> the run is GREEN. The alarm is specific: it '
+    + 'does not stay red once the thing it watches is fixed'
+  : 'A DEAD LEARNING ARM MAKES THE RUN RED — the whole point',
+(feedThere && ptsThere) ? r.code === 0 : r.code === 1,
+{ code: r.code, feed: feedThere, points: ptsThere });
 
 // ── the mechanism, not just today's answer ──────────────────────────────────
 
