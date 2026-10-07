@@ -238,6 +238,30 @@ def main():
             else:
                 red.append(f"{tool}: exit {p.returncode} — {tail[:120]}")
 
+    # ── WEEKLY CAPTURE COVERAGE ─────────────────────────────────────────────
+    # ⚠️ THIS WATCHES ARTIFACTS, AND THE CAPTURE-HEALTH BLOCK ABOVE WATCHES JOBS.
+    # They are not the same question and the difference cost four weeks of the
+    # Sleeper comparator: both 2027-gradeable captures went red on EVERY run for
+    # seven weeks, the sweep faithfully printed "last run failure" every day,
+    # and nobody could tell from that line whether a WEEK had been lost — which
+    # is the only thing that cannot be undone. A job can go green and bank
+    # nothing; a job can go red having already banked. Only the file settles it.
+    print("\n── WEEKLY CAPTURE COVERAGE (artifacts, not jobs) ────────────")
+    cap = subprocess.run([sys.executable, "draft/tools/weekly_capture_audit.py"],
+                         capture_output=True, text=True)
+    cap_lines = (cap.stdout + "\n" + cap.stderr).strip().splitlines()
+    for ln in cap_lines:
+        t = ln.strip()
+        if t.startswith(("🔴", "✅", "⚠️")) or t.startswith("MISSING") or "weeks with football" in t:
+            print("   " + t[:110])
+    if cap.returncode != 0:
+        miss = [l.strip() for l in cap_lines if l.strip().startswith("MISSING")]
+        red.append("weekly capture coverage: "
+                   + (f"{len(miss)} capture(s) missing a PLAYED week — "
+                      "unbackfillable evidence, run "
+                      "draft/tools/weekly_capture_audit.py"
+                      if miss else "audit exited nonzero"))
+
     print("\n── BOARD FRESHNESS ─────────────────────────────────────────")
     # ⚠️ TWO SUBJECTS, BOTH REQUIRED (A, 2026-08-31, register 447 — touching the
     # relay's file because it is the same edit as the rename, and leaving it
