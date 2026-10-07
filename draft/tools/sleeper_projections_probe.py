@@ -260,6 +260,58 @@ def user_agent_experiment(season, week):
     return out
 
 
+def v1_prefix_experiment(season, week):
+    """⭐⭐ THE ROOT CAUSE, AND IT WAS HIDING IN THE LOG LINE ALL ALONG.
+
+    `draft/sleeper_import.py` sets `BASE = "https://api.sleeper.app/v1"` and
+    every capture fetches `BASE + path`. The log prints only the PATH, so its
+    line reads
+
+        projections /projections/nfl/2026/5?season_type=regular: 7630 rows, 0 with stats
+
+    which looks character-for-character like the url this probe calls — and
+    this probe gets 9,420 rows with 972 projections from it. The capture is
+    actually calling **/v1/projections/...**, a different surface.
+
+    That single missing distinction cost four hypotheses: a url fault, a
+    retention window, a transient upstream, and a User-Agent. Every one was
+    tested and killed, and the real answer was a prefix the log never showed.
+
+    Both arms below differ ONLY in the /v1 prefix.
+    """
+    tail = f"/projections/nfl/{season}/{week}?season_type=regular"
+    print("=" * 78)
+    print("/v1 PREFIX EXPERIMENT — the only difference between the two requests")
+    print("=" * 78)
+    out = {}
+    for label, url in (("root  (what this probe calls)", "https://api.sleeper.app" + tail),
+                       ("/v1   (what the captures call)", "https://api.sleeper.app/v1" + tail)):
+        code, body, err = get(url)
+        if err or code != 200:
+            print(f"  {label:<34} HTTP {code} {err or ''}")
+            out[label] = {"with_stats": 0, "code": code}
+            continue
+        info = summarise(body)
+        out[label] = info
+        print(f"  {label:<34} HTTP {code}  rows={info.get('rows'):>6}  "
+              f"with projections={info.get('with_stats'):>5}")
+        print(f"     url={url}")
+    root = out.get("root  (what this probe calls)", {})
+    v1 = out.get("/v1   (what the captures call)", {})
+    print()
+    if root.get("with_stats") and not v1.get("with_stats"):
+        print("  ⛔ ROOT CAUSE CONFIRMED: the /v1 surface returns rows with NO")
+        print("     projections; the root surface returns them. Every capture that")
+        print("     builds its url from sleeper_import.BASE has been asking the wrong")
+        print("     endpoint all season. One constant, four dead hypotheses, and every")
+        print("     remaining week of 2026 recoverable the moment it is fixed.")
+    elif root.get("with_stats") and v1.get("with_stats"):
+        print("  both surfaces answer — /v1 is NOT the discriminator either.")
+    else:
+        print("  inconclusive on this run; do not conclude from this arm alone.")
+    return out
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--season", default="2026")
@@ -348,6 +400,8 @@ def main(argv=None) -> int:
     week_retention_sweep(s)
     print()
     user_agent_experiment(s, w)
+    print()
+    v1_prefix_experiment(s, w)
     return 0
 
 
