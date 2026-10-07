@@ -262,6 +262,30 @@ def main():
                       "draft/tools/weekly_capture_audit.py"
                       if miss else "audit exited nonzero"))
 
+    # ── FROZEN SERIES ───────────────────────────────────────────────────────
+    # ⚠️ A THIRD QUESTION, AND THE ONE NOTHING COULD ANSWER. The capture-health
+    # block watches JOBS, the coverage block watches ARTIFACTS, and both read a
+    # frozen feed as perfectly healthy: the file is present, it gains a row a
+    # day, the newest row parses, the counts are stable. Measured 2026-10-07,
+    # FantasyPros' ADP payload was BYTE-IDENTICAL for 28 consecutive days —
+    # since 2026-09-08, two days before week 1 — and every instrument in the
+    # repo said green. Stability was the symptom.
+    print("\n── FROZEN SERIES (is each daily capture still MOVING) ───────")
+    fz = subprocess.run([sys.executable, "draft/tools/frozen_series_check.py"],
+                        capture_output=True, text=True)
+    fz_lines = (fz.stdout + "\n" + fz.stderr).strip().splitlines()
+    for ln in fz_lines:
+        t = ln.strip()
+        if t.startswith(("🔴", "✅", "⏹", "⚠️")) or t.startswith(("IDENTICAL", "STOPPED")):
+            print("   " + t[:112])
+    if fz.returncode != 0:
+        frozen = [l.strip() for l in fz_lines if l.strip().startswith("IDENTICAL")]
+        red.append("frozen series: "
+                   + (f"{len(frozen)} source(s) re-recording identical content "
+                      "— present and parsing and carrying no new information, "
+                      "run draft/tools/frozen_series_check.py"
+                      if frozen else "frozen-series check exited nonzero"))
+
     print("\n── BOARD FRESHNESS ─────────────────────────────────────────")
     # ⚠️ TWO SUBJECTS, BOTH REQUIRED (A, 2026-08-31, register 447 — touching the
     # relay's file because it is the same edit as the rename, and leaving it
