@@ -122,6 +122,23 @@ jobs:
           python3 draft/backtest/build_weekly_points_from_components.py --verify-only
           python3 draft/backtest/build_weekly_points_from_components.py --seasons "$S"
 
+      - name: Build the component grader's feed from what just landed
+        run: |
+          set -uo pipefail
+          S="${{ steps.before.outputs.season }}"
+          # ── THE LINK THAT MAKES THIS LEARNING RATHER THAN STORAGE ──────────
+          #
+          # component_specs.js declares six rows, component_run.js grades all
+          # six, component_write.js writes the artifact and standing-check.yml
+          # runs it every day. Every one of those works, and they all read
+          # draft/data/weekly_realized.json — which NOTHING had ever written,
+          # so the whole surface reported no_data from the day it was built.
+          #
+          # It runs HERE, immediately after the realized stores land, because
+          # the feed is derived from them: banking an outcome and not feeding
+          # the grader would leave the same gap one step further along.
+          python3 draft/tools/build_weekly_realized.py --season "$S"
+
       - name: REFUSE an empty or shrinking store
         run: |
           set -uo pipefail
@@ -151,6 +168,24 @@ jobs:
                                "'refused_thin_week' or 'refused_incomplete' is the "
                                "guard working; a 'refused_empty' or 'unreachable' is "
                                "an upstream or URL problem.")
+          # The grader's feed, checked for CONTENT and not just existence: a
+          # present feed with an empty projection array grades as no_data,
+          # which is indistinguishable from the five weeks when nothing wrote
+          # the file at all.
+          feed = Path("draft/data/weekly_realized.json")
+          if not feed.exists():
+              raise SystemExit("::error::the component grader's feed was not written "
+                               "— the realized stores would land with nothing "
+                               "grading against them, which is the gap this "
+                               "workflow exists to close")
+          fdoc = json.loads(feed.read_text())
+          frows = fdoc.get("projection") or []
+          print(f"grader feed: {len(frows)} projection row(s) over weeks "
+                f"{sorted({r['week'] for r in frows})}")
+          if not frows:
+              raise SystemExit("::error::the feed has no projection rows — an empty "
+                               "feed reads as 'the season is quiet', which is a claim")
+
           comp = REQUIRED["components"]
           pts = REQUIRED["points"]
           d = json.loads(pts.read_text())
@@ -179,7 +214,8 @@ jobs:
                   "draft/backtest/component_stats_def_${S}.json" \
                   "draft/backtest/advanced_stats_${S}.json" \
                   "draft/backtest/vegas_lines_2021_2026.json" \
-                  "draft/backtest/nflverse_weekly_points_${S}.json" 2>/dev/null || true
+                  "draft/backtest/nflverse_weekly_points_${S}.json" \
+                  "draft/data/weekly_realized.json" 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "no change — the week was already banked (safe to re-run)"
             exit 0

@@ -90,17 +90,37 @@ check('feed_error is null when there is simply no feed yet (absent != broken)',
  *
  * These write a REAL temp file at the real path rather than stubbing `fs`,
  * because the defect lives in the read path and a stub would prove the stub.
- * The path is asserted absent first and restored after — this file must never
- * leave an artifact behind (register 315: a suite that writes a committed
- * artifact can spend a deploy). */
+ *
+ * ⚠️ REWRITTEN 2026-10-07. This block used to assert the path was ABSENT and
+ * then `unlinkSync` it in every `finally`, on the stated assumption that
+ * `weekly_realized.json` is never a committed artifact. THAT ASSUMPTION
+ * EXPIRED THE DAY THE FEED WAS FIRST WRITTEN — `build_weekly_realized.py`
+ * commits it, and `standing-check.yml` runs THIS SUITE and then
+ * `component_write.js`, in that order. So the old code would have deleted the
+ * committed feed on every daily run and the writer would then have graded
+ * `no_data` against a file it had just destroyed: the exact
+ * a-test-that-rewrites-a-committed-artifact failure of registers 315/489/499,
+ * arriving through a control written to prevent it.
+ *
+ * It now SAVES whatever is at the path, does its work, and restores the bytes
+ * exactly — and the closing control compares the bytes rather than checking for
+ * absence, so it holds whether the feed is committed or not. */
 {
   const fsx = require('fs');
   const pathx = require('path');
   const WK = pathx.join(__dirname, '..', '..', 'draft', 'data', 'weekly_realized.json');
   const modPath = require.resolve(pathx.join(__dirname, '..', '..', 'src', 'component_write.js'));
 
-  check('CONTROL: weekly_realized.json is absent before these cases, so each one '
-    + 'is genuinely creating the state it tests', !fsx.existsSync(WK));
+  const SAVED = fsx.existsSync(WK) ? fsx.readFileSync(WK) : null;
+  const restore = () => {
+    if (SAVED === null) { if (fsx.existsSync(WK)) fsx.unlinkSync(WK); }
+    else fsx.writeFileSync(WK, SAVED);
+    delete require.cache[modPath];
+  };
+
+  check('CONTROL: the real feed path is saved before these cases, so each one '
+    + 'creates the state it tests AND a committed feed survives this suite',
+  SAVED === null || SAVED.length > 0);
 
   const feedErrorFor = (obj) => {
     fsx.writeFileSync(WK, JSON.stringify(obj));
@@ -108,8 +128,7 @@ check('feed_error is null when there is simply no feed yet (absent != broken)',
       delete require.cache[modPath];
       return require(modPath).write(null).feed_error;
     } finally {
-      if (fsx.existsSync(WK)) fsx.unlinkSync(WK);
-      delete require.cache[modPath];
+      restore();
     }
   };
 
@@ -127,12 +146,18 @@ check('feed_error is null when there is simply no feed yet (absent != broken)',
       + 'and must not trip the guard — the runner already reports absence honestly',
     feedErrorFor({}) === null);
   } finally {
-    if (fsx.existsSync(WK)) fsx.unlinkSync(WK);
-    delete require.cache[modPath];
+    restore();
   }
 
-  check('CONTROL: weekly_realized.json is absent again afterwards — this suite '
-    + 'leaves no artifact behind (register 315)', !fsx.existsSync(WK));
+  /* THE CONTROL THAT MATTERS NOW: byte-for-byte restoration, not absence.
+   * "Absent afterwards" was the right check while the path was never
+   * committed, and became a guarantee to DELETE a real artifact once it was. */
+  const after = fsx.existsSync(WK) ? fsx.readFileSync(WK) : null;
+  check('CONTROL: the feed path is byte-identical to how this suite found it — '
+    + 'a committed feed is not consumed by running the tests (registers '
+    + '315/489/499)',
+  (SAVED === null && after === null)
+    || (SAVED !== null && after !== null && SAVED.equals(after)));
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);

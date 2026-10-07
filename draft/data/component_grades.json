@@ -23,18 +23,17 @@
     },
     {
       "name": "projection",
-      "n_obs": 0,
-      "n_clusters": 0,
-      "bias": null,
-      "mae": null,
+      "n_obs": 1021,
+      "n_clusters": 4,
+      "bias": -2.1991,
+      "mae": 4.6936,
       "material": 1,
-      "effect": null,
-      "mde": null,
-      "verdict": "no_data",
-      "why": "nothing resolved yet",
-      "implication": null,
-      "implication_why": "no behavioural implication — this design could not have detected an effect worth acting on, so the result constrains nothing",
-      "awaiting": "weekly realized box scores joined to the frozen proj_mean and to last season's per-game average (prior_ppg)",
+      "effect": -0.1037,
+      "effect_is": "mae_improvement_vs_baseline",
+      "mde": 0.3675,
+      "verdict": "noise",
+      "why": "the design COULD have detected a material effect (floor 0.3675 < material 1) and did not",
+      "implication": "Projection is not beating a naive prior at a size worth acting on. Stop treating small projection gaps as reasons to move a player.",
       "units": {
         "material": 1,
         "cluster_is": "week"
@@ -118,7 +117,7 @@
     }
   ],
   "declared": 6,
-  "graded": 0,
+  "graded": 1,
   "feed_error": null,
   "self_check": {
     "ok": true,
