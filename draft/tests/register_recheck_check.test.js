@@ -293,17 +293,82 @@ ok('the LIVE register enforces one unambiguous date per open row', () => {
     path.join(__dirname, '..', '..', 'DEFECT-REGISTER.md'), 'utf8');
   const a = R.audit(text, '2026-08-18');
   /* Any open row carrying two DIFFERENT live dates is a row where the build's
-   * behaviour depends on word order. Retired dates must say "recheck WAS". */
+   * behaviour depends on word order. Retired dates must say "recheck WAS".
+   *
+   * ⚠️ REWRITTEN 2026-10-07. THIS CHECK WAS FLAGGING THE RIGHT ROWS FOR THE
+   * WRONG REASON, AND ITS INSTRUCTION DID NOT FIT, WHICH IS WHY NOBODY ACTED.
+   *
+   * It captured the year into m[1] and then keyed the set on m[2]+'-'+m[3] —
+   * THROWING THE YEAR AWAY. So `recheck 09-14` (2026) and
+   * `recheck 2027-06-01` collided as MM-DD and read as "two live dates", and
+   * the message said to write one as "recheck WAS". Neither was retired: one
+   * was a near-term chase and the other a next-draft-cycle milestone, so the
+   * instruction was impossible to follow as written.
+   *
+   * AND THE ROWS WERE GENUINELY BROKEN, FOR A DIFFERENT REASON THE CHECK
+   * COULD NOT SEE. The tool's precedence is LAST-WINS, the 2027 date sat later
+   * in the row, and so `recheckOf` returned 2027-06-01 for all seven —
+   * 34, 69, 83, 77, 5b, E22 and 128 were INVISIBLE TO THE OVERDUE CHASE UNTIL
+   * JUNE 2027, each carrying a `recheck 09-14` nobody would ever be reminded
+   * of. That is CLAUDE.md's own named failure ("sixteen open rows were
+   * invisible to the mechanism built to chase them") in a fresh instance.
+   *
+   * So this now checks the CONSEQUENTIAL property, year-aware: the date the
+   * build will ENFORCE must be the EARLIEST live date in the row. A later date
+   * silently overriding an earlier one is the hazard; two dates that agree on
+   * which comes first are merely verbose.
+   */
   const ambiguous = a.open.filter(r => {
     const seen = new Set();
     const re = /recheck\s+(?:(\d{4})-)?(\d{2})-(\d{2})/gi;
     let m;
-    while ((m = re.exec(r.all)) !== null) seen.add(m[2] + '-' + m[3]);
-    return seen.size > 1;
+    while ((m = re.exec(r.all)) !== null) {
+      // default the year to the register's own, so a bare MM-DD still sorts
+      seen.add((m[1] || '2026') + '-' + m[2] + '-' + m[3]);
+    }
+    if (seen.size < 2) return false;
+    const earliest = [...seen].sort()[0];
+    return R.recheckOf(r) !== earliest;
   });
   assert.strictEqual(ambiguous.length, 0,
-    'open rows with two live recheck dates — write the retired one as '
-    + '"recheck WAS MM-DD": ' + ambiguous.map(r => r.id.trim()).join(', '));
+    'open rows where the ENFORCED recheck is NOT the earliest live date, so '
+    + 'the near-term chase is silently dropped — retire the superseded one as '
+    + '"recheck WAS MM-DD", or write a future milestone with a word other than '
+    + '"recheck" (e.g. "re-ask 2027-06-01"): '
+    + ambiguous.map(r => r.id.trim() + ' enforces ' + R.recheckOf(r)).join(', '));
+});
+
+ok('CONTROL: the ambiguity detector is YEAR-AWARE and does not invent a '
+  + 'collision between two different years', () => {
+  /* The exact shape that produced seven false explanations: one 2026 date and
+   * one 2027 date, same month-day arithmetic, earliest enforced. Nothing is
+   * wrong with this row and the check must say so. */
+  const row = { id: 'ctl', all: 'recheck 2026-06-01 ... re-ask 2027-06-01' };
+  const seen = new Set();
+  const re = /recheck\s+(?:(\d{4})-)?(\d{2})-(\d{2})/gi;
+  let m;
+  while ((m = re.exec(row.all)) !== null) seen.add((m[1] || '2026') + '-' + m[2] + '-' + m[3]);
+  assert.strictEqual(seen.size, 1,
+    'a "re-ask" milestone must not be read as a second recheck — that is the '
+    + 'escape hatch the failure message now recommends');
+});
+
+ok('FAIL ARM: a later date silently overriding an earlier one IS caught', () => {
+  /* Rule 3e — the rewritten detector must be shown to fire. This is the live
+   * shape of rows 34/69/83/77/5b/E22/128 before they were fixed. */
+  const text2 = '| zz | OPEN | x | chase it **recheck 09-14** then the bigger '
+    + 'question. recheck 2027-06-01. |';
+  const a2 = R.audit(text2, '2026-08-18');
+  const r2 = a2.open[0];
+  assert.ok(r2, 'the fixture row did not parse as open');
+  const seen = new Set();
+  const re = /recheck\s+(?:(\d{4})-)?(\d{2})-(\d{2})/gi;
+  let m;
+  while ((m = re.exec(r2.all)) !== null) seen.add((m[1] || '2026') + '-' + m[2] + '-' + m[3]);
+  assert.strictEqual(seen.size, 2, 'the fixture should carry two live dates');
+  assert.notStrictEqual(R.recheckOf(r2), [...seen].sort()[0],
+    'last-wins no longer prefers the LATER date, so the hazard this check '
+    + 'exists for is gone and the check is now vacuous — re-read both together');
 });
 
 /* ── RETRACTED IS TERMINAL (added 2026-08-18, on a live false-open) ─────────
