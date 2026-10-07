@@ -9,18 +9,18 @@
     "per-keeper, not per-SET: cannot see an interaction between two keepers on one roster",
     "n is small; inside the band means CANNOT TELL"
   ],
-  "n_keepers": 73,
-  "mean_percentile": 0.9082,
+  "n_keepers": 96,
+  "mean_percentile": 0.9052,
   "null_95": [
-    0.4338,
-    0.5662
+    0.4423,
+    0.5577
   ],
   "verdict": "SKILL \u2014 above the null band",
   "controls": {
-    "random_available": 0.477,
-    "best_available": 0.9991,
-    "known_negative_band_half_width": 0.0662,
-    "band_derived_from_n": 73
+    "random_available": 0.4743,
+    "best_available": 0.999,
+    "known_negative_band_half_width": 0.0577,
+    "band_derived_from_n": 96
   },
   "vs_real_pick_at_that_round": {
     "_what": "THE DECISION-RELEVANT PANEL. A keeper costs a pick; what that pick returns is what real picks at that round returned, scored by draft_pick_vs_random.run() itself so both sides share one pool reconstruction and one percentile.",
@@ -29,27 +29,25 @@
       2,
       3
     ],
-    "keepers_mean_pct": 0.9082,
-    "keepers_n": 73,
-    "real_picks_mean_pct": 0.8835,
-    "real_picks_n": 47,
-    "delta": 0.0247,
-    "half_width_95": 0.0416,
-    "z": 1.163,
+    "keepers_mean_pct": 0.9052,
+    "keepers_n": 96,
+    "real_picks_mean_pct": 0.8891,
+    "real_picks_n": 54,
+    "delta": 0.0161,
+    "half_width_95": 0.0383,
+    "z": 0.824,
     "resolved": false,
-    "points_delta_season": 22.84,
-    "points_delta_per_week": 1.34,
+    "points_delta_season": 2.52,
+    "points_delta_per_week": 0.15,
     "controls": {
-      "known_negative_split_halves_z": 1.08,
+      "known_negative_split_halves_z": -0.651,
       "known_negative_ok": true,
-      "known_positive_vs_late_rounds_z": 3.111,
+      "known_positive_vs_late_rounds_z": 3.445,
       "known_positive_ok": true,
       "_why": "A contrast with no power and a contrast that correctly finds nothing both print NOT RESOLVED; only these two tell them apart (Rule 3f)."
     }
   },
-  "seasons_without_points_store": [
-    "2026"
-  ],
+  "seasons_without_points_store": [],
   "drafts_without_keepers": [
     [
       "2023",
@@ -60,48 +58,347 @@
   "seed": 20260824,
   "skipped": 0,
   "by_owner": {
-    "B8T3S": {
+    "cashworth": {
       "n": 8,
-      "mean_pct": 0.9247
+      "mean_pct": 0.8788
+    },
+    "mhagen": {
+      "n": 12,
+      "mean_pct": 0.9381
+    },
+    "B8T3S": {
+      "n": 11,
+      "mean_pct": 0.933
+    },
+    "Jreis": {
+      "n": 6,
+      "mean_pct": 0.809
+    },
+    "Schmelley": {
+      "n": 11,
+      "mean_pct": 0.8681
+    },
+    "MarianSaar": {
+      "n": 12,
+      "mean_pct": 0.8844
+    },
+    "coryjsimms": {
+      "n": 10,
+      "mean_pct": 0.9215
+    },
+    "Sadbru": {
+      "n": 7,
+      "mean_pct": 0.9386
     },
     "Richard2121": {
-      "n": 8,
-      "mean_pct": 0.9478
+      "n": 11,
+      "mean_pct": 0.9507
     },
     "ds7mmet": {
       "n": 8,
-      "mean_pct": 0.8922
-    },
-    "coryjsimms": {
-      "n": 7,
-      "mean_pct": 0.9046
-    },
-    "Jreis": {
-      "n": 4,
-      "mean_pct": 0.8906
-    },
-    "mhagen": {
-      "n": 9,
-      "mean_pct": 0.9289
-    },
-    "MarianSaar": {
-      "n": 9,
-      "mean_pct": 0.8936
-    },
-    "Schmelley": {
-      "n": 8,
-      "mean_pct": 0.8916
-    },
-    "Sadbru": {
-      "n": 6,
-      "mean_pct": 0.9287
-    },
-    "cashworth": {
-      "n": 6,
-      "mean_pct": 0.8625
+      "mean_pct": 0.8866
     }
   },
   "rows": [
+    {
+      "season": "2026",
+      "pick_no": 1,
+      "round": 1,
+      "owner": "cashworth",
+      "pid": "12527",
+      "pos": "RB",
+      "actual": 64.4,
+      "pct": 0.9475,
+      "best_available": 122.48,
+      "left": 58.08,
+      "pool": 458
+    },
+    {
+      "season": "2026",
+      "pick_no": 2,
+      "round": 1,
+      "owner": "mhagen",
+      "pid": "7547",
+      "pos": "WR",
+      "actual": 75.8,
+      "pct": 0.98,
+      "best_available": 122.48,
+      "left": 46.68,
+      "pool": 458
+    },
+    {
+      "season": "2026",
+      "pick_no": 3,
+      "round": 1,
+      "owner": "B8T3S",
+      "pid": "9221",
+      "pos": "RB",
+      "actual": 105.0,
+      "pct": 0.9825,
+      "best_available": 122.48,
+      "left": 17.48,
+      "pool": 458
+    },
+    {
+      "season": "2026",
+      "pick_no": 5,
+      "round": 1,
+      "owner": "Jreis",
+      "pid": "8138",
+      "pos": "RB",
+      "actual": 63.5,
+      "pct": 0.9375,
+      "best_available": 122.48,
+      "left": 58.98,
+      "pool": 457
+    },
+    {
+      "season": "2026",
+      "pick_no": 6,
+      "round": 1,
+      "owner": "Schmelley",
+      "pid": "9493",
+      "pos": "WR",
+      "actual": 33.1,
+      "pct": 0.8175,
+      "best_available": 122.48,
+      "left": 89.38,
+      "pool": 457
+    },
+    {
+      "season": "2026",
+      "pick_no": 7,
+      "round": 1,
+      "owner": "MarianSaar",
+      "pid": "9488",
+      "pos": "WR",
+      "actual": 100.66,
+      "pct": 0.9875,
+      "best_available": 122.48,
+      "left": 21.82,
+      "pool": 457
+    },
+    {
+      "season": "2026",
+      "pick_no": 8,
+      "round": 1,
+      "owner": "coryjsimms",
+      "pid": "7564",
+      "pos": "WR",
+      "actual": 49.7,
+      "pct": 0.925,
+      "best_available": 122.48,
+      "left": 72.78,
+      "pool": 457
+    },
+    {
+      "season": "2026",
+      "pick_no": 9,
+      "round": 1,
+      "owner": "Sadbru",
+      "pid": "6786",
+      "pos": "WR",
+      "actual": 93.7,
+      "pct": 0.9825,
+      "best_available": 122.48,
+      "left": 28.78,
+      "pool": 457
+    },
+    {
+      "season": "2026",
+      "pick_no": 10,
+      "round": 1,
+      "owner": "Richard2121",
+      "pid": "9509",
+      "pos": "RB",
+      "actual": 98.4,
+      "pct": 0.9775,
+      "best_available": 122.48,
+      "left": 24.08,
+      "pool": 457
+    },
+    {
+      "season": "2026",
+      "pick_no": 11,
+      "round": 2,
+      "owner": "Richard2121",
+      "pid": "7569",
+      "pos": "WR",
+      "actual": 45.0,
+      "pct": 0.8925,
+      "best_available": 122.48,
+      "left": 77.48,
+      "pool": 457
+    },
+    {
+      "season": "2026",
+      "pick_no": 13,
+      "round": 2,
+      "owner": "coryjsimms",
+      "pid": "3198",
+      "pos": "RB",
+      "actual": 87.3,
+      "pct": 0.9825,
+      "best_available": 122.48,
+      "left": 35.18,
+      "pool": 456
+    },
+    {
+      "season": "2026",
+      "pick_no": 14,
+      "round": 2,
+      "owner": "MarianSaar",
+      "pid": "6794",
+      "pos": "WR",
+      "actual": 38.4,
+      "pct": 0.8525,
+      "best_available": 122.48,
+      "left": 84.08,
+      "pool": 456
+    },
+    {
+      "season": "2026",
+      "pick_no": 15,
+      "round": 2,
+      "owner": "Schmelley",
+      "pid": "4866",
+      "pos": "RB",
+      "actual": 21.0,
+      "pct": 0.6987,
+      "best_available": 122.48,
+      "left": 101.48,
+      "pool": 456
+    },
+    {
+      "season": "2026",
+      "pick_no": 16,
+      "round": 2,
+      "owner": "Jreis",
+      "pid": "5859",
+      "pos": "WR",
+      "actual": 4.1,
+      "pct": 0.3588,
+      "best_available": 122.48,
+      "left": 118.38,
+      "pool": 456
+    },
+    {
+      "season": "2026",
+      "pick_no": 18,
+      "round": 2,
+      "owner": "B8T3S",
+      "pid": "6813",
+      "pos": "RB",
+      "actual": 81.2,
+      "pct": 0.985,
+      "best_available": 122.48,
+      "left": 41.28,
+      "pool": 455
+    },
+    {
+      "season": "2026",
+      "pick_no": 19,
+      "round": 2,
+      "owner": "mhagen",
+      "pid": "4984",
+      "pos": "QB",
+      "actual": 123.96,
+      "pct": 1.0,
+      "best_available": 122.48,
+      "left": -1.48,
+      "pool": 455
+    },
+    {
+      "season": "2026",
+      "pick_no": 20,
+      "round": 2,
+      "owner": "cashworth",
+      "pid": "9224",
+      "pos": "RB",
+      "actual": 47.5,
+      "pct": 0.8775,
+      "best_available": 122.48,
+      "left": 74.98,
+      "pool": 455
+    },
+    {
+      "season": "2026",
+      "pick_no": 22,
+      "round": 3,
+      "owner": "mhagen",
+      "pid": "4034",
+      "pos": "RB",
+      "actual": 66.0,
+      "pct": 0.9425,
+      "best_available": 122.48,
+      "left": 56.48,
+      "pool": 454
+    },
+    {
+      "season": "2026",
+      "pick_no": 23,
+      "round": 3,
+      "owner": "B8T3S",
+      "pid": "8112",
+      "pos": "WR",
+      "actual": 47.4,
+      "pct": 0.905,
+      "best_available": 122.48,
+      "left": 75.08,
+      "pool": 454
+    },
+    {
+      "season": "2026",
+      "pick_no": 26,
+      "round": 3,
+      "owner": "Schmelley",
+      "pid": "12507",
+      "pos": "RB",
+      "actual": 42.7,
+      "pct": 0.86,
+      "best_available": 122.48,
+      "left": 79.78,
+      "pool": 452
+    },
+    {
+      "season": "2026",
+      "pick_no": 27,
+      "round": 3,
+      "owner": "MarianSaar",
+      "pid": "9226",
+      "pos": "RB",
+      "actual": 21.1,
+      "pct": 0.695,
+      "best_available": 122.48,
+      "left": 101.38,
+      "pool": 452
+    },
+    {
+      "season": "2026",
+      "pick_no": 28,
+      "round": 3,
+      "owner": "coryjsimms",
+      "pid": "8151",
+      "pos": "RB",
+      "actual": 104.1,
+      "pct": 0.9925,
+      "best_available": 122.48,
+      "left": 18.38,
+      "pool": 452
+    },
+    {
+      "season": "2026",
+      "pick_no": 30,
+      "round": 3,
+      "owner": "Richard2121",
+      "pid": "8130",
+      "pos": "TE",
+      "actual": 52.7,
+      "pct": 0.955,
+      "best_available": 122.48,
+      "left": 69.78,
+      "pool": 451
+    },
     {
       "season": "2025",
       "pick_no": 1,
@@ -123,7 +420,7 @@
       "pid": "9509",
       "pos": "RB",
       "actual": 331.3,
-      "pct": 0.995,
+      "pct": 0.9775,
       "best_available": 442.38,
       "left": 111.08,
       "pool": 596
@@ -136,7 +433,7 @@
       "pid": "11584",
       "pos": "RB",
       "actual": 123.5,
-      "pct": 0.84,
+      "pct": 0.82,
       "best_available": 442.38,
       "left": 318.88,
       "pool": 596
@@ -149,7 +446,7 @@
       "pid": "7564",
       "pos": "WR",
       "actual": 251.1,
-      "pct": 0.97,
+      "pct": 0.96,
       "best_available": 442.38,
       "left": 191.28,
       "pool": 596
@@ -162,7 +459,7 @@
       "pid": "5850",
       "pos": "RB",
       "actual": 219.1,
-      "pct": 0.97,
+      "pct": 0.9525,
       "best_available": 442.38,
       "left": 223.28,
       "pool": 596
@@ -175,7 +472,7 @@
       "pid": "4034",
       "pos": "RB",
       "actual": 365.6,
-      "pct": 0.9825,
+      "pct": 0.9875,
       "best_available": 442.38,
       "left": 76.78,
       "pool": 596
@@ -188,7 +485,7 @@
       "pid": "6794",
       "pos": "WR",
       "actual": 159.5,
-      "pct": 0.8875,
+      "pct": 0.9125,
       "best_available": 442.38,
       "left": 282.88,
       "pool": 596
@@ -201,7 +498,7 @@
       "pid": "4866",
       "pos": "RB",
       "actual": 213.8,
-      "pct": 0.935,
+      "pct": 0.96,
       "best_available": 442.38,
       "left": 228.58,
       "pool": 595
@@ -214,7 +511,7 @@
       "pid": "6786",
       "pos": "WR",
       "actual": 163.4,
-      "pct": 0.8825,
+      "pct": 0.9,
       "best_available": 442.38,
       "left": 278.98,
       "pool": 595
@@ -227,7 +524,7 @@
       "pid": "9493",
       "pos": "WR",
       "actual": 310.5,
-      "pct": 0.985,
+      "pct": 0.9875,
       "best_available": 442.38,
       "left": 131.88,
       "pool": 594
@@ -240,7 +537,7 @@
       "pid": "9226",
       "pos": "RB",
       "actual": 289.3,
-      "pct": 0.99,
+      "pct": 0.9825,
       "best_available": 442.38,
       "left": 153.08,
       "pool": 593
@@ -253,7 +550,7 @@
       "pid": "4984",
       "pos": "QB",
       "actual": 414.62,
-      "pct": 1.0,
+      "pct": 0.9975,
       "best_available": 442.38,
       "left": 27.76,
       "pool": 593
@@ -266,7 +563,7 @@
       "pid": "11632",
       "pos": "WR",
       "actual": 48.1,
-      "pct": 0.65,
+      "pct": 0.63,
       "best_available": 442.38,
       "left": 394.28,
       "pool": 592
@@ -279,7 +576,7 @@
       "pid": "11631",
       "pos": "WR",
       "actual": 114.8,
-      "pct": 0.795,
+      "pct": 0.8,
       "best_available": 442.38,
       "left": 327.58,
       "pool": 592
@@ -292,7 +589,7 @@
       "pid": "7569",
       "pos": "WR",
       "actual": 190.7,
-      "pct": 0.92,
+      "pct": 0.9675,
       "best_available": 442.38,
       "left": 251.68,
       "pool": 592
@@ -305,7 +602,7 @@
       "pid": "6813",
       "pos": "RB",
       "actual": 339.3,
-      "pct": 0.9875,
+      "pct": 0.985,
       "best_available": 442.38,
       "left": 103.08,
       "pool": 592
@@ -318,7 +615,7 @@
       "pid": "8130",
       "pos": "TE",
       "actual": 252.9,
-      "pct": 0.975,
+      "pct": 0.985,
       "best_available": 442.38,
       "left": 189.48,
       "pool": 591
@@ -331,7 +628,7 @@
       "pid": "3198",
       "pos": "RB",
       "actual": 272.0,
-      "pct": 0.9775,
+      "pct": 0.9725,
       "best_available": 442.38,
       "left": 170.38,
       "pool": 590
@@ -357,7 +654,7 @@
       "pid": "11604",
       "pos": "TE",
       "actual": 144.2,
-      "pct": 0.85,
+      "pct": 0.84,
       "best_available": 442.38,
       "left": 298.18,
       "pool": 589
@@ -370,7 +667,7 @@
       "pid": "8155",
       "pos": "RB",
       "actual": 212.4,
-      "pct": 0.9325,
+      "pct": 0.9475,
       "best_available": 512.38,
       "left": 299.98,
       "pool": 546
@@ -396,7 +693,7 @@
       "pid": "4034",
       "pos": "RB",
       "actual": 40.3,
-      "pct": 0.55,
+      "pct": 0.5325,
       "best_available": 512.38,
       "left": 472.08,
       "pool": 546
@@ -409,7 +706,7 @@
       "pid": "9493",
       "pos": "WR",
       "actual": 167.1,
-      "pct": 0.9025,
+      "pct": 0.91,
       "best_available": 512.38,
       "left": 345.28,
       "pool": 546
@@ -422,7 +719,7 @@
       "pid": "7564",
       "pos": "WR",
       "actual": 339.5,
-      "pct": 0.9825,
+      "pct": 0.985,
       "best_available": 512.38,
       "left": 172.88,
       "pool": 546
@@ -435,7 +732,7 @@
       "pid": "1466",
       "pos": "TE",
       "actual": 146.9,
-      "pct": 0.86,
+      "pct": 0.8475,
       "best_available": 512.38,
       "left": 365.48,
       "pool": 546
@@ -448,7 +745,7 @@
       "pid": "6794",
       "pos": "WR",
       "actual": 265.98,
-      "pct": 0.97,
+      "pct": 0.9775,
       "best_available": 512.38,
       "left": 246.4,
       "pool": 546
@@ -461,7 +758,7 @@
       "pid": "4018",
       "pos": "RB",
       "actual": 222.5,
-      "pct": 0.9525,
+      "pct": 0.9475,
       "best_available": 512.38,
       "left": 289.88,
       "pool": 546
@@ -474,7 +771,7 @@
       "pid": "6813",
       "pos": "RB",
       "actual": 237.7,
-      "pct": 0.9525,
+      "pct": 0.9625,
       "best_available": 512.38,
       "left": 274.68,
       "pool": 546
@@ -487,7 +784,7 @@
       "pid": "8146",
       "pos": "WR",
       "actual": 201.4,
-      "pct": 0.9275,
+      "pct": 0.9375,
       "best_available": 512.38,
       "left": 310.98,
       "pool": 546
@@ -500,7 +797,7 @@
       "pid": "2216",
       "pos": "WR",
       "actual": 203.4,
-      "pct": 0.9425,
+      "pct": 0.93,
       "best_available": 512.38,
       "left": 308.98,
       "pool": 546
@@ -513,7 +810,7 @@
       "pid": "8144",
       "pos": "WR",
       "actual": 60.7,
-      "pct": 0.6375,
+      "pct": 0.6675,
       "best_available": 512.38,
       "left": 451.68,
       "pool": 546
@@ -526,7 +823,7 @@
       "pid": "5859",
       "pos": "WR",
       "actual": 183.4,
-      "pct": 0.915,
+      "pct": 0.9225,
       "best_available": 512.38,
       "left": 328.98,
       "pool": 546
@@ -539,7 +836,7 @@
       "pid": "4866",
       "pos": "RB",
       "actual": 338.8,
-      "pct": 0.99,
+      "pct": 0.9975,
       "best_available": 512.38,
       "left": 173.58,
       "pool": 545
@@ -552,7 +849,7 @@
       "pid": "4984",
       "pos": "QB",
       "actual": 428.34,
-      "pct": 0.99,
+      "pct": 0.9925,
       "best_available": 512.38,
       "left": 84.04,
       "pool": 545
@@ -565,7 +862,7 @@
       "pid": "6786",
       "pos": "WR",
       "actual": 212.9,
-      "pct": 0.95,
+      "pct": 0.945,
       "best_available": 512.38,
       "left": 299.48,
       "pool": 545
@@ -591,7 +888,7 @@
       "pid": "7547",
       "pos": "WR",
       "actual": 260.68,
-      "pct": 0.96,
+      "pct": 0.9575,
       "best_available": 512.38,
       "left": 251.7,
       "pool": 541
@@ -604,7 +901,7 @@
       "pid": "7543",
       "pos": "RB",
       "actual": 110.7,
-      "pct": 0.7675,
+      "pct": 0.7775,
       "best_available": 512.38,
       "left": 401.68,
       "pool": 541
@@ -617,7 +914,7 @@
       "pid": "8150",
       "pos": "RB",
       "actual": 255.1,
-      "pct": 0.975,
+      "pct": 0.9625,
       "best_available": 512.38,
       "left": 257.28,
       "pool": 540
@@ -630,7 +927,7 @@
       "pid": "9226",
       "pos": "RB",
       "actual": 260.9,
-      "pct": 0.97,
+      "pct": 0.96,
       "best_available": 512.38,
       "left": 251.48,
       "pool": 540
@@ -656,7 +953,7 @@
       "pid": "9221",
       "pos": "RB",
       "actual": 328.9,
-      "pct": 0.9825,
+      "pct": 0.985,
       "best_available": 512.38,
       "left": 183.48,
       "pool": 540
@@ -669,7 +966,7 @@
       "pid": "4039",
       "pos": "WR",
       "actual": 134.9,
-      "pct": 0.835,
+      "pct": 0.8325,
       "best_available": 452.64,
       "left": 317.74,
       "pool": 529
@@ -682,7 +979,7 @@
       "pid": "6813",
       "pos": "RB",
       "actual": 146.9,
-      "pct": 0.855,
+      "pct": 0.86,
       "best_available": 452.64,
       "left": 305.74,
       "pool": 529
@@ -695,7 +992,7 @@
       "pid": "4034",
       "pos": "RB",
       "actual": 357.8,
-      "pct": 0.9875,
+      "pct": 0.995,
       "best_available": 452.64,
       "left": 94.84,
       "pool": 529
@@ -708,7 +1005,7 @@
       "pid": "4663",
       "pos": "RB",
       "actual": 159.9,
-      "pct": 0.8625,
+      "pct": 0.8675,
       "best_available": 452.64,
       "left": 292.74,
       "pool": 529
@@ -734,7 +1031,7 @@
       "pid": "2449",
       "pos": "WR",
       "actual": 220.3,
-      "pct": 0.9425,
+      "pct": 0.9625,
       "best_available": 452.64,
       "left": 232.34,
       "pool": 529
@@ -747,7 +1044,7 @@
       "pid": "4866",
       "pos": "RB",
       "actual": 202.7,
-      "pct": 0.9225,
+      "pct": 0.935,
       "best_available": 452.64,
       "left": 249.94,
       "pool": 529
@@ -760,7 +1057,7 @@
       "pid": "1466",
       "pos": "TE",
       "actual": 172.9,
-      "pct": 0.87,
+      "pct": 0.8675,
       "best_available": 452.64,
       "left": 279.74,
       "pool": 529
@@ -773,7 +1070,7 @@
       "pid": "3321",
       "pos": "WR",
       "actual": 316.9,
-      "pct": 0.9775,
+      "pct": 0.985,
       "best_available": 452.64,
       "left": 135.74,
       "pool": 529
@@ -786,7 +1083,7 @@
       "pid": "6794",
       "pos": "WR",
       "actual": 170.2,
-      "pct": 0.8925,
+      "pct": 0.875,
       "best_available": 452.64,
       "left": 282.44,
       "pool": 529
@@ -799,7 +1096,7 @@
       "pid": "3198",
       "pos": "RB",
       "actual": 236.66,
-      "pct": 0.9475,
+      "pct": 0.9625,
       "best_available": 452.64,
       "left": 215.98,
       "pool": 529
@@ -812,7 +1109,7 @@
       "pid": "6786",
       "pos": "WR",
       "actual": 337.7,
-      "pct": 0.975,
+      "pct": 0.9775,
       "best_available": 452.64,
       "left": 114.94,
       "pool": 529
@@ -825,7 +1122,7 @@
       "pid": "5859",
       "pos": "WR",
       "actual": 236.6,
-      "pct": 0.9575,
+      "pct": 0.9475,
       "best_available": 452.64,
       "left": 216.04,
       "pool": 529
@@ -838,7 +1135,7 @@
       "pid": "5012",
       "pos": "TE",
       "actual": 112.9,
-      "pct": 0.8075,
+      "pct": 0.775,
       "best_available": 452.64,
       "left": 339.74,
       "pool": 529
@@ -851,7 +1148,7 @@
       "pid": "4988",
       "pos": "RB",
       "actual": 21.1,
-      "pct": 0.37,
+      "pct": 0.3875,
       "best_available": 452.64,
       "left": 431.54,
       "pool": 529
@@ -864,7 +1161,7 @@
       "pid": "2133",
       "pos": "WR",
       "actual": 213.9,
-      "pct": 0.945,
+      "pct": 0.9475,
       "best_available": 452.64,
       "left": 238.74,
       "pool": 529
@@ -877,7 +1174,7 @@
       "pid": "5850",
       "pos": "RB",
       "actual": 162.6,
-      "pct": 0.855,
+      "pct": 0.84,
       "best_available": 452.64,
       "left": 290.04,
       "pool": 529
@@ -890,7 +1187,7 @@
       "pid": "7547",
       "pos": "WR",
       "actual": 271.4,
-      "pct": 0.9775,
+      "pct": 0.97,
       "best_available": 452.64,
       "left": 181.24,
       "pool": 529
@@ -903,7 +1200,7 @@
       "pid": "6801",
       "pos": "WR",
       "actual": 116.6,
-      "pct": 0.8375,
+      "pct": 0.785,
       "best_available": 452.64,
       "left": 336.04,
       "pool": 529
@@ -916,7 +1213,7 @@
       "pid": "6904",
       "pos": "QB",
       "actual": 402.82,
-      "pct": 1.0,
+      "pct": 0.9975,
       "best_available": 452.64,
       "left": 49.82,
       "pool": 529
@@ -929,7 +1226,7 @@
       "pid": "8144",
       "pos": "WR",
       "actual": 187.8,
-      "pct": 0.8975,
+      "pct": 0.9,
       "best_available": 452.64,
       "left": 264.84,
       "pool": 529
@@ -942,7 +1239,7 @@
       "pid": "6770",
       "pos": "QB",
       "actual": 177.16,
-      "pct": 0.885,
+      "pct": 0.8775,
       "best_available": 452.64,
       "left": 275.48,
       "pool": 529
@@ -968,7 +1265,7 @@
       "pid": "7611",
       "pos": "RB",
       "actual": 126.7,
-      "pct": 0.8225,
+      "pct": 0.83,
       "best_available": 452.64,
       "left": 325.94,
       "pool": 529
@@ -981,7 +1278,7 @@
       "pid": "4046",
       "pos": "QB",
       "actual": 334.22,
-      "pct": 0.985,
+      "pct": 0.995,
       "best_available": 452.64,
       "left": 118.42,
       "pool": 529
@@ -994,7 +1291,7 @@
       "pid": "7526",
       "pos": "WR",
       "actual": 162.6,
-      "pct": 0.8575,
+      "pct": 0.87,
       "best_available": 452.64,
       "left": 290.04,
       "pool": 529
@@ -1007,7 +1304,7 @@
       "pid": "7528",
       "pos": "RB",
       "actual": 181.0,
-      "pct": 0.875,
+      "pct": 0.8975,
       "best_available": 452.64,
       "left": 271.64,
       "pool": 529
@@ -1020,7 +1317,7 @@
       "pid": "5872",
       "pos": "WR",
       "actual": 213.7,
-      "pct": 0.94,
+      "pct": 0.93,
       "best_available": 452.64,
       "left": 238.94,
       "pool": 529
@@ -1033,7 +1330,7 @@
       "pid": "8146",
       "pos": "WR",
       "actual": 165.7,
-      "pct": 0.8775,
+      "pct": 0.8975,
       "best_available": 452.64,
       "left": 286.94,
       "pool": 529

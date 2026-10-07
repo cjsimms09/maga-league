@@ -104,15 +104,137 @@
   },
   {
    "id": "REC-2-source-weights",
-   "status": "blocked-until-2027-01",
+   "status": "ready-for-ruling",
    "summary": "Per-position projection-source weights from measured accuracy. proj_mean is single-source Sleeper today; Sleeper runs a median +29-30 pts HOT vs FantasyPros at WR/TE on the same players under the same scoring (measured on the 2026-08-15 board) and nothing grades which source is right.",
    "grade": {
-    "status": "blocked",
-    "why": "no realized 2026 weekly store yet \u2014 gradeable in January 2027 from nflverse_weekly_points_2026.json",
-    "sources_frozen": [
-     "fantasypros",
-     "sleeper"
-    ]
+    "status": "measured",
+    "cutoff": "2026-08-22",
+    "cells": {
+     "QB": {
+      "sources": {
+       "fantasypros": {
+        "status": "measured",
+        "n": 41,
+        "snapshot_date": "2026-08-22",
+        "mae": 183.15,
+        "bias": 178.84,
+        "mse": 45700.74,
+        "spearman": 0.6014
+       },
+       "sleeper": {
+        "status": "measured",
+        "n": 44,
+        "snapshot_date": "2026-08-22",
+        "mae": 163.59,
+        "bias": 156.99,
+        "mse": 38966.89,
+        "spearman": 0.6653
+       },
+       "sleeper_weekly": {
+        "status": "unmeasurable",
+        "why": "no snapshot on or before 2026-08-22"
+       }
+      },
+      "proposed_weights": {
+       "fantasypros": 0.4602,
+       "sleeper": 0.5398
+      },
+      "weight_rule": "inverse-MSE over measured sources, normalised"
+     },
+     "RB": {
+      "sources": {
+       "fantasypros": {
+        "status": "measured",
+        "n": 71,
+        "snapshot_date": "2026-08-22",
+        "mae": 82.28,
+        "bias": 82.2,
+        "mse": 9616.12,
+        "spearman": 0.7153
+       },
+       "sleeper": {
+        "status": "measured",
+        "n": 88,
+        "snapshot_date": "2026-08-22",
+        "mae": 57.86,
+        "bias": 56.6,
+        "mse": 5731.79,
+        "spearman": 0.6677
+       },
+       "sleeper_weekly": {
+        "status": "unmeasurable",
+        "why": "no snapshot on or before 2026-08-22"
+       }
+      },
+      "proposed_weights": {
+       "fantasypros": 0.3735,
+       "sleeper": 0.6265
+      },
+      "weight_rule": "inverse-MSE over measured sources, normalised"
+     },
+     "WR": {
+      "sources": {
+       "fantasypros": {
+        "status": "measured",
+        "n": 136,
+        "snapshot_date": "2026-08-22",
+        "mae": 71.6,
+        "bias": 70.87,
+        "mse": 7546.25,
+        "spearman": 0.6841
+       },
+       "sleeper": {
+        "status": "measured",
+        "n": 158,
+        "snapshot_date": "2026-08-22",
+        "mae": 60.33,
+        "bias": 58.65,
+        "mse": 5961.6,
+        "spearman": 0.6778
+       },
+       "sleeper_weekly": {
+        "status": "unmeasurable",
+        "why": "no snapshot on or before 2026-08-22"
+       }
+      },
+      "proposed_weights": {
+       "fantasypros": 0.4413,
+       "sleeper": 0.5587
+      },
+      "weight_rule": "inverse-MSE over measured sources, normalised"
+     },
+     "TE": {
+      "sources": {
+       "fantasypros": {
+        "status": "measured",
+        "n": 81,
+        "snapshot_date": "2026-08-22",
+        "mae": 53.02,
+        "bias": 52.88,
+        "mse": 4336.75,
+        "spearman": 0.7673
+       },
+       "sleeper": {
+        "status": "measured",
+        "n": 88,
+        "snapshot_date": "2026-08-22",
+        "mae": 44.81,
+        "bias": 43.67,
+        "mse": 3657.59,
+        "spearman": 0.7413
+       },
+       "sleeper_weekly": {
+        "status": "unmeasurable",
+        "why": "no snapshot on or before 2026-08-22"
+       }
+      },
+      "proposed_weights": {
+       "fantasypros": 0.4575,
+       "sleeper": 0.5425
+      },
+      "weight_rule": "inverse-MSE over measured sources, normalised"
+     }
+    }
    },
    "week1_prior_attempt": {
     "status": "failed-gate",
@@ -136,11 +258,11 @@
     }
    },
    "unlock_progress": {
-    "weeks_graded": 0,
+    "weeks_graded": 4,
     "weeks_needed": 17,
     "store": "draft/backtest/nflverse_weekly_points_2026.json",
-    "store_exists": false,
-    "line": "REC-2: 0/17 graded 2026 weeks in the committed store \u2014 unlocks ~2027-01",
+    "store_exists": true,
+    "line": "REC-2: 4/17 graded 2026 weeks in the committed store \u2014 unlocks ~2027-01",
     "checked_by": "draft/tools/weekly_grade_runner.js every Tuesday (GitHub Actions), which also regenerates this artifact"
    },
    "preregistered": "metric, population, cutoff and weight rule fixed 2026-08-15 in learning_loop.py, before any 2026 outcome exists \u2014 see module docstring. The January run cannot be tuned to fit.",
@@ -355,7 +477,7 @@
      }
     },
     "rules_era": "1la32x",
-    "fetched_at": "2026-09-22T17:10:32.951Z",
+    "fetched_at": "2026-10-07T02:58:33.976Z",
     "era_note": "rules_era travels with the weights; a snapshot graded under different money-bearing rules must not steer this era's model"
    },
    "reader_status": "mirror consumed",
