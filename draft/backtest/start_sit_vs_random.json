@@ -1,26 +1,26 @@
 {
  "_territory": "TERRITORY: A \u2014 draft/backtest/start_sit_vs_random.py",
  "_what": "Getty et al. SIAM 2018 Test 3 (effect of player action) on our own league: actual start/sit vs a Monte-Carlo null of random LEGAL lineups from the same roster.",
- "n_owner_weeks": 552,
+ "n_owner_weeks": 572,
  "mean_percentile": 0.8484,
  "null_95": [
-  0.4759,
-  0.5241
+  0.4763,
+  0.5237
  ],
  "controls": {
-  "random_lineup": 0.4999,
-  "oracle_lineup": 0.999,
-  "known_negative_band_half_width": 0.0241,
-  "band_derived_from_n": 552
+  "random_lineup": 0.5054,
+  "oracle_lineup": 0.9989,
+  "known_negative_band_half_width": 0.0237,
+  "band_derived_from_n": 572
  },
  "n_draws_per_week": 400,
  "seed": 20260821,
  "skipped": 8,
  "skipped_because_unmapped_player_was_started": 6,
  "unmapped_bench_players_dropped": 20,
- "skipped_unplayed_owner_weeks": 160,
+ "skipped_unplayed_owner_weeks": 140,
  "id_type_audit": {
-  "distinct_ids_in_history": 389,
+  "distinct_ids_in_history": 392,
   "id_types_in_history": [
    "str"
   ],
@@ -38,54 +38,54 @@
  },
  "by_owner": {
   "coryjsimms": {
-   "n": 54,
-   "mean_pct": 0.859,
-   "pts_left_per_week": 17.08
+   "n": 56,
+   "mean_pct": 0.8574,
+   "pts_left_per_week": 17.1
   },
   "ds7mmet": {
-   "n": 56,
-   "mean_pct": 0.8199,
-   "pts_left_per_week": 19.07
+   "n": 58,
+   "mean_pct": 0.8213,
+   "pts_left_per_week": 18.72
   },
   "cashworth": {
-   "n": 56,
-   "mean_pct": 0.887,
-   "pts_left_per_week": 15.06
+   "n": 58,
+   "mean_pct": 0.8895,
+   "pts_left_per_week": 14.9
   },
   "Jreis": {
-   "n": 55,
-   "mean_pct": 0.8899,
-   "pts_left_per_week": 13.03
+   "n": 57,
+   "mean_pct": 0.8892,
+   "pts_left_per_week": 13.11
   },
   "B8T3S": {
-   "n": 55,
-   "mean_pct": 0.8346,
-   "pts_left_per_week": 14.95
+   "n": 57,
+   "mean_pct": 0.8381,
+   "pts_left_per_week": 14.74
   },
   "MarianSaar": {
-   "n": 53,
-   "mean_pct": 0.7811,
-   "pts_left_per_week": 19.71
+   "n": 55,
+   "mean_pct": 0.7872,
+   "pts_left_per_week": 19.55
   },
   "mhagen": {
-   "n": 56,
-   "mean_pct": 0.8921,
-   "pts_left_per_week": 14.31
+   "n": 58,
+   "mean_pct": 0.8904,
+   "pts_left_per_week": 14.4
   },
   "Richard2121": {
-   "n": 56,
-   "mean_pct": 0.847,
-   "pts_left_per_week": 14.3
+   "n": 58,
+   "mean_pct": 0.8426,
+   "pts_left_per_week": 14.37
   },
   "Schmelley": {
-   "n": 56,
-   "mean_pct": 0.8281,
-   "pts_left_per_week": 17.73
+   "n": 58,
+   "mean_pct": 0.8279,
+   "pts_left_per_week": 17.77
   },
   "Sadbru": {
-   "n": 55,
-   "mean_pct": 0.8429,
-   "pts_left_per_week": 15.32
+   "n": 57,
+   "mean_pct": 0.8379,
+   "pts_left_per_week": 16.02
   }
  }
 }

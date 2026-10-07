@@ -1,0 +1,150 @@
+name: Realized stats — bank what ACTUALLY happened, every week
+
+# ── THE HALF OF THE SEASON WE WERE NOT BANKING AT ALL ─────────────────────────
+#
+# Cory, 2026-10-07: "Every week going forward needs to work! And needs to work
+# in a way that helps us draft and manage better next year."
+#
+# Measured the same day: `component_stats_2021..2025.json` are all committed and
+# `component_stats_2026.json` DOES NOT EXIST. Same for
+# `nflverse_weekly_points_2021..2025` against a missing 2026. Five seasons of
+# realized outcomes on disk, and none for the season actually being played.
+#
+# So we have been capturing FORECASTS all season — our own weekly projection,
+# Sleeper's, FantasyPros', the props market — and never once capturing what
+# happened. A forecast with no outcome beside it cannot be graded, which means
+# every one of those captures was accumulating evidence that could not yet be
+# turned into a verdict. That is the difference between a season of data and a
+# season of learning.
+#
+# It went unnoticed because the whole realized-stats pipeline was built as a
+# HISTORICAL backfill: `fetch_component_stats.py` defaults to 2021-2025 and
+# nothing scheduled it, because when it was written every season it cared about
+# was already over. The condition expired the day week 1 kicked off.
+#
+# ── WHY IT RUNS HERE AND NOT FROM A DEV SESSION ──────────────────────────────
+#
+# nflverse-data's release assets are 403 through the dev sandbox's egress proxy.
+# CI reaches them. Same reason every provider fetch in this repo runs here.
+#
+# ── WHAT IT REFUSES TO DO ────────────────────────────────────────────────────
+#
+# It will not commit an empty or shrinking store. A realized store that loses
+# rows is worse than one that is missing: a missing store is visible, and a
+# truncated one silently re-grades every arm that reads it.
+
+on:
+  schedule:
+    # Tuesday 14:00 UTC — after Monday night football has closed the week out
+    # and after nflverse has published it. Weekly because that is the cadence
+    # the data arrives in; running it daily would mostly re-fetch a finished week.
+    - cron: '0 14 * * 2'
+  workflow_dispatch:
+    inputs:
+      season:
+        description: 'Season to refresh'
+        required: false
+        default: '2026'
+
+permissions:
+  contents: write
+
+jobs:
+  realized:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install -r draft/requirements.txt
+
+      - name: Record what we hold BEFORE, so a shrink is detectable
+        id: before
+        run: |
+          set -uo pipefail
+          SEASON="${{ github.event.inputs.season }}"; SEASON="${SEASON:-2026}"
+          echo "season=$SEASON" >> "$GITHUB_OUTPUT"
+          python3 - "$SEASON" <<'PY' >> "$GITHUB_OUTPUT"
+          import json, sys
+          from pathlib import Path
+          season = sys.argv[1]
+          p = Path("draft/backtest") / f"component_stats_{season}.json"
+          n = 0
+          if p.exists():
+              try:
+                  d = json.loads(p.read_text())
+                  n = len(d.get("weeks") or d.get("players") or d)
+              except Exception:
+                  n = -1
+          print(f"before={n}")
+          PY
+
+      - name: Fetch the season's component stats from nflverse
+        run: |
+          set -uo pipefail
+          S="${{ steps.before.outputs.season }}"
+          python3 draft/backtest/fetch_component_stats.py --seasons "$S" --force
+
+      - name: Re-score components into the weekly points store
+        run: |
+          set -uo pipefail
+          S="${{ steps.before.outputs.season }}"
+          # The builder VERIFIES itself against the committed seasons first
+          # (re-scoring 2023 and comparing to the committed store gave zero
+          # disagreements when it was written), so a scoring-table drift fails
+          # here rather than silently producing a wrong 2026.
+          python3 draft/backtest/build_weekly_points_from_components.py --verify-only
+          python3 draft/backtest/build_weekly_points_from_components.py --seasons "$S"
+
+      - name: REFUSE an empty or shrinking store
+        run: |
+          set -uo pipefail
+          S="${{ steps.before.outputs.season }}"
+          BEFORE="${{ steps.before.outputs.before }}"
+          python3 - "$S" "$BEFORE" <<'PY'
+          import json, sys
+          from pathlib import Path
+          season, before = sys.argv[1], int(sys.argv[2])
+          comp = Path("draft/backtest") / f"component_stats_{season}.json"
+          pts  = Path("draft/backtest") / f"nflverse_weekly_points_{season}.json"
+          if not comp.exists() or not pts.exists():
+              raise SystemExit(f"::error::{season}: a store is missing after the build "
+                               f"(components={comp.exists()}, points={pts.exists()}) "
+                               f"— nothing will be committed")
+          d = json.loads(pts.read_text())
+          weeks = d.get("weeks") or []
+          rows = sum(w.get("row_count", 0) for w in weeks)
+          print(f"{season}: {len(weeks)} week(s), {rows} player-weeks")
+          if not weeks or not rows:
+              raise SystemExit("::error::the points store is EMPTY — refusing to commit. "
+                               "An empty realized store reads as 'nobody scored', which is "
+                               "a claim; a missing one reads as 'we do not have it yet'.")
+          now = len(json.loads(comp.read_text()).get("weeks") or []) or rows
+          if before > 0 and now < before:
+              raise SystemExit(f"::error::the component store SHRANK ({before} -> {now}). "
+                               "A realized store that loses rows silently re-grades every "
+                               "arm that reads it. Refusing.")
+          PY
+
+      - name: Commit the realized stores
+        run: |
+          set -uo pipefail
+          S="${{ steps.before.outputs.season }}"
+          git config user.name  "draft-bot"
+          git config user.email "actions@github.com"
+          git add "draft/backtest/component_stats_${S}.json" \
+                  "draft/backtest/nflverse_weekly_points_${S}.json" 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "no change — the week was already banked (safe to re-run)"
+            exit 0
+          fi
+          git commit -m "Realized stats ${S}: components + weekly points [skip deploy]" \
+                     -m "What actually happened, banked beside the forecasts so the season can be graded. Register 536."
+          for attempt in 1 2 3; do
+            git push && { echo "pushed"; exit 0; }
+            git pull --rebase --autostash origin main || break
+          done
+          echo "::error::could not push the realized stores"
+          exit 1

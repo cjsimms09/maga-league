@@ -1,72 +1,72 @@
 {
  "_territory": "TERRITORY: A \u2014 draft/backtest/waiver_vs_random.py",
  "_what": "Decision-null grading of waiver/FA claims: rest-of-season value vs a random AVAILABLE player at the same position that week.",
- "n_claims": 762,
- "mean_percentile": 0.7101,
+ "n_claims": 811,
+ "mean_percentile": 0.7075,
  "null_95": [
-  0.4795,
-  0.5205
+  0.4801,
+  0.5199
  ],
  "controls": {
-  "random_available": 0.4974,
-  "best_available": 0.954,
-  "known_negative_band_half_width": 0.0205,
-  "band_derived_from_n": 762
+  "random_available": 0.4901,
+  "best_available": 0.9501,
+  "known_negative_band_half_width": 0.0199,
+  "band_derived_from_n": 811
  },
- "median_pool_size": 17.0,
+ "median_pool_size": 16,
  "n_draws": 300,
  "seed": 20260821,
- "skipped": 31,
+ "skipped": 16,
  "by_owner": {
-  "coryjsimms": {
+  "Schmelley": {
    "n": 94,
-   "mean_pct": 0.6981,
-   "ros_pts_left": 49.34
+   "mean_pct": 0.7423,
+   "ros_pts_left": 41.75
+  },
+  "coryjsimms": {
+   "n": 99,
+   "mean_pct": 0.6809,
+   "ros_pts_left": 47.68
   },
   "cashworth": {
-   "n": 68,
-   "mean_pct": 0.7172,
-   "ros_pts_left": 41.91
-  },
-  "Jreis": {
-   "n": 49,
-   "mean_pct": 0.7175,
-   "ros_pts_left": 50.97
-  },
-  "MarianSaar": {
-   "n": 77,
-   "mean_pct": 0.727,
-   "ros_pts_left": 55.48
-  },
-  "Schmelley": {
-   "n": 88,
-   "mean_pct": 0.7478,
-   "ros_pts_left": 44.35
-  },
-  "Richard2121": {
-   "n": 108,
-   "mean_pct": 0.6456,
-   "ros_pts_left": 57.02
-  },
-  "ds7mmet": {
-   "n": 114,
-   "mean_pct": 0.6676,
-   "ros_pts_left": 64.96
+   "n": 73,
+   "mean_pct": 0.7256,
+   "ros_pts_left": 39.45
   },
   "B8T3S": {
-   "n": 58,
-   "mean_pct": 0.7442,
-   "ros_pts_left": 47.33
+   "n": 61,
+   "mean_pct": 0.7276,
+   "ros_pts_left": 45.8
   },
-  "mhagen": {
-   "n": 71,
-   "mean_pct": 0.7742,
-   "ros_pts_left": 34.55
+  "Jreis": {
+   "n": 51,
+   "mean_pct": 0.7108,
+   "ros_pts_left": 49.28
+  },
+  "MarianSaar": {
+   "n": 80,
+   "mean_pct": 0.7254,
+   "ros_pts_left": 54.05
+  },
+  "Richard2121": {
+   "n": 115,
+   "mean_pct": 0.652,
+   "ros_pts_left": 53.83
   },
   "Sadbru": {
-   "n": 35,
-   "mean_pct": 0.7366,
-   "ros_pts_left": 42.73
+   "n": 38,
+   "mean_pct": 0.729,
+   "ros_pts_left": 39.74
+  },
+  "ds7mmet": {
+   "n": 127,
+   "mean_pct": 0.6722,
+   "ros_pts_left": 58.65
+  },
+  "mhagen": {
+   "n": 73,
+   "mean_pct": 0.7799,
+   "ros_pts_left": 33.47
   }
  }
 }
