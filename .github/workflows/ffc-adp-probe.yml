@@ -69,6 +69,9 @@ jobs:
             SOURCE_FINE__OUR_CAPTURE_BROKE)
               echo "::error::FFC still publishes, so the missing ~22 days are OUR capture failing. Fix external-adp-capture.yml; the board gate was right and the 150 floor stays. Register 538."
               exit 1 ;;
+            SOURCE_WINDING_DOWN)
+              echo "::warning::FFC is HEALTHY (200) and the probe proved itself on 2024/2025, but the format we capture has thinned to a fraction of its own history. A draft market winding down after drafts stopped is not a broken fetch. Two consequences, neither of them lowering a floor: the capture's COLLAPSE_KEEP_FRACTION refuses any >50% day on a 'boards GROW in mid-August' justification that expired at kickoff, which is why FFC vanished silently rather than being recorded as thin; and the board's 150-shared-player requirement cannot be met by a post-draft ADP market, so SCOPE when it applies. Register 538."
+              exit 0 ;;
             FFC_NO_LONGER_SERVES_2026)
               echo "::warning::FFC has stopped serving 2026 ADP and the probe proved itself on 2024/2025. The two-source pricing requirement is a draft-window assumption that expired at kickoff. SCOPE when the 150 floor applies; do not lower it. Register 538."
               exit 0 ;;

@@ -144,6 +144,27 @@ def fetch(url: str, timeout: int = 45) -> dict:
 
 
 def verdict(results: dict) -> dict:
+    """⚠️ CORRECTED 2026-10-07, SAME DAY, AFTER ITS FIRST REAL RUN.
+
+    The first version asked "is ANY 2026 arm populated" and so returned
+    SOURCE_FINE__OUR_CAPTURE_BROKE off this measurement:
+
+        capture_2026  (half-ppr)  200  players= 54   <- THE FORMAT WE CAPTURE
+        variant_2026_ppr          200  players= 29
+        variant_2026_standard     200  players=118   <- what tripped the verdict
+        CONTROL 2025  (half-ppr)  200  players=156
+        CONTROL 2024  (half-ppr)  200  players=178
+
+    It judged 2026 on `standard`, a format this league does not use and this
+    repo does not capture, and reported that our capture had broken. The arm
+    that matters reads 54 against its own 2024/2025 history of 178/156 — the
+    endpoint is healthy and the POOL IS WINDING DOWN, which is a third thing
+    that the original two-way split could not say.
+
+    That is rule 3i one level up: the arms were all recorded, and the verdict
+    still quoted the single value that fit a story. The fix is to judge on the
+    capture's own format and let the variants be context.
+    """
     controls = [k for k, a in results.items()
                 if a.get("_control") and (a.get("players") or 0) >= POPULATED]
     access_fail = [k for k, a in results.items() if a.get("is_access_failure")]
@@ -167,20 +188,58 @@ def verdict(results: dict) -> dict:
 
     live = {k: a.get("players") for k, a in results.items()
             if not a.get("_control") and a.get("players") is not None}
-    populated = {k: n for k, n in live.items() if n >= POPULATED}
-    if populated:
+
+    #: THE ARM THAT DECIDES is the one the capture actually sends. A variant in
+    #: a format we do not use cannot vouch for the feed we do.
+    cap = results.get("capture_2026", {})
+    cap_n = cap.get("players")
+    control_ns = [a.get("players") or 0 for a in results.values() if a.get("_control")]
+    control_floor = min(control_ns) if control_ns else POPULATED
+
+    if cap_n is None:
+        return {
+            "verdict": "PROBE_OR_ACCESS_BROKEN",
+            "says_nothing_about_ffc": True,
+            "why": ("the controls answered but the CAPTURE arm did not parse, so "
+                    f"the format we actually fetch is unmeasured (arms: {live})"),
+            "next": "Read the capture arm's raw shape in the artifact.",
+        }
+
+    if cap_n >= POPULATED:
         return {
             "verdict": "SOURCE_FINE__OUR_CAPTURE_BROKE",
-            "why": (f"controls populated ({controls}) AND 2026 arms populated "
-                    f"({populated}) — FFC still publishes, so the missing ~22 "
-                    "days are a capture failure."),
-            "next": ("Fix external-adp-capture.yml. The board gate was RIGHT to "
-                     "hold and the 150 floor stays as it is. Register 538 ③."),
+            "why": (f"controls populated ({controls}) AND the capture's own "
+                    f"format returns {cap_n} players — FFC still serves what we "
+                    "ask for, so the missing days are a capture failure."),
+            "next": ("Fix the capture. The board gate was RIGHT to hold and the "
+                     "150 floor stays as it is. Register 538 ③."),
         }
+
+    if cap_n > 0:
+        return {
+            "verdict": "SOURCE_WINDING_DOWN",
+            "why": (f"the endpoint is HEALTHY (HTTP 200) and the probe proved "
+                    f"itself on {controls}, but the format we capture returns "
+                    f"only {cap_n} players against a known-good history of "
+                    f"{sorted(control_ns)} — and the other 2026 formats agree "
+                    f"it is thin ({live}). This is a draft market winding down "
+                    "after drafts stopped, not a broken fetch and not a dead "
+                    "source."),
+            "next": ("TWO consequences, and neither is lowering a floor. (a) The "
+                     "capture's COLLAPSE_KEEP_FRACTION refuses any day losing "
+                     ">50% of a source's rows, justified in its own comment by "
+                     "'in mid-August boards GROW' — a draft-window assumption "
+                     "that expired at kickoff, which is why FFC vanished from the "
+                     "archive silently instead of being recorded as thin. (b) The "
+                     "board's 150-shared-player requirement cannot be met by a "
+                     "post-draft ADP market, so SCOPE when it applies against "
+                     "league_config.draft.start_date. Register 538 ②/③."),
+        }
+
     return {
         "verdict": "FFC_NO_LONGER_SERVES_2026",
         "why": (f"controls populated ({controls}) so the probe demonstrably "
-                f"works, and every 2026 arm is empty or absent ({live}) — "
+                f"works, and the capture's format returns nothing ({live}) — "
                 "including the HTML page, an independent path."),
         "next": ("The two-pricing-source requirement is a DRAFT-WINDOW "
                  "assumption that expired at kickoff. Scope WHEN the 150 floor "
