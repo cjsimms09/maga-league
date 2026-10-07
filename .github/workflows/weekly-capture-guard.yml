@@ -1,0 +1,104 @@
+name: Weekly capture guard — is every PLAYED week actually banked?
+
+# Cory, 2026-10-07: "Every week going forward needs to work!"
+#
+# ── WHY A RED WORKFLOW WAS NOT ENOUGH, MEASURED ───────────────────────────────
+#
+# Both 2027-gradeable captures failed on EVERY run for seven weeks. Nothing was
+# hidden, nothing was swallowed, and each correctly refused to bank an empty
+# week. It still cost four weeks of the Sleeper comparator and one week of
+# props, because a red workflow sitting in a list of red workflows is invisible
+# — "last run: failure" reads identically whether a week was lost or not — while
+# a missed week of unbackfillable evidence can never be recovered.
+#
+# So this does not watch jobs. It watches ARTIFACTS, and it escalates on the one
+# event that matters: a week that has been PLAYED and is not on disk. A job can
+# go green and bank nothing; a job can go red having already banked. Only the
+# file settles it.
+#
+# ── WHY AN ISSUE AND NOT JUST A RED RUN ───────────────────────────────────────
+#
+# A red run is another line in a list nobody can triage. An issue has a title
+# that names the missing weeks, survives between sessions, and auto-closes the
+# moment coverage is complete — so it is present exactly while something is
+# wrong and silent otherwise. That is the property the last seven weeks lacked.
+
+on:
+  schedule:
+    # Daily, mid-morning UTC — after the overnight captures have had their run
+    # and long before the next kickoff, so a gap is reported while there is
+    # still time to take the week.
+    - cron: '20 13 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Audit every played week against what is on disk
+        id: audit
+        run: |
+          set -uo pipefail
+          if python3 draft/tools/weekly_capture_audit.py | tee /tmp/capture_audit.txt; then
+            echo "complete=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "complete=false" >> "$GITHUB_OUTPUT"
+          fi
+          cat /tmp/capture_audit.txt >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Escalate — or stand down if coverage is complete
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -uo pipefail
+          LABEL="weekly-capture-gap"
+          gh label create "$LABEL" --color B60205 \
+            --description "A played week is missing from an unbackfillable capture" 2>/dev/null || true
+          EXISTING=$(gh issue list --label "$LABEL" --state open --json number --jq '.[0].number' 2>/dev/null || echo "")
+
+          if [ "${{ steps.audit.outputs.complete }}" = "true" ]; then
+            # STAND DOWN. An alarm that cannot clear itself becomes wallpaper,
+            # and wallpaper is what let seven weeks pass.
+            if [ -n "$EXISTING" ]; then
+              gh issue comment "$EXISTING" --body \
+                "Coverage is complete again as of $(date -u +%Y-%m-%dT%H:%M:%SZ) — every played week is on disk in every weekly capture. Closing."
+              gh issue close "$EXISTING"
+              echo "coverage complete; closed #$EXISTING"
+            else
+              echo "coverage complete; nothing open."
+            fi
+            exit 0
+          fi
+
+          BODY=$(mktemp)
+          {
+            printf 'A week that has been PLAYED is missing from at least one capture, as of %s.\n\n' \
+                   "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            printf 'These captures are **unbackfillable** — the evidence does not exist later.\n'
+            printf 'This is what next year'"'"'s model is built from.\n\n```\n'
+            cat /tmp/capture_audit.txt
+            printf '```\n\nRun: %s\n\n' \
+              "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            printf 'This issue closes ITSELF when every played week is captured. '
+            printf 'It is open only while something is genuinely missing.\n'
+          } > "$BODY"
+
+          if [ -n "$EXISTING" ]; then
+            gh issue comment "$EXISTING" --body-file "$BODY"
+            echo "updated #$EXISTING"
+          else
+            gh issue create --title "🔴 A played week is missing from an unbackfillable capture" \
+              --label "$LABEL" --body-file "$BODY"
+          fi
+
+          # Red, deliberately: the run should fail while evidence is missing.
+          exit 1
