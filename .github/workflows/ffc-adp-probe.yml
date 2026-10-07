@@ -1,0 +1,76 @@
+name: FFC ADP probe — did the source break, or did it end?
+
+# The one measurement register 538 waits on, and the reason the board has not
+# published since 2026-09-10.
+#
+# external_source_prices.json, read as the daily series it is: FFC decays
+# 233 -> 209 -> 187 -> 160 -> 154 rows and then STOPS APPEARING — no ffc entry
+# at all in the last ~22 days — while FantasyPros sits at exactly 365 rows /
+# 287 on-board for ~28 consecutive days. lab_source_composition keeps only the
+# NEWEST entry per source, so it is still ranking FantasyPros against FFC's
+# last gasp from September, and n_shared is 132 against a floor of 150.
+#
+# BROKEN and ENDED call for opposite fixes (fix the capture vs scope the
+# draft-window requirement), and the decay curve fits both. So: measure first.
+#
+# ⚠️ IT RUNS HERE BECAUSE IT CANNOT RUN ANYWHERE ELSE. From the dev sandbox
+# every arm — including the 2024 and 2025 controls whose ADP certainly exists —
+# fails with `CONNECT tunnel failed: 403 Forbidden`. Read without controls that
+# is "FFC is gone", and it would have sent someone to rewrite a board gate.
+# The probe refuses to speak unless a known-positive arm came back populated.
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Daily while 538 is open. Cheap, read-only, and the answer can change:
+    # a source winding down and a source briefly down look identical on one day.
+    - cron: '35 12 * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Probe FFC with known-positive controls
+        run: |
+          set -uo pipefail
+          python3 draft/tools/ffc_adp_probe.py --json /tmp/ffc_probe.json \
+            | tee /tmp/ffc_probe.txt
+          {
+            echo '### FFC ADP probe'
+            echo '```'
+            cat /tmp/ffc_probe.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the raw response shapes
+        uses: actions/upload-artifact@v4
+        with:
+          name: ffc-adp-probe
+          path: /tmp/ffc_probe.json
+          retention-days: 30
+
+      - name: Say the verdict in the job's own status
+        run: |
+          set -uo pipefail
+          V=$(python3 -c "import json;print(json.load(open('/tmp/ffc_probe.json'))['verdict'])")
+          echo "verdict=$V"
+          case "$V" in
+            PROBE_OR_ACCESS_BROKEN)
+              echo "::error::The probe could not see its own known-positive controls, so this run says NOTHING about FFC (rule 3e). Read the arm shapes in the artifact: either access is refused here too, or the endpoint changed."
+              exit 1 ;;
+            SOURCE_FINE__OUR_CAPTURE_BROKE)
+              echo "::error::FFC still publishes, so the missing ~22 days are OUR capture failing. Fix external-adp-capture.yml; the board gate was right and the 150 floor stays. Register 538."
+              exit 1 ;;
+            FFC_NO_LONGER_SERVES_2026)
+              echo "::warning::FFC has stopped serving 2026 ADP and the probe proved itself on 2024/2025. The two-source pricing requirement is a draft-window assumption that expired at kickoff. SCOPE when the 150 floor applies; do not lower it. Register 538."
+              exit 0 ;;
+            *) echo "::error::unrecognised verdict '$V'"; exit 1 ;;
+          esac
