@@ -15,21 +15,54 @@ import urllib.error
 from pathlib import Path
 
 BASE = "https://api.sleeper.app/v1"
+
+#: ⛔ PROJECTIONS AND STATS DO NOT LIVE UNDER /v1, AND THAT COST THE SEASON'S
+#: MOST IMPORTANT CAPTURE. Measured 2026-10-07, same second, same runner, the
+#: only difference being the prefix:
+#:
+#:   https://api.sleeper.app/projections/nfl/2026/5?season_type=regular
+#:       -> 9,420 rows,  972 with projections
+#:   https://api.sleeper.app/v1/projections/nfl/2026/5?season_type=regular
+#:       -> 7,630 rows,    0 with projections
+#:
+#: The /v1 surface answers 200 with a well-formed body and no numbers in it, so
+#: every caller saw "7630 rows, 0 with stats", correctly refused to bank an
+#: empty week, and went red. Both 2027-gradeable captures
+#: (weekly-proj-snapshot, weekly-projection-archive) have been doing that since
+#: kickoff: the archive holds ONE file, week 1, captured three weeks BEFORE the
+#: season started.
+#:
+#: ⚠️ IT HID IN THE LOG LINE. `_best_payload` prints the PATH, not the full URL,
+#: so its output read character-for-character like a URL that works. Four
+#: hypotheses died on that — a URL fault, a retention window, a transient
+#: upstream, and a User-Agent — each tested and killed in CI before this one was
+#: found by reading the constant instead of the log.
+#:
+#: BASE stays as it is: league, rosters, users, state and the draft endpoints
+#: genuinely are /v1 and all work. Only these two surfaces move.
+DATA_BASE = "https://api.sleeper.app"
 CACHE = Path(__file__).parent / ".cache"
 CACHE_TTL = 60 * 60  # 1h; league settings change rarely, be polite to a free API
 
 
-def _get(path: str, *, ttl: int = CACHE_TTL, retries: int = 3):
-    """GET with on-disk caching and backoff. Sleeper is free — do not hammer it."""
+def _get(path: str, *, ttl: int = CACHE_TTL, retries: int = 3, base: str = None):
+    """GET with on-disk caching and backoff. Sleeper is free — do not hammer it.
+
+    `base` selects the surface. Default is the /v1 API; projections and stats
+    pass DATA_BASE because they are not /v1 resources (see its note). The cache
+    key includes the base, or a row fetched from one surface would be served to
+    the other and the bug would persist in the cache after the code was fixed.
+    """
+    root = base or BASE
     CACHE.mkdir(exist_ok=True)
-    key = CACHE / (path.strip("/").replace("/", "_") + ".json")
+    key = CACHE / ((("v1_" if root == BASE else "data_") + path.strip("/").replace("/", "_")) + ".json")
     if key.exists() and (time.time() - key.stat().st_mtime) < ttl:
         return json.loads(key.read_text())
 
     last = None
     for attempt in range(retries):
         try:
-            with urllib.request.urlopen(f"{BASE}{path}", timeout=20) as resp:
+            with urllib.request.urlopen(f"{root}{path}", timeout=20) as resp:
                 data = json.loads(resp.read())
             key.write_text(json.dumps(data))
             return data
@@ -134,7 +167,7 @@ def _is_season_shaped(data) -> bool:
     return sum(1 for g in gps if g > 1.5) > len(gps) / 2
 
 
-def _best_payload(paths: list, season: str, week, label: str, ttl: int) -> dict:
+def _best_payload(paths: list, season: str, week, label: str, ttl: int, base: str = None) -> dict:
     """
     ⛔ THIS SHIPPED A SEASON-TOTAL PAYLOAD AS "WEEK 1", WITH A CLEAN STATUS AND
     NO ERROR, AND IT REACHED main. C found it by hand, not by a test, running
@@ -163,18 +196,30 @@ def _best_payload(paths: list, season: str, week, label: str, ttl: int) -> dict:
     best, best_n, best_path = {}, 0, None
     for tmpl in paths:
         if want_week and "{week}" not in tmpl:
-            print(f"    {label} {tmpl}: SKIPPED — no {{week}} in the path, it "
+            print(f"    {label} {(base or BASE)}{tmpl}: SKIPPED — no {{week}} in the path, it "
                   f"cannot answer a week-{week} request")
             continue
         path = tmpl.format(season=season, week=week)
         try:
-            data = _get(path, ttl=ttl)
+            data = _get(path, ttl=ttl, base=base)
+        except (TypeError, AttributeError):
+            # ⚠️ NOT A DEAD ENDPOINT — A BUG IN OUR OWN CALL. This used to be
+            # caught by the blanket `except Exception` below and printed as
+            # "FAILED", indistinguishable from a provider that did not answer,
+            # so every path would "fail" and the whole probe would report "no
+            # endpoint shape returned usable data". Found 2026-10-07 when
+            # adding the `base` argument broke a test's `_get` stub and the
+            # TypeError came back as a provider outage. A wrong call signature
+            # must be loud: it is the one failure retrying cannot fix.
+            raise
         except Exception as exc:  # noqa: BLE001 — try the next shape
-            print(f"    {label} {path}: FAILED ({type(exc).__name__})")
+            print(f"    {label} {(base or BASE)}{path}: FAILED ({type(exc).__name__})")
             continue
         n = _rows_with_stats(data)
         size = len(data) if hasattr(data, "__len__") else 0
-        print(f"    {label} {path}: {size} rows, {n} with stats")
+        # FULL url, not the path: printing only the path is exactly how a /v1
+        # prefix hid for seven weeks behind a line that looked correct.
+        print(f"    {label} {(base or BASE)}{path}: {size} rows, {n} with stats")
         if n > best_n:
             best, best_n, best_path = data, n, path
     # BELT AND BRACES: even a {week} path could return the wrong shape. Refusing
@@ -198,7 +243,8 @@ def _best_payload(paths: list, season: str, week, label: str, ttl: int) -> dict:
 def fetch_projections(season: str, week: int | str = "season") -> dict:
     """Consensus projections. Endpoint shape varies by season; caller tolerates None."""
     print(f"  probing projection endpoints for {season}:")
-    return _best_payload(_PROJECTION_PATHS, season, week, "projections", 6 * 60 * 60)
+    return _best_payload(_PROJECTION_PATHS, season, week, "projections", 6 * 60 * 60,
+                         base=DATA_BASE)
 
 
 def fetch_stats(season: str, week: int | str = "season") -> dict:
@@ -209,7 +255,8 @@ def fetch_stats(season: str, week: int | str = "season") -> dict:
     which used to produce a board of zeroes without saying so.
     """
     print(f"  probing stats endpoints for {season}:")
-    return _best_payload(_STATS_PATHS, season, week, "stats", 24 * 60 * 60)
+    return _best_payload(_STATS_PATHS, season, week, "stats", 24 * 60 * 60,
+                         base=DATA_BASE)
 
 
 # --- roster slot + scoring extraction ---------------------------------------

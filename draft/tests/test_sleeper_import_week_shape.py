@@ -66,7 +66,7 @@ SEASON_PAYLOAD = {"4984": {"gp": 18.0, "pts_half_ppr": 405.5}}     # C's actual 
 SEASON_PAYLOAD.update({str(9000 + i): {"gp": 17.0, "pts_half_ppr": 120.0} for i in range(30)})
 
 
-def fake_get(path, ttl=None):
+def fake_get(path, ttl=None, base=None):
     calls.append(path)
     # every endpoint returns SOMETHING, so the guard cannot pass by accident
     return dict(SEASON_PAYLOAD)
@@ -89,7 +89,7 @@ try:
        got == {}, got)
 
     # ── 3. THE FAIL ARM: it must still accept a genuine weekly payload ───────
-    def weekly_get(path, ttl=None):
+    def weekly_get(path, ttl=None, base=None):
         return {str(i): {"gp": 1.0, "pts_half_ppr": 12.5} for i in range(20)}
 
     SI._get = weekly_get
