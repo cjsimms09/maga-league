@@ -64,12 +64,49 @@ KNOWN_INCOMPLETE = 1
 
 
 def _by_date():
+    """{date: {source}} for the DAILY season-projection series only.
+
+    ⚠️ TWO DIMENSIONS LIVE IN THIS FILE AND ONLY ONE OF THEM IS DAILY.
+    `weekly_proj_snapshot.py` appends `sleeper_weekly` rows keyed by WEEK — a
+    declared part of the artifact, not a stray. They are a different series: one
+    row per week, not one per day, and nothing requires FantasyPros beside them.
+
+    Counting them here made 2026-10-07 read as "a captured date missing a
+    source" the moment the weekly snapshot started succeeding again (its /v1 bug
+    was fixed that morning; before that it had never written, so this never
+    surfaced). The ratchet was riding on a broken capture.
+
+    A weekly row carries `week`; a daily row does not. Measured on the live
+    series: 2 rows with `week` (all `sleeper_weekly`), 109 without (all
+    `sleeper`/`fantasypros`), so the split is clean rather than heuristic.
+    """
     doc = json.loads(SERIES.read_text(encoding="utf8"))
     out = collections.defaultdict(set)
     for row in doc.get("series", []):
+        if row.get("week") is not None:
+            continue                      # weekly dimension — see the note above
         if row.get("date") and row.get("source"):
             out[row["date"]].add(row["source"])
     return out
+
+
+def _weekly_rows():
+    """The other dimension, so a test can assert it is actually being written."""
+    doc = json.loads(SERIES.read_text(encoding="utf8"))
+    return [r for r in doc.get("series", []) if r.get("week") is not None]
+
+
+def test_CONTROL_the_two_dimensions_are_separable_and_BOTH_are_present():
+    """If the weekly rows vanish, the exclusion above would hide it — so assert
+    they exist. And if a daily row ever gains a `week`, the daily series would
+    silently shrink, so assert the daily side still carries both sources."""
+    weekly = _weekly_rows()
+    assert weekly, ("no weekly rows in proj_series — weekly_proj_snapshot has "
+                    "stopped writing, and excluding them above now hides that")
+    assert {r.get("source") for r in weekly} == {"sleeper_weekly"}, \
+        sorted({r.get("source") for r in weekly})
+    daily_sources = {s for v in _by_date().values() for s in v}
+    assert REQUIRED <= daily_sources, sorted(daily_sources)
 
 
 def test_CONTROL_the_series_exists_and_has_real_rows():
