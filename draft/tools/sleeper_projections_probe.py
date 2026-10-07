@@ -203,6 +203,63 @@ def week_retention_sweep(season):
     return rows
 
 
+def user_agent_experiment(season, week):
+    """⭐ THE SAME URL, TWO CLIENTS — the experiment that actually settles it.
+
+    The capture ran four minutes after this probe's first run, asked for the
+    SAME week, from the SAME CI environment, and got `7630 rows, 0 with stats`
+    while the probe got `9420 rows, 972 with projections`. Identical url string.
+    Different payload, and different ROW COUNTS, so it is a different response
+    rather than different parsing — which rules out "transient upstream" (I had
+    written that down; it was wrong) and points at the one thing that differs
+    between the two clients: the headers.
+
+    This probe sends a browser User-Agent. `urllib` with no headers announces
+    itself as `Python-urllib/3.x`. If Sleeper serves a reduced, stat-less
+    payload to the default agent, the fix is one line in each capture and every
+    remaining week of the season is saved.
+
+    Both arms hit the identical url, so the ONLY variable is the header.
+    """
+    url = f"https://api.sleeper.app/projections/nfl/{season}/{week}?season_type=regular"
+    print("=" * 78)
+    print("USER-AGENT EXPERIMENT — identical url, the header is the only variable")
+    print(f"  {url}")
+    print("=" * 78)
+
+    out = {}
+    for label, headers in (("browser UA (what this probe sends)", UA),
+                           ("urllib default (what the captures send)", None)):
+        req = urllib.request.Request(url, headers=headers or {})
+        try:
+            with urllib.request.urlopen(req, timeout=45) as r:
+                body = r.read().decode("utf-8", "ignore")
+            info = summarise(body)
+        except Exception as e:                                 # noqa: BLE001
+            info = {"error": f"{type(e).__name__}: {e}"}
+        out[label] = info
+        if "error" in info:
+            print(f"  {label:<42} {info['error']}")
+        else:
+            print(f"  {label:<42} rows={info['rows']:>6}  with projections={info['with_stats']:>5}")
+
+    a = out.get("browser UA (what this probe sends)", {})
+    b = out.get("urllib default (what the captures send)", {})
+    print()
+    if a.get("with_stats") and not b.get("with_stats"):
+        print("  ⛔ CONFIRMED: Sleeper serves a STAT-LESS payload to the default agent.")
+        print("     The captures are not mis-scheduled and upstream is not flaky —")
+        print("     they simply do not identify themselves. Send a User-Agent and")
+        print("     every remaining week of the season is captured.")
+    elif a.get("with_stats") and b.get("with_stats"):
+        print("  both agents got projections — the User-Agent is NOT the discriminator,")
+        print("  so the difference lies elsewhere in how the capture builds its request.")
+    else:
+        print("  neither agent got projections on this run — inconclusive here; do not")
+        print("  conclude anything from this arm alone.")
+    return out
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--season", default="2026")
@@ -289,6 +346,8 @@ def main(argv=None) -> int:
     print("=" * 78)
     print()
     week_retention_sweep(s)
+    print()
+    user_agent_experiment(s, w)
     return 0
 
 
