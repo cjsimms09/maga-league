@@ -150,6 +150,59 @@ def summarise(body):
             "top_level": (sorted(doc)[:8] if isinstance(doc, dict) else "list")}
 
 
+def week_retention_sweep(season):
+    """⭐ WHICH WEEKS DOES SLEEPER STILL SERVE? The question that decides the fix.
+
+    The first probe run answered the URL question and raised a bigger one. Asked
+    for week 5 (not yet played) the PLAIN url returned 972 rows with
+    projections; the captures asking for week 4 got zero from the same url on
+    the same shape. If that is a RETENTION window rather than a URL fault, then:
+
+      * nothing needs rewiring — the captures are simply running too late;
+      * and every week already missed is PERMANENTLY gone, because a projection
+        for a played week is not something anyone back-fills.
+
+    Those two readings call for opposite work (rewrite the fetch vs move the
+    schedule), so guessing between them would waste the rest of the season.
+    This asks every week of the season with ONE url shape and prints the
+    boundary, which is the only thing that can tell them apart.
+    """
+    print("=" * 78)
+    print("WEEK RETENTION SWEEP — which weeks still carry projections TODAY?")
+    print("  (one url shape, every week: any difference is the WEEK, not the url)")
+    print("=" * 78)
+    rows = []
+    for wk in range(1, 19):
+        url = f"https://api.sleeper.app/projections/nfl/{season}/{wk}?season_type=regular&order_by=ppr"
+        code, body, err = get(url)
+        if err or code != 200:
+            print(f"  week {wk:>2}: HTTP {code} {err or ''}")
+            rows.append((wk, None))
+            continue
+        info = summarise(body)
+        n = info.get("with_stats", 0)
+        rows.append((wk, n))
+        print(f"  week {wk:>2}: {info.get('rows', 0):>5} rows, {n:>4} with projections")
+    live = [w for w, n in rows if n]
+    dead = [w for w, n in rows if n == 0]
+    print()
+    print(f"  weeks WITH projections : {live}")
+    print(f"  weeks EMPTY            : {dead}")
+    if dead and live and max(dead) < min(live):
+        print()
+        print("  ⛔ RETENTION BOUNDARY CONFIRMED: every empty week is EARLIER than every")
+        print("     live one. Sleeper drops a week's projections once it has been played.")
+        print("     => The captures are not mis-wired, they are running TOO LATE, and")
+        print("        every missed week is unrecoverable. Fix the SCHEDULE, not the URL.")
+    elif not dead:
+        print("\n  every week answers — retention is not the constraint.")
+    else:
+        print()
+        print("  ⚠️ NOT a clean boundary — empty and live weeks interleave, so this is")
+        print("     not simple retention. Read the per-week rows before changing anything.")
+    return rows
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--season", default="2026")
@@ -234,6 +287,8 @@ def main(argv=None) -> int:
         print("    2027 experiment needs a different comparator — which is a finding")
         print("    worth having NOW rather than in January.")
     print("=" * 78)
+    print()
+    week_retention_sweep(s)
     return 0
 
 
