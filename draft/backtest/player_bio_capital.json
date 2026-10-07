@@ -11,8 +11,8 @@
  ],
  "population": {
   "total_bio_rows": 6522,
-  "matched_to_sleeper": 3918,
-  "unmatched_no_sleeper_id": 2604
+  "matched_to_sleeper": 3929,
+  "unmatched_no_sleeper_id": 2593
  },
  "unmatched_sample": [
   {
@@ -89793,6 +89793,34 @@
    "draft_team": null,
    "draft_capital": "UDFA"
   },
+  "12079": {
+   "gsis_id": "00-0039518",
+   "name": "Treyton Welch",
+   "position": "TE",
+   "birth_date": "2001-01-10 00:00:00",
+   "age_by_season": {
+    "2021": null,
+    "2022": null,
+    "2023": null,
+    "2024": null,
+    "2025": null,
+    "2026": null
+   },
+   "rookie_year": 2024.0,
+   "is_rookie_by_season": {
+    "2021": false,
+    "2022": false,
+    "2023": false,
+    "2024": true,
+    "2025": false,
+    "2026": false
+   },
+   "draft_season": null,
+   "draft_round": null,
+   "draft_pick": null,
+   "draft_team": null,
+   "draft_capital": "UDFA"
+  },
   "11921": {
    "gsis_id": "00-0039521",
    "name": "Xavier Weaver",
@@ -91590,6 +91618,34 @@
    "name": "Taki Taimani",
    "position": "DL",
    "birth_date": "1999-10-06 00:00:00",
+   "age_by_season": {
+    "2021": null,
+    "2022": null,
+    "2023": null,
+    "2024": null,
+    "2025": null,
+    "2026": null
+   },
+   "rookie_year": 2024.0,
+   "is_rookie_by_season": {
+    "2021": false,
+    "2022": false,
+    "2023": false,
+    "2024": true,
+    "2025": false,
+    "2026": false
+   },
+   "draft_season": null,
+   "draft_round": null,
+   "draft_pick": null,
+   "draft_team": null,
+   "draft_capital": "UDFA"
+  },
+  "12196": {
+   "gsis_id": "00-0039725",
+   "name": "Jayden Price",
+   "position": "DB",
+   "birth_date": "2000-04-05 00:00:00",
    "age_by_season": {
     "2021": null,
     "2022": null,
@@ -100181,6 +100237,34 @@
    "draft_team": null,
    "draft_capital": "UDFA"
   },
+  "12939": {
+   "gsis_id": "00-0040394",
+   "name": "Anthony Tyus III",
+   "position": "RB",
+   "birth_date": "2003-03-20 00:00:00",
+   "age_by_season": {
+    "2021": null,
+    "2022": null,
+    "2023": null,
+    "2024": null,
+    "2025": null,
+    "2026": null
+   },
+   "rookie_year": 2025,
+   "is_rookie_by_season": {
+    "2021": false,
+    "2022": false,
+    "2023": false,
+    "2024": false,
+    "2025": true,
+    "2026": false
+   },
+   "draft_season": null,
+   "draft_round": null,
+   "draft_pick": null,
+   "draft_team": null,
+   "draft_capital": "UDFA"
+  },
   "12538": {
    "gsis_id": "00-0040398",
    "name": "Brady Cook",
@@ -105193,6 +105277,34 @@
    "draft_team": null,
    "draft_capital": "UDFA"
   },
+  "13733": {
+   "gsis_id": "00-0040978",
+   "name": "Ethan Burke",
+   "position": "LB",
+   "birth_date": "2003-06-20 00:00:00",
+   "age_by_season": {
+    "2021": null,
+    "2022": null,
+    "2023": null,
+    "2024": null,
+    "2025": null,
+    "2026": null
+   },
+   "rookie_year": 2026,
+   "is_rookie_by_season": {
+    "2021": false,
+    "2022": false,
+    "2023": false,
+    "2024": false,
+    "2025": false,
+    "2026": true
+   },
+   "draft_season": null,
+   "draft_round": null,
+   "draft_pick": null,
+   "draft_team": null,
+   "draft_capital": "UDFA"
+  },
   "13350": {
    "gsis_id": "00-0040981",
    "name": "Joe Fagnano",
@@ -107461,6 +107573,34 @@
    "draft_team": null,
    "draft_capital": "UDFA"
   },
+  "13787": {
+   "gsis_id": "00-0041227",
+   "name": "Tahj Chambers",
+   "position": "LB",
+   "birth_date": "2000-04-09 00:00:00",
+   "age_by_season": {
+    "2021": null,
+    "2022": null,
+    "2023": null,
+    "2024": null,
+    "2025": null,
+    "2026": null
+   },
+   "rookie_year": 2026,
+   "is_rookie_by_season": {
+    "2021": false,
+    "2022": false,
+    "2023": false,
+    "2024": false,
+    "2025": false,
+    "2026": true
+   },
+   "draft_season": null,
+   "draft_round": null,
+   "draft_pick": null,
+   "draft_team": null,
+   "draft_capital": "UDFA"
+  },
   "13946": {
    "gsis_id": "00-0041244",
    "name": "Jamal Haynes",
@@ -107657,6 +107797,34 @@
    "draft_team": null,
    "draft_capital": "UDFA"
   },
+  "13981": {
+   "gsis_id": "00-0041292",
+   "name": "Kolbe Katsis",
+   "position": "WR",
+   "birth_date": "2001-12-28 00:00:00",
+   "age_by_season": {
+    "2021": null,
+    "2022": null,
+    "2023": null,
+    "2024": null,
+    "2025": null,
+    "2026": null
+   },
+   "rookie_year": 2026,
+   "is_rookie_by_season": {
+    "2021": false,
+    "2022": false,
+    "2023": false,
+    "2024": false,
+    "2025": false,
+    "2026": true
+   },
+   "draft_season": null,
+   "draft_round": null,
+   "draft_pick": null,
+   "draft_team": null,
+   "draft_capital": "UDFA"
+  },
   "13336": {
    "gsis_id": "00-0041293",
    "name": "Dane Key",
@@ -107713,11 +107881,95 @@
    "draft_team": null,
    "draft_capital": "UDFA"
   },
+  "13860": {
+   "gsis_id": "00-0041305",
+   "name": "Sabastian Harsh",
+   "position": "DL",
+   "birth_date": "2001-11-28 00:00:00",
+   "age_by_season": {
+    "2021": null,
+    "2022": null,
+    "2023": null,
+    "2024": null,
+    "2025": null,
+    "2026": null
+   },
+   "rookie_year": 2026,
+   "is_rookie_by_season": {
+    "2021": false,
+    "2022": false,
+    "2023": false,
+    "2024": false,
+    "2025": false,
+    "2026": true
+   },
+   "draft_season": null,
+   "draft_round": null,
+   "draft_pick": null,
+   "draft_team": null,
+   "draft_capital": "UDFA"
+  },
   "13437": {
    "gsis_id": "00-0041312",
    "name": "Noah Whittington",
    "position": "RB",
    "birth_date": "2001-12-13 00:00:00",
+   "age_by_season": {
+    "2021": null,
+    "2022": null,
+    "2023": null,
+    "2024": null,
+    "2025": null,
+    "2026": null
+   },
+   "rookie_year": 2026,
+   "is_rookie_by_season": {
+    "2021": false,
+    "2022": false,
+    "2023": false,
+    "2024": false,
+    "2025": false,
+    "2026": true
+   },
+   "draft_season": null,
+   "draft_round": null,
+   "draft_pick": null,
+   "draft_team": null,
+   "draft_capital": "UDFA"
+  },
+  "13827": {
+   "gsis_id": "00-0041314",
+   "name": "Tanner Arkin",
+   "position": "TE",
+   "birth_date": "2003-07-07 00:00:00",
+   "age_by_season": {
+    "2021": null,
+    "2022": null,
+    "2023": null,
+    "2024": null,
+    "2025": null,
+    "2026": null
+   },
+   "rookie_year": 2026,
+   "is_rookie_by_season": {
+    "2021": false,
+    "2022": false,
+    "2023": false,
+    "2024": false,
+    "2025": false,
+    "2026": true
+   },
+   "draft_season": null,
+   "draft_round": null,
+   "draft_pick": null,
+   "draft_team": null,
+   "draft_capital": "UDFA"
+  },
+  "13828": {
+   "gsis_id": "00-0041316",
+   "name": "Channing Canada",
+   "position": "DB",
+   "birth_date": "2002-08-17 00:00:00",
    "age_by_season": {
     "2021": null,
     "2022": null,
@@ -108301,6 +108553,34 @@
    "draft_team": null,
    "draft_capital": "UDFA"
   },
+  "14026": {
+   "gsis_id": "00-0041436",
+   "name": "DJ Herman",
+   "position": "RB",
+   "birth_date": "2002-03-17 00:00:00",
+   "age_by_season": {
+    "2021": null,
+    "2022": null,
+    "2023": null,
+    "2024": null,
+    "2025": null,
+    "2026": null
+   },
+   "rookie_year": 2026,
+   "is_rookie_by_season": {
+    "2021": false,
+    "2022": false,
+    "2023": false,
+    "2024": false,
+    "2025": false,
+    "2026": true
+   },
+   "draft_season": null,
+   "draft_round": null,
+   "draft_pick": null,
+   "draft_team": null,
+   "draft_capital": "UDFA"
+  },
   "13279": {
    "gsis_id": "00-0041438",
    "name": "Carnell Tate",
@@ -108614,6 +108894,34 @@
    "name": "Erick Hunter",
    "position": "LB",
    "birth_date": "2003-02-26 00:00:00",
+   "age_by_season": {
+    "2021": null,
+    "2022": null,
+    "2023": null,
+    "2024": null,
+    "2025": null,
+    "2026": null
+   },
+   "rookie_year": 2026,
+   "is_rookie_by_season": {
+    "2021": false,
+    "2022": false,
+    "2023": false,
+    "2024": false,
+    "2025": false,
+    "2026": true
+   },
+   "draft_season": null,
+   "draft_round": null,
+   "draft_pick": null,
+   "draft_team": null,
+   "draft_capital": "UDFA"
+  },
+  "14035": {
+   "gsis_id": "00-0041459",
+   "name": "Eric O'Neill",
+   "position": "DL",
+   "birth_date": "2003-07-01 00:00:00",
    "age_by_season": {
     "2021": null,
     "2022": null,
