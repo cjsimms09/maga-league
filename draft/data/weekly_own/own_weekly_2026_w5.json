@@ -3,7 +3,7 @@
  "_note": "OUR OWN weekly per-player projection, committed BEFORE kickoff (the commit timestamp is the forward guarantee) and graded by weekly_own_grade.py. A player on bye is ABSENT, never zero. Champion + named challenger arms; the loop contract lives in draft/data/weekly_own/README.md.",
  "season": 2026,
  "week": 5,
- "date": "2026-10-07",
+ "date": "2026-10-08",
  "diagnostics": {
   "formula": "own_weekly_v1+override:v1_pull3",
   "champion_arm": "v1_pull3",
