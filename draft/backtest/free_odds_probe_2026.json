@@ -1,130 +1,130 @@
 {
  "_territory": "relay probe; C consumes; results are the free-odds census",
  "_ask": "Cory 2026-08-21: Explore free Vegas odds we can get",
- "captured_at": "2026-10-01T18:29:46.913083Z",
+ "captured_at": "2026-10-08T18:56:15.049490Z",
  "sources": {
   "espn": {
    "status": 200,
-   "bytes": 283922,
-   "events": 16,
+   "bytes": 270426,
+   "events": 15,
    "known_positive": [
     {
-     "game": "PIT @ CLE",
-     "provider": "DraftKings",
-     "spread": 2.5,
-     "total": 38.5
-    },
-    {
-     "game": "IND VS WSH",
-     "provider": "DraftKings",
-     "spread": 3.5,
-     "total": 47.5
-    },
-    {
-     "game": "NE @ BUF",
-     "provider": "DraftKings",
-     "spread": -6.5,
+     "game": "TB @ DAL",
+     "provider": "Draft Kings",
+     "spread": -9.5,
      "total": 48.5
+    },
+    {
+     "game": "PHI VS JAX",
+     "provider": "Draft Kings",
+     "spread": -7.5,
+     "total": 41.5
+    },
+    {
+     "game": "CHI @ GB",
+     "provider": "Draft Kings",
+     "spread": 1.5,
+     "total": 45.5
     }
    ],
-   "games_with_lines": 16,
+   "games_with_lines": 15,
    "verdict": "POSITIVE \u2014 real lines on real games"
   },
   "bovada": {
    "status": 200,
-   "bytes": 3663940,
+   "bytes": 2908528,
    "known_positive": [
     {
-     "game": "Pittsburgh Steelers @ Cleveland Browns",
+     "game": "Tampa Bay Buccaneers @ Dallas Cowboys",
      "market": "Moneyline",
      "handicap": null
     },
     {
-     "game": "Pittsburgh Steelers @ Cleveland Browns",
+     "game": "Tampa Bay Buccaneers @ Dallas Cowboys",
      "market": "Point Spread",
-     "handicap": "-3.0"
+     "handicap": "9.0"
     },
     {
-     "game": "Pittsburgh Steelers @ Cleveland Browns",
+     "game": "Tampa Bay Buccaneers @ Dallas Cowboys",
      "market": "Total",
-     "handicap": "37.5"
+     "handicap": "48.5"
     }
    ],
-   "markets_seen": 240,
-   "prop_mentions": 4380,
+   "markets_seen": 225,
+   "prop_mentions": 2380,
    "verdict": "POSITIVE \u2014 real lines on real games"
   },
   "bovada_event_props": {
    "status": 200,
-   "bytes": 3663940,
-   "event_link": "/football/nfl/pittsburgh-steelers-cleveland-browns-202610012015",
+   "bytes": 2908528,
+   "event_link": "/football/nfl/tampa-bay-buccaneers-dallas-cowboys-202610082015",
    "event_status": 200,
-   "event_bytes": 446697,
+   "event_bytes": 464088,
    "prop_markets": 25,
    "anytime_td_mentions": 10,
    "known_positive": [
     {
-     "prop": "Total Passing Touchdowns - Aaron Rodgers (PIT)"
+     "prop": "Total Passing Touchdowns - Dak Prescott (DAL)"
     },
     {
-     "prop": "Total Passing Touchdowns - Deshaun Watson (CLE)"
+     "prop": "Total Passing Touchdowns - Jalon Daniels (TB)"
     },
     {
-     "prop": "Total Passing Yards - Aaron Rodgers (PIT)"
+     "prop": "Total Passing Yards - Dak Prescott (DAL)"
     }
    ],
    "verdict": "POSITIVE \u2014 real lines on real games"
   },
   "bovada_census": {
    "status": 200,
-   "bytes": 3663940,
+   "bytes": 2908528,
    "display_groups": {
-    "Game Lines": 16,
-    "Alternate Lines": 18,
-    "TD Scorer Props": 16,
+    "Game Lines": 15,
+    "Alternate Lines": 16,
+    "TD Scorer Props": 15,
     "First Drive Props": 1,
-    "Passing Props": 16,
-    "Passing Yards": 16,
+    "Passing Props": 15,
+    "Passing Yards": 15,
     "Rushing Props": 12,
-    "Rushing Yards": 16,
-    "Receiving Props": 16,
-    "Receiving Yards": 16,
-    "Kicking Props": 11,
+    "Rushing Yards": 15,
+    "Receiving Props": 15,
+    "Receiving Yards": 15,
+    "Kicking Props": 9,
     "Sack Props": 1,
     "Touchdown Props": 15,
     "Def & ST Props": 1,
-    "Score Props": 18,
-    "Game Props": 18,
-    "Correct Score": 18,
+    "Score Props": 16,
+    "Game Props": 16,
+    "Correct Score": 16,
     "Specials": 1,
     "Squares": 1
    },
    "market_types": {
-    "Moneyline": 80,
-    "Point Spread": 80,
-    "Total": 80,
-    "Both teams to score 10 or more points?": 50,
-    "Winning Margin": 50,
-    "Dynamic Winning Margin": 50,
-    "Total Points Range": 50,
-    "To Win and Allow 0 Points": 50,
-    "Odd/Even Total Points": 50,
-    "Correct Score Range": 49,
-    "Anytime Touchdown Scorer": 45,
-    "Spread": 34,
-    "Total Points": 34,
-    "Both teams to score 14 or more points?": 34,
-    "Both teams to score 17 or more points?": 34,
-    "Both Teams To Score": 32,
-    "Both teams to score 7 or more points?": 32,
-    "Double Chance": 32,
-    "Total Touchdowns": 29,
-    "Both teams to score 13 or more points?": 18,
-    "Both teams to score 21 or more points?": 18,
-    "Both teams to score 24 or more points?": 18,
-    "Both teams to score 27 or more points?": 18,
-    "Both teams to score 30 or more points?": 18,
-    "Both teams to score 34 or more points?": 18
+    "Moneyline": 75,
+    "Point Spread": 75,
+    "Total": 75,
+    "Both teams to score 10 or more points?": 46,
+    "Winning Margin": 46,
+    "Dynamic Winning Margin": 46,
+    "Total Points Range": 46,
+    "To Win and Allow 0 Points": 46,
+    "Odd/Even Total Points": 46,
+    "Correct Score Range": 46,
+    "Anytime Touchdown Scorer": 39,
+    "Spread": 31,
+    "Total Points": 31,
+    "Both teams to score 14 or more points?": 31,
+    "Both teams to score 17 or more points?": 31,
+    "Both Teams To Score": 30,
+    "Both teams to score 7 or more points?": 30,
+    "Double Chance": 30,
+    "Total Touchdowns": 27,
+    "Both teams to score 13 or more points?": 16,
+    "Both teams to score 21 or more points?": 16,
+    "Both teams to score 24 or more points?": 16,
+    "Both teams to score 27 or more points?": 16,
+    "Both teams to score 30 or more points?": 16,
+    "Both teams to score 34 or more points?": 16
    },
    "known_positive": [
     {
@@ -137,7 +137,7 @@
   },
   "polymarket": {
    "status": 200,
-   "bytes": 777575,
+   "bytes": 772185,
    "events": 20,
    "known_positive": [
     {
