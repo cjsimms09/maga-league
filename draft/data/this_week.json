@@ -1,6 +1,6 @@
 {
  "_rule": "THE ROSTER RULE: any statement about Cory's roster or matchup cites THIS file (fresh within 3 days) or live Sleeper \u2014 never an older artifact.",
- "generated_at": "2026-10-09T18:54:09+00:00",
+ "generated_at": "2026-10-11T16:44:00+00:00",
  "season": "2026",
  "week": 5,
  "cory": {
@@ -128,7 +128,7 @@
    "pos": "WR",
    "team": "CIN",
    "starter": true,
-   "injury": "Questionable",
+   "injury": null,
    "game": "at MIA (Sun)",
    "home": false,
    "kickoff_utc": "2026-10-11T17:00:00.000Z"
@@ -228,7 +228,7 @@
    "name": "Omarion Hampton",
    "pos": "RB",
    "team": "LAC",
-   "starter": false,
+   "starter": true,
    "injury": null,
    "game": "vs DEN (Sun)",
    "home": true,
@@ -283,8 +283,8 @@
    "name": "Saquon Barkley",
    "pos": "RB",
    "team": "PHI",
-   "starter": true,
-   "injury": "Questionable",
+   "starter": false,
+   "injury": "Out",
    "game": "at JAX (Sun)",
    "home": false,
    "kickoff_utc": "2026-10-11T13:30:00.000Z"

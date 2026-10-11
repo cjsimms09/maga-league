@@ -1,6 +1,6 @@
 # THIS WEEK — coryjsimms, week 5 (2026)
 
-**Generated 2026-10-09T18:54:09+00:00 from LIVE Sleeper. THE ROSTER RULE: any statement about
+**Generated 2026-10-11T16:44:00+00:00 from LIVE Sleeper. THE ROSTER RULE: any statement about
 Cory's roster or matchup cites this file (fresh within 3 days) or live
 Sleeper — a frozen seat plan or tournament artifact is never a source for
 who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
@@ -23,7 +23,7 @@ who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
 | S | Derrick Henry | RB | BAL | at ATL (Sun) | 20.2 (+3) |  |
 |   | Tyreek Hill | WR | — | BYE | — |  |
 | S | Juwan Johnson | TE | NO | vs MIN (Sun) | 19.5 (+2.5) |  |
-| S | Ja'Marr Chase | WR | CIN | at MIA (Sun) | 24.8 (-6.5) | Questionable |
+| S | Ja'Marr Chase | WR | CIN | at MIA (Sun) | 24.8 (-6.5) |  |
 | S | Evan McPherson | K | CIN | at MIA (Sun) | 24.8 (-6.5) |  |
 |   | Kenneth Walker | RB | KC | BYE | — |  |
 | S | Parker Washington | WR | JAX | vs PHI (Sun) | 24.8 (-7.5) |  |
@@ -37,12 +37,12 @@ who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
 | S | Braelon Allen | RB | NYJ | vs CLE (Sun) | 21.2 (-2.5) |  |
 | S | Will Reichard | K | MIN | at NO (Sun) | 22.0 (-2.5) |  |
 |   | Harold Fannin | TE | CLE | at NYJ (Sun) | 18.8 (+2.5) |  |
-|   | Omarion Hampton | RB | LAC | vs DEN (Sun) | 19.0 (+3.5) |  |
+| S | Omarion Hampton | RB | LAC | vs DEN (Sun) | 19.0 (+3.5) |  |
 |   | TreVeyon Henderson | RB | NE | vs LV (Sun) | 24.2 (-3.5) |  |
 |   | Jordyn Tyson | WR | NO | vs MIN (Sun) | 19.5 (+2.5) | IR |
 |   | Denzel Boston | WR | CLE | at NYJ (Sun) | 18.8 (+2.5) |  |
 | S | George Kittle | TE | SF | at SEA (Sun) | 21.5 (+3) |  |
-| S | Saquon Barkley | RB | PHI | at JAX (Sun) | 17.2 (+7.5) | Questionable |
+|   | Saquon Barkley | RB | PHI | at JAX (Sun) | 17.2 (+7.5) | Out |
 |   | Josh Jacobs | RB | GB | vs CHI (Sun) | 22.0 (+1.5) | NA |
 | S | Trevor Lawrence | QB | JAX | vs PHI (Sun) | 24.8 (-7.5) |  |
 | S | Jaylen Waddle | WR | DEN | at LAC (Sun) | 22.5 (-3.5) |  |
