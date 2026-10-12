@@ -2,30 +2,30 @@
   "experiment": "33b \u2014 naive as the projection source (tune-vs-replace)",
   "ranking": {
     "n_picks": 45,
-    "rho_blend": 0.365,
-    "rho_naive": 0.338,
-    "rho_adp": 0.207,
+    "rho_blend": 0.366,
+    "rho_naive": 0.342,
+    "rho_adp": 0.218,
     "naive_minus_blend": {
-      "mean": -0.026,
+      "mean": -0.024,
       "ci95": [
-        -0.08,
-        0.024
+        -0.078,
+        0.027
       ],
       "verdict": "inconclusive"
     },
     "naive_minus_adp": {
-      "mean": 0.131,
+      "mean": 0.124,
       "ci95": [
-        0.018,
-        0.239
+        0.013,
+        0.23
       ],
       "verdict": "positive"
     },
     "blend_minus_adp": {
-      "mean": 0.158,
+      "mean": 0.147,
       "ci95": [
-        0.075,
-        0.245
+        0.065,
+        0.233
       ],
       "verdict": "positive"
     }
@@ -34,9 +34,9 @@
     {
       "season": 2026,
       "dollars": {
-        "blend": 400.0,
-        "naive": 400.0,
-        "adp": 400.0
+        "blend": 0.0,
+        "naive": 0.0,
+        "adp": 0.0
       },
       "naive_minus_blend": 0.0,
       "naive_minus_adp": 0.0
