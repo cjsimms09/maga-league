@@ -48,19 +48,19 @@
       "our": {
         "weekly_high": 0.0,
         "regular_season": 0.0,
-        "playoff": 400.0,
-        "total": 400.0,
-        "playoff_place": 4,
-        "made_playoffs": true,
+        "playoff": 0.0,
+        "total": 0.0,
+        "playoff_place": null,
+        "made_playoffs": false,
         "partial": false
       },
       "adp": {
         "weekly_high": 0.0,
         "regular_season": 0.0,
-        "playoff": 400.0,
-        "total": 400.0,
-        "playoff_place": 4,
-        "made_playoffs": true,
+        "playoff": 0.0,
+        "total": 0.0,
+        "playoff_place": null,
+        "made_playoffs": false,
         "partial": false
       },
       "delta": {
@@ -157,8 +157,8 @@
       "band": "value(<=0)",
       "n": 38,
       "n_deviations": 36,
-      "sum_dollars": -925.0,
-      "mean_dollars": -24.34
+      "sum_dollars": -550.0,
+      "mean_dollars": -14.47
     },
     {
       "band": "near-zero",
@@ -258,14 +258,14 @@
         {
           "pick_no": 133,
           "round": 14,
-          "chosen": "5045",
+          "chosen": "10229",
           "real": "12493",
           "used_fallback": false
         },
         {
           "pick_no": 148,
           "round": 15,
-          "chosen": "10229",
+          "chosen": "5045",
           "real": "8136",
           "used_fallback": false
         }
@@ -842,7 +842,7 @@
         {
           "pick_no": 146,
           "round": 15,
-          "chosen": "4217",
+          "chosen": "8137",
           "real": "KC",
           "used_fallback": false
         }
@@ -959,10 +959,10 @@
     }
   },
   "correlation_arm": {
-    "diff_mean": 0.134,
+    "diff_mean": 0.126,
     "diff_ci": [
-      0.038,
-      0.232
+      0.034,
+      0.223
     ],
     "verdict": "beat",
     "n_picks": 32
