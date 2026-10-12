@@ -37,10 +37,10 @@ _surplus = Σ keeper VORP − Σ cost of the first k picks (103.91+62.08+36.2)_
 
 | slate | E[$] | vs current (95% CI) | RB kept | RB drafted (mean, VORP) |
 |---|---|---|---|---|
-| Chase+Henry+Walker | 863 | — (control) | 2 | 2.32 @ -65.4 |
-| Chase+Henry+Nabers | 788 | -74.8 [-96.0, -54.62] | 1 | 3.35 @ -62.8 |
-| Chase+Nabers+Walker | 758 | -104.5 [-130.75, -78.62] | 1 | 3.35 @ -62.8 |
-| Chase+Henry | 736 | -126.9 [-159.88, -94.75] | 1 | 3.08 @ -61.9 |
+| Chase+Henry+Walker | 862 | — (control) | 2 | 2.32 @ -65.4 |
+| Chase+Henry+Nabers | 788 | -74.2 [-95.38, -54.0] | 1 | 3.35 @ -62.8 |
+| Chase+Nabers+Walker | 758 | -104.0 [-129.75, -78.12] | 1 | 3.35 @ -62.8 |
+| Chase+Henry | 736 | -126.4 [-159.38, -94.25] | 1 | 3.08 @ -61.9 |
 
 ## The bias flag (Cory's hypothesis, applied to THIS decision)
 
