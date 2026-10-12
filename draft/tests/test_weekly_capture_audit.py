@@ -241,3 +241,127 @@ def test_CONTROL_a_realized_gap_IS_detected(tmp_path, monkeypatch):
     assert row["missing"] == [2], row["missing"]
     assert row["pending"] == [3], row["pending"]
     assert row["ok"] is False
+
+
+# ── ACCEPTED GAPS: the alarm must be able to CLEAR without going QUIET ──────
+
+def test_the_guard_FAILED_EVERY_RUN_until_a_permanent_gap_could_be_ACCEPTED():
+    """⚠️ THIS GUARD BECAME THE DEFECT IT WAS BUILT AGAINST, and this is the
+    regression test for that.
+
+    `weekly-capture-guard.yml` failed on EVERY run for its first five days
+    (2026-10-07 .. 10-11) and commented on issue #31 four times with
+    byte-identical content: archive weeks [2, 3, 4], props week [2]. Those
+    weeks cannot be captured — the evidence does not exist later — so the guard
+    could never clear. This file's own header says what that means: *"an alarm
+    that cannot clear itself becomes wallpaper, and wallpaper is what let seven
+    weeks pass."*
+
+    And the harm was not just noise: with the guard already red and #31 already
+    open, a NEW loss in week 6 would have been invisible inside the standing
+    failure.
+
+    So: with those weeks accepted in writing, the live audit must be GREEN.
+    """
+    res = A.audit("2026")
+    acc = A.accepted_gaps("2026")
+    assert acc, "the accepted-gap ledger resolved to nothing"
+    arch = next(r for r in res["captures"] if r["key"] == "sleeper_fp_archive")
+    assert set(arch["accepted"]) >= {2, 3, 4}, arch
+    assert not arch["missing"], arch["missing"]
+    assert A.main(["--season", "2026", "--json"]) == 0, (
+        "the audit still escalates although every gap is accepted — the guard "
+        "cannot clear and is back to being wallpaper")
+
+
+def test_CONTROL_AN_ACCEPTED_GAP_DOES_NOT_SILENCE_A_NEW_ONE(tmp_path, monkeypatch):
+    """⚠️ THE ASSERTION THE WHOLE MECHANISM RESTS ON. If accepting weeks 2-4
+    also forgave week 5, this would be a mute button wearing a ledger's name."""
+    monkeypatch.setattr(A, "ROOT", tmp_path)
+    (tmp_path / "draft" / "data" / "arch").mkdir(parents=True)
+    (tmp_path / "draft" / "data" / "league_history.json").write_text(json.dumps(
+        {"seasons": [{"season": 2026, "weeks": {
+            str(w): [{"roster_id": 1, "points": 100.0}] for w in (1, 2, 3, 4, 5)}}]}))
+    # only week 1 on disk; 2-4 accepted; 5 is a NEW loss
+    (tmp_path / "draft" / "data" / "arch" / "a_2026_w1.json").write_text("{}")
+    (tmp_path / "draft" / "data" / "accepted_capture_gaps.json").write_text(json.dumps(
+        {"gaps": [{"capture": "k", "season": "2026", "weeks": [2, 3, 4],
+                   "why": "the /v1 surface returned zero projections",
+                   "accepted_on": "2026-10-12"}]}))
+    monkeypatch.setattr(A, "CAPTURES", [
+        {"key": "k", "label": "k", "glob": "draft/data/arch/a_{season}_w{week}.json",
+         "serves": "DRAFT", "unbackfillable": True}])
+    monkeypatch.setattr(A, "SEASON_STORES", [])
+
+    r = A.audit("2026")["captures"][0]
+    assert r["accepted"] == [2, 3, 4], r["accepted"]
+    assert r["missing"] == [5], (
+        f"week 5 is a NEW unaccepted loss and must escalate; got {r['missing']}")
+    assert r["ok"] is False
+
+
+def test_a_BACKFILLABLE_capture_CANNOT_be_accepted(tmp_path, monkeypatch):
+    """The realized stores are re-fetchable from nflverse, so accepting one of
+    their weeks would hide WORK rather than record a LOSS — and this mechanism
+    would become the excuse it exists to avoid needing. Enforced in code, not
+    only in the ledger's prose."""
+    monkeypatch.setattr(A, "ROOT", tmp_path)
+    (tmp_path / "draft" / "data").mkdir(parents=True)
+    (tmp_path / "draft" / "data" / "accepted_capture_gaps.json").write_text(json.dumps(
+        {"gaps": [{"capture": "realized_points", "season": "2026", "weeks": [3],
+                   "why": "we did not feel like fetching it",
+                   "accepted_on": "2026-10-12"}]}))
+    assert A.accepted_gaps("2026") == {}, (
+        "a backfillable capture was accepted — that is a mute button, not a "
+        "recorded loss")
+
+
+@pytest.mark.parametrize("drop", ["why", "accepted_on"])
+def test_an_UNDATED_or_UNEXPLAINED_acceptance_does_not_count(tmp_path, monkeypatch, drop):
+    """An acceptance with no reason or no date is how a gap gets quietly
+    forgiven, which is the thing being prevented rather than performed."""
+    monkeypatch.setattr(A, "ROOT", tmp_path)
+    (tmp_path / "draft" / "data").mkdir(parents=True)
+    entry = {"capture": "sleeper_fp_archive", "season": "2026", "weeks": [2],
+             "why": "a stated reason", "accepted_on": "2026-10-12"}
+    entry.pop(drop)
+    (tmp_path / "draft" / "data" / "accepted_capture_gaps.json").write_text(
+        json.dumps({"gaps": [entry]}))
+    assert A.accepted_gaps("2026") == {}, f"accepted an entry with no {drop}"
+
+
+def test_a_MISSING_or_BROKEN_ledger_makes_gaps_ESCALATE_not_vanish(tmp_path, monkeypatch):
+    """The failure direction matters: a broken accept-list must be NOISY. If an
+    unreadable ledger forgave everything, deleting the file would be the
+    quietest way to turn the guard off."""
+    monkeypatch.setattr(A, "ROOT", tmp_path)
+    (tmp_path / "draft" / "data").mkdir(parents=True)
+    assert A.accepted_gaps("2026") == {}          # absent
+    (tmp_path / "draft" / "data" / "accepted_capture_gaps.json").write_text("{not json")
+    assert A.accepted_gaps("2026") == {}          # unreadable
+    #: and with no acceptances, a real gap must be reported as MISSING
+    (tmp_path / "draft" / "data" / "arch").mkdir(parents=True)
+    (tmp_path / "draft" / "data" / "league_history.json").write_text(json.dumps(
+        {"seasons": [{"season": 2026, "weeks": {
+            "1": [{"roster_id": 1, "points": 50.0}],
+            "2": [{"roster_id": 1, "points": 50.0}]}}]}))
+    monkeypatch.setattr(A, "CAPTURES", [
+        {"key": "k", "label": "k", "glob": "draft/data/arch/a_{season}_w{week}.json",
+         "serves": "DRAFT", "unbackfillable": True}])
+    monkeypatch.setattr(A, "SEASON_STORES", [])
+    r = A.audit("2026")["captures"][0]
+    assert r["missing"] == [1, 2] and r["accepted"] == []
+
+
+def test_the_LEDGER_only_names_captures_that_actually_EXIST():
+    """Rule 3e on a config list: an entry whose `capture` key matches no row
+    silently accepts nothing, and reads as if it accepted something."""
+    doc = json.loads((ROOT / "draft" / "data" / "accepted_capture_gaps.json")
+                     .read_text(encoding="utf8"))
+    keys = {c["key"] for c in A.CAPTURES} | {c["key"] for c in A.SEASON_STORES}
+    for g in doc["gaps"]:
+        assert g["capture"] in keys, (
+            f"{g['capture']} is not a capture in this audit — the entry accepts "
+            "nothing while looking like it does")
+        assert g.get("cost"), f"{g['capture']}: no stated COST of the loss"
+        assert g.get("register"), f"{g['capture']}: not tied to a register row"

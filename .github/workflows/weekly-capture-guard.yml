@@ -69,8 +69,23 @@ jobs:
             # STAND DOWN. An alarm that cannot clear itself becomes wallpaper,
             # and wallpaper is what let seven weeks pass.
             if [ -n "$EXISTING" ]; then
-              gh issue comment "$EXISTING" --body \
-                "Coverage is complete again as of $(date -u +%Y-%m-%dT%H:%M:%SZ) — every played week is on disk in every weekly capture. Closing."
+              # ⚠️ WORDING MATTERS HERE. This used to say "every played week is
+              # on disk", which stopped being true the moment permanently-lost
+              # weeks could be ACCEPTED IN WRITING. A close message that
+              # overstates the state is how a recorded loss turns into a
+              # forgotten one — the gap is accepted, not recovered.
+              DOWN=$(mktemp)
+              {
+                printf 'No UNACCEPTED gap remains as of %s.\n\n' \
+                       "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+                printf 'Every played week is either CAPTURED or recorded as a '
+                printf 'permanent loss in `draft/data/accepted_capture_gaps.json`, '
+                printf 'with its reason and its cost. The gap is accepted, NOT '
+                printf 'recovered. Closing — a NEW missing week reopens this.\n\n```\n'
+                cat /tmp/capture_audit.txt
+                printf '```\n'
+              } > "$DOWN"
+              gh issue comment "$EXISTING" --body-file "$DOWN"
               gh issue close "$EXISTING"
               echo "coverage complete; closed #$EXISTING"
             else

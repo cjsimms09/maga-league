@@ -1,0 +1,54 @@
+{
+ "_territory": "TERRITORY: A — read by draft/tools/weekly_capture_audit.py",
+ "_what": "Weeks of an UNBACKFILLABLE capture that are permanently lost, accepted in writing so the alarm can clear and a NEW loss is visible against them.",
+ "_why_this_file_exists": [
+  "The weekly capture guard failed on EVERY run for its first five days and",
+  "commented on issue #31 four times with byte-identical content: archive weeks",
+  "[2, 3, 4] and props week [2]. Those weeks cannot be captured — the evidence",
+  "does not exist later — so the guard could never clear, and an alarm that",
+  "cannot clear is the wallpaper its own header was written against:",
+  "'a red workflow sitting in a list of red workflows is invisible'.",
+  "",
+  "Worse than noise: with the guard already red and #31 already open, a NEW",
+  "loss in week 6 would have been invisible INSIDE the standing failure. That",
+  "is the precise harm the guard exists to prevent, arriving through the guard.",
+  "",
+  "The audit's own closing line already prescribed the fix — 'Fix the capture,",
+  "then ACCEPT THE GAP IN WRITING rather than letting it go unnoticed.' This is",
+  "that writing. Same shape as test_proj_series_completeness.py's triage, which",
+  "this repo had already learned once: a permanent gap must stop holding a gate",
+  "hostage without being silenced."
+ ],
+ "_rules": [
+  "ONLY unbackfillable captures may appear here. A backfillable gap (the",
+  "realized stores — nflverse keeps its history) must be FETCHED, not accepted;",
+  "accepting one would hide work rather than record a loss, and the test",
+  "enforces that.",
+  "Every entry carries `why` and `accepted_on`. An undated acceptance is how a",
+  "gap gets quietly forgiven.",
+  "Accepting a week does NOT silence any other week. The guard still goes red,",
+  "and still opens an issue, for any missing week that is not listed here."
+ ],
+ "gaps": [
+  {
+   "capture": "sleeper_fp_archive",
+   "season": "2026",
+   "weeks": [2, 3, 4],
+   "why": "Sleeper's projections and stats were fetched from the /v1 surface, which answers 200 with a well-formed body and ZERO projections in it. Both 2027-gradeable captures saw '7630 rows, 0 with stats', correctly refused to bank an empty week, and went red every run from kickoff. Root-caused 2026-10-07 (the base URL, not the paths) and fixed; week 5 landed complete on 2026-10-08. Weeks 2-4 are gone: a pre-kickoff projection cannot be reconstructed after the games are played, and a retroactive pull is not provably the pre-kickoff number (exp33).",
+   "cost": "The January-2027 experiment — our weekly model against Sleeper and FantasyPros on this league's scoring — loses three of its weeks. It is graded on weeks 1 and 5 onward.",
+   "accepted_on": "2026-10-12",
+   "accepted_by": "A",
+   "register": 537
+  },
+  {
+   "capture": "props",
+   "season": "2026",
+   "weeks": [2],
+   "why": "Same window as the archive loss. The free props writer missed week 2 while the Sleeper surface defect was live; weeks 3, 4 and 5 are captured and the writer has run green since.",
+   "cost": "One week of market-implied weekly points, out of the season the in-season edge plan ranks first. Weeks 1, 3, 4, 5+ remain.",
+   "accepted_on": "2026-10-12",
+   "accepted_by": "A",
+   "register": 537
+  }
+ ]
+}

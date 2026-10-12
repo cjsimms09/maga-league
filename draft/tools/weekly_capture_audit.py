@@ -240,13 +240,80 @@ def _pattern_control(season: str) -> list:
     return bad
 
 
+#: ── ACCEPTED GAPS: THE REASON THIS ALARM CAN CLEAR ──────────────────────────
+#:
+#: ⚠️ ADDED 2026-10-12 BECAUSE THIS GUARD BECAME THE DEFECT IT WAS BUILT AGAINST.
+#: It failed on EVERY run for its first five days and commented on issue #31
+#: four times with byte-identical content — archive weeks [2, 3, 4], props week
+#: [2]. Those weeks cannot be captured; the evidence does not exist later. So
+#: the guard could never clear, and this file's own header says what that means:
+#: *"a red workflow sitting in a list of red workflows is invisible"* and
+#: *"an alarm that cannot clear itself becomes wallpaper"*.
+#:
+#: And the harm is not merely noise. With the guard already red and #31 already
+#: carrying four identical comments, A NEW LOSS IN WEEK 6 WOULD HAVE BEEN
+#: INVISIBLE INSIDE THE STANDING FAILURE — exactly what the guard exists to
+#: prevent, arriving through the guard.
+#:
+#: The fix was already written in this file's own closing text: *"Fix the
+#: capture, then accept the gap in writing rather than letting it go
+#: unnoticed."* `draft/data/accepted_capture_gaps.json` is that writing, and
+#: the same triage `test_proj_series_completeness.py` got for a permanent
+#: 09-21 gap — stop holding the gate hostage WITHOUT going quiet.
+ACCEPTED = "draft/data/accepted_capture_gaps.json"
+
+
+def accepted_gaps(season: str) -> dict:
+    """{capture_key: {week: entry}} — permanently-lost weeks, accepted in writing.
+
+    Returns {} when the ledger is absent or unreadable, so a missing ledger
+    makes every gap ESCALATE rather than silently forgiving all of them. The
+    failure direction matters: a broken accept-list must be noisy, never quiet.
+    """
+    p = ROOT / ACCEPTED
+    if not p.exists():
+        return {}
+    try:
+        doc = json.loads(p.read_text(encoding="utf8"))
+    except Exception:                                        # noqa: BLE001
+        return {}
+    #: ⚠️ ONLY AN UNBACKFILLABLE CAPTURE MAY BE ACCEPTED, ENFORCED HERE AND NOT
+    #: ONLY STATED IN THE LEDGER'S PROSE. The realized stores are backfillable —
+    #: nflverse keeps its history — so "accepting" one of those weeks would hide
+    #: WORK rather than record a LOSS, and this mechanism would become the
+    #: excuse it was built to avoid needing. A capture that can be re-fetched
+    #: must be re-fetched.
+    unbackfillable = {c["key"] for c in CAPTURES if c.get("unbackfillable")}
+    out: dict = {}
+    for g in doc.get("gaps") or []:
+        if str(g.get("season")) != str(season):
+            continue
+        #: an undated or unexplained acceptance is not an acceptance
+        if not g.get("why") or not g.get("accepted_on"):
+            continue
+        if str(g.get("capture")) not in unbackfillable:
+            continue
+        for w in g.get("weeks") or []:
+            out.setdefault(str(g.get("capture")), {})[int(w)] = g
+    return out
+
+
 def audit(season: str) -> dict:
     owed = played_weeks(season)
+    acc = accepted_gaps(season)
     rows = []
     for cap in CAPTURES:
         have = present_weeks(cap["glob"], season)
-        missing = [w for w in owed if w not in have]
+        gaps = [w for w in owed if w not in have]
+        mine = acc.get(cap["key"], {})
+        #: ACCEPTED is reported and does not escalate; anything else is NEW and
+        #: does. Splitting them is the whole point — a new loss must stand out
+        #: against the standing ones rather than disappear into them.
+        accepted = [w for w in gaps if w in mine]
+        missing = [w for w in gaps if w not in mine]
         rows.append({**cap, "have": sorted(have), "missing": missing,
+                     "accepted": accepted,
+                     "accepted_why": {w: mine[w].get("why") for w in accepted},
                      "owed": owed, "ok": not missing})
     #: ⚠️ THE NEWEST PLAYED WEEK IS "PENDING", NOT "MISSING".
     #:
@@ -330,6 +397,15 @@ def main(argv=None) -> int:
             bad.append(r)
             print(f"     MISSING: weeks {r['missing']}"
                   + ("  ← UNBACKFILLABLE" if r.get("unbackfillable") else ""))
+        #: PRINTED, NEVER SILENT. An accepted gap is a recorded loss, not a
+        #: resolved one — it stays on the page so the cost is visible every
+        #: time anyone reads this, and only stops setting the exit code.
+        if r.get("accepted"):
+            print(f"     lost   : weeks {r['accepted']} — ACCEPTED IN WRITING "
+                  f"({ACCEPTED}), so this does not escalate")
+            for w in r["accepted"]:
+                why = (r["accepted_why"].get(w) or "")[:150]
+                print(f"              wk {w}: {why}…")
         print(f"     serves : {r['serves']}")
 
     print("\n" + "-" * 74)
