@@ -121,12 +121,42 @@
    "props_vs_actual": 5.2,
    "props_priced": 11,
    "props_would_flip": false
+  },
+  {
+   "week": 5,
+   "actual": 151.24,
+   "ceiling": 151.84,
+   "left_on_bench": 0.6,
+   "starters_actual": [
+    "QB:3163",
+    "RB:3198",
+    "RB:12512",
+    "WR:7564",
+    "WR:9487",
+    "TE:7002",
+    "WR:2133",
+    "K:7839",
+    "DEF:HOU"
+   ],
+   "opponent": "Schmelley",
+   "opponent_points": 127.84,
+   "result": "W",
+   "margin": 23.4,
+   "ceiling_would_flip": false,
+   "champion": 151.24,
+   "champion_vs_actual": 0.0,
+   "champion_priced": 11,
+   "champion_would_flip": false,
+   "props": 151.84,
+   "props_vs_actual": 0.6,
+   "props_priced": 7,
+   "props_would_flip": false
   }
  ],
  "summary": {
-  "weeks_graded": 4,
-  "left_on_bench_per_week": 14.15,
-  "champion_vs_actual_per_week": -4.75,
-  "props_vs_actual_per_week": 3.55
+  "weeks_graded": 5,
+  "left_on_bench_per_week": 11.44,
+  "champion_vs_actual_per_week": -3.8,
+  "props_vs_actual_per_week": 2.57
  }
 }
