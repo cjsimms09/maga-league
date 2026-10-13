@@ -125,7 +125,7 @@
         "status": "measured",
         "n": 44,
         "snapshot_date": "2026-08-22",
-        "mae": 163.6,
+        "mae": 163.59,
         "bias": 156.99,
         "mse": 38966.89,
         "spearman": 0.6653
@@ -477,7 +477,7 @@
      }
     },
     "rules_era": "1la32x",
-    "fetched_at": "2026-10-07T02:58:33.976Z",
+    "fetched_at": "2026-10-13T19:27:52.952Z",
     "era_note": "rules_era travels with the weights; a snapshot graded under different money-bearing rules must not steer this era's model"
    },
    "reader_status": "mirror consumed",
