@@ -8169,6 +8169,1870 @@
    "proj_mean": 144.45,
    "prior_ppg": 11.7824,
    "realized": 21.8
+  },
+  {
+   "week": 5,
+   "player_id": "10213",
+   "position": "WR",
+   "proj_mean": 99.54,
+   "prior_ppg": 7.8353,
+   "realized": 5.5
+  },
+  {
+   "week": 5,
+   "player_id": "10214",
+   "position": "TE",
+   "proj_mean": 10.02,
+   "prior_ppg": 3.3867,
+   "realized": 3.4
+  },
+  {
+   "week": 5,
+   "player_id": "10218",
+   "position": "WR",
+   "proj_mean": 8.25,
+   "prior_ppg": 5.0313,
+   "realized": 8.5
+  },
+  {
+   "week": 5,
+   "player_id": "10219",
+   "position": "RB",
+   "proj_mean": 87.54,
+   "prior_ppg": 7.5417,
+   "realized": 1.6
+  },
+  {
+   "week": 5,
+   "player_id": "10224",
+   "position": "TE",
+   "proj_mean": 0.0,
+   "prior_ppg": 0.0,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "10225",
+   "position": "WR",
+   "proj_mean": 24.69,
+   "prior_ppg": 0.6,
+   "realized": 3.0
+  },
+  {
+   "week": 5,
+   "player_id": "10227",
+   "position": "TE",
+   "proj_mean": 71.61,
+   "prior_ppg": 0.2,
+   "realized": 1.0
+  },
+  {
+   "week": 5,
+   "player_id": "10228",
+   "position": "WR",
+   "proj_mean": 9.01,
+   "prior_ppg": 0.0,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "10231",
+   "position": "TE",
+   "proj_mean": 29.59,
+   "prior_ppg": 2.5353,
+   "realized": 7.2
+  },
+  {
+   "week": 5,
+   "player_id": "10232",
+   "position": "WR",
+   "proj_mean": 107.89,
+   "prior_ppg": 10.6824,
+   "realized": 5.28
+  },
+  {
+   "week": 5,
+   "player_id": "10234",
+   "position": "WR",
+   "proj_mean": 26.77,
+   "prior_ppg": 0.2273,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "10235",
+   "position": "RB",
+   "proj_mean": 57.93,
+   "prior_ppg": 0.2833,
+   "realized": 6.5
+  },
+  {
+   "week": 5,
+   "player_id": "10236",
+   "position": "TE",
+   "proj_mean": 90.77,
+   "prior_ppg": 8.8833,
+   "realized": 3.2
+  },
+  {
+   "week": 5,
+   "player_id": "10859",
+   "position": "TE",
+   "proj_mean": 125.16,
+   "prior_ppg": 9.6556,
+   "realized": 17.3
+  },
+  {
+   "week": 5,
+   "player_id": "10871",
+   "position": "TE",
+   "proj_mean": 12.44,
+   "prior_ppg": 1.4429,
+   "realized": 1.4
+  },
+  {
+   "week": 5,
+   "player_id": "11034",
+   "position": "WR",
+   "proj_mean": 10.21,
+   "prior_ppg": 1.32,
+   "realized": 2.6
+  },
+  {
+   "week": 5,
+   "player_id": "11256",
+   "position": "QB",
+   "proj_mean": 9.05,
+   "prior_ppg": 1.29,
+   "realized": 1.18
+  },
+  {
+   "week": 5,
+   "player_id": "11435",
+   "position": "RB",
+   "proj_mean": 23.37,
+   "prior_ppg": 5.1176,
+   "realized": 12.2
+  },
+  {
+   "week": 5,
+   "player_id": "11439",
+   "position": "RB",
+   "proj_mean": 19.18,
+   "prior_ppg": 3.675,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "11510",
+   "position": "RB",
+   "proj_mean": 8.4,
+   "prior_ppg": 2.1786,
+   "realized": 0.5
+  },
+  {
+   "week": 5,
+   "player_id": "11559",
+   "position": "QB",
+   "proj_mean": 15.59,
+   "prior_ppg": 15.3644,
+   "realized": 16.4
+  },
+  {
+   "week": 5,
+   "player_id": "11563",
+   "position": "QB",
+   "proj_mean": 299.77,
+   "prior_ppg": 20.8729,
+   "realized": 9.92
+  },
+  {
+   "week": 5,
+   "player_id": "11564",
+   "position": "QB",
+   "proj_mean": 238.24,
+   "prior_ppg": 24.3212,
+   "realized": 47.46
+  },
+  {
+   "week": 5,
+   "player_id": "11566",
+   "position": "QB",
+   "proj_mean": 318.22,
+   "prior_ppg": 18.6114,
+   "realized": 32.26
+  },
+  {
+   "week": 5,
+   "player_id": "11570",
+   "position": "RB",
+   "proj_mean": 17.08,
+   "prior_ppg": 1.3133,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "11571",
+   "position": "RB",
+   "proj_mean": 26.58,
+   "prior_ppg": 3.7938,
+   "realized": 2.2
+  },
+  {
+   "week": 5,
+   "player_id": "11574",
+   "position": "RB",
+   "proj_mean": -2.52,
+   "prior_ppg": 0.2471,
+   "realized": 10.0
+  },
+  {
+   "week": 5,
+   "player_id": "11575",
+   "position": "RB",
+   "proj_mean": 31.19,
+   "prior_ppg": 3.1235,
+   "realized": 3.8
+  },
+  {
+   "week": 5,
+   "player_id": "11576",
+   "position": "RB",
+   "proj_mean": 87.12,
+   "prior_ppg": 3.575,
+   "realized": 18.1
+  },
+  {
+   "week": 5,
+   "player_id": "11577",
+   "position": "RB",
+   "proj_mean": 26.68,
+   "prior_ppg": 1.0714,
+   "realized": 7.8
+  },
+  {
+   "week": 5,
+   "player_id": "11584",
+   "position": "RB",
+   "proj_mean": 173.18,
+   "prior_ppg": 12.35,
+   "realized": 30.5
+  },
+  {
+   "week": 5,
+   "player_id": "11586",
+   "position": "RB",
+   "proj_mean": 63.85,
+   "prior_ppg": 6.9529,
+   "realized": 14.7
+  },
+  {
+   "week": 5,
+   "player_id": "11593",
+   "position": "TE",
+   "proj_mean": 8.34,
+   "prior_ppg": 1.2188,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "11596",
+   "position": "TE",
+   "proj_mean": 19.61,
+   "prior_ppg": 2.5444,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "11597",
+   "position": "TE",
+   "proj_mean": 80.52,
+   "prior_ppg": 7.02,
+   "realized": 4.5
+  },
+  {
+   "week": 5,
+   "player_id": "11599",
+   "position": "TE",
+   "proj_mean": 14.19,
+   "prior_ppg": 2.3167,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "11603",
+   "position": "TE",
+   "proj_mean": 72.22,
+   "prior_ppg": 7.1353,
+   "realized": 3.5
+  },
+  {
+   "week": 5,
+   "player_id": "11604",
+   "position": "TE",
+   "proj_mean": 149.02,
+   "prior_ppg": 12.0167,
+   "realized": 19.0
+  },
+  {
+   "week": 5,
+   "player_id": "11608",
+   "position": "WR",
+   "proj_mean": 22.02,
+   "prior_ppg": 2.38,
+   "realized": 2.4
+  },
+  {
+   "week": 5,
+   "player_id": "11610",
+   "position": "WR",
+   "proj_mean": 77.94,
+   "prior_ppg": 5.1588,
+   "realized": 9.1
+  },
+  {
+   "week": 5,
+   "player_id": "11617",
+   "position": "WR",
+   "proj_mean": 11.55,
+   "prior_ppg": 2.175,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "11620",
+   "position": "WR",
+   "proj_mean": 111.04,
+   "prior_ppg": 10.3417,
+   "realized": 3.5
+  },
+  {
+   "week": 5,
+   "player_id": "11623",
+   "position": "WR",
+   "proj_mean": 33.76,
+   "prior_ppg": 1.82,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "11627",
+   "position": "WR",
+   "proj_mean": 22.38,
+   "prior_ppg": 8.5059,
+   "realized": 2.6
+  },
+  {
+   "week": 5,
+   "player_id": "11629",
+   "position": "WR",
+   "proj_mean": 16.4,
+   "prior_ppg": 4.325,
+   "realized": 7.9
+  },
+  {
+   "week": 5,
+   "player_id": "11631",
+   "position": "WR",
+   "proj_mean": 183.7,
+   "prior_ppg": 8.2,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "11632",
+   "position": "WR",
+   "proj_mean": 188.33,
+   "prior_ppg": 12.025,
+   "realized": 23.6
+  },
+  {
+   "week": 5,
+   "player_id": "11637",
+   "position": "WR",
+   "proj_mean": 34.9,
+   "prior_ppg": 6.95,
+   "realized": 7.2
+  },
+  {
+   "week": 5,
+   "player_id": "11643",
+   "position": "RB",
+   "proj_mean": 61.79,
+   "prior_ppg": 5.0778,
+   "realized": 1.1
+  },
+  {
+   "week": 5,
+   "player_id": "11647",
+   "position": "RB",
+   "proj_mean": 22.82,
+   "prior_ppg": 8.4538,
+   "realized": 12.1
+  },
+  {
+   "week": 5,
+   "player_id": "11650",
+   "position": "WR",
+   "proj_mean": 12.57,
+   "prior_ppg": 5.0889,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "11655",
+   "position": "RB",
+   "proj_mean": 131.39,
+   "prior_ppg": 9.52,
+   "realized": 4.1
+  },
+  {
+   "week": 5,
+   "player_id": "1166",
+   "position": "QB",
+   "proj_mean": 18.43,
+   "prior_ppg": 12.354,
+   "realized": 15.72
+  },
+  {
+   "week": 5,
+   "player_id": "11729",
+   "position": "RB",
+   "proj_mean": 26.94,
+   "prior_ppg": 0.05,
+   "realized": 1.1
+  },
+  {
+   "week": 5,
+   "player_id": "11762",
+   "position": "WR",
+   "proj_mean": 3.53,
+   "prior_ppg": 0.1455,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "11783",
+   "position": "WR",
+   "proj_mean": 20.2,
+   "prior_ppg": 6.2667,
+   "realized": 10.5
+  },
+  {
+   "week": 5,
+   "player_id": "11834",
+   "position": "WR",
+   "proj_mean": 30.73,
+   "prior_ppg": 5.9778,
+   "realized": 4.6
+  },
+  {
+   "week": 5,
+   "player_id": "11994",
+   "position": "WR",
+   "proj_mean": 13.55,
+   "prior_ppg": 0.9235,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "12048",
+   "position": "RB",
+   "proj_mean": 19.45,
+   "prior_ppg": 1.38,
+   "realized": 3.1
+  },
+  {
+   "week": 5,
+   "player_id": "1339",
+   "position": "TE",
+   "proj_mean": 84.39,
+   "prior_ppg": 7.8,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "1373",
+   "position": "QB",
+   "proj_mean": 240.57,
+   "prior_ppg": 14.1267,
+   "realized": 11.98
+  },
+  {
+   "week": 5,
+   "player_id": "1479",
+   "position": "WR",
+   "proj_mean": 135.43,
+   "prior_ppg": 8.3647,
+   "realized": 7.0
+  },
+  {
+   "week": 5,
+   "player_id": "2133",
+   "position": "WR",
+   "proj_mean": 147.96,
+   "prior_ppg": 13.7786,
+   "realized": 19.6
+  },
+  {
+   "week": 5,
+   "player_id": "2197",
+   "position": "WR",
+   "proj_mean": 92.4,
+   "prior_ppg": 3.0692,
+   "realized": 7.2
+  },
+  {
+   "week": 5,
+   "player_id": "2216",
+   "position": "WR",
+   "proj_mean": 158.81,
+   "prior_ppg": 8.725,
+   "realized": 22.8
+  },
+  {
+   "week": 5,
+   "player_id": "2306",
+   "position": "QB",
+   "proj_mean": 14.38,
+   "prior_ppg": 15.5933,
+   "realized": 31.74
+  },
+  {
+   "week": 5,
+   "player_id": "2359",
+   "position": "RB",
+   "proj_mean": 8.84,
+   "prior_ppg": 2.3,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "3155",
+   "position": "WR",
+   "proj_mean": 2.64,
+   "prior_ppg": 0.0,
+   "realized": 4.4
+  },
+  {
+   "week": 5,
+   "player_id": "3163",
+   "position": "QB",
+   "proj_mean": 297.55,
+   "prior_ppg": 21.4741,
+   "realized": 34.94
+  },
+  {
+   "week": 5,
+   "player_id": "3198",
+   "position": "RB",
+   "proj_mean": 177.69,
+   "prior_ppg": 16.0,
+   "realized": 20.5
+  },
+  {
+   "week": 5,
+   "player_id": "3214",
+   "position": "TE",
+   "proj_mean": 89.15,
+   "prior_ppg": 8.7529,
+   "realized": 11.9
+  },
+  {
+   "week": 5,
+   "player_id": "3257",
+   "position": "QB",
+   "proj_mean": 162.73,
+   "prior_ppg": 19.5314,
+   "realized": 30.78
+  },
+  {
+   "week": 5,
+   "player_id": "3271",
+   "position": "TE",
+   "proj_mean": 24.97,
+   "prior_ppg": 5.86,
+   "realized": 10.8
+  },
+  {
+   "week": 5,
+   "player_id": "3294",
+   "position": "QB",
+   "proj_mean": 260.45,
+   "prior_ppg": 21.9871,
+   "realized": 14.64
+  },
+  {
+   "week": 5,
+   "player_id": "3634",
+   "position": "WR",
+   "proj_mean": 21.67,
+   "prior_ppg": 3.2533,
+   "realized": 1.9
+  },
+  {
+   "week": 5,
+   "player_id": "4034",
+   "position": "RB",
+   "proj_mean": 131.16,
+   "prior_ppg": 21.5059,
+   "realized": 15.8
+  },
+  {
+   "week": 5,
+   "player_id": "4035",
+   "position": "RB",
+   "proj_mean": 136.84,
+   "prior_ppg": 7.6545,
+   "realized": 1.6
+  },
+  {
+   "week": 5,
+   "player_id": "4037",
+   "position": "WR",
+   "proj_mean": 166.17,
+   "prior_ppg": 7.3889,
+   "realized": 5.5
+  },
+  {
+   "week": 5,
+   "player_id": "4039",
+   "position": "WR",
+   "proj_mean": 39.18,
+   "prior_ppg": 5.8,
+   "realized": 2.5
+  },
+  {
+   "week": 5,
+   "player_id": "4054",
+   "position": "TE",
+   "proj_mean": 25.6,
+   "prior_ppg": 2.2,
+   "realized": 2.4
+  },
+  {
+   "week": 5,
+   "player_id": "4066",
+   "position": "TE",
+   "proj_mean": 98.14,
+   "prior_ppg": 4.8625,
+   "realized": 7.5
+  },
+  {
+   "week": 5,
+   "player_id": "4147",
+   "position": "RB",
+   "proj_mean": 63.32,
+   "prior_ppg": 4.6267,
+   "realized": 14.8
+  },
+  {
+   "week": 5,
+   "player_id": "4189",
+   "position": "TE",
+   "proj_mean": 8.44,
+   "prior_ppg": 0.7889,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "4199",
+   "position": "RB",
+   "proj_mean": 110.45,
+   "prior_ppg": 8.725,
+   "realized": 17.2
+  },
+  {
+   "week": 5,
+   "player_id": "421",
+   "position": "QB",
+   "proj_mean": 221.73,
+   "prior_ppg": 26.0224,
+   "realized": 33.32
+  },
+  {
+   "week": 5,
+   "player_id": "4217",
+   "position": "TE",
+   "proj_mean": 133.47,
+   "prior_ppg": 12.0909,
+   "realized": 4.9
+  },
+  {
+   "week": 5,
+   "player_id": "4314",
+   "position": "TE",
+   "proj_mean": 30.01,
+   "prior_ppg": 1.3,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "4351",
+   "position": "WR",
+   "proj_mean": 11.75,
+   "prior_ppg": 3.4,
+   "realized": 3.6
+  },
+  {
+   "week": 5,
+   "player_id": "4454",
+   "position": "WR",
+   "proj_mean": 26.77,
+   "prior_ppg": 5.2571,
+   "realized": 9.5
+  },
+  {
+   "week": 5,
+   "player_id": "4663",
+   "position": "RB",
+   "proj_mean": 104.58,
+   "prior_ppg": 5.3,
+   "realized": 1.9
+  },
+  {
+   "week": 5,
+   "player_id": "4943",
+   "position": "QB",
+   "proj_mean": 242.78,
+   "prior_ppg": 16.7894,
+   "realized": 10.3
+  },
+  {
+   "week": 5,
+   "player_id": "4972",
+   "position": "QB",
+   "proj_mean": 16.59,
+   "prior_ppg": 3.8,
+   "realized": -0.2
+  },
+  {
+   "week": 5,
+   "player_id": "4981",
+   "position": "WR",
+   "proj_mean": 37.97,
+   "prior_ppg": 5.5429,
+   "realized": 4.3
+  },
+  {
+   "week": 5,
+   "player_id": "4984",
+   "position": "QB",
+   "proj_mean": 342.83,
+   "prior_ppg": 25.9137,
+   "realized": 32.5
+  },
+  {
+   "week": 5,
+   "player_id": "4993",
+   "position": "TE",
+   "proj_mean": 78.04,
+   "prior_ppg": 4.725,
+   "realized": 6.9
+  },
+  {
+   "week": 5,
+   "player_id": "4995",
+   "position": "TE",
+   "proj_mean": 9.71,
+   "prior_ppg": 1.9889,
+   "realized": 1.4
+  },
+  {
+   "week": 5,
+   "player_id": "5001",
+   "position": "TE",
+   "proj_mean": 81.83,
+   "prior_ppg": 8.0412,
+   "realized": 4.5
+  },
+  {
+   "week": 5,
+   "player_id": "5012",
+   "position": "TE",
+   "proj_mean": 117.35,
+   "prior_ppg": 6.2941,
+   "realized": 2.8
+  },
+  {
+   "week": 5,
+   "player_id": "5022",
+   "position": "TE",
+   "proj_mean": 97.05,
+   "prior_ppg": 10.34,
+   "realized": 6.8
+  },
+  {
+   "week": 5,
+   "player_id": "5045",
+   "position": "WR",
+   "proj_mean": 144.43,
+   "prior_ppg": 10.7471,
+   "realized": 8.8
+  },
+  {
+   "week": 5,
+   "player_id": "5086",
+   "position": "WR",
+   "proj_mean": 11.88,
+   "prior_ppg": 2.7778,
+   "realized": 3.2
+  },
+  {
+   "week": 5,
+   "player_id": "5154",
+   "position": "WR",
+   "proj_mean": 8.65,
+   "prior_ppg": 0.9,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "5409",
+   "position": "TE",
+   "proj_mean": 11.62,
+   "prior_ppg": 3.83,
+   "realized": 8.9
+  },
+  {
+   "week": 5,
+   "player_id": "5844",
+   "position": "TE",
+   "proj_mean": 101.17,
+   "prior_ppg": 5.82,
+   "realized": 1.2
+  },
+  {
+   "week": 5,
+   "player_id": "5846",
+   "position": "WR",
+   "proj_mean": 144.3,
+   "prior_ppg": 10.5133,
+   "realized": 3.8
+  },
+  {
+   "week": 5,
+   "player_id": "5849",
+   "position": "QB",
+   "proj_mean": 281.3,
+   "prior_ppg": 17.956,
+   "realized": 20.26
+  },
+  {
+   "week": 5,
+   "player_id": "5857",
+   "position": "TE",
+   "proj_mean": 76.04,
+   "prior_ppg": 4.4462,
+   "realized": 1.2
+  },
+  {
+   "week": 5,
+   "player_id": "5870",
+   "position": "QB",
+   "proj_mean": 215.12,
+   "prior_ppg": 20.3415,
+   "realized": 11.08
+  },
+  {
+   "week": 5,
+   "player_id": "5872",
+   "position": "WR",
+   "proj_mean": 134.79,
+   "prior_ppg": 9.5125,
+   "realized": 1.5
+  },
+  {
+   "week": 5,
+   "player_id": "5892",
+   "position": "RB",
+   "proj_mean": 147.34,
+   "prior_ppg": 9.2306,
+   "realized": 1.1
+  },
+  {
+   "week": 5,
+   "player_id": "5906",
+   "position": "TE",
+   "proj_mean": 60.09,
+   "prior_ppg": 5.3563,
+   "realized": 1.1
+  },
+  {
+   "week": 5,
+   "player_id": "5927",
+   "position": "WR",
+   "proj_mean": 147.92,
+   "prior_ppg": 9.52,
+   "realized": 10.2
+  },
+  {
+   "week": 5,
+   "player_id": "5938",
+   "position": "WR",
+   "proj_mean": 10.96,
+   "prior_ppg": 4.0143,
+   "realized": 1.3
+  },
+  {
+   "week": 5,
+   "player_id": "5947",
+   "position": "WR",
+   "proj_mean": 43.89,
+   "prior_ppg": 8.6437,
+   "realized": 4.7
+  },
+  {
+   "week": 5,
+   "player_id": "5967",
+   "position": "RB",
+   "proj_mean": 121.97,
+   "prior_ppg": 9.9588,
+   "realized": 5.2
+  },
+  {
+   "week": 5,
+   "player_id": "5970",
+   "position": "WR",
+   "proj_mean": 16.83,
+   "prior_ppg": 5.05,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "5985",
+   "position": "TE",
+   "proj_mean": 14.55,
+   "prior_ppg": 1.3429,
+   "realized": 1.8
+  },
+  {
+   "week": 5,
+   "player_id": "5995",
+   "position": "RB",
+   "proj_mean": 91.97,
+   "prior_ppg": 5.47,
+   "realized": 8.8
+  },
+  {
+   "week": 5,
+   "player_id": "6001",
+   "position": "TE",
+   "proj_mean": 14.35,
+   "prior_ppg": 2.0333,
+   "realized": 1.0
+  },
+  {
+   "week": 5,
+   "player_id": "6039",
+   "position": "RB",
+   "proj_mean": 74.35,
+   "prior_ppg": 5.1941,
+   "realized": 9.2
+  },
+  {
+   "week": 5,
+   "player_id": "6271",
+   "position": "WR",
+   "proj_mean": 17.31,
+   "prior_ppg": 4.6643,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "6386",
+   "position": "WR",
+   "proj_mean": 5.79,
+   "prior_ppg": 0.2,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "6588",
+   "position": "WR",
+   "proj_mean": 0.0,
+   "prior_ppg": 0.9333,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "6768",
+   "position": "QB",
+   "proj_mean": 277.23,
+   "prior_ppg": 14.3357,
+   "realized": -0.64
+  },
+  {
+   "week": 5,
+   "player_id": "6770",
+   "position": "QB",
+   "proj_mean": 321.6,
+   "prior_ppg": 21.0575,
+   "realized": 32.6
+  },
+  {
+   "week": 5,
+   "player_id": "6783",
+   "position": "WR",
+   "proj_mean": 140.52,
+   "prior_ppg": 5.6294,
+   "realized": 3.4
+  },
+  {
+   "week": 5,
+   "player_id": "6786",
+   "position": "WR",
+   "proj_mean": 196.27,
+   "prior_ppg": 12.5692,
+   "realized": 1.9
+  },
+  {
+   "week": 5,
+   "player_id": "6790",
+   "position": "RB",
+   "proj_mean": 139.29,
+   "prior_ppg": 13.225,
+   "realized": 15.3
+  },
+  {
+   "week": 5,
+   "player_id": "6794",
+   "position": "WR",
+   "proj_mean": 197.88,
+   "prior_ppg": 9.3824,
+   "realized": 15.8
+  },
+  {
+   "week": 5,
+   "player_id": "6797",
+   "position": "QB",
+   "proj_mean": 278.82,
+   "prior_ppg": 21.18,
+   "realized": 12.24
+  },
+  {
+   "week": 5,
+   "player_id": "6801",
+   "position": "WR",
+   "proj_mean": 175.12,
+   "prior_ppg": 12.14,
+   "realized": 3.2
+  },
+  {
+   "week": 5,
+   "player_id": "6804",
+   "position": "QB",
+   "proj_mean": 279.28,
+   "prior_ppg": 18.7427,
+   "realized": 29.28
+  },
+  {
+   "week": 5,
+   "player_id": "6806",
+   "position": "RB",
+   "proj_mean": 151.28,
+   "prior_ppg": 11.04,
+   "realized": 14.4
+  },
+  {
+   "week": 5,
+   "player_id": "6813",
+   "position": "RB",
+   "proj_mean": 183.7,
+   "prior_ppg": 19.9588,
+   "realized": 9.7
+  },
+  {
+   "week": 5,
+   "player_id": "6826",
+   "position": "TE",
+   "proj_mean": 102.38,
+   "prior_ppg": 3.9813,
+   "realized": 1.3
+  },
+  {
+   "week": 5,
+   "player_id": "6847",
+   "position": "WR",
+   "proj_mean": 12.33,
+   "prior_ppg": 0.2118,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "6865",
+   "position": "TE",
+   "proj_mean": 59.62,
+   "prior_ppg": 7.7357,
+   "realized": 0.8
+  },
+  {
+   "week": 5,
+   "player_id": "6904",
+   "position": "QB",
+   "proj_mean": 314.41,
+   "prior_ppg": 21.9412,
+   "realized": 15.0
+  },
+  {
+   "week": 5,
+   "player_id": "6931",
+   "position": "RB",
+   "proj_mean": 16.38,
+   "prior_ppg": 0.42,
+   "realized": 1.6
+  },
+  {
+   "week": 5,
+   "player_id": "7002",
+   "position": "TE",
+   "proj_mean": 85.48,
+   "prior_ppg": 8.3176,
+   "realized": 3.6
+  },
+  {
+   "week": 5,
+   "player_id": "7039",
+   "position": "WR",
+   "proj_mean": 16.8,
+   "prior_ppg": 2.0625,
+   "realized": 5.4
+  },
+  {
+   "week": 5,
+   "player_id": "7049",
+   "position": "WR",
+   "proj_mean": 36.8,
+   "prior_ppg": 9.72,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "7075",
+   "position": "TE",
+   "proj_mean": 11.06,
+   "prior_ppg": 1.2571,
+   "realized": 1.8
+  },
+  {
+   "week": 5,
+   "player_id": "7083",
+   "position": "QB",
+   "proj_mean": 15.27,
+   "prior_ppg": 8.828,
+   "realized": 28.04
+  },
+  {
+   "week": 5,
+   "player_id": "7090",
+   "position": "WR",
+   "proj_mean": 35.88,
+   "prior_ppg": 4.42,
+   "realized": 2.4
+  },
+  {
+   "week": 5,
+   "player_id": "7496",
+   "position": "WR",
+   "proj_mean": 22.68,
+   "prior_ppg": 1.1077,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "7523",
+   "position": "QB",
+   "proj_mean": 253.51,
+   "prior_ppg": 23.3047,
+   "realized": 25.74
+  },
+  {
+   "week": 5,
+   "player_id": "7526",
+   "position": "WR",
+   "proj_mean": 129.65,
+   "prior_ppg": 10.1325,
+   "realized": 3.8
+  },
+  {
+   "week": 5,
+   "player_id": "7528",
+   "position": "RB",
+   "proj_mean": 135.15,
+   "prior_ppg": 3.3667,
+   "realized": 1.9
+  },
+  {
+   "week": 5,
+   "player_id": "7536",
+   "position": "TE",
+   "proj_mean": 27.63,
+   "prior_ppg": 1.3182,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "7547",
+   "position": "WR",
+   "proj_mean": 200.58,
+   "prior_ppg": 15.6176,
+   "realized": 9.9
+  },
+  {
+   "week": 5,
+   "player_id": "7553",
+   "position": "TE",
+   "proj_mean": 90.9,
+   "prior_ppg": 9.8118,
+   "realized": 12.7
+  },
+  {
+   "week": 5,
+   "player_id": "7562",
+   "position": "WR",
+   "proj_mean": 14.68,
+   "prior_ppg": 3.525,
+   "realized": 0.9
+  },
+  {
+   "week": 5,
+   "player_id": "7564",
+   "position": "WR",
+   "proj_mean": 181.03,
+   "prior_ppg": 15.6937,
+   "realized": 16.7
+  },
+  {
+   "week": 5,
+   "player_id": "7567",
+   "position": "RB",
+   "proj_mean": 72.88,
+   "prior_ppg": 10.8706,
+   "realized": 4.3
+  },
+  {
+   "week": 5,
+   "player_id": "7569",
+   "position": "WR",
+   "proj_mean": 184.63,
+   "prior_ppg": 12.7133,
+   "realized": 8.1
+  },
+  {
+   "week": 5,
+   "player_id": "7571",
+   "position": "WR",
+   "proj_mean": 120.4,
+   "prior_ppg": 3.5308,
+   "realized": 8.7
+  },
+  {
+   "week": 5,
+   "player_id": "7587",
+   "position": "WR",
+   "proj_mean": 10.88,
+   "prior_ppg": 3.6091,
+   "realized": 0.7
+  },
+  {
+   "week": 5,
+   "player_id": "7588",
+   "position": "RB",
+   "proj_mean": 119.44,
+   "prior_ppg": 14.0813,
+   "realized": 13.2
+  },
+  {
+   "week": 5,
+   "player_id": "7600",
+   "position": "TE",
+   "proj_mean": 97.57,
+   "prior_ppg": 6.2067,
+   "realized": 19.0
+  },
+  {
+   "week": 5,
+   "player_id": "7602",
+   "position": "TE",
+   "proj_mean": 9.77,
+   "prior_ppg": 0.625,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "7611",
+   "position": "RB",
+   "proj_mean": 124.51,
+   "prior_ppg": 11.6286,
+   "realized": 16.0
+  },
+  {
+   "week": 5,
+   "player_id": "7716",
+   "position": "TE",
+   "proj_mean": 37.6,
+   "prior_ppg": 2.18,
+   "realized": 0.6
+  },
+  {
+   "week": 5,
+   "player_id": "7720",
+   "position": "RB",
+   "proj_mean": 0.65,
+   "prior_ppg": 0.49,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "7812",
+   "position": "WR",
+   "proj_mean": 31.16,
+   "prior_ppg": 0.0,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "7842",
+   "position": "TE",
+   "proj_mean": 8.23,
+   "prior_ppg": 1.8462,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "7891",
+   "position": "TE",
+   "proj_mean": 53.68,
+   "prior_ppg": 3.725,
+   "realized": 1.6
+  },
+  {
+   "week": 5,
+   "player_id": "8025",
+   "position": "RB",
+   "proj_mean": 1.59,
+   "prior_ppg": 0.9769,
+   "realized": 0.3
+  },
+  {
+   "week": 5,
+   "player_id": "8110",
+   "position": "TE",
+   "proj_mean": 87.64,
+   "prior_ppg": 8.6529,
+   "realized": 3.4
+  },
+  {
+   "week": 5,
+   "player_id": "8111",
+   "position": "TE",
+   "proj_mean": 98.05,
+   "prior_ppg": 6.18,
+   "realized": 4.0
+  },
+  {
+   "week": 5,
+   "player_id": "8112",
+   "position": "WR",
+   "proj_mean": 163.34,
+   "prior_ppg": 13.9917,
+   "realized": 15.3
+  },
+  {
+   "week": 5,
+   "player_id": "8117",
+   "position": "WR",
+   "proj_mean": 30.9,
+   "prior_ppg": 3.1083,
+   "realized": 2.7
+  },
+  {
+   "week": 5,
+   "player_id": "8119",
+   "position": "WR",
+   "proj_mean": 22.6,
+   "prior_ppg": 2.7467,
+   "realized": 6.4
+  },
+  {
+   "week": 5,
+   "player_id": "8121",
+   "position": "WR",
+   "proj_mean": 126.12,
+   "prior_ppg": 8.6187,
+   "realized": 2.1
+  },
+  {
+   "week": 5,
+   "player_id": "8122",
+   "position": "RB",
+   "proj_mean": 3.27,
+   "prior_ppg": 6.825,
+   "realized": 0.8
+  },
+  {
+   "week": 5,
+   "player_id": "8126",
+   "position": "WR",
+   "proj_mean": 118.46,
+   "prior_ppg": 10.7438,
+   "realized": 8.3
+  },
+  {
+   "week": 5,
+   "player_id": "8127",
+   "position": "TE",
+   "proj_mean": 17.54,
+   "prior_ppg": 2.4,
+   "realized": 3.2
+  },
+  {
+   "week": 5,
+   "player_id": "8129",
+   "position": "RB",
+   "proj_mean": 17.37,
+   "prior_ppg": 0.72,
+   "realized": 2.2
+  },
+  {
+   "week": 5,
+   "player_id": "8130",
+   "position": "TE",
+   "proj_mean": 134.59,
+   "prior_ppg": 14.8765,
+   "realized": 17.1
+  },
+  {
+   "week": 5,
+   "player_id": "8131",
+   "position": "TE",
+   "proj_mean": 94.82,
+   "prior_ppg": 4.0167,
+   "realized": 26.9
+  },
+  {
+   "week": 5,
+   "player_id": "8132",
+   "position": "RB",
+   "proj_mean": 100.63,
+   "prior_ppg": 6.8235,
+   "realized": 2.6
+  },
+  {
+   "week": 5,
+   "player_id": "8134",
+   "position": "WR",
+   "proj_mean": 126.79,
+   "prior_ppg": 8.15,
+   "realized": 9.5
+  },
+  {
+   "week": 5,
+   "player_id": "8135",
+   "position": "WR",
+   "proj_mean": 8.95,
+   "prior_ppg": 3.0,
+   "realized": 3.6
+  },
+  {
+   "week": 5,
+   "player_id": "8136",
+   "position": "RB",
+   "proj_mean": 147.79,
+   "prior_ppg": 7.2353,
+   "realized": 2.5
+  },
+  {
+   "week": 5,
+   "player_id": "8137",
+   "position": "WR",
+   "proj_mean": 140.65,
+   "prior_ppg": 14.4353,
+   "realized": 23.5
+  },
+  {
+   "week": 5,
+   "player_id": "8138",
+   "position": "RB",
+   "proj_mean": 179.76,
+   "prior_ppg": 16.8059,
+   "realized": 22.3
+  },
+  {
+   "week": 5,
+   "player_id": "8144",
+   "position": "WR",
+   "proj_mean": 130.15,
+   "prior_ppg": 13.625,
+   "realized": 6.6
+  },
+  {
+   "week": 5,
+   "player_id": "8146",
+   "position": "WR",
+   "proj_mean": 154.18,
+   "prior_ppg": 11.6429,
+   "realized": 19.9
+  },
+  {
+   "week": 5,
+   "player_id": "8148",
+   "position": "WR",
+   "proj_mean": 144.5,
+   "prior_ppg": 11.0235,
+   "realized": 17.7
+  },
+  {
+   "week": 5,
+   "player_id": "8150",
+   "position": "RB",
+   "proj_mean": 214.9,
+   "prior_ppg": 14.4294,
+   "realized": 16.6
+  },
+  {
+   "week": 5,
+   "player_id": "8154",
+   "position": "RB",
+   "proj_mean": 137.07,
+   "prior_ppg": 3.4412,
+   "realized": 1.6
+  },
+  {
+   "week": 5,
+   "player_id": "8161",
+   "position": "QB",
+   "proj_mean": 150.27,
+   "prior_ppg": 14.295,
+   "realized": 20.88
+  },
+  {
+   "week": 5,
+   "player_id": "8167",
+   "position": "WR",
+   "proj_mean": 113.32,
+   "prior_ppg": 11.49,
+   "realized": 29.3
+  },
+  {
+   "week": 5,
+   "player_id": "8168",
+   "position": "WR",
+   "proj_mean": 7.68,
+   "prior_ppg": 0.7235,
+   "realized": 0.5
+  },
+  {
+   "week": 5,
+   "player_id": "8172",
+   "position": "TE",
+   "proj_mean": 56.55,
+   "prior_ppg": 5.5333,
+   "realized": 7.7
+  },
+  {
+   "week": 5,
+   "player_id": "8181",
+   "position": "RB",
+   "proj_mean": 15.46,
+   "prior_ppg": 1.85,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "8183",
+   "position": "QB",
+   "proj_mean": 289.54,
+   "prior_ppg": 24.1533,
+   "realized": 20.16
+  },
+  {
+   "week": 5,
+   "player_id": "8204",
+   "position": "WR",
+   "proj_mean": 11.94,
+   "prior_ppg": 1.7077,
+   "realized": 3.5
+  },
+  {
+   "week": 5,
+   "player_id": "8208",
+   "position": "RB",
+   "proj_mean": 14.35,
+   "prior_ppg": 1.6188,
+   "realized": 0.6
+  },
+  {
+   "week": 5,
+   "player_id": "8210",
+   "position": "TE",
+   "proj_mean": 80.49,
+   "prior_ppg": 5.6471,
+   "realized": 8.0
+  },
+  {
+   "week": 5,
+   "player_id": "8223",
+   "position": "RB",
+   "proj_mean": 11.21,
+   "prior_ppg": 0.64,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "8225",
+   "position": "TE",
+   "proj_mean": 55.0,
+   "prior_ppg": 3.8538,
+   "realized": 1.0
+  },
+  {
+   "week": 5,
+   "player_id": "8227",
+   "position": "TE",
+   "proj_mean": 5.42,
+   "prior_ppg": 0.0,
+   "realized": 14.5
+  },
+  {
+   "week": 5,
+   "player_id": "8228",
+   "position": "RB",
+   "proj_mean": 107.84,
+   "prior_ppg": 12.3187,
+   "realized": 33.8
+  },
+  {
+   "week": 5,
+   "player_id": "8250",
+   "position": "WR",
+   "proj_mean": 14.36,
+   "prior_ppg": 1.65,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "8253",
+   "position": "WR",
+   "proj_mean": 14.94,
+   "prior_ppg": 0.6714,
+   "realized": 1.3
+  },
+  {
+   "week": 5,
+   "player_id": "827",
+   "position": "QB",
+   "proj_mean": 14.39,
+   "prior_ppg": 11.5767,
+   "realized": -0.2
+  },
+  {
+   "week": 5,
+   "player_id": "8414",
+   "position": "WR",
+   "proj_mean": 15.99,
+   "prior_ppg": 0.5,
+   "realized": 0.0
+  },
+  {
+   "week": 5,
+   "player_id": "8489",
+   "position": "TE",
+   "proj_mean": 9.54,
+   "prior_ppg": 0.9727,
+   "realized": 0.9
+  },
+  {
+   "week": 5,
+   "player_id": "8676",
+   "position": "WR",
+   "proj_mean": 140.81,
+   "prior_ppg": 6.3944,
+   "realized": 3.3
+  },
+  {
+   "week": 5,
+   "player_id": "8917",
+   "position": "WR",
+   "proj_mean": 16.34,
+   "prior_ppg": 4.7667,
+   "realized": 3.2
+  },
+  {
+   "week": 5,
+   "player_id": "9221",
+   "position": "RB",
+   "proj_mean": 222.25,
+   "prior_ppg": 19.3176,
+   "realized": 35.2
+  },
+  {
+   "week": 5,
+   "player_id": "9224",
+   "position": "RB",
+   "proj_mean": 148.19,
+   "prior_ppg": 14.5941,
+   "realized": 5.5
+  },
+  {
+   "week": 5,
+   "player_id": "9479",
+   "position": "TE",
+   "proj_mean": 49.41,
+   "prior_ppg": 4.4538,
+   "realized": 2.2
+  },
+  {
+   "week": 5,
+   "player_id": "9480",
+   "position": "TE",
+   "proj_mean": 69.59,
+   "prior_ppg": 7.9167,
+   "realized": 10.3
+  },
+  {
+   "week": 5,
+   "player_id": "9482",
+   "position": "TE",
+   "proj_mean": 57.84,
+   "prior_ppg": 4.3308,
+   "realized": 0.7
+  },
+  {
+   "week": 5,
+   "player_id": "9484",
+   "position": "TE",
+   "proj_mean": 102.94,
+   "prior_ppg": 12.65,
+   "realized": 9.1
+  },
+  {
+   "week": 5,
+   "player_id": "9486",
+   "position": "WR",
+   "proj_mean": 29.74,
+   "prior_ppg": 4.6769,
+   "realized": 8.8
+  },
+  {
+   "week": 5,
+   "player_id": "9487",
+   "position": "WR",
+   "proj_mean": 97.57,
+   "prior_ppg": 8.9812,
+   "realized": 27.4
+  },
+  {
+   "week": 5,
+   "player_id": "9488",
+   "position": "WR",
+   "proj_mean": 146.41,
+   "prior_ppg": 17.6706,
+   "realized": 20.3
+  },
+  {
+   "week": 5,
+   "player_id": "9493",
+   "position": "WR",
+   "proj_mean": 192.04,
+   "prior_ppg": 19.4062,
+   "realized": 29.2
+  },
+  {
+   "week": 5,
+   "player_id": "9494",
+   "position": "WR",
+   "proj_mean": 15.19,
+   "prior_ppg": 4.7,
+   "realized": 1.9
+  },
+  {
+   "week": 5,
+   "player_id": "9500",
+   "position": "WR",
+   "proj_mean": 136.7,
+   "prior_ppg": 6.8375,
+   "realized": 6.2
+  },
+  {
+   "week": 5,
+   "player_id": "9501",
+   "position": "WR",
+   "proj_mean": 21.92,
+   "prior_ppg": 5.0187,
+   "realized": 20.5
+  },
+  {
+   "week": 5,
+   "player_id": "9504",
+   "position": "WR",
+   "proj_mean": 27.39,
+   "prior_ppg": 7.6857,
+   "realized": 5.3
+  },
+  {
+   "week": 5,
+   "player_id": "9506",
+   "position": "RB",
+   "proj_mean": 26.3,
+   "prior_ppg": 5.1412,
+   "realized": 1.8
+  },
+  {
+   "week": 5,
+   "player_id": "9508",
+   "position": "RB",
+   "proj_mean": 122.93,
+   "prior_ppg": 6.8615,
+   "realized": 5.3
+  },
+  {
+   "week": 5,
+   "player_id": "9509",
+   "position": "RB",
+   "proj_mean": 210.0,
+   "prior_ppg": 19.4882,
+   "realized": 13.8
+  },
+  {
+   "week": 5,
+   "player_id": "9511",
+   "position": "RB",
+   "proj_mean": 92.71,
+   "prior_ppg": 3.9154,
+   "realized": 4.4
+  },
+  {
+   "week": 5,
+   "player_id": "96",
+   "position": "QB",
+   "proj_mean": 175.03,
+   "prior_ppg": 17.1612,
+   "realized": 28.0
+  },
+  {
+   "week": 5,
+   "player_id": "9757",
+   "position": "RB",
+   "proj_mean": 13.51,
+   "prior_ppg": 4.4,
+   "realized": 9.0
+  },
+  {
+   "week": 5,
+   "player_id": "9758",
+   "position": "QB",
+   "proj_mean": 250.31,
+   "prior_ppg": 17.61,
+   "realized": 22.94
+  },
+  {
+   "week": 5,
+   "player_id": "9997",
+   "position": "WR",
+   "proj_mean": 144.45,
+   "prior_ppg": 11.7824,
+   "realized": 10.6
   }
  ],
  "_absent": {
@@ -8223,24 +10087,25 @@
  },
  "_hazard_in_the_reader": "component_run.BUILDERS.projection maps a missing prior to {predicted: null}, and gradeComponent computes Math.abs(Number(null) - realized). Number(null) is 0, so a player with no prior season is graded against a baseline that predicted ZERO. Measured: the same two pairs score +10.0 with a null baseline and -2.0 with a true one. This writer therefore emits a projection row only when BOTH inputs exist; it does not patch the reader.",
  "provenance": {
-  "built": "2026-10-07",
+  "built": "2026-10-13",
   "season": "2026",
   "prior_season": "2025",
   "weeks": [
    1,
    2,
    3,
-   4
+   4,
+   5
   ],
-  "rows": 1021,
-  "players": 320,
+  "rows": 1254,
+  "players": 329,
   "dropped": {
-   "no_projection": 408,
-   "no_prior": 24
+   "no_projection": 511,
+   "no_prior": 34
   },
   "dropped_players": {
-   "no_projection": 149,
-   "no_prior": 12
+   "no_projection": 160,
+   "no_prior": 14
   },
   "weeks_per_season_divisor": 17,
   "scoring_fingerprint": "220bf4c671786351",

@@ -10,7 +10,7 @@
     "ok": true
    }
   ],
-  "fetched": "2026-10-07",
+  "fetched": "2026-10-13",
   "weeks_span": [
    1,
    18
@@ -30,8 +30,8 @@
    "team"
   ],
   "crosswalk": "nfl_data_py.import_ids() gsis_id -> sleeper_id; unmapped players keyed gsis:<id>, never dropped",
-  "raw_rows": 128,
-  "kept_player_weeks": 128,
+  "raw_rows": 158,
+  "kept_player_weeks": 158,
   "players": 32,
   "sleeper_mapped_players": 29,
   "unmapped_gsis_players": 3
@@ -914,6 +914,216 @@
      "pos": "K",
      "team": "WAS",
      "xpm": 1
+    }
+   }
+  },
+  {
+   "week": 5,
+   "players": {
+    "10955": {
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "ARI",
+     "xpm": 3
+    },
+    "11261": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "CLE",
+     "xpmiss": 1
+    },
+    "11533": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "DAL",
+     "xpm": 1
+    },
+    "11539": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "DET",
+     "xpm": 6
+    },
+    "11786": {
+     "fgm_30_39": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "JAX",
+     "xpm": 1,
+     "xpmiss": 1
+    },
+    "11792": {
+     "fgm_40_49": 1,
+     "fgm_50p": 2,
+     "pos": "K",
+     "team": "MIN",
+     "xpm": 2
+    },
+    "12015": {
+     "fgmiss": 2,
+     "pos": "K",
+     "team": "LA",
+     "xpm": 4
+    },
+    "12185": {
+     "fgm_20_29": 2,
+     "fgm_40_49": 1,
+     "fgm_50p": 2,
+     "pos": "K",
+     "team": "IND",
+     "xpm": 1
+    },
+    "12711": {
+     "fgm_20_29": 1,
+     "fgm_50p": 2,
+     "pos": "K",
+     "team": "BAL",
+     "xpm": 1
+    },
+    "12713": {
+     "fgm_20_29": 1,
+     "pos": "K",
+     "team": "NE",
+     "xpm": 6
+    },
+    "1945": {
+     "fgm_40_49": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "PIT",
+     "xpm": 4
+    },
+    "2020": {
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "CHI",
+     "xpm": 1
+    },
+    "2747": {
+     "fgm_40_49": 4,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "SEA",
+     "xpm": 2
+    },
+    "3451": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "HOU",
+     "xpm": 2
+    },
+    "3678": {
+     "fgm_0_19": 1,
+     "fgm_30_39": 2,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "DEN",
+     "xpm": 2
+    },
+    "4195": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "PHI",
+     "xpm": 2
+    },
+    "5095": {
+     "pos": "K",
+     "team": "NO",
+     "xpm": 1,
+     "xpmiss": 1
+    },
+    "5119": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "NYJ",
+     "xpm": 2
+    },
+    "5189": {
+     "fgm_40_49": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "SF",
+     "xpm": 3
+    },
+    "6083": {
+     "fgm_40_49": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "LV",
+     "xpm": 2
+    },
+    "650": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "ATL",
+     "xpm": 2
+    },
+    "6528": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "TEN"
+    },
+    "6650": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "TB",
+     "xpm": 3
+    },
+    "7042": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 2,
+     "pos": "K",
+     "team": "BUF",
+     "xpm": 2,
+     "xpmiss": 1
+    },
+    "7839": {
+     "fgm_20_29": 1,
+     "pos": "K",
+     "team": "CIN",
+     "xpm": 4
+    },
+    "7922": {
+     "fgm_20_29": 1,
+     "pos": "K",
+     "team": "MIA",
+     "xpm": 1,
+     "xpmiss": 1
+    },
+    "8259": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "LAC",
+     "xpm": 2
+    },
+    "gsis:00-0040899": {
+     "fgm_30_39": 1,
+     "fgmiss": 2,
+     "pos": "K",
+     "team": "GB",
+     "xpm": 2,
+     "xpmiss": 1
+    },
+    "gsis:00-0041145": {
+     "fgm_50p": 2,
+     "fgmiss": 3,
+     "pos": "K",
+     "team": "NYG",
+     "xpm": 3
+    },
+    "gsis:00-0041182": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "WAS",
+     "xpm": 1,
+     "xpmiss": 1
     }
    }
   }
