@@ -1,6 +1,6 @@
 {
  "_rule": "THE ROSTER RULE: any statement about Cory's roster or matchup cites THIS file (fresh within 3 days) or live Sleeper \u2014 never an older artifact.",
- "generated_at": "2026-10-13T19:54:33+00:00",
+ "generated_at": "2026-10-14T16:54:34+00:00",
  "season": "2026",
  "week": 6,
  "cory": {
@@ -29,7 +29,7 @@
    "pos": "QB",
    "team": "CHI",
    "starter": true,
-   "injury": "Out",
+   "injury": "Questionable",
    "game": "at ATL (Sun)",
    "home": false,
    "kickoff_utc": "2026-10-18T17:00:00.000Z"
@@ -123,22 +123,22 @@
    "kickoff_utc": "2026-10-18T17:00:00.000Z"
   },
   {
+   "id": "7042",
+   "name": "Tyler Bass",
+   "pos": "K",
+   "team": "BUF",
+   "starter": true,
+   "injury": null,
+   "game": "at LV (Sun)",
+   "home": false,
+   "kickoff_utc": "2026-10-18T20:25:00.000Z"
+  },
+  {
    "id": "7564",
    "name": "Ja'Marr Chase",
    "pos": "WR",
    "team": "CIN",
    "starter": false,
-   "injury": null,
-   "game": "BYE",
-   "home": null,
-   "kickoff_utc": null
-  },
-  {
-   "id": "7839",
-   "name": "Evan McPherson",
-   "pos": "K",
-   "team": "CIN",
-   "starter": true,
    "injury": null,
    "game": "BYE",
    "home": null,
@@ -178,15 +178,15 @@
    "kickoff_utc": "2026-10-16T00:15:00.000Z"
   },
   {
-   "id": "HOU",
-   "name": "HOU D/ST",
+   "id": "LAR",
+   "name": "LAR D/ST",
    "pos": "DEF",
-   "team": "HOU",
+   "team": "LAR",
    "starter": true,
    "injury": null,
-   "game": "at JAX (Sun)",
-   "home": false,
-   "kickoff_utc": "2026-10-18T13:30:00.000Z"
+   "game": "vs ARI (Sun)",
+   "home": true,
+   "kickoff_utc": "2026-10-18T20:05:00.000Z"
   }
  ],
  "opponent_roster": [
@@ -262,7 +262,7 @@
    "pos": "RB",
    "team": "CHI",
    "starter": false,
-   "injury": "Out",
+   "injury": "Questionable",
    "game": "at ATL (Sun)",
    "home": false,
    "kickoff_utc": "2026-10-18T17:00:00.000Z"
@@ -306,7 +306,7 @@
    "pos": "RB",
    "team": "HOU",
    "starter": false,
-   "injury": "Out",
+   "injury": "Doubtful",
    "game": "at JAX (Sun)",
    "home": false,
    "kickoff_utc": "2026-10-18T13:30:00.000Z"
