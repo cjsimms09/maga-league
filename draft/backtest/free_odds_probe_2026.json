@@ -1,130 +1,131 @@
 {
  "_territory": "relay probe; C consumes; results are the free-odds census",
  "_ask": "Cory 2026-08-21: Explore free Vegas odds we can get",
- "captured_at": "2026-10-08T18:56:15.049490Z",
+ "captured_at": "2026-10-15T17:13:27.662703Z",
  "sources": {
   "espn": {
    "status": 200,
-   "bytes": 270426,
-   "events": 15,
+   "bytes": 254190,
+   "events": 14,
    "known_positive": [
     {
-     "game": "TB @ DAL",
-     "provider": "Draft Kings",
-     "spread": -9.5,
-     "total": 48.5
+     "game": "SEA @ DEN",
+     "provider": "DraftKings",
+     "spread": 2.5,
+     "total": 40.5
     },
     {
-     "game": "PHI VS JAX",
-     "provider": "Draft Kings",
-     "spread": -7.5,
-     "total": 41.5
+     "game": "HOU VS JAX",
+     "provider": "DraftKings",
+     "spread": -2.5,
+     "total": 42.5
     },
     {
-     "game": "CHI @ GB",
-     "provider": "Draft Kings",
+     "game": "CHI @ ATL",
+     "provider": "DraftKings",
      "spread": 1.5,
-     "total": 45.5
+     "total": 51.5
     }
    ],
-   "games_with_lines": 15,
+   "games_with_lines": 14,
    "verdict": "POSITIVE \u2014 real lines on real games"
   },
   "bovada": {
    "status": 200,
-   "bytes": 2908528,
+   "bytes": 2681679,
    "known_positive": [
     {
-     "game": "Tampa Bay Buccaneers @ Dallas Cowboys",
+     "game": "Seattle Seahawks @ Denver Broncos",
      "market": "Moneyline",
      "handicap": null
     },
     {
-     "game": "Tampa Bay Buccaneers @ Dallas Cowboys",
+     "game": "Seattle Seahawks @ Denver Broncos",
      "market": "Point Spread",
-     "handicap": "9.0"
+     "handicap": "-2.5"
     },
     {
-     "game": "Tampa Bay Buccaneers @ Dallas Cowboys",
+     "game": "Seattle Seahawks @ Denver Broncos",
      "market": "Total",
-     "handicap": "48.5"
+     "handicap": "40.5"
     }
    ],
-   "markets_seen": 225,
-   "prop_mentions": 2380,
+   "markets_seen": 210,
+   "prop_mentions": 3280,
    "verdict": "POSITIVE \u2014 real lines on real games"
   },
   "bovada_event_props": {
    "status": 200,
-   "bytes": 2908528,
-   "event_link": "/football/nfl/tampa-bay-buccaneers-dallas-cowboys-202610082015",
+   "bytes": 2681679,
+   "event_link": "/football/nfl/seattle-seahawks-denver-broncos-202610152015",
    "event_status": 200,
-   "event_bytes": 464088,
-   "prop_markets": 25,
-   "anytime_td_mentions": 10,
+   "event_bytes": 456080,
+   "prop_markets": 26,
+   "anytime_td_mentions": 8,
    "known_positive": [
     {
-     "prop": "Total Passing Touchdowns - Dak Prescott (DAL)"
+     "prop": "Total Passing Touchdowns - Bo Nix (DEN)"
     },
     {
-     "prop": "Total Passing Touchdowns - Jalon Daniels (TB)"
+     "prop": "Total Passing Touchdowns - Sam Darnold (SEA)"
     },
     {
-     "prop": "Total Passing Yards - Dak Prescott (DAL)"
+     "prop": "Total Passing Yards - Bo Nix (DEN)"
     }
    ],
    "verdict": "POSITIVE \u2014 real lines on real games"
   },
   "bovada_census": {
    "status": 200,
-   "bytes": 2908528,
+   "bytes": 2681679,
    "display_groups": {
-    "Game Lines": 15,
-    "Alternate Lines": 16,
-    "TD Scorer Props": 15,
+    "Game Lines": 14,
+    "Alternate Lines": 14,
+    "TD Scorer Props": 14,
     "First Drive Props": 1,
-    "Passing Props": 15,
-    "Passing Yards": 15,
-    "Rushing Props": 12,
-    "Rushing Yards": 15,
-    "Receiving Props": 15,
-    "Receiving Yards": 15,
-    "Kicking Props": 9,
+    "Passing Props": 14,
+    "Passing Yards": 14,
+    "Rushing Props": 14,
+    "Rushing Yards": 14,
+    "Receiving Props": 13,
+    "Receiving Yards": 13,
+    "Kicking Props": 4,
     "Sack Props": 1,
-    "Touchdown Props": 15,
+    "Touchdown Props": 14,
     "Def & ST Props": 1,
-    "Score Props": 16,
-    "Game Props": 16,
-    "Correct Score": 16,
-    "Specials": 1,
+    "Score Props": 14,
+    "Game Props": 14,
+    "Combined Yards": 12,
+    "Correct Score": 14,
+    "Specials": 2,
     "Squares": 1
    },
    "market_types": {
-    "Moneyline": 75,
-    "Point Spread": 75,
-    "Total": 75,
-    "Both teams to score 10 or more points?": 46,
-    "Winning Margin": 46,
-    "Dynamic Winning Margin": 46,
-    "Total Points Range": 46,
-    "To Win and Allow 0 Points": 46,
-    "Odd/Even Total Points": 46,
-    "Correct Score Range": 46,
-    "Anytime Touchdown Scorer": 39,
-    "Spread": 31,
-    "Total Points": 31,
-    "Both teams to score 14 or more points?": 31,
-    "Both teams to score 17 or more points?": 31,
-    "Both Teams To Score": 30,
-    "Both teams to score 7 or more points?": 30,
-    "Double Chance": 30,
-    "Total Touchdowns": 27,
-    "Both teams to score 13 or more points?": 16,
-    "Both teams to score 21 or more points?": 16,
-    "Both teams to score 24 or more points?": 16,
-    "Both teams to score 27 or more points?": 16,
-    "Both teams to score 30 or more points?": 16,
-    "Both teams to score 34 or more points?": 16
+    "Moneyline": 70,
+    "Point Spread": 70,
+    "Total": 70,
+    "Both teams to score 10 or more points?": 42,
+    "Dynamic Winning Margin": 42,
+    "Total Points Range": 42,
+    "To Win and Allow 0 Points": 42,
+    "Odd/Even Total Points": 41,
+    "Correct Score Range": 41,
+    "Winning Margin": 39,
+    "Total Touchdowns": 28,
+    "Both Teams To Score": 28,
+    "Both teams to score 14 or more points?": 28,
+    "Both teams to score 17 or more points?": 28,
+    "Both teams to score 7 or more points?": 28,
+    "Double Chance": 28,
+    "Spread": 26,
+    "Total Points": 26,
+    "Anytime Touchdown Scorer": 18,
+    "First Team To Score": 14,
+    "Both teams to score 13 or more points?": 14,
+    "Both teams to score 21 or more points?": 14,
+    "Both teams to score 24 or more points?": 14,
+    "Both teams to score 27 or more points?": 14,
+    "Both teams to score 30 or more points?": 14
    },
    "known_positive": [
     {
@@ -137,7 +138,7 @@
   },
   "polymarket": {
    "status": 200,
-   "bytes": 772185,
+   "bytes": 784413,
    "events": 20,
    "known_positive": [
     {
@@ -146,11 +147,11 @@
     },
     {
      "event": "Will Cardi B and Stefon Diggs get engaged in 2026?",
-     "price_yes": 0.091
+     "price_yes": 0.073
     },
     {
      "event": "Pro Football: 2027 Champion",
-     "price_yes": 0.004
+     "price_yes": 0.003
     }
    ],
    "verdict": "POSITIVE \u2014 real lines on real games"
