@@ -1,6 +1,6 @@
 {
  "_rule": "THE ROSTER RULE: any statement about Cory's roster or matchup cites THIS file (fresh within 3 days) or live Sleeper \u2014 never an older artifact.",
- "generated_at": "2026-10-14T16:54:34+00:00",
+ "generated_at": "2026-10-16T17:34:41+00:00",
  "season": "2026",
  "week": 6,
  "cory": {
@@ -213,6 +213,17 @@
    "kickoff_utc": "2026-10-18T13:30:00.000Z"
   },
   {
+   "id": "1166",
+   "name": "Kirk Cousins",
+   "pos": "QB",
+   "team": "LV",
+   "starter": false,
+   "injury": null,
+   "game": "vs BUF (Sun)",
+   "home": true,
+   "kickoff_utc": "2026-10-18T20:25:00.000Z"
+  },
+  {
    "id": "11786",
    "name": "Cam Little",
    "pos": "K",
@@ -268,23 +279,12 @@
    "kickoff_utc": "2026-10-18T17:00:00.000Z"
   },
   {
-   "id": "12545",
-   "name": "Tyler Shough",
-   "pos": "QB",
-   "team": "NO",
-   "starter": false,
-   "injury": null,
-   "game": "at NYG (Sun)",
-   "home": false,
-   "kickoff_utc": "2026-10-18T17:00:00.000Z"
-  },
-  {
    "id": "2216",
    "name": "Mike Evans",
    "pos": "WR",
    "team": "SF",
    "starter": true,
-   "injury": null,
+   "injury": "Questionable",
    "game": "vs WSH (Mon)",
    "home": true,
    "kickoff_utc": "2026-10-20T00:15:00.000Z"
@@ -306,7 +306,7 @@
    "pos": "RB",
    "team": "HOU",
    "starter": false,
-   "injury": "Doubtful",
+   "injury": "Out",
    "game": "at JAX (Sun)",
    "home": false,
    "kickoff_utc": "2026-10-18T13:30:00.000Z"
@@ -339,7 +339,7 @@
    "pos": "WR",
    "team": "NO",
    "starter": true,
-   "injury": null,
+   "injury": "Questionable",
    "game": "at NYG (Sun)",
    "home": false,
    "kickoff_utc": "2026-10-18T17:00:00.000Z"
