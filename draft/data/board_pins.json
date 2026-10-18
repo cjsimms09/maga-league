@@ -532,50 +532,59 @@
    "n_players": 745,
    "built_at": "2026-09-10T14:47:35Z",
    "recover_with": "git show dd4818b12c45ec4d4ab220b1127ece9625646d75:public/draft_data.json"
+  },
+  {
+   "observed_at": "2026-10-18",
+   "commit": "d0b60fb7f291f35d1e66b459f935c095a632bb68",
+   "path": "public/draft_data.json",
+   "sha256": "d129178f733bd6bfbfacbe6441831a2398a35a4762f1b100a727524b5b3e1acb",
+   "n_players": 745,
+   "built_at": "2026-09-10T14:47:35Z",
+   "recover_with": "git show d0b60fb7f291f35d1e66b459f935c095a632bb68:public/draft_data.json"
   }
  ],
  "population": {
   "version": "field-population/v1",
-  "rows": 59,
+  "rows": 60,
   "fields": {
    "observed_at": {
-    "present": 59,
+    "present": 60,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "commit": {
-    "present": 59,
+    "present": 60,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "path": {
-    "present": 59,
+    "present": 60,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "sha256": {
-    "present": 59,
+    "present": 60,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "n_players": {
-    "present": 59,
+    "present": 60,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "built_at": {
-    "present": 59,
+    "present": 60,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "recover_with": {
-    "present": 59,
+    "present": 60,
     "null": 0,
     "missing": 0,
     "pct": 100.0
