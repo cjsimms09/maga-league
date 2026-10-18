@@ -1249196,6 +1249196,7 @@
     "11557": {
      "adp": 950.0,
      "depth_chart_order": 3,
+     "injury_status": "Out",
      "position": "QB",
      "team": "PHI",
      "years_exp": 2
@@ -1249210,7 +1249211,6 @@
     "11560": {
      "adp": 72.33,
      "depth_chart_order": 1,
-     "injury_status": "Questionable",
      "position": "QB",
      "team": "CHI",
      "years_exp": 2
@@ -1249389,6 +1249389,7 @@
     "11600": {
      "adp": 950.0,
      "depth_chart_order": 4,
+     "injury_status": "Out",
      "position": "TE",
      "team": "CAR",
      "years_exp": 2
@@ -1249722,6 +1249723,7 @@
     "12470": {
      "adp": 950.0,
      "depth_chart_order": 3,
+     "injury_status": "Out",
      "position": "QB",
      "team": "IND",
      "years_exp": 1
@@ -1249770,7 +1249772,7 @@
     },
     "12482": {
      "adp": 950.0,
-     "depth_chart_order": 5,
+     "depth_chart_order": 4,
      "injury_status": "Questionable",
      "position": "WR",
      "team": "GB",
@@ -1249961,6 +1249963,7 @@
     "12511": {
      "adp": 950.0,
      "depth_chart_order": 3,
+     "injury_status": "Out",
      "position": "QB",
      "team": "PIT",
      "years_exp": 1
@@ -1249968,7 +1249971,7 @@
     "12512": {
      "adp": 45.67,
      "depth_chart_order": 1,
-     "injury_status": "Questionable",
+     "injury_status": "Out",
      "position": "RB",
      "team": "CLE",
      "years_exp": 1
@@ -1249990,7 +1249993,7 @@
     "12518": {
      "adp": 50.0,
      "depth_chart_order": 1,
-     "injury_status": "Questionable",
+     "injury_status": "Out",
      "position": "TE",
      "team": "IND",
      "years_exp": 1
@@ -1250047,7 +1250050,6 @@
     "12529": {
      "adp": 60.67,
      "depth_chart_order": 2,
-     "injury_status": "Questionable",
      "position": "RB",
      "team": "NE",
      "years_exp": 1
@@ -1250055,7 +1250057,6 @@
     "12531": {
      "adp": 950.0,
      "depth_chart_order": 2,
-     "injury_status": "Questionable",
      "position": "RB",
      "team": "CAR",
      "years_exp": 1
@@ -1250298,6 +1250299,7 @@
     "13268": {
      "adp": 950.0,
      "depth_chart_order": 5,
+     "injury_status": "Out",
      "position": "WR",
      "team": "BAL",
      "years_exp": 0
@@ -1250340,7 +1250342,6 @@
     "13276": {
      "adp": 196.0,
      "depth_chart_order": 4,
-     "injury_status": "Questionable",
      "position": "WR",
      "team": "NYJ",
      "years_exp": 0
@@ -1250401,6 +1250402,7 @@
     "13288": {
      "adp": 219.0,
      "depth_chart_order": 3,
+     "injury_status": "Out",
      "position": "RB",
      "team": "TEN",
      "years_exp": 0
@@ -1250408,6 +1250410,7 @@
     "13289": {
      "adp": 950.0,
      "depth_chart_order": 4,
+     "injury_status": "Out",
      "position": "QB",
      "team": "PIT",
      "years_exp": 0
@@ -1250415,7 +1250418,6 @@
     "13293": {
      "adp": 156.67,
      "depth_chart_order": 3,
-     "injury_status": "Questionable",
      "position": "WR",
      "team": "BAL",
      "years_exp": 0
@@ -1250480,7 +1250482,7 @@
     },
     "13307": {
      "adp": 950.0,
-     "depth_chart_order": 4,
+     "depth_chart_order": 6,
      "injury_status": "Out",
      "position": "TE",
      "team": "HOU",
@@ -1250538,7 +1250540,6 @@
     "13330": {
      "adp": 189.0,
      "depth_chart_order": 1,
-     "injury_status": "Questionable",
      "position": "TE",
      "team": "NYJ",
      "years_exp": 0
@@ -1250685,6 +1250686,7 @@
     "13423": {
      "adp": 950.0,
      "depth_chart_order": 5,
+     "injury_status": "Out",
      "position": "RB",
      "team": "PIT",
      "years_exp": 0
@@ -1250836,6 +1250838,7 @@
     "2359": {
      "adp": 950.0,
      "depth_chart_order": 4,
+     "injury_status": "Questionable",
      "position": "RB",
      "team": "JAX",
      "years_exp": 11
@@ -1250965,7 +1250968,6 @@
     "4035": {
      "adp": 157.0,
      "depth_chart_order": 1,
-     "injury_status": "Questionable",
      "position": "RB",
      "team": "NO",
      "years_exp": 9
@@ -1251116,6 +1251118,7 @@
     "4574": {
      "adp": 950.0,
      "depth_chart_order": 2,
+     "injury_status": "Out",
      "position": "QB",
      "team": "ATL",
      "years_exp": 9
@@ -1251284,6 +1251287,7 @@
     "5848": {
      "adp": 950.0,
      "depth_chart_order": 6,
+     "injury_status": "Out",
      "position": "WR",
      "team": "PHI",
      "years_exp": 7
@@ -1251320,7 +1251324,6 @@
     "5859": {
      "adp": 20.33,
      "depth_chart_order": 1,
-     "injury_status": "Questionable",
      "position": "WR",
      "team": "NE",
      "years_exp": 7
@@ -1251630,7 +1251633,6 @@
     "7021": {
      "adp": 76.0,
      "depth_chart_order": 2,
-     "injury_status": "Questionable",
      "position": "RB",
      "team": "PIT",
      "years_exp": 6
@@ -1251851,7 +1251853,6 @@
     "7600": {
      "adp": 200.33,
      "depth_chart_order": 1,
-     "injury_status": "Questionable",
      "position": "TE",
      "team": "PIT",
      "years_exp": 5
@@ -1251859,6 +1251860,7 @@
     "7602": {
      "adp": 950.0,
      "depth_chart_order": 3,
+     "injury_status": "Out",
      "position": "TE",
      "team": "TEN",
      "years_exp": 5
@@ -1252072,7 +1252074,6 @@
     "8144": {
      "adp": 26.67,
      "depth_chart_order": 1,
-     "injury_status": "Questionable",
      "position": "WR",
      "team": "NO",
      "years_exp": 4
@@ -1252543,7 +1252544,7 @@
     "9506": {
      "adp": 244.5,
      "depth_chart_order": 3,
-     "injury_status": "Questionable",
+     "injury_status": "Out",
      "position": "RB",
      "team": "TB",
      "years_exp": 3
@@ -1252551,7 +1252552,6 @@
     "9508": {
      "adp": 165.67,
      "depth_chart_order": 2,
-     "injury_status": "Questionable",
      "position": "RB",
      "team": "TEN",
      "years_exp": 3
@@ -1259260,7 +1259260,6 @@
     "11560": {
      "adp": 72.33,
      "depth_chart_order": 1,
-     "injury_status": "Questionable",
      "position": "QB",
      "team": "CHI",
      "years_exp": 2
@@ -1259382,6 +1259381,7 @@
     "11600": {
      "adp": 950.0,
      "depth_chart_order": 4,
+     "injury_status": "Out",
      "position": "TE",
      "team": "CAR",
      "years_exp": 2
@@ -1259979,7 +1259979,7 @@
     "12512": {
      "adp": 45.67,
      "depth_chart_order": 1,
-     "injury_status": "Questionable",
+     "injury_status": "Out",
      "position": "RB",
      "team": "CLE",
      "years_exp": 1
@@ -1260001,7 +1260001,7 @@
     "12518": {
      "adp": 50.0,
      "depth_chart_order": 1,
-     "injury_status": "Questionable",
+     "injury_status": "Out",
      "position": "TE",
      "team": "IND",
      "years_exp": 1
@@ -1260052,7 +1260052,6 @@
     "12529": {
      "adp": 60.67,
      "depth_chart_order": 2,
-     "injury_status": "Questionable",
      "position": "RB",
      "team": "NE",
      "years_exp": 1
@@ -1260483,7 +1260482,6 @@
     "13276": {
      "adp": 196.0,
      "depth_chart_order": 4,
-     "injury_status": "Questionable",
      "position": "WR",
      "team": "NYJ",
      "years_exp": 0
@@ -1260550,6 +1260548,7 @@
     "13288": {
      "adp": 219.0,
      "depth_chart_order": 3,
+     "injury_status": "Out",
      "position": "RB",
      "team": "TEN",
      "years_exp": 0
@@ -1260563,7 +1260562,6 @@
     "13293": {
      "adp": 156.67,
      "depth_chart_order": 3,
-     "injury_status": "Questionable",
      "position": "WR",
      "team": "BAL",
      "years_exp": 0
@@ -1260613,7 +1260611,7 @@
     },
     "13307": {
      "adp": 950.0,
-     "depth_chart_order": 4,
+     "depth_chart_order": 6,
      "injury_status": "Out",
      "position": "TE",
      "team": "HOU",
@@ -1260684,7 +1260682,6 @@
     "13330": {
      "adp": 189.0,
      "depth_chart_order": 1,
-     "injury_status": "Questionable",
      "position": "TE",
      "team": "NYJ",
      "years_exp": 0
@@ -1260981,6 +1260978,7 @@
     "13827": {
      "adp": 950.0,
      "depth_chart_order": 6,
+     "injury_status": "Out",
      "position": "TE",
      "team": "NE",
      "years_exp": 0
@@ -1261414,7 +1261412,6 @@
     "4035": {
      "adp": 157.0,
      "depth_chart_order": 1,
-     "injury_status": "Questionable",
      "position": "RB",
      "team": "NO",
      "years_exp": 9
@@ -1261948,7 +1261945,6 @@
     "5859": {
      "adp": 20.33,
      "depth_chart_order": 1,
-     "injury_status": "Questionable",
      "position": "WR",
      "team": "NE",
      "years_exp": 7
@@ -1262362,7 +1262358,6 @@
     "7021": {
      "adp": 76.0,
      "depth_chart_order": 2,
-     "injury_status": "Questionable",
      "position": "RB",
      "team": "PIT",
      "years_exp": 6
@@ -1262575,7 +1262570,7 @@
     },
     "7568": {
      "adp": 950.0,
-     "depth_chart_order": 5,
+     "depth_chart_order": 4,
      "position": "TE",
      "team": "HOU",
      "years_exp": 5
@@ -1262623,7 +1262618,6 @@
     "7600": {
      "adp": 200.33,
      "depth_chart_order": 1,
-     "injury_status": "Questionable",
      "position": "TE",
      "team": "PIT",
      "years_exp": 5
@@ -1262631,6 +1262625,7 @@
     "7602": {
      "adp": 950.0,
      "depth_chart_order": 3,
+     "injury_status": "Out",
      "position": "TE",
      "team": "TEN",
      "years_exp": 5
@@ -1262947,7 +1262942,6 @@
     "8144": {
      "adp": 26.67,
      "depth_chart_order": 1,
-     "injury_status": "Questionable",
      "position": "WR",
      "team": "NO",
      "years_exp": 4
@@ -1263436,7 +1263430,7 @@
     "9506": {
      "adp": 244.5,
      "depth_chart_order": 3,
-     "injury_status": "Questionable",
+     "injury_status": "Out",
      "position": "RB",
      "team": "TB",
      "years_exp": 3
@@ -1263444,7 +1263438,6 @@
     "9508": {
      "adp": 165.67,
      "depth_chart_order": 2,
-     "injury_status": "Questionable",
      "position": "RB",
      "team": "TEN",
      "years_exp": 3
