@@ -1,6 +1,6 @@
 # THIS WEEK — coryjsimms, week 6 (2026)
 
-**Generated 2026-10-16T17:34:41+00:00 from LIVE Sleeper. THE ROSTER RULE: any statement about
+**Generated 2026-10-18T14:46:07+00:00 from LIVE Sleeper. THE ROSTER RULE: any statement about
 Cory's roster or matchup cites this file (fresh within 3 days) or live
 Sleeper — a frozen seat plan or tournament artifact is never a source for
 who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
@@ -13,15 +13,15 @@ who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
 
 | st | player | pos | team | game | implied | injury |
 |---|---|---|---|---|---|---|
-|   | Rashee Rice | WR | KC | vs LAC (Sun) | 24.8 (-8) | Questionable |
+|   | Rashee Rice | WR | KC | vs LAC (Sun) | 24.8 (-8) | Out |
 | S | Caleb Williams | QB | CHI | at ATL (Sun) | 26.0 (-1) | Questionable |
 | S | Matthew Golden | WR | GB | vs DAL (Sun) | 27.5 (-1.5) |  |
+|   | Harold Fannin | TE | CLE | vs BAL (Sun) | 18.8 (+5) |  |
 |   | Quinshon Judkins | RB | CLE | vs BAL (Sun) | 18.8 (+5) | Questionable |
 |   | Emmett Johnson | RB | KC | vs LAC (Sun) | 24.8 (-8) |  |
 | S | Davante Adams | WR | LAR | vs ARI (Sun) | 32.0 (-12) |  |
 |   | Jared Goff | QB | DET | BYE | — |  |
 | S | Derrick Henry | RB | BAL | at CLE (Sun) | 23.8 (-5) |  |
-|   | Tyreek Hill | WR | — | BYE | — |  |
 | S | Juwan Johnson | TE | NO | at NYG (Sun) | 23.5 (-1) |  |
 | S | Tyler Bass | K | BUF | at LV (Sun) | 29.0 (-4.5) |  |
 |   | Ja'Marr Chase | WR | CIN | BYE | — |  |
@@ -41,9 +41,9 @@ who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
 |   | Devaughn Vele | WR | NO | at NYG (Sun) | 23.5 (-1) |  |
 | S | Bhayshul Tuten | RB | JAX | vs HOU (Sun) | 22.5 (-2.5) |  |
 | S | Colston Loveland | TE | CHI | at ATL (Sun) | 26.0 (-1) |  |
-|   | Kyle Monangai | RB | CHI | at ATL (Sun) | 26.0 (-1) | Questionable |
+|   | Kyle Monangai | RB | CHI | at ATL (Sun) | 26.0 (-1) | Out |
 | S | Mike Evans | WR | SF | vs WSH (Mon) | 29.5 (-7.5) | Questionable |
-|   | A.J. Brown | WR | NE | vs NYJ (Sun) | 25.2 (-7) | IR |
+|   | A.J. Brown | WR | NE | vs NYJ (Sun) | 25.2 (-7) | Questionable |
 |   | David Montgomery | RB | HOU | at JAX (Sun) | 20.0 (+2.5) | Out |
 | S | Isaiah Likely | TE | NYG | vs NO (Sun) | 22.5 (+1) |  |
 | S | James Cook | RB | BUF | at LV (Sun) | 29.0 (-4.5) |  |

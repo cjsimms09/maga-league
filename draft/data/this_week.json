@@ -1,6 +1,6 @@
 {
  "_rule": "THE ROSTER RULE: any statement about Cory's roster or matchup cites THIS file (fresh within 3 days) or live Sleeper \u2014 never an older artifact.",
- "generated_at": "2026-10-16T17:34:41+00:00",
+ "generated_at": "2026-10-18T14:46:07+00:00",
  "season": "2026",
  "week": 6,
  "cory": {
@@ -18,7 +18,7 @@
    "pos": "WR",
    "team": "KC",
    "starter": false,
-   "injury": "Questionable",
+   "injury": "Out",
    "game": "vs LAC (Sun)",
    "home": true,
    "kickoff_utc": "2026-10-18T20:25:00.000Z"
@@ -44,6 +44,17 @@
    "game": "vs DAL (Sun)",
    "home": true,
    "kickoff_utc": "2026-10-19T00:20:00.000Z"
+  },
+  {
+   "id": "12506",
+   "name": "Harold Fannin",
+   "pos": "TE",
+   "team": "CLE",
+   "starter": false,
+   "injury": null,
+   "game": "vs BAL (Sun)",
+   "home": true,
+   "kickoff_utc": "2026-10-18T17:00:00.000Z"
   },
   {
    "id": "12512",
@@ -99,17 +110,6 @@
    "game": "at CLE (Sun)",
    "home": false,
    "kickoff_utc": "2026-10-18T17:00:00.000Z"
-  },
-  {
-   "id": "3321",
-   "name": "Tyreek Hill",
-   "pos": "WR",
-   "team": null,
-   "starter": false,
-   "injury": null,
-   "game": "BYE",
-   "home": null,
-   "kickoff_utc": null
   },
   {
    "id": "7002",
@@ -273,7 +273,7 @@
    "pos": "RB",
    "team": "CHI",
    "starter": false,
-   "injury": "Questionable",
+   "injury": "Out",
    "game": "at ATL (Sun)",
    "home": false,
    "kickoff_utc": "2026-10-18T17:00:00.000Z"
@@ -295,7 +295,7 @@
    "pos": "WR",
    "team": "NE",
    "starter": false,
-   "injury": "IR",
+   "injury": "Questionable",
    "game": "vs NYJ (Sun)",
    "home": true,
    "kickoff_utc": "2026-10-18T17:00:00.000Z"
