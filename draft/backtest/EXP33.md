@@ -33,8 +33,8 @@ Sources raced: our_blend, naive, ffc_adp
 
   | source | MAE | rank_corr | top-decile | in verdict |
   |---|---|---|---|---|
-  | our_blend | 56.76 | 0.605 | 0.413 | yes |
-  | naive | 46.25 | 0.705 | 0.565 | yes |
+  | our_blend | 56.76 | 0.604 | 0.413 | yes |
+  | naive | 46.25 | 0.704 | 0.565 | yes |
   | ffc_adp | None | 0.446 | 0.222 | yes |
 
 ## Caveats
