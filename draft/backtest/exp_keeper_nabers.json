@@ -251,7 +251,7 @@
           "Henry",
           "Walker"
         ],
-        "mean_dollars": 862.5,
+        "mean_dollars": 863.0,
         "vs_current": {
           "mean": 0.0,
           "ci95": [
@@ -280,10 +280,10 @@
         ],
         "mean_dollars": 788.25,
         "vs_current": {
-          "mean": -74.25,
+          "mean": -74.75,
           "ci95": [
-            -95.38,
-            -54.0
+            -96.0,
+            -54.62
           ],
           "beats": false
         },
@@ -307,10 +307,10 @@
         ],
         "mean_dollars": 758.5,
         "vs_current": {
-          "mean": -104.0,
+          "mean": -104.5,
           "ci95": [
-            -129.75,
-            -78.12
+            -130.75,
+            -78.62
           ],
           "beats": false
         },
@@ -333,10 +333,10 @@
         ],
         "mean_dollars": 736.12,
         "vs_current": {
-          "mean": -126.38,
+          "mean": -126.88,
           "ci95": [
-            -159.38,
-            -94.25
+            -159.88,
+            -94.75
           ],
           "beats": false
         },
@@ -382,10 +382,10 @@
     },
     "Chase|Henry": {
       "vs_current_no_oppkeepers": {
-        "mean": -147.75,
+        "mean": -150.5,
         "ci95": [
-          -191.25,
-          -101.75
+          -194.5,
+          -104.5
         ],
         "beats": false
       }
