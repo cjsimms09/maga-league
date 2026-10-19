@@ -9,14 +9,14 @@ _(a season marked `harvest` had its realized recovered from league_history playe
 
 ## PRIMARY — rank correlation over the available pool
 
-- our ordering: mean rho 0.361 CI (0.276, 0.435)
-- market (ADP): mean rho 0.235 CI (0.157, 0.3)
-- **difference (our - market): 0.126 CI [0.034, 0.223] -> BEAT** over 32 picks
+- our ordering: mean rho 0.286 CI (0.163, 0.398)
+- market (ADP): mean rho 0.224 CI (0.119, 0.303)
+- **difference (our - market): 0.063 CI [-0.055, 0.169] -> INCONCLUSIVE** over 32 picks
 
 ## Top-N set value (realized pts, our set vs market set)
 
-- top-5: our 265.578 vs market 163.091 (delta 102.487, beat)
-- top-10: our 229.17 vs market 163.743 (delta 65.428, beat)
+- top-5: our 265.118 vs market 164.538 (delta 100.581, beat)
+- top-10: our 229.534 vs market 164.731 (delta 64.803, beat)
 
 ## The deviation-edge surface (hit rate = took beat ADP-preferred available)
 
@@ -24,7 +24,7 @@ _(a season marked `harvest` had its realized recovered from league_history playe
 
 - value(<=0): n=15 hit=0.333 mean_delta=30.959 CI [0.852, 63.067] beat
 - near-zero: n=3 hit=0.667 mean_delta=24.4 CI [-7.5, 42.52] inconclusive ⚠THIN
-- moderate: n=6 hit=0.333 mean_delta=-8.083 CI [-22.883, 9.65] inconclusive ⚠THIN
+- moderate: n=6 hit=0.333 mean_delta=-9.0 CI [-24.433, 9.65] inconclusive ⚠THIN
 - large: n=8 hit=0.5 mean_delta=-75.02 CI [-163.207, 6.212] inconclusive
 
 ### by ADP DISTANCE (comparison — which unit predicts better is a finding) (spots)
@@ -38,7 +38,7 @@ _(a season marked `harvest` had its realized recovered from league_history playe
 
 - r1-3: n=4 hit=0.75 mean_delta=49.03 CI [3.55, 112.5] beat ⚠THIN
 - r4-7: n=13 hit=0.462 mean_delta=9.3 CI [-2.708, 22.072] inconclusive
-- r8-11: n=11 hit=0.364 mean_delta=12.676 CI [-30.704, 57.909] inconclusive
+- r8-11: n=11 hit=0.364 mean_delta=12.176 CI [-31.345, 57.589] inconclusive
 - r12+: n=5 hit=0.0 mean_delta=-114.188 CI [-230.676, -4.16] lost ⚠THIN
 
 ### by MARKET DISPERSION (ADP stdev)
@@ -55,7 +55,7 @@ _(a season marked `harvest` had its realized recovered from league_history playe
 ## Caveats
 
 - pbp unavailable for [2025, 2026] (NameError); those seasons stay skipped
-- 2026: nflverse realized unavailable (pbp rebuild refused by cross-validation on 2024 — the gate working); RECOVERED from the harvest (league_history players_points, season totals, 191 players; roster-gated so a mid-season drop is truncated).
+- 2026: nflverse realized unavailable (pbp rebuild refused by cross-validation on 2024 — the gate working); RECOVERED from the harvest (league_history players_points, season totals, 202 players; roster-gated so a mid-season drop is truncated).
 - 2025: nflverse realized unavailable (pbp rebuild refused by cross-validation on 2024 — the gate working); RECOVERED from the harvest (league_history players_points, season totals, 254 players; roster-gated so a mid-season drop is truncated).
 
 ## What this does NOT settle

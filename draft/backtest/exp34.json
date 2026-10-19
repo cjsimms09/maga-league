@@ -18,44 +18,44 @@
   "note": "n~41, underpowered; inconclusive => anchor binds HARDER (PRE-REGISTRATION-34)",
   "rank_correlation": {
     "n_picks": 32,
-    "rho_our_mean": 0.361,
+    "rho_our_mean": 0.286,
     "rho_our_ci": [
-      0.276,
-      0.435
+      0.163,
+      0.398
     ],
-    "rho_market_mean": 0.235,
+    "rho_market_mean": 0.224,
     "rho_market_ci": [
-      0.157,
-      0.3
+      0.119,
+      0.303
     ],
-    "diff_mean": 0.126,
+    "diff_mean": 0.063,
     "diff_ci": [
-      0.034,
-      0.223
+      -0.055,
+      0.169
     ],
-    "verdict": "beat"
+    "verdict": "inconclusive"
   },
   "top5_set_value": {
     "n": 5,
     "picks": 31,
-    "our_mean": 265.578,
-    "market_mean": 163.091,
-    "delta_mean": 102.487,
+    "our_mean": 265.118,
+    "market_mean": 164.538,
+    "delta_mean": 100.581,
     "delta_ci": [
-      79.107,
-      125.137
+      77.061,
+      123.26
     ],
     "verdict": "beat"
   },
   "top10_set_value": {
     "n": 10,
     "picks": 27,
-    "our_mean": 229.17,
-    "market_mean": 163.743,
-    "delta_mean": 65.428,
+    "our_mean": 229.534,
+    "market_mean": 164.731,
+    "delta_mean": 64.803,
     "delta_ci": [
-      49.008,
-      81.702
+      48.296,
+      80.788
     ],
     "verdict": "beat"
   },
@@ -88,9 +88,9 @@
       "band": "moderate",
       "n": 6,
       "hit_rate": 0.333,
-      "mean_delta": -8.083,
+      "mean_delta": -9.0,
       "ci": [
-        -22.883,
+        -24.433,
         9.65
       ],
       "verdict": "inconclusive",
@@ -188,10 +188,10 @@
       "band": "r8-11",
       "n": 11,
       "hit_rate": 0.364,
-      "mean_delta": 12.676,
+      "mean_delta": 12.176,
       "ci": [
-        -30.704,
-        57.909
+        -31.345,
+        57.589
       ],
       "verdict": "inconclusive",
       "thin": false
@@ -271,7 +271,7 @@
   },
   "caveats": [
     "pbp unavailable for [2025, 2026] (NameError); those seasons stay skipped",
-    "2026: nflverse realized unavailable (pbp rebuild refused by cross-validation on 2024 \u2014 the gate working); RECOVERED from the harvest (league_history players_points, season totals, 191 players; roster-gated so a mid-season drop is truncated).",
+    "2026: nflverse realized unavailable (pbp rebuild refused by cross-validation on 2024 \u2014 the gate working); RECOVERED from the harvest (league_history players_points, season totals, 202 players; roster-gated so a mid-season drop is truncated).",
     "2025: nflverse realized unavailable (pbp rebuild refused by cross-validation on 2024 \u2014 the gate working); RECOVERED from the harvest (league_history players_points, season totals, 254 players; roster-gated so a mid-season drop is truncated)."
   ],
   "decisions": [
@@ -298,10 +298,10 @@
       "pick_no": 48,
       "took": "2133",
       "took_proj": 146.41,
-      "took_realized": 62.0,
+      "took_realized": 81.6,
       "adp_best": "2133",
       "adp_best_proj": 146.41,
-      "adp_best_realized": 62.0,
+      "adp_best_realized": 81.6,
       "forgone_value": 0.0,
       "adp_distance": -11.0,
       "dispersion": 4.7,
@@ -315,10 +315,10 @@
       "pick_no": 68,
       "took": "11620",
       "took_proj": 104.28,
-      "took_realized": 12.0,
+      "took_realized": 15.5,
       "adp_best": "11620",
       "adp_best_proj": 104.28,
-      "adp_best_realized": 12.0,
+      "adp_best_realized": 15.5,
       "forgone_value": 0.0,
       "adp_distance": -18.2,
       "dispersion": 7.3,
@@ -332,10 +332,10 @@
       "pick_no": 73,
       "took": "9487",
       "took_proj": 92.53,
-      "took_realized": 43.1,
+      "took_realized": 70.5,
       "adp_best": "9487",
       "adp_best_proj": 92.53,
-      "adp_best_realized": 43.1,
+      "adp_best_realized": 70.5,
       "forgone_value": 0.0,
       "adp_distance": -13.6,
       "dispersion": 4.3,
@@ -352,7 +352,7 @@
       "took_realized": 2.1,
       "adp_best": "4037",
       "adp_best_proj": 166.01,
-      "adp_best_realized": 23.7,
+      "adp_best_realized": 29.2,
       "forgone_value": 26.07,
       "adp_distance": null,
       "dispersion": null,
