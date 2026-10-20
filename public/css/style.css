@@ -4552,3 +4552,69 @@ body.warroom-page #tier-cliff-wrap { display: none !important; }
 /* offer-expiry chip on bet cards (site review 09-02, item 6) */
 .bc-chip { display: inline-flex; align-items: center; gap: .25rem; font-size: .7rem; padding: .1rem .45rem; border-radius: 999px; background: rgba(0,0,0,.06); color: inherit; white-space: nowrap; }
 .bc-chip.bc-expiry { background: rgba(180,120,0,.12); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PHONE DENSITY PASS — Cory, 2026-10-20: "its very busy, edges are very
+   crowded on my phone.. it needs to look better, specifically on phone"
+
+   MEASURED FIRST (draft/tools/phone_audit.js, 390x844, real app, logged in):
+     * content side gutter 11px on every page — `.wrap` ships `.7rem` at
+       <=640px, which is 11.2px. That is the literal crowded edge.
+     * 35-93 elements per page under 12px, the recurring one being
+       `.tb-label` at .58rem = 9.3px — the six bottom-nav labels.
+     * 76-137 visible elements per screen of height; /history and the
+       side-bet tab are worst.
+     * NO page overflows horizontally. Nothing is broken; it is density.
+
+   AND THE REAL CAUSE IS NOT PADDING, IT IS UNIFORM VOLUME. Every card wears
+   the same costume: a gold→red accent bar, an ALL-CAPS heading at .14em
+   tracking, an emoji, and a muted subtitle. Nine of those stacked down a
+   390px screen means nothing is primary and everything competes — which is
+   exactly what "busy" describes. The headings are AUTHORED in sentence case
+   ("🧾 Square Up", "🏈 Starters"); the shouting is this stylesheet's
+   `text-transform: uppercase`, so calming it changes no markup.
+
+   Scoped to <=640px and appended last so it wins on the cascade without
+   editing rules the desktop war room depends on.
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+
+  /* 11.2px -> 16px. The common floor, and the one Cory can feel immediately. */
+  .wrap { padding: 1rem 1rem 2.5rem; }
+
+  /* THE BIGGEST SINGLE CHANGE: stop every card header being a billboard.
+     Sentence case at a normal tracking reads calmer AND takes ~25% less
+     width, which is why the caps version wrapped to two lines so often. */
+  .card > h2 {
+    text-transform: none;
+    letter-spacing: .005em;
+    font-size: .95rem;
+    padding: .62rem .85rem;
+  }
+
+  /* The subtitle is a second line of explanation on EVERY card. Keep it —
+     some carry real information ("2026 season", "straight from Sleeper") —
+     but stop it competing with the title it sits beside. */
+  .card > h2 .sub {
+    font-size: .68rem;
+    opacity: .72;
+    font-weight: 400;
+  }
+
+  /* The accent bar repeated nine times is most of the visual noise. Thinner
+     and shorter still reads as the brand mark without striping the page. */
+  .card > h2::before { width: 2px; top: 32%; bottom: 32%; opacity: .75; }
+
+  /* Tighter body padding buys back the vertical space the gutter costs, so
+     pages get calmer WITHOUT getting longer. */
+  .card .body { padding: .85rem; }
+
+  /* The page title was the loudest thing on screen: 1.7rem, uppercase, .12em
+     tracking — "LEAGUE FINANCES" as a banner above a page whose own cards
+     already say what they are. Calmed to match the headers below it. */
+  h1.page-title { font-size: 1.32rem; letter-spacing: .01em; text-transform: none; }
+
+  /* 9.3px is below any legible floor on a phone. .66rem = 10.6px, with the
+     tracking pulled in so six labels still fit 390px without ellipsis. */
+  .tb-label { font-size: .66rem; letter-spacing: .04em; }
+}
