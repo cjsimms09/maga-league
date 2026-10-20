@@ -1324794,7 +1324794,7 @@
     },
     "12357": {
      "adp": 950.0,
-     "depth_chart_order": 5,
+     "depth_chart_order": 4,
      "position": "TE",
      "team": "TEN",
      "years_exp": 2
@@ -1325507,7 +1325507,7 @@
     },
     "13288": {
      "adp": 219.0,
-     "depth_chart_order": 6,
+     "depth_chart_order": 5,
      "injury_status": "Out",
      "position": "RB",
      "team": "TEN",
@@ -1334902,7 +1334902,7 @@
     },
     "12357": {
      "adp": 950.0,
-     "depth_chart_order": 5,
+     "depth_chart_order": 4,
      "position": "TE",
      "team": "TEN",
      "years_exp": 2
@@ -1335665,7 +1335665,7 @@
     },
     "13288": {
      "adp": 219.0,
-     "depth_chart_order": 6,
+     "depth_chart_order": 5,
      "injury_status": "Out",
      "position": "RB",
      "team": "TEN",
@@ -1335753,7 +1335753,7 @@
     "13312": {
      "adp": 950.0,
      "position": "TE",
-     "team": "FA",
+     "team": "CIN",
      "years_exp": 0
     },
     "13317": {
@@ -1335971,7 +1335971,7 @@
     },
     "13422": {
      "adp": 950.0,
-     "depth_chart_order": 6,
+     "depth_chart_order": 5,
      "injury_status": "IR",
      "position": "TE",
      "team": "TEN",
