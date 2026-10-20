@@ -119,16 +119,69 @@ echo
 # 170 commits on main in 24h, 143 already suppressed by the served-file gate,
 # 27 would have built. The window caps the remainder.
 #
-# BOTH DIRECTIONS, because a cap that never lets anything through and a cap that
-# never stops anything are both silent. And the escape hatches are re-asserted
-# WITH the window active — if [deploy] stopped working under a cadence cap, an
-# urgent fix would be stuck behind a timer with no way out, which is worse than
-# the over-deploying this solves.
-run "served change INSIDE the window is held for the next build"    0 "$BASE" "$SERVED" DEPLOY_WINDOW_HOURS=8
-run "served change OUTSIDE the window builds"                       1 "$BASE" "$SERVED" DEPLOY_WINDOW_HOURS=0
-run "ESCAPE HATCH — [deploy] forces a build inside the window"      1 "$DOC" "$DEPLOYP" DEPLOY_WINDOW_HOURS=8
-run "ESCAPE HATCH — a build hook forces a build inside the window"  1 "$BASE" "$SERVED" DEPLOY_WINDOW_HOURS=8 INCOMING_HOOK_TITLE="manual deploy"
-run "a docs-only change still skips regardless of the window"       0 "$SERVED" "$DOC" DEPLOY_WINDOW_HOURS=0
+# ⛔⛔ THIS BLOCK ASSERTED THE 33-DAY OUTAGE AS CORRECT BEHAVIOUR. Read the
+# previous version before trusting the paragraph below it:
+#
+#   run "served change INSIDE the window is held..."  0 ... DEPLOY_WINDOW_HOURS=8
+#   run "served change OUTSIDE the window builds"     1 ... DEPLOY_WINDOW_HOURS=0
+#
+# It claimed "BOTH DIRECTIONS, because a cap that never lets anything through
+# and a cap that never stops anything are both silent" — and then tested the
+# open direction by setting the window to ZERO, which DISABLES the cap rather
+# than ageing the deploy. A genuinely stale deploy was never exercised once.
+# Meanwhile the closed direction ran on fixture commits made seconds earlier,
+# which is precisely the production state that froze the site, and the suite
+# recorded exit 0 as the right answer.
+#
+# So the one thing this block was written to prevent is the one thing it could
+# not see: the gate measured the window from CACHED_COMMIT_REF (the last BUILD,
+# which Netlify advances on every skipped build) while calling it "the last
+# deploy", so every push reset the clock to 0h and nothing ever shipped again.
+# Cory, 2026-10-20: "it keeps building but skipping deploy.. why?"
+#
+# BOTH DIRECTIONS NOW MEAN BOTH DIRECTIONS: the window stays at 8h throughout
+# and it is the DEPLOY'S AGE that varies, via DEPLOY_WINDOW_DEPLOYED_TS. The
+# escape hatches are re-asserted with the window active — if [deploy] stopped
+# working under a cadence cap an urgent fix would be stuck behind a timer with
+# no way out, which is worse than the over-deploying this solves.
+NOW_TS="$(date +%s)"
+FRESH_TS="$NOW_TS"                      # deployed 0h ago
+STALE_TS="$((NOW_TS - 40 * 3600))"      # deployed 40h ago
+FROZEN_TS="$((NOW_TS - 794 * 3600))"    # the real 2026-09-17 gap, 33 days
+
+run "served change with a FRESH deploy (0h) is held for the next build" \
+  0 "$BASE" "$SERVED" DEPLOY_WINDOW_HOURS=8 DEPLOY_WINDOW_DEPLOYED_TS="$FRESH_TS"
+
+# ⚠️ THE TEST THAT DID NOT EXIST. The window must open on a STALE DEPLOY, not
+# only when someone disables it.
+run "served change with a STALE deploy (40h) BUILDS, window still 8h" \
+  1 "$BASE" "$SERVED" DEPLOY_WINDOW_HOURS=8 DEPLOY_WINDOW_DEPLOYED_TS="$STALE_TS"
+
+# ⚠️ THE REGRESSION ITSELF, at the real magnitude: every fixture commit here is
+# SECONDS old, which is exactly the CACHED_COMMIT_REF the old gate measured and
+# the reason it reported "the last deploy was 0h ago" while prod sat 33 days
+# behind. The deploy's real age is the only input that may decide this. If it
+# ever returns 0 again the site is frozen and nobody will be told.
+#   (First draft of this test used $SUPPRESS as the tip and failed — that commit
+#    carries [skip deploy], which short-circuits long before the window. My
+#    fixture was wrong, not the gate; worth leaving on the record since a
+#    wrongly-wired regression test is how this block came to pass for 33 days.)
+run "LOCKOUT — last build seconds ago but prod 794h behind must BUILD" \
+  1 "$BASE" "$SERVED" DEPLOY_WINDOW_HOURS=8 DEPLOY_WINDOW_DEPLOYED_TS="$FROZEN_TS"
+
+# ⚠️ THE ANTI-FREEZE INVARIANT. When the deployed commit cannot be read at all
+# the gate must BUILD, never fall back to the cache ref — that fallback WAS the
+# outage. Pointed at a dead port so the fetch genuinely fails.
+run "unknown deployed commit BUILDS (conservative), never freezes" \
+  1 "$BASE" "$SERVED" DEPLOY_WINDOW_HOURS=8 DEPLOY_WINDOW_SITE="https://127.0.0.1:1"
+
+run "ESCAPE HATCH — [deploy] forces a build inside the window" \
+  1 "$DOC" "$DEPLOYP" DEPLOY_WINDOW_HOURS=8 DEPLOY_WINDOW_DEPLOYED_TS="$FRESH_TS"
+run "ESCAPE HATCH — a build hook forces a build inside the window" \
+  1 "$BASE" "$SERVED" DEPLOY_WINDOW_HOURS=8 DEPLOY_WINDOW_DEPLOYED_TS="$FRESH_TS" \
+  INCOMING_HOOK_TITLE="manual deploy"
+run "a docs-only change still skips regardless of the window" \
+  0 "$SERVED" "$DOC" DEPLOY_WINDOW_HOURS=8 DEPLOY_WINDOW_DEPLOYED_TS="$STALE_TS"
 
 echo "$pass/$((pass+fail)) deploy-gate checks passed"
 [ "$fail" -eq 0 ] || exit 1

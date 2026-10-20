@@ -158,26 +158,84 @@ if printf '%s' "$RANGE_FILES" | grep -qE "$SERVED_RE"; then
   # behind", hard-failing when a stranded release includes served files. That
   # alarm is what makes a delay safe to have; without it this would be silent
   # stranding, which is the failure the opt-in gate had.
+  # ⛔⛔ THE LOCKOUT, FOUND 2026-10-20 — THIS CAP SHIPPED ZERO BUILDS FOR 33 DAYS
+  #
+  # Cory, 2026-10-20: "it keeps building but skipping deploy.. why?" — after
+  # three rounds of "did you deploy??". Production served the 2026-09-17 build
+  # for 33 days and ~400 commits.
+  #
+  # This block used to read the window from `CACHED_COMMIT_REF`, while every
+  # log line below called it "the last deploy". IT IS NOT THE LAST DEPLOY, it
+  # is the last BUILD — and Netlify advances it on every build, including the
+  # ones this very script skips. So each push set the clock to ~0h, `0 -lt 8`
+  # was always true, and the gate skipped. Then the next push did the same.
+  #
+  # ⚠️ IT IS SELF-REINFORCING, WHICH IS WHY IT NEVER RECOVERED: any push inside
+  # the window refreshes the reference the window is measured from. Once main
+  # receives commits more often than every 8 hours — which a daily capture rail
+  # guarantees — THE WINDOW CAN NEVER OPEN AGAIN. "At most 3 builds a day"
+  # silently became "no builds, ever". Nothing was wrong with Cory's ruling or
+  # with batching; the cap was simply measured against the wrong event.
+  #
+  # ⚠️ AND THE SAFETY ARGUMENT TWELVE LINES UP FAILED AT THE SAME TIME. It says
+  # the delay is safe because "site-check.yml ... compare the deployed commit
+  # against main HEAD ... That alarm is what makes a delay safe to have;
+  # without it this would be silent stranding." That alarm was FAILING OPEN for
+  # the same 33 days (shallow clone, un-diffable range filed as a note, fixed
+  # in 23d40b792). A cap whose only safeguard is an alarm, and an alarm that
+  # cannot see the thing it guards, fail as one — which is the real lesson here.
+  #
+  # THE FIX: measure the window from what is ACTUALLY DEPLOYED, by asking the
+  # live site. /api/version reports the commit the running build was made from,
+  # so its commit date is the true last-deploy time and the log lines below
+  # finally say something true. Anything unresolvable falls through to BUILD,
+  # never to the cache ref — that fallback was the defect.
   WINDOW_HOURS="${DEPLOY_WINDOW_HOURS:-8}"   # 8h => at most 3 builds/day
-  last_ts="$(git show -s --format=%ct "${CACHED_COMMIT_REF}" 2>/dev/null || true)"
+  SITE_URL="${DEPLOY_WINDOW_SITE:-https://makefbgreatagain.netlify.app}"
+  # TEST SEAM, and it earned its place. The old suite "tested" the open
+  # direction with DEPLOY_WINDOW_HOURS=0, which DISABLES the window rather than
+  # ageing the deploy — so a genuinely stale deploy was never exercised once,
+  # while the closed direction was asserted on fresh fixtures. That is to say
+  # the suite encoded the lockout as the expected behaviour, which is why 33
+  # days of it went unnoticed. An injectable timestamp makes both directions
+  # real. Never set this in a build; it is for netlify-ignore.test.sh.
+  live_commit=""
+  last_ts=""          # set -u is on: an unset last_ts would crash the gate
+  if [ -n "${DEPLOY_WINDOW_DEPLOYED_TS:-}" ]; then
+    last_ts="${DEPLOY_WINDOW_DEPLOYED_TS}"
+    live_commit="injected"
+  elif command -v curl >/dev/null 2>&1; then
+    live_commit="$(curl -fsS --max-time 20 "${SITE_URL}/api/version" 2>/dev/null \
+      | sed -n 's/.*"commit"[[:space:]]*:[[:space:]]*"\([0-9a-f]\{7,40\}\)".*/\1/p' \
+      | head -1 || true)"
+  fi
+  if [ -n "$live_commit" ] && [ "$live_commit" != "injected" ]; then
+    # A commit the clone cannot see (shallow, or prod so far behind it fell out
+    # of history) leaves last_ts empty and we BUILD — the safe direction, and
+    # self-correcting: once prod catches up the commit is recent and present.
+    last_ts="$(git show -s --format=%ct "${live_commit}" 2>/dev/null || true)"
+  fi
   now_ts="$(date +%s 2>/dev/null || true)"
   if [ -n "$last_ts" ] && [ -n "$now_ts" ] && [ "$WINDOW_HOURS" -gt 0 ] 2>/dev/null; then
     age_h=$(( (now_ts - last_ts) / 3600 ))
     if [ "$age_h" -lt "$WINDOW_HOURS" ]; then
-      log "range touches ${n} served file(s), but the last deploy was ${age_h}h ago"
-      log "and the window is ${WINDOW_HOURS}h (Cory's 2-3x/day ruling, 2026-08-24)"
+      log "range touches ${n} served file(s), but the DEPLOYED commit"
+      log "${live_commit:0:8} (live /api/version) is only ${age_h}h old, and the"
+      log "window is ${WINDOW_HOURS}h (Cory's 2-3x/day ruling, 2026-08-24)"
       log "— SKIPPING. Nothing is lost: this change ships with the next build."
       log "  Force it now with [deploy] in a commit message, a tag, or a build hook."
       exit 0
     fi
-    log "range touches ${n} served file(s) and the last deploy was ${age_h}h ago"
-    log "(window ${WINDOW_HOURS}h) — BUILDING"
+    log "range touches ${n} served file(s) and the DEPLOYED commit"
+    log "${live_commit:0:8} is ${age_h}h old (window ${WINDOW_HOURS}h) — BUILDING"
     exit 1
   fi
-  # Could not establish when the last build was — BUILD, same conservative
-  # direction as the un-diffable case above. A cadence cap must never become a
-  # reason the site silently stops updating.
-  log "range touches ${n} served file(s); last-deploy time unavailable — BUILDING (conservative)"
+  # Could not establish what is deployed — BUILD, same conservative direction as
+  # the un-diffable case above. A cadence cap must never become a reason the
+  # site silently stops updating. ⚠️ DO NOT "improve" this by falling back to
+  # CACHED_COMMIT_REF: that fallback is the 33-day outage described above.
+  log "range touches ${n} served file(s); could not read the deployed commit"
+  log "from ${SITE_URL}/api/version — BUILDING (conservative)"
   exit 1
 fi
 

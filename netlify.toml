@@ -30,7 +30,7 @@
   ignore = "bash netlify-ignore.sh"
 
 # ═══════════════════════════════════════════════════════════════════════════
-# ⛔ THE 250MB CLIFF — WHY DEPLOYS DIED ON 2026-09-17 AND THE SITE GOT SLOW
+# ⛔ THE 250MB CLIFF — THE BUNDLE IS OVER LAMBDA'S LIMIT AND MUST COME DOWN
 #
 # Cory, 2026-10-20: "the site is also so slow and clunky" / "did you deploy??"
 #
@@ -39,20 +39,61 @@
 # ["draft/data/**", ...]`, and draft/data is the Lab's capture rail — it grows
 # every single day.
 #
-# MEASURED FROM GIT, the same paths at two commits:
+# MEASURED FROM GIT, the same globs at two commits, UNZIPPED on disk:
 #
-#   at 1c3ec642, the last deploy that ever succeeded (2026-09-17): 225.9 MB
-#   at HEAD, 2026-10-20:                                            727.7 MB
+#   at 1c3ec642, the last deploy that succeeded (2026-09-17):  225.9 MB
+#   at HEAD, 2026-10-20:                                        727.7 MB
 #
-# It was 24MB under the cliff on the day of the last successful deploy and went
-# over within days. draft/data/kalshi alone is 565MB and gains ~14MB EVERY DAY
-# (131 daily snapshots, 2026-08-16 onward). So every build since has been
-# packaging a function that Lambda will not accept, and production has served
-# the 2026-09-17 build for 33 days.
+# draft/data/kalshi alone is 565MB and gains ~14MB EVERY DAY (131 daily
+# snapshots, 2026-08-16 onward). 727.7MB unzipped is almost 3x the limit, so
+# this had to be fixed whatever else is true.
 #
-# It is also the "slow": every request routes through the `app` function via
-# the catch-all redirect below, and that function shipped at 26.7MB zipped.
-# Cold starts scale with bundle size.
+# ⚠️⚠️ WHAT THIS DOES **NOT** ESTABLISH — AND THE FIRST DRAFT OF THIS HEADER
+# CLAIMED IT ANYWAY. It was titled "WHY DEPLOYS DIED ON 2026-09-17" and said
+# "every build since has been packaging a function Lambda will not accept".
+# THAT IS A HYPOTHESIS, NOT A MEASUREMENT, and I wrote it as fact into the file
+# every session reads — which is register 5h's exact mechanism, committed within
+# an hour of my own commit message warning about it.
+#
+# What the Netlify API actually says (deploy 6aac456cd3053500071c708b):
+#   * production serves 1c3ec642, created 2026-09-17T19:54Z — CONFIRMED.
+#   * its state is "ready", error_message null, skipped null, and the project's
+#     currentDeploy state is "current". NETLIFY REPORTS NO ERROR.
+#   * the deployed artifact sizes are 25-27MB per function (`app` 26,704,889
+#     bytes) — those are STORED/ZIPPED sizes, a different quantity from the
+#     225.9MB unzipped figure above. I conflated the two. JSON compresses ~8x,
+#     so 225.9MB unzipped and 26.7MB stored are the same bundle.
+#   * `deploy_source` is "api" and `manual_deploy` false.
+#
+# ⛔ THE ACTUAL CAUSE, and it is NOT this bundle — Cory answered it in four
+# words: "it keeps building but skipping deploy". Builds ran; the DEPLOY GATE
+# skipped every one. `netlify-ignore.sh` measured its 8-hour cadence window
+# from `CACHED_COMMIT_REF` — the last BUILD, which Netlify advances on every
+# build including the skipped ones — while its own log called that "the last
+# deploy". So each push set the clock to ~0h, `0 -lt 8` held, and it skipped;
+# the next push did the same. SELF-REINFORCING: once main receives commits
+# more often than every 8 hours, which a daily capture rail guarantees, the
+# window can never open again. "At most 3 builds/day" became zero, for 33 days.
+# Reproduced by A/B on identical input — old gate: "the last deploy was 0h ago
+# — SKIPPING" (exit 0) while prod sat 794h behind; new gate: "the DEPLOYED
+# commit is 794h old — BUILDING" (exit 1). Fixed in netlify-ignore.sh, which
+# now reads the deployed commit from the live /api/version, with four window
+# tests covering both directions; netlify-ignore.test.sh had been asserting the
+# lockout as correct behaviour, which is why nothing caught it.
+#
+# ⚠️ SO I HAD THE WRONG ROOT CAUSE AND SHIPPED IT AS FACT. The 727.7MB breach
+# below is real and had to be fixed, but it did not cause this outage — and my
+# first draft of this header was titled "WHY DEPLOYS DIED ON 2026-09-17". I
+# ruled the gate out by running it with `CACHED_COMMIT_REF=1c3ec642`, the last
+# DEPLOYED commit, which is not the value Netlify passes; with the real one the
+# gate skips. THE PROBE WAS WRONG IN THE DIRECTION THAT CONFIRMED THE STORY I
+# ALREADY HAD — rule 3f, on the one check that would have found it in a minute.
+# The size measurement was genuine and I let it carry a causal claim it could
+# not support (rule 3i).
+#
+# The bundle size is still worth fixing on its own: every request routes
+# through the `app` function via the catch-all redirect below, and cold starts
+# scale with bundle size.
 #
 # WHAT IS EXCLUDED, AND HOW IT WAS CHECKED. Each excluded path was grepped
 # across src/, netlify/functions/ and server-app.js and is referenced by NO

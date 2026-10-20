@@ -13,10 +13,19 @@
  *     HEAD, 2026-10-20:                                            727.7 MB
  *
  * 24MB under the cliff on the day of the last successful deploy, and over it
- * within days. draft/data/kalshi alone is 565MB and gains ~14MB EVERY DAY. So
- * every build since has been packaging something Lambda will not accept, and
- * production served the 2026-09-17 build for 33 days while site-check reported
- * success every morning.
+ * within days. draft/data/kalshi alone is 565MB and gains ~14MB EVERY DAY.
+ * 727.7MB is almost 3x the limit, so it has to come down regardless.
+ *
+ * ⚠️ BUT THIS IS NOT ESTABLISHED AS THE CAUSE OF THE 2026-09-17 STALL, and the
+ * first version of this header said it was. Netlify reports the live deploy as
+ * state "ready" with no error, and its read-only API exposes only the CURRENT
+ * deploy — so "built and failed on size" and "never built at all" (auto-publish
+ * off, git integration not firing, build minutes exhausted) are both still
+ * live, and a build never attempted leaves exactly the no-error trace we see.
+ * The deploy gate is ruled out by measurement: it returns BUILDING/exit 1 for
+ * the real CACHED_COMMIT_REF. netlify.toml's header carries the full evidence.
+ * THIS TEST DOES NOT DEPEND ON WHICH IS TRUE — 727.7MB breaches a documented
+ * limit either way, which is the only thing it asserts.
  *
  * ⚠️ THE EXCLUSIONS IN netlify.toml STOP THE BLEEDING; THEY DO NOT STOP
  * draft/data GROWING. The capture rail adds files daily by design — that is
