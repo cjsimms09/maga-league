@@ -360,6 +360,41 @@ season until settled.</p>
               <button class="btn small navy" type="submit">I received it →</button>
             </form>
           </li>
+        <%# THE COMMISSIONER'S OWN MARK ON A PAYOUT (Cory, 2026-10-20: "can you
+            make an easy way for me click square to confirm I paid that
+            person"). Square Up had three of its four buttons: a debtor could
+            claim, the commissioner could confirm that claim, and a creditor
+            could self-settle — but on money the HUB owes, the commissioner had
+            no control, so a payout only left his list when the other owner
+            logged in and pressed "I received it".
+
+            It SETTLES on click rather than raising a claim — his ruling the
+            same day, and the same trusted write he already has at
+            /admin/payment, put where he is actually looking. %>
+        <% } else if (isCommish && t.direction === 'hub_owes') { %>
+          <li class="settle-row settle-action">
+            <%# ⚠️ THE MESSAGE GOES IN data-confirm, NOT INTO THE JS STRING.
+                Interpolating an owner's name into an onsubmit confirm() call
+                looks fine and breaks on an apostrophe: EJS escapes it to
+                &#39;, the HTML parser decodes it back before JS sees the
+                attribute, and confirm('Mark $100 to O'Brien as paid?') is a
+                syntax error — so the handler never runs and THE FORM SUBMITS
+                WITH NO CONFIRMATION AT ALL. Verified by rendering it. A guard
+                on a money action that silently disappears for one owner's name
+                is worse than no guard, because it works for everyone you
+                tested. dataset hands JS the decoded string with no parsing.
+                (And this comment itself may contain no EJS tag: an EJS comment
+                ends at the FIRST %> , so an output tag inside one closes it
+                early and the rest spills into the template — which is exactly
+                how I broke this page one commit ago.) %>
+            <form method="post" action="/bank/settle/paid" style="display:inline"
+                  data-confirm="Mark <%= money(t.amount) %> to <%= t.to %> as paid? This settles it now."
+                  onsubmit="return confirm(this.dataset.confirm)">
+              <input type="hidden" name="owner_id" value="<%= t.owner_side %>">
+              <button class="btn small gold" type="submit">✓ I paid <%= t.to %> →</button>
+            </form>
+            <span class="muted" style="font-size:.72rem">settles it immediately — <%= t.to %> does not have to confirm</span>
+          </li>
         <% } else if (isCommish && t.direction === 'owes_hub' && t.claim) { %>
           <li class="settle-row settle-action">
             <span class="muted" style="font-size:.78rem"><b><%= t.from %></b> says they paid on <%= fmtDate(t.claim.claimed_at) %>.</span>

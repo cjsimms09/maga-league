@@ -1705,15 +1705,82 @@ router.post('/bank/settle/received', aw(async (req, res) => {
   // 'i_paid' shape (money went OUT of the commissioner), same sign
   // convention, same trusted write.
   if (ctx && ctx.direction === 'hub_owes') {
-    await L.addEntry({
-      owner_id: req.owner.id, year: ctx.season.year, type: 'payment',
-      amount: -Math.abs(ctx.transfer.amount),
-      desc: `Settlement payment received, confirmed by ${req.owner.name}`,
-    });
-    await mutateDoc(`settlement-claims:${ctx.season.year}`, {}, claims => {
-      delete claims[String(req.owner.id)];
-      return claims;
-    });
+    await writeHubPayout(ctx, req.owner.id,
+      `Settlement payment received, confirmed by ${req.owner.name}`);
+  }
+  res.redirect('/bank#settlement');
+}));
+
+/* ONE WRITE FOR BOTH MARKS ON A PAYOUT.
+ *
+ * A `hub_owes` transfer can now be closed from either end — the creditor's
+ * "I received it" or the commissioner's "I paid them" — and both must produce
+ * the SAME ledger entry, differing only in who said so. A second
+ * implementation is how "what the owner saw" and "what the commissioner did"
+ * quietly become two different numbers on a money page; `waiver_reco.js`'s
+ * header makes the same argument for the same reason.
+ *
+ * Sign convention is the one /admin/payment's `i_paid` already uses: money
+ * went OUT of the commissioner, so it is NEGATIVE against the owner it went
+ * to, which cancels the credit the hub owed them.
+ */
+async function writeHubPayout(ctx, payeeId, desc) {
+  await L.addEntry({
+    owner_id: payeeId, year: ctx.season.year, type: 'payment',
+    amount: -Math.abs(ctx.transfer.amount), desc,
+  });
+  await mutateDoc(`settlement-claims:${ctx.season.year}`, {}, claims => {
+    delete claims[String(payeeId)];
+    return claims;
+  });
+}
+
+/* THE COMMISSIONER'S OWN MARK ON A PAYOUT — the fourth control, missing until
+ * 2026-10-20.
+ *
+ * Cory: *"on the square up box.. can you make an easy way for me click square
+ * to confirm I paid that person"*, and earlier the same need in his words:
+ * *"I should be able to document that I sent it just so i know who I still owe
+ * money to."*
+ *
+ * Square Up had three of the four buttons it needs. A debtor could claim, the
+ * commissioner could confirm that claim, and a creditor could self-settle —
+ * but on a payout the HUB owes, the commissioner had NO control at all. He
+ * Venmo'd the weekly-high winner and then had to wait for that owner to log in
+ * and press "I received it" before the debt left his own list. For an owner who
+ * never logs in, it never left.
+ *
+ * ⚠️ THIS SETTLES IMMEDIATELY RATHER THAN RAISING A CLAIM, WHICH IS A
+ * DELIBERATE EXCEPTION TO THE PAYER-CLAIMS RULE ABOVE, RULED BY CORY ON
+ * 2026-10-20 when asked directly. The rule ("the RECEIVER's mark is the fact,
+ * the PAYER's mark is a claim") exists because in a peer transfer the two
+ * parties can disagree. Here the payer IS the bank and the commissioner, and he
+ * can already write exactly this entry at /admin/payment as a trusted write —
+ * so this is not new authority, it is the authority he has, in the place he is
+ * actually looking. What he asked for was the list to be short and true.
+ *
+ * The accepted cost, stated: if the money never actually landed, nothing here
+ * catches it. The entry names WHO marked it, so a dispute is traceable.
+ *
+ * NO DOUBLE-PAY GUARD IS NEEDED BEYOND THE LIVE RE-CHECK, and that is not an
+ * assumption — `currentHubTransfer` recomputes the settlement from live
+ * balances on every request, so the first write moves the creditor to zero and
+ * the second click finds no `hub_owes` transfer to settle. The test presses it
+ * twice.
+ */
+router.post('/bank/settle/paid', requireCommissioner, aw(async (req, res) => {
+  const payeeId = parseInt(req.body.owner_id, 10);
+  const ctx = payeeId
+    ? await currentHubTransfer(req.world, H.activeOwners(req.world.owners), payeeId)
+    : null;
+  // Only a payout. "I paid them" on a debt owed TO the hub would move the
+  // money the wrong way, so the direction is checked against the LIVE
+  // transfer rather than trusted from the form.
+  if (ctx && ctx.direction === 'hub_owes') {
+    const payee = H.ownerById(req.world.owners, payeeId);
+    await writeHubPayout(ctx, payeeId,
+      `Settlement payout marked sent by ${req.owner.name}`
+      + (payee ? ` (to ${payee.name})` : ''));
   }
   res.redirect('/bank#settlement');
 }));

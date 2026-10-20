@@ -148,6 +148,111 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS  ' + n))
   ck('CONTROL — a debtor cannot self-settle via /bank/settle/received (wrong direction, refused)',
     await balanceOf(debtor.id) === -100, await balanceOf(debtor.id));
 
+  // ── THE COMMISSIONER'S OWN MARK ON A PAYOUT (Cory, 2026-10-20) ──────────
+  //
+  // "can you make an easy way for me click square to confirm I paid that
+  // person" — Square Up had three of its four buttons. On money the HUB owes,
+  // the commissioner had NO control: he Venmo'd the weekly-high winner and the
+  // debt stayed on his list until that owner logged in and pressed "I received
+  // it". For an owner who never logs in, it never left.
+  //
+  // It SETTLES on click rather than raising a claim. That is a deliberate
+  // exception to the payer-claims rule this file documents at the top, ruled
+  // by Cory the same day he asked: the payer here IS the bank and the
+  // commissioner, and he can already write this exact entry at
+  // /admin/payment, so it is the authority he has put where he is looking.
+  await setTo(creditor.id, 175, 'weekly', 'hub owes creditor a weekly high');
+  ck('fixture: hub owes the creditor $175', await balanceOf(creditor.id) === 175, await balanceOf(creditor.id));
+
+  html = await bank(cookies.cory);
+  ck('THE MISSING FOURTH CONTROL: the commissioner now sees an "I paid <name>" button on a payout he owes',
+    new RegExp(`I paid ${creditor.name}`).test(html),
+    (html.match(/I paid [^<]{0,30}/g) || []).slice(0, 4));
+  ck('  and it says plainly that it settles without the other owner confirming',
+    /does not have to confirm/.test(html));
+
+  // ⚠️ THE CONFIRM DIALOG MUST NOT BE BUILT BY INTERPOLATING A NAME INTO JS.
+  // `onsubmit="return confirm('… <%= t.to %> …')"` renders an apostrophe as
+  // `&#39;`, the HTML parser decodes it back to `'` before JS sees it, and
+  // `confirm('Mark $100 to O'Brien as paid?')` is a syntax error — so the
+  // handler never runs and the form SUBMITS WITH NO CONFIRMATION. It works for
+  // every name you happen to test and vanishes for one future owner, on a
+  // button that moves money. The message lives in data-confirm instead.
+  const paidForm = (html.match(/<form[^>]*\/bank\/settle\/paid[^>]*>/) || [])[0] || '';
+  ck('  the confirm message is carried in data-confirm, not interpolated into the JS',
+    /data-confirm="/.test(paidForm) && /onsubmit="return confirm\(this\.dataset\.confirm\)"/.test(paidForm),
+    paidForm);
+  const onsubmitAttr = (paidForm.match(/onsubmit="([^"]*)"/) || [])[1] || '';
+  ck('  and the onsubmit handler contains NO interpolated data at all (apostrophe-proof)',
+    !new RegExp(creditor.name.split(/\s+/)[0]).test(onsubmitAttr)
+      && !/\$/.test(onsubmitAttr),
+    onsubmitAttr);
+
+  // ACCESS: a commissioner control must not render for an owner (A24 — owners
+  // get results, never tools). The creditor's own row still offers "I received
+  // it", which is theirs; the branch order is what keeps those separate.
+  const creditorHtml = await bank(cookies.creditor);
+  ck('  LEAK CHECK: the creditor does NOT see the commissioner\'s "I paid" button on their own payout',
+    !/\/bank\/settle\/paid/.test(creditorHtml) && /I received it/.test(creditorHtml));
+  const strangerHtml = await bank(cookies.stranger);
+  ck('  LEAK CHECK: an owner with nothing outstanding sees no settle controls at all',
+    !/\/bank\/settle\/paid/.test(strangerHtml));
+
+  const ledgerBefore = ((await store.get('ledger')) || []).length;
+  await post('/bank/settle/paid', cookies.cory, { owner_id: String(creditor.id) });
+  ck('CLICKING IT SETTLES IMMEDIATELY — $175 payout clears to 0 with no confirmation step',
+    await balanceOf(creditor.id) === 0, await balanceOf(creditor.id));
+
+  // The ENTRY, not just the balance: a money page's audit trail has to name
+  // who said so, because this mark has no second party to catch it.
+  const written = ((await store.get('ledger')) || []).slice(ledgerBefore);
+  ck('  it writes exactly ONE ledger entry', written.length === 1, written.map(e => e.desc));
+  ck('  signed NEGATIVE against the payee (money went OUT of the commissioner), same as /admin/payment i_paid',
+    written[0] && written[0].amount === -175, written[0] && written[0].amount);
+  ck('  and the entry NAMES who marked it, so an unconfirmed payout is traceable',
+    written[0] && /marked sent by/.test(written[0].desc) && written[0].desc.includes(cory.name),
+    written[0] && written[0].desc);
+
+  // ⚠️ THE GUARD THAT IS NOT A LOCK. There is no idempotency key here; the
+  // protection is that the settlement is recomputed from LIVE balances every
+  // request, so after the first write there is no hub_owes transfer left to
+  // settle. Asserted rather than assumed, because "click it twice and you pay
+  // twice" on a money page is the worst version of this feature.
+  await post('/bank/settle/paid', cookies.cory, { owner_id: String(creditor.id) });
+  ck('PRESSING IT TWICE DOES NOT DOUBLE-PAY — the live re-check finds nothing left to settle',
+    await balanceOf(creditor.id) === 0, await balanceOf(creditor.id));
+
+  html = await bank(cookies.cory);
+  ck('  and the settled payout no longer offers the button',
+    !new RegExp(`I paid ${creditor.name}`).test(html));
+
+  // ── CONTROL: only the commissioner, and only in the payout direction ────
+  await setTo(creditor.id, 120, 'weekly', 'hub owes creditor again');
+  const sneak = await post('/bank/settle/paid', cookies.stranger, { owner_id: String(creditor.id) });
+  ck('CONTROL — a non-commissioner cannot mark a payout sent (route refuses, no money moves)',
+    await balanceOf(creditor.id) === 120 && sneak.status !== 200,
+    { balance: await balanceOf(creditor.id), status: sneak.status });
+  const selfServe = await post('/bank/settle/paid', cookies.creditor, { owner_id: String(creditor.id) });
+  ck('CONTROL — the CREDITOR cannot use it to pay themselves',
+    await balanceOf(creditor.id) === 120,
+    { balance: await balanceOf(creditor.id), status: selfServe.status });
+
+  // The direction check matters: "I paid them" aimed at someone who owes the
+  // hub would move the money the WRONG WAY and wipe a debt owed to Cory.
+  await setTo(debtor.id, -140, 'buy_in', 'debtor owes the hub again');
+  await post('/bank/settle/paid', cookies.cory, { owner_id: String(debtor.id) });
+  ck('CONTROL — "I paid them" on someone who OWES the hub is refused (would erase a debt owed to Cory)',
+    await balanceOf(debtor.id) === -140, await balanceOf(debtor.id));
+
+  // A stale claim must not survive the payout being settled from the other end.
+  await setTo(creditor.id, 90, 'weekly', 'hub owes creditor, who has claimed');
+  await post('/bank/settle/claim', cookies.creditor);   // wrong direction: no claim is written
+  await post('/bank/settle/paid', cookies.cory, { owner_id: String(creditor.id) });
+  const claimsLeft = await store.get('settlement-claims:' + season.year) || {};
+  ck('settling a payout leaves NO claim behind for that owner',
+    !claimsLeft[String(creditor.id)] && await balanceOf(creditor.id) === 0,
+    { claim: claimsLeft[String(creditor.id)], balance: await balanceOf(creditor.id) });
+
   server.close();
   console.log(`\n${pass}/${pass + fail} settlement-mark-paid checks passed`);
   process.exit(fail ? 1 : 0);
