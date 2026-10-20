@@ -2,73 +2,73 @@
   "_territory": "TERRITORY: A \u2014 draft/backtest/drop_vs_random.py",
   "_what": "Decision-null grading of the DROP: rest-of-season points the cut player went on to score, against a random other man on the same roster that week. Higher = better cut.",
   "_direction": "INVERTED vs the add/pick/start-sit graders on purpose \u2014 for a drop, LESS rest-of-season value is the good outcome. The known-positive control is what pins the sign.",
-  "n_drops": 734,
-  "mean_percentile": 0.8022,
+  "n_drops": 758,
+  "mean_percentile": 0.7979,
   "null_95": [
-    0.4791,
-    0.5209
+    0.4794,
+    0.5206
   ],
   "controls": {
-    "random_own_player": 0.4997,
-    "cut_the_least_scoring": 0.9509,
-    "known_negative_band_half_width": 0.0209,
-    "band_derived_from_n": 734
+    "random_own_player": 0.5033,
+    "cut_the_least_scoring": 0.95,
+    "known_negative_band_half_width": 0.0206,
+    "band_derived_from_n": 758
   },
   "median_pool_size": 15.0,
   "n_draws": 300,
   "seed": 20260824,
-  "skipped": 94,
-  "mean_points_handed_away_per_drop": 24.1,
+  "skipped": 96,
+  "mean_points_handed_away_per_drop": 23.56,
   "by_owner": {
     "MarianSaar": {
-      "n": 74,
-      "mean_pct": 0.8113,
-      "mean_cost": 24.01
+      "n": 77,
+      "mean_pct": 0.8061,
+      "mean_cost": 23.43
     },
     "Schmelley": {
-      "n": 88,
-      "mean_pct": 0.7917,
-      "mean_cost": 23.73
+      "n": 91,
+      "mean_pct": 0.7879,
+      "mean_cost": 23.19
     },
     "coryjsimms": {
-      "n": 83,
-      "mean_pct": 0.8317,
-      "mean_cost": 25.49
+      "n": 86,
+      "mean_pct": 0.8247,
+      "mean_cost": 24.73
     },
     "cashworth": {
-      "n": 70,
-      "mean_pct": 0.7902,
-      "mean_cost": 25.05
+      "n": 74,
+      "mean_pct": 0.7875,
+      "mean_cost": 24.04
     },
     "B8T3S": {
-      "n": 55,
-      "mean_pct": 0.7596,
-      "mean_cost": 29.74
+      "n": 57,
+      "mean_pct": 0.7734,
+      "mean_cost": 28.7
     },
     "Sadbru": {
       "n": 38,
-      "mean_pct": 0.827,
+      "mean_pct": 0.8294,
       "mean_cost": 13.58
     },
     "ds7mmet": {
-      "n": 111,
-      "mean_pct": 0.7951,
-      "mean_cost": 22.53
+      "n": 115,
+      "mean_pct": 0.7833,
+      "mean_cost": 22.16
     },
     "Richard2121": {
-      "n": 102,
-      "mean_pct": 0.7799,
-      "mean_cost": 29.02
+      "n": 103,
+      "mean_pct": 0.7673,
+      "mean_cost": 29.09
     },
     "Jreis": {
-      "n": 47,
-      "mean_pct": 0.8302,
-      "mean_cost": 16.17
+      "n": 48,
+      "mean_pct": 0.8327,
+      "mean_cost": 15.76
     },
     "mhagen": {
-      "n": 66,
-      "mean_pct": 0.829,
-      "mean_cost": 23.92
+      "n": 69,
+      "mean_pct": 0.8289,
+      "mean_cost": 22.93
     }
   }
 }

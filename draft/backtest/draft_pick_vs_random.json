@@ -3,14 +3,14 @@
  "_what": "Decision-null grading of the draft pick: season points delivered vs a random AVAILABLE player at that pick.",
  "_supersedes": "the engine-minus-owner comparison in engine_seat_replay.json / replay_league_table.json, whose estimand carries no null (GRADING-POLICY).",
  "n_picks": 449,
- "mean_percentile": 0.8486,
+ "mean_percentile": 0.8501,
  "null_95": [
   0.4733,
   0.5267
  ],
  "controls": {
-  "random_available": 0.498,
-  "best_available": 0.999,
+  "random_available": 0.4992,
+  "best_available": 0.9989,
   "known_negative_band_half_width": 0.0267,
   "band_derived_from_n": 449
  },
@@ -21,35 +21,35 @@
  "by_owner": {
   "ds7mmet": {
    "n": 46,
-   "mean_pct": 0.8043
+   "mean_pct": 0.8024
   },
   "Sadbru": {
    "n": 48,
-   "mean_pct": 0.842
+   "mean_pct": 0.8438
   },
   "cashworth": {
    "n": 46,
-   "mean_pct": 0.8125
+   "mean_pct": 0.8122
   },
   "Jreis": {
    "n": 49,
-   "mean_pct": 0.8496
+   "mean_pct": 0.8481
   },
   "Richard2121": {
    "n": 43,
-   "mean_pct": 0.8667
+   "mean_pct": 0.8774
   },
   "coryjsimms": {
    "n": 44,
-   "mean_pct": 0.8607
+   "mean_pct": 0.862
   },
   "MarianSaar": {
    "n": 44,
-   "mean_pct": 0.8644
+   "mean_pct": 0.8666
   },
   "B8T3S": {
    "n": 44,
-   "mean_pct": 0.8457
+   "mean_pct": 0.8511
   },
   "mhagen": {
    "n": 43,
@@ -57,69 +57,69 @@
   },
   "Schmelley": {
    "n": 42,
-   "mean_pct": 0.8893
+   "mean_pct": 0.8874
   }
  },
  "by_round": {
   "1": {
    "n": 13,
-   "mean_pct": 0.9013
+   "mean_pct": 0.9002
   },
   "2": {
    "n": 17,
-   "mean_pct": 0.9027
+   "mean_pct": 0.907
   },
   "3": {
    "n": 24,
-   "mean_pct": 0.8729
+   "mean_pct": 0.8713
   },
   "4": {
    "n": 39,
-   "mean_pct": 0.866
+   "mean_pct": 0.8697
   },
   "5": {
    "n": 40,
-   "mean_pct": 0.8722
+   "mean_pct": 0.8733
   },
   "6": {
    "n": 40,
-   "mean_pct": 0.876
+   "mean_pct": 0.8769
   },
   "7": {
    "n": 38,
-   "mean_pct": 0.8563
+   "mean_pct": 0.8567
   },
   "8": {
    "n": 40,
-   "mean_pct": 0.8266
+   "mean_pct": 0.8294
   },
   "9": {
    "n": 39,
-   "mean_pct": 0.8374
+   "mean_pct": 0.8445
   },
   "10": {
    "n": 37,
-   "mean_pct": 0.843
+   "mean_pct": 0.8445
   },
   "11": {
    "n": 30,
-   "mean_pct": 0.8225
+   "mean_pct": 0.822
   },
   "12": {
    "n": 30,
-   "mean_pct": 0.8119
+   "mean_pct": 0.8104
   },
   "13": {
    "n": 15,
-   "mean_pct": 0.7635
+   "mean_pct": 0.7576
   },
   "14": {
    "n": 23,
-   "mean_pct": 0.8632
+   "mean_pct": 0.8636
   },
   "15": {
    "n": 24,
-   "mean_pct": 0.8134
+   "mean_pct": 0.8179
   }
  }
 }
