@@ -36,7 +36,29 @@ jobs:
       # Checked out first: the script compares the DEPLOYED board against the
       # slot in the repo's committed config, so the repo has to be there before
       # it runs rather than after.
+      #
+      # ⚠️ fetch-depth: 0 IS LOAD-BEARING, AND ITS ABSENCE HID A MONTH OF
+      # STRANDED RELEASES. The drift check below runs
+      # `git diff <deployed>..HEAD`, and actions/checkout defaults to a DEPTH-1
+      # clone — so the deployed commit simply is not in the repository. The diff
+      # fails, the code files it as a NOTE ("deployed commit not found locally
+      # (force-push or shallow clone)"), and site-check reports SUCCESS.
+      #
+      # THE ALARM THEREFORE FAILED OPEN EXACTLY WHEN THE DRIFT WAS WORST: the
+      # further behind production falls, the more certain it is that the
+      # deployed commit is outside a depth-1 clone. Measured 2026-10-20 — prod
+      # had been serving 1c3ec642 since 2026-09-17, **396 commits and 33 days
+      # behind, with four stranded SERVED files**, and site-check went green
+      # every single day of it. Run locally with full history the same code
+      # returns `level: red`.
+      #
+      # This matters beyond one alarm: the deploy gate's own header cites this
+      # check as the reason an 8-hour batching window is safe to have —
+      # "without it this would be silent stranding, which is the failure the
+      # opt-in gate had." It was silent stranding.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Fetch the deployed site
         env:
@@ -370,7 +392,23 @@ jobs:
                       names = subprocess.run(['git', 'diff', '--name-only', f'{dep}..{head}'],
                                              capture_output=True, text=True)
                       if names.returncode != 0:
-                          notes.append('deployed commit not found locally (force-push or shallow clone)')
+                          # ⚠️ A PROBLEM, NOT A NOTE. This was a note, and that
+                          # is how a month of stranded releases stayed green:
+                          # the only reason the diff fails is that the DEPLOYED
+                          # commit is missing from the clone, which happens
+                          # when prod is far enough behind to fall outside a
+                          # shallow checkout — i.e. precisely when the answer
+                          # matters most. "I cannot tell whether prod is stale"
+                          # must never render as "prod is fine" on the one
+                          # check the deploy gate cites as its safety net.
+                          problems.append(
+                              f'CANNOT EVALUATE DEPLOY DRIFT: the deployed commit {dep[:8]} '
+                              'is not in this clone, so staleness is UNKNOWN rather than '
+                              'absent. Needs fetch-depth: 0 (or prod is on a force-pushed '
+                              'commit). This failing open is what hid prod being 396 '
+                              'commits behind for 33 days.')
+                          print(f'FAIL  deployed commit {dep[:8]} not found locally '
+                                '(shallow clone or force-push) — drift UNKNOWN')
                       else:
                           changed = [x for x in names.stdout.splitlines() if x.strip()]
                           behind = subprocess.run(['git', 'rev-list', '--count', f'{dep}..{head}'],
