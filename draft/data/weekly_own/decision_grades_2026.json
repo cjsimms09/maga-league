@@ -151,12 +151,42 @@
    "props_vs_actual": 0.6,
    "props_priced": 7,
    "props_would_flip": false
+  },
+  {
+   "week": 6,
+   "actual": 101.1,
+   "ceiling": 102.5,
+   "left_on_bench": 1.4,
+   "starters_actual": [
+    "QB:11560",
+    "RB:3198",
+    "RB:8151",
+    "WR:9487",
+    "WR:12501",
+    "TE:7002",
+    "WR:2133",
+    "K:7042",
+    "DEF:LAR"
+   ],
+   "opponent": "Jreis",
+   "opponent_points": 145.1,
+   "result": "L",
+   "margin": -44.0,
+   "ceiling_would_flip": false,
+   "champion": 81.7,
+   "champion_vs_actual": -19.4,
+   "champion_priced": 12,
+   "champion_would_flip": false,
+   "props": 101.1,
+   "props_vs_actual": 0.0,
+   "props_priced": 8,
+   "props_would_flip": false
   }
  ],
  "summary": {
-  "weeks_graded": 5,
-  "left_on_bench_per_week": 11.44,
-  "champion_vs_actual_per_week": -3.8,
-  "props_vs_actual_per_week": 2.57
+  "weeks_graded": 6,
+  "left_on_bench_per_week": 9.77,
+  "champion_vs_actual_per_week": -6.4,
+  "props_vs_actual_per_week": 1.92
  }
 }
