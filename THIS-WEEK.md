@@ -1,6 +1,6 @@
 # THIS WEEK — coryjsimms, week 7 (2026)
 
-**Generated 2026-10-20T18:02:52+00:00 from LIVE Sleeper. THE ROSTER RULE: any statement about
+**Generated 2026-10-21T16:56:54+00:00 from LIVE Sleeper. THE ROSTER RULE: any statement about
 Cory's roster or matchup cites this file (fresh within 3 days) or live
 Sleeper — a frozen seat plan or tournament artifact is never a source for
 who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
@@ -13,17 +13,17 @@ who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
 
 | st | player | pos | team | game | implied | injury |
 |---|---|---|---|---|---|---|
-| S | Rashee Rice | WR | KC | at SEA (Sun) | — | Out |
+| S | Rashee Rice | WR | KC | at SEA (Sun) | — | Questionable |
 | S | Caleb Williams | QB | CHI | vs NE (Thu) | — |  |
+|   | Will Reichard | K | MIN | vs IND (Sun) | — |  |
 | S | Matthew Golden | WR | GB | at DET (Sun) | — |  |
 |   | Harold Fannin | TE | CLE | at TEN (Sun) | — |  |
-|   | Quinshon Judkins | RB | CLE | at TEN (Sun) | — | Out |
+|   | Quinshon Judkins | RB | CLE | at TEN (Sun) | — | Questionable |
 |   | Emmett Johnson | RB | KC | at SEA (Sun) | — |  |
-|   | Davante Adams | WR | LAR | at LV (Sun) | — | Out |
+|   | Davante Adams | WR | LAR | at LV (Sun) | — | IR |
 |   | Jared Goff | QB | DET | vs GB (Sun) | — |  |
 | S | Derrick Henry | RB | BAL | vs CIN (Sun) | — |  |
 | S | Juwan Johnson | TE | NO | vs PIT (Sun) | — |  |
-| S | Tyler Bass | K | BUF | BYE | — |  |
 | S | Ja'Marr Chase | WR | CIN | at BAL (Sun) | — |  |
 | S | Kenneth Walker | RB | KC | at SEA (Sun) | — |  |
 |   | Parker Washington | WR | JAX | BYE | — |  |
@@ -39,6 +39,7 @@ who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
 |   | Ladd McConkey | WR | LAC | BYE | — | Out |
 |   | Cam Skattebo | RB | NYG | at HOU (Sun) | — |  |
 | S | Luther Burden | WR | CHI | vs NE (Thu) | — |  |
+|   | Jaylin Noel | WR | HOU | vs NYG (Sun) | — |  |
 | S | Travis Kelce | TE | KC | at SEA (Sun) | — |  |
 | S | Ka'imi Fairbairn | K | HOU | vs NYG (Sun) | — |  |
 | S | Christian McCaffrey | RB | SF | at ATL (Sun) | — |  |
@@ -52,6 +53,29 @@ who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
 
 ## Second opinion (props vs champion)
 
-_not written yet for week 7 — `props_second_opinion.py` runs after the Wed/Thu snapshot (own-weekly-proj.yml)._
+_Read from `draft/data/weekly_own/second_opinion_2026_w7.json` (generated 2026-10-21T14:52:15.702939+00:00; champion arm `v1_pull3`; 12 of 14 rostered skill players carry a line). REPORT ONLY — the props arm is P354's challenger, not the grader's input yet._
+
+| st | player | pos | champion | props | props − champion |
+|---|---|---|---|---|---|
+| S | Rashee Rice | WR | 9.4 | 2.2 | -7.2 |
+| S | Caleb Williams | QB | 20.8 | 19.8 | -1.0 |
+| S | Matthew Golden | WR | 9.9 | 12.5 | 2.6 |
+|   | Harold Fannin | TE | 7.7 | 7.0 | -0.8 |
+|   | Quinshon Judkins | RB | 9.0 | 3.6 | -5.5 |
+|   | Emmett Johnson | RB | 3.2 | 2.0 | -1.1 |
+|   | Davante Adams | WR | 13.0 | — | — |
+|   | Jared Goff | QB | 25.6 | 25.2 | -0.3 |
+| S | Derrick Henry | RB | 17.1 | 16.2 | -0.9 |
+| S | Juwan Johnson | TE | 8.2 | 6.9 | -1.3 |
+| S | Tyler Bass | K | — | — | — |
+| S | Ja'Marr Chase | WR | 14.0 | 15.2 | 1.2 |
+| S | Kenneth Walker | RB | 20.4 | 16.8 | -3.5 |
+|   | Parker Washington | WR | — | — | — |
+|   | Zach Charbonnet | RB | 7.2 | 3.4 | -3.9 |
+| S | LAR D/ST | DEF | — | — | — |
+
+**Lineup swaps:** props starts **Harold Fannin** where the champion starts Juwan Johnson.
+
+**Matchup vs mhagen:** by the champion 108.1 – 94.1 (gap 14.0); by the props blend 105.9 – 101.5 (gap 4.4). each side's best lineup under that opinion; K/DEF unpriced by both, so the gap is skill slots only
 
 **Implied column:** each team's implied total this week from our own Bovada capture, with the spread from that side (`draft/data/team_context_2026.json`; — = not priced yet). **Named gaps:** weather/stadium/roof enrichment joins at game week via game_weather.py (open-meteo forecast is only meaningful days out)

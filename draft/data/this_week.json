@@ -1,6 +1,6 @@
 {
  "_rule": "THE ROSTER RULE: any statement about Cory's roster or matchup cites THIS file (fresh within 3 days) or live Sleeper \u2014 never an older artifact.",
- "generated_at": "2026-10-20T18:02:52+00:00",
+ "generated_at": "2026-10-21T16:56:54+00:00",
  "season": "2026",
  "week": 7,
  "cory": {
@@ -18,7 +18,7 @@
    "pos": "WR",
    "team": "KC",
    "starter": true,
-   "injury": "Out",
+   "injury": "Questionable",
    "game": "at SEA (Sun)",
    "home": false,
    "kickoff_utc": "2026-10-26T00:20:00.000Z"
@@ -33,6 +33,17 @@
    "game": "vs NE (Thu)",
    "home": true,
    "kickoff_utc": "2026-10-23T00:15:00.000Z"
+  },
+  {
+   "id": "11792",
+   "name": "Will Reichard",
+   "pos": "K",
+   "team": "MIN",
+   "starter": false,
+   "injury": null,
+   "game": "vs IND (Sun)",
+   "home": true,
+   "kickoff_utc": "2026-10-25T17:00:00.000Z"
   },
   {
    "id": "12501",
@@ -62,7 +73,7 @@
    "pos": "RB",
    "team": "CLE",
    "starter": false,
-   "injury": "Out",
+   "injury": "Questionable",
    "game": "at TEN (Sun)",
    "home": false,
    "kickoff_utc": "2026-10-25T17:00:00.000Z"
@@ -84,7 +95,7 @@
    "pos": "WR",
    "team": "LAR",
    "starter": false,
-   "injury": "Out",
+   "injury": "IR",
    "game": "at LV (Sun)",
    "home": false,
    "kickoff_utc": "2026-10-25T20:25:00.000Z"
@@ -121,17 +132,6 @@
    "game": "vs PIT (Sun)",
    "home": true,
    "kickoff_utc": "2026-10-25T13:30:00.000Z"
-  },
-  {
-   "id": "7042",
-   "name": "Tyler Bass",
-   "pos": "K",
-   "team": "BUF",
-   "starter": true,
-   "injury": null,
-   "game": "BYE",
-   "home": null,
-   "kickoff_utc": null
   },
   {
    "id": "7564",
@@ -244,6 +244,17 @@
    "game": "vs NE (Thu)",
    "home": true,
    "kickoff_utc": "2026-10-23T00:15:00.000Z"
+  },
+  {
+   "id": "12536",
+   "name": "Jaylin Noel",
+   "pos": "WR",
+   "team": "HOU",
+   "starter": false,
+   "injury": null,
+   "game": "vs NYG (Sun)",
+   "home": true,
+   "kickoff_utc": "2026-10-25T17:00:00.000Z"
   },
   {
    "id": "1466",
