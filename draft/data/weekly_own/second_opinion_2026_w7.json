@@ -3,11 +3,11 @@
  "_what": "REPORT ONLY. The champion weekly projection beside the props-implied points on Cory's live roster, and the lineup each would start. The second lineup uses P357's blend rule (props where a line exists, champion elsewhere) \u2014 its prior art made visible, not the arm entering the grader early.",
  "season": 2026,
  "week": 7,
- "generated": "2026-10-21T23:07:12.581871+00:00",
+ "generated": "2026-10-22T18:13:22.446336+00:00",
  "roster_source": "THIS-WEEK.md generated 2026-10-21T16:56:54+00:00",
  "champion_source": "committed snapshot own_weekly_2026_w7.json",
  "champion_arm": "v1_pull3",
- "props_source": "weekly_props_2026_w7.json (192 players)",
+ "props_source": "weekly_props_2026_w7.json (202 players)",
  "controls": [
   {
    "id": "S1",
@@ -37,10 +37,10 @@
    "team": "KC",
    "injury": "\u2014",
    "player_id": "10229",
-   "champion": 9.44,
-   "blend_prior": 11.39,
-   "props": 2.2,
-   "props_minus_champion": -7.24
+   "champion": 9.36,
+   "blend_prior": 11.28,
+   "props": 2.19,
+   "props_minus_champion": -7.17
   },
   {
    "st": true,
@@ -49,10 +49,10 @@
    "team": "CHI",
    "injury": "\u2014",
    "player_id": "11560",
-   "champion": 20.78,
-   "blend_prior": 22.09,
+   "champion": 21.08,
+   "blend_prior": 22.42,
    "props": 19.77,
-   "props_minus_champion": -1.01
+   "props_minus_champion": -1.31
   },
   {
    "st": false,
@@ -73,10 +73,10 @@
    "team": "GB",
    "injury": "\u2014",
    "player_id": "12501",
-   "champion": 9.92,
-   "blend_prior": 12.3,
-   "props": 12.99,
-   "props_minus_champion": 3.07
+   "champion": 9.93,
+   "blend_prior": 12.36,
+   "props": 13.1,
+   "props_minus_champion": 3.17
   },
   {
    "st": false,
@@ -87,8 +87,8 @@
    "player_id": "12506",
    "champion": 7.74,
    "blend_prior": 7.83,
-   "props": 6.99,
-   "props_minus_champion": -0.75
+   "props": 6.92,
+   "props_minus_champion": -0.82
   },
   {
    "st": false,
@@ -97,10 +97,10 @@
    "team": "CLE",
    "injury": "\u2014",
    "player_id": "12512",
-   "champion": 9.03,
-   "blend_prior": 9.85,
-   "props": 3.49,
-   "props_minus_champion": -5.54
+   "champion": 9.04,
+   "blend_prior": 9.87,
+   "props": 10.03,
+   "props_minus_champion": 0.99
   },
   {
    "st": false,
@@ -109,10 +109,10 @@
    "team": "KC",
    "injury": "\u2014",
    "player_id": "13337",
-   "champion": 3.19,
-   "blend_prior": 3.19,
+   "champion": 3.17,
+   "blend_prior": 3.17,
    "props": 2.05,
-   "props_minus_champion": -1.14
+   "props_minus_champion": -1.12
   },
   {
    "st": false,
@@ -121,8 +121,8 @@
    "team": "LAR",
    "injury": "\u2014",
    "player_id": "2133",
-   "champion": 13.02,
-   "blend_prior": 13.67,
+   "champion": 12.95,
+   "blend_prior": 13.59,
    "props": null,
    "props_minus_champion": null
   },
@@ -133,10 +133,10 @@
    "team": "DET",
    "injury": "\u2014",
    "player_id": "3163",
-   "champion": 25.56,
-   "blend_prior": 25.75,
+   "champion": 25.65,
+   "blend_prior": 25.83,
    "props": 25.23,
-   "props_minus_champion": -0.33
+   "props_minus_champion": -0.42
   },
   {
    "st": true,
@@ -145,10 +145,10 @@
    "team": "BAL",
    "injury": "\u2014",
    "player_id": "3198",
-   "champion": 17.06,
-   "blend_prior": 18.03,
-   "props": 16.28,
-   "props_minus_champion": -0.78
+   "champion": 16.78,
+   "blend_prior": 17.69,
+   "props": 15.64,
+   "props_minus_champion": -1.14
   },
   {
    "st": true,
@@ -159,8 +159,8 @@
    "player_id": "7002",
    "champion": 8.16,
    "blend_prior": 8.27,
-   "props": 6.86,
-   "props_minus_champion": -1.3
+   "props": 6.8,
+   "props_minus_champion": -1.36
   },
   {
    "st": true,
@@ -169,10 +169,10 @@
    "team": "CIN",
    "injury": "\u2014",
    "player_id": "7564",
-   "champion": 13.96,
-   "blend_prior": 14.39,
+   "champion": 14.14,
+   "blend_prior": 14.58,
    "props": 15.32,
-   "props_minus_champion": 1.36
+   "props_minus_champion": 1.18
   },
   {
    "st": true,
@@ -181,10 +181,10 @@
    "team": "KC",
    "injury": "\u2014",
    "player_id": "8151",
-   "champion": 20.38,
-   "blend_prior": 21.33,
-   "props": 16.99,
-   "props_minus_champion": -3.39
+   "champion": 20.31,
+   "blend_prior": 21.24,
+   "props": 16.76,
+   "props_minus_champion": -3.55
   },
   {
    "st": false,
@@ -205,10 +205,10 @@
    "team": "SEA",
    "injury": "\u2014",
    "player_id": "9753",
-   "champion": 7.24,
-   "blend_prior": 6.22,
-   "props": 3.35,
-   "props_minus_champion": -3.89
+   "champion": 7.12,
+   "blend_prior": 6.11,
+   "props": 9.0,
+   "props_minus_champion": 1.88
   },
   {
    "st": true,
@@ -239,9 +239,9 @@
   "Kenneth Walker",
   "Derrick Henry",
   "Ja'Marr Chase",
-  "Davante Adams",
-  "Harold Fannin",
   "Matthew Golden",
+  "Harold Fannin",
+  "Davante Adams",
   "Will Reichard",
   "LAR D/ST"
  ],
@@ -261,9 +261,9 @@
   "8151",
   "3198",
   "7564",
-  "2133",
-  "12506",
   "12501",
+  "12506",
+  "2133",
   "11792",
   "LAR D/ST"
  ],
@@ -275,12 +275,12 @@
  ],
  "valuation": {
   "champion_lineup": {
-   "by_champion": 108.06,
-   "by_props_blend": 106.69
+   "by_champion": 107.92,
+   "by_props_blend": 105.8
   },
   "props_blend_lineup": {
-   "by_champion": 107.64,
-   "by_props_blend": 106.82
+   "by_champion": 107.5,
+   "by_props_blend": 105.92
   }
  },
  "skill_players_with_a_props_line": 12,
@@ -296,10 +296,10 @@
     "team": "DEN",
     "injury": "\u2014",
     "player_id": "11563",
-    "champion": 15.64,
-    "blend_prior": 16.23,
-    "props": 18.07,
-    "props_minus_champion": 2.43
+    "champion": 15.46,
+    "blend_prior": 16.05,
+    "props": 17.97,
+    "props_minus_champion": 2.51
    },
    {
     "st": false,
@@ -308,10 +308,10 @@
     "team": "LAR",
     "injury": "\u2014",
     "player_id": "11586",
-    "champion": 7.45,
-    "blend_prior": 8.17,
+    "champion": 7.4,
+    "blend_prior": 8.11,
     "props": 7.68,
-    "props_minus_champion": 0.23
+    "props_minus_champion": 0.28
    },
    {
     "st": false,
@@ -332,10 +332,10 @@
     "team": "NYG",
     "injury": "\u2014",
     "player_id": "12481",
-    "champion": 8.94,
-    "blend_prior": 9.73,
-    "props": 4.35,
-    "props_minus_champion": -4.59
+    "champion": 8.91,
+    "blend_prior": 9.69,
+    "props": 6.05,
+    "props_minus_champion": -2.86
    },
    {
     "st": true,
@@ -344,10 +344,10 @@
     "team": "CHI",
     "injury": "\u2014",
     "player_id": "12519",
-    "champion": 8.64,
-    "blend_prior": 9.96,
-    "props": 10.47,
-    "props_minus_champion": 1.83
+    "champion": 8.7,
+    "blend_prior": 10.07,
+    "props": 10.54,
+    "props_minus_champion": 1.84
    },
    {
     "st": false,
@@ -356,10 +356,10 @@
     "team": "HOU",
     "injury": "\u2014",
     "player_id": "12536",
-    "champion": 6.57,
-    "blend_prior": 7.8,
+    "champion": 6.58,
+    "blend_prior": 7.89,
     "props": 4.0,
-    "props_minus_champion": -2.57
+    "props_minus_champion": -2.58
    },
    {
     "st": true,
@@ -370,8 +370,8 @@
     "player_id": "1466",
     "champion": 9.48,
     "blend_prior": 9.64,
-    "props": 9.12,
-    "props_minus_champion": -0.36
+    "props": 9.01,
+    "props_minus_champion": -0.47
    },
    {
     "st": true,
@@ -392,10 +392,10 @@
     "team": "SF",
     "injury": "\u2014",
     "player_id": "4034",
-    "champion": 16.51,
-    "blend_prior": 18.15,
-    "props": 19.8,
-    "props_minus_champion": 3.29
+    "champion": 16.44,
+    "blend_prior": 18.05,
+    "props": 19.46,
+    "props_minus_champion": 3.02
    },
    {
     "st": false,
@@ -416,10 +416,10 @@
     "team": "DET",
     "injury": "\u2014",
     "player_id": "7547",
-    "champion": 16.95,
-    "blend_prior": 16.92,
-    "props": 16.18,
-    "props_minus_champion": -0.77
+    "champion": 17.01,
+    "blend_prior": 16.98,
+    "props": 16.31,
+    "props_minus_champion": -0.7
    },
    {
     "st": false,
@@ -428,7 +428,7 @@
     "team": "NE",
     "injury": "\u2014",
     "player_id": "8121",
-    "champion": 7.93,
+    "champion": 7.92,
     "blend_prior": 8.27,
     "props": null,
     "props_minus_champion": null
@@ -440,10 +440,10 @@
     "team": "GB",
     "injury": "\u2014",
     "player_id": "8167",
-    "champion": 13.73,
-    "blend_prior": 15.01,
-    "props": 12.99,
-    "props_minus_champion": -0.74
+    "champion": 13.78,
+    "blend_prior": 15.08,
+    "props": 13.0,
+    "props_minus_champion": -0.78
    },
    {
     "st": true,
@@ -452,10 +452,10 @@
     "team": "PIT",
     "injury": "\u2014",
     "player_id": "8228",
-    "champion": 12.84,
-    "blend_prior": 13.57,
-    "props": 15.27,
-    "props_minus_champion": 2.43
+    "champion": 12.88,
+    "blend_prior": 13.63,
+    "props": 15.19,
+    "props_minus_champion": 2.31
    },
    {
     "st": false,
@@ -534,12 +534,12 @@
   ],
   "valuation": {
    "champion_lineup": {
-    "by_champion": 94.09,
-    "by_props_blend": 95.78
+    "by_champion": 93.96,
+    "by_props_blend": 96.99
    },
    "props_blend_lineup": {
-    "by_champion": 93.79,
-    "by_props_blend": 101.9
+    "by_champion": 93.75,
+    "by_props_blend": 101.48
    }
   },
   "skill_players_with_a_props_line": 10,
@@ -548,14 +548,14 @@
  "matchup": {
   "opponent": "mhagen",
   "by_champion": {
-   "mine": 108.06,
-   "theirs": 94.09,
-   "gap": 13.97
+   "mine": 107.92,
+   "theirs": 93.96,
+   "gap": 13.96
   },
   "by_props_blend": {
-   "mine": 106.82,
-   "theirs": 101.9,
-   "gap": 4.92
+   "mine": 105.92,
+   "theirs": 101.48,
+   "gap": 4.44
   },
   "note": "each side's best lineup under that opinion; K/DEF unpriced by both, so the gap is skill slots only"
  }
