@@ -1,6 +1,6 @@
 {
  "_rule": "THE ROSTER RULE: any statement about Cory's roster or matchup cites THIS file (fresh within 3 days) or live Sleeper \u2014 never an older artifact.",
- "generated_at": "2026-10-21T16:56:54+00:00",
+ "generated_at": "2026-10-23T17:55:15+00:00",
  "season": "2026",
  "week": 7,
  "cory": {
@@ -28,7 +28,7 @@
    "name": "Caleb Williams",
    "pos": "QB",
    "team": "CHI",
-   "starter": true,
+   "starter": false,
    "injury": null,
    "game": "vs NE (Thu)",
    "home": true,
@@ -39,7 +39,7 @@
    "name": "Will Reichard",
    "pos": "K",
    "team": "MIN",
-   "starter": false,
+   "starter": true,
    "injury": null,
    "game": "vs IND (Sun)",
    "home": true,
@@ -51,14 +51,14 @@
    "pos": "WR",
    "team": "GB",
    "starter": true,
-   "injury": null,
+   "injury": "Questionable",
    "game": "at DET (Sun)",
    "home": false,
    "kickoff_utc": "2026-10-25T20:25:00.000Z"
   },
   {
    "id": "12506",
-   "name": "Harold Fannin",
+   "name": "Harold Fannin Jr.",
    "pos": "TE",
    "team": "CLE",
    "starter": false,
@@ -105,7 +105,7 @@
    "name": "Jared Goff",
    "pos": "QB",
    "team": "DET",
-   "starter": false,
+   "starter": true,
    "injury": null,
    "game": "vs GB (Sun)",
    "home": true,
@@ -146,7 +146,7 @@
   },
   {
    "id": "8151",
-   "name": "Kenneth Walker",
+   "name": "Kenneth Walker III",
    "pos": "RB",
    "team": "KC",
    "starter": true,
@@ -172,7 +172,7 @@
    "pos": "RB",
    "team": "SEA",
    "starter": false,
-   "injury": "PUP",
+   "injury": "Questionable",
    "game": "vs KC (Sun)",
    "home": true,
    "kickoff_utc": "2026-10-26T00:20:00.000Z"
@@ -236,7 +236,7 @@
   },
   {
    "id": "12519",
-   "name": "Luther Burden",
+   "name": "Luther Burden III",
    "pos": "WR",
    "team": "CHI",
    "starter": true,
@@ -262,7 +262,7 @@
    "pos": "TE",
    "team": "KC",
    "starter": true,
-   "injury": null,
+   "injury": "Questionable",
    "game": "at SEA (Sun)",
    "home": false,
    "kickoff_utc": "2026-10-26T00:20:00.000Z"
@@ -328,7 +328,7 @@
    "pos": "WR",
    "team": "GB",
    "starter": true,
-   "injury": null,
+   "injury": "Questionable",
    "game": "at DET (Sun)",
    "home": false,
    "kickoff_utc": "2026-10-25T20:25:00.000Z"
