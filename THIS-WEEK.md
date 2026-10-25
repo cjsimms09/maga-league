@@ -1,6 +1,6 @@
 # THIS WEEK — coryjsimms, week 7 (2026)
 
-**Generated 2026-10-23T17:55:15+00:00 from LIVE Sleeper. THE ROSTER RULE: any statement about
+**Generated 2026-10-25T15:01:21+00:00 from LIVE Sleeper. THE ROSTER RULE: any statement about
 Cory's roster or matchup cites this file (fresh within 3 days) or live
 Sleeper — a frozen seat plan or tournament artifact is never a source for
 who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
@@ -13,12 +13,12 @@ who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
 
 | st | player | pos | team | game | implied | injury |
 |---|---|---|---|---|---|---|
-| S | Rashee Rice | WR | KC | at SEA (Sun) | — | Questionable |
+| S | Rashee Rice | WR | KC | at SEA (Sun) | — | Out |
 |   | Caleb Williams | QB | CHI | vs NE (Thu) | — |  |
 | S | Will Reichard | K | MIN | vs IND (Sun) | — |  |
-| S | Matthew Golden | WR | GB | at DET (Sun) | — | Questionable |
+| S | Matthew Golden | WR | GB | at DET (Sun) | — |  |
 |   | Harold Fannin Jr. | TE | CLE | at TEN (Sun) | — |  |
-|   | Quinshon Judkins | RB | CLE | at TEN (Sun) | — | Questionable |
+|   | Quinshon Judkins | RB | CLE | at TEN (Sun) | — |  |
 |   | Emmett Johnson | RB | KC | at SEA (Sun) | — |  |
 |   | Davante Adams | WR | LAR | at LV (Sun) | — | IR |
 | S | Jared Goff | QB | DET | vs GB (Sun) | — |  |
@@ -27,7 +27,7 @@ who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
 | S | Ja'Marr Chase | WR | CIN | at BAL (Sun) | — |  |
 | S | Kenneth Walker III | RB | KC | at SEA (Sun) | — |  |
 |   | Parker Washington | WR | JAX | BYE | — |  |
-|   | Zach Charbonnet | RB | SEA | vs KC (Sun) | — | Questionable |
+|   | Zach Charbonnet | RB | SEA | vs KC (Sun) | — | Out |
 | S | LAR D/ST | DEF | LAR | at LV (Sun) | — |  |
 
 ## Opponent's roster
@@ -40,13 +40,13 @@ who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
 |   | Cam Skattebo | RB | NYG | at HOU (Sun) | — |  |
 | S | Luther Burden III | WR | CHI | vs NE (Thu) | — |  |
 |   | Jaylin Noel | WR | HOU | vs NYG (Sun) | — |  |
-| S | Travis Kelce | TE | KC | at SEA (Sun) | — | Questionable |
+| S | Travis Kelce | TE | KC | at SEA (Sun) | — |  |
 | S | Ka'imi Fairbairn | K | HOU | vs NYG (Sun) | — |  |
 | S | Christian McCaffrey | RB | SF | at ATL (Sun) | — |  |
 |   | Josh Allen | QB | BUF | BYE | — |  |
 | S | Amon-Ra St. Brown | WR | DET | vs GB (Sun) | — |  |
 |   | Romeo Doubs | WR | NE | at CHI (Thu) | — | IR |
-| S | Christian Watson | WR | GB | at DET (Sun) | — | Questionable |
+| S | Christian Watson | WR | GB | at DET (Sun) | — |  |
 | S | Jaylen Warren | RB | PIT | at NO (Sun) | — |  |
 |   | Brenton Strange | TE | JAX | BYE | — |  |
 | S | DEN D/ST | DEF | DEN | at ARI (Sun) | — |  |

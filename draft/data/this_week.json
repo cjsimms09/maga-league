@@ -1,6 +1,6 @@
 {
  "_rule": "THE ROSTER RULE: any statement about Cory's roster or matchup cites THIS file (fresh within 3 days) or live Sleeper \u2014 never an older artifact.",
- "generated_at": "2026-10-23T17:55:15+00:00",
+ "generated_at": "2026-10-25T15:01:21+00:00",
  "season": "2026",
  "week": 7,
  "cory": {
@@ -18,7 +18,7 @@
    "pos": "WR",
    "team": "KC",
    "starter": true,
-   "injury": "Questionable",
+   "injury": "Out",
    "game": "at SEA (Sun)",
    "home": false,
    "kickoff_utc": "2026-10-26T00:20:00.000Z"
@@ -51,7 +51,7 @@
    "pos": "WR",
    "team": "GB",
    "starter": true,
-   "injury": "Questionable",
+   "injury": null,
    "game": "at DET (Sun)",
    "home": false,
    "kickoff_utc": "2026-10-25T20:25:00.000Z"
@@ -73,7 +73,7 @@
    "pos": "RB",
    "team": "CLE",
    "starter": false,
-   "injury": "Questionable",
+   "injury": null,
    "game": "at TEN (Sun)",
    "home": false,
    "kickoff_utc": "2026-10-25T17:00:00.000Z"
@@ -172,7 +172,7 @@
    "pos": "RB",
    "team": "SEA",
    "starter": false,
-   "injury": "Questionable",
+   "injury": "Out",
    "game": "vs KC (Sun)",
    "home": true,
    "kickoff_utc": "2026-10-26T00:20:00.000Z"
@@ -262,7 +262,7 @@
    "pos": "TE",
    "team": "KC",
    "starter": true,
-   "injury": "Questionable",
+   "injury": null,
    "game": "at SEA (Sun)",
    "home": false,
    "kickoff_utc": "2026-10-26T00:20:00.000Z"
@@ -328,7 +328,7 @@
    "pos": "WR",
    "team": "GB",
    "starter": true,
-   "injury": "Questionable",
+   "injury": null,
    "game": "at DET (Sun)",
    "home": false,
    "kickoff_utc": "2026-10-25T20:25:00.000Z"
