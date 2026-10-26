@@ -12,7 +12,7 @@
         "cards": {
           "our_blend": {
             "n": 458,
-            "mae": 57.15,
+            "mae": 57.17,
             "rank_corr": 0.579,
             "top_decile": {
               "n": 458,
@@ -32,8 +32,8 @@
               },
               "RB": {
                 "n": 105,
-                "mae": 58.81,
-                "rank_corr": 0.697,
+                "mae": 58.85,
+                "rank_corr": 0.699,
                 "top_decile": {
                   "n": 105,
                   "k": 10,
@@ -42,8 +42,8 @@
               },
               "WR": {
                 "n": 172,
-                "mae": 46.66,
-                "rank_corr": 0.667,
+                "mae": 46.67,
+                "rank_corr": 0.669,
                 "top_decile": {
                   "n": 172,
                   "k": 17,
@@ -52,8 +52,8 @@
               },
               "TE": {
                 "n": 97,
-                "mae": 33.41,
-                "rank_corr": 0.615,
+                "mae": 33.43,
+                "rank_corr": 0.614,
                 "top_decile": {
                   "n": 97,
                   "k": 10,
@@ -116,7 +116,7 @@
               "WR": {
                 "n": 172,
                 "mae": 40.8,
-                "rank_corr": 0.74,
+                "rank_corr": 0.739,
                 "top_decile": {
                   "n": 172,
                   "k": 17,
@@ -126,7 +126,7 @@
               "TE": {
                 "n": 97,
                 "mae": 27.36,
-                "rank_corr": 0.684,
+                "rank_corr": 0.685,
                 "top_decile": {
                   "n": 97,
                   "k": 10,
@@ -270,8 +270,8 @@
         "cards": {
           "our_blend": {
             "n": 455,
-            "mae": 56.76,
-            "rank_corr": 0.604,
+            "mae": 56.78,
+            "rank_corr": 0.605,
             "top_decile": {
               "n": 455,
               "k": 46,
@@ -290,7 +290,7 @@
               },
               "RB": {
                 "n": 112,
-                "mae": 59.87,
+                "mae": 59.95,
                 "rank_corr": 0.529,
                 "top_decile": {
                   "n": 112,
@@ -300,8 +300,8 @@
               },
               "WR": {
                 "n": 164,
-                "mae": 46.99,
-                "rank_corr": 0.752,
+                "mae": 47.0,
+                "rank_corr": 0.753,
                 "top_decile": {
                   "n": 164,
                   "k": 16,
@@ -310,7 +310,7 @@
               },
               "TE": {
                 "n": 91,
-                "mae": 33.72,
+                "mae": 33.7,
                 "rank_corr": 0.643,
                 "top_decile": {
                   "n": 91,
@@ -364,7 +364,7 @@
               "RB": {
                 "n": 112,
                 "mae": 53.01,
-                "rank_corr": 0.588,
+                "rank_corr": 0.587,
                 "top_decile": {
                   "n": 112,
                   "k": 11,
@@ -384,7 +384,7 @@
               "TE": {
                 "n": 91,
                 "mae": 26.97,
-                "rank_corr": 0.723,
+                "rank_corr": 0.724,
                 "top_decile": {
                   "n": 91,
                   "k": 9,
