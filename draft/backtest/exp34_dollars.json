@@ -157,8 +157,8 @@
       "band": "value(<=0)",
       "n": 38,
       "n_deviations": 36,
-      "sum_dollars": 0.0,
-      "mean_dollars": 0.0
+      "sum_dollars": -2050.0,
+      "mean_dollars": -53.95
     },
     {
       "band": "near-zero",
@@ -959,10 +959,10 @@
     }
   },
   "correlation_arm": {
-    "diff_mean": 0.063,
+    "diff_mean": 0.065,
     "diff_ci": [
-      -0.055,
-      0.169
+      -0.053,
+      0.171
     ],
     "verdict": "inconclusive",
     "n_picks": 32
