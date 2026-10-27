@@ -476433,7 +476433,7 @@
     },
     "7525": {
      "injury_status": "Out",
-     "depth_chart_order": 6,
+     "depth_chart_order": 1,
      "team": "PHI",
      "years_exp": 5,
      "adp": 31.33,
@@ -477015,7 +477015,7 @@
      "position": "WR"
     },
     "13294": {
-     "depth_chart_order": 1,
+     "depth_chart_order": 3,
      "team": "PHI",
      "years_exp": 0,
      "adp": 113.33,
@@ -477839,7 +477839,7 @@
      "position": "TE"
     },
     "13846": {
-     "team": "ATL",
+     "team": "FA",
      "years_exp": 0,
      "adp": 950.0,
      "position": "TE"
@@ -477889,7 +477889,7 @@
      "position": "TE"
     },
     "8177": {
-     "depth_chart_order": 3,
+     "depth_chart_order": 2,
      "team": "PHI",
      "years_exp": 4,
      "adp": 950.0,
@@ -478880,7 +478880,7 @@
      "position": "TE"
     },
     "7075": {
-     "depth_chart_order": 3,
+     "depth_chart_order": 4,
      "team": "ATL",
      "years_exp": 6,
      "adp": 950.0,
@@ -479164,14 +479164,14 @@
     },
     "7602": {
      "injury_status": "Out",
-     "depth_chart_order": 3,
+     "depth_chart_order": 4,
      "team": "TEN",
      "years_exp": 5,
      "adp": 950.0,
      "position": "TE"
     },
     "12357": {
-     "depth_chart_order": 5,
+     "depth_chart_order": 3,
      "team": "TEN",
      "years_exp": 2,
      "adp": 950.0,
@@ -479524,13 +479524,13 @@
      "position": "TE"
     },
     "13580": {
-     "team": "CLE",
+     "team": "FA",
      "years_exp": 0,
      "adp": 950.0,
      "position": "TE"
     },
     "4314": {
-     "depth_chart_order": 2,
+     "depth_chart_order": 3,
      "team": "PHI",
      "years_exp": 9,
      "adp": 950.0,
@@ -479784,7 +479784,7 @@
     },
     "9486": {
      "injury_status": "Out",
-     "depth_chart_order": 7,
+     "depth_chart_order": 2,
      "team": "PHI",
      "years_exp": 3,
      "adp": 178.0,
@@ -479828,7 +479828,7 @@
     },
     "8800": {
      "injury_status": "IR",
-     "depth_chart_order": 4,
+     "depth_chart_order": 5,
      "team": "DAL",
      "years_exp": 4,
      "adp": 191.0,
@@ -480877,7 +480877,7 @@
     },
     "5121": {
      "injury_status": "IR",
-     "depth_chart_order": 6,
+     "depth_chart_order": 5,
      "team": "NYG",
      "years_exp": 8,
      "adp": 950.0,
@@ -481108,7 +481108,7 @@
     },
     "8125": {
      "injury_status": "IR",
-     "depth_chart_order": 8,
+     "depth_chart_order": 7,
      "team": "NYG",
      "years_exp": 4,
      "adp": 950.0,
@@ -481214,7 +481214,7 @@
     },
     "8414": {
      "injury_status": "Out",
-     "depth_chart_order": 5,
+     "depth_chart_order": 7,
      "team": "PHI",
      "years_exp": 4,
      "adp": 950.0,
@@ -481472,7 +481472,7 @@
      "position": "WR"
     },
     "7596": {
-     "depth_chart_order": 4,
+     "depth_chart_order": 6,
      "team": "PHI",
      "years_exp": 5,
      "adp": 950.0,
@@ -481812,7 +481812,7 @@
     },
     "6699": {
      "injury_status": "IR",
-     "depth_chart_order": 7,
+     "depth_chart_order": 6,
      "team": "NYG",
      "years_exp": 7,
      "adp": 950.0,
@@ -482044,7 +482044,7 @@
      "position": "WR"
     },
     "10225": {
-     "depth_chart_order": 4,
+     "depth_chart_order": 5,
      "team": "DAL",
      "years_exp": 3,
      "adp": 950.0,
@@ -482149,7 +482149,7 @@
     },
     "8917": {
      "injury_status": "Out",
-     "depth_chart_order": 5,
+     "depth_chart_order": 4,
      "team": "DAL",
      "years_exp": 4,
      "adp": 950.0,
@@ -482318,7 +482318,7 @@
      "position": "WR"
     },
     "5848": {
-     "depth_chart_order": 3,
+     "depth_chart_order": 5,
      "team": "PHI",
      "years_exp": 7,
      "adp": 950.0,
@@ -482971,7 +482971,7 @@
      "position": "WR"
     },
     "13150": {
-     "depth_chart_order": 2,
+     "depth_chart_order": 4,
      "team": "PHI",
      "years_exp": 1,
      "adp": 950.0,
@@ -484560,7 +484560,7 @@
     },
     "11199": {
      "injury_status": "Out",
-     "depth_chart_order": 6,
+     "depth_chart_order": 4,
      "team": "DAL",
      "years_exp": 3,
      "adp": 283.0,
@@ -486021,6 +486021,7 @@
      "position": "RB"
     },
     "8129": {
+     "injury_status": "Questionable",
      "depth_chart_order": 2,
      "team": "PHI",
      "years_exp": 4,
