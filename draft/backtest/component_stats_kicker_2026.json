@@ -10,7 +10,7 @@
     "ok": true
    }
   ],
-  "fetched": "2026-10-20",
+  "fetched": "2026-10-27",
   "weeks_span": [
    1,
    18
@@ -30,10 +30,10 @@
    "team"
   ],
   "crosswalk": "nfl_data_py.import_ids() gsis_id -> sleeper_id; unmapped players keyed gsis:<id>, never dropped",
-  "raw_rows": 186,
-  "kept_player_weeks": 186,
-  "players": 33,
-  "sleeper_mapped_players": 30,
+  "raw_rows": 214,
+  "kept_player_weeks": 214,
+  "players": 35,
+  "sleeper_mapped_players": 32,
   "unmapped_gsis_players": 3
  },
  "weeks": [
@@ -1324,6 +1324,199 @@
      "pos": "K",
      "team": "WAS",
      "xpm": 2
+    }
+   }
+  },
+  {
+   "week": 7,
+   "players": {
+    "10955": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "ARI",
+     "xpm": 1
+    },
+    "11261": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "CLE",
+     "xpm": 3
+    },
+    "11533": {
+     "fgm_20_29": 2,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "DAL",
+     "xpm": 3
+    },
+    "11539": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "DET",
+     "xpm": 2
+    },
+    "11792": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 1,
+     "fgm_50p": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "MIN",
+     "xpm": 1
+    },
+    "12185": {
+     "fgm_40_49": 1,
+     "fgmiss": 2,
+     "pos": "K",
+     "team": "IND",
+     "xpm": 1
+    },
+    "12711": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "BAL",
+     "xpm": 1
+    },
+    "12713": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "NE",
+     "xpm": 3
+    },
+    "12961": {
+     "pos": "K",
+     "team": "CAR",
+     "xpm": 1,
+     "xpmiss": 1
+    },
+    "1433": {
+     "pos": "K",
+     "team": "LA",
+     "xpm": 5
+    },
+    "1945": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "PIT",
+     "xpm": 1
+    },
+    "2020": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "fgm_50p": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "CHI",
+     "xpm": 3
+    },
+    "2747": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "SEA",
+     "xpm": 2
+    },
+    "3451": {
+     "fgm_50p": 2,
+     "pos": "K",
+     "team": "HOU",
+     "xpm": 1
+    },
+    "3678": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 2,
+     "pos": "K",
+     "team": "DEN",
+     "xpm": 3
+    },
+    "4195": {
+     "pos": "K",
+     "team": "PHI",
+     "xpm": 3
+    },
+    "4227": {
+     "fgm_50p": 1,
+     "fgmiss": 2,
+     "pos": "K",
+     "team": "KC"
+    },
+    "4233": {
+     "pos": "K",
+     "team": "MIA",
+     "xpm": 4
+    },
+    "5095": {
+     "fgm_30_39": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "NO",
+     "xpm": 1
+    },
+    "5119": {
+     "fgm_30_39": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "NYJ",
+     "xpm": 2
+    },
+    "5189": {
+     "pos": "K",
+     "team": "SF",
+     "xpm": 2,
+     "xpmiss": 1
+    },
+    "6083": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 2,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "LV"
+    },
+    "650": {
+     "fgm_30_39": 3,
+     "pos": "K",
+     "team": "ATL",
+     "xpm": 2,
+     "xpmiss": 1
+    },
+    "6528": {
+     "fgm_20_29": 1,
+     "pos": "K",
+     "team": "TEN",
+     "xpm": 3
+    },
+    "6650": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "TB",
+     "xpm": 5
+    },
+    "7839": {
+     "pos": "K",
+     "team": "CIN",
+     "xpm": 5
+    },
+    "gsis:00-0040899": {
+     "fgm_40_49": 1,
+     "fgmiss": 2,
+     "pos": "K",
+     "team": "GB",
+     "xpm": 2
+    },
+    "gsis:00-0041145": {
+     "fgmiss": 2,
+     "pos": "K",
+     "team": "NYG",
+     "xpm": 3
     }
    }
   }

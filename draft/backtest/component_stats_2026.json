@@ -14,7 +14,7 @@
     "ok": true
    }
   ],
-  "fetched": "2026-10-20",
+  "fetched": "2026-10-27",
   "weeks_span": [
    1,
    18
@@ -47,10 +47,10 @@
    "team"
   ],
   "crosswalk": "nfl_data_py.import_ids() gsis_id -> sleeper_id; unmapped players keyed gsis:<id>, never dropped",
-  "raw_rows": 2117,
-  "kept_player_weeks": 2117,
-  "players": 519,
-  "sleeper_mapped_players": 514,
+  "raw_rows": 2424,
+  "kept_player_weeks": 2424,
+  "players": 529,
+  "sleeper_mapped_players": 524,
   "unmapped_gsis_players": 5
  },
  "weeks": [
@@ -6720,7 +6720,7 @@
      "team": "NYJ"
     },
     "12938": {
-     "pos": "WR",
+     "pos": "TE",
      "rec": 1,
      "rec_yd": 8,
      "team": "DET",
@@ -16815,6 +16815,2477 @@
     "gsis:00-0041398": {
      "pos": "RB",
      "team": "PIT"
+    }
+   }
+  },
+  {
+   "week": 7,
+   "players": {
+    "10213": {
+     "pos": "WR",
+     "rec": 5,
+     "rec_td": 1,
+     "rec_yd": 103,
+     "team": "LV",
+     "tgt": 12,
+     "tgt_share": 0.2791
+    },
+    "10214": {
+     "pos": "TE",
+     "rec": 4,
+     "rec_td": 2,
+     "rec_yd": 20,
+     "team": "LA",
+     "tgt": 5,
+     "tgt_share": 0.1724
+    },
+    "10218": {
+     "pos": "WR",
+     "rec": 3,
+     "rec_td": 1,
+     "rec_yd": 17,
+     "rush_att": 2,
+     "rush_yd": 12,
+     "team": "HOU",
+     "tgt": 6,
+     "tgt_share": 0.2143
+    },
+    "10220": {
+     "pos": "TE",
+     "team": "IND",
+     "tgt": 3,
+     "tgt_share": 0.1429
+    },
+    "10225": {
+     "pos": "WR",
+     "team": "DAL",
+     "tgt": 1,
+     "tgt_share": 0.0385
+    },
+    "10228": {
+     "pos": "WR",
+     "team": "NYG"
+    },
+    "10231": {
+     "pos": "TE",
+     "rec": 3,
+     "rec_yd": 17,
+     "team": "ARI",
+     "tgt": 3,
+     "tgt_share": 0.0682
+    },
+    "10232": {
+     "pos": "WR",
+     "rec": 4,
+     "rec_yd": 55,
+     "rush_att": 2,
+     "rush_yd": 11,
+     "team": "ARI",
+     "tgt": 8,
+     "tgt_share": 0.1818
+    },
+    "10235": {
+     "pos": "RB",
+     "rush_att": 2,
+     "rush_yd": 13,
+     "team": "CHI"
+    },
+    "10859": {
+     "pos": "TE",
+     "rec": 1,
+     "rec_yd": 18,
+     "team": "DET",
+     "tgt": 2,
+     "tgt_share": 0.0645
+    },
+    "11034": {
+     "pos": "WR",
+     "rec": 1,
+     "rec_yd": 35,
+     "team": "ARI",
+     "tgt": 6,
+     "tgt_share": 0.1364
+    },
+    "11068": {
+     "pos": "WR",
+     "rec": 1,
+     "rec_yd": 7,
+     "team": "CIN",
+     "tgt": 1,
+     "tgt_share": 0.0357
+    },
+    "11157": {
+     "pos": "WR",
+     "team": "CAR",
+     "tgt": 1,
+     "tgt_share": 0.0345
+    },
+    "11237": {
+     "pos": "RB",
+     "team": "DET"
+    },
+    "11280": {
+     "pos": "RB",
+     "team": "SEA"
+    },
+    "11299": {
+     "pos": "RB",
+     "team": "CHI"
+    },
+    "11320": {
+     "pos": "WR",
+     "team": "KC"
+    },
+    "11433": {
+     "pos": "TE",
+     "team": "DEN"
+    },
+    "11435": {
+     "pos": "RB",
+     "rec": 1,
+     "rec_yd": 15,
+     "rush_att": 24,
+     "rush_td": 1,
+     "rush_yd": 100,
+     "team": "SEA",
+     "tgt": 1,
+     "tgt_share": 0.037
+    },
+    "11439": {
+     "pos": "RB",
+     "team": "CLE"
+    },
+    "11510": {
+     "pos": "RB",
+     "rush_att": 1,
+     "rush_yd": 3,
+     "team": "DAL"
+    },
+    "11559": {
+     "pass_att": 34,
+     "pass_td": 3,
+     "pass_yd": 213,
+     "pos": "QB",
+     "rush_att": 5,
+     "rush_yd": -1,
+     "team": "ATL"
+    },
+    "11560": {
+     "pass_att": 33,
+     "pass_td": 2,
+     "pass_yd": 308,
+     "pos": "QB",
+     "rush_att": 5,
+     "rush_yd": 18,
+     "team": "CHI"
+    },
+    "11563": {
+     "pass_att": 29,
+     "pass_td": 1,
+     "pass_yd": 222,
+     "pos": "QB",
+     "rush_att": 7,
+     "rush_td": 1,
+     "rush_yd": 73,
+     "team": "DEN"
+    },
+    "11564": {
+     "pass_att": 31,
+     "pass_int": 1,
+     "pass_td": 2,
+     "pass_yd": 321,
+     "pos": "QB",
+     "rush_att": 4,
+     "rush_td": 1,
+     "rush_yd": 26,
+     "team": "NE"
+    },
+    "11565": {
+     "pass_att": 28,
+     "pass_yd": 252,
+     "pos": "QB",
+     "rush_att": 1,
+     "rush_yd": 1,
+     "team": "NYG"
+    },
+    "11570": {
+     "pos": "RB",
+     "rush_att": 4,
+     "rush_yd": 19,
+     "team": "BAL"
+    },
+    "11571": {
+     "pos": "RB",
+     "rec": 3,
+     "rec_yd": 49,
+     "rush_att": 1,
+     "rush_yd": 5,
+     "team": "NYJ",
+     "tgt": 3,
+     "tgt_share": 0.1034
+    },
+    "11574": {
+     "pos": "RB",
+     "team": "LV"
+    },
+    "11576": {
+     "pos": "RB",
+     "rec": 6,
+     "rec_yd": 30,
+     "rush_att": 17,
+     "rush_yd": 104,
+     "team": "NYJ",
+     "tgt": 7,
+     "tgt_share": 0.2414
+    },
+    "11581": {
+     "pos": "RB",
+     "rec": 2,
+     "rec_yd": 15,
+     "rush_att": 6,
+     "rush_yd": 20,
+     "team": "GB",
+     "tgt": 2,
+     "tgt_share": 0.0476
+    },
+    "11584": {
+     "pos": "RB",
+     "rec": 1,
+     "rec_yd": 4,
+     "rush_att": 24,
+     "rush_td": 2,
+     "rush_yd": 106,
+     "team": "TB",
+     "tgt": 2,
+     "tgt_share": 0.1818
+    },
+    "11586": {
+     "pos": "RB",
+     "rec": 1,
+     "rec_yd": 8,
+     "rush_att": 17,
+     "rush_td": 1,
+     "rush_yd": 93,
+     "team": "LA",
+     "tgt": 1,
+     "tgt_share": 0.0345
+    },
+    "11592": {
+     "pos": "TE",
+     "rec": 3,
+     "rec_yd": 26,
+     "team": "CIN",
+     "tgt": 3,
+     "tgt_share": 0.1071
+    },
+    "11593": {
+     "pos": "TE",
+     "rec": 2,
+     "rec_yd": 11,
+     "team": "DAL",
+     "tgt": 2,
+     "tgt_share": 0.0769
+    },
+    "11599": {
+     "pos": "TE",
+     "rec": 1,
+     "rec_2pt": 1,
+     "rec_yd": -1,
+     "rush_att": 1,
+     "team": "HOU",
+     "tgt": 1,
+     "tgt_share": 0.0357
+    },
+    "11603": {
+     "pos": "TE",
+     "rec": 4,
+     "rec_yd": 42,
+     "rush_att": 3,
+     "rush_yd": 4,
+     "team": "SEA",
+     "tgt": 5,
+     "tgt_share": 0.1852
+    },
+    "11604": {
+     "pos": "TE",
+     "rec": 6,
+     "rec_yd": 73,
+     "team": "LV",
+     "tgt": 8,
+     "tgt_share": 0.186
+    },
+    "11608": {
+     "pos": "WR",
+     "team": "NYJ"
+    },
+    "11610": {
+     "pos": "WR",
+     "rec": 3,
+     "rec_yd": 27,
+     "rush_att": 2,
+     "rush_yd": 8,
+     "team": "MIA",
+     "tgt": 3,
+     "tgt_share": 0.1429
+    },
+    "11616": {
+     "pos": "WR",
+     "rec": 3,
+     "rec_yd": 38,
+     "rush_att": 1,
+     "rush_yd": 10,
+     "team": "SF",
+     "tgt": 5,
+     "tgt_share": 0.1282
+    },
+    "11617": {
+     "pos": "WR",
+     "team": "CLE"
+    },
+    "11620": {
+     "pos": "WR",
+     "rec": 4,
+     "rec_yd": 69,
+     "team": "CHI",
+     "tgt": 5,
+     "tgt_share": 0.1667
+    },
+    "11623": {
+     "pos": "WR",
+     "team": "LA"
+    },
+    "11624": {
+     "pos": "WR",
+     "rec": 3,
+     "rec_yd": 11,
+     "team": "KC",
+     "tgt": 6,
+     "tgt_share": 0.1875
+    },
+    "11625": {
+     "pos": "WR",
+     "team": "NYJ",
+     "tgt": 3,
+     "tgt_share": 0.1034
+    },
+    "11627": {
+     "pos": "WR",
+     "team": "DEN",
+     "tgt": 2,
+     "tgt_share": 0.08
+    },
+    "11628": {
+     "pos": "WR",
+     "rec": 1,
+     "rec_td": 1,
+     "rec_yd": 6,
+     "team": "HOU",
+     "tgt": 4,
+     "tgt_share": 0.1429
+    },
+    "11632": {
+     "pos": "WR",
+     "rec": 7,
+     "rec_yd": 111,
+     "team": "NYG",
+     "tgt": 9,
+     "tgt_share": 0.3333
+    },
+    "11643": {
+     "pos": "RB",
+     "rush_att": 6,
+     "rush_yd": 8,
+     "team": "MIA",
+     "tgt": 1,
+     "tgt_share": 0.0476
+    },
+    "11646": {
+     "pos": "WR",
+     "rec": 1,
+     "rec_yd": 9,
+     "team": "CAR",
+     "tgt": 4,
+     "tgt_share": 0.1379
+    },
+    "11655": {
+     "pos": "RB",
+     "rec": 1,
+     "rec_yd": 2,
+     "rush_att": 6,
+     "rush_td": 1,
+     "rush_yd": 15,
+     "team": "NYG",
+     "tgt": 1,
+     "tgt_share": 0.037
+    },
+    "1166": {
+     "pass_att": 44,
+     "pass_td": 2,
+     "pass_yd": 295,
+     "pos": "QB",
+     "rush_att": 3,
+     "rush_yd": 6,
+     "team": "LV"
+    },
+    "11729": {
+     "pos": "RB",
+     "rush_att": 1,
+     "rush_yd": 5,
+     "team": "DET"
+    },
+    "11783": {
+     "pos": "WR",
+     "rec": 4,
+     "rec_yd": 70,
+     "team": "DAL",
+     "tgt": 4,
+     "tgt_share": 0.1538
+    },
+    "11834": {
+     "pos": "WR",
+     "rec": 5,
+     "rec_td": 1,
+     "rec_yd": 54,
+     "team": "NO",
+     "tgt": 5,
+     "tgt_share": 0.1316
+    },
+    "11994": {
+     "pos": "WR",
+     "team": "TB"
+    },
+    "12048": {
+     "pos": "RB",
+     "rec": 1,
+     "rec_yd": 12,
+     "rush_att": 5,
+     "rush_yd": 11,
+     "team": "SEA",
+     "tgt": 2,
+     "tgt_share": 0.0741
+    },
+    "12467": {
+     "pos": "RB",
+     "rec": 1,
+     "rec_yd": 11,
+     "rush_att": 1,
+     "rush_yd": 6,
+     "team": "SF",
+     "tgt": 1,
+     "tgt_share": 0.0256
+    },
+    "12469": {
+     "pos": "RB",
+     "rec": 3,
+     "rec_yd": 32,
+     "rush_att": 6,
+     "rush_yd": 45,
+     "team": "CLE",
+     "tgt": 3,
+     "tgt_share": 0.0857
+    },
+    "12473": {
+     "pos": "TE",
+     "rec": 2,
+     "rec_yd": 39,
+     "team": "CAR",
+     "tgt": 2,
+     "tgt_share": 0.069
+    },
+    "12474": {
+     "pos": "RB",
+     "rec": 1,
+     "rec_yd": 15,
+     "rush_att": 19,
+     "rush_yd": 66,
+     "team": "HOU",
+     "tgt": 1,
+     "tgt_share": 0.0357
+    },
+    "12481": {
+     "pos": "RB",
+     "rec": 1,
+     "rec_yd": -3,
+     "rush_att": 17,
+     "rush_td": 1,
+     "rush_yd": 124,
+     "team": "NYG",
+     "tgt": 1,
+     "tgt_share": 0.037
+    },
+    "12482": {
+     "pos": "WR",
+     "rec": 3,
+     "rec_yd": 47,
+     "rush_att": 2,
+     "rush_yd": 4,
+     "team": "GB",
+     "tgt": 3,
+     "tgt_share": 0.0714
+    },
+    "12485": {
+     "pos": "WR",
+     "rec": 2,
+     "rec_td": 1,
+     "rec_yd": 33,
+     "rush_att": 1,
+     "rush_yd": 14,
+     "team": "TB",
+     "tgt": 2,
+     "tgt_share": 0.1818
+    },
+    "12489": {
+     "pos": "RB",
+     "rec": 2,
+     "rec_td": 1,
+     "rec_yd": 54,
+     "rush_att": 3,
+     "rush_yd": 6,
+     "team": "DEN",
+     "tgt": 2,
+     "tgt_share": 0.08
+    },
+    "12491": {
+     "pos": "RB",
+     "rush_att": 4,
+     "rush_yd": 13,
+     "team": "NE"
+    },
+    "12495": {
+     "pos": "RB",
+     "rec": 1,
+     "rush_att": 25,
+     "rush_td": 1,
+     "rush_yd": 103,
+     "team": "MIA",
+     "tgt": 3,
+     "tgt_share": 0.1429
+    },
+    "12496": {
+     "pos": "WR",
+     "team": "MIN",
+     "tgt": 1,
+     "tgt_share": 0.0417
+    },
+    "12497": {
+     "pos": "WR",
+     "team": "SEA",
+     "tgt": 1,
+     "tgt_share": 0.037
+    },
+    "12498": {
+     "pos": "TE",
+     "rec": 5,
+     "rec_2pt": 1,
+     "rec_td": 2,
+     "rec_yd": 62,
+     "team": "NYJ",
+     "tgt": 6,
+     "tgt_share": 0.2069
+    },
+    "12499": {
+     "pos": "WR",
+     "rec": 3,
+     "rec_yd": 44,
+     "team": "TEN",
+     "tgt": 7,
+     "tgt_share": 0.2333
+    },
+    "12501": {
+     "pos": "WR",
+     "rec": 6,
+     "rec_yd": 39,
+     "team": "GB",
+     "tgt": 12,
+     "tgt_share": 0.2857
+    },
+    "12502": {
+     "pos": "TE",
+     "rec": 3,
+     "rec_yd": 24,
+     "team": "TEN",
+     "tgt": 4,
+     "tgt_share": 0.1333
+    },
+    "12505": {
+     "pos": "WR",
+     "team": "KC",
+     "tgt": 2,
+     "tgt_share": 0.0625
+    },
+    "12506": {
+     "fum_lost": 1,
+     "pos": "TE",
+     "rec": 6,
+     "rec_yd": 91,
+     "team": "CLE",
+     "tgt": 9,
+     "tgt_share": 0.2571
+    },
+    "12512": {
+     "pos": "RB",
+     "rec": 1,
+     "rec_yd": 8,
+     "rush_att": 17,
+     "rush_td": 2,
+     "rush_yd": 96,
+     "team": "CLE",
+     "tgt": 1,
+     "tgt_share": 0.0286
+    },
+    "12517": {
+     "pos": "TE",
+     "rec": 7,
+     "rec_td": 1,
+     "rec_yd": 69,
+     "team": "CHI",
+     "tgt": 12,
+     "tgt_share": 0.4
+    },
+    "12519": {
+     "pos": "WR",
+     "rec": 4,
+     "rec_td": 1,
+     "rec_yd": 130,
+     "rush_att": 1,
+     "rush_yd": 7,
+     "team": "CHI",
+     "tgt": 4,
+     "tgt_share": 0.1333
+    },
+    "12522": {
+     "pass_att": 31,
+     "pass_int": 1,
+     "pass_yd": 181,
+     "pos": "QB",
+     "rush_att": 2,
+     "rush_yd": 5,
+     "team": "TEN"
+    },
+    "12526": {
+     "pos": "WR",
+     "rec": 4,
+     "rec_yd": 40,
+     "team": "CAR",
+     "tgt": 6,
+     "tgt_share": 0.2069
+    },
+    "12527": {
+     "pos": "RB",
+     "rec": 8,
+     "rec_td": 1,
+     "rec_yd": 61,
+     "rush_att": 8,
+     "rush_yd": 15,
+     "team": "LV",
+     "tgt": 8,
+     "tgt_share": 0.186
+    },
+    "12529": {
+     "pos": "RB",
+     "rec": 2,
+     "rec_yd": 14,
+     "rush_att": 3,
+     "rush_yd": 9,
+     "team": "NE",
+     "tgt": 2,
+     "tgt_share": 0.0667
+    },
+    "12531": {
+     "pos": "RB",
+     "rec": 2,
+     "rec_yd": 17,
+     "rush_att": 6,
+     "rush_yd": 8,
+     "team": "CAR",
+     "tgt": 2,
+     "tgt_share": 0.069
+    },
+    "12535": {
+     "pos": "WR",
+     "rec": 1,
+     "rec_yd": 10,
+     "team": "DET",
+     "tgt": 2,
+     "tgt_share": 0.0645
+    },
+    "12536": {
+     "pos": "WR",
+     "rec": 2,
+     "rec_yd": -3,
+     "team": "HOU",
+     "tgt": 2,
+     "tgt_share": 0.0714
+    },
+    "12540": {
+     "pos": "WR",
+     "team": "TEN"
+    },
+    "12542": {
+     "pos": "WR",
+     "rec": 1,
+     "rec_yd": 16,
+     "team": "NE",
+     "tgt": 1,
+     "tgt_share": 0.0333
+    },
+    "12543": {
+     "pos": "RB",
+     "rush_att": 3,
+     "rush_yd": 6,
+     "team": "CIN"
+    },
+    "12545": {
+     "pass_att": 38,
+     "pass_int": 1,
+     "pass_td": 1,
+     "pass_yd": 278,
+     "pos": "QB",
+     "rush_att": 3,
+     "rush_yd": 7,
+     "team": "NO"
+    },
+    "12547": {
+     "pos": "WR",
+     "team": "NE",
+     "tgt": 1,
+     "tgt_share": 0.0333
+    },
+    "12634": {
+     "pos": "WR",
+     "rec": 3,
+     "rec_yd": 56,
+     "team": "SF",
+     "tgt": 6,
+     "tgt_share": 0.1538
+    },
+    "12699": {
+     "pos": "WR",
+     "rec": 1,
+     "rec_yd": 15,
+     "team": "BAL",
+     "tgt": 1,
+     "tgt_share": 0.0294
+    },
+    "12700": {
+     "pos": "TE",
+     "rec": 1,
+     "rec_yd": 17,
+     "team": "MIN",
+     "tgt": 1,
+     "tgt_share": 0.0417
+    },
+    "12715": {
+     "pos": "TE",
+     "rec": 1,
+     "rec_yd": 29,
+     "team": "NYG",
+     "tgt": 1,
+     "tgt_share": 0.037
+    },
+    "12718": {
+     "pos": "WR",
+     "rec": 1,
+     "rec_yd": 15,
+     "team": "LA",
+     "tgt": 2,
+     "tgt_share": 0.069
+    },
+    "12829": {
+     "pos": "WR",
+     "team": "GB"
+    },
+    "12863": {
+     "pos": "WR",
+     "rec": 1,
+     "rec_yd": 3,
+     "team": "KC",
+     "tgt": 2,
+     "tgt_share": 0.0625
+    },
+    "12939": {
+     "pos": "RB",
+     "rush_att": 3,
+     "rush_td": 1,
+     "rush_yd": 23,
+     "team": "CAR"
+    },
+    "13013": {
+     "pos": "TE",
+     "team": "GB",
+     "tgt": 1,
+     "tgt_share": 0.0238
+    },
+    "13075": {
+     "pos": "WR",
+     "team": "MIN"
+    },
+    "13079": {
+     "pos": "WR",
+     "team": "CHI"
+    },
+    "13150": {
+     "pos": "WR",
+     "rec": 1,
+     "rec_yd": 17,
+     "team": "PHI",
+     "tgt": 3,
+     "tgt_share": 0.0909
+    },
+    "13264": {
+     "pos": "WR",
+     "team": "CIN",
+     "tgt": 2,
+     "tgt_share": 0.0714
+    },
+    "13273": {
+     "pos": "TE",
+     "rec": 2,
+     "rec_yd": 35,
+     "team": "BAL",
+     "tgt": 3,
+     "tgt_share": 0.0882
+    },
+    "13274": {
+     "pos": "WR",
+     "rec": 3,
+     "rec_yd": 27,
+     "team": "PIT",
+     "tgt": 5,
+     "tgt_share": 0.1786
+    },
+    "13276": {
+     "pos": "WR",
+     "rec": 5,
+     "rec_td": 1,
+     "rec_yd": 115,
+     "team": "NYJ",
+     "tgt": 5,
+     "tgt_share": 0.1724
+    },
+    "13279": {
+     "fum_lost": 1,
+     "pos": "WR",
+     "rec": 5,
+     "rec_yd": 69,
+     "team": "TEN",
+     "tgt": 7,
+     "tgt_share": 0.2333
+    },
+    "13285": {
+     "pos": "WR",
+     "rec": 4,
+     "rec_yd": 83,
+     "team": "NYG",
+     "tgt": 5,
+     "tgt_share": 0.1852
+    },
+    "13293": {
+     "pos": "WR",
+     "rec": 3,
+     "rec_yd": 25,
+     "team": "BAL",
+     "tgt": 5,
+     "tgt_share": 0.1471
+    },
+    "13294": {
+     "pos": "WR",
+     "rec": 7,
+     "rec_td": 1,
+     "rec_yd": 67,
+     "team": "PHI",
+     "tgt": 8,
+     "tgt_share": 0.2424
+    },
+    "13296": {
+     "pos": "WR",
+     "rec": 2,
+     "rec_td": 2,
+     "rec_yd": 70,
+     "team": "MIA",
+     "tgt": 3,
+     "tgt_share": 0.1429
+    },
+    "13298": {
+     "pos": "WR",
+     "rec": 8,
+     "rec_yd": 129,
+     "rush_att": 3,
+     "rush_yd": 23,
+     "team": "CLE",
+     "tgt": 10,
+     "tgt_share": 0.2857
+    },
+    "13305": {
+     "pos": "RB",
+     "rush_att": 6,
+     "rush_yd": 27,
+     "team": "LV",
+     "tgt": 1,
+     "tgt_share": 0.0233
+    },
+    "13308": {
+     "pos": "TE",
+     "team": "TB"
+    },
+    "13311": {
+     "pos": "WR",
+     "rec": 3,
+     "rec_yd": 25,
+     "team": "MIA",
+     "tgt": 4,
+     "tgt_share": 0.1905
+    },
+    "13317": {
+     "pos": "WR",
+     "team": "TB",
+     "tgt": 1,
+     "tgt_share": 0.0909
+    },
+    "13319": {
+     "pos": "TE",
+     "rec": 1,
+     "rec_yd": 2,
+     "team": "NO",
+     "tgt": 1,
+     "tgt_share": 0.0263
+    },
+    "13320": {
+     "pos": "WR",
+     "rec": 1,
+     "rec_yd": 9,
+     "rush_att": 1,
+     "rush_yd": 8,
+     "team": "ATL",
+     "tgt": 2,
+     "tgt_share": 0.0625
+    },
+    "13329": {
+     "pos": "WR",
+     "team": "LV",
+     "tgt": 1,
+     "tgt_share": 0.0233
+    },
+    "13330": {
+     "pos": "TE",
+     "rec": 1,
+     "rec_yd": 6,
+     "team": "NYJ",
+     "tgt": 1,
+     "tgt_share": 0.0345
+    },
+    "13333": {
+     "pos": "WR",
+     "rec": 1,
+     "rec_yd": 11,
+     "team": "IND",
+     "tgt": 1,
+     "tgt_share": 0.0476
+    },
+    "13337": {
+     "pos": "RB",
+     "rec": 2,
+     "rec_yd": 17,
+     "team": "KC",
+     "tgt": 3,
+     "tgt_share": 0.0938
+    },
+    "13338": {
+     "pos": "WR",
+     "team": "MIA",
+     "tgt": 1,
+     "tgt_share": 0.0476
+    },
+    "13345": {
+     "pos": "RB",
+     "rec": 2,
+     "rec_yd": 15,
+     "rush_att": 9,
+     "rush_yd": 54,
+     "team": "DEN",
+     "tgt": 2,
+     "tgt_share": 0.08
+    },
+    "13346": {
+     "pos": "WR",
+     "rec": 3,
+     "rec_yd": 27,
+     "team": "CLE",
+     "tgt": 8,
+     "tgt_share": 0.2286
+    },
+    "13349": {
+     "pos": "TE",
+     "team": "PHI",
+     "tgt": 1,
+     "tgt_share": 0.0303
+    },
+    "13411": {
+     "pos": "WR",
+     "team": "CHI"
+    },
+    "13413": {
+     "pos": "WR",
+     "rec": 1,
+     "rec_yd": 18,
+     "team": "KC",
+     "tgt": 2,
+     "tgt_share": 0.0625
+    },
+    "13414": {
+     "fum_lost": 1,
+     "pos": "RB",
+     "rec": 1,
+     "rec_yd": -4,
+     "rush_att": 12,
+     "rush_td": 1,
+     "rush_yd": 63,
+     "team": "SF",
+     "tgt": 3,
+     "tgt_share": 0.0769
+    },
+    "13420": {
+     "pos": "WR",
+     "rec": 2,
+     "rec_yd": 12,
+     "team": "NO",
+     "tgt": 2,
+     "tgt_share": 0.0526
+    },
+    "13421": {
+     "pos": "TE",
+     "rec": 3,
+     "rec_td": 1,
+     "rec_yd": 56,
+     "team": "NE",
+     "tgt": 4,
+     "tgt_share": 0.1333
+    },
+    "13424": {
+     "pos": "RB",
+     "rec": 1,
+     "rec_yd": 2,
+     "rush_att": 11,
+     "rush_yd": 46,
+     "team": "IND",
+     "tgt": 1,
+     "tgt_share": 0.0476
+    },
+    "13425": {
+     "pos": "QB",
+     "rush_att": 2,
+     "rush_yd": -3,
+     "team": "TB"
+    },
+    "13429": {
+     "pos": "TE",
+     "team": "MIA",
+     "tgt": 1,
+     "tgt_share": 0.0476
+    },
+    "13491": {
+     "pos": "WR",
+     "team": "PIT"
+    },
+    "13533": {
+     "pos": "WR",
+     "rec": 3,
+     "rec_yd": 57,
+     "team": "NO",
+     "tgt": 3,
+     "tgt_share": 0.0789
+    },
+    "1373": {
+     "pass_2pt": 1,
+     "pass_att": 30,
+     "pass_int": 1,
+     "pass_td": 3,
+     "pass_yd": 287,
+     "pos": "QB",
+     "rush_att": 2,
+     "team": "NYJ"
+    },
+    "13770": {
+     "pos": "WR",
+     "team": "GB"
+    },
+    "1379": {
+     "pos": "RB",
+     "rec": 3,
+     "rec_td": 1,
+     "rec_yd": 11,
+     "team": "SF",
+     "tgt": 3,
+     "tgt_share": 0.0769
+    },
+    "13825": {
+     "pos": "WR",
+     "team": "NYJ"
+    },
+    "1466": {
+     "pos": "TE",
+     "rec": 4,
+     "rec_yd": 44,
+     "team": "KC",
+     "tgt": 8,
+     "tgt_share": 0.25
+    },
+    "1479": {
+     "pos": "WR",
+     "rec": 3,
+     "rec_yd": 31,
+     "team": "IND",
+     "tgt": 3,
+     "tgt_share": 0.1429
+    },
+    "2197": {
+     "pos": "WR",
+     "rec": 1,
+     "rec_yd": 13,
+     "team": "SF",
+     "tgt": 3,
+     "tgt_share": 0.0769
+    },
+    "2306": {
+     "pos": "QB",
+     "rush_att": 4,
+     "rush_td": 1,
+     "rush_yd": 4,
+     "team": "NYG"
+    },
+    "2505": {
+     "pos": "TE",
+     "rec": 1,
+     "rec_td": 1,
+     "rec_yd": 50,
+     "team": "CAR",
+     "tgt": 2,
+     "tgt_share": 0.069
+    },
+    "2750": {
+     "pos": "WR",
+     "team": "DET"
+    },
+    "3155": {
+     "pos": "WR",
+     "rec": 2,
+     "rec_yd": 19,
+     "team": "IND",
+     "tgt": 2,
+     "tgt_share": 0.0952
+    },
+    "3163": {
+     "fum_lost": 1,
+     "pass_att": 32,
+     "pass_td": 2,
+     "pass_yd": 303,
+     "pos": "QB",
+     "rush_att": 2,
+     "rush_yd": -1,
+     "team": "DET"
+    },
+    "3198": {
+     "pos": "RB",
+     "rec": 1,
+     "rec_yd": 4,
+     "rush_att": 17,
+     "rush_yd": 45,
+     "team": "BAL",
+     "tgt": 2,
+     "tgt_share": 0.0588
+    },
+    "3202": {
+     "pos": "TE",
+     "rec": 2,
+     "rec_yd": 21,
+     "team": "ATL",
+     "tgt": 2,
+     "tgt_share": 0.0625
+    },
+    "3214": {
+     "pos": "TE",
+     "rec": 7,
+     "rec_yd": 71,
+     "team": "NE",
+     "tgt": 7,
+     "tgt_share": 0.2333
+    },
+    "3257": {
+     "pass_att": 48,
+     "pass_td": 1,
+     "pass_yd": 272,
+     "pos": "QB",
+     "rush_att": 7,
+     "rush_yd": 16,
+     "team": "ARI"
+    },
+    "3271": {
+     "pos": "TE",
+     "rec": 2,
+     "rec_yd": 14,
+     "team": "LA",
+     "tgt": 3,
+     "tgt_share": 0.1034
+    },
+    "3294": {
+     "pass_att": 27,
+     "pass_td": 3,
+     "pass_yd": 212,
+     "pos": "QB",
+     "rush_2pt": 1,
+     "rush_att": 2,
+     "rush_yd": 8,
+     "team": "DAL"
+    },
+    "3634": {
+     "pos": "WR",
+     "team": "CHI",
+     "tgt": 2,
+     "tgt_share": 0.0667
+    },
+    "4017": {
+     "pass_att": 36,
+     "pass_int": 1,
+     "pass_yd": 308,
+     "pos": "QB",
+     "rush_att": 3,
+     "rush_td": 1,
+     "rush_yd": 19,
+     "team": "CLE"
+    },
+    "4034": {
+     "pos": "RB",
+     "rec": 6,
+     "rec_yd": 61,
+     "rush_att": 7,
+     "rush_td": 1,
+     "rush_yd": 39,
+     "team": "SF",
+     "tgt": 7,
+     "tgt_share": 0.1795
+    },
+    "4035": {
+     "pos": "RB",
+     "rec": 7,
+     "rec_yd": 57,
+     "rush_att": 6,
+     "rush_yd": 5,
+     "team": "NO",
+     "tgt": 7,
+     "tgt_share": 0.1842
+    },
+    "4037": {
+     "pos": "WR",
+     "rec": 4,
+     "rec_yd": 27,
+     "team": "TB",
+     "tgt": 5,
+     "tgt_share": 0.4545
+    },
+    "4039": {
+     "pos": "WR",
+     "rec": 2,
+     "rec_yd": 20,
+     "team": "SEA",
+     "tgt": 2,
+     "tgt_share": 0.0741
+    },
+    "4046": {
+     "pass_att": 33,
+     "pass_int": 1,
+     "pass_yd": 165,
+     "pos": "QB",
+     "rush_att": 2,
+     "rush_yd": 14,
+     "team": "KC"
+    },
+    "4054": {
+     "pos": "TE",
+     "team": "IND",
+     "tgt": 2,
+     "tgt_share": 0.0952
+    },
+    "4066": {
+     "pos": "TE",
+     "rec": 1,
+     "rec_yd": 2,
+     "team": "DEN",
+     "tgt": 3,
+     "tgt_share": 0.12
+    },
+    "4144": {
+     "pos": "TE",
+     "rec": 1,
+     "rec_yd": 9,
+     "team": "GB",
+     "tgt": 1,
+     "tgt_share": 0.0238
+    },
+    "4147": {
+     "pos": "RB",
+     "rush_att": 4,
+     "rush_td": 1,
+     "rush_yd": 16,
+     "team": "CIN"
+    },
+    "4189": {
+     "pos": "TE",
+     "rec": 1,
+     "rec_yd": 17,
+     "team": "SEA",
+     "tgt": 1,
+     "tgt_share": 0.037
+    },
+    "4199": {
+     "pos": "RB",
+     "rec": 1,
+     "rush_att": 8,
+     "rush_yd": 26,
+     "team": "MIN",
+     "tgt": 1,
+     "tgt_share": 0.0417
+    },
+    "421": {
+     "pass_att": 29,
+     "pass_int": 1,
+     "pass_td": 3,
+     "pass_yd": 195,
+     "pos": "QB",
+     "rush_att": 3,
+     "rush_yd": -3,
+     "team": "LA"
+    },
+    "4217": {
+     "fum_lost": 1,
+     "pos": "TE",
+     "rec": 8,
+     "rec_yd": 88,
+     "team": "SF",
+     "tgt": 10,
+     "tgt_share": 0.2564
+    },
+    "4274": {
+     "pos": "WR",
+     "team": "CAR",
+     "tgt": 1,
+     "tgt_share": 0.0345
+    },
+    "4454": {
+     "pos": "WR",
+     "rec": 3,
+     "rec_yd": 9,
+     "team": "ARI",
+     "tgt": 6,
+     "tgt_share": 0.1364
+    },
+    "4866": {
+     "pos": "RB",
+     "rec": 2,
+     "rec_yd": 9,
+     "rush_att": 7,
+     "rush_td": 1,
+     "rush_yd": 62,
+     "team": "PHI",
+     "tgt": 2,
+     "tgt_share": 0.0606
+    },
+    "4892": {
+     "pass_att": 11,
+     "pass_td": 1,
+     "pass_yd": 64,
+     "pos": "QB",
+     "rush_att": 1,
+     "rush_yd": 1,
+     "team": "TB"
+    },
+    "4943": {
+     "pass_att": 28,
+     "pass_int": 1,
+     "pass_td": 1,
+     "pass_yd": 257,
+     "pos": "QB",
+     "rush_att": 2,
+     "rush_yd": 17,
+     "team": "SEA"
+    },
+    "4993": {
+     "pos": "TE",
+     "rec": 1,
+     "rec_td": 1,
+     "rec_yd": 6,
+     "team": "CIN",
+     "tgt": 1,
+     "tgt_share": 0.0357
+    },
+    "4995": {
+     "pos": "TE",
+     "rec": 1,
+     "rec_yd": 8,
+     "team": "LV",
+     "tgt": 1,
+     "tgt_share": 0.0233
+    },
+    "5001": {
+     "pos": "TE",
+     "rec": 5,
+     "rec_yd": 45,
+     "team": "HOU",
+     "tgt": 6,
+     "tgt_share": 0.2143
+    },
+    "5012": {
+     "pos": "TE",
+     "rec": 3,
+     "rec_yd": 23,
+     "team": "BAL",
+     "tgt": 4,
+     "tgt_share": 0.1176
+    },
+    "5022": {
+     "pos": "TE",
+     "rec": 5,
+     "rec_yd": 48,
+     "team": "PHI",
+     "tgt": 7,
+     "tgt_share": 0.2121
+    },
+    "5045": {
+     "pos": "WR",
+     "rec": 3,
+     "rec_yd": 45,
+     "team": "DEN",
+     "tgt": 5,
+     "tgt_share": 0.2
+    },
+    "5133": {
+     "pos": "TE",
+     "rec": 1,
+     "rec_yd": 4,
+     "team": "DET",
+     "tgt": 1,
+     "tgt_share": 0.0323
+    },
+    "5374": {
+     "pos": "WR",
+     "rec": 1,
+     "rec_yd": 7,
+     "team": "KC",
+     "tgt": 1,
+     "tgt_share": 0.0312
+    },
+    "5844": {
+     "pos": "TE",
+     "rec": 4,
+     "rec_td": 1,
+     "rec_yd": 35,
+     "team": "MIN",
+     "tgt": 5,
+     "tgt_share": 0.2083
+    },
+    "5846": {
+     "pos": "WR",
+     "rec": 2,
+     "rec_yd": 56,
+     "team": "PIT",
+     "tgt": 6,
+     "tgt_share": 0.2143
+    },
+    "5848": {
+     "pos": "WR",
+     "rec": 2,
+     "rec_yd": 30,
+     "team": "PHI",
+     "tgt": 5,
+     "tgt_share": 0.1515
+    },
+    "5849": {
+     "pass_att": 24,
+     "pass_td": 1,
+     "pass_yd": 150,
+     "pos": "QB",
+     "rush_att": 5,
+     "rush_yd": 39,
+     "team": "MIN"
+    },
+    "5850": {
+     "pos": "RB",
+     "rec": 5,
+     "rec_td": 1,
+     "rec_yd": 55,
+     "rush_att": 11,
+     "rush_yd": 36,
+     "team": "GB",
+     "tgt": 7,
+     "tgt_share": 0.1667
+    },
+    "5857": {
+     "pos": "TE",
+     "rec": 2,
+     "rec_yd": 11,
+     "team": "NO",
+     "tgt": 2,
+     "tgt_share": 0.0526
+    },
+    "5859": {
+     "pos": "WR",
+     "rec": 3,
+     "rec_yd": 48,
+     "team": "NE",
+     "tgt": 6,
+     "tgt_share": 0.2
+    },
+    "5870": {
+     "pass_att": 22,
+     "pass_int": 1,
+     "pass_yd": 108,
+     "pos": "QB",
+     "rush_att": 4,
+     "rush_yd": 13,
+     "team": "IND"
+    },
+    "5938": {
+     "pos": "WR",
+     "rec": 1,
+     "rec_yd": 5,
+     "team": "DEN",
+     "tgt": 1,
+     "tgt_share": 0.04
+    },
+    "5967": {
+     "pos": "RB",
+     "rec": 3,
+     "rec_yd": 26,
+     "rush_att": 25,
+     "rush_td": 3,
+     "rush_yd": 129,
+     "team": "TEN",
+     "tgt": 3,
+     "tgt_share": 0.1
+    },
+    "5995": {
+     "pos": "RB",
+     "rec": 3,
+     "rec_yd": 26,
+     "rush_att": 3,
+     "rush_yd": 7,
+     "team": "BAL",
+     "tgt": 4,
+     "tgt_share": 0.1176
+    },
+    "6001": {
+     "pos": "TE",
+     "rec": 2,
+     "rec_td": 1,
+     "rec_yd": 24,
+     "team": "CIN",
+     "tgt": 2,
+     "tgt_share": 0.0714
+    },
+    "6012": {
+     "pos": "RB",
+     "team": "PIT"
+    },
+    "6130": {
+     "pos": "RB",
+     "rec": 3,
+     "rec_yd": 14,
+     "rush_att": 5,
+     "rush_td": 1,
+     "rush_yd": 41,
+     "team": "NYG",
+     "tgt": 3,
+     "tgt_share": 0.1111
+    },
+    "6154": {
+     "pos": "WR",
+     "team": "TB"
+    },
+    "6323": {
+     "pos": "RB",
+     "rush_att": 1,
+     "rush_yd": -1,
+     "team": "NYJ"
+    },
+    "6386": {
+     "pos": "WR",
+     "team": "LA"
+    },
+    "6427": {
+     "pos": "WR",
+     "team": "IND"
+    },
+    "6770": {
+     "pass_att": 30,
+     "pass_td": 4,
+     "pass_yd": 292,
+     "pos": "QB",
+     "rush_att": 2,
+     "rush_yd": 12,
+     "team": "CIN"
+    },
+    "6783": {
+     "pos": "WR",
+     "rec": 4,
+     "rec_yd": 21,
+     "team": "CLE",
+     "tgt": 4,
+     "tgt_share": 0.1143
+    },
+    "6786": {
+     "pos": "WR",
+     "rec": 5,
+     "rec_td": 2,
+     "rec_yd": 74,
+     "team": "DAL",
+     "tgt": 12,
+     "tgt_share": 0.4615
+    },
+    "6790": {
+     "pos": "RB",
+     "rec": 4,
+     "rec_yd": 12,
+     "rush_att": 22,
+     "rush_td": 1,
+     "rush_yd": 78,
+     "team": "CHI",
+     "tgt": 4,
+     "tgt_share": 0.1333
+    },
+    "6794": {
+     "pos": "WR",
+     "rec": 4,
+     "rec_yd": 44,
+     "team": "MIN",
+     "tgt": 7,
+     "tgt_share": 0.2917
+    },
+    "6801": {
+     "pos": "WR",
+     "rec": 6,
+     "rec_td": 1,
+     "rec_yd": 148,
+     "team": "CIN",
+     "tgt": 7,
+     "tgt_share": 0.25
+    },
+    "6804": {
+     "pass_att": 45,
+     "pass_int": 1,
+     "pass_td": 2,
+     "pass_yd": 274,
+     "pos": "QB",
+     "team": "GB"
+    },
+    "6806": {
+     "pos": "RB",
+     "rush_att": 6,
+     "rush_td": 1,
+     "rush_yd": 23,
+     "team": "DEN"
+    },
+    "6813": {
+     "pos": "RB",
+     "rec": 2,
+     "rec_yd": 15,
+     "rush_att": 18,
+     "rush_td": 1,
+     "rush_yd": 95,
+     "team": "IND",
+     "tgt": 3,
+     "tgt_share": 0.1429
+    },
+    "6826": {
+     "pos": "TE",
+     "rec": 3,
+     "rec_yd": 28,
+     "team": "CHI",
+     "tgt": 3,
+     "tgt_share": 0.1
+    },
+    "6847": {
+     "pos": "WR",
+     "team": "ARI"
+    },
+    "6865": {
+     "pos": "TE",
+     "rec": 5,
+     "rec_yd": 48,
+     "team": "LA",
+     "tgt": 6,
+     "tgt_share": 0.2069
+    },
+    "6869": {
+     "pos": "TE",
+     "team": "DEN",
+     "tgt": 1,
+     "tgt_share": 0.04
+    },
+    "6931": {
+     "pos": "RB",
+     "team": "MIN"
+    },
+    "7002": {
+     "pos": "TE",
+     "rec": 1,
+     "rec_yd": 7,
+     "team": "NO",
+     "tgt": 3,
+     "tgt_share": 0.0789
+    },
+    "7021": {
+     "pos": "RB",
+     "rec": 6,
+     "rec_yd": 45,
+     "rush_att": 9,
+     "rush_yd": 41,
+     "team": "PIT",
+     "tgt": 6,
+     "tgt_share": 0.2143
+    },
+    "7039": {
+     "pos": "WR",
+     "rec": 1,
+     "rec_yd": 4,
+     "team": "LV",
+     "tgt": 3,
+     "tgt_share": 0.0698
+    },
+    "7049": {
+     "pos": "WR",
+     "rec": 2,
+     "rec_yd": 34,
+     "team": "MIN",
+     "tgt": 3,
+     "tgt_share": 0.125
+    },
+    "7075": {
+     "pos": "TE",
+     "rec": 1,
+     "rec_yd": 9,
+     "rush_att": 1,
+     "rush_yd": 3,
+     "team": "ATL",
+     "tgt": 1,
+     "tgt_share": 0.0312
+    },
+    "7083": {
+     "pass_att": 34,
+     "pass_int": 1,
+     "pass_td": 1,
+     "pass_yd": 298,
+     "pos": "QB",
+     "rush_att": 3,
+     "rush_yd": 12,
+     "team": "BAL"
+    },
+    "7090": {
+     "pos": "WR",
+     "rec": 1,
+     "rec_yd": 4,
+     "rush_att": 1,
+     "rush_yd": 3,
+     "team": "NYG",
+     "tgt": 3,
+     "tgt_share": 0.1111
+    },
+    "7521": {
+     "pos": "WR",
+     "team": "ATL",
+     "tgt": 1,
+     "tgt_share": 0.0312
+    },
+    "7526": {
+     "pos": "WR",
+     "rec": 4,
+     "rec_yd": 48,
+     "team": "DEN",
+     "tgt": 7,
+     "tgt_share": 0.28
+    },
+    "7547": {
+     "pos": "WR",
+     "rec": 9,
+     "rec_yd": 153,
+     "rush_att": 1,
+     "rush_yd": -1,
+     "team": "DET",
+     "tgt": 11,
+     "tgt_share": 0.3548
+    },
+    "7553": {
+     "pos": "TE",
+     "rec": 5,
+     "rec_td": 1,
+     "rec_yd": 22,
+     "team": "ATL",
+     "tgt": 5,
+     "tgt_share": 0.1562
+    },
+    "7561": {
+     "pos": "RB",
+     "rec": 3,
+     "rec_yd": 23,
+     "rush_att": 3,
+     "rush_yd": 11,
+     "team": "PHI",
+     "tgt": 4,
+     "tgt_share": 0.1212
+    },
+    "7564": {
+     "pos": "WR",
+     "rec": 5,
+     "rec_td": 1,
+     "rec_yd": 62,
+     "team": "CIN",
+     "tgt": 7,
+     "tgt_share": 0.25
+    },
+    "7567": {
+     "pos": "RB",
+     "rush_att": 14,
+     "rush_yd": 88,
+     "team": "TB"
+    },
+    "7568": {
+     "pos": "TE",
+     "team": "HOU"
+    },
+    "7569": {
+     "pos": "WR",
+     "rec": 2,
+     "rec_yd": 6,
+     "team": "HOU",
+     "tgt": 5,
+     "tgt_share": 0.1786
+    },
+    "7571": {
+     "pos": "WR",
+     "rec": 2,
+     "rec_yd": 33,
+     "team": "BAL",
+     "tgt": 4,
+     "tgt_share": 0.1176
+    },
+    "7588": {
+     "pos": "RB",
+     "rush_att": 25,
+     "rush_td": 1,
+     "rush_yd": 155,
+     "team": "DAL"
+    },
+    "7594": {
+     "pos": "RB",
+     "rec": 4,
+     "rec_yd": 27,
+     "rush_att": 7,
+     "rush_yd": 33,
+     "team": "CAR",
+     "tgt": 5,
+     "tgt_share": 0.1724
+    },
+    "7596": {
+     "pos": "WR",
+     "rec": 2,
+     "rec_yd": 16,
+     "team": "PHI",
+     "tgt": 2,
+     "tgt_share": 0.0606
+    },
+    "7600": {
+     "pos": "TE",
+     "rec": 2,
+     "rec_yd": 20,
+     "team": "PIT",
+     "tgt": 4,
+     "tgt_share": 0.1429
+    },
+    "7607": {
+     "pos": "RB",
+     "rec": 1,
+     "rec_yd": 7,
+     "rush_att": 3,
+     "rush_yd": 7,
+     "team": "TEN",
+     "tgt": 1,
+     "tgt_share": 0.0333
+    },
+    "7608": {
+     "pos": "RB",
+     "rec": 1,
+     "rec_yd": 19,
+     "rush_att": 2,
+     "rush_yd": 9,
+     "team": "ATL",
+     "tgt": 1,
+     "tgt_share": 0.0312
+    },
+    "7611": {
+     "pos": "RB",
+     "rec": 5,
+     "rec_td": 1,
+     "rec_yd": 93,
+     "rush_att": 6,
+     "rush_yd": 22,
+     "team": "NE",
+     "tgt": 5,
+     "tgt_share": 0.1667
+    },
+    "7694": {
+     "pos": "TE",
+     "rec": 1,
+     "rec_yd": 8,
+     "team": "CAR",
+     "tgt": 2,
+     "tgt_share": 0.069
+    },
+    "7828": {
+     "pos": "TE",
+     "rec": 3,
+     "rec_yd": 44,
+     "team": "KC",
+     "tgt": 3,
+     "tgt_share": 0.0938
+    },
+    "7842": {
+     "pos": "TE",
+     "rec": 1,
+     "rec_yd": 14,
+     "team": "SF",
+     "tgt": 1,
+     "tgt_share": 0.0256
+    },
+    "7865": {
+     "pos": "WR",
+     "rec": 2,
+     "rec_yd": 24,
+     "team": "PIT",
+     "tgt": 2,
+     "tgt_share": 0.0714
+    },
+    "8025": {
+     "pos": "RB",
+     "team": "DEN"
+    },
+    "8110": {
+     "pos": "TE",
+     "team": "DAL",
+     "tgt": 1,
+     "tgt_share": 0.0385
+    },
+    "8111": {
+     "pos": "TE",
+     "team": "TB",
+     "tgt": 1,
+     "tgt_share": 0.0909
+    },
+    "8112": {
+     "pos": "WR",
+     "rec": 7,
+     "rec_td": 1,
+     "rec_yd": 66,
+     "team": "ATL",
+     "tgt": 10,
+     "tgt_share": 0.3125
+    },
+    "8119": {
+     "pos": "WR",
+     "rec": 1,
+     "rec_yd": 6,
+     "team": "ATL",
+     "tgt": 3,
+     "tgt_share": 0.0938
+    },
+    "8122": {
+     "pos": "RB",
+     "rec": 3,
+     "rec_yd": 15,
+     "rush_att": 7,
+     "rush_yd": 48,
+     "team": "ARI",
+     "tgt": 5,
+     "tgt_share": 0.1136
+    },
+    "8126": {
+     "pos": "WR",
+     "rec": 4,
+     "rec_yd": 7,
+     "team": "TEN",
+     "tgt": 6,
+     "tgt_share": 0.2
+    },
+    "8129": {
+     "pos": "RB",
+     "rec": 1,
+     "rec_yd": 1,
+     "rush_att": 14,
+     "rush_td": 1,
+     "rush_yd": 47,
+     "team": "PHI",
+     "tgt": 1,
+     "tgt_share": 0.0303
+    },
+    "8130": {
+     "pos": "TE",
+     "rec": 10,
+     "rec_td": 1,
+     "rec_yd": 111,
+     "team": "ARI",
+     "tgt": 13,
+     "tgt_share": 0.2955
+    },
+    "8131": {
+     "pos": "TE",
+     "rec": 2,
+     "rec_yd": 12,
+     "team": "NYG",
+     "tgt": 4,
+     "tgt_share": 0.1481
+    },
+    "8132": {
+     "pos": "RB",
+     "rec": 3,
+     "rec_yd": 30,
+     "rush_att": 8,
+     "rush_yd": 19,
+     "team": "ARI",
+     "tgt": 3,
+     "tgt_share": 0.0682
+    },
+    "8137": {
+     "pos": "WR",
+     "rec": 4,
+     "rec_td": 1,
+     "rec_yd": 57,
+     "team": "DAL",
+     "tgt": 6,
+     "tgt_share": 0.2308
+    },
+    "8144": {
+     "pos": "WR",
+     "rec": 6,
+     "rec_yd": 56,
+     "team": "NO",
+     "tgt": 10,
+     "tgt_share": 0.2632
+    },
+    "8145": {
+     "pos": "TE",
+     "team": "NYJ"
+    },
+    "8146": {
+     "pos": "WR",
+     "rec": 2,
+     "rec_yd": 26,
+     "team": "NYJ",
+     "tgt": 3,
+     "tgt_share": 0.1034
+    },
+    "8147": {
+     "pos": "WR",
+     "rec": 2,
+     "rec_yd": 20,
+     "team": "CAR",
+     "tgt": 4,
+     "tgt_share": 0.1379
+    },
+    "8148": {
+     "pos": "WR",
+     "rec": 5,
+     "rec_td": 2,
+     "rec_yd": 91,
+     "team": "DET",
+     "tgt": 9,
+     "tgt_share": 0.2903
+    },
+    "8150": {
+     "fum_lost": 1,
+     "pos": "RB",
+     "rec": 2,
+     "rec_yd": 22,
+     "rush_att": 16,
+     "rush_td": 1,
+     "rush_yd": 99,
+     "team": "LA",
+     "tgt": 2,
+     "tgt_share": 0.069
+    },
+    "8151": {
+     "pos": "RB",
+     "rec": 4,
+     "rec_yd": 21,
+     "rush_att": 14,
+     "rush_yd": 36,
+     "team": "KC",
+     "tgt": 5,
+     "tgt_share": 0.1562
+    },
+    "8160": {
+     "pass_att": 4,
+     "pass_yd": 47,
+     "pos": "QB",
+     "rush_att": 1,
+     "rush_yd": 15,
+     "team": "CAR"
+    },
+    "8161": {
+     "pass_att": 21,
+     "pass_td": 2,
+     "pass_yd": 208,
+     "pos": "QB",
+     "rush_att": 8,
+     "rush_td": 1,
+     "rush_yd": 37,
+     "team": "MIA"
+    },
+    "8167": {
+     "pos": "WR",
+     "rec": 5,
+     "rec_yd": 57,
+     "team": "GB",
+     "tgt": 8,
+     "tgt_share": 0.1905
+    },
+    "8172": {
+     "pos": "TE",
+     "rec": 5,
+     "rec_yd": 86,
+     "team": "MIA",
+     "tgt": 5,
+     "tgt_share": 0.2381
+    },
+    "8180": {
+     "pos": "WR",
+     "rec": 2,
+     "rec_yd": 14,
+     "team": "LV",
+     "tgt": 5,
+     "tgt_share": 0.1163
+    },
+    "8181": {
+     "pos": "RB",
+     "rec": 1,
+     "rec_yd": 13,
+     "team": "LV",
+     "tgt": 1,
+     "tgt_share": 0.0233
+    },
+    "8183": {
+     "pass_att": 40,
+     "pass_int": 2,
+     "pass_td": 1,
+     "pass_yd": 288,
+     "pos": "QB",
+     "rush_att": 2,
+     "rush_yd": 5,
+     "team": "SF"
+    },
+    "8204": {
+     "pos": "WR",
+     "rec": 1,
+     "rec_yd": 4,
+     "team": "GB",
+     "tgt": 2,
+     "tgt_share": 0.0476
+    },
+    "8207": {
+     "pos": "RB",
+     "rush_att": 10,
+     "rush_yd": 38,
+     "team": "DAL"
+    },
+    "8219": {
+     "pos": "TE",
+     "rec": 1,
+     "rec_yd": -1,
+     "team": "NYJ",
+     "tgt": 1,
+     "tgt_share": 0.0345
+    },
+    "8223": {
+     "pos": "RB",
+     "rush_att": 5,
+     "rush_yd": 8,
+     "team": "SEA"
+    },
+    "8225": {
+     "pos": "TE",
+     "rec": 1,
+     "rec_yd": 4,
+     "team": "TEN",
+     "tgt": 2,
+     "tgt_share": 0.0667
+    },
+    "8228": {
+     "pos": "RB",
+     "rec": 3,
+     "rec_yd": 36,
+     "rush_att": 18,
+     "rush_yd": 101,
+     "team": "PIT",
+     "tgt": 4,
+     "tgt_share": 0.1429
+    },
+    "8254": {
+     "pos": "RB",
+     "team": "TEN"
+    },
+    "8408": {
+     "pos": "RB",
+     "rush_att": 15,
+     "rush_yd": 68,
+     "team": "MIN",
+     "tgt": 2,
+     "tgt_share": 0.0833
+    },
+    "8414": {
+     "pos": "WR",
+     "team": "PHI"
+    },
+    "8484": {
+     "pos": "TE",
+     "team": "TB"
+    },
+    "8489": {
+     "pos": "TE",
+     "rec": 2,
+     "rec_yd": 12,
+     "team": "IND",
+     "tgt": 2,
+     "tgt_share": 0.0952
+    },
+    "8523": {
+     "pos": "TE",
+     "rec": 2,
+     "rec_td": 1,
+     "rec_yd": 2,
+     "team": "ATL",
+     "tgt": 2,
+     "tgt_share": 0.0625
+    },
+    "8676": {
+     "pos": "WR",
+     "rec": 2,
+     "rec_yd": 1,
+     "team": "SEA",
+     "tgt": 3,
+     "tgt_share": 0.1111
+    },
+    "8861": {
+     "pos": "WR",
+     "team": "SEA"
+    },
+    "9221": {
+     "fum_lost": 1,
+     "pos": "RB",
+     "rec": 5,
+     "rec_yd": 27,
+     "rush_att": 29,
+     "rush_yd": 116,
+     "team": "DET",
+     "tgt": 6,
+     "tgt_share": 0.1935
+    },
+    "9224": {
+     "pos": "RB",
+     "rec": 4,
+     "rec_yd": 19,
+     "rush_att": 11,
+     "rush_yd": 39,
+     "team": "CIN",
+     "tgt": 5,
+     "tgt_share": 0.1786
+    },
+    "9228": {
+     "fum_lost": 1,
+     "pass_att": 27,
+     "pass_int": 2,
+     "pass_td": 1,
+     "pass_yd": 163,
+     "pos": "QB",
+     "rush_att": 1,
+     "rush_yd": 9,
+     "team": "CAR"
+    },
+    "9230": {
+     "pass_att": 35,
+     "pass_int": 1,
+     "pass_td": 1,
+     "pass_yd": 211,
+     "pos": "QB",
+     "rush_att": 1,
+     "rush_yd": 1,
+     "team": "PHI"
+    },
+    "9479": {
+     "pos": "TE",
+     "rec": 1,
+     "rec_td": 1,
+     "rec_yd": 4,
+     "team": "PIT",
+     "tgt": 1,
+     "tgt_share": 0.0357
+    },
+    "9482": {
+     "pos": "TE",
+     "rec": 3,
+     "rec_yd": 32,
+     "team": "LV",
+     "tgt": 3,
+     "tgt_share": 0.0698
+    },
+    "9484": {
+     "pos": "TE",
+     "rec": 4,
+     "rec_td": 1,
+     "rec_yd": 48,
+     "team": "GB",
+     "tgt": 6,
+     "tgt_share": 0.1429
+    },
+    "9488": {
+     "pos": "WR",
+     "rec": 9,
+     "rec_td": 1,
+     "rec_yd": 150,
+     "rush_att": 2,
+     "rush_yd": 13,
+     "team": "SEA",
+     "tgt": 12,
+     "tgt_share": 0.4444
+    },
+    "9493": {
+     "pos": "WR",
+     "rec": 8,
+     "rec_td": 1,
+     "rec_yd": 68,
+     "rush_att": 2,
+     "rush_yd": 10,
+     "team": "LA",
+     "tgt": 10,
+     "tgt_share": 0.3448
+    },
+    "9494": {
+     "pos": "WR",
+     "rec": 2,
+     "rec_yd": 53,
+     "rush_att": 1,
+     "rush_yd": 3,
+     "team": "DEN",
+     "tgt": 2,
+     "tgt_share": 0.08
+    },
+    "9500": {
+     "pos": "WR",
+     "rec": 2,
+     "rec_yd": 18,
+     "team": "IND",
+     "tgt": 4,
+     "tgt_share": 0.1905
+    },
+    "9501": {
+     "pos": "WR",
+     "rec": 3,
+     "rec_yd": 23,
+     "team": "NE",
+     "tgt": 4,
+     "tgt_share": 0.1333
+    },
+    "9502": {
+     "pos": "WR",
+     "rec": 1,
+     "rec_yd": 43,
+     "rush_att": 1,
+     "rush_yd": 2,
+     "team": "HOU",
+     "tgt": 1,
+     "tgt_share": 0.0357
+    },
+    "9504": {
+     "pos": "WR",
+     "rec": 1,
+     "rec_yd": 25,
+     "team": "HOU",
+     "tgt": 2,
+     "tgt_share": 0.0714
+    },
+    "9506": {
+     "pos": "RB",
+     "rush_att": 7,
+     "rush_td": 1,
+     "rush_yd": 52,
+     "team": "TB"
+    },
+    "9509": {
+     "pos": "RB",
+     "rec": 5,
+     "rec_yd": 59,
+     "rush_att": 20,
+     "rush_yd": 63,
+     "team": "ATL",
+     "tgt": 5,
+     "tgt_share": 0.1562
+    },
+    "9510": {
+     "pos": "RB",
+     "team": "PIT"
+    },
+    "96": {
+     "pass_att": 30,
+     "pass_td": 1,
+     "pass_yd": 212,
+     "pos": "QB",
+     "rush_att": 3,
+     "rush_yd": 6,
+     "team": "PIT"
+    },
+    "9756": {
+     "pos": "WR",
+     "rec": 2,
+     "rec_yd": 20,
+     "rush_att": 1,
+     "rush_yd": 3,
+     "team": "MIN",
+     "tgt": 3,
+     "tgt_share": 0.125
+    },
+    "9757": {
+     "pos": "RB",
+     "rec": 3,
+     "rec_yd": 22,
+     "rush_att": 8,
+     "rush_yd": 6,
+     "team": "NO",
+     "tgt": 5,
+     "tgt_share": 0.1316
+    },
+    "9758": {
+     "pass_2pt": 1,
+     "pass_att": 28,
+     "pass_td": 2,
+     "pass_yd": 153,
+     "pos": "QB",
+     "rush_att": 2,
+     "rush_yd": 4,
+     "team": "HOU"
+    },
+    "9997": {
+     "pos": "WR",
+     "rec": 8,
+     "rec_td": 1,
+     "rec_yd": 137,
+     "team": "BAL",
+     "tgt": 11,
+     "tgt_share": 0.3235
+    },
+    "gsis:00-0040879": {
+     "pos": "TE",
+     "team": "BAL"
+    },
+    "gsis:00-0041081": {
+     "pos": "RB",
+     "team": "MIN",
+     "tgt": 1,
+     "tgt_share": 0.0417
     }
    }
   }

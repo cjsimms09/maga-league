@@ -11,7 +11,7 @@
    }
   ],
   "schedules_url": "https://github.com/nflverse/nflverse-data/releases/download/schedules/games.parquet",
-  "fetched": "2026-10-20",
+  "fetched": "2026-10-27",
   "weeks_span": [
    1,
    18
@@ -39,8 +39,8 @@
   ],
   "team_code_normalization": "adp._norm_team / adp.TEAM_ALIASES (nflverse -> board vocabulary, e.g. 'LA' -> 'LAR')",
   "points_allowed_source": "games.csv (schedules release), opponent's own final score that game",
-  "raw_rows": 186,
-  "kept_team_weeks": 186,
+  "raw_rows": 214,
+  "kept_team_weeks": 214,
   "teams": 32,
   "unknown_team_codes": 0,
   "missing_points_allowed": 0
@@ -1475,6 +1475,210 @@
      "pts_allow_21_27": 1,
      "sack": 2,
      "team": "WAS"
+    }
+   }
+  },
+  {
+   "week": 7,
+   "players": {
+    "ARI": {
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 1,
+     "team": "ARI"
+    },
+    "ATL": {
+     "ff": 3,
+     "fum_rec": 2,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 2,
+     "team": "ATL"
+    },
+    "BAL": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 1,
+     "team": "BAL"
+    },
+    "CAR": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "team": "CAR"
+    },
+    "CHI": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 2,
+     "team": "CHI"
+    },
+    "CIN": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 4,
+     "team": "CIN"
+    },
+    "CLE": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "CLE"
+    },
+    "DAL": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 2,
+     "team": "DAL"
+    },
+    "DEN": {
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "DEN"
+    },
+    "DET": {
+     "blk_kick": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 1,
+     "team": "DET"
+    },
+    "GB": {
+     "ff": 2,
+     "fum_rec": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 1,
+     "team": "GB"
+    },
+    "HOU": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "HOU"
+    },
+    "IND": {
+     "blk_kick": 1,
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "IND"
+    },
+    "KC": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "team": "KC"
+    },
+    "LAR": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 2,
+     "team": "LAR"
+    },
+    "LV": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 1,
+     "team": "LV"
+    },
+    "MIA": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 2,
+     "team": "MIA"
+    },
+    "MIN": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 4,
+     "team": "MIN"
+    },
+    "NE": {
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 3,
+     "team": "NE"
+    },
+    "NO": {
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "NO"
+    },
+    "NYG": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "NYG"
+    },
+    "NYJ": {
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 2,
+     "team": "NYJ"
+    },
+    "PHI": {
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "team": "PHI"
+    },
+    "PIT": {
+     "ff": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 2,
+     "team": "PIT"
+    },
+    "SEA": {
+     "ff": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_1_6": 1,
+     "sack": 1,
+     "team": "SEA"
+    },
+    "SF": {
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "team": "SF"
+    },
+    "TB": {
+     "blk_kick": 1,
+     "ff": 1,
+     "fum_rec": 2,
+     "fum_rec_td": 1,
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 5,
+     "team": "TB"
+    },
+    "TEN": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "TEN"
     }
    }
   }

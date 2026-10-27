@@ -9,7 +9,7 @@
     "ok": true
    }
   ],
-  "fetched": "2026-10-20",
+  "fetched": "2026-10-27",
   "season_type": "REG",
   "games_per_season": {
    "2021": 272,
@@ -17,9 +17,9 @@
    "2023": 272,
    "2024": 272,
    "2025": 272,
-   "2026": 118
+   "2026": 134
   },
-  "games_without_lines_dropped": 154
+  "games_without_lines_dropped": 138
  },
  "seasons": {
   "2021": [
@@ -10202,27 +10202,27 @@
     "home": "ARI",
     "away": "DEN",
     "spread_line": -4.5,
-    "total_line": 43.5
+    "total_line": 44.5
    },
    {
     "week": 7,
     "home": "ATL",
     "away": "SF",
-    "spread_line": -3.0,
-    "total_line": 50.5
+    "spread_line": -2.5,
+    "total_line": 49.5
    },
    {
     "week": 7,
     "home": "BAL",
     "away": "CIN",
-    "spread_line": 3.0,
-    "total_line": 51.5
+    "spread_line": -3.0,
+    "total_line": 46.5
    },
    {
     "week": 7,
     "home": "CAR",
     "away": "TB",
-    "spread_line": 3.5,
+    "spread_line": 3.0,
     "total_line": 44.5
    },
    {
@@ -10236,8 +10236,8 @@
     "week": 7,
     "home": "DET",
     "away": "GB",
-    "spread_line": 3.0,
-    "total_line": 53.5
+    "spread_line": 3.5,
+    "total_line": 55.5
    },
    {
     "week": 7,
@@ -10250,8 +10250,8 @@
     "week": 7,
     "home": "LV",
     "away": "LA",
-    "spread_line": -4.5,
-    "total_line": 47.5
+    "spread_line": -3.5,
+    "total_line": 49.5
    },
    {
     "week": 7,
@@ -10264,113 +10264,225 @@
     "week": 7,
     "home": "NO",
     "away": "PIT",
-    "spread_line": -3.5,
-    "total_line": 44.5
+    "spread_line": -3.0,
+    "total_line": 43.5
    },
    {
     "week": 7,
     "home": "NYJ",
     "away": "MIA",
-    "spread_line": 4.5,
-    "total_line": 38.5
+    "spread_line": 3.5,
+    "total_line": 39.5
    },
    {
     "week": 7,
     "home": "PHI",
     "away": "DAL",
     "spread_line": -4.5,
-    "total_line": 44.5
+    "total_line": 43.5
    },
    {
     "week": 7,
     "home": "SEA",
     "away": "KC",
-    "spread_line": 2.5,
-    "total_line": 42.5
+    "spread_line": 3.0,
+    "total_line": 43.5
    },
    {
     "week": 7,
     "home": "TEN",
     "away": "CLE",
     "spread_line": -1.5,
-    "total_line": 38.5
+    "total_line": 36.5
    },
    {
     "week": 8,
     "home": "BUF",
     "away": "BAL",
-    "spread_line": 2.5,
+    "spread_line": 3.5,
     "total_line": 53.5
    },
    {
     "week": 8,
     "home": "CIN",
     "away": "TEN",
-    "spread_line": 10.5,
-    "total_line": 45.5
+    "spread_line": 10.0,
+    "total_line": 46.5
    },
    {
     "week": 8,
     "home": "DAL",
     "away": "ARI",
     "spread_line": 6.5,
-    "total_line": 51.5
+    "total_line": 54.5
    },
    {
     "week": 8,
     "home": "DEN",
     "away": "KC",
     "spread_line": -1.5,
-    "total_line": 42.5
+    "total_line": 41.5
+   },
+   {
+    "week": 8,
+    "home": "DET",
+    "away": "MIN",
+    "spread_line": 3.0,
+    "total_line": 46.5
+   },
+   {
+    "week": 8,
+    "home": "GB",
+    "away": "CAR",
+    "spread_line": 3.5,
+    "total_line": 48.5
    },
    {
     "week": 8,
     "home": "JAX",
     "away": "IND",
-    "spread_line": 7.5,
-    "total_line": 47.5
+    "spread_line": 8.5,
+    "total_line": 46.5
    },
    {
     "week": 8,
     "home": "LA",
     "away": "LAC",
-    "spread_line": 7.5,
-    "total_line": 45.5
+    "spread_line": 6.5,
+    "total_line": 44.5
    },
    {
     "week": 8,
     "home": "MIA",
     "away": "NE",
-    "spread_line": -8.5,
-    "total_line": 43.5
+    "spread_line": -7.5,
+    "total_line": 44.5
    },
    {
     "week": 8,
     "home": "NYJ",
     "away": "LV",
     "spread_line": 1.5,
-    "total_line": 43.5
+    "total_line": 45.5
    },
    {
     "week": 8,
     "home": "PIT",
     "away": "CLE",
-    "spread_line": 4.5,
+    "spread_line": 3.5,
     "total_line": 39.5
+   },
+   {
+    "week": 8,
+    "home": "SEA",
+    "away": "CHI",
+    "spread_line": 3.0,
+    "total_line": 46.5
    },
    {
     "week": 8,
     "home": "TB",
     "away": "ATL",
-    "spread_line": 1.5,
-    "total_line": 44.5
+    "spread_line": 2.5,
+    "total_line": 46.5
    },
    {
     "week": 8,
     "home": "WAS",
     "away": "PHI",
-    "spread_line": 3.5,
-    "total_line": 40.5
+    "spread_line": 5.5,
+    "total_line": 39.5
+   },
+   {
+    "week": 9,
+    "home": "ATL",
+    "away": "CIN",
+    "spread_line": -3.5,
+    "total_line": 49.5
+   },
+   {
+    "week": 9,
+    "home": "BAL",
+    "away": "JAX",
+    "spread_line": 2.5,
+    "total_line": 48.5
+   },
+   {
+    "week": 9,
+    "home": "CAR",
+    "away": "DEN",
+    "spread_line": -2.5,
+    "total_line": 43.5
+   },
+   {
+    "week": 9,
+    "home": "CHI",
+    "away": "TB",
+    "spread_line": 6.5,
+    "total_line": 48.5
+   },
+   {
+    "week": 9,
+    "home": "KC",
+    "away": "NYJ",
+    "spread_line": 8.5,
+    "total_line": 44.5
+   },
+   {
+    "week": 9,
+    "home": "MIA",
+    "away": "DET",
+    "spread_line": -8.5,
+    "total_line": 48.5
+   },
+   {
+    "week": 9,
+    "home": "MIN",
+    "away": "BUF",
+    "spread_line": -2.5,
+    "total_line": 48.5
+   },
+   {
+    "week": 9,
+    "home": "NE",
+    "away": "GB",
+    "spread_line": 2.5,
+    "total_line": 46.5
+   },
+   {
+    "week": 9,
+    "home": "NO",
+    "away": "CLE",
+    "spread_line": 2.5,
+    "total_line": 42.5
+   },
+   {
+    "week": 9,
+    "home": "PHI",
+    "away": "NYG",
+    "spread_line": 1.5,
+    "total_line": 39.5
+   },
+   {
+    "week": 9,
+    "home": "SEA",
+    "away": "ARI",
+    "spread_line": 12.5,
+    "total_line": 44.5
+   },
+   {
+    "week": 9,
+    "home": "SF",
+    "away": "LV",
+    "spread_line": 9.5,
+    "total_line": 48.5
+   },
+   {
+    "week": 9,
+    "home": "WAS",
+    "away": "LA",
+    "spread_line": -4.5,
+    "total_line": 48.5
    }
   ]
  }
