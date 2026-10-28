@@ -21,17 +21,19 @@
   ],
   "td_fold": "0.5/1.5 TD over-unders de-vigged and folded to EXPECTED TDs (Poisson); every position (register 467, since 2026-09-02); any_td scored as rush_td unless a per-type TD line is quoted",
   "counts": {
-   "sleeper_players": 130,
-   "underdog_filled_players": 78,
-   "priced": 166,
-   "sleeper_qbs_with_pass_yds": 20,
-   "unmatched": 1
+   "sleeper_players": 177,
+   "underdog_filled_players": 46,
+   "priced": 191,
+   "sleeper_qbs_with_pass_yds": 28,
+   "unmatched": 0,
+   "carried_from_earlier_run": 0
   },
   "self_check": "passed",
+  "merge": "players no longer quoted keep their earlier row (carried_from); quoted players take the new line",
   "spread": {
    "source": "draft/data/props_residual_sd.json",
-   "stamped": 166,
-   "of": 166
+   "stamped": 191,
+   "of": 191
   }
  },
  "players": {
@@ -39,9 +41,9 @@
    "name": "MarShawn Lloyd",
    "team": "GB",
    "pos": "RB",
-   "points": 4.71,
+   "points": 4.65,
    "stat_line": {
-    "any_td": 0.294,
+    "any_td": 0.284,
     "rec": 1.5,
     "rush_yd": 17.5,
     "rec_yd": 4.5
@@ -53,7 +55,7 @@
     "player_rush_yds"
    ],
    "lines": {
-    "player_anytime_td": 0.2943,
+    "player_anytime_td": 0.2841,
     "player_receptions": 1.5,
     "player_rush_yds": 17.5,
     "player_reception_yds": 4.5
@@ -64,16 +66,16 @@
     "player_rush_yds": "sleeper_picks",
     "player_reception_yds": "underdog"
    },
-   "sd": 5.07
+   "sd": 5.06
   },
   "11646": {
    "name": "Jalen Coker",
    "team": "CAR",
    "pos": "WR",
-   "points": 10.97,
+   "points": 10.87,
    "stat_line": {
     "any_td": 0.395,
-    "rec_yd": 63.5,
+    "rec_yd": 62.5,
     "rec": 4.5
    },
    "markets_used": [
@@ -83,7 +85,7 @@
    ],
    "lines": {
     "player_anytime_td": 0.3955,
-    "player_reception_yds": 63.5,
+    "player_reception_yds": 62.5,
     "player_receptions": 4.5
    },
    "sources": {
@@ -91,34 +93,30 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
    },
-   "sd": 6.79
+   "sd": 6.76
   },
   "12482": {
    "name": "Savion Williams",
    "team": "GB",
    "pos": "WR",
-   "points": 5.65,
+   "points": 4.0,
    "stat_line": {
-    "any_td": 0.292,
-    "rec_yd": 26.5,
+    "rec_yd": 27.5,
     "rec": 2.5
    },
    "markets_used": [
-    "player_anytime_td",
     "player_reception_yds",
     "player_receptions"
    ],
    "lines": {
-    "player_anytime_td": 0.2921,
-    "player_reception_yds": 26.5,
+    "player_reception_yds": 27.5,
     "player_receptions": 2.5
    },
    "sources": {
-    "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
    },
-   "sd": 5.29
+   "sd": 4.83
   },
   "12501": {
    "name": "Matthew Golden",
@@ -126,7 +124,7 @@
    "pos": "WR",
    "points": 10.98,
    "stat_line": {
-    "any_td": 0.464,
+    "any_td": 0.463,
     "rec_yd": 59.5,
     "rec": 4.5
    },
@@ -136,7 +134,7 @@
     "player_receptions"
    ],
    "lines": {
-    "player_anytime_td": 0.4642,
+    "player_anytime_td": 0.4626,
     "player_reception_yds": 59.5,
     "player_receptions": 4.5
    },
@@ -151,9 +149,9 @@
    "name": "Tetairoa McMillan",
    "team": "CAR",
    "pos": "WR",
-   "points": 12.68,
+   "points": 12.67,
    "stat_line": {
-    "any_td": 0.43,
+    "any_td": 0.428,
     "rec_yd": 73.5,
     "rec": 5.5
    },
@@ -163,7 +161,7 @@
     "player_receptions"
    ],
    "lines": {
-    "player_anytime_td": 0.4304,
+    "player_anytime_td": 0.4276,
     "player_reception_yds": 73.5,
     "player_receptions": 5.5
    },
@@ -172,7 +170,7 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
    },
-   "sd": 7.27
+   "sd": 7.26
   },
   "2505": {
    "name": "Darren Waller",
@@ -201,10 +199,10 @@
    "name": "Josh Jacobs",
    "team": "GB",
    "pos": "RB",
-   "points": 13.11,
+   "points": 13.36,
    "stat_line": {
-    "any_td": 0.76,
-    "rec_yd": 14.5,
+    "any_td": 0.769,
+    "rec_yd": 16.5,
     "rec": 2.5,
     "rush_yd": 58.5
    },
@@ -215,8 +213,8 @@
     "player_rush_yds"
    ],
    "lines": {
-    "player_anytime_td": 0.7597,
-    "player_reception_yds": 14.5,
+    "player_anytime_td": 0.7685,
+    "player_reception_yds": 16.5,
     "player_receptions": 2.5,
     "player_rush_yds": 58.5
    },
@@ -226,7 +224,7 @@
     "player_receptions": "sleeper_picks",
     "player_rush_yds": "sleeper_picks"
    },
-   "sd": 6.77
+   "sd": 6.82
   },
   "6804": {
    "name": "Jordan Love",
@@ -263,12 +261,12 @@
    "name": "Chuba Hubbard",
    "team": "CAR",
    "pos": "RB",
-   "points": 13.69,
+   "points": 13.51,
    "stat_line": {
-    "any_td": 0.69,
+    "any_td": 0.693,
     "rec_yd": 14.5,
     "rec": 2.5,
-    "rush_yd": 68.5
+    "rush_yd": 66.5
    },
    "markets_used": [
     "player_anytime_td",
@@ -277,10 +275,10 @@
     "player_rush_yds"
    ],
    "lines": {
-    "player_anytime_td": 0.6903,
+    "player_anytime_td": 0.6931,
     "player_reception_yds": 14.5,
     "player_receptions": 2.5,
-    "player_rush_yds": 68.5
+    "player_rush_yds": 66.5
    },
    "sources": {
     "player_anytime_td": "sleeper_picks",
@@ -288,15 +286,15 @@
     "player_receptions": "sleeper_picks",
     "player_rush_yds": "sleeper_picks"
    },
-   "sd": 6.89
+   "sd": 6.85
   },
   "7694": {
    "name": "Tommy Tremble",
    "team": "CAR",
    "pos": "TE",
-   "points": 2.9,
+   "points": 2.8,
    "stat_line": {
-    "rec_yd": 16.5,
+    "rec_yd": 15.5,
     "rec": 2.5
    },
    "markets_used": [
@@ -304,14 +302,14 @@
     "player_receptions"
    ],
    "lines": {
-    "player_reception_yds": 16.5,
+    "player_reception_yds": 15.5,
     "player_receptions": 2.5
    },
    "sources": {
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
    },
-   "sd": 3.9
+   "sd": 3.86
   },
   "8147": {
    "name": "John Metchie",
@@ -340,9 +338,9 @@
    "name": "Christian Watson",
    "team": "GB",
    "pos": "WR",
-   "points": 12.53,
+   "points": 12.56,
    "stat_line": {
-    "any_td": 0.521,
+    "any_td": 0.527,
     "rec_yd": 71.5,
     "rec": 4.5
    },
@@ -352,7 +350,7 @@
     "player_receptions"
    ],
    "lines": {
-    "player_anytime_td": 0.5209,
+    "player_anytime_td": 0.5274,
     "player_reception_yds": 71.5,
     "player_receptions": 4.5
    },
@@ -427,7 +425,7 @@
    "pos": "TE",
    "points": 8.64,
    "stat_line": {
-    "any_td": 0.374,
+    "any_td": 0.373,
     "rec_yd": 46.5,
     "rec": 3.5
    },
@@ -437,7 +435,7 @@
     "player_receptions"
    ],
    "lines": {
-    "player_anytime_td": 0.374,
+    "player_anytime_td": 0.3729,
     "player_reception_yds": 46.5,
     "player_receptions": 3.5
    },
@@ -494,6 +492,29 @@
    },
    "sd": 4.91
   },
+  "13273": {
+   "name": "Josh Cuevas",
+   "team": "BAL",
+   "pos": "TE",
+   "points": 1.9,
+   "stat_line": {
+    "rec_yd": 11.5,
+    "rec": 1.5
+   },
+   "markets_used": [
+    "player_reception_yds",
+    "player_receptions"
+   ],
+   "lines": {
+    "player_reception_yds": 11.5,
+    "player_receptions": 1.5
+   },
+   "sources": {
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
+   },
+   "sd": 3.51
+  },
   "13293": {
    "name": "Ja'Kobi Lane",
    "team": "BAL",
@@ -521,9 +542,9 @@
    "name": "Derrick Henry",
    "team": "BAL",
    "pos": "RB",
-   "points": 15.67,
+   "points": 15.6,
    "stat_line": {
-    "any_td": 1.003,
+    "any_td": 0.991,
     "rec_yd": 6.5,
     "rec": 1.5,
     "rush_yd": 82.5
@@ -535,7 +556,7 @@
     "player_rush_yds"
    ],
    "lines": {
-    "player_anytime_td": 1.0031,
+    "player_anytime_td": 0.9906,
     "player_reception_yds": 6.5,
     "player_receptions": 1.5,
     "player_rush_yds": 82.5
@@ -546,15 +567,15 @@
     "player_receptions": "sleeper_picks",
     "player_rush_yds": "sleeper_picks"
    },
-   "sd": 7.29
+   "sd": 7.28
   },
   "4881": {
    "name": "Lamar Jackson",
    "team": "BAL",
    "pos": "QB",
-   "points": 21.86,
+   "points": 21.88,
    "stat_line": {
-    "any_td": 0.309,
+    "any_td": 0.311,
     "pass_int": 0.5,
     "pass_td": 1.5,
     "pass_yd": 236.5,
@@ -568,7 +589,7 @@
     "player_rush_yds"
    ],
    "lines": {
-    "player_anytime_td": 0.3089,
+    "player_anytime_td": 0.3106,
     "player_pass_interceptions": 0.5,
     "player_pass_tds": 1.5,
     "player_pass_yds": 236.5,
@@ -587,10 +608,10 @@
    "name": "DJ Moore",
    "team": "BUF",
    "pos": "WR",
-   "points": 9.96,
+   "points": 10.08,
    "stat_line": {
-    "any_td": 0.376,
-    "rec_yd": 54.5,
+    "any_td": 0.38,
+    "rec_yd": 55.5,
     "rec": 4.5
    },
    "markets_used": [
@@ -599,8 +620,8 @@
     "player_receptions"
    ],
    "lines": {
-    "player_anytime_td": 0.3763,
-    "player_reception_yds": 54.5,
+    "player_anytime_td": 0.3799,
+    "player_reception_yds": 55.5,
     "player_receptions": 4.5
    },
    "sources": {
@@ -608,15 +629,15 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
    },
-   "sd": 6.5
+   "sd": 6.54
   },
   "4984": {
    "name": "Josh Allen",
    "team": "BUF",
    "pos": "QB",
-   "points": 26.62,
+   "points": 26.66,
    "stat_line": {
-    "any_td": 0.835,
+    "any_td": 0.842,
     "pass_int": 0.5,
     "pass_td": 1.5,
     "pass_yd": 251.5,
@@ -630,7 +651,7 @@
     "player_rush_yds"
    ],
    "lines": {
-    "player_anytime_td": 0.8354,
+    "player_anytime_td": 0.8418,
     "player_pass_interceptions": 0.5,
     "player_pass_tds": 1.5,
     "player_pass_yds": 251.5,
@@ -726,10 +747,10 @@
    "name": "Ty Johnson",
    "team": "BUF",
    "pos": "RB",
-   "points": 2.3,
+   "points": 2.8,
    "stat_line": {
     "rec_yd": 15.5,
-    "rec": 1.5
+    "rec": 2.5
    },
    "markets_used": [
     "player_reception_yds",
@@ -737,13 +758,13 @@
    ],
    "lines": {
     "player_reception_yds": 15.5,
-    "player_receptions": 1.5
+    "player_receptions": 2.5
    },
    "sources": {
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
    },
-   "sd": 4.58
+   "sd": 4.68
   },
   "7571": {
    "name": "Rashod Bateman",
@@ -795,9 +816,9 @@
    "name": "Khalil Shakir",
    "team": "BUF",
    "pos": "WR",
-   "points": 7.69,
+   "points": 7.71,
    "stat_line": {
-    "any_td": 0.348,
+    "any_td": 0.351,
     "rec_yd": 38.5,
     "rec": 3.5
    },
@@ -807,7 +828,7 @@
     "player_receptions"
    ],
    "lines": {
-    "player_anytime_td": 0.3475,
+    "player_anytime_td": 0.3509,
     "player_reception_yds": 38.5,
     "player_receptions": 3.5
    },
@@ -853,10 +874,10 @@
    "name": "Zay Flowers",
    "team": "BAL",
    "pos": "WR",
-   "points": 13.18,
+   "points": 13.68,
    "stat_line": {
     "any_td": 0.463,
-    "rec_yd": 76.5,
+    "rec_yd": 81.5,
     "rec": 5.5
    },
    "markets_used": [
@@ -866,7 +887,7 @@
    ],
    "lines": {
     "player_anytime_td": 0.4626,
-    "player_reception_yds": 76.5,
+    "player_reception_yds": 81.5,
     "player_receptions": 5.5
    },
    "sources": {
@@ -874,15 +895,38 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
    },
-   "sd": 7.41
+   "sd": 7.55
+  },
+  "12499": {
+   "name": "Elic Ayomanor",
+   "team": "TEN",
+   "pos": "WR",
+   "points": 2.7,
+   "stat_line": {
+    "rec_yd": 19.5,
+    "rec": 1.5
+   },
+   "markets_used": [
+    "player_reception_yds",
+    "player_receptions"
+   ],
+   "lines": {
+    "player_reception_yds": 19.5,
+    "player_receptions": 1.5
+   },
+   "sources": {
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
+   },
+   "sd": 4.47
   },
   "12502": {
    "name": "Gunnar Helm",
    "team": "TEN",
    "pos": "TE",
-   "points": 3.1,
+   "points": 2.9,
    "stat_line": {
-    "rec_yd": 18.5,
+    "rec_yd": 16.5,
     "rec": 2.5
    },
    "markets_used": [
@@ -890,25 +934,25 @@
     "player_receptions"
    ],
    "lines": {
-    "player_reception_yds": 18.5,
+    "player_reception_yds": 16.5,
     "player_receptions": 2.5
    },
    "sources": {
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
    },
-   "sd": 3.97
+   "sd": 3.9
   },
   "12522": {
    "name": "Cam Ward",
    "team": "TEN",
    "pos": "QB",
-   "points": 10.97,
+   "points": 10.87,
    "stat_line": {
     "pass_int": 0.5,
     "pass_td": 0.5,
     "pass_yd": 200.5,
-    "rush_yd": 9.5
+    "rush_yd": 8.5
    },
    "markets_used": [
     "player_pass_interceptions",
@@ -920,13 +964,13 @@
     "player_pass_interceptions": 0.5,
     "player_pass_tds": 0.5,
     "player_pass_yds": 200.5,
-    "player_rush_yds": 9.5
+    "player_rush_yds": 8.5
    },
    "sources": {
     "player_pass_interceptions": "sleeper_picks",
     "player_pass_tds": "sleeper_picks",
     "player_pass_yds": "sleeper_picks",
-    "player_rush_yds": "underdog"
+    "player_rush_yds": "sleeper_picks"
    },
    "sd": 8.39
   },
@@ -934,10 +978,10 @@
    "name": "Carnell Tate",
    "team": "TEN",
    "pos": "WR",
-   "points": 9.65,
+   "points": 9.43,
    "stat_line": {
-    "any_td": 0.325,
-    "rec_yd": 54.5,
+    "any_td": 0.322,
+    "rec_yd": 52.5,
     "rec": 4.5
    },
    "markets_used": [
@@ -946,8 +990,8 @@
     "player_receptions"
    ],
    "lines": {
-    "player_anytime_td": 0.3254,
-    "player_reception_yds": 54.5,
+    "player_anytime_td": 0.3219,
+    "player_reception_yds": 52.5,
     "player_receptions": 4.5
    },
    "sources": {
@@ -955,35 +999,66 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
    },
-   "sd": 6.42
+   "sd": 6.35
   },
   "4147": {
    "name": "Samaje Perine",
    "team": "CIN",
    "pos": "RB",
-   "points": 2.16,
+   "points": 4.57,
    "stat_line": {
-    "any_td": 0.36
+    "any_td": 0.354,
+    "rush_yd": 24.5
    },
    "markets_used": [
-    "player_anytime_td"
+    "player_anytime_td",
+    "player_rush_yds"
    ],
    "lines": {
-    "player_anytime_td": 0.3605
+    "player_anytime_td": 0.3539,
+    "player_rush_yds": 24.5
    },
    "sources": {
-    "player_anytime_td": "sleeper_picks"
+    "player_anytime_td": "sleeper_picks",
+    "player_rush_yds": "sleeper_picks"
    },
-   "sd": 4.55
+   "sd": 5.04
+  },
+  "4993": {
+   "name": "Mike Gesicki",
+   "team": "CIN",
+   "pos": "TE",
+   "points": 5.52,
+   "stat_line": {
+    "any_td": 0.32,
+    "rec_yd": 23.5,
+    "rec": 2.5
+   },
+   "markets_used": [
+    "player_anytime_td",
+    "player_reception_yds",
+    "player_receptions"
+   ],
+   "lines": {
+    "player_anytime_td": 0.3202,
+    "player_reception_yds": 23.5,
+    "player_receptions": 2.5
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks",
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
+   },
+   "sd": 4.9
   },
   "5967": {
    "name": "Tony Pollard",
    "team": "TEN",
    "pos": "RB",
-   "points": 11.54,
+   "points": 11.64,
    "stat_line": {
     "any_td": 0.615,
-    "rush_yd": 61.5,
+    "rush_yd": 62.5,
     "rec_yd": 9.5,
     "rec": 1.5
    },
@@ -995,7 +1070,7 @@
    ],
    "lines": {
     "player_anytime_td": 0.6155,
-    "player_rush_yds": 61.5,
+    "player_rush_yds": 62.5,
     "player_reception_yds": 9.5,
     "player_receptions": 1.5
    },
@@ -1005,17 +1080,17 @@
     "player_reception_yds": "underdog",
     "player_receptions": "underdog"
    },
-   "sd": 6.45
+   "sd": 6.47
   },
   "6770": {
    "name": "Joe Burrow",
    "team": "CIN",
    "pos": "QB",
-   "points": 24.99,
+   "points": 25.03,
    "stat_line": {
     "pass_int": 0.5,
     "pass_td": 2.5,
-    "pass_yd": 263.5,
+    "pass_yd": 264.5,
     "rush_yd": 4.5
    },
    "markets_used": [
@@ -1027,7 +1102,7 @@
    "lines": {
     "player_pass_interceptions": 0.5,
     "player_pass_tds": 2.5,
-    "player_pass_yds": 263.5,
+    "player_pass_yds": 264.5,
     "player_rush_yds": 4.5
    },
    "sources": {
@@ -1042,9 +1117,9 @@
    "name": "Tee Higgins",
    "team": "CIN",
    "pos": "WR",
-   "points": 12.28,
+   "points": 12.31,
    "stat_line": {
-    "any_td": 0.564,
+    "any_td": 0.569,
     "rec_yd": 66.5,
     "rec": 4.5
    },
@@ -1054,7 +1129,7 @@
     "player_receptions"
    ],
    "lines": {
-    "player_anytime_td": 0.5638,
+    "player_anytime_td": 0.5686,
     "player_reception_yds": 66.5,
     "player_receptions": 4.5
    },
@@ -1069,10 +1144,10 @@
    "name": "Ja'Marr Chase",
    "team": "CIN",
    "pos": "WR",
-   "points": 14.83,
+   "points": 15.13,
    "stat_line": {
     "any_td": 0.671,
-    "rec_yd": 75.5,
+    "rec_yd": 78.5,
     "rec": 6.5
    },
    "markets_used": [
@@ -1082,7 +1157,7 @@
    ],
    "lines": {
     "player_anytime_td": 0.6709,
-    "player_reception_yds": 75.5,
+    "player_reception_yds": 78.5,
     "player_receptions": 6.5
    },
    "sources": {
@@ -1090,39 +1165,120 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
    },
-   "sd": 7.87
+   "sd": 7.96
   },
   "8126": {
    "name": "Wan'Dale Robinson",
    "team": "TEN",
    "pos": "WR",
-   "points": 5.5,
+   "points": 6.1,
    "stat_line": {
-    "rec_yd": 37.5,
-    "rec": 3.5
+    "rec_yd": 38.5,
+    "rec": 4.5
    },
    "markets_used": [
     "player_reception_yds",
     "player_receptions"
    ],
    "lines": {
-    "player_reception_yds": 37.5,
-    "player_receptions": 3.5
+    "player_reception_yds": 38.5,
+    "player_receptions": 4.5
    },
    "sources": {
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
    },
-   "sd": 5.25
+   "sd": 5.42
   },
   "9224": {
    "name": "Chase Brown",
    "team": "CIN",
    "pos": "RB",
-   "points": 8.36,
+   "points": 13.54,
    "stat_line": {
-    "any_td": 0.693,
+    "any_td": 0.699,
+    "rush_yd": 51.5,
     "rec_yd": 24.5,
+    "rec": 3.5
+   },
+   "markets_used": [
+    "player_anytime_td",
+    "player_reception_yds",
+    "player_receptions",
+    "player_rush_yds"
+   ],
+   "lines": {
+    "player_anytime_td": 0.6988,
+    "player_rush_yds": 51.5,
+    "player_reception_yds": 24.5,
+    "player_receptions": 3.5
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks",
+    "player_rush_yds": "sleeper_picks",
+    "player_reception_yds": "underdog",
+    "player_receptions": "underdog"
+   },
+   "sd": 6.86
+  },
+  "10232": {
+   "name": "Michael Wilson",
+   "team": "ARI",
+   "pos": "WR",
+   "points": 10.02,
+   "stat_line": {
+    "any_td": 0.404,
+    "rec_yd": 53.5,
+    "rec": 4.5
+   },
+   "markets_used": [
+    "player_anytime_td",
+    "player_reception_yds",
+    "player_receptions"
+   ],
+   "lines": {
+    "player_anytime_td": 0.4042,
+    "player_reception_yds": 53.5,
+    "player_receptions": 4.5
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks",
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
+   },
+   "sd": 6.52
+  },
+  "11593": {
+   "name": "Brevyn Spann-Ford",
+   "team": "DAL",
+   "pos": "TE",
+   "points": 2.3,
+   "stat_line": {
+    "rec_yd": 15.5,
+    "rec": 1.5
+   },
+   "markets_used": [
+    "player_reception_yds",
+    "player_receptions"
+   ],
+   "lines": {
+    "player_reception_yds": 15.5,
+    "player_receptions": 1.5
+   },
+   "sources": {
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
+   },
+   "sd": 3.67
+  },
+  "11783": {
+   "name": "Ryan Flournoy",
+   "team": "DAL",
+   "pos": "WR",
+   "points": 7.1,
+   "stat_line": {
+    "any_td": 0.316,
+    "rec_yd": 34.5,
     "rec": 3.5
    },
    "markets_used": [
@@ -1131,25 +1287,133 @@
     "player_receptions"
    ],
    "lines": {
-    "player_anytime_td": 0.6931,
-    "player_reception_yds": 24.5,
+    "player_anytime_td": 0.3162,
+    "player_reception_yds": 34.5,
     "player_receptions": 3.5
    },
    "sources": {
     "player_anytime_td": "sleeper_picks",
-    "player_reception_yds": "underdog",
-    "player_receptions": "underdog"
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
    },
-   "sd": 5.81
+   "sd": 5.7
+  },
+  "13287": {
+   "name": "Jeremiyah Love",
+   "team": "ARI",
+   "pos": "RB",
+   "points": 3.01,
+   "stat_line": {
+    "any_td": 0.502
+   },
+   "markets_used": [
+    "player_anytime_td"
+   ],
+   "lines": {
+    "player_anytime_td": 0.5019
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks"
+   },
+   "sd": 4.72
+  },
+  "3257": {
+   "name": "Jacoby Brissett",
+   "team": "ARI",
+   "pos": "QB",
+   "points": 19.41,
+   "stat_line": {
+    "pass_td": 1.5,
+    "pass_yd": 261.5,
+    "rush_yd": 9.5,
+    "pass_int": 0.5
+   },
+   "markets_used": [
+    "player_pass_interceptions",
+    "player_pass_tds",
+    "player_pass_yds",
+    "player_rush_yds"
+   ],
+   "lines": {
+    "player_pass_tds": 1.5,
+    "player_pass_yds": 261.5,
+    "player_rush_yds": 9.5,
+    "player_pass_interceptions": 0.5
+   },
+   "sources": {
+    "player_pass_tds": "sleeper_picks",
+    "player_pass_yds": "sleeper_picks",
+    "player_rush_yds": "sleeper_picks",
+    "player_pass_interceptions": "underdog"
+   },
+   "sd": 9.35
+  },
+  "3294": {
+   "name": "Dak Prescott",
+   "team": "DAL",
+   "pos": "QB",
+   "points": 25.95,
+   "stat_line": {
+    "pass_td": 2.5,
+    "pass_yd": 277.5,
+    "rush_yd": 8.5,
+    "pass_int": 0.5
+   },
+   "markets_used": [
+    "player_pass_interceptions",
+    "player_pass_tds",
+    "player_pass_yds",
+    "player_rush_yds"
+   ],
+   "lines": {
+    "player_pass_tds": 2.5,
+    "player_pass_yds": 277.5,
+    "player_rush_yds": 8.5,
+    "player_pass_interceptions": 0.5
+   },
+   "sources": {
+    "player_pass_tds": "sleeper_picks",
+    "player_pass_yds": "sleeper_picks",
+    "player_rush_yds": "sleeper_picks",
+    "player_pass_interceptions": "underdog"
+   },
+   "sd": 9.57
+  },
+  "4454": {
+   "name": "Kendrick Bourne",
+   "team": "ARI",
+   "pos": "WR",
+   "points": 6.91,
+   "stat_line": {
+    "any_td": 0.302,
+    "rec_yd": 33.5,
+    "rec": 3.5
+   },
+   "markets_used": [
+    "player_anytime_td",
+    "player_reception_yds",
+    "player_receptions"
+   ],
+   "lines": {
+    "player_anytime_td": 0.3019,
+    "player_reception_yds": 33.5,
+    "player_receptions": 3.5
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks",
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
+   },
+   "sd": 5.65
   },
   "6786": {
    "name": "CeeDee Lamb",
    "team": "DAL",
    "pos": "WR",
-   "points": 15.19,
+   "points": 15.26,
    "stat_line": {
-    "any_td": 0.665,
-    "rec_yd": 79.5,
+    "any_td": 0.66,
+    "rec_yd": 80.5,
     "rec": 6.5
    },
    "markets_used": [
@@ -1158,27 +1422,27 @@
     "player_receptions"
    ],
    "lines": {
-    "player_anytime_td": 0.6654,
-    "player_reception_yds": 79.5,
+    "player_anytime_td": 0.66,
+    "player_reception_yds": 80.5,
     "player_receptions": 6.5
    },
    "sources": {
     "player_anytime_td": "sleeper_picks",
-    "player_reception_yds": "underdog",
-    "player_receptions": "underdog"
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
    },
-   "sd": 7.97
+   "sd": 7.99
   },
   "7588": {
    "name": "Javonte Williams",
    "team": "DAL",
    "pos": "RB",
-   "points": 17.02,
+   "points": 15.92,
    "stat_line": {
     "any_td": 1.061,
-    "rush_yd": 79.5,
-    "rec_yd": 14.5,
-    "rec": 2.5
+    "rec_yd": 11.5,
+    "rec": 1.5,
+    "rush_yd": 76.5
    },
    "markets_used": [
     "player_anytime_td",
@@ -1188,26 +1452,72 @@
    ],
    "lines": {
     "player_anytime_td": 1.0606,
-    "player_rush_yds": 79.5,
-    "player_reception_yds": 14.5,
+    "player_reception_yds": 11.5,
+    "player_receptions": 1.5,
+    "player_rush_yds": 76.5
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks",
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks",
+    "player_rush_yds": "sleeper_picks"
+   },
+   "sd": 7.34
+  },
+  "8110": {
+   "name": "Jake Ferguson",
+   "team": "DAL",
+   "pos": "TE",
+   "points": 4.94,
+   "stat_line": {
+    "any_td": 0.357,
+    "rec_yd": 15.5,
+    "rec": 2.5
+   },
+   "markets_used": [
+    "player_anytime_td",
+    "player_reception_yds",
+    "player_receptions"
+   ],
+   "lines": {
+    "player_anytime_td": 0.3574,
+    "player_reception_yds": 15.5,
     "player_receptions": 2.5
    },
    "sources": {
     "player_anytime_td": "sleeper_picks",
-    "player_rush_yds": "underdog",
-    "player_reception_yds": "underdog",
-    "player_receptions": "underdog"
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
    },
-   "sd": 7.35
+   "sd": 4.68
+  },
+  "8122": {
+   "name": "8122",
+   "team": "ARI",
+   "pos": "RB",
+   "points": 2.66,
+   "stat_line": {
+    "any_td": 0.443
+   },
+   "markets_used": [
+    "player_anytime_td"
+   ],
+   "lines": {
+    "player_anytime_td": 0.4427
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks"
+   },
+   "sd": 4.65
   },
   "8130": {
    "name": "Trey McBride",
    "team": "ARI",
    "pos": "TE",
-   "points": 15.33,
+   "points": 14.78,
    "stat_line": {
-    "any_td": 0.605,
-    "rec_yd": 79.5,
+    "any_td": 0.647,
+    "rec_yd": 71.5,
     "rec": 7.5
    },
    "markets_used": [
@@ -1216,25 +1526,44 @@
     "player_receptions"
    ],
    "lines": {
-    "player_anytime_td": 0.6052,
-    "player_reception_yds": 79.5,
+    "player_anytime_td": 0.6466,
+    "player_reception_yds": 71.5,
     "player_receptions": 7.5
    },
    "sources": {
     "player_anytime_td": "sleeper_picks",
-    "player_reception_yds": "underdog",
-    "player_receptions": "underdog"
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
    },
    "sd": 7.15
+  },
+  "8132": {
+   "name": "Tyler Allgeier",
+   "team": "ARI",
+   "pos": "RB",
+   "points": 2.21,
+   "stat_line": {
+    "any_td": 0.368
+   },
+   "markets_used": [
+    "player_anytime_td"
+   ],
+   "lines": {
+    "player_anytime_td": 0.3683
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks"
+   },
+   "sd": 4.56
   },
   "8137": {
    "name": "George Pickens",
    "team": "DAL",
    "pos": "WR",
-   "points": 11.36,
+   "points": 12.13,
    "stat_line": {
-    "any_td": 0.527,
-    "rec_yd": 59.5,
+    "any_td": 0.539,
+    "rec_yd": 66.5,
     "rec": 4.5
    },
    "markets_used": [
@@ -1243,16 +1572,35 @@
     "player_receptions"
    ],
    "lines": {
-    "player_anytime_td": 0.5274,
-    "player_reception_yds": 59.5,
+    "player_anytime_td": 0.5386,
+    "player_reception_yds": 66.5,
     "player_receptions": 4.5
    },
    "sources": {
     "player_anytime_td": "sleeper_picks",
-    "player_reception_yds": "underdog",
-    "player_receptions": "underdog"
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
    },
-   "sd": 6.9
+   "sd": 7.11
+  },
+  "10229": {
+   "name": "Rashee Rice",
+   "team": "KC",
+   "pos": "WR",
+   "points": 2.36,
+   "stat_line": {
+    "any_td": 0.394
+   },
+   "markets_used": [
+    "player_anytime_td"
+   ],
+   "lines": {
+    "player_anytime_td": 0.3943
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks"
+   },
+   "sd": 4.37
   },
   "11563": {
    "name": "Bo Nix",
@@ -1291,13 +1639,13 @@
    "pos": "WR",
    "points": 2.02,
    "stat_line": {
-    "any_td": 0.336
+    "any_td": 0.337
    },
    "markets_used": [
     "player_anytime_td"
    ],
    "lines": {
-    "player_anytime_td": 0.3355
+    "player_anytime_td": 0.3374
    },
    "sources": {
     "player_anytime_td": "sleeper_picks"
@@ -1366,9 +1714,9 @@
    "name": "Travis Kelce",
    "team": "KC",
    "pos": "TE",
-   "points": 9.3,
+   "points": 9.31,
    "stat_line": {
-    "any_td": 0.366,
+    "any_td": 0.368,
     "rec_yd": 48.5,
     "rec": 4.5
    },
@@ -1378,7 +1726,7 @@
     "player_receptions"
    ],
    "lines": {
-    "player_anytime_td": 0.3661,
+    "player_anytime_td": 0.3683,
     "player_reception_yds": 48.5,
     "player_receptions": 4.5
    },
@@ -1387,7 +1735,7 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
    },
-   "sd": 6.35
+   "sd": 6.36
   },
   "4046": {
    "name": "Patrick Mahomes",
@@ -1443,10 +1791,10 @@
    "name": "J.K. Dobbins",
    "team": "DEN",
    "pos": "RB",
-   "points": 5.44,
+   "points": 5.34,
    "stat_line": {
     "any_td": 0.365,
-    "rush_yd": 25.5,
+    "rush_yd": 24.5,
     "rec_yd": 4.5,
     "rec": 0.5
    },
@@ -1458,7 +1806,7 @@
    ],
    "lines": {
     "player_anytime_td": 0.365,
-    "player_rush_yds": 25.5,
+    "player_rush_yds": 24.5,
     "player_reception_yds": 4.5,
     "player_receptions": 0.5
    },
@@ -1468,37 +1816,37 @@
     "player_reception_yds": "underdog",
     "player_receptions": "underdog"
    },
-   "sd": 5.22
+   "sd": 5.2
   },
   "7526": {
    "name": "Jaylen Waddle",
    "team": "DEN",
    "pos": "WR",
-   "points": 2.02,
+   "points": 1.97,
    "stat_line": {
-    "any_td": 0.336
+    "any_td": 0.329
    },
    "markets_used": [
     "player_anytime_td"
    ],
    "lines": {
-    "player_anytime_td": 0.3365
+    "player_anytime_td": 0.3286
    },
    "sources": {
     "player_anytime_td": "sleeper_picks"
    },
-   "sd": 4.27
+   "sd": 4.26
   },
   "8151": {
    "name": "Kenneth Walker",
    "team": "KC",
    "pos": "RB",
-   "points": 16.24,
+   "points": 16.45,
    "stat_line": {
-    "any_td": 0.781,
+    "any_td": 0.783,
     "rec_yd": 19.5,
     "rec": 2.5,
-    "rush_yd": 83.5
+    "rush_yd": 85.5
    },
    "markets_used": [
     "player_anytime_td",
@@ -1507,10 +1855,10 @@
     "player_rush_yds"
    ],
    "lines": {
-    "player_anytime_td": 0.7807,
+    "player_anytime_td": 0.7835,
     "player_reception_yds": 19.5,
     "player_receptions": 2.5,
-    "player_rush_yds": 83.5
+    "player_rush_yds": 85.5
    },
    "sources": {
     "player_anytime_td": "sleeper_picks",
@@ -1551,10 +1899,10 @@
    "name": "Jared Goff",
    "team": "DET",
    "pos": "QB",
-   "points": 18.59,
+   "points": 18.51,
    "stat_line": {
     "pass_td": 1.5,
-    "pass_yd": 263.5,
+    "pass_yd": 261.5,
     "rush_yd": 0.5,
     "pass_int": 0.5
    },
@@ -1566,7 +1914,7 @@
    ],
    "lines": {
     "player_pass_tds": 1.5,
-    "player_pass_yds": 263.5,
+    "player_pass_yds": 261.5,
     "player_rush_yds": 0.5,
     "player_pass_interceptions": 0.5
    },
@@ -1576,7 +1924,7 @@
     "player_rush_yds": "underdog",
     "player_pass_interceptions": "underdog"
    },
-   "sd": 9.24
+   "sd": 9.23
   },
   "4199": {
    "name": "Aaron Jones",
@@ -1613,7 +1961,7 @@
     "player_receptions"
    ],
    "lines": {
-    "player_anytime_td": 0.3295,
+    "player_anytime_td": 0.3304,
     "player_reception_yds": 38.5,
     "player_receptions": 4.5
    },
@@ -1686,11 +2034,11 @@
    "name": "Amon-Ra St. Brown",
    "team": "DET",
    "pos": "WR",
-   "points": 14.13,
+   "points": 14.69,
    "stat_line": {
-    "any_td": 0.539,
-    "rec_yd": 76.5,
-    "rec": 6.5
+    "any_td": 0.532,
+    "rec_yd": 77.5,
+    "rec": 7.5
    },
    "markets_used": [
     "player_anytime_td",
@@ -1698,16 +2046,16 @@
     "player_receptions"
    ],
    "lines": {
-    "player_anytime_td": 0.5386,
-    "player_reception_yds": 76.5,
-    "player_receptions": 6.5
+    "player_anytime_td": 0.532,
+    "player_reception_yds": 77.5,
+    "player_receptions": 7.5
    },
    "sources": {
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
    },
-   "sd": 7.67
+   "sd": 7.83
   },
   "8148": {
    "name": "Jameson Williams",
@@ -1740,29 +2088,29 @@
    "name": "Jordan Mason",
    "team": "MIN",
    "pos": "RB",
-   "points": 3.41,
+   "points": 3.56,
    "stat_line": {
-    "any_td": 0.569
+    "any_td": 0.593
    },
    "markets_used": [
     "player_anytime_td"
    ],
    "lines": {
-    "player_anytime_td": 0.5686
+    "player_anytime_td": 0.5928
    },
    "sources": {
     "player_anytime_td": "sleeper_picks"
    },
-   "sd": 4.81
+   "sd": 4.84
   },
   "9221": {
    "name": "Jahmyr Gibbs",
    "team": "DET",
    "pos": "RB",
-   "points": 20.89,
+   "points": 20.76,
    "stat_line": {
-    "any_td": 1.106,
-    "rec_yd": 34.5,
+    "any_td": 1.101,
+    "rec_yd": 33.5,
     "rec": 4.5,
     "rush_yd": 85.5
    },
@@ -1773,8 +2121,8 @@
     "player_rush_yds"
    ],
    "lines": {
-    "player_anytime_td": 1.1062,
-    "player_reception_yds": 34.5,
+    "player_anytime_td": 1.1012,
+    "player_reception_yds": 33.5,
     "player_receptions": 4.5,
     "player_rush_yds": 85.5
    },
@@ -1844,12 +2192,12 @@
    "name": "Bhayshul Tuten",
    "team": "JAX",
    "pos": "RB",
-   "points": 12.99,
+   "points": 13.09,
    "stat_line": {
     "any_td": 0.674,
     "rec_yd": 15.5,
     "rec": 2.5,
-    "rush_yd": 61.5
+    "rush_yd": 62.5
    },
    "markets_used": [
     "player_anytime_td",
@@ -1861,7 +2209,7 @@
     "player_anytime_td": 0.6737,
     "player_reception_yds": 15.5,
     "player_receptions": 2.5,
-    "player_rush_yds": 61.5
+    "player_rush_yds": 62.5
    },
    "sources": {
     "player_anytime_td": "sleeper_picks",
@@ -1869,38 +2217,42 @@
     "player_receptions": "sleeper_picks",
     "player_rush_yds": "sleeper_picks"
    },
-   "sd": 6.75
+   "sd": 6.77
   },
   "12518": {
    "name": "Tyler Warren",
    "team": "IND",
    "pos": "TE",
-   "points": 6.0,
+   "points": 7.92,
    "stat_line": {
+    "any_td": 0.32,
     "rec_yd": 37.5,
     "rec": 4.5
    },
    "markets_used": [
+    "player_anytime_td",
     "player_reception_yds",
     "player_receptions"
    ],
    "lines": {
+    "player_anytime_td": 0.3202,
     "player_reception_yds": 37.5,
     "player_receptions": 4.5
    },
    "sources": {
+    "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
    },
-   "sd": 5.09
+   "sd": 5.82
   },
   "1479": {
    "name": "Keenan Allen",
    "team": "IND",
    "pos": "WR",
-   "points": 7.44,
+   "points": 7.39,
    "stat_line": {
-    "any_td": 0.29,
+    "any_td": 0.282,
     "rec_yd": 39.5,
     "rec": 3.5
    },
@@ -1910,7 +2262,7 @@
     "player_receptions"
    ],
    "lines": {
-    "player_anytime_td": 0.2899,
+    "player_anytime_td": 0.282,
     "player_reception_yds": 39.5,
     "player_receptions": 3.5
    },
@@ -1919,7 +2271,7 @@
     "player_reception_yds": "underdog",
     "player_receptions": "underdog"
    },
-   "sd": 5.8
+   "sd": 5.78
   },
   "5870": {
    "name": "Daniel Jones",
@@ -1927,10 +2279,10 @@
    "pos": "QB",
    "points": 10.47,
    "stat_line": {
+    "pass_int": 0.5,
     "pass_td": 0.5,
     "pass_yd": 190.5,
-    "rush_yd": 8.5,
-    "pass_int": 0.5
+    "rush_yd": 8.5
    },
    "markets_used": [
     "player_pass_interceptions",
@@ -1939,16 +2291,16 @@
     "player_rush_yds"
    ],
    "lines": {
+    "player_pass_interceptions": 0.5,
     "player_pass_tds": 0.5,
     "player_pass_yds": 190.5,
-    "player_rush_yds": 8.5,
-    "player_pass_interceptions": 0.5
+    "player_rush_yds": 8.5
    },
    "sources": {
+    "player_pass_interceptions": "sleeper_picks",
     "player_pass_tds": "sleeper_picks",
     "player_pass_yds": "sleeper_picks",
-    "player_rush_yds": "sleeper_picks",
-    "player_pass_interceptions": "underdog"
+    "player_rush_yds": "sleeper_picks"
    },
    "sd": 8.39
   },
@@ -1956,9 +2308,9 @@
    "name": "Jakobi Meyers",
    "team": "JAX",
    "pos": "WR",
-   "points": 8.18,
+   "points": 8.02,
    "stat_line": {
-    "any_td": 0.414,
+    "any_td": 0.387,
     "rec_yd": 39.5,
     "rec": 3.5
    },
@@ -1968,7 +2320,7 @@
     "player_receptions"
    ],
    "lines": {
-    "player_anytime_td": 0.4144,
+    "player_anytime_td": 0.387,
     "player_reception_yds": 39.5,
     "player_receptions": 3.5
    },
@@ -1977,16 +2329,16 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
    },
-   "sd": 6.0
+   "sd": 5.96
   },
   "6813": {
    "name": "Jonathan Taylor",
    "team": "IND",
    "pos": "RB",
-   "points": 14.2,
+   "points": 13.83,
    "stat_line": {
-    "any_td": 0.775,
-    "rec_yd": 17.5,
+    "any_td": 0.73,
+    "rec_yd": 16.5,
     "rec": 2.5,
     "rush_yd": 65.5
    },
@@ -1997,8 +2349,8 @@
     "player_rush_yds"
    ],
    "lines": {
-    "player_anytime_td": 0.7746,
-    "player_reception_yds": 17.5,
+    "player_anytime_td": 0.7302,
+    "player_reception_yds": 16.5,
     "player_receptions": 2.5,
     "player_rush_yds": 65.5
    },
@@ -2008,46 +2360,50 @@
     "player_receptions": "sleeper_picks",
     "player_rush_yds": "sleeper_picks"
    },
-   "sd": 6.99
+   "sd": 6.92
   },
   "7523": {
    "name": "Trevor Lawrence",
    "team": "JAX",
    "pos": "QB",
-   "points": 19.13,
+   "points": 20.79,
    "stat_line": {
+    "any_td": 0.283,
     "pass_int": 0.5,
     "pass_td": 1.5,
-    "pass_yd": 249.5,
+    "pass_yd": 248.5,
     "rush_yd": 11.5
    },
    "markets_used": [
+    "player_anytime_td",
     "player_pass_interceptions",
     "player_pass_tds",
     "player_pass_yds",
     "player_rush_yds"
    ],
    "lines": {
+    "player_anytime_td": 0.2834,
     "player_pass_interceptions": 0.5,
     "player_pass_tds": 1.5,
-    "player_pass_yds": 249.5,
+    "player_pass_yds": 248.5,
     "player_rush_yds": 11.5
    },
    "sources": {
+    "player_anytime_td": "sleeper_picks",
     "player_pass_interceptions": "sleeper_picks",
     "player_pass_tds": "sleeper_picks",
     "player_pass_yds": "sleeper_picks",
     "player_rush_yds": "sleeper_picks"
    },
-   "sd": 9.31
+   "sd": 9.53
   },
   "9480": {
    "name": "Brenton Strange",
    "team": "JAX",
    "pos": "TE",
-   "points": 7.6,
+   "points": 7.56,
    "stat_line": {
-    "any_td": 0.366,
+    "any_td": 0.36,
     "rec_yd": 36.5,
     "rec": 3.5
    },
@@ -2057,7 +2413,7 @@
     "player_receptions"
    ],
    "lines": {
-    "player_anytime_td": 0.3661,
+    "player_anytime_td": 0.3605,
     "player_reception_yds": 36.5,
     "player_receptions": 3.5
    },
@@ -2066,7 +2422,7 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
    },
-   "sd": 5.7
+   "sd": 5.68
   },
   "9487": {
    "name": "Parker Washington",
@@ -2099,9 +2455,9 @@
    "name": "Drake Maye",
    "team": "NE",
    "pos": "QB",
-   "points": 21.49,
+   "points": 21.44,
    "stat_line": {
-    "any_td": 0.3,
+    "any_td": 0.292,
     "pass_int": 0.5,
     "pass_td": 1.5,
     "pass_yd": 233.5,
@@ -2115,7 +2471,7 @@
     "player_rush_yds"
    ],
    "lines": {
-    "player_anytime_td": 0.2996,
+    "player_anytime_td": 0.2921,
     "player_pass_interceptions": 0.5,
     "player_pass_tds": 1.5,
     "player_pass_yds": 233.5,
@@ -2157,32 +2513,36 @@
    "name": "Jaylen Wright",
    "team": "MIA",
    "pos": "RB",
-   "points": 1.9,
+   "points": 2.35,
    "stat_line": {
     "rush_yd": 16.5,
+    "rec_yd": 4.5,
     "rec": 0.5
    },
    "markets_used": [
+    "player_reception_yds",
     "player_receptions",
     "player_rush_yds"
    ],
    "lines": {
     "player_rush_yds": 16.5,
+    "player_reception_yds": 4.5,
     "player_receptions": 0.5
    },
    "sources": {
     "player_rush_yds": "sleeper_picks",
+    "player_reception_yds": "underdog",
     "player_receptions": "underdog"
    },
-   "sd": 4.5
+   "sd": 4.59
   },
   "12495": {
    "name": "Ollie Gordon",
    "team": "MIA",
    "pos": "RB",
-   "points": 10.83,
+   "points": 10.94,
    "stat_line": {
-    "any_td": 0.513,
+    "any_td": 0.532,
     "rec_yd": 9.5,
     "rec": 1.5,
     "rush_yd": 60.5
@@ -2194,7 +2554,7 @@
     "player_rush_yds"
    ],
    "lines": {
-    "player_anytime_td": 0.5126,
+    "player_anytime_td": 0.532,
     "player_reception_yds": 9.5,
     "player_receptions": 1.5,
     "player_rush_yds": 60.5
@@ -2205,7 +2565,7 @@
     "player_receptions": "sleeper_picks",
     "player_rush_yds": "sleeper_picks"
    },
-   "sd": 6.31
+   "sd": 6.33
   },
   "12529": {
    "name": "TreVeyon Henderson",
@@ -2431,9 +2791,9 @@
    "name": "DeMario Douglas",
    "team": "NE",
    "pos": "WR",
-   "points": 6.16,
+   "points": 6.21,
    "stat_line": {
-    "any_td": 0.294,
+    "any_td": 0.301,
     "rec_yd": 31.5,
     "rec": 2.5
    },
@@ -2443,7 +2803,7 @@
     "player_receptions"
    ],
    "lines": {
-    "player_anytime_td": 0.2943,
+    "player_anytime_td": 0.3011,
     "player_reception_yds": 31.5,
     "player_receptions": 2.5
    },
@@ -2452,30 +2812,103 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
    },
-   "sd": 5.44
+   "sd": 5.45
+  },
+  "10213": {
+   "name": "Tre Tucker",
+   "team": "LV",
+   "pos": "WR",
+   "points": 8.78,
+   "stat_line": {
+    "any_td": 0.347,
+    "rec_yd": 49.5,
+    "rec": 3.5
+   },
+   "markets_used": [
+    "player_anytime_td",
+    "player_reception_yds",
+    "player_receptions"
+   ],
+   "lines": {
+    "player_anytime_td": 0.3465,
+    "player_reception_yds": 49.5,
+    "player_receptions": 3.5
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks",
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
+   },
+   "sd": 6.17
+  },
+  "11576": {
+   "name": "Braelon Allen",
+   "team": "NYJ",
+   "pos": "RB",
+   "points": 4.79,
+   "stat_line": {
+    "any_td": 0.799
+   },
+   "markets_used": [
+    "player_anytime_td"
+   ],
+   "lines": {
+    "player_anytime_td": 0.7985
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks"
+   },
+   "sd": 5.09
   },
   "11604": {
    "name": "Brock Bowers",
    "team": "LV",
    "pos": "TE",
-   "points": 9.41,
+   "points": 13.26,
    "stat_line": {
     "any_td": 0.576,
-    "rec_yd": 59.5
+    "rec_yd": 70.5,
+    "rec": 5.5
    },
    "markets_used": [
     "player_anytime_td",
-    "player_reception_yds"
+    "player_reception_yds",
+    "player_receptions"
    ],
    "lines": {
     "player_anytime_td": 0.5757,
-    "player_reception_yds": 59.5
+    "player_reception_yds": 70.5,
+    "player_receptions": 5.5
    },
    "sources": {
     "player_anytime_td": "sleeper_picks",
-    "player_reception_yds": "underdog"
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
    },
-   "sd": 6.39
+   "sd": 7.15
+  },
+  "11625": {
+   "name": "Adonai Mitchell",
+   "team": "NYJ",
+   "pos": "WR",
+   "points": 3.0,
+   "stat_line": {
+    "rec_yd": 22.5,
+    "rec": 1.5
+   },
+   "markets_used": [
+    "player_reception_yds",
+    "player_receptions"
+   ],
+   "lines": {
+    "player_reception_yds": 22.5,
+    "player_receptions": 1.5
+   },
+   "sources": {
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
+   },
+   "sd": 4.55
   },
   "1166": {
    "name": "Kirk Cousins",
@@ -2483,8 +2916,8 @@
    "pos": "QB",
    "points": 17.51,
    "stat_line": {
-    "pass_yd": 236.5,
     "pass_td": 1.5,
+    "pass_yd": 236.5,
     "rush_yd": 0.5,
     "pass_int": 0.5
    },
@@ -2495,54 +2928,81 @@
     "player_rush_yds"
    ],
    "lines": {
-    "player_pass_yds": 236.5,
     "player_pass_tds": 1.5,
+    "player_pass_yds": 236.5,
     "player_rush_yds": 0.5,
     "player_pass_interceptions": 0.5
    },
    "sources": {
+    "player_pass_tds": "sleeper_picks",
     "player_pass_yds": "sleeper_picks",
-    "player_pass_tds": "underdog",
     "player_rush_yds": "underdog",
     "player_pass_interceptions": "underdog"
    },
    "sd": 9.1
   },
+  "12498": {
+   "name": "Mason Taylor",
+   "team": "NYJ",
+   "pos": "TE",
+   "points": 3.4,
+   "stat_line": {
+    "rec_yd": 21.5,
+    "rec": 2.5
+   },
+   "markets_used": [
+    "player_reception_yds",
+    "player_receptions"
+   ],
+   "lines": {
+    "player_reception_yds": 21.5,
+    "player_receptions": 2.5
+   },
+   "sources": {
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
+   },
+   "sd": 4.09
+  },
   "12527": {
    "name": "Ashton Jeanty",
    "team": "LV",
    "pos": "RB",
-   "points": 11.34,
+   "points": 13.36,
    "stat_line": {
-    "any_td": 0.657,
-    "rush_yd": 49.5,
-    "rec_yd": 24.5
+    "any_td": 0.652,
+    "rec_yd": 27.5,
+    "rec": 3.5,
+    "rush_yd": 49.5
    },
    "markets_used": [
     "player_anytime_td",
     "player_reception_yds",
+    "player_receptions",
     "player_rush_yds"
    ],
    "lines": {
-    "player_anytime_td": 0.6574,
-    "player_rush_yds": 49.5,
-    "player_reception_yds": 24.5
+    "player_anytime_td": 0.652,
+    "player_reception_yds": 27.5,
+    "player_receptions": 3.5,
+    "player_rush_yds": 49.5
    },
    "sources": {
     "player_anytime_td": "sleeper_picks",
-    "player_rush_yds": "underdog",
-    "player_reception_yds": "underdog"
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks",
+    "player_rush_yds": "sleeper_picks"
    },
-   "sd": 6.41
+   "sd": 6.82
   },
   "13276": {
    "name": "Omar Cooper",
    "team": "NYJ",
    "pos": "WR",
-   "points": 7.82,
+   "points": 7.88,
    "stat_line": {
-    "any_td": 0.353,
-    "rec_yd": 39.5,
+    "any_td": 0.347,
+    "rec_yd": 40.5,
     "rec": 3.5
    },
    "markets_used": [
@@ -2551,26 +3011,72 @@
     "player_receptions"
    ],
    "lines": {
-    "player_anytime_td": 0.3529,
-    "player_reception_yds": 39.5,
+    "player_anytime_td": 0.3465,
+    "player_reception_yds": 40.5,
     "player_receptions": 3.5
    },
    "sources": {
     "player_anytime_td": "sleeper_picks",
-    "player_reception_yds": "underdog",
-    "player_receptions": "underdog"
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
    },
-   "sd": 5.9
+   "sd": 5.92
+  },
+  "13305": {
+   "name": "Mike Washington",
+   "team": "LV",
+   "pos": "RB",
+   "points": 5.16,
+   "stat_line": {
+    "any_td": 0.301,
+    "rush_yd": 33.5
+   },
+   "markets_used": [
+    "player_anytime_td",
+    "player_rush_yds"
+   ],
+   "lines": {
+    "player_anytime_td": 0.3011,
+    "player_rush_yds": 33.5
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks",
+    "player_rush_yds": "sleeper_picks"
+   },
+   "sd": 5.16
+  },
+  "13330": {
+   "name": "Kenyon Sadiq",
+   "team": "NYJ",
+   "pos": "TE",
+   "points": 2.4,
+   "stat_line": {
+    "rec_yd": 16.5,
+    "rec": 1.5
+   },
+   "markets_used": [
+    "player_reception_yds",
+    "player_receptions"
+   ],
+   "lines": {
+    "player_reception_yds": 16.5,
+    "player_receptions": 1.5
+   },
+   "sources": {
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
+   },
+   "sd": 3.7
   },
   "1373": {
    "name": "Geno Smith",
    "team": "NYJ",
    "pos": "QB",
-   "points": 17.39,
+   "points": 17.69,
    "stat_line": {
-    "pass_yd": 223.5,
     "pass_td": 1.5,
-    "rush_yd": 4.5,
+    "pass_yd": 223.5,
+    "rush_yd": 7.5,
     "pass_int": 0.5
    },
    "markets_used": [
@@ -2580,27 +3086,27 @@
     "player_rush_yds"
    ],
    "lines": {
-    "player_pass_yds": 223.5,
     "player_pass_tds": 1.5,
-    "player_rush_yds": 4.5,
+    "player_pass_yds": 223.5,
+    "player_rush_yds": 7.5,
     "player_pass_interceptions": 0.5
    },
    "sources": {
+    "player_pass_tds": "sleeper_picks",
     "player_pass_yds": "sleeper_picks",
-    "player_pass_tds": "underdog",
-    "player_rush_yds": "underdog",
+    "player_rush_yds": "sleeper_picks",
     "player_pass_interceptions": "underdog"
    },
-   "sd": 9.09
+   "sd": 9.13
   },
   "8146": {
    "name": "Garrett Wilson",
    "team": "NYJ",
    "pos": "WR",
-   "points": 11.1,
+   "points": 10.79,
    "stat_line": {
-    "any_td": 0.483,
-    "rec_yd": 59.5,
+    "any_td": 0.482,
+    "rec_yd": 56.5,
     "rec": 4.5
    },
    "markets_used": [
@@ -2609,210 +3115,25 @@
     "player_receptions"
    ],
    "lines": {
-    "player_anytime_td": 0.4835,
-    "player_reception_yds": 59.5,
+    "player_anytime_td": 0.4818,
+    "player_reception_yds": 56.5,
     "player_receptions": 4.5
    },
    "sources": {
     "player_anytime_td": "sleeper_picks",
-    "player_reception_yds": "underdog",
-    "player_receptions": "underdog"
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
    },
-   "sd": 6.82
+   "sd": 6.74
   },
-  "12506": {
-   "name": "Harold Fannin",
-   "team": "CLE",
-   "pos": "TE",
-   "points": 7.94,
-   "stat_line": {
-    "any_td": 0.373,
-    "rec_yd": 39.5,
-    "rec": 3.5
-   },
-   "markets_used": [
-    "player_anytime_td",
-    "player_reception_yds",
-    "player_receptions"
-   ],
-   "lines": {
-    "player_anytime_td": 0.3729,
-    "player_reception_yds": 39.5,
-    "player_receptions": 3.5
-   },
-   "sources": {
-    "player_anytime_td": "sleeper_picks",
-    "player_reception_yds": "underdog",
-    "player_receptions": "underdog"
-   },
-   "sd": 5.83
-  },
-  "12512": {
-   "name": "Quinshon Judkins",
-   "team": "CLE",
+  "8155": {
+   "name": "Breece Hall",
+   "team": "NYJ",
    "pos": "RB",
-   "points": 2.87,
+   "points": 12.1,
    "stat_line": {
-    "any_td": 0.478
-   },
-   "markets_used": [
-    "player_anytime_td"
-   ],
-   "lines": {
-    "player_anytime_td": 0.4775
-   },
-   "sources": {
-    "player_anytime_td": "sleeper_picks"
-   },
-   "sd": 4.7
-  },
-  "13274": {
-   "name": "Germie Bernard",
-   "team": "PIT",
-   "pos": "WR",
-   "points": 9.32,
-   "stat_line": {
-    "any_td": 0.354,
-    "rec_yd": 49.5,
-    "rec": 4.5
-   },
-   "markets_used": [
-    "player_anytime_td",
-    "player_reception_yds",
-    "player_receptions"
-   ],
-   "lines": {
-    "player_anytime_td": 0.3539,
-    "player_reception_yds": 49.5,
-    "player_receptions": 4.5
-   },
-   "sources": {
-    "player_anytime_td": "sleeper_picks",
-    "player_reception_yds": "underdog",
-    "player_receptions": "underdog"
-   },
-   "sd": 6.32
-  },
-  "13298": {
-   "name": "KC Concepcion",
-   "team": "CLE",
-   "pos": "WR",
-   "points": 9.24,
-   "stat_line": {
-    "any_td": 0.34,
-    "rec_yd": 49.5,
-    "rec": 4.5
-   },
-   "markets_used": [
-    "player_anytime_td",
-    "player_reception_yds",
-    "player_receptions"
-   ],
-   "lines": {
-    "player_anytime_td": 0.3403,
-    "player_reception_yds": 49.5,
-    "player_receptions": 4.5
-   },
-   "sources": {
-    "player_anytime_td": "sleeper_picks",
-    "player_reception_yds": "underdog",
-    "player_receptions": "underdog"
-   },
-   "sd": 6.3
-  },
-  "5846": {
-   "name": "DK Metcalf",
-   "team": "PIT",
-   "pos": "WR",
-   "points": 9.48,
-   "stat_line": {
-    "any_td": 0.463,
-    "rec_yd": 49.5,
-    "rec": 3.5
-   },
-   "markets_used": [
-    "player_anytime_td",
-    "player_reception_yds",
-    "player_receptions"
-   ],
-   "lines": {
-    "player_anytime_td": 0.4626,
-    "player_reception_yds": 49.5,
-    "player_receptions": 3.5
-   },
-   "sources": {
-    "player_anytime_td": "sleeper_picks",
-    "player_reception_yds": "underdog",
-    "player_receptions": "underdog"
-   },
-   "sd": 6.37
-  },
-  "7600": {
-   "name": "Pat Freiermuth",
-   "team": "PIT",
-   "pos": "TE",
-   "points": 5.69,
-   "stat_line": {
-    "any_td": 0.332,
-    "rec_yd": 24.5,
-    "rec": 2.5
-   },
-   "markets_used": [
-    "player_anytime_td",
-    "player_reception_yds",
-    "player_receptions"
-   ],
-   "lines": {
-    "player_anytime_td": 0.3323,
-    "player_reception_yds": 24.5,
-    "player_receptions": 2.5
-   },
-   "sources": {
-    "player_anytime_td": "sleeper_picks",
-    "player_reception_yds": "underdog",
-    "player_receptions": "underdog"
-   },
-   "sd": 4.97
-  },
-  "8228": {
-   "name": "Jaylen Warren",
-   "team": "PIT",
-   "pos": "RB",
-   "points": 14.57,
-   "stat_line": {
-    "any_td": 0.736,
+    "any_td": 0.742,
     "rush_yd": 59.5,
-    "rec_yd": 24.5,
-    "rec": 3.5
-   },
-   "markets_used": [
-    "player_anytime_td",
-    "player_reception_yds",
-    "player_receptions",
-    "player_rush_yds"
-   ],
-   "lines": {
-    "player_anytime_td": 0.7361,
-    "player_rush_yds": 59.5,
-    "player_reception_yds": 24.5,
-    "player_receptions": 3.5
-   },
-   "sources": {
-    "player_anytime_td": "sleeper_picks",
-    "player_rush_yds": "underdog",
-    "player_reception_yds": "underdog",
-    "player_receptions": "underdog"
-   },
-   "sd": 7.07
-  },
-  "11586": {
-   "name": "Blake Corum",
-   "team": "LAR",
-   "pos": "RB",
-   "points": 9.59,
-   "stat_line": {
-    "any_td": 0.49,
-    "rush_yd": 49.5,
     "rec_yd": 9.5,
     "rec": 1.5
    },
@@ -2823,8 +3144,8 @@
     "player_rush_yds"
    ],
    "lines": {
-    "player_anytime_td": 0.4895,
-    "player_rush_yds": 49.5,
+    "player_anytime_td": 0.7419,
+    "player_rush_yds": 59.5,
     "player_reception_yds": 9.5,
     "player_receptions": 1.5
    },
@@ -2834,26 +3155,451 @@
     "player_reception_yds": "underdog",
     "player_receptions": "underdog"
    },
-   "sd": 6.06
+   "sd": 6.57
+  },
+  "9482": {
+   "name": "Michael Mayer",
+   "team": "LV",
+   "pos": "TE",
+   "points": 3.8,
+   "stat_line": {
+    "rec_yd": 25.5,
+    "rec": 2.5
+   },
+   "markets_used": [
+    "player_reception_yds",
+    "player_receptions"
+   ],
+   "lines": {
+    "player_reception_yds": 25.5,
+    "player_receptions": 2.5
+   },
+   "sources": {
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
+   },
+   "sd": 4.24
+  },
+  "12506": {
+   "name": "Harold Fannin",
+   "team": "CLE",
+   "pos": "TE",
+   "points": 7.23,
+   "stat_line": {
+    "any_td": 0.372,
+    "rec_yd": 32.5,
+    "rec": 3.5
+   },
+   "markets_used": [
+    "player_anytime_td",
+    "player_reception_yds",
+    "player_receptions"
+   ],
+   "lines": {
+    "player_anytime_td": 0.3718,
+    "player_reception_yds": 32.5,
+    "player_receptions": 3.5
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks",
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
+   },
+   "sd": 5.56
+  },
+  "12512": {
+   "name": "Quinshon Judkins",
+   "team": "CLE",
+   "pos": "RB",
+   "points": 8.67,
+   "stat_line": {
+    "any_td": 0.478,
+    "rec_yd": 11.5,
+    "rush_yd": 46.5
+   },
+   "markets_used": [
+    "player_anytime_td",
+    "player_reception_yds",
+    "player_rush_yds"
+   ],
+   "lines": {
+    "player_anytime_td": 0.4775,
+    "player_reception_yds": 11.5,
+    "player_rush_yds": 46.5
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks",
+    "player_reception_yds": "sleeper_picks",
+    "player_rush_yds": "sleeper_picks"
+   },
+   "sd": 5.87
+  },
+  "13274": {
+   "name": "Germie Bernard",
+   "team": "PIT",
+   "pos": "WR",
+   "points": 9.1,
+   "stat_line": {
+    "any_td": 0.366,
+    "rec_yd": 46.5,
+    "rec": 4.5
+   },
+   "markets_used": [
+    "player_anytime_td",
+    "player_reception_yds",
+    "player_receptions"
+   ],
+   "lines": {
+    "player_anytime_td": 0.3661,
+    "player_reception_yds": 46.5,
+    "player_receptions": 4.5
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks",
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
+   },
+   "sd": 6.26
+  },
+  "13298": {
+   "name": "KC Concepcion",
+   "team": "CLE",
+   "pos": "WR",
+   "points": 8.94,
+   "stat_line": {
+    "any_td": 0.34,
+    "rec_yd": 46.5,
+    "rec": 4.5
+   },
+   "markets_used": [
+    "player_anytime_td",
+    "player_reception_yds",
+    "player_receptions"
+   ],
+   "lines": {
+    "player_anytime_td": 0.3403,
+    "player_reception_yds": 46.5,
+    "player_receptions": 4.5
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks",
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
+   },
+   "sd": 6.22
+  },
+  "13346": {
+   "name": "Denzel Boston",
+   "team": "CLE",
+   "pos": "WR",
+   "points": 7.88,
+   "stat_line": {
+    "any_td": 0.314,
+    "rec_yd": 42.5,
+    "rec": 3.5
+   },
+   "markets_used": [
+    "player_anytime_td",
+    "player_reception_yds",
+    "player_receptions"
+   ],
+   "lines": {
+    "player_anytime_td": 0.3137,
+    "player_reception_yds": 42.5,
+    "player_receptions": 3.5
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks",
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
+   },
+   "sd": 5.92
+  },
+  "4017": {
+   "name": "Deshaun Watson",
+   "team": "CLE",
+   "pos": "QB",
+   "points": 12.09,
+   "stat_line": {
+    "pass_td": 0.5,
+    "pass_yd": 203.5,
+    "rush_yd": 19.5,
+    "pass_int": 0.5
+   },
+   "markets_used": [
+    "player_pass_interceptions",
+    "player_pass_tds",
+    "player_pass_yds",
+    "player_rush_yds"
+   ],
+   "lines": {
+    "player_pass_tds": 0.5,
+    "player_pass_yds": 203.5,
+    "player_rush_yds": 19.5,
+    "player_pass_interceptions": 0.5
+   },
+   "sources": {
+    "player_pass_tds": "sleeper_picks",
+    "player_pass_yds": "sleeper_picks",
+    "player_rush_yds": "underdog",
+    "player_pass_interceptions": "underdog"
+   },
+   "sd": 8.41
+  },
+  "5846": {
+   "name": "DK Metcalf",
+   "team": "PIT",
+   "pos": "WR",
+   "points": 10.34,
+   "stat_line": {
+    "any_td": 0.457,
+    "rec_yd": 53.5,
+    "rec": 4.5
+   },
+   "markets_used": [
+    "player_anytime_td",
+    "player_reception_yds",
+    "player_receptions"
+   ],
+   "lines": {
+    "player_anytime_td": 0.4569,
+    "player_reception_yds": 53.5,
+    "player_receptions": 4.5
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks",
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
+   },
+   "sd": 6.61
+  },
+  "6783": {
+   "name": "Jerry Jeudy",
+   "team": "CLE",
+   "pos": "WR",
+   "points": 2.8,
+   "stat_line": {
+    "rec_yd": 20.5,
+    "rec": 1.5
+   },
+   "markets_used": [
+    "player_reception_yds",
+    "player_receptions"
+   ],
+   "lines": {
+    "player_reception_yds": 20.5,
+    "player_receptions": 1.5
+   },
+   "sources": {
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
+   },
+   "sd": 4.49
+  },
+  "7021": {
+   "name": "Rico Dowdle",
+   "team": "PIT",
+   "pos": "RB",
+   "points": 6.12,
+   "stat_line": {
+    "any_td": 0.329,
+    "rush_yd": 24.5,
+    "rec_yd": 9.5,
+    "rec": 1.5
+   },
+   "markets_used": [
+    "player_anytime_td",
+    "player_reception_yds",
+    "player_receptions",
+    "player_rush_yds"
+   ],
+   "lines": {
+    "player_anytime_td": 0.3286,
+    "player_rush_yds": 24.5,
+    "player_reception_yds": 9.5,
+    "player_receptions": 1.5
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks",
+    "player_rush_yds": "underdog",
+    "player_reception_yds": "underdog",
+    "player_receptions": "underdog"
+   },
+   "sd": 5.35
+  },
+  "7600": {
+   "name": "Pat Freiermuth",
+   "team": "PIT",
+   "pos": "TE",
+   "points": 5.45,
+   "stat_line": {
+    "any_td": 0.308,
+    "rec_yd": 23.5,
+    "rec": 2.5
+   },
+   "markets_used": [
+    "player_anytime_td",
+    "player_reception_yds",
+    "player_receptions"
+   ],
+   "lines": {
+    "player_anytime_td": 0.3081,
+    "player_reception_yds": 23.5,
+    "player_receptions": 2.5
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks",
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
+   },
+   "sd": 4.87
+  },
+  "8228": {
+   "name": "Jaylen Warren",
+   "team": "PIT",
+   "pos": "RB",
+   "points": 14.87,
+   "stat_line": {
+    "any_td": 0.736,
+    "rec_yd": 22.5,
+    "rec": 3.5,
+    "rush_yd": 64.5
+   },
+   "markets_used": [
+    "player_anytime_td",
+    "player_reception_yds",
+    "player_receptions",
+    "player_rush_yds"
+   ],
+   "lines": {
+    "player_anytime_td": 0.7361,
+    "player_reception_yds": 22.5,
+    "player_receptions": 3.5,
+    "player_rush_yds": 64.5
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks",
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks",
+    "player_rush_yds": "sleeper_picks"
+   },
+   "sd": 7.13
+  },
+  "9479": {
+   "name": "Darnell Washington",
+   "team": "PIT",
+   "pos": "TE",
+   "points": 5.04,
+   "stat_line": {
+    "any_td": 0.307,
+    "rec_yd": 19.5,
+    "rec": 2.5
+   },
+   "markets_used": [
+    "player_anytime_td",
+    "player_reception_yds",
+    "player_receptions"
+   ],
+   "lines": {
+    "player_anytime_td": 0.3073,
+    "player_reception_yds": 19.5,
+    "player_receptions": 2.5
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks",
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
+   },
+   "sd": 4.72
+  },
+  "96": {
+   "name": "Aaron Rodgers",
+   "team": "PIT",
+   "pos": "QB",
+   "points": 16.83,
+   "stat_line": {
+    "pass_td": 1.5,
+    "pass_yd": 219.5,
+    "rush_yd": 0.5,
+    "pass_int": 0.5
+   },
+   "markets_used": [
+    "player_pass_interceptions",
+    "player_pass_tds",
+    "player_pass_yds",
+    "player_rush_yds"
+   ],
+   "lines": {
+    "player_pass_tds": 1.5,
+    "player_pass_yds": 219.5,
+    "player_rush_yds": 0.5,
+    "player_pass_interceptions": 0.5
+   },
+   "sources": {
+    "player_pass_tds": "sleeper_picks",
+    "player_pass_yds": "sleeper_picks",
+    "player_rush_yds": "underdog",
+    "player_pass_interceptions": "underdog"
+   },
+   "sd": 9.02
+  },
+  "11586": {
+   "name": "Blake Corum",
+   "team": "LAR",
+   "pos": "RB",
+   "points": 8.96,
+   "stat_line": {
+    "any_td": 0.485,
+    "rush_yd": 43.5,
+    "rec_yd": 9.5,
+    "rec": 1.5
+   },
+   "markets_used": [
+    "player_anytime_td",
+    "player_reception_yds",
+    "player_receptions",
+    "player_rush_yds"
+   ],
+   "lines": {
+    "player_anytime_td": 0.4852,
+    "player_rush_yds": 43.5,
+    "player_reception_yds": 9.5,
+    "player_receptions": 1.5
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks",
+    "player_rush_yds": "sleeper_picks",
+    "player_reception_yds": "underdog",
+    "player_receptions": "underdog"
+   },
+   "sd": 5.93
   },
   "11635": {
    "name": "Ladd McConkey",
    "team": "LAC",
    "pos": "WR",
-   "points": 2.06,
+   "points": 7.94,
    "stat_line": {
-    "any_td": 0.344
+    "any_td": 0.323,
+    "rec_yd": 42.5,
+    "rec": 3.5
    },
    "markets_used": [
-    "player_anytime_td"
+    "player_anytime_td",
+    "player_reception_yds",
+    "player_receptions"
    ],
    "lines": {
-    "player_anytime_td": 0.3436
+    "player_anytime_td": 0.3228,
+    "player_reception_yds": 42.5,
+    "player_receptions": 3.5
    },
    "sources": {
-    "player_anytime_td": "sleeper_picks"
+    "player_anytime_td": "sleeper_picks",
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
    },
-   "sd": 4.29
+   "sd": 5.94
   },
   "12507": {
    "name": "Omarion Hampton",
@@ -2874,15 +3620,92 @@
    },
    "sd": 4.57
   },
+  "12509": {
+   "name": "Tre' Harris",
+   "team": "LAC",
+   "pos": "WR",
+   "points": 1.78,
+   "stat_line": {
+    "any_td": 0.297
+   },
+   "markets_used": [
+    "player_anytime_td"
+   ],
+   "lines": {
+    "player_anytime_td": 0.2973
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks"
+   },
+   "sd": 4.21
+  },
+  "3271": {
+   "name": "Tyler Higbee",
+   "team": "LAR",
+   "pos": "TE",
+   "points": 7.72,
+   "stat_line": {
+    "any_td": 0.336,
+    "rec_yd": 39.5,
+    "rec": 3.5
+   },
+   "markets_used": [
+    "player_anytime_td",
+    "player_reception_yds",
+    "player_receptions"
+   ],
+   "lines": {
+    "player_anytime_td": 0.3355,
+    "player_reception_yds": 39.5,
+    "player_receptions": 3.5
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks",
+    "player_reception_yds": "underdog",
+    "player_receptions": "underdog"
+   },
+   "sd": 5.75
+  },
   "421": {
    "name": "Matthew Stafford",
    "team": "LAR",
    "pos": "QB",
-   "points": 18.03,
+   "points": 17.99,
+   "stat_line": {
+    "pass_int": 0.5,
+    "pass_td": 1.5,
+    "pass_yd": 248.5,
+    "rush_yd": 0.5
+   },
+   "markets_used": [
+    "player_pass_interceptions",
+    "player_pass_tds",
+    "player_pass_yds",
+    "player_rush_yds"
+   ],
+   "lines": {
+    "player_pass_interceptions": 0.5,
+    "player_pass_tds": 1.5,
+    "player_pass_yds": 248.5,
+    "player_rush_yds": 0.5
+   },
+   "sources": {
+    "player_pass_interceptions": "sleeper_picks",
+    "player_pass_tds": "sleeper_picks",
+    "player_pass_yds": "sleeper_picks",
+    "player_rush_yds": "underdog"
+   },
+   "sd": 9.17
+  },
+  "6797": {
+   "name": "Justin Herbert",
+   "team": "LAC",
+   "pos": "QB",
+   "points": 19.05,
    "stat_line": {
     "pass_td": 1.5,
-    "pass_yd": 249.5,
-    "rush_yd": 0.5,
+    "pass_yd": 202.5,
+    "rush_yd": 29.5,
     "pass_int": 0.5
    },
    "markets_used": [
@@ -2893,26 +3716,53 @@
    ],
    "lines": {
     "player_pass_tds": 1.5,
-    "player_pass_yds": 249.5,
-    "player_rush_yds": 0.5,
+    "player_pass_yds": 202.5,
+    "player_rush_yds": 29.5,
     "player_pass_interceptions": 0.5
    },
    "sources": {
     "player_pass_tds": "sleeper_picks",
-    "player_pass_yds": "underdog",
+    "player_pass_yds": "sleeper_picks",
     "player_rush_yds": "underdog",
     "player_pass_interceptions": "underdog"
    },
-   "sd": 9.17
+   "sd": 9.3
+  },
+  "6865": {
+   "name": "Colby Parkinson",
+   "team": "LAR",
+   "pos": "TE",
+   "points": 5.56,
+   "stat_line": {
+    "any_td": 0.31,
+    "rec_yd": 24.5,
+    "rec": 2.5
+   },
+   "markets_used": [
+    "player_anytime_td",
+    "player_reception_yds",
+    "player_receptions"
+   ],
+   "lines": {
+    "player_anytime_td": 0.3097,
+    "player_reception_yds": 24.5,
+    "player_receptions": 2.5
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks",
+    "player_reception_yds": "underdog",
+    "player_receptions": "underdog"
+   },
+   "sd": 4.92
   },
   "8150": {
    "name": "Kyren Williams",
    "team": "LAR",
    "pos": "RB",
-   "points": 16.07,
+   "points": 14.93,
    "stat_line": {
-    "any_td": 0.82,
-    "rush_yd": 69.5,
+    "any_td": 0.814,
+    "rush_yd": 58.5,
     "rec_yd": 24.5,
     "rec": 3.5
    },
@@ -2923,27 +3773,27 @@
     "player_rush_yds"
    ],
    "lines": {
-    "player_anytime_td": 0.82,
-    "player_rush_yds": 69.5,
+    "player_anytime_td": 0.8137,
+    "player_rush_yds": 58.5,
     "player_reception_yds": 24.5,
     "player_receptions": 3.5
    },
    "sources": {
     "player_anytime_td": "sleeper_picks",
-    "player_rush_yds": "underdog",
+    "player_rush_yds": "sleeper_picks",
     "player_reception_yds": "underdog",
     "player_receptions": "underdog"
    },
-   "sd": 7.35
+   "sd": 7.14
   },
   "9493": {
    "name": "Puka Nacua",
    "team": "LAR",
    "pos": "WR",
-   "points": 16.35,
+   "points": 17.35,
    "stat_line": {
     "any_td": 0.775,
-    "rec_yd": 79.5,
+    "rec_yd": 89.5,
     "rec": 7.5
    },
    "markets_used": [
@@ -2953,15 +3803,34 @@
    ],
    "lines": {
     "player_anytime_td": 0.7746,
-    "player_reception_yds": 79.5,
+    "player_reception_yds": 89.5,
     "player_receptions": 7.5
    },
    "sources": {
     "player_anytime_td": "sleeper_picks",
-    "player_reception_yds": "underdog",
-    "player_receptions": "underdog"
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
    },
    "sd": 8.27
+  },
+  "9754": {
+   "name": "Quentin Johnston",
+   "team": "LAC",
+   "pos": "WR",
+   "points": 1.75,
+   "stat_line": {
+    "any_td": 0.291
+   },
+   "markets_used": [
+    "player_anytime_td"
+   ],
+   "lines": {
+    "player_anytime_td": 0.2906
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks"
+   },
+   "sd": 4.2
   },
   "11559": {
    "name": "Michael Penix",
@@ -2998,10 +3867,10 @@
    "name": "Bucky Irving",
    "team": "TB",
    "pos": "RB",
-   "points": 13.74,
+   "points": 13.84,
    "stat_line": {
     "any_td": 0.699,
-    "rec_yd": 13.5,
+    "rec_yd": 14.5,
     "rec": 2.5,
     "rush_yd": 69.5
    },
@@ -3013,7 +3882,7 @@
    ],
    "lines": {
     "player_anytime_td": 0.6988,
-    "player_reception_yds": 13.5,
+    "player_reception_yds": 14.5,
     "player_receptions": 2.5,
     "player_rush_yds": 69.5
    },
@@ -3023,40 +3892,40 @@
     "player_receptions": "sleeper_picks",
     "player_rush_yds": "sleeper_picks"
    },
-   "sd": 6.9
+   "sd": 6.92
   },
   "12514": {
    "name": "Emeka Egbuka",
    "team": "TB",
    "pos": "WR",
-   "points": 2.29,
+   "points": 2.36,
    "stat_line": {
-    "any_td": 0.382
+    "any_td": 0.394
    },
    "markets_used": [
     "player_anytime_td"
    ],
    "lines": {
-    "player_anytime_td": 0.3822
+    "player_anytime_td": 0.3943
    },
    "sources": {
     "player_anytime_td": "sleeper_picks"
    },
-   "sd": 4.35
+   "sd": 4.37
   },
   "4037": {
    "name": "Chris Godwin",
    "team": "TB",
    "pos": "WR",
-   "points": 1.98,
+   "points": 1.97,
    "stat_line": {
-    "any_td": 0.33
+    "any_td": 0.329
    },
    "markets_used": [
     "player_anytime_td"
    ],
    "lines": {
-    "player_anytime_td": 0.3304
+    "player_anytime_td": 0.3286
    },
    "sources": {
     "player_anytime_td": "sleeper_picks"
@@ -3067,12 +3936,12 @@
    "name": "Baker Mayfield",
    "team": "TB",
    "pos": "QB",
-   "points": 17.69,
+   "points": 18.19,
    "stat_line": {
     "pass_int": 0.5,
     "pass_td": 1.5,
     "pass_yd": 218.5,
-    "rush_yd": 9.5
+    "rush_yd": 14.5
    },
    "markets_used": [
     "player_pass_interceptions",
@@ -3084,7 +3953,7 @@
     "player_pass_interceptions": 0.5,
     "player_pass_tds": 1.5,
     "player_pass_yds": 218.5,
-    "player_rush_yds": 9.5
+    "player_rush_yds": 14.5
    },
    "sources": {
     "player_pass_interceptions": "sleeper_picks",
@@ -3092,16 +3961,16 @@
     "player_pass_yds": "sleeper_picks",
     "player_rush_yds": "underdog"
    },
-   "sd": 9.13
+   "sd": 9.19
   },
   "7553": {
    "name": "Kyle Pitts",
    "team": "ATL",
    "pos": "TE",
-   "points": 7.52,
+   "points": 7.39,
    "stat_line": {
-    "any_td": 0.337,
-    "rec_yd": 37.5,
+    "any_td": 0.332,
+    "rec_yd": 36.5,
     "rec": 3.5
    },
    "markets_used": [
@@ -3110,8 +3979,8 @@
     "player_receptions"
    ],
    "lines": {
-    "player_anytime_td": 0.3374,
-    "player_reception_yds": 37.5,
+    "player_anytime_td": 0.3323,
+    "player_reception_yds": 36.5,
     "player_receptions": 3.5
    },
    "sources": {
@@ -3119,16 +3988,16 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
    },
-   "sd": 5.67
+   "sd": 5.62
   },
   "7567": {
    "name": "Kenny Gainwell",
    "team": "TB",
    "pos": "RB",
-   "points": 3.25,
+   "points": 3.95,
    "stat_line": {
-    "rec_yd": 10.5,
-    "rush_yd": 14.5,
+    "rec_yd": 12.5,
+    "rush_yd": 19.5,
     "rec": 1.5
    },
    "markets_used": [
@@ -3137,8 +4006,8 @@
     "player_rush_yds"
    ],
    "lines": {
-    "player_reception_yds": 10.5,
-    "player_rush_yds": 14.5,
+    "player_reception_yds": 12.5,
+    "player_rush_yds": 19.5,
     "player_receptions": 1.5
    },
    "sources": {
@@ -3146,7 +4015,7 @@
     "player_rush_yds": "underdog",
     "player_receptions": "underdog"
    },
-   "sd": 4.77
+   "sd": 4.92
   },
   "8111": {
    "name": "Cade Otton",
@@ -3221,31 +4090,31 @@
    "name": "Brian Robinson",
    "team": "ATL",
    "pos": "RB",
-   "points": 1.84,
+   "points": 1.8,
    "stat_line": {
-    "any_td": 0.307
+    "any_td": 0.3
    },
    "markets_used": [
     "player_anytime_td"
    ],
    "lines": {
-    "player_anytime_td": 0.3073
+    "player_anytime_td": 0.3003
    },
    "sources": {
     "player_anytime_td": "sleeper_picks"
    },
-   "sd": 4.49
+   "sd": 4.48
   },
   "9509": {
    "name": "Bijan Robinson",
    "team": "ATL",
    "pos": "RB",
-   "points": 17.76,
+   "points": 17.96,
    "stat_line": {
     "any_td": 0.885,
     "rec_yd": 27.5,
     "rec": 3.5,
-    "rush_yd": 79.5
+    "rush_yd": 81.5
    },
    "markets_used": [
     "player_anytime_td",
@@ -3257,15 +4126,341 @@
     "player_anytime_td": 0.8854,
     "player_reception_yds": 27.5,
     "player_receptions": 3.5,
-    "player_rush_yds": 79.5
+    "player_rush_yds": 81.5
    },
    "sources": {
     "player_anytime_td": "sleeper_picks",
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks",
-    "player_rush_yds": "underdog"
+    "player_rush_yds": "sleeper_picks"
    },
    "sd": 7.35
+  },
+  "11566": {
+   "name": "Jayden Daniels",
+   "team": "WAS",
+   "pos": "QB",
+   "points": 22.82,
+   "stat_line": {
+    "any_td": 0.365,
+    "pass_td": 1.5,
+    "pass_yd": 199.5,
+    "rush_yd": 36.5
+   },
+   "markets_used": [
+    "player_anytime_td",
+    "player_pass_tds",
+    "player_pass_yds",
+    "player_rush_yds"
+   ],
+   "lines": {
+    "player_anytime_td": 0.365,
+    "player_pass_tds": 1.5,
+    "player_pass_yds": 199.5,
+    "player_rush_yds": 36.5
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks",
+    "player_pass_tds": "sleeper_picks",
+    "player_pass_yds": "sleeper_picks",
+    "player_rush_yds": "sleeper_picks"
+   },
+   "sd": 9.57
+  },
+  "13294": {
+   "name": "Makai Lemon",
+   "team": "PHI",
+   "pos": "WR",
+   "points": 1.71,
+   "stat_line": {
+    "any_td": 0.285
+   },
+   "markets_used": [
+    "player_anytime_td"
+   ],
+   "lines": {
+    "player_anytime_td": 0.2848
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks"
+   },
+   "sd": 4.19
+  },
+  "13301": {
+   "name": "Antonio Williams",
+   "team": "WAS",
+   "pos": "WR",
+   "points": 6.14,
+   "stat_line": {
+    "any_td": 0.29,
+    "rec_yd": 31.5,
+    "rec": 2.5
+   },
+   "markets_used": [
+    "player_anytime_td",
+    "player_reception_yds",
+    "player_receptions"
+   ],
+   "lines": {
+    "player_anytime_td": 0.2899,
+    "player_reception_yds": 31.5,
+    "player_receptions": 2.5
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks",
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
+   },
+   "sd": 5.43
+  },
+  "2449": {
+   "name": "Stefon Diggs",
+   "team": "WAS",
+   "pos": "WR",
+   "points": 8.75,
+   "stat_line": {
+    "any_td": 0.375,
+    "rec_yd": 42.5,
+    "rec": 4.5
+   },
+   "markets_used": [
+    "player_anytime_td",
+    "player_reception_yds",
+    "player_receptions"
+   ],
+   "lines": {
+    "player_anytime_td": 0.3751,
+    "player_reception_yds": 42.5,
+    "player_receptions": 4.5
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks",
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
+   },
+   "sd": 6.16
+  },
+  "4219": {
+   "name": "Jeremy McNichols",
+   "team": "WAS",
+   "pos": "RB",
+   "points": 4.17,
+   "stat_line": {
+    "any_td": 0.287,
+    "rush_yd": 24.5
+   },
+   "markets_used": [
+    "player_anytime_td",
+    "player_rush_yds"
+   ],
+   "lines": {
+    "player_anytime_td": 0.287,
+    "player_rush_yds": 24.5
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks",
+    "player_rush_yds": "sleeper_picks"
+   },
+   "sd": 4.96
+  },
+  "4866": {
+   "name": "Saquon Barkley",
+   "team": "PHI",
+   "pos": "RB",
+   "points": 3.25,
+   "stat_line": {
+    "any_td": 0.541
+   },
+   "markets_used": [
+    "player_anytime_td"
+   ],
+   "lines": {
+    "player_anytime_td": 0.5406
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks"
+   },
+   "sd": 4.77
+  },
+  "5022": {
+   "name": "Dallas Goedert",
+   "team": "PHI",
+   "pos": "TE",
+   "points": 2.18,
+   "stat_line": {
+    "any_td": 0.363
+   },
+   "markets_used": [
+    "player_anytime_td"
+   ],
+   "lines": {
+    "player_anytime_td": 0.3626
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks"
+   },
+   "sd": 3.62
+  },
+  "7525": {
+   "name": "DeVonta Smith",
+   "team": "PHI",
+   "pos": "WR",
+   "points": 2.18,
+   "stat_line": {
+    "any_td": 0.363
+   },
+   "markets_used": [
+    "player_anytime_td"
+   ],
+   "lines": {
+    "player_anytime_td": 0.3626
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks"
+   },
+   "sd": 4.32
+  },
+  "7587": {
+   "name": "Dyami Brown",
+   "team": "WAS",
+   "pos": "WR",
+   "points": 2.0,
+   "stat_line": {
+    "rec_yd": 12.5,
+    "rec": 1.5
+   },
+   "markets_used": [
+    "player_reception_yds",
+    "player_receptions"
+   ],
+   "lines": {
+    "player_reception_yds": 12.5,
+    "player_receptions": 1.5
+   },
+   "sources": {
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
+   },
+   "sd": 4.27
+  },
+  "8135": {
+   "name": "Treylon Burks",
+   "team": "WAS",
+   "pos": "WR",
+   "points": 3.2,
+   "stat_line": {
+    "rec_yd": 24.5,
+    "rec": 1.5
+   },
+   "markets_used": [
+    "player_reception_yds",
+    "player_receptions"
+   ],
+   "lines": {
+    "player_reception_yds": 24.5,
+    "player_receptions": 1.5
+   },
+   "sources": {
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
+   },
+   "sd": 4.61
+  },
+  "8136": {
+   "name": "Rachaad White",
+   "team": "WAS",
+   "pos": "RB",
+   "points": 8.27,
+   "stat_line": {
+    "any_td": 0.429,
+    "rec": 2.5,
+    "rush_yd": 44.5
+   },
+   "markets_used": [
+    "player_anytime_td",
+    "player_receptions",
+    "player_rush_yds"
+   ],
+   "lines": {
+    "player_anytime_td": 0.429,
+    "player_receptions": 2.5,
+    "player_rush_yds": 44.5
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks",
+    "player_receptions": "sleeper_picks",
+    "player_rush_yds": "sleeper_picks"
+   },
+   "sd": 5.79
+  },
+  "8210": {
+   "name": "Chig Okonkwo",
+   "team": "WAS",
+   "pos": "TE",
+   "points": 6.49,
+   "stat_line": {
+    "any_td": 0.299,
+    "rec_yd": 29.5,
+    "rec": 3.5
+   },
+   "markets_used": [
+    "player_anytime_td",
+    "player_reception_yds",
+    "player_receptions"
+   ],
+   "lines": {
+    "player_anytime_td": 0.2988,
+    "player_reception_yds": 29.5,
+    "player_receptions": 3.5
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks",
+    "player_reception_yds": "sleeper_picks",
+    "player_receptions": "sleeper_picks"
+   },
+   "sd": 5.27
+  },
+  "9230": {
+   "name": "Tanner McKee",
+   "team": "PHI",
+   "pos": "QB",
+   "points": 11.06,
+   "stat_line": {
+    "pass_td": 0.5,
+    "pass_yd": 201.5
+   },
+   "markets_used": [
+    "player_pass_tds",
+    "player_pass_yds"
+   ],
+   "lines": {
+    "player_pass_tds": 0.5,
+    "player_pass_yds": 201.5
+   },
+   "sources": {
+    "player_pass_tds": "sleeper_picks",
+    "player_pass_yds": "sleeper_picks"
+   },
+   "sd": 8.39
+  },
+  "9486": {
+   "name": "Dontayvion Wicks",
+   "team": "PHI",
+   "pos": "WR",
+   "points": 1.74,
+   "stat_line": {
+    "any_td": 0.29
+   },
+   "markets_used": [
+    "player_anytime_td"
+   ],
+   "lines": {
+    "player_anytime_td": 0.2899
+   },
+   "sources": {
+    "player_anytime_td": "sleeper_picks"
+   },
+   "sd": 4.2
   },
   "11560": {
    "name": "Caleb Williams",
@@ -3273,10 +4468,10 @@
    "pos": "QB",
    "points": 19.25,
    "stat_line": {
+    "pass_int": 0.5,
     "pass_td": 1.5,
     "pass_yd": 227.5,
-    "rush_yd": 21.5,
-    "pass_int": 0.5
+    "rush_yd": 21.5
    },
    "markets_used": [
     "player_pass_interceptions",
@@ -3285,16 +4480,16 @@
     "player_rush_yds"
    ],
    "lines": {
+    "player_pass_interceptions": 0.5,
     "player_pass_tds": 1.5,
     "player_pass_yds": 227.5,
-    "player_rush_yds": 21.5,
-    "player_pass_interceptions": 0.5
+    "player_rush_yds": 21.5
    },
    "sources": {
+    "player_pass_interceptions": "sleeper_picks",
     "player_pass_tds": "sleeper_picks",
     "player_pass_yds": "sleeper_picks",
-    "player_rush_yds": "sleeper_picks",
-    "player_pass_interceptions": "underdog"
+    "player_rush_yds": "sleeper_picks"
    },
    "sd": 9.33
   },
@@ -3348,9 +4543,9 @@
    "name": "Colston Loveland",
    "team": "CHI",
    "pos": "TE",
-   "points": 8.64,
+   "points": 8.62,
    "stat_line": {
-    "any_td": 0.357,
+    "any_td": 0.354,
     "rec_yd": 42.5,
     "rec": 4.5
    },
@@ -3360,7 +4555,7 @@
     "player_receptions"
    ],
    "lines": {
-    "player_anytime_td": 0.3574,
+    "player_anytime_td": 0.3539,
     "player_reception_yds": 42.5,
     "player_receptions": 4.5
    },
@@ -3369,7 +4564,7 @@
     "player_reception_yds": "sleeper_picks",
     "player_receptions": "sleeper_picks"
    },
-   "sd": 6.1
+   "sd": 6.09
   },
   "12519": {
    "name": "Luther Burden",
@@ -3446,10 +4641,10 @@
    "pos": "QB",
    "points": 17.79,
    "stat_line": {
+    "pass_int": 0.5,
     "pass_td": 1.5,
     "pass_yd": 233.5,
-    "rush_yd": 4.5,
-    "pass_int": 0.5
+    "rush_yd": 4.5
    },
    "markets_used": [
     "player_pass_interceptions",
@@ -3458,16 +4653,16 @@
     "player_rush_yds"
    ],
    "lines": {
+    "player_pass_interceptions": 0.5,
     "player_pass_tds": 1.5,
     "player_pass_yds": 233.5,
-    "player_rush_yds": 4.5,
-    "player_pass_interceptions": 0.5
+    "player_rush_yds": 4.5
    },
    "sources": {
+    "player_pass_interceptions": "sleeper_picks",
     "player_pass_tds": "sleeper_picks",
     "player_pass_yds": "sleeper_picks",
-    "player_rush_yds": "underdog",
-    "player_pass_interceptions": "underdog"
+    "player_rush_yds": "underdog"
    },
    "sd": 9.14
   },
@@ -3494,9 +4689,9 @@
    "name": "Jaxon Smith-Njigba",
    "team": "SEA",
    "pos": "WR",
-   "points": 17.89,
+   "points": 17.79,
    "stat_line": {
-    "any_td": 0.699,
+    "any_td": 0.682,
     "rec_yd": 99.5,
     "rec": 7.5
    },
@@ -3506,7 +4701,7 @@
     "player_receptions"
    ],
    "lines": {
-    "player_anytime_td": 0.6988,
+    "player_anytime_td": 0.682,
     "player_reception_yds": 99.5,
     "player_receptions": 7.5
    },
@@ -3517,22 +4712,22 @@
    },
    "sd": 8.27
   },
-  "13273": {
-   "name": "Josh Cuevas",
-   "team": "BAL",
+  "4144": {
+   "name": "Jonnu Smith",
+   "team": "GB",
    "pos": "TE",
-   "points": 1.7,
+   "points": 0.7,
    "stat_line": {
-    "rec_yd": 9.5,
-    "rec": 1.5
+    "rec_yd": 4.5,
+    "rec": 0.5
    },
    "markets_used": [
     "player_reception_yds",
     "player_receptions"
    ],
    "lines": {
-    "player_reception_yds": 9.5,
-    "player_receptions": 1.5
+    "player_reception_yds": 4.5,
+    "player_receptions": 0.5
    },
    "sources": {
     "player_reception_yds": "underdog",
@@ -3544,9 +4739,9 @@
    "name": "Jauan Jennings",
    "team": "MIN",
    "pos": "WR",
-   "points": 1.7,
+   "points": 2.2,
    "stat_line": {
-    "rec_yd": 9.5,
+    "rec_yd": 14.5,
     "rec": 1.5
    },
    "markets_used": [
@@ -3554,22 +4749,22 @@
     "player_receptions"
    ],
    "lines": {
-    "player_reception_yds": 9.5,
+    "player_reception_yds": 14.5,
     "player_receptions": 1.5
    },
    "sources": {
     "player_reception_yds": "underdog",
     "player_receptions": "underdog"
    },
-   "sd": 4.18
+   "sd": 4.32
   },
   "12535": {
    "name": "Isaac TeSlaa",
    "team": "DET",
    "pos": "WR",
-   "points": 3.2,
+   "points": 2.2,
    "stat_line": {
-    "rec_yd": 24.5,
+    "rec_yd": 14.5,
     "rec": 1.5
    },
    "markets_used": [
@@ -3577,14 +4772,14 @@
     "player_receptions"
    ],
    "lines": {
-    "player_reception_yds": 24.5,
+    "player_reception_yds": 14.5,
     "player_receptions": 1.5
    },
    "sources": {
     "player_reception_yds": "underdog",
     "player_receptions": "underdog"
    },
-   "sd": 4.61
+   "sd": 4.32
   },
   "11631": {
    "name": "Brian Thomas",
@@ -3678,13 +4873,13 @@
    },
    "sd": 3.49
   },
-  "7021": {
-   "name": "Rico Dowdle",
-   "team": "PIT",
+  "12469": {
+   "name": "Dylan Sampson",
+   "team": "CLE",
    "pos": "RB",
-   "points": 4.15,
+   "points": 3.15,
    "stat_line": {
-    "rush_yd": 24.5,
+    "rush_yd": 14.5,
     "rec_yd": 9.5,
     "rec": 1.5
    },
@@ -3694,7 +4889,7 @@
     "player_rush_yds"
    ],
    "lines": {
-    "player_rush_yds": 24.5,
+    "player_rush_yds": 14.5,
     "player_reception_yds": 9.5,
     "player_receptions": 1.5
    },
@@ -3703,265 +4898,7 @@
     "player_reception_yds": "underdog",
     "player_receptions": "underdog"
    },
-   "sd": 4.96
-  },
-  "6783": {
-   "name": "Jerry Jeudy",
-   "team": "CLE",
-   "pos": "WR",
-   "points": 3.7,
-   "stat_line": {
-    "rec_yd": 24.5,
-    "rec": 2.5
-   },
-   "markets_used": [
-    "player_reception_yds",
-    "player_receptions"
-   ],
-   "lines": {
-    "player_reception_yds": 24.5,
-    "player_receptions": 2.5
-   },
-   "sources": {
-    "player_reception_yds": "underdog",
-    "player_receptions": "underdog"
-   },
    "sd": 4.75
-  },
-  "12469": {
-   "name": "Dylan Sampson",
-   "team": "CLE",
-   "pos": "RB",
-   "points": 3.65,
-   "stat_line": {
-    "rush_yd": 14.5,
-    "rec_yd": 14.5,
-    "rec": 1.5
-   },
-   "markets_used": [
-    "player_reception_yds",
-    "player_receptions",
-    "player_rush_yds"
-   ],
-   "lines": {
-    "player_rush_yds": 14.5,
-    "player_reception_yds": 14.5,
-    "player_receptions": 1.5
-   },
-   "sources": {
-    "player_rush_yds": "underdog",
-    "player_reception_yds": "underdog",
-    "player_receptions": "underdog"
-   },
-   "sd": 4.85
-  },
-  "96": {
-   "name": "Aaron Rodgers",
-   "team": "PIT",
-   "pos": "QB",
-   "points": 17.03,
-   "stat_line": {
-    "pass_yd": 224.5,
-    "pass_td": 1.5,
-    "rush_yd": 0.5,
-    "pass_int": 0.5
-   },
-   "markets_used": [
-    "player_pass_interceptions",
-    "player_pass_tds",
-    "player_pass_yds",
-    "player_rush_yds"
-   ],
-   "lines": {
-    "player_pass_yds": 224.5,
-    "player_pass_tds": 1.5,
-    "player_rush_yds": 0.5,
-    "player_pass_interceptions": 0.5
-   },
-   "sources": {
-    "player_pass_yds": "underdog",
-    "player_pass_tds": "underdog",
-    "player_rush_yds": "underdog",
-    "player_pass_interceptions": "underdog"
-   },
-   "sd": 9.04
-  },
-  "9479": {
-   "name": "Darnell Washington",
-   "team": "PIT",
-   "pos": "TE",
-   "points": 2.2,
-   "stat_line": {
-    "rec_yd": 14.5,
-    "rec": 1.5
-   },
-   "markets_used": [
-    "player_reception_yds",
-    "player_receptions"
-   ],
-   "lines": {
-    "player_reception_yds": 14.5,
-    "player_receptions": 1.5
-   },
-   "sources": {
-    "player_reception_yds": "underdog",
-    "player_receptions": "underdog"
-   },
-   "sd": 3.63
-  },
-  "4017": {
-   "name": "Deshaun Watson",
-   "team": "CLE",
-   "pos": "QB",
-   "points": 11.93,
-   "stat_line": {
-    "pass_yd": 199.5,
-    "pass_td": 0.5,
-    "rush_yd": 19.5,
-    "pass_int": 0.5
-   },
-   "markets_used": [
-    "player_pass_interceptions",
-    "player_pass_tds",
-    "player_pass_yds",
-    "player_rush_yds"
-   ],
-   "lines": {
-    "player_pass_yds": 199.5,
-    "player_pass_tds": 0.5,
-    "player_rush_yds": 19.5,
-    "player_pass_interceptions": 0.5
-   },
-   "sources": {
-    "player_pass_yds": "underdog",
-    "player_pass_tds": "underdog",
-    "player_rush_yds": "underdog",
-    "player_pass_interceptions": "underdog"
-   },
-   "sd": 8.39
-  },
-  "13346": {
-   "name": "Denzel Boston",
-   "team": "CLE",
-   "pos": "WR",
-   "points": 5.2,
-   "stat_line": {
-    "rec_yd": 39.5,
-    "rec": 2.5
-   },
-   "markets_used": [
-    "player_reception_yds",
-    "player_receptions"
-   ],
-   "lines": {
-    "player_reception_yds": 39.5,
-    "player_receptions": 2.5
-   },
-   "sources": {
-    "player_reception_yds": "underdog",
-    "player_receptions": "underdog"
-   },
-   "sd": 5.17
-  },
-  "8110": {
-   "name": "Jake Ferguson",
-   "team": "DAL",
-   "pos": "TE",
-   "points": 3.7,
-   "stat_line": {
-    "rec_yd": 24.5,
-    "rec": 2.5
-   },
-   "markets_used": [
-    "player_reception_yds",
-    "player_receptions"
-   ],
-   "lines": {
-    "player_reception_yds": 24.5,
-    "player_receptions": 2.5
-   },
-   "sources": {
-    "player_reception_yds": "underdog",
-    "player_receptions": "underdog"
-   },
-   "sd": 4.2
-  },
-  "10232": {
-   "name": "Michael Wilson",
-   "team": "ARI",
-   "pos": "WR",
-   "points": 7.2,
-   "stat_line": {
-    "rec_yd": 49.5,
-    "rec": 4.5
-   },
-   "markets_used": [
-    "player_reception_yds",
-    "player_receptions"
-   ],
-   "lines": {
-    "player_reception_yds": 49.5,
-    "player_receptions": 4.5
-   },
-   "sources": {
-    "player_reception_yds": "underdog",
-    "player_receptions": "underdog"
-   },
-   "sd": 5.73
-  },
-  "4454": {
-   "name": "Kendrick Bourne",
-   "team": "ARI",
-   "pos": "WR",
-   "points": 5.7,
-   "stat_line": {
-    "rec_yd": 39.5,
-    "rec": 3.5
-   },
-   "markets_used": [
-    "player_reception_yds",
-    "player_receptions"
-   ],
-   "lines": {
-    "player_reception_yds": 39.5,
-    "player_receptions": 3.5
-   },
-   "sources": {
-    "player_reception_yds": "underdog",
-    "player_receptions": "underdog"
-   },
-   "sd": 5.31
-  },
-  "3294": {
-   "name": "Dak Prescott",
-   "team": "DAL",
-   "pos": "QB",
-   "points": 25.93,
-   "stat_line": {
-    "pass_yd": 274.5,
-    "pass_td": 2.5,
-    "rush_yd": 9.5,
-    "pass_int": 0.5
-   },
-   "markets_used": [
-    "player_pass_interceptions",
-    "player_pass_tds",
-    "player_pass_yds",
-    "player_rush_yds"
-   ],
-   "lines": {
-    "player_pass_yds": 274.5,
-    "player_pass_tds": 2.5,
-    "player_rush_yds": 9.5,
-    "player_pass_interceptions": 0.5
-   },
-   "sources": {
-    "player_pass_yds": "underdog",
-    "player_pass_tds": "underdog",
-    "player_rush_yds": "underdog",
-    "player_pass_interceptions": "underdog"
-   },
-   "sd": 9.57
   },
   "10231": {
    "name": "Elijah Higgins",
@@ -3986,255 +4923,6 @@
    },
    "sd": 4.2
   },
-  "11783": {
-   "name": "Ryan Flournoy",
-   "team": "DAL",
-   "pos": "WR",
-   "points": 5.7,
-   "stat_line": {
-    "rec_yd": 39.5,
-    "rec": 3.5
-   },
-   "markets_used": [
-    "player_reception_yds",
-    "player_receptions"
-   ],
-   "lines": {
-    "player_reception_yds": 39.5,
-    "player_receptions": 3.5
-   },
-   "sources": {
-    "player_reception_yds": "underdog",
-    "player_receptions": "underdog"
-   },
-   "sd": 5.31
-  },
-  "11593": {
-   "name": "Brevyn Spann-Ford",
-   "team": "DAL",
-   "pos": "TE",
-   "points": 2.7,
-   "stat_line": {
-    "rec_yd": 14.5,
-    "rec": 2.5
-   },
-   "markets_used": [
-    "player_reception_yds",
-    "player_receptions"
-   ],
-   "lines": {
-    "player_reception_yds": 14.5,
-    "player_receptions": 2.5
-   },
-   "sources": {
-    "player_reception_yds": "underdog",
-    "player_receptions": "underdog"
-   },
-   "sd": 3.82
-  },
-  "3257": {
-   "name": "Jacoby Brissett",
-   "team": "ARI",
-   "pos": "QB",
-   "points": 18.43,
-   "stat_line": {
-    "pass_yd": 249.5,
-    "pass_td": 1.5,
-    "rush_yd": 4.5,
-    "pass_int": 0.5
-   },
-   "markets_used": [
-    "player_pass_interceptions",
-    "player_pass_tds",
-    "player_pass_yds",
-    "player_rush_yds"
-   ],
-   "lines": {
-    "player_pass_yds": 249.5,
-    "player_pass_tds": 1.5,
-    "player_rush_yds": 4.5,
-    "player_pass_interceptions": 0.5
-   },
-   "sources": {
-    "player_pass_yds": "underdog",
-    "player_pass_tds": "underdog",
-    "player_rush_yds": "underdog",
-    "player_pass_interceptions": "underdog"
-   },
-   "sd": 9.22
-  },
-  "12498": {
-   "name": "Mason Taylor",
-   "team": "NYJ",
-   "pos": "TE",
-   "points": 3.7,
-   "stat_line": {
-    "rec_yd": 24.5,
-    "rec": 2.5
-   },
-   "markets_used": [
-    "player_reception_yds",
-    "player_receptions"
-   ],
-   "lines": {
-    "player_reception_yds": 24.5,
-    "player_receptions": 2.5
-   },
-   "sources": {
-    "player_reception_yds": "underdog",
-    "player_receptions": "underdog"
-   },
-   "sd": 4.2
-  },
-  "11625": {
-   "name": "Adonai Mitchell",
-   "team": "NYJ",
-   "pos": "WR",
-   "points": 3.7,
-   "stat_line": {
-    "rec_yd": 24.5,
-    "rec": 2.5
-   },
-   "markets_used": [
-    "player_reception_yds",
-    "player_receptions"
-   ],
-   "lines": {
-    "player_reception_yds": 24.5,
-    "player_receptions": 2.5
-   },
-   "sources": {
-    "player_reception_yds": "underdog",
-    "player_receptions": "underdog"
-   },
-   "sd": 4.75
-  },
-  "9482": {
-   "name": "Michael Mayer",
-   "team": "LV",
-   "pos": "TE",
-   "points": 3.95,
-   "stat_line": {
-    "rec_yd": 39.5
-   },
-   "markets_used": [
-    "player_reception_yds"
-   ],
-   "lines": {
-    "player_reception_yds": 39.5
-   },
-   "sources": {
-    "player_reception_yds": "underdog"
-   },
-   "sd": 4.3
-  },
-  "13305": {
-   "name": "Mike Washington",
-   "team": "LV",
-   "pos": "RB",
-   "points": 2.45,
-   "stat_line": {
-    "rush_yd": 24.5
-   },
-   "markets_used": [
-    "player_rush_yds"
-   ],
-   "lines": {
-    "player_rush_yds": 24.5
-   },
-   "sources": {
-    "player_rush_yds": "underdog"
-   },
-   "sd": 4.61
-  },
-  "13330": {
-   "name": "Kenyon Sadiq",
-   "team": "NYJ",
-   "pos": "TE",
-   "points": 2.2,
-   "stat_line": {
-    "rec_yd": 14.5,
-    "rec": 1.5
-   },
-   "markets_used": [
-    "player_reception_yds",
-    "player_receptions"
-   ],
-   "lines": {
-    "player_reception_yds": 14.5,
-    "player_receptions": 1.5
-   },
-   "sources": {
-    "player_reception_yds": "underdog",
-    "player_receptions": "underdog"
-   },
-   "sd": 3.63
-  },
-  "12499": {
-   "name": "Elic Ayomanor",
-   "team": "TEN",
-   "pos": "WR",
-   "points": 2.2,
-   "stat_line": {
-    "rec_yd": 14.5,
-    "rec": 1.5
-   },
-   "markets_used": [
-    "player_reception_yds",
-    "player_receptions"
-   ],
-   "lines": {
-    "player_reception_yds": 14.5,
-    "player_receptions": 1.5
-   },
-   "sources": {
-    "player_reception_yds": "underdog",
-    "player_receptions": "underdog"
-   },
-   "sd": 4.32
-  },
-  "3271": {
-   "name": "Tyler Higbee",
-   "team": "LAR",
-   "pos": "TE",
-   "points": 4.2,
-   "stat_line": {
-    "rec_yd": 24.5,
-    "rec": 3.5
-   },
-   "markets_used": [
-    "player_reception_yds",
-    "player_receptions"
-   ],
-   "lines": {
-    "player_reception_yds": 24.5,
-    "player_receptions": 3.5
-   },
-   "sources": {
-    "player_reception_yds": "underdog",
-    "player_receptions": "underdog"
-   },
-   "sd": 4.39
-  },
-  "6797": {
-   "name": "Justin Herbert",
-   "team": "LAC",
-   "pos": "QB",
-   "points": 9.0,
-   "stat_line": {
-    "pass_td": 1.5
-   },
-   "markets_used": [
-    "player_pass_tds"
-   ],
-   "lines": {
-    "player_pass_tds": 1.5
-   },
-   "sources": {
-    "player_pass_tds": "underdog"
-   },
-   "sd": 8.39
-  },
   "10214": {
    "name": "Davis Allen",
    "team": "LAR",
@@ -4257,29 +4945,6 @@
     "player_receptions": "underdog"
    },
    "sd": 3.49
-  },
-  "6865": {
-   "name": "Colby Parkinson",
-   "team": "LAR",
-   "pos": "TE",
-   "points": 3.7,
-   "stat_line": {
-    "rec_yd": 24.5,
-    "rec": 2.5
-   },
-   "markets_used": [
-    "player_reception_yds",
-    "player_receptions"
-   ],
-   "lines": {
-    "player_reception_yds": 24.5,
-    "player_receptions": 2.5
-   },
-   "sources": {
-    "player_reception_yds": "underdog",
-    "player_receptions": "underdog"
-   },
-   "sd": 4.2
   },
   "12718": {
    "name": "Konata Mumpfield",
@@ -4374,11 +5039,5 @@
    "sd": 3.49
   }
  },
- "unmatched": [
-  {
-   "name": "Laquon Treadwell",
-   "reason": "no board player normalizes to this name",
-   "source": "underdog"
-  }
- ]
+ "unmatched": []
 }
