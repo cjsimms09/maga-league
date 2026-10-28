@@ -11,8 +11,8 @@
  ],
  "population": {
   "total_bio_rows": 6526,
-  "matched_to_sleeper": 3936,
-  "unmatched_no_sleeper_id": 2590
+  "matched_to_sleeper": 3937,
+  "unmatched_no_sleeper_id": 2589
  },
  "unmatched_sample": [
   {
@@ -86046,6 +86046,34 @@
    "name": "Andre' Sam",
    "position": "DB",
    "birth_date": "1999-02-09 00:00:00",
+   "age_by_season": {
+    "2021": null,
+    "2022": null,
+    "2023": null,
+    "2024": null,
+    "2025": null,
+    "2026": null
+   },
+   "rookie_year": 2024.0,
+   "is_rookie_by_season": {
+    "2021": false,
+    "2022": false,
+    "2023": false,
+    "2024": true,
+    "2025": false,
+    "2026": false
+   },
+   "draft_season": null,
+   "draft_round": null,
+   "draft_pick": null,
+   "draft_team": null,
+   "draft_capital": "UDFA"
+  },
+  "12054": {
+   "gsis_id": "00-0039277",
+   "name": "Jimmy Ciarlo",
+   "position": "LB",
+   "birth_date": "2001-02-28 00:00:00",
    "age_by_season": {
     "2021": null,
     "2022": null,
