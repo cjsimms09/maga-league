@@ -1,6 +1,6 @@
 {
  "_rule": "THE ROSTER RULE: any statement about Cory's roster or matchup cites THIS file (fresh within 3 days) or live Sleeper \u2014 never an older artifact.",
- "generated_at": "2026-10-27T18:47:15+00:00",
+ "generated_at": "2026-10-28T18:11:36+00:00",
  "season": "2026",
  "week": 8,
  "cory": {
@@ -18,7 +18,7 @@
    "pos": "WR",
    "team": "KC",
    "starter": false,
-   "injury": "Out",
+   "injury": "Questionable",
    "game": "at DEN (Sun)",
    "home": false,
    "kickoff_utc": "2026-11-01T21:25:00.000Z"
@@ -172,7 +172,7 @@
    "pos": "RB",
    "team": "SEA",
    "starter": false,
-   "injury": "Out",
+   "injury": "Questionable",
    "game": "vs CHI (Mon)",
    "home": true,
    "kickoff_utc": "2026-11-03T01:15:00.000Z"
@@ -228,7 +228,7 @@
    "name": "Malik Nabers",
    "pos": "WR",
    "team": "NYG",
-   "starter": true,
+   "starter": false,
    "injury": null,
    "game": "BYE",
    "home": null,
@@ -239,7 +239,7 @@
    "name": "Woody Marks",
    "pos": "RB",
    "team": "HOU",
-   "starter": true,
+   "starter": false,
    "injury": "Questionable",
    "game": "BYE",
    "home": null,
@@ -257,17 +257,6 @@
    "kickoff_utc": "2026-11-01T18:00:00.000Z"
   },
   {
-   "id": "12718",
-   "name": "Konata Mumpfield",
-   "pos": "WR",
-   "team": "LAR",
-   "starter": false,
-   "injury": null,
-   "game": "vs LAC (Sun)",
-   "home": true,
-   "kickoff_utc": "2026-11-01T21:05:00.000Z"
-  },
-  {
    "id": "13286",
    "name": "Jadarian Price",
    "pos": "RB",
@@ -283,9 +272,20 @@
    "name": "Ja'Kobi Lane",
    "pos": "WR",
    "team": "BAL",
-   "starter": false,
+   "starter": true,
    "injury": null,
    "game": "at BUF (Sun)",
+   "home": false,
+   "kickoff_utc": "2026-11-01T18:00:00.000Z"
+  },
+  {
+   "id": "13298",
+   "name": "KC Concepcion Jr.",
+   "pos": "WR",
+   "team": "CLE",
+   "starter": false,
+   "injury": null,
+   "game": "at PIT (Sun)",
    "home": false,
    "kickoff_utc": "2026-11-01T18:00:00.000Z"
   },
@@ -306,7 +306,7 @@
    "pos": "QB",
    "team": "BAL",
    "starter": false,
-   "injury": "Out",
+   "injury": "Questionable",
    "game": "at BUF (Sun)",
    "home": false,
    "kickoff_utc": "2026-11-01T18:00:00.000Z"
@@ -328,9 +328,20 @@
    "pos": "WR",
    "team": "PHI",
    "starter": false,
-   "injury": "Out",
+   "injury": "Questionable",
    "game": "at WSH (Sun)",
    "home": false,
+   "kickoff_utc": "2026-11-02T01:20:00.000Z"
+  },
+  {
+   "id": "8136",
+   "name": "Rachaad White",
+   "pos": "RB",
+   "team": "WAS",
+   "starter": true,
+   "injury": null,
+   "game": "vs PHI (Sun)",
+   "home": true,
    "kickoff_utc": "2026-11-02T01:20:00.000Z"
   },
   {
@@ -349,20 +360,9 @@
    "name": "JAX D/ST",
    "pos": "DEF",
    "team": "JAX",
-   "starter": false,
-   "injury": null,
-   "game": "vs IND (Sun)",
-   "home": true,
-   "kickoff_utc": "2026-11-01T18:00:00.000Z"
-  },
-  {
-   "id": "NYJ",
-   "name": "NYJ D/ST",
-   "pos": "DEF",
-   "team": "NYJ",
    "starter": true,
    "injury": null,
-   "game": "vs LV (Sun)",
+   "game": "vs IND (Sun)",
    "home": true,
    "kickoff_utc": "2026-11-01T18:00:00.000Z"
   }
