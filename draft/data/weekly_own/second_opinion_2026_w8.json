@@ -3,11 +3,11 @@
  "_what": "REPORT ONLY. The champion weekly projection beside the props-implied points on Cory's live roster, and the lineup each would start. The second lineup uses P357's blend rule (props where a line exists, champion elsewhere) \u2014 its prior art made visible, not the arm entering the grader early.",
  "season": 2026,
  "week": 8,
- "generated": "2026-10-28T16:26:55.533945+00:00",
- "roster_source": "THIS-WEEK.md generated 2026-10-27T18:47:15+00:00",
+ "generated": "2026-10-28T23:56:47.750747+00:00",
+ "roster_source": "THIS-WEEK.md generated 2026-10-28T18:11:36+00:00",
  "champion_source": "committed snapshot own_weekly_2026_w8.json",
  "champion_arm": "v1_pull3",
- "props_source": "weekly_props_2026_w8.json (166 players)",
+ "props_source": "weekly_props_2026_w8.json (191 players)",
  "controls": [
   {
    "id": "S1",
@@ -19,13 +19,13 @@
    "id": "S2",
    "what": "the props file covers at least one rostered skill player",
    "ok": true,
-   "covered": 9,
+   "covered": 10,
    "of": 14
   },
   {
    "id": "S3",
    "what": "THIS-WEEK.md is fresh (<= 3 days) \u2014 the roster rule",
-   "generated": "2026-10-27T18:47:15+00:00",
+   "generated": "2026-10-28T18:11:36+00:00",
    "ok": true
   }
  ],
@@ -39,8 +39,8 @@
    "player_id": "10229",
    "champion": 9.53,
    "blend_prior": 11.53,
-   "props": null,
-   "props_minus_champion": null
+   "props": 2.36,
+   "props_minus_champion": -7.17
   },
   {
    "st": true,
@@ -87,8 +87,8 @@
    "player_id": "12506",
    "champion": 7.98,
    "blend_prior": 8.06,
-   "props": 7.94,
-   "props_minus_champion": -0.04
+   "props": 7.23,
+   "props_minus_champion": -0.75
   },
   {
    "st": false,
@@ -99,8 +99,8 @@
    "player_id": "12512",
    "champion": 10.42,
    "blend_prior": 11.12,
-   "props": 2.87,
-   "props_minus_champion": -7.55
+   "props": 8.67,
+   "props_minus_champion": -1.75
   },
   {
    "st": false,
@@ -135,8 +135,8 @@
    "player_id": "3163",
    "champion": 24.74,
    "blend_prior": 24.89,
-   "props": 18.59,
-   "props_minus_champion": -6.15
+   "props": 18.51,
+   "props_minus_champion": -6.23
   },
   {
    "st": true,
@@ -147,8 +147,8 @@
    "player_id": "3198",
    "champion": 15.75,
    "blend_prior": 16.59,
-   "props": 15.67,
-   "props_minus_champion": -0.08
+   "props": 15.6,
+   "props_minus_champion": -0.15
   },
   {
    "st": false,
@@ -171,8 +171,8 @@
    "player_id": "7564",
    "champion": 14.56,
    "blend_prior": 14.98,
-   "props": 14.83,
-   "props_minus_champion": 0.27
+   "props": 15.13,
+   "props_minus_champion": 0.57
   },
   {
    "st": true,
@@ -183,8 +183,8 @@
    "player_id": "8151",
    "champion": 19.05,
    "blend_prior": 19.92,
-   "props": 16.24,
-   "props_minus_champion": -2.81
+   "props": 16.45,
+   "props_minus_champion": -2.6
   },
   {
    "st": true,
@@ -276,14 +276,14 @@
  "valuation": {
   "champion_lineup": {
    "by_champion": 106.29,
-   "by_props_blend": 98.61
+   "by_props_blend": 98.26
   },
   "props_blend_lineup": {
    "by_champion": 102.46,
-   "by_props_blend": 99.27
+   "by_props_blend": 99.0
   }
  },
- "skill_players_with_a_props_line": 9,
+ "skill_players_with_a_props_line": 10,
  "skill_players_rostered": 14,
  "opponent": {
   "name": "ds7mmet",
@@ -310,8 +310,8 @@
     "player_id": "11584",
     "champion": 12.96,
     "blend_prior": 13.48,
-    "props": 13.74,
-    "props_minus_champion": 0.78
+    "props": 13.84,
+    "props_minus_champion": 0.88
    },
    {
     "st": true,
@@ -322,11 +322,11 @@
     "player_id": "11604",
     "champion": 14.13,
     "blend_prior": 14.17,
-    "props": 9.41,
-    "props_minus_champion": -4.72
+    "props": 13.26,
+    "props_minus_champion": -0.87
    },
    {
-    "st": true,
+    "st": false,
     "name": "Malik Nabers",
     "pos": "WR",
     "team": "NYG",
@@ -338,7 +338,7 @@
     "props_minus_champion": null
    },
    {
-    "st": true,
+    "st": false,
     "name": "Woody Marks",
     "pos": "RB",
     "team": "HOU",
@@ -363,18 +363,6 @@
    },
    {
     "st": false,
-    "name": "Konata Mumpfield",
-    "pos": "WR",
-    "team": "LAR",
-    "injury": "\u2014",
-    "player_id": "12718",
-    "champion": 2.93,
-    "blend_prior": 3.35,
-    "props": 2.2,
-    "props_minus_champion": -0.73
-   },
-   {
-    "st": false,
     "name": "Jadarian Price",
     "pos": "RB",
     "team": "SEA",
@@ -386,7 +374,7 @@
     "props_minus_champion": null
    },
    {
-    "st": false,
+    "st": true,
     "name": "Ja'Kobi Lane",
     "pos": "WR",
     "team": "BAL",
@@ -398,6 +386,18 @@
     "props_minus_champion": 0.71
    },
    {
+    "st": false,
+    "name": "KC Concepcion Jr.",
+    "pos": "WR",
+    "team": "CLE",
+    "injury": "\u2014",
+    "player_id": "13298",
+    "champion": 6.5,
+    "blend_prior": 6.77,
+    "props": 8.94,
+    "props_minus_champion": 2.44
+   },
+   {
     "st": true,
     "name": "Keenan Allen",
     "pos": "WR",
@@ -406,8 +406,8 @@
     "player_id": "1479",
     "champion": 5.87,
     "blend_prior": 7.13,
-    "props": 7.44,
-    "props_minus_champion": 1.57
+    "props": 7.39,
+    "props_minus_champion": 1.52
    },
    {
     "st": false,
@@ -418,8 +418,8 @@
     "player_id": "4881",
     "champion": 21.66,
     "blend_prior": 23.01,
-    "props": 21.86,
-    "props_minus_champion": 0.2
+    "props": 21.88,
+    "props_minus_champion": 0.22
    },
    {
     "st": true,
@@ -442,8 +442,20 @@
     "player_id": "7525",
     "champion": 11.71,
     "blend_prior": 12.37,
-    "props": null,
-    "props_minus_champion": null
+    "props": 2.18,
+    "props_minus_champion": -9.53
+   },
+   {
+    "st": true,
+    "name": "Rachaad White",
+    "pos": "RB",
+    "team": "WAS",
+    "injury": "\u2014",
+    "player_id": "8136",
+    "champion": 7.43,
+    "blend_prior": 8.14,
+    "props": 8.27,
+    "props_minus_champion": 0.84
    },
    {
     "st": true,
@@ -454,26 +466,14 @@
     "player_id": "8408",
     "champion": 7.72,
     "blend_prior": 8.51,
-    "props": 3.41,
-    "props_minus_champion": -4.31
-   },
-   {
-    "st": false,
-    "name": "JAX D/ST",
-    "pos": "DEF",
-    "team": "JAX",
-    "injury": "\u2014",
-    "player_id": null,
-    "champion": null,
-    "blend_prior": null,
-    "props": null,
-    "props_minus_champion": null
+    "props": 3.56,
+    "props_minus_champion": -4.16
    },
    {
     "st": true,
-    "name": "NYJ D/ST",
+    "name": "JAX D/ST",
     "pos": "DEF",
-    "team": "NYJ",
+    "team": "JAX",
     "injury": "\u2014",
     "player_id": null,
     "champion": null,
@@ -487,7 +487,7 @@
    "Bucky Irving",
    "Jordan Mason",
    "DeVonta Smith",
-   "Keenan Allen",
+   "KC Concepcion Jr.",
    "Brock Bowers",
    "Emanuel Wilson",
    "Tyler Loop",
@@ -496,11 +496,11 @@
   "lineup_props_blend": [
    "Lamar Jackson",
    "Bucky Irving",
-   "Emanuel Wilson",
-   "DeVonta Smith",
+   "Rachaad White",
+   "KC Concepcion Jr.",
    "Keenan Allen",
    "Brock Bowers",
-   "Jadarian Price",
+   "Emanuel Wilson",
    "Tyler Loop",
    "JAX D/ST"
   ],
@@ -509,7 +509,7 @@
    "11584",
    "8408",
    "7525",
-   "1479",
+   "13298",
    "11604",
    "11435",
    "12711",
@@ -518,44 +518,48 @@
   "lineup_props_blend_ids": [
    "4881",
    "11584",
-   "11435",
-   "7525",
+   "8136",
+   "13298",
    "1479",
    "11604",
-   "13286",
+   "11435",
    "12711",
    "JAX D/ST"
   ],
   "swaps": [
    {
-    "props_starts": "Jadarian Price",
+    "props_starts": "Rachaad White",
     "champion_starts": "Jordan Mason"
+   },
+   {
+    "props_starts": "Keenan Allen",
+    "champion_starts": "DeVonta Smith"
    }
   ],
   "valuation": {
    "champion_lineup": {
-    "by_champion": 81.59,
-    "by_props_blend": 75.11
+    "by_champion": 82.22,
+    "by_props_blend": 71.2
    },
    "props_blend_lineup": {
-    "by_champion": 80.34,
-    "by_props_blend": 78.17
+    "by_champion": 76.09,
+    "by_props_blend": 81.12
    }
   },
-  "skill_players_with_a_props_line": 8,
-  "skill_players_rostered": 13
+  "skill_players_with_a_props_line": 10,
+  "skill_players_rostered": 14
  },
  "matchup": {
   "opponent": "ds7mmet",
   "by_champion": {
    "mine": 106.29,
-   "theirs": 81.59,
-   "gap": 24.7
+   "theirs": 82.22,
+   "gap": 24.07
   },
   "by_props_blend": {
-   "mine": 99.27,
-   "theirs": 78.17,
-   "gap": 21.1
+   "mine": 99.0,
+   "theirs": 81.12,
+   "gap": 17.88
   },
   "note": "each side's best lineup under that opinion; K/DEF unpriced by both, so the gap is skill slots only"
  }
