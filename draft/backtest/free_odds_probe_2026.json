@@ -1,30 +1,30 @@
 {
  "_territory": "relay probe; C consumes; results are the free-odds census",
  "_ask": "Cory 2026-08-21: Explore free Vegas odds we can get",
- "captured_at": "2026-10-22T17:25:44.065423Z",
+ "captured_at": "2026-10-29T18:34:50.479801Z",
  "sources": {
   "espn": {
    "status": 200,
-   "bytes": 255294,
+   "bytes": 253096,
    "events": 14,
    "known_positive": [
     {
-     "game": "NE @ CHI",
-     "provider": "DraftKings",
+     "game": "CAR @ GB",
+     "provider": "Draft Kings",
+     "spread": -3.5,
+     "total": 46.5
+    },
+    {
+     "game": "BAL @ BUF",
+     "provider": "Draft Kings",
      "spread": -3.0,
-     "total": 50.5
+     "total": 54.5
     },
     {
-     "game": "PIT VS NO",
-     "provider": "DraftKings",
-     "spread": 3.5,
-     "total": 44.5
-    },
-    {
-     "game": "SF @ ATL",
-     "provider": "DraftKings",
-     "spread": 2.5,
-     "total": 49.5
+     "game": "TEN @ CIN",
+     "provider": "Draft Kings",
+     "spread": -11.5,
+     "total": 46.5
     }
    ],
    "games_with_lines": 14,
@@ -32,112 +32,31 @@
   },
   "bovada": {
    "status": 200,
-   "bytes": 2601810,
-   "known_positive": [
-    {
-     "game": "New England Patriots @ Chicago Bears",
-     "market": "Moneyline",
-     "handicap": null
-    },
-    {
-     "game": "New England Patriots @ Chicago Bears",
-     "market": "Point Spread",
-     "handicap": "3.0"
-    },
-    {
-     "game": "New England Patriots @ Chicago Bears",
-     "market": "Total",
-     "handicap": "51.0"
-    }
-   ],
-   "markets_seen": 204,
-   "prop_mentions": 2824,
-   "verdict": "POSITIVE \u2014 real lines on real games"
+   "bytes": 2,
+   "known_positive": [],
+   "markets_seen": 0,
+   "prop_mentions": 0,
+   "verdict": "REACHABLE-NO-POSITIVE (status 200) \u2014 treat as untested, not as no"
   },
   "bovada_event_props": {
    "status": 200,
-   "bytes": 2601810,
-   "event_link": "/football/nfl/new-england-patriots-chicago-bears-202610222015",
-   "event_status": 200,
-   "event_bytes": 446765,
-   "prop_markets": 24,
-   "anytime_td_mentions": 8,
-   "known_positive": [
-    {
-     "prop": "Total Passing Touchdowns - Caleb Williams (CHI)"
-    },
-    {
-     "prop": "Total Passing Touchdowns - Drake Maye (NE)"
-    },
-    {
-     "prop": "Total Passing Yards - Caleb Williams (CHI)"
-    }
-   ],
-   "verdict": "POSITIVE \u2014 real lines on real games"
+   "bytes": 2,
+   "note": "no event link found in main payload",
+   "verdict": "REACHABLE-NO-POSITIVE (status 200) \u2014 treat as untested, not as no"
   },
   "bovada_census": {
    "status": 200,
-   "bytes": 2601810,
-   "display_groups": {
-    "Game Lines": 14,
-    "Alternate Lines": 14,
-    "TD Scorer Props": 13,
-    "First Drive Props": 7,
-    "Passing Props": 12,
-    "Passing Yards": 12,
-    "Rushing Props": 10,
-    "Rushing Yards": 12,
-    "Receiving Props": 12,
-    "Receiving Yards": 12,
-    "Kicking Props": 1,
-    "Touchdown Props": 14,
-    "Def & ST Props": 1,
-    "Score Props": 14,
-    "Game Props": 14,
-    "Combined Yards": 7,
-    "Correct Score": 14,
-    "Specials": 1,
-    "Squares": 1
-   },
-   "market_types": {
-    "Moneyline": 68,
-    "Point Spread": 68,
-    "Total": 68,
-    "Both teams to score 10 or more points?": 41,
-    "Winning Margin": 41,
-    "Dynamic Winning Margin": 41,
-    "Total Points Range": 41,
-    "To Win and Allow 0 Points": 41,
-    "Odd/Even Total Points": 41,
-    "Correct Score Range": 41,
-    "Spread": 28,
-    "Total Points": 28,
-    "Both teams to score 14 or more points?": 28,
-    "Both teams to score 17 or more points?": 28,
-    "Total Touchdowns": 27,
-    "Both Teams To Score": 27,
-    "Both teams to score 7 or more points?": 27,
-    "Double Chance": 27,
-    "Anytime Touchdown Scorer": 15,
-    "First Team To Score": 14,
-    "Both teams to score 13 or more points?": 14,
-    "Both teams to score 21 or more points?": 14,
-    "Both teams to score 24 or more points?": 14,
-    "Both teams to score 27 or more points?": 14,
-    "Both teams to score 30 or more points?": 14
-   },
-   "known_positive": [
-    {
-     "census": "main-path"
-    }
-   ],
+   "bytes": 2,
+   "display_groups": {},
+   "market_types": {},
+   "known_positive": [],
    "futures_specials_status": 404,
    "futures_specials_bytes": 0,
-   "verdict": "POSITIVE \u2014 real lines on real games"
+   "verdict": "REACHABLE-NO-POSITIVE (status 200) \u2014 treat as untested, not as no"
   },
   "polymarket": {
    "status": 200,
-   "bytes": 781059,
+   "bytes": 782846,
    "events": 20,
    "known_positive": [
     {
@@ -146,7 +65,7 @@
     },
     {
      "event": "Will Cardi B and Stefon Diggs get engaged in 2026?",
-     "price_yes": 0.056
+     "price_yes": 0.061
     },
     {
      "event": "Pro Football: 2027 Champion",
