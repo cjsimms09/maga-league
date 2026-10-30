@@ -1,6 +1,6 @@
 {
  "_rule": "THE ROSTER RULE: any statement about Cory's roster or matchup cites THIS file (fresh within 3 days) or live Sleeper \u2014 never an older artifact.",
- "generated_at": "2026-10-28T18:11:36+00:00",
+ "generated_at": "2026-10-30T18:41:49+00:00",
  "season": "2026",
  "week": 8,
  "cory": {
@@ -18,7 +18,7 @@
    "pos": "WR",
    "team": "KC",
    "starter": false,
-   "injury": "Questionable",
+   "injury": null,
    "game": "at DEN (Sun)",
    "home": false,
    "kickoff_utc": "2026-11-01T21:25:00.000Z"
@@ -51,7 +51,7 @@
    "pos": "WR",
    "team": "GB",
    "starter": true,
-   "injury": "Questionable",
+   "injury": null,
    "game": "vs CAR (Thu)",
    "home": true,
    "kickoff_utc": "2026-10-30T00:15:00.000Z"
@@ -77,17 +77,6 @@
    "game": "at PIT (Sun)",
    "home": false,
    "kickoff_utc": "2026-11-01T18:00:00.000Z"
-  },
-  {
-   "id": "13337",
-   "name": "Emmett Johnson",
-   "pos": "RB",
-   "team": "KC",
-   "starter": false,
-   "injury": null,
-   "game": "at DEN (Sun)",
-   "home": false,
-   "kickoff_utc": "2026-11-01T21:25:00.000Z"
   },
   {
    "id": "2133",
@@ -164,6 +153,17 @@
    "injury": null,
    "game": "vs IND (Sun)",
    "home": true,
+   "kickoff_utc": "2026-11-01T18:00:00.000Z"
+  },
+  {
+   "id": "9500",
+   "name": "Josh Downs",
+   "pos": "WR",
+   "team": "IND",
+   "starter": false,
+   "injury": null,
+   "game": "at JAX (Sun)",
+   "home": false,
    "kickoff_utc": "2026-11-01T18:00:00.000Z"
   },
   {
@@ -272,31 +272,31 @@
    "name": "Ja'Kobi Lane",
    "pos": "WR",
    "team": "BAL",
-   "starter": true,
+   "starter": false,
    "injury": null,
    "game": "at BUF (Sun)",
    "home": false,
    "kickoff_utc": "2026-11-01T18:00:00.000Z"
   },
   {
+   "id": "13294",
+   "name": "Makai Lemon",
+   "pos": "WR",
+   "team": "PHI",
+   "starter": true,
+   "injury": null,
+   "game": "at WSH (Sun)",
+   "home": false,
+   "kickoff_utc": "2026-11-02T01:20:00.000Z"
+  },
+  {
    "id": "13298",
    "name": "KC Concepcion Jr.",
    "pos": "WR",
    "team": "CLE",
-   "starter": false,
-   "injury": null,
-   "game": "at PIT (Sun)",
-   "home": false,
-   "kickoff_utc": "2026-11-01T18:00:00.000Z"
-  },
-  {
-   "id": "1479",
-   "name": "Keenan Allen",
-   "pos": "WR",
-   "team": "IND",
    "starter": true,
    "injury": null,
-   "game": "at JAX (Sun)",
+   "game": "at PIT (Sun)",
    "home": false,
    "kickoff_utc": "2026-11-01T18:00:00.000Z"
   },
@@ -305,8 +305,8 @@
    "name": "Lamar Jackson",
    "pos": "QB",
    "team": "BAL",
-   "starter": false,
-   "injury": "Questionable",
+   "starter": true,
+   "injury": null,
    "game": "at BUF (Sun)",
    "home": false,
    "kickoff_utc": "2026-11-01T18:00:00.000Z"
@@ -316,7 +316,7 @@
    "name": "Jordan Love",
    "pos": "QB",
    "team": "GB",
-   "starter": true,
+   "starter": false,
    "injury": null,
    "game": "vs CAR (Thu)",
    "home": true,
