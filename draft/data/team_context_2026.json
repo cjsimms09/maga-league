@@ -6,8 +6,8 @@
   "pace is the 2024-25 prior until the Wednesday snap job has 2026 weeks"
  ],
  "season": 2026,
- "built_at": "2026-10-29T18:18:45+00:00",
- "source_rows": 261,
+ "built_at": "2026-11-01T19:57:27+00:00",
+ "source_rows": 274,
  "priced_games": 103,
  "unmatched": [],
  "controls": [
@@ -100,10 +100,10 @@
     "8": {
      "opp": "DAL",
      "home": false,
-     "implied_total": 23.75,
-     "spread": 7.0,
-     "game_total": 54.5,
-     "captured_at": "2026-10-29T18:18:45.537772Z"
+     "implied_total": 14.0,
+     "spread": 15.5,
+     "game_total": 43.5,
+     "captured_at": "2026-11-01T19:57:27.076207Z"
     }
    }
   },
@@ -172,10 +172,10 @@
     "8": {
      "opp": "TB",
      "home": false,
-     "implied_total": 21.0,
-     "spread": 2.5,
-     "game_total": 44.5,
-     "captured_at": "2026-10-29T18:18:45.537772Z"
+     "implied_total": 8.5,
+     "spread": 8.5,
+     "game_total": 25.5,
+     "captured_at": "2026-11-01T19:57:27.076207Z"
     }
    }
   },
@@ -244,10 +244,10 @@
     "8": {
      "opp": "BUF",
      "home": false,
-     "implied_total": 25.75,
-     "spread": 3.0,
-     "game_total": 54.5,
-     "captured_at": "2026-10-29T18:18:45.537772Z"
+     "implied_total": 17.0,
+     "spread": 12.5,
+     "game_total": 46.5,
+     "captured_at": "2026-11-01T19:57:27.076207Z"
     }
    }
   },
@@ -308,10 +308,10 @@
     "8": {
      "opp": "BAL",
      "home": true,
-     "implied_total": 28.75,
-     "spread": -3.0,
-     "game_total": 54.5,
-     "captured_at": "2026-10-29T18:18:45.537772Z"
+     "implied_total": 29.5,
+     "spread": -12.5,
+     "game_total": 46.5,
+     "captured_at": "2026-11-01T19:57:27.076207Z"
     }
    }
   },
@@ -439,7 +439,7 @@
      "implied_total": 21.75,
      "spread": 3.0,
      "game_total": 46.5,
-     "captured_at": "2026-10-29T18:18:45.537772Z"
+     "captured_at": "2026-11-01T19:57:27.076207Z"
     }
    }
   },
@@ -500,10 +500,10 @@
     "8": {
      "opp": "TEN",
      "home": true,
-     "implied_total": 28.75,
-     "spread": -11.0,
-     "game_total": 46.5,
-     "captured_at": "2026-10-29T18:18:45.537772Z"
+     "implied_total": 29.5,
+     "spread": -8.5,
+     "game_total": 50.5,
+     "captured_at": "2026-11-01T19:57:27.076207Z"
     }
    }
   },
@@ -572,10 +572,10 @@
     "8": {
      "opp": "PIT",
      "home": false,
-     "implied_total": 17.75,
-     "spread": 3.5,
-     "game_total": 39.0,
-     "captured_at": "2026-10-29T18:18:45.537772Z"
+     "implied_total": 15.0,
+     "spread": 15.5,
+     "game_total": 45.5,
+     "captured_at": "2026-11-01T19:57:27.076207Z"
     }
    }
   },
@@ -644,10 +644,10 @@
     "8": {
      "opp": "ARI",
      "home": true,
-     "implied_total": 30.75,
-     "spread": -7.0,
-     "game_total": 54.5,
-     "captured_at": "2026-10-29T18:18:45.537772Z"
+     "implied_total": 29.5,
+     "spread": -15.5,
+     "game_total": 43.5,
+     "captured_at": "2026-11-01T19:57:27.076207Z"
     }
    }
   },
@@ -716,10 +716,10 @@
     "8": {
      "opp": "KC",
      "home": true,
-     "implied_total": 19.75,
-     "spread": 1.0,
-     "game_total": 40.5,
-     "captured_at": "2026-10-29T18:18:45.537772Z"
+     "implied_total": 21.5,
+     "spread": -1.0,
+     "game_total": 42.0,
+     "captured_at": "2026-11-01T19:57:27.076207Z"
     }
    }
   },
@@ -780,10 +780,10 @@
     "8": {
      "opp": "MIN",
      "home": true,
-     "implied_total": 24.5,
-     "spread": -3.5,
-     "game_total": 45.5,
-     "captured_at": "2026-10-29T18:18:45.537772Z"
+     "implied_total": 18.5,
+     "spread": -1.5,
+     "game_total": 35.5,
+     "captured_at": "2026-11-01T19:57:27.076207Z"
     }
    }
   },
@@ -988,10 +988,10 @@
     "8": {
      "opp": "JAX",
      "home": false,
-     "implied_total": 18.25,
-     "spread": 10.0,
-     "game_total": 46.5,
-     "captured_at": "2026-10-29T18:18:45.537772Z"
+     "implied_total": 7.5,
+     "spread": 32.5,
+     "game_total": 47.5,
+     "captured_at": "2026-11-01T19:57:27.076207Z"
     }
    }
   },
@@ -1052,10 +1052,10 @@
     "8": {
      "opp": "IND",
      "home": true,
-     "implied_total": 28.25,
-     "spread": -10.0,
-     "game_total": 46.5,
-     "captured_at": "2026-10-29T18:18:45.537772Z"
+     "implied_total": 40.0,
+     "spread": -32.5,
+     "game_total": 47.5,
+     "captured_at": "2026-11-01T19:57:27.076207Z"
     }
    }
   },
@@ -1116,10 +1116,10 @@
     "8": {
      "opp": "DEN",
      "home": false,
-     "implied_total": 20.75,
-     "spread": -1.0,
-     "game_total": 40.5,
-     "captured_at": "2026-10-29T18:18:45.537772Z"
+     "implied_total": 20.5,
+     "spread": 1.0,
+     "game_total": 42.0,
+     "captured_at": "2026-11-01T19:57:27.076207Z"
     }
    }
   },
@@ -1180,10 +1180,10 @@
     "8": {
      "opp": "LAR",
      "home": false,
-     "implied_total": 19.25,
+     "implied_total": 19.75,
      "spread": 6.5,
-     "game_total": 45.0,
-     "captured_at": "2026-10-29T18:18:45.537772Z"
+     "game_total": 46.0,
+     "captured_at": "2026-11-01T19:57:27.076207Z"
     }
    }
   },
@@ -1252,10 +1252,10 @@
     "8": {
      "opp": "LAC",
      "home": true,
-     "implied_total": 25.75,
+     "implied_total": 26.25,
      "spread": -6.5,
-     "game_total": 45.0,
-     "captured_at": "2026-10-29T18:18:45.537772Z"
+     "game_total": 46.0,
+     "captured_at": "2026-11-01T19:57:27.076207Z"
     }
    }
   },
@@ -1324,10 +1324,10 @@
     "8": {
      "opp": "NYJ",
      "home": false,
-     "implied_total": 22.0,
-     "spread": 1.5,
-     "game_total": 45.5,
-     "captured_at": "2026-10-29T18:18:45.537772Z"
+     "implied_total": 30.5,
+     "spread": 3.5,
+     "game_total": 64.5,
+     "captured_at": "2026-11-01T19:57:27.076207Z"
     }
    }
   },
@@ -1388,10 +1388,10 @@
     "8": {
      "opp": "NE",
      "home": true,
-     "implied_total": 18.25,
+     "implied_total": 17.0,
      "spread": 7.0,
-     "game_total": 43.5,
-     "captured_at": "2026-10-29T18:18:45.537772Z"
+     "game_total": 41.0,
+     "captured_at": "2026-11-01T19:57:27.076207Z"
     }
    }
   },
@@ -1452,10 +1452,10 @@
     "8": {
      "opp": "DET",
      "home": false,
-     "implied_total": 21.0,
-     "spread": 3.5,
-     "game_total": 45.5,
-     "captured_at": "2026-10-29T18:18:45.537772Z"
+     "implied_total": 17.0,
+     "spread": 1.5,
+     "game_total": 35.5,
+     "captured_at": "2026-11-01T19:57:27.076207Z"
     }
    }
   },
@@ -1516,10 +1516,10 @@
     "8": {
      "opp": "MIA",
      "home": false,
-     "implied_total": 25.25,
+     "implied_total": 24.0,
      "spread": -7.0,
-     "game_total": 43.5,
-     "captured_at": "2026-10-29T18:18:45.537772Z"
+     "game_total": 41.0,
+     "captured_at": "2026-11-01T19:57:27.076207Z"
     }
    }
   },
@@ -1708,10 +1708,10 @@
     "8": {
      "opp": "LV",
      "home": true,
-     "implied_total": 23.5,
-     "spread": -1.5,
-     "game_total": 45.5,
-     "captured_at": "2026-10-29T18:18:45.537772Z"
+     "implied_total": 34.0,
+     "spread": -3.5,
+     "game_total": 64.5,
+     "captured_at": "2026-11-01T19:57:27.076207Z"
     }
    }
   },
@@ -1780,10 +1780,10 @@
     "8": {
      "opp": "WAS",
      "home": false,
-     "implied_total": 17.0,
+     "implied_total": 17.25,
      "spread": 6.0,
-     "game_total": 40.0,
-     "captured_at": "2026-10-29T18:18:45.537772Z"
+     "game_total": 40.5,
+     "captured_at": "2026-11-01T19:57:27.076207Z"
     }
    }
   },
@@ -1844,10 +1844,10 @@
     "8": {
      "opp": "CLE",
      "home": true,
-     "implied_total": 21.25,
-     "spread": -3.5,
-     "game_total": 39.0,
-     "captured_at": "2026-10-29T18:18:45.537772Z"
+     "implied_total": 30.5,
+     "spread": -15.5,
+     "game_total": 45.5,
+     "captured_at": "2026-11-01T19:57:27.076207Z"
     }
    }
   },
@@ -1919,7 +1919,7 @@
      "implied_total": 24.75,
      "spread": -3.0,
      "game_total": 46.5,
-     "captured_at": "2026-10-29T18:18:45.537772Z"
+     "captured_at": "2026-11-01T19:57:27.076207Z"
     }
    }
   },
@@ -2052,10 +2052,10 @@
     "8": {
      "opp": "ATL",
      "home": true,
-     "implied_total": 23.5,
-     "spread": -2.5,
-     "game_total": 44.5,
-     "captured_at": "2026-10-29T18:18:45.537772Z"
+     "implied_total": 17.0,
+     "spread": -8.5,
+     "game_total": 25.5,
+     "captured_at": "2026-11-01T19:57:27.076207Z"
     }
    }
   },
@@ -2124,10 +2124,10 @@
     "8": {
      "opp": "CIN",
      "home": false,
-     "implied_total": 17.75,
-     "spread": 11.0,
-     "game_total": 46.5,
-     "captured_at": "2026-10-29T18:18:45.537772Z"
+     "implied_total": 21.0,
+     "spread": 8.5,
+     "game_total": 50.5,
+     "captured_at": "2026-11-01T19:57:27.076207Z"
     }
    }
   },
@@ -2188,10 +2188,10 @@
     "8": {
      "opp": "PHI",
      "home": true,
-     "implied_total": 23.0,
+     "implied_total": 23.25,
      "spread": -6.0,
-     "game_total": 40.0,
-     "captured_at": "2026-10-29T18:18:45.537772Z"
+     "game_total": 40.5,
+     "captured_at": "2026-11-01T19:57:27.076207Z"
     }
    }
   }
