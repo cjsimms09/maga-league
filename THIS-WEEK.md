@@ -1,6 +1,6 @@
 # THIS WEEK — coryjsimms, week 8 (2026)
 
-**Generated 2026-10-30T18:41:49+00:00 from LIVE Sleeper. THE ROSTER RULE: any statement about
+**Generated 2026-11-01T17:13:36+00:00 from LIVE Sleeper. THE ROSTER RULE: any statement about
 Cory's roster or matchup cites this file (fresh within 3 days) or live
 Sleeper — a frozen seat plan or tournament artifact is never a source for
 who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
@@ -27,7 +27,7 @@ who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
 | S | Kenneth Walker III | RB | KC | at DEN (Sun) | 20.8 (-1) |  |
 | S | Parker Washington | WR | JAX | vs IND (Sun) | 28.2 (-10) |  |
 |   | Josh Downs | WR | IND | at JAX (Sun) | 18.2 (+10) |  |
-|   | Zach Charbonnet | RB | SEA | vs CHI (Mon) | 24.8 (-3) | Questionable |
+|   | Zach Charbonnet | RB | SEA | vs CHI (Mon) | 24.8 (-3) |  |
 | S | LAR D/ST | DEF | LAR | vs LAC (Sun) | 25.8 (-6.5) |  |
 
 ## Opponent's roster
@@ -46,7 +46,7 @@ who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
 | S | KC Concepcion Jr. | WR | CLE | at PIT (Sun) | 17.8 (+3.5) |  |
 | S | Lamar Jackson | QB | BAL | at BUF (Sun) | 25.8 (+3) |  |
 |   | Jordan Love | QB | GB | vs CAR (Thu) | 25.2 (-3.5) |  |
-|   | DeVonta Smith | WR | PHI | at WSH (Sun) | 17.0 (+6) | Questionable |
+|   | DeVonta Smith | WR | PHI | at WSH (Sun) | 17.0 (+6) | Out |
 | S | Rachaad White | RB | WAS | vs PHI (Sun) | 23.0 (-6) |  |
 | S | Jordan Mason | RB | MIN | at DET (Sun) | 21.0 (+3.5) |  |
 | S | JAX D/ST | DEF | JAX | vs IND (Sun) | 28.2 (-10) |  |
