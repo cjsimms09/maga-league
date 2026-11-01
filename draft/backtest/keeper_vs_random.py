@@ -98,6 +98,7 @@ OUT = ROOT / "draft" / "backtest" / "keeper_vs_random.json"
 
 N_DRAWS = 400
 SEED = 20260824
+CTL_REPS = 25     # control draws averaged per keeper; 1 was the defect
 MIN_POOL = 20
 KEEPER_ROUNDS = (1, 2, 3)   # the rounds keepers actually consume in this league
 LATE_ROUNDS = (13, 14, 15)  # the known-positive end of the pick distribution
@@ -207,11 +208,19 @@ def run():
                     "best_available": round(best, 2),
                     "left": round(best - actual, 2), "pool": len(pool),
                 })
-                # CONTROLS — independent draws, never resampled from `draws`
-                r = tot[rng.choice(pool)]
-                b1 = sum(1 for d in draws if d < r)
-                t1 = sum(1 for d in draws if d == r)
-                ctl_rand.append((b1 + 0.5 * t1) / len(draws))
+                # CONTROLS — independent draws, never resampled from `draws`.
+                # CTL_REPS draws averaged, not one; see waiver_vs_random.py's
+                # CTL_REPS note. This grader has the widest band of the five
+                # (±0.0577, n=96) so it was the least likely to trip, but the
+                # same one-draw noise is there and a wide band is not a reason
+                # to keep an imprecise instrument.
+                ctl_reps = []
+                for _ in range(CTL_REPS):
+                    r = tot[rng.choice(pool)]
+                    b1 = sum(1 for d in draws if d < r)
+                    t1 = sum(1 for d in draws if d == r)
+                    ctl_reps.append((b1 + 0.5 * t1) / len(draws))
+                ctl_rand.append(statistics.fmean(ctl_reps))
                 b2 = sum(1 for d in draws if d < best)
                 t2 = sum(1 for d in draws if d == best)
                 ctl_best.append((b2 + 0.5 * t2) / len(draws))
@@ -229,7 +238,9 @@ def main():
     mean_pct = statistics.fmean(r["pct"] for r in rows)
     half = 1.96 * (1.0 / 12.0) ** 0.5 / (n ** 0.5)
     cr, cb = statistics.fmean(ctl_rand), statistics.fmean(ctl_best)
-    ctl_half = 1.96 * (1.0 / 12.0) ** 0.5 / (len(ctl_rand) ** 0.5)
+    MC_ALLOWANCE = 1.5   # within-run SEs were measured to understate the true MC SE
+    ctl_half = (1.96 * MC_ALLOWANCE * statistics.stdev(ctl_rand) / (len(ctl_rand) ** 0.5)
+                ) if len(ctl_rand) > 1 else 1.0
     neg_ok = abs(cr - 0.5) <= ctl_half
     pos_ok = cb > 0.90
 

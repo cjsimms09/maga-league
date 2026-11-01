@@ -49,6 +49,36 @@ N_DRAWS = 300
 SEED    = 20260821
 MIN_POOL = 5          # below this the "pool" is not a pool; refuse rather than pretend
 
+# ⛔ THE KNOWN-NEGATIVE CONTROL WAS A COIN FLIP, AND IT REDDENED THE WHOLE
+# WEEKLY LEARNING LOOP FOR FIVE DAYS OVER NOISE (found 2026-11-01).
+#
+# The control asks "what does a RANDOM available player score on this same
+# null?" and must land at 0.5. It used ONE random draw per claim. Measured
+# across 8 seeds it sits at 0.5025 — UNBIASED, exactly as its construction
+# implies, since r and the draws it is ranked against are i.i.d. from one pool
+# — but with an sd of the mean of 0.0137 against a gate of ±0.0190. That is a
+# nominal-95% gate failing 2 of 8 seeds, and on 2026-10-27 the shipped seed was
+# one of them: `⛔ REFUSING: a control failed`, exit 1, and weekly-grade.yml
+# red from week 7 onward. The headline it was guarding never moved — 0.7159
+# with an sd of 0.0008 across those same seeds.
+#
+# TWO CAUSES, both fixed here:
+#  1. ONE DRAW IS AN OPINION, NOT AN ESTIMATE. CTL_REPS averages R draws per
+#     claim, dividing r's own variance — the dominant term — by R.
+#  2. THE BAND ASSUMED A UNIFORM CONTROL. It used sd=sqrt(1/12)=0.2887 when the
+#     measured per-claim sd is 0.2630, because ROS values are discrete with a
+#     large atom at zero (most waiver adds never score again) so the mid-rank
+#     piles up at 0.5. The band is now the control's OWN dispersion.
+#
+# ⚠️ AND A HYPOTHESIS THAT DIED ON MEASUREMENT, recorded so nobody re-runs it:
+# the obvious story was clustering — 883 claims but only 58 (season, week)
+# cells, so the i.i.d. SE should understate. A cluster-robust SE is SMALLER
+# still (0.0075 vs 0.0089 i.i.d. vs 0.0097 assumed), i.e. the wrong direction.
+# Every WITHIN-RUN estimator understates the true Monte-Carlo SE of 0.0137,
+# which is why the band is now validated against a seed sweep rather than
+# trusted from a formula. `test_decision_null_controls_are_calibrated.py`.
+CTL_REPS = 25         # control draws averaged per claim; 1 was the defect
+
 
 def season_points(season):
     """player_id -> {week:int -> points}, from the weekly entries themselves so
@@ -132,10 +162,16 @@ def run():
                         "best_available_ros": best,
                         "left": round(best - actual, 2),
                     })
-                    # CONTROLS — drawn independently of `draws`
-                    r = ros_value(pts, rng.choice(pool), week, last_week)
-                    b2 = sum(1 for d in draws if d < r); t2 = sum(1 for d in draws if d == r)
-                    ctl_rand.append((b2 + 0.5 * t2) / len(draws))
+                    # CONTROLS — drawn independently of `draws`. CTL_REPS draws
+                    # averaged, not one: see the note at CTL_REPS for why one
+                    # was a coin flip that failed a nominal-95% gate 2 times in 8.
+                    reps = []
+                    for _ in range(CTL_REPS):
+                        r = ros_value(pts, rng.choice(pool), week, last_week)
+                        b2 = sum(1 for d in draws if d < r)
+                        t2 = sum(1 for d in draws if d == r)
+                        reps.append((b2 + 0.5 * t2) / len(draws))
+                    ctl_rand.append(statistics.fmean(reps))
                     b3 = sum(1 for d in draws if d < best); t3 = sum(1 for d in draws if d == best)
                     ctl_best.append((b3 + 0.5 * t3) / len(draws))
     return rows, ctl_rand, ctl_best, skipped, pool_sizes
@@ -154,7 +190,12 @@ def main():
     # SAME DEFECT, 3.89x here (n=755): a hardcoded ±0.08 against a derived
     # half-width of 0.0206. See start_sit_vs_random.py's note. Derived from the
     # control's own sample size so it tightens with evidence.
-    ctl_half = (1.96 * (1.0 / 12.0) ** 0.5 / (len(ctl_rand) ** 0.5)) if ctl_rand else 1.0
+    # The control's OWN measured dispersion, not a uniform assumption, and
+    # widened by MC_ALLOWANCE because every within-run estimator was measured
+    # to understate the true Monte-Carlo SE (see the CTL_REPS note).
+    MC_ALLOWANCE = 1.5
+    ctl_half = (1.96 * MC_ALLOWANCE * statistics.stdev(ctl_rand) / (len(ctl_rand) ** 0.5)
+                ) if len(ctl_rand) > 1 else 1.0
     neg_ok = abs(cr - 0.5) <= ctl_half
     pos_ok = cb > 0.90
 

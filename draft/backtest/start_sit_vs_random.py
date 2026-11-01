@@ -52,6 +52,9 @@ OUT  = ROOT / "draft" / "backtest" / "start_sit_vs_random.json"
 
 N_DRAWS = 400          # random legal lineups per owner-week
 SEED    = 20260821
+CTL_REPS = 25          # known-negative control draws averaged per owner-week.
+                       # 1 was the defect — see the note at the ctl_rand call
+                       # site and the full measurement in waiver_vs_random.py.
 
 def load():
     hist = json.loads(HIST.read_text())
@@ -278,9 +281,24 @@ def run():
                 # score THAT against the null. It now depends on the sampler
                 # actually being unbiased, so it can fail — and it must, if
                 # best_or_random ever stops being uniform.
-                fresh = best_or_random(roster, pos, slots, pts, rng)
-                if fresh is not None:
-                    ctl_rand.append(percentile(fresh, draws))
+                # ⚠️ CTL_REPS FRESH LINEUPS, NOT ONE. One was still a coin flip:
+                # the sibling defect in waiver_vs_random.py reddened the whole
+                # weekly loop for five days on 2026-10-27 when its identical
+                # one-draw control wandered 0.0226 off 0.5 — unbiased by
+                # construction, just noisy, measured at sd 0.0137 across 8
+                # seeds against a ±0.0190 gate. This control was the next to
+                # go: on 2026-11-01 it sat at 0.4843, using 67% of its band,
+                # the highest of the five graders. Averaging divides the
+                # sampler's own variance by CTL_REPS. See that file's note for
+                # the full measurement, including the clustering hypothesis
+                # that died (a cluster-robust SE is SMALLER, the wrong way).
+                fresh_reps = []
+                for _ in range(CTL_REPS):
+                    f1 = best_or_random(roster, pos, slots, pts, rng)
+                    if f1 is not None:
+                        fresh_reps.append(percentile(f1, draws))
+                if fresh_reps:
+                    ctl_rand.append(statistics.fmean(fresh_reps))
                 if orc is not None:
                     ctl_oracle.append(percentile(orc, draws))
     return (rows, ctl_rand, ctl_oracle, skipped, skipped_started_unmapped,
@@ -319,7 +337,12 @@ def main():
     # violated in the grader written to enforce it. The band now comes from the
     # control's OWN sample size, so it tightens as evidence accumulates instead
     # of staying a constant somebody has to remember to re-tune.
-    ctl_half = (1.96 * (1.0 / 12.0) ** 0.5 / (len(ctl_rand) ** 0.5)) if ctl_rand else 1.0
+    # The control's OWN measured dispersion, not a uniform sd=sqrt(1/12) that
+    # the data does not have, widened by MC_ALLOWANCE because every within-run
+    # SE estimator was measured to understate the true Monte-Carlo SE.
+    MC_ALLOWANCE = 1.5
+    ctl_half = (1.96 * MC_ALLOWANCE * statistics.stdev(ctl_rand) / (len(ctl_rand) ** 0.5)
+                ) if len(ctl_rand) > 1 else 1.0
     neg_ok = cr is not None and abs(cr - 0.5) <= ctl_half
     pos_ok = co is not None and co > 0.90
     print("  CONTROLS (rule 3e — both must pass or ignore everything below)")
