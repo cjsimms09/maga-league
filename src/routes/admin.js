@@ -1864,6 +1864,11 @@ router.get('/model-scoreboard', requireCory, aw(async (req, res) => {
     champion: (ledger && ledger.champion) || { version: 'own_weekly_v1', arm: 'v1' },
     activeArms: (ledger && ledger.active_arms) || [],
     promotions: (ledger && ledger.promotions) || [],
+    // Promotions the rule WANTED and the best-of-K null refused. A refusal
+    // that lives only in JSON teaches nobody — and it is the most
+    // informative thing the gate produces, because it is the case where
+    // something looked better and the evidence would not carry it.
+    blockedPromotions: (ledger && ledger.blocked_promotions) || [],
     latest: weeks.length ? weeks[weeks.length - 1] : null,
     controls: { auto_adapt: controls.auto_adapt !== false,
       champion_override: controls.champion_override || null },

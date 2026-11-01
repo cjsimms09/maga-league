@@ -252,6 +252,31 @@
 </table>
 <% } %>
 
+<h2>Refused by the null <span class="info" tabindex="0">&#9432;<span class="tip">
+  WHAT: weeks where an arm passed the promotion rule and the best-of-K null
+  would not license it. WHY IT MATTERS: picking the best of K arms buys a
+  winning margin for free, and that free margin grows as arms are added.
+  Measured, the rule on its own promotes a skill-free arm in 95% of seasons;
+  gating this null cuts that to 18%. READ: "cannot pass at this size" is a
+  statement about the TEST, not the arm — the test needs six graded weeks when
+  only two arms are live, four when four are.</span></span></h2>
+<% if (!blockedPromotions.length) { %>
+  <p class="meta">None — no arm has both passed the rule and been refused by
+  the null. That is not the same as "nothing qualified"; a week where nothing
+  looked better leaves no row here either.</p>
+<% } else { %>
+<table>
+  <tr><th>when</th><th class="nm">arm</th><th class="nm">why it was refused</th></tr>
+  <% for (const b of blockedPromotions) { %>
+  <tr>
+    <td><%= b.blocked_at %></td>
+    <td class="nm"><%= ((b.from || {}).arm) %> → <b><%= ((b.would_have_promoted || {}).arm) %></b></td>
+    <td class="nm"><%= b.reason %></td>
+  </tr>
+  <% } %>
+</table>
+<% } %>
+
 <p class="meta">
   Loop contract, formulas and the verbatim promotion rule:
   <code>draft/data/weekly_own/README.md</code>. Provider arms are STUDY arms —

@@ -72,14 +72,33 @@ shared population with our champion, labeled whenever the populations differ.
 >   (b) it beat the champion on per-week overall MAE in >= 3 of the last 4
 >       common graded weeks (all 3 when only 3 exist);
 >   (c) it leads cumulative MAE (mean of per-week MAEs) over the full common
->       span, without losing cumulative rank correlation by more than 0.02.
+>       span, without losing cumulative rank correlation by more than 0.02;
+>   (d) AND the best-of-K null licenses it (added 2026-11-01): the null ran,
+>       the arm IS the null's field winner, the field margin clears p < 0.05,
+>       and the test was reachable at that (k, n).
 > Best cumulative MAE among qualifiers wins. On promotion the version string
 > bumps (own_weekly_v1 -> v2 -> ...), the OLD champion remains active as a
 > challenger (a bad switch reverses itself under the same rule), and a new
 > variant may be seeded along the winning tilt axis.
 
-**Cadence:** evaluated every Tuesday after grading; the earliest possible
-switch is after week 3 (~early October). Rationale, Cory verbatim: *"since
+**(d) GATES as of 2026-11-01, and before that it did not exist as a gate** —
+the null was computed and attached to the promotion record while nothing
+blocked on it. Why it now blocks: register 211 measured the (a)-(c) rule alone
+promoting a **skill-free arm in 95.0% of seasons**, against 96.8% for a real
+−15% MAE edge. Gating cuts the skill-free rate to **17.9%**. ⚠️ **Read a pass
+as "the rule fired and the null did not stop it", never as "the arm is
+better"** — the gate's power is only **22.7%** at a realistic −15% edge.
+Refusals are recorded in `blocked_promotions` and shown on
+`/admin/model-scoreboard`; a block recorded nowhere is indistinguishable from a
+week when no arm qualified.
+
+**Cadence:** evaluated every Tuesday after grading. ⚠️ **The earliest possible
+switch depends on HOW MANY ARMS ARE LIVE, because (d) has a minimum size:** the
+permutation test cannot produce p < 0.05 until **6** graded weeks when only
+**k=2** arms carry data, **4** weeks at k=4, and **3** at k=7 — today's live
+set is 7, so week 3 is still the floor now, but it is not a constant. The
+grader reports "cannot pass at this size" as its own distinct outcome rather
+than as a verdict about the arm. Rationale, Cory verbatim: *"since
 data isn't actionable this year we can adjust more often, no harm if we're
 wrong."* There is **no human gate on mechanical promotions** — that is his
 explicit ruling for 2026 — but every switch writes a promotion record and

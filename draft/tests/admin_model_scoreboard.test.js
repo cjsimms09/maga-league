@@ -108,6 +108,42 @@ const LEDGER = {
     html.includes('>4.777<'));
   ck('cumulative table labels providers as study arms, never auto-promoted',
     /study \(never auto-promoted\)/.test(html));
+
+  // ── 3b. REFUSALS BY THE NULL are visible, not buried in JSON ─────────────
+  // The gate's refusals are the most informative thing it produces: the case
+  // where an arm looked better and the evidence would not carry it. Measured
+  // (register 211) the promotion rule alone promotes a skill-free arm in 95%
+  // of seasons; gating the best-of-K null cuts that to 18%. A refusal nobody
+  // can see teaches nobody, so the page must carry it with its reason.
+  ck('with no blocks, the section distinguishes "refused" from "nothing qualified"',
+    /Refused by the null/.test(html)
+      && /not the same as "nothing qualified"/.test(html));
+  const BLOCKED = JSON.parse(JSON.stringify(LEDGER));
+  BLOCKED.blocked_promotions = [{
+    blocked_at: '2026-11-03',
+    from: { arm: 'v1' },
+    would_have_promoted: { arm: 'v1_pg16', version: 'own_weekly_v2' },
+    reason: 'with k=2 arms over n=3 common weeks the smallest p the test can '
+      + 'produce is 0.2584, which cannot clear 0.05 — this is a statement '
+      + 'about the TEST SIZE, not about the arm',
+  }];
+  fs.writeFileSync(path.join(OWN_DIR, 'grades_2026.json'), JSON.stringify(BLOCKED));
+  const bres = await fetch(b + '/admin/model-scoreboard', { headers: { Cookie: cc } });
+  const bhtml = await bres.text();
+  ck('a blocked promotion renders with its arm and its reason',
+    bhtml.includes('v1_pg16') && bhtml.includes('0.2584')
+      && bhtml.includes('2026-11-03'));
+  // ⚠️ my first version asserted the arm was absent from the promotion
+  // history using v1_notilt — which the fixture ALSO genuinely promotes, so
+  // the negative could never hold. The blocked arm must be one the fixture
+  // never promotes, and the check is that it appears ONLY after the refusals
+  // heading, never in the adaptation-history table above it.
+  ck('and the refused arm is not listed as a promotion that happened',
+    bhtml.indexOf('v1_pg16') > bhtml.indexOf('Refused by the null'));
+  ck('no template error on the blocked path', !/ReferenceError|is not defined|Cannot read/.test(bhtml));
+  // put the plain ledger back so later assertions see what they expect
+  fs.writeFileSync(path.join(OWN_DIR, 'grades_2026.json'), JSON.stringify(LEDGER));
+  html = await (await fetch(b + '/admin/model-scoreboard', { headers: { Cookie: cc } })).text();
   ck('population column is graded/projected with the no-stat-row note in a tooltip',
     html.includes('351 / 364') && /no stat row/.test(html));
   ck('promotion history renders the mechanical switch with its evidence',

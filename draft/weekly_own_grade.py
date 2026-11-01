@@ -330,7 +330,16 @@ def _arm_series(weeks: dict, arm: str) -> dict:
 
 def decide_promotion(champion: dict, weeks: dict, active_arms: list) -> dict | None:
     """The rule, exactly as the module header states it. Returns None or a
-    promotion record (no side effects — the caller applies it)."""
+    promotion record (no side effects — the caller applies it).
+
+    ⛔ A RETURNED RECORD IS NOT PERMISSION TO PROMOTE. From 2026-11-01 the
+    best-of-K null GATES, and a record may come back with `blocked: True` and
+    a `gate` explaining why. The record is still returned, rather than None,
+    so the caller can RECORD the refusal — a block recorded nowhere is
+    indistinguishable from a week when no arm qualified, and those are
+    opposite situations. Any caller must therefore check `blocked` before
+    applying; `if promo:` alone is a bug. See _promotion_gate.
+    """
     champ_arm = champion["arm"]
     champ_series = _arm_series(weeks, champ_arm)
     qualifiers = []
@@ -378,19 +387,186 @@ def decide_promotion(champion: dict, weeks: dict, active_arms: list) -> dict | N
     best = min(qualifiers, key=lambda q: q["cum_mae"])
     m = re.match(r"^own_weekly_v(\d+)$", champion["version"])
     nxt = f"own_weekly_v{int(m.group(1)) + 1}" if m else champion["version"] + "+1"
+    # THE STANDING NULL (BLEND-SEARCH-DESIGN §3, D's condition 4, wired
+    # 08-18): picking the best of K arms buys a margin for free, and that free
+    # margin GROWS as arms are added.
+    null = _best_of_k_null(weeks, [a["name"] for a in active_arms])
+    # ⛔ AND IT NOW GATES. See _promotion_gate. Evaluated ONCE — calling it
+    # twice to fill `gate` and `blocked` separately would let the two disagree.
+    # ⚠️ k IS THE NULL'S OWN FIELD SIZE, not len(active_arms). My first version
+    # passed the latter and it is wrong in the DANGEROUS direction: an arm
+    # added mid-season has no column in earlier weeks, so _best_of_k_null
+    # drops it and the field it actually tested can be far smaller than the
+    # declared arm list. Reachability depends on the k that was TESTED — using
+    # 7 when the test ran on 2 would have declared the gate reachable at sizes
+    # where it provably cannot pass, which is precisely the false reassurance
+    # _gate_is_reachable exists to prevent.
+    gate = _promotion_gate(null, best["arm"], null.get("k") or 0)
     return {
         "from": {"version": champion["version"], "arm": champ_arm},
         "to": {"version": nxt, "arm": best["arm"]},
         "evidence": best,
-        # THE STANDING NULL (BLEND-SEARCH-DESIGN §3, D's condition 4, wired
-        # 08-18): picking the best of K arms buys a margin for free, and that
-        # free margin GROWS as arms are added. ATTACHED, NOT GATING — the
-        # promotion rule above is Cory-ruled verbatim and this does not change
-        # it; it makes every promotion carry the question "would K skill-free
-        # arms have produced this margin?" so the human reading the promotion
-        # issue sees the answer beside the win instead of nobody asking.
-        "best_of_k": _best_of_k_null(weeks, [a["name"] for a in active_arms]),
+        "best_of_k": null,
+        "gate": gate,
+        "blocked": not gate["passed"],
     }
+
+
+#: The null must clear this to license a promotion.
+GATE_ALPHA = 0.05
+#: Permutations for the reachability probe only; the null itself uses
+#: best_of_k's own default.
+_REACH_PERMUTATIONS = 2000
+_REACH_CACHE: dict = {}
+
+
+def _gate_is_reachable(k: int, n: int) -> dict:
+    """⚠️ THE GATE'S OWN KNOWN-POSITIVE (rule 3e), and it is not decoration —
+    D measured on 2026-08-21 that gating silently raises the effective minimum
+    from PROMOTION_MIN_WEEKS = 3 to SIX WEEKS whenever only two arms are active.
+    Independently reproduced 2026-11-01 before this gate shipped, same numbers:
+
+        k=2 -> p 0.2584 at 3 weeks, 0.1279 at 4, 0.0710 at 5, first clears at 6
+        k=4 -> first clears at 4
+        k=7 -> clears from 3 (our live arm set, so reachable today)
+
+    Without this probe the early-season log would read "not distinguishable
+    from skill-free" every week — a sentence about the ARM when the true
+    statement is that THE TEST COULD NOT HAVE PASSED at that size. Those are
+    different claims and only one of them is about the model.
+
+    Feeds it the most extreme evidence the design admits: one perfect arm, the
+    field uniformly worse. If even that cannot clear GATE_ALPHA, nothing can.
+    """
+    key = (k, n)
+    if key in _REACH_CACHE:
+        return _REACH_CACHE[key]
+    out: dict
+    try:
+        from best_of_k import best_of_k
+        if k < 2 or n < 1:
+            out = {"reachable": False, "why": f"k={k}, n={n} is not a comparison"}
+        else:
+            errs = {"__perfect__": [0.0] * n}
+            for j in range(k - 1):
+                errs[f"__worse{j}__"] = [1.0] * n
+            r = best_of_k(errs, permutations=_REACH_PERMUTATIONS)
+            best_p = r["field_p_value"]
+            out = {"reachable": best_p < GATE_ALPHA,
+                   "best_achievable_p": round(best_p, 4),
+                   "k": k, "n_rows": n, "alpha": GATE_ALPHA}
+            if not out["reachable"]:
+                out["why"] = (f"with k={k} arms over n={n} common weeks the "
+                              f"smallest p the test can produce is {best_p:.4f}, "
+                              f"which cannot clear {GATE_ALPHA} — this is a "
+                              "statement about the TEST SIZE, not about the arm")
+    except Exception as exc:                              # noqa: BLE001
+        #: Cannot establish reachability => cannot claim the gate is meaningful.
+        out = {"reachable": False,
+               "why": f"reachability probe FAILED ({type(exc).__name__}: {exc})"}
+    _REACH_CACHE[key] = out
+    return out
+
+
+def _promotion_gate(null: dict, promoting_arm: str, k: int) -> dict:
+    """⛔ BEST-OF-K GATES, from 2026-11-01 (Cory: "Yes" — start on the gate).
+
+    WHY, measured: register 211 ran the promotion rule against constructed
+    nulls and found it promotes a SKILL-FREE arm in 95.0% of seasons, against
+    96.8% for a real -15% MAE edge and 98.9% for -40%. Four points of
+    separation between nothing and unmissable — i.e. as shipped the rule was
+    not a gate, it was a formality. Gating this null cuts the skill-free rate
+    to 17.9%.
+
+    ⚠️ READ THE CEILING BEFORE BELIEVING A PASS. The same measurement puts the
+    gate's power at only 22.7% for a realistic -15% edge, reaching 54.8% at
+    -40%. So a pass means THE RULE FIRED AND THE NULL DID NOT STOP IT. It does
+    not mean the arm is better, and this verdict is worded to say so.
+
+    FOUR CONDITIONS, each blocking:
+      1. the null RAN. An unrunnable null is missing, not passed — it never
+         raises (see _best_of_k_null), so treating its status string as truthy
+         would open the gate exactly when it cannot see.
+      2. it SURVIVES at GATE_ALPHA on the field margin.
+      3. the arm being promoted IS the null's winner. The null licenses THE
+         WINNER of the field; promoting a different arm on the winner's
+         p-value is a category error, and the two CAN differ — the rule picks
+         on cumulative MAE vs the CHAMPION plus recency, the null picks the
+         lowest MAE in the field.
+      4. the test was REACHABLE at this (k, n) — see _gate_is_reachable.
+
+    ⚠️ AND A LIMITATION OF THE STATISTIC THAT APPLIES TO US RIGHT NOW.
+    best_of_k's own header: "field_margin is meaningful when the K arms are all
+    SERIOUS CANDIDATES. A parameter sweep that includes values known to be bad
+    is not that" — because known-bad arms inflate the field margin and flatter
+    the winner. Our seven live arms ARE a sweep of one axis (divisor, tilt
+    scale, pull), so the field margin is inflated TODAY and this gate is
+    correspondingly LENIENT. Condition 3 is what keeps it honest in the
+    meantime, and the runner-up p-value is recorded beside the verdict so a
+    reader can see the conservative read. The fix is breadth, not a different
+    threshold: `projection_breadth.js` reports 1 of 8 axes live with six
+    deadlines passed. When real axes ship, the field becomes serious
+    candidates and field_margin becomes the right statistic.
+    """
+    status = (null or {}).get("status")
+    if status != "ran":
+        return {"passed": False,
+                "reason": f"the null did not run ({status}) — a null that "
+                          "cannot see is missing, not passed",
+                "null_status": status}
+    reach = _gate_is_reachable(k, null.get("n_rows") or 0)
+    if not reach.get("reachable"):
+        return {"passed": False, "reason": reach.get("why", "gate unreachable"),
+                "unreachable": True, "reachability": reach}
+    if null.get("winner") != promoting_arm:
+        return {"passed": False,
+                "reason": (f"the rule wants to promote `{promoting_arm}` but the "
+                           f"null's field winner is `{null.get('winner')}` — the "
+                           "null licenses the winner, not a different arm"),
+                "null_winner": null.get("winner"), "reachability": reach}
+    if not null.get("survives"):
+        return {"passed": False,
+                "reason": (f"field margin {null.get('field_margin')} does not "
+                           f"clear the skill-free null (p={null.get('field_p_value')}"
+                           f" >= {GATE_ALPHA}); K arms with no skill would "
+                           f"produce {null.get('null_field_margin_mean')} on "
+                           "average"),
+                "field_p_value": null.get("field_p_value"),
+                "reachability": reach}
+    out = {
+        "passed": True,
+        #: Deliberately NOT "this arm is better" — see the ceiling above.
+        "reason": (f"the rule fired and the null did not stop it "
+                   f"(field p={null.get('field_p_value')}, "
+                   f"margin {null.get('field_margin')} vs a skill-free "
+                   f"{null.get('null_field_margin_mean')})"),
+        "field_p_value": null.get("field_p_value"),
+        #: The conservative read, recorded because our field is still a sweep.
+        "runner_up_p_value": null.get("runner_up_p_value"),
+        "power_ceiling": ("register 211: this gate has ~22.7% power at a "
+                          "realistic -15% edge, 54.8% at -40%. A pass is not "
+                          "proof the arm is better."),
+        "reachability": reach,
+    }
+    #: ⚠️ WHEN THE TWO STATISTICS DISAGREE, SAY SO ON THE PASS ITSELF.
+    #: Measured on the live ledger 2026-11-01: field p=0.0005 while the
+    #: runner-up p was 0.3638 — the lenient read sails through while the
+    #: conservative one says the top two arms are indistinguishable. That is
+    #: the inflation best_of_k's own header predicts for a field of
+    #: near-duplicate sweep arms, observed rather than theorised. It is
+    #: informational, NOT a second blocking condition: register 211's 17.9%
+    #: skill-free rate was measured for the FIELD statistic, and swapping the
+    #: gating statistic would invalidate that number, so it needs its own
+    #: measurement rather than a snap judgement here (register 544).
+    ru = null.get("runner_up_p_value")
+    if ru is not None and ru >= GATE_ALPHA:
+        out["caveat"] = (
+            f"the field test passed (p={null.get('field_p_value')}) but the "
+            f"CONSERVATIVE runner-up test did not (p={ru} >= {GATE_ALPHA}): "
+            f"`{promoting_arm}` is not distinguishable from the second-best "
+            "arm. With a field of near-duplicate arms the field margin is "
+            "inflated, so read this pass as 'best of a cluster', not 'better'.")
+    return out
 
 
 def _best_of_k_null(weeks: dict, arm_names: list) -> dict:
@@ -630,6 +806,16 @@ def issue_text(record: dict) -> tuple[str, str]:
     sh = record.get("shadow")
     if sh:
         lines.append(f"- **Shadow start/sit rule (report-only):** {sh['note']}")
+    # ⛔ THE GATE THAT LICENSED THIS, in the alert Cory actually reads. A
+    # promotion whose null lives only in JSON invites exactly the reading the
+    # null exists to prevent — "the model improved" — when the honest sentence
+    # is "the rule fired and the null did not stop it".
+    g = record.get("gate") or {}
+    if g.get("passed"):
+        lines.append(f"- **best-of-K null:** {g['reason']}")
+        lines.append(f"  - {g.get('power_ceiling', '')}")
+        if g.get("caveat"):
+            lines.append(f"  - ⚠️ {g['caveat']}")
     lines += [
         "",
         "| week | challenger MAE | champion MAE |",
@@ -667,6 +853,10 @@ def empty_ledger(season: int) -> dict:
         # (the scoreboard page included) quotes them instead of re-deriving.
         "active_arms": [{**a, "formula": arm_formula(a)} for a in DEFAULT_ARMS],
         "promotions": [],
+        #: Promotions the rule WANTED and the best-of-K null refused. Present
+        #: from the skeleton so "no blocks" is an empty list rather than a
+        #: missing key a reader has to interpret.
+        "blocked_promotions": [],
         "weeks": {},
     }
 
@@ -983,6 +1173,23 @@ def main(argv: list | None = None) -> int:
                          ("as_of_week", "computed_at", "champion", "mae_rule",
                           "startsit_rule", "agree", "note")})
         print(f"shadow rule (report-only): {shadow['note']}")
+    if promo and promo.get("blocked"):
+        # ⛔ A BLOCK RECORDED NOWHERE IS INDISTINGUISHABLE FROM A WEEK WHEN NO
+        # ARM QUALIFIED, and those are opposite situations: one means nothing
+        # looked better, the other means something looked better and the null
+        # would not license it. Both belong on the ledger.
+        blocked = {
+            "blocked_at": today.isoformat(),
+            "would_have_promoted": promo["to"],
+            "from": promo["from"],
+            "reason": promo["gate"]["reason"],
+            "gate": promo["gate"],
+            "evidence": promo["evidence"],
+        }
+        ledger.setdefault("blocked_promotions", []).append(blocked)
+        print("PROMOTION BLOCKED by the best-of-K null: "
+              f"{promo['to']['arm']} — {promo['gate']['reason']}")
+        promo = None
     if promo:
         promoted_def = next(a for a in ledger["active_arms"]
                             if a["name"] == promo["to"]["arm"])

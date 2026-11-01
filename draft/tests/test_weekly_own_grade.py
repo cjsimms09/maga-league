@@ -315,8 +315,20 @@ def test_main_dry_run_redirects_the_ledger(tmp_path):
     assert not (own / "grades_2026.json").exists()          # nothing in place
 
 
-def test_main_promotes_after_three_winning_weeks_and_writes_the_alert(tmp_path):
-    own, actuals, series = _setup_dir(tmp_path, weeks=(1, 2, 3))
+#: ⛔ WHY THESE FIXTURES GREW FROM 3 WEEKS TO 6 ON 2026-11-01.
+#: The best-of-K null now GATES (register 211: the rule alone promotes a
+#: skill-free arm in 95% of seasons). The gate has a measured minimum SIZE: at
+#: k=2 active arms the smallest p the permutation test can produce is 0.2584 at
+#: 3 weeks, 0.1279 at 4, 0.0710 at 5, and it first clears 0.05 at SIX. These
+#: fixtures carry exactly two arms with data, so a 3-week fixture cannot
+#: promote any more — not because the arm is worse but because the test cannot
+#: see. Both directions are now tested: this one promotes at a size the null
+#: can resolve, and the next one asserts the refusal at a size it cannot.
+_GATE_MIN_WEEKS_AT_K2 = (1, 2, 3, 4, 5, 6)
+
+
+def test_main_promotes_after_enough_winning_weeks_and_writes_the_alert(tmp_path):
+    own, actuals, series = _setup_dir(tmp_path, weeks=_GATE_MIN_WEEKS_AT_K2)
     # make the challenger strictly better every week: nudge actuals toward it
     doc = json.loads(Path(actuals).read_text())
     for w in doc["weeks"].values():
@@ -324,15 +336,28 @@ def test_main_promotes_after_three_winning_weeks_and_writes_the_alert(tmp_path):
         w["players"]["2"] = 21.0       # v1 err 1; v1_notilt err 0
         w["players"]["3"] = 8.0
     Path(actuals).write_text(json.dumps(doc))
+    #: 11-01 not 09-29: weeks 4-6 had not finished by 09-29, so
+    #: grading correctly refused them and the fixture only ever
+    #: produced 3 graded weeks — below the gate's k=2 minimum.
     env = _env(own, actuals, series, tmp_path)
-    assert _run_main(["--date", "2026-09-29"], env) == 0
+    assert _run_main(["--date", "2026-11-01"], env) == 0
     ledger = json.loads((own / "grades_2026.json").read_text())
+    last = max(int(w) for w in ledger["weeks"])
     assert ledger["champion"] == {"version": "own_weekly_v2",
-                                  "arm": "v1_notilt", "since_week": 4}
+                                  "arm": "v1_notilt", "since_week": last + 1}
     assert len(ledger["promotions"]) == 1
     rec = ledger["promotions"][0]
     assert rec["from"]["arm"] == "v1" and rec["to"]["arm"] == "v1_notilt"
-    assert rec["effective_from_week"] == 4
+    assert rec["effective_from_week"] == last + 1
+    # ⛔ AND THE PROMOTION CARRIES THE GATE IT PASSED, not just the null
+    assert rec["gate"]["passed"] is True
+    assert rec["blocked"] is False
+    assert rec["gate"]["reason"].startswith("the rule fired and the null did not stop it")
+    #: the pass must NOT be dressed up as proof the arm is better — register
+    #: 211 puts this gate's power at ~22.7% for a realistic edge
+    assert "power_ceiling" in rec["gate"]
+    assert rec["gate"]["reachability"]["reachable"] is True
+    assert ledger["blocked_promotions"] == []
     # the OLD champion survives as an active challenger
     assert any(a["name"] == "v1" for a in ledger["active_arms"])
     # the alert payload exists for the workflow's issue step
@@ -340,6 +365,42 @@ def test_main_promotes_after_three_winning_weeks_and_writes_the_alert(tmp_path):
     assert (issue / "promotion_title.txt").read_text().startswith(
         "Weekly model adapted: own_weekly_v1 -> own_weekly_v2")
     assert "| 1 |" in (issue / "promotion_body.md").read_text()
+
+
+def test_main_BLOCKS_and_RECORDS_when_the_gate_cannot_pass_at_this_size(tmp_path):
+    """⚠️ THE OTHER DIRECTION, and the one that makes the gate worth having.
+
+    Same winning challenger, three weeks instead of six. The rule fires — it
+    only ever asked for 3 weeks and 3-of-last-4 — and the null refuses,
+    because at k=2 over 3 rows the test cannot produce a p below 0.2584.
+
+    The refusal must be RECORDED. A block recorded nowhere is indistinguishable
+    from a week when no arm qualified, and those are opposite situations: one
+    means nothing looked better, the other means something looked better and
+    the null would not license it.
+    """
+    own, actuals, series = _setup_dir(tmp_path, weeks=(1, 2, 3))
+    doc = json.loads(Path(actuals).read_text())
+    for w in doc["weeks"].values():
+        w["players"]["1"] = 9.0
+        w["players"]["2"] = 21.0
+        w["players"]["3"] = 8.0
+    Path(actuals).write_text(json.dumps(doc))
+    env = _env(own, actuals, series, tmp_path)
+    assert _run_main(["--date", "2026-09-29"], env) == 0
+    ledger = json.loads((own / "grades_2026.json").read_text())
+    # nothing applied
+    assert ledger["promotions"] == []
+    assert ledger["champion"]["arm"] == "v1"
+    # and the refusal is on the record, with its reason
+    assert len(ledger["blocked_promotions"]) == 1
+    b = ledger["blocked_promotions"][0]
+    assert b["would_have_promoted"]["arm"] == "v1_notilt"
+    assert b["gate"]["unreachable"] is True
+    assert "statement about the TEST SIZE, not about the arm" in b["reason"]
+    #: the evidence the rule found is kept, so the block is auditable rather
+    #: than a bare "no"
+    assert b["evidence"]["arm"] == "v1_notilt"
 
 
 def test_main_holds_promotions_while_adaptation_is_paused(tmp_path):
@@ -611,14 +672,19 @@ def test_main_writes_the_shadow_verdict_even_while_an_override_holds_the_wheel(t
 
 
 def test_promotion_alert_carries_the_shadow_line(tmp_path):
-    own, actuals, series = _setup_dir(tmp_path, weeks=(1, 2, 3))
+    #: six weeks, not three — the gate's minimum at k=2; see
+    #: _GATE_MIN_WEEKS_AT_K2
+    own, actuals, series = _setup_dir(tmp_path, weeks=_GATE_MIN_WEEKS_AT_K2)
     doc = json.loads(Path(actuals).read_text())
     for w in doc["weeks"].values():
         w["players"]["1"] = 9.0
         w["players"]["2"] = 21.0
     Path(actuals).write_text(json.dumps(doc))
+    #: 11-01 not 09-29: weeks 4-6 had not finished by 09-29, so
+    #: grading correctly refused them and the fixture only ever
+    #: produced 3 graded weeks — below the gate's k=2 minimum.
     env = _env(own, actuals, series, tmp_path)
-    assert _run_main(["--date", "2026-09-29"], env) == 0
+    assert _run_main(["--date", "2026-11-01"], env) == 0
     ledger = json.loads((own / "grades_2026.json").read_text())
     rec = ledger["promotions"][0]
     assert rec["shadow"]["startsit_rule"] is None                    # too few pairs
@@ -636,3 +702,158 @@ def test_startsit_shadow_tolerates_an_arm_added_mid_season():
         del r["proj"]["v1_notilt"]
     ss = WG.decide_promotion_startsit(CHAMPION, weeks, ARMS)
     assert ss is not None and ss["weeks_used"] == [2, 3, 4]
+
+
+# ── the best-of-K GATE, condition by condition (register 211) ────────────────
+#
+# Why the gate exists, measured: register 211 ran the promotion rule against
+# constructed nulls and found it promotes a SKILL-FREE arm in 95.0% of seasons,
+# against 96.8% for a real -15% MAE edge and 98.9% for -40%. Four points of
+# separation between nothing and unmissable. Gating the null cuts the
+# skill-free rate to 17.9%.
+#
+# Four conditions, each of which must BLOCK on its own. A gate is only worth
+# having if every arm of it is tested — a condition nothing exercises is a
+# condition that will quietly stop working.
+
+def _ran_null(**over):
+    """A null that RAN, with the winner surviving — the pass case, which each
+    test below then breaks in exactly one way."""
+    out = {"status": "ran", "k": 7, "n_rows": 7, "winner": "v1_notilt",
+           "survives": True, "field_p_value": 0.004, "field_margin": 0.42,
+           "null_field_margin_mean": 0.11, "runner_up_p_value": 0.03}
+    out.update(over)
+    return out
+
+
+def test_gate_passes_when_the_null_ran_and_the_winner_survives():
+    g = WG._promotion_gate(_ran_null(), "v1_notilt", 7)
+    assert g["passed"] is True
+    # ⚠️ worded as "the rule fired and the null did not stop it" ON PURPOSE.
+    # The gate's power is ~22.7% at a realistic edge, so a pass is NOT
+    # evidence the arm is better and must not read as if it were.
+    assert "did not stop it" in g["reason"]
+    assert "not proof the arm is better" in g["power_ceiling"]
+
+
+def test_gate_BLOCKS_when_the_null_could_not_run():
+    """_best_of_k_null never raises — it returns a status string. Treating that
+    string as truthy would open the gate exactly when it cannot see, which is
+    the worst possible moment."""
+    for status in ("NOT RUN — needs >=2 arms with >=3 common graded weeks",
+                   "FAILED to run (ValueError: boom) — the null is missing, "
+                   "not passed"):
+        g = WG._promotion_gate({"status": status}, "v1_notilt", 7)
+        assert g["passed"] is False
+        assert "missing, not passed" in g["reason"]
+
+
+def test_gate_BLOCKS_when_the_margin_does_not_clear_the_null():
+    g = WG._promotion_gate(
+        _ran_null(survives=False, field_p_value=0.41), "v1_notilt", 7)
+    assert g["passed"] is False
+    assert "does not clear the skill-free null" in g["reason"]
+    assert g["field_p_value"] == 0.41
+
+
+def test_gate_BLOCKS_when_the_promoted_arm_IS_NOT_the_nulls_winner():
+    """The null licenses THE WINNER of the field. The rule can pick a different
+    arm — it selects on cumulative MAE against the CHAMPION plus recency, while
+    the null selects the lowest MAE in the field — and promoting arm X on arm
+    Y's p-value is a category error."""
+    g = WG._promotion_gate(_ran_null(winner="v1_pg16"), "v1_notilt", 7)
+    assert g["passed"] is False
+    assert "licenses the winner, not a different arm" in g["reason"]
+    assert g["null_winner"] == "v1_pg16"
+
+
+def test_gate_BLOCKS_when_the_test_cannot_pass_at_this_size():
+    """k=2 over 3 rows cannot produce a p below 0.2584, so "not distinguishable
+    from skill-free" there is a statement about the TEST, not the arm."""
+    g = WG._promotion_gate(_ran_null(k=2, n_rows=3), "v1_notilt", 2)
+    assert g["passed"] is False
+    assert g["unreachable"] is True
+    assert "statement about the TEST SIZE" in g["reason"]
+
+
+def test_reachability_reproduces_the_measured_minimum_sizes():
+    """⚠️ THE GATE'S OWN KNOWN-POSITIVE (rule 3e). D measured these on
+    2026-08-21 and they were reproduced independently on 2026-11-01 before the
+    gate shipped. If this drifts, the gate is silently changing the effective
+    minimum number of weeks before anything can be promoted."""
+    assert WG._gate_is_reachable(2, 3)["reachable"] is False
+    assert WG._gate_is_reachable(2, 5)["reachable"] is False
+    assert WG._gate_is_reachable(2, 6)["reachable"] is True     # first clears at 6
+    assert WG._gate_is_reachable(4, 3)["reachable"] is False
+    assert WG._gate_is_reachable(4, 4)["reachable"] is True     # k=4 clears at 4
+    #: our live arm set is 7, which is reachable from 3 — so the gate costs the
+    #: live loop no extra weeks today. That is WHY it was safe to ship midseason.
+    assert WG._gate_is_reachable(7, 3)["reachable"] is True
+
+
+def test_the_gate_uses_the_NULLS_field_size_not_the_declared_arm_count():
+    """⚠️ A BUG I SHIPPED AND CAUGHT IN THE SAME SESSION. The first version
+    passed len(active_arms) as k. An arm added mid-season has no column in
+    earlier weeks, so _best_of_k_null drops it and the field it ACTUALLY
+    tested can be far smaller than the declared list. Passing 7 when the test
+    ran on 2 declares the gate reachable at a size where it provably cannot
+    pass — the exact false reassurance the probe exists to prevent."""
+    weeks = _weeks([5.0, 5.0, 5.0], [4.0, 4.5, 4.8])      # 2 arms, 3 weeks
+    p = WG.decide_promotion(CHAMPION, weeks, ARMS)          # ARMS declares 7
+    assert p is not None                                     # the rule fired
+    assert p["best_of_k"]["k"] == 2                           # but only 2 ran
+    assert p["blocked"] is True
+    assert p["gate"]["unreachable"] is True
+    assert p["gate"]["reachability"]["k"] == 2                # not 7
+
+
+def test_a_blocked_record_is_still_RETURNED_so_it_can_be_recorded():
+    """decide_promotion returns the record rather than None when blocked, so
+    the caller can log the refusal. A block recorded nowhere is
+    indistinguishable from a week when no arm qualified."""
+    p = WG.decide_promotion(CHAMPION, _weeks([5.0, 5.0, 5.0], [4.0, 4.5, 4.8]),
+                            ARMS)
+    assert p is not None and p["blocked"] is True
+    assert p["evidence"]["arm"] == "v1_notilt"     # the evidence survives
+    assert p["gate"]["reason"]
+
+
+def test_a_pass_SAYS_SO_when_the_conservative_test_disagrees():
+    """Measured on the live ledger 2026-11-01: field p=0.0005 while runner-up
+    p=0.3638. The lenient statistic sails through while the conservative one
+    says the top two arms are indistinguishable — the inflation best_of_k's
+    header predicts for a field of near-duplicate sweep arms. A pass that hides
+    that is a pass that will be over-read."""
+    g = WG._promotion_gate(_ran_null(runner_up_p_value=0.3638), "v1_notilt", 7)
+    assert g["passed"] is True
+    assert "not distinguishable from the second-best arm" in g["caveat"]
+    assert "best of a cluster" in g["caveat"]
+
+
+def test_no_caveat_when_both_statistics_agree():
+    g = WG._promotion_gate(_ran_null(runner_up_p_value=0.01), "v1_notilt", 7)
+    assert g["passed"] is True and "caveat" not in g
+
+
+def test_the_promotion_ALERT_carries_the_gate_and_its_ceiling():
+    """The alert is what Cory reads. A promotion whose null lives only in JSON
+    invites the reading the null exists to prevent."""
+    rec = {
+        "from": {"version": "own_weekly_v1", "arm": "v1"},
+        "to": {"version": "own_weekly_v2", "arm": "v1_notilt"},
+        "evidence": {"recent_wins": "3 of last 3", "cum_mae": 4.1,
+                     "champion_cum_mae": 5.0, "weeks_used": [1, 2, 3],
+                     "cum_spearman": 0.6, "champion_cum_spearman": 0.6,
+                     #: every week in weeks_used needs a per_week row —
+                     #: issue_text builds its table by iterating weeks_used
+                     "per_week": {str(w): {"challenger": 4.1, "champion": 5.0}
+                                  for w in (1, 2, 3)}},
+        "gate": WG._promotion_gate(_ran_null(runner_up_p_value=0.36),
+                                   "v1_notilt", 7),
+    }
+    _, body = WG.issue_text(rec)
+    assert "best-of-K null" in body
+    assert "did not stop it" in body
+    assert "not proof the arm is better" in body
+    #: and the disagreement between the two statistics reaches him too
+    assert "not distinguishable from the second-best arm" in body

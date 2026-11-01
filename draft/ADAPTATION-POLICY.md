@@ -16,11 +16,44 @@ graded week exists, so no threshold can be invented after a result.
    **3 consecutive graded weeks** is BENCHED — it stops feeding any published
    number but keeps grading in shadow. Benching is automatic (the Tuesday
    grader prints the verdict); un-benching goes through rule 2 like any arm.
-2. **QUICK-PROMOTE:** any shadow arm that beats the champion for
-   **3 consecutive graded weeks** AND clears the best-of-K null in that
-   window is PROMOTED to publish from the next Tuesday. One promotion per
-   week maximum — two arms clearing at once means the better margin goes
-   first and the other waits a week (churn is its own failure mode).
+2. **QUICK-PROMOTE** — ⚠️ **RESTATED 2026-11-01 TO MATCH THE CODE, which is
+   what register 199 ruled ("the DOC moves to the CODE, not the reverse") and
+   which had not been done.** This rule previously read *"beats the champion
+   for **3 consecutive graded weeks** AND clears the best-of-K null"*. Both
+   halves were wrong: the code never required *consecutive* weeks and it
+   silently carried two further conditions the doc dropped, and the best-of-K
+   clause described a gate that **did not exist** — the null was computed and
+   attached to the promotion record, and nothing blocked on it. As of
+   2026-11-01 it blocks. The rule, read off `decide_promotion` and
+   `_promotion_gate` in `draft/weekly_own_grade.py`:
+
+   An arm is PROMOTED to publish from the next Tuesday when ALL of:
+   - **(a)** it shares **≥ 3 graded weeks** with the champion
+     (`PROMOTION_MIN_WEEKS`);
+   - **(b)** it beats the champion in **≥ 3 of the last 4** of those weeks —
+     *consecutive is NOT required*;
+   - **(c)** it leads **cumulative MAE** over the common span;
+   - **(d)** it does not lose **cumulative Spearman** by more than
+     `PROMOTION_SPEARMAN_TOLERANCE`;
+   - **(e)** ⛔ **the best-of-K null licenses it** — the null ran, the arm IS
+     the null's field winner, the field margin clears p < 0.05, and the test
+     was **reachable at that (k, n)**. Why it gates: register 211 measured the
+     rule without it promoting a **skill-free arm in 95.0% of seasons**
+     against 96.8% for a real −15% edge — four points of separation between
+     nothing and unmissable. Gating cuts the skill-free rate to **17.9%**.
+
+   **Read a pass as "the rule fired and the null did not stop it", never as
+   "the arm is better":** the same measurement puts the gate's power at only
+   **22.7%** at a realistic −15% edge. **And the gate has a minimum SIZE** —
+   at k=2 live arms the test cannot clear 0.05 until **6** graded weeks (k=4:
+   4; k=7, today's set: 3), so "not distinguishable from skill-free" at a
+   small size is a statement about the TEST and is reported as one.
+   **A refusal is recorded** in the ledger's `blocked_promotions` and shown on
+   `/admin/model-scoreboard`, because a block recorded nowhere is
+   indistinguishable from a week when no arm qualified.
+
+   One promotion per week maximum — two arms clearing at once means the better
+   margin goes first and the other waits a week (churn is its own failure mode).
 3. **NEVER-EMPTY:** every Tuesday, each of D/E (and C for capture health)
    files at least one of: a new blind P-row · a graded P-row · a line reading
    `NOTHING — <reason>`. The ledger's OPEN floor (≥6) already guards the
