@@ -208,6 +208,111 @@
    "crosswalk_pooled_rate": 0.8251
   },
   {
+   "observed_at": "2026-11-01",
+   "season": 2025,
+   "examined": null,
+   "readable_leagues": 129,
+   "matched": 0,
+   "teams": {
+    "12": 57,
+    "10": 24,
+    "8": 9,
+    "14": 7,
+    "16": 6,
+    "20": 2,
+    "48": 2,
+    "6": 2,
+    "7": 2,
+    "5": 2,
+    "4": 2,
+    "17": 2,
+    "24": 2,
+    "32": 1,
+    "28": 1,
+    "27": 1,
+    "196": 1,
+    "33": 1,
+    "40": 1,
+    "243": 1,
+    "30": 1,
+    "19": 1,
+    "2": 1
+   },
+   "reception_points": {
+    "0.9-1.1 (full PPR)": 72,
+    "0 (standard)": 19,
+    "0.4-0.6 (half-PPR)": 8,
+    "(no reception rule)": 3,
+    "split/TE-premium QB=0.5,RB=0.5,TE=0.75,WR=0.5": 2,
+    "other:2.0": 2,
+    "other:3.0": 2,
+    "split/TE-premium QB=1.0,RB=1.0,TE=1.5,WR=1.0": 2,
+    "split/TE-premium QB=1.0,RB=1.0,TE=1.75,WR=1.25": 1,
+    "split/TE-premium QB=1.5,RB=0.5,TE=1.5,WR=1.0": 1,
+    "other:0.1": 1,
+    "split/TE-premium QB=0.5,RB=0.5,TE=1.0,WR=0.5": 1,
+    "other:0.2": 1,
+    "split/TE-premium RB=1.0,TE=1.5,WR=1.0": 1,
+    "other:5.0": 1,
+    "split/TE-premium RB=0.5,TE=1.5,WR=1.0": 1,
+    "other:20.0": 1,
+    "split/TE-premium QB=1.0,RB=1.5,TE=2.0,WR=1.0": 1,
+    "split/TE-premium RB=1.0,TE=2.0,WR=2.0": 1,
+    "split/TE-premium CB=1.0,DE=1.0,DT=1.0,LB=1.0,PK=1.0,QB=1.0,RB=1.0,S=1.0,TE=1.5,WR=1.0": 1,
+    "split/TE-premium QB=0.25,RB=0.5,TE=0.5,WR=0.5": 1,
+    "split/TE-premium RB=0.3,TE=1.0,WR=0.3": 1,
+    "split/TE-premium PK=1.0,QB=1.0,RB=0.5,TE=1.0,WR=0.75": 1,
+    "split/TE-premium QB=1.0,RB=1.0,TE=1.75,WR=1.0": 1,
+    "other:14.0": 1,
+    "split/TE-premium RB=1.0,TE=6.0,TMPK=1.0,WR=1.0": 1,
+    "split/TE-premium QB=1.25,RB=1.25,TE=1.75,WR=1.25": 1
+   },
+   "pass_td_points": {
+    "4 (market standard)": 53,
+    "6 (OURS)": 35,
+    "other:0.0": 15,
+    "(no passing-TD rule read)": 15,
+    "5": 6,
+    "other:3.0": 4,
+    "other:10.0": 1
+   },
+   "superflex": {
+    "False": 101,
+    "True": 28
+   },
+   "draft_type": {
+    "(absent)": 119,
+    "snake": 10
+   },
+   "keeper_type": {
+    "(absent)": 106,
+    "dynasty": 13,
+    "keeper": 9,
+    "none": 1
+   },
+   "rejected_by_reason": {
+    "F1.scoring_not_half_ppr": 66,
+    "F4.draft_type_absent": 1,
+    "F4.no_qb_slot_count": 1,
+    "F4.draft_type_unrecognised:SAME": 3,
+    "F1.teams": 48,
+    "F4.no_scoring_rules": 11,
+    "F1.starting_skill_slots": 2,
+    "F1.te_premium_or_split_ppr:WR=1.0,TE=1.5": 2,
+    "F1.te_premium_or_split_ppr:TE=0.75": 1,
+    "F1.te_premium_or_split_ppr:RB=1.0,WR=1.0,TE=1.5": 3,
+    "F1.qb_slots": 3,
+    "F4.draft_type_unrecognised:SDRAFT": 1,
+    "F1.te_premium_or_split_ppr:RB=0.3,WR=0.3,TE=1.0": 1,
+    "F4.fetch_failed:rules: http 429 Too Many Requests": 2,
+    "F4.fetch_failed:draftResults: http 429 Too Many Requests": 1,
+    "F1.te_premium_or_split_ppr:WR=0.75,TE=1.0": 1,
+    "F1.te_premium_or_split_ppr:RB=1.0,WR=1.0,TE=1.75": 1,
+    "F1.te_premium_or_split_ppr:RB=1.0,WR=1.0,TE=6.0": 1
+   },
+   "crosswalk_pooled_rate": 0.8257
+  },
+  {
    "observed_at": "2026-08-12",
    "season": 2026,
    "examined": null,
@@ -312,82 +417,82 @@
  ],
  "population": {
   "version": "field-population/v1",
-  "rows": 3,
+  "rows": 4,
   "fields": {
    "observed_at": {
-    "present": 3,
+    "present": 4,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "season": {
-    "present": 3,
+    "present": 4,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "examined": {
     "present": 0,
-    "null": 3,
+    "null": 4,
     "missing": 0,
     "pct": 0.0
    },
    "readable_leagues": {
-    "present": 3,
+    "present": 4,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "matched": {
-    "present": 3,
+    "present": 4,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "teams": {
-    "present": 3,
+    "present": 4,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "reception_points": {
-    "present": 3,
+    "present": 4,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "pass_td_points": {
-    "present": 3,
+    "present": 4,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "superflex": {
-    "present": 3,
+    "present": 4,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "draft_type": {
-    "present": 3,
+    "present": 4,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "keeper_type": {
-    "present": 3,
+    "present": 4,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "rejected_by_reason": {
-    "present": 3,
+    "present": 4,
     "null": 0,
     "missing": 0,
     "pct": 100.0
    },
    "crosswalk_pooled_rate": {
-    "present": 3,
+    "present": 4,
     "null": 0,
     "missing": 0,
     "pct": 100.0
@@ -395,8 +500,8 @@
    "_key_provenance": {
     "present": 1,
     "null": 0,
-    "missing": 2,
-    "pct": 33.3
+    "missing": 3,
+    "pct": 25.0
    }
   },
   "empty": [
