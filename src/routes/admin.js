@@ -1869,6 +1869,10 @@ router.get('/model-scoreboard', requireCory, aw(async (req, res) => {
     // informative thing the gate produces, because it is the case where
     // something looked better and the evidence would not carry it.
     blockedPromotions: (ledger && ledger.blocked_promotions) || [],
+    // Which arm wins at which position. Report-only: the live rule decides on
+    // pooled MAE, so a position-scoped win is diluted by that position's share
+    // of the rows and can be invisible in the pooled number.
+    byPosition: (ledger && ledger.by_position) || null,
     latest: weeks.length ? weeks[weeks.length - 1] : null,
     controls: { auto_adapt: controls.auto_adapt !== false,
       champion_override: controls.champion_override || null },

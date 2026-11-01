@@ -252,6 +252,41 @@
 </table>
 <% } %>
 
+<h2>Which arm wins at which position <span class="info" tabindex="0">&#9432;<span class="tip">
+  WHAT: every arm's cumulative error at each position, so you can see whether
+  one formula is right everywhere or whether positions want different
+  strategies. READ: lower is better. "champion best here" means the live arm is
+  already the best one at that position; a gap means some other arm does better
+  there. DO: nothing automatically — this promotes nothing. The live rule picks
+  ONE arm on pooled error, so a win at a single position gets diluted by that
+  position's share of the players.</span></span></h2>
+<% if (!byPosition || !byPosition.positions) { %>
+  <p class="meta">Not computed yet — it is written every Tuesday alongside the
+  grades.</p>
+<% } else { %>
+<p class="meta"><b><%= byPosition.verdict %></b></p>
+<table>
+  <tr><th>pos</th><th class="nm">best arm here</th><th>its error</th>
+    <th>champion's</th><th>gap</th></tr>
+  <% for (const pos of ['QB','RB','WR','TE']) {
+       const v = byPosition.positions[pos]; if (!v) continue; %>
+  <tr>
+    <td><b><%= pos %></b></td>
+    <% if (v.status) { %>
+      <td class="nm" colspan="4"><%= v.status %></td>
+    <% } else { %>
+      <td class="nm"><code><%= v.best_arm %></code>
+        <%= v.champion_is_best_here ? '— the champion, already best here' : '' %></td>
+      <td><%= v.best_mae %></td>
+      <td><%= v.champion_mae %></td>
+      <td><%= v.champion_gap === 0 ? '—' : v.champion_gap %></td>
+    <% } %>
+  </tr>
+  <% } %>
+</table>
+<p class="meta">Report-only: <%= byPosition._report_only %>.</p>
+<% } %>
+
 <h2>Refused by the null <span class="info" tabindex="0">&#9432;<span class="tip">
   WHAT: weeks where an arm passed the promotion rule and the best-of-K null
   would not license it. WHY IT MATTERS: picking the best of K arms buys a

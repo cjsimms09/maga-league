@@ -141,6 +141,38 @@ const LEDGER = {
   ck('and the refused arm is not listed as a promotion that happened',
     bhtml.indexOf('v1_pg16') > bhtml.indexOf('Refused by the null'));
   ck('no template error on the blocked path', !/ReferenceError|is not defined|Cannot read/.test(bhtml));
+
+  // ── 3c. the per-position board (Cory, 2026-11-01: different strategies for
+  // different positions). Report-only, but it has to be VISIBLE or the
+  // question cannot be answered from the page.
+  const BYPOS = JSON.parse(JSON.stringify(LEDGER));
+  BYPOS.by_position = {
+    _report_only: 'promotes nothing and changes no weight',
+    champion_arm: 'v1_pull3',
+    verdict: '2 distinct arm(s) win across 4 positions — QB:v1_blend_pull3, TE:v1',
+    winners_by_position: { QB: 'v1_blend_pull3', TE: 'v1' },
+    distinct_winning_arms: 2,
+    positions: {
+      QB: { best_arm: 'v1_blend_pull3', best_mae: 8.0265, champion_mae: 8.1984,
+            champion_gap: 0.1719, champion_is_best_here: false, arms: {} },
+      TE: { best_arm: 'v1', best_mae: 3.3495, champion_mae: 3.42,
+            champion_gap: 0.0705, champion_is_best_here: false, arms: {} },
+      RB: { status: 'no graded rows at this position' },
+    },
+  };
+  fs.writeFileSync(path.join(OWN_DIR, 'grades_2026.json'), JSON.stringify(BYPOS));
+  const phtml = await (await fetch(b + '/admin/model-scoreboard', { headers: { Cookie: cc } })).text();
+  ck('per-position board renders each position with its best arm and the gap',
+    phtml.includes('v1_blend_pull3') && phtml.includes('8.0265')
+      && phtml.includes('0.1719') && phtml.includes('3.3495'));
+  ck('the verdict sentence is shown, not just the table',
+    phtml.includes('2 distinct arm(s) win across 4 positions'));
+  ck('a position with no rows degrades honestly instead of rendering blanks',
+    phtml.includes('no graded rows at this position'));
+  ck('it is labelled report-only so nobody reads it as a promotion',
+    /Report-only/.test(phtml) && phtml.includes('promotes nothing'));
+  ck('no template error on the per-position path',
+    !/ReferenceError|is not defined|Cannot read/.test(phtml));
   // put the plain ledger back so later assertions see what they expect
   fs.writeFileSync(path.join(OWN_DIR, 'grades_2026.json'), JSON.stringify(LEDGER));
   html = await (await fetch(b + '/admin/model-scoreboard', { headers: { Cookie: cc } })).text();

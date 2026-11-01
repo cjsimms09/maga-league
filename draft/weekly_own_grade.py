@@ -724,6 +724,119 @@ def decide_promotion_startsit(champion: dict, weeks: dict,
     return max(qualifiers, key=lambda q: q["cum_accuracy"])
 
 
+def by_position_board(weeks: dict, active_arms: list, champion_arm: str) -> dict:
+    """WHICH ARM WINS AT WHICH POSITION — cumulative, report-only.
+
+    Cory, 2026-11-01: *"We need to be trying different strategies for different
+    positions. Maybe an agent for each position?"*
+
+    He is right that position matters, and the evidence was sitting in the
+    ledger unaggregated: every week already stores per-position MAE for every
+    arm, and nothing ever pooled it across weeks, so nobody could see that the
+    arms disagree BY POSITION. Measured by hand on weeks 1-7 before this
+    existed:
+
+      * the Vegas tilt is ALREADY position-scoped and deliberately zero at TE
+        (VG = QB .5 / RB .5 / WR .5 / TE 0.0, from the graded v5 prereg), which
+        is why all four tilt arms give byte-identical TE numbers. Not a bug.
+      * the PULL toward realized points is NOT scoped, and its sign FLIPS:
+        it beats no-pull at QB by 0.789 MAE (95% CI [-1.368, -0.210], excludes
+        zero) and at WR by 0.176 (CI excludes zero), and it LOSES at TE by
+        0.077 (5 of 7 weeks).
+      * ⚠️ AND THE WHOLE PRIZE IS SMALL WITHIN THIS ARM FAMILY. The
+        hindsight-optimal position-scoped recipe buildable from the seven live
+        arms — pull at QB/RB/WR, no pull at TE — pools to 4.2760 against the
+        live arm's 4.3200: +0.0441 MAE, 95% CI [-0.0053, +0.0934], 5 of 7
+        weeks. That is the CEILING of re-scoping the knobs we already have,
+        chosen with hindsight, and it still spans zero. So four agents tuning
+        THIS family would be competing for noise.
+      * WHERE THE HEADROOM ACTUALLY IS: QB. 8.198 mean MAE against 3.420 at
+        TE — 2.09x the per-player error of WR — carrying 19.7% of all error
+        from 10.4% of the rows. It is also the position we lose worst to the
+        free sources (-0.8 MAE vs ffanalytics, -1.6 vs Sleeper). A different
+        MODEL at QB is worth more than re-weighting four knobs everywhere.
+
+    REPORT-ONLY, and deliberately so: the live promotion rule decides on POOLED
+    MAE, and a position-scoped win is diluted by that position's share of the
+    rows — 0.789 MAE at QB is only ~0.08 pooled, which the best-of-K gate may
+    not resolve at n=7. Making the rule position-aware is a THRESHOLD change
+    and needs a ruling plus its own power measurement, not a quiet edit; the
+    start/sit shadow already reads per-position and the live MAE rule does not,
+    so that asymmetry is on the record either way. This board is the evidence
+    that ruling would rest on.
+    """
+    pos_list = ("QB", "RB", "WR", "TE")
+    names = [a["name"] for a in active_arms]
+    out: dict = {
+        "_what": ("cumulative per-position MAE for every arm, n-weighted over "
+                  "the weeks each arm actually carries"),
+        "_report_only": ("promotes nothing and changes no weight — the live "
+                         "rule decides on POOLED MAE"),
+        "champion_arm": champion_arm,
+        "positions": {},
+    }
+    for pos in pos_list:
+        rows = {}
+        for a in names:
+            num = den = 0.0
+            wk_maes: list = []
+            wk_used = []
+            for wn in sorted(weeks, key=int):
+                cell = (((weeks[wn].get("own_arms") or {}).get(a) or {})
+                        .get("per_pos") or {}).get(pos)
+                if not cell or cell.get("mae") is None:
+                    continue
+                num += cell["mae"] * cell["n"]
+                den += cell["n"]
+                wk_maes.append(cell["mae"])
+                wk_used.append(int(wn))
+            if den:
+                rows[a] = {
+                    #: n-WEIGHTED: total absolute error / total rows. The
+                    #: defensible pooled MAE, and the headline here.
+                    "mae": round(num / den, 4),
+                    #: ⚠️ AND THE UNWEIGHTED MEAN OF WEEKLY MAEs, because that
+                    #: is what the LIVE RULE judges on
+                    #: (decide_promotion: `sum(mae)/len(common)`), which
+                    #: silently counts a 20-player week as heavily as a
+                    #: 40-player one. The two differ here by up to 0.035 at QB,
+                    #: where weekly n swings most. A ruling that wants to match
+                    #: the rule must read THIS column; my own first check of
+                    #: this board compared the two and flagged a mismatch that
+                    #: turned out to be exactly this difference.
+                    "mae_week_unweighted": round(sum(wk_maes) / len(wk_maes), 4),
+                    "n": int(den), "weeks": wk_used}
+        if not rows:
+            out["positions"][pos] = {"status": "no graded rows at this position"}
+            continue
+        best = min(rows, key=lambda a: rows[a]["mae"])
+        champ = rows.get(champion_arm)
+        out["positions"][pos] = {
+            "arms": rows,
+            "best_arm": best,
+            "best_mae": rows[best]["mae"],
+            "champion_mae": champ["mae"] if champ else None,
+            #: positive => the best arm at this position beats the champion
+            "champion_gap": (round(champ["mae"] - rows[best]["mae"], 4)
+                             if champ else None),
+            "champion_is_best_here": best == champion_arm,
+        }
+    winners = {p: v.get("best_arm") for p, v in out["positions"].items()
+               if v.get("best_arm")}
+    distinct = sorted(set(winners.values()))
+    out["winners_by_position"] = winners
+    out["distinct_winning_arms"] = len(distinct)
+    out["verdict"] = (
+        f"{len(distinct)} distinct arm(s) win across {len(winners)} positions"
+        + (f" — {', '.join(f'{p}:{a}' for p, a in winners.items())}"
+           if winners else "")
+        + (". One arm wins everywhere, so position-scoping buys nothing from "
+           "THIS family." if len(distinct) == 1 else
+           ". The arms disagree by position, so a single pooled champion is "
+           "leaving something at one or more positions."))
+    return out
+
+
 def promotion_shadow(champion: dict, weeks: dict, active_arms: list,
                      as_of_week: int, today: _dt.date) -> dict:
     """Both rules' verdicts side by side, REPORT-ONLY. `mae_rule` is what the
@@ -1165,6 +1278,12 @@ def main(argv: list | None = None) -> int:
                                   ledger["active_arms"],
                                   max(int(w) for w in ledger["weeks"]), today)
         ledger["promotion_shadow"] = shadow
+        # WHICH ARM WINS WHERE — Cory's position question, recorded every week
+        # instead of re-derived by hand. Report-only; see by_position_board.
+        bp = by_position_board(ledger["weeks"], ledger["active_arms"],
+                               ledger["champion"]["arm"])
+        ledger["by_position"] = bp
+        print(f"by-position board (report-only): {bp['verdict']}")
         hist = ledger.setdefault("promotion_shadow_history", [])
         last = hist[-1] if hist else None
         if not last or (last["mae_rule"], last["startsit_rule"]) != (

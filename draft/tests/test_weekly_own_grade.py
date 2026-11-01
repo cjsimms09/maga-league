@@ -857,3 +857,87 @@ def test_the_promotion_ALERT_carries_the_gate_and_its_ceiling():
     assert "not proof the arm is better" in body
     #: and the disagreement between the two statistics reaches him too
     assert "not distinguishable from the second-best arm" in body
+
+
+# ── WHICH ARM WINS AT WHICH POSITION (Cory, 2026-11-01) ─────────────────────
+
+def _pos_weeks(spec, n_weeks=3, n=40):
+    """spec: {arm: {pos: mae}} held constant across weeks."""
+    weeks = {}
+    for w in range(1, n_weeks + 1):
+        weeks[str(w)] = {"own_arms": {
+            a: {"mae": sum(pp.values()) / len(pp), "spearman": 0.6, "n": n * len(pp),
+                "per_pos": {p: {"n": n, "mae": m, "spearman": 0.6}
+                            for p, m in pp.items()}}
+            for a, pp in spec.items()}}
+    return weeks
+
+
+def test_by_position_board_names_a_different_winner_per_position():
+    """The whole point of Cory's question: if the arms disagree by position, a
+    single pooled champion is leaving something somewhere."""
+    weeks = _pos_weeks({
+        "v1":       {"QB": 9.0, "RB": 4.4, "WR": 4.1, "TE": 3.3},
+        "v1_pull3": {"QB": 8.0, "RB": 4.2, "WR": 3.9, "TE": 3.5},
+    })
+    arms = [{"name": "v1"}, {"name": "v1_pull3"}]
+    b = WG.by_position_board(weeks, arms, "v1_pull3")
+    assert b["winners_by_position"] == {"QB": "v1_pull3", "RB": "v1_pull3",
+                                        "WR": "v1_pull3", "TE": "v1"}
+    assert b["distinct_winning_arms"] == 2
+    assert "arms disagree by position" in b["verdict"]
+    # the champion is best at three of four, and the board says where it is not
+    assert b["positions"]["TE"]["champion_is_best_here"] is False
+    assert b["positions"]["TE"]["champion_gap"] == 0.2      # 3.5 -> 3.3
+    assert b["positions"]["QB"]["champion_is_best_here"] is True
+
+
+def test_by_position_board_says_so_when_ONE_arm_wins_EVERYWHERE():
+    """The honest negative: if scoping buys nothing, the board must say that
+    rather than imply a finding."""
+    weeks = _pos_weeks({
+        "v1":       {"QB": 9.0, "RB": 4.4, "WR": 4.1, "TE": 3.6},
+        "v1_pull3": {"QB": 8.0, "RB": 4.2, "WR": 3.9, "TE": 3.3},
+    })
+    b = WG.by_position_board(weeks, [{"name": "v1"}, {"name": "v1_pull3"}],
+                             "v1_pull3")
+    assert b["distinct_winning_arms"] == 1
+    assert "position-scoping buys nothing" in b["verdict"]
+
+
+def test_by_position_board_carries_BOTH_poolings_because_the_rule_uses_one():
+    """⚠️ The n-weighted pooled MAE is the defensible statistic, but the LIVE
+    rule judges on the unweighted mean of weekly MAEs
+    (decide_promotion: sum(mae)/len(common)), which counts a light week as
+    heavily as a heavy one. A ruling that wants to match the rule must read the
+    unweighted column. My first version of this board reported only the
+    weighted one and a control flagged a 'mismatch' that was exactly this.
+    """
+    weeks = {
+        "1": {"own_arms": {"v1": {"mae": 4.0, "spearman": 0.6, "n": 10,
+                                  "per_pos": {"WR": {"n": 10, "mae": 2.0,
+                                                     "spearman": 0.6}}}}},
+        "2": {"own_arms": {"v1": {"mae": 4.0, "spearman": 0.6, "n": 90,
+                                  "per_pos": {"WR": {"n": 90, "mae": 4.0,
+                                                     "spearman": 0.6}}}}},
+    }
+    b = WG.by_position_board(weeks, [{"name": "v1"}], "v1")
+    r = b["positions"]["WR"]["arms"]["v1"]
+    #: n-weighted: (2*10 + 4*90)/100 = 3.8
+    assert r["mae"] == 3.8
+    #: week-unweighted: (2+4)/2 = 3.0 — the number the rule would use
+    assert r["mae_week_unweighted"] == 3.0
+    assert r["n"] == 100
+
+
+def test_by_position_board_is_report_only():
+    weeks = _pos_weeks({"v1": {"QB": 9.0}, "v1_pull3": {"QB": 8.0}})
+    b = WG.by_position_board(weeks, [{"name": "v1"}, {"name": "v1_pull3"}], "v1")
+    assert "promotes nothing" in b["_report_only"]
+
+
+def test_by_position_board_degrades_on_a_position_with_no_rows():
+    weeks = _pos_weeks({"v1": {"QB": 9.0}, "v1_pull3": {"QB": 8.0}})
+    b = WG.by_position_board(weeks, [{"name": "v1"}, {"name": "v1_pull3"}], "v1")
+    assert b["positions"]["TE"]["status"] == "no graded rows at this position"
+    assert "TE" not in b["winners_by_position"]
