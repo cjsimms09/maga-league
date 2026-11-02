@@ -55,7 +55,7 @@ _value MAGNITUDE is ill-posed in isolation (with no competing term any w>0 gives
 | 0.5 | -24.2 | [-41.94, -6.62] |
 | 1.0 | -93.2 | [-117.0, -70.0] |
 | 1.5 | -122.9 | [-146.44, -98.69] |
-| 2.0 | -159.6 | [-185.81, -133.25] |
+| 2.0 | -159.3 | [-185.56, -133.06] |
 | 3.0 | -216.8 | [-245.5, -190.0] |
 
 ## Ceiling by payout component (does shape pay in weekly-high?)
