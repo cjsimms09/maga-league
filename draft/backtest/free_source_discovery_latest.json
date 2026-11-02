@@ -1,7 +1,7 @@
 {
  "_territory": "TERRITORY: relay \u2014 produced by draft/tools/free_source_discovery.py (FUTURE-PROOF-2027 \u00a76.3, monthly)",
  "_what": "A CENSUS of free candidate doors per registry data class: which answer with data, which are blocked, which are reachable but not data. Nothing here is captured; a door that answers becomes a registry FALLBACK first (\u00a76.3).",
- "date": "2026-09-07",
+ "date": "2026-11-02",
  "control": {
   "name": "sleeper_state",
   "ok": true,
@@ -58,61 +58,57 @@
    "candidates": 3,
    "answers": [
     "actionnetwork_scoreboard",
+    "espn_scoreboard_odds",
     "polymarket_nfl"
    ],
-   "blocked": [
-    "espn_scoreboard_odds"
-   ],
+   "blocked": [],
    "no_shape": []
   },
   "adp": {
    "candidates": 2,
    "answers": [
-    "ffc_adp",
     "sleeper_trending_adds"
    ],
    "blocked": [],
-   "no_shape": []
+   "no_shape": [
+    "ffc_adp"
+   ]
   },
   "injuries_practice": {
    "candidates": 2,
    "answers": [
+    "espn_injuries",
     "sleeper_players_injury"
    ],
-   "blocked": [
-    "espn_injuries"
-   ],
+   "blocked": [],
    "no_shape": []
   },
   "snaps_usage": {
    "candidates": 3,
    "answers": [
+    "espn_boxscore_sample",
     "nflverse_pbp_participation",
     "nflverse_snap_counts_release"
    ],
-   "blocked": [
-    "espn_boxscore_sample"
-   ],
+   "blocked": [],
    "no_shape": []
   },
   "rosters_transactions": {
    "candidates": 2,
    "answers": [
+    "espn_teams_roster",
     "sleeper_league_rosters"
    ],
-   "blocked": [
-    "espn_teams_roster"
-   ],
+   "blocked": [],
    "no_shape": []
   },
   "schedule_kickoffs": {
    "candidates": 2,
    "answers": [
+    "espn_scoreboard_week",
     "nflverse_schedules"
    ],
-   "blocked": [
-    "espn_scoreboard_week"
-   ],
+   "blocked": [],
    "no_shape": []
   },
   "weather": {
@@ -127,12 +123,11 @@
   "depth_charts_team_context": {
    "candidates": 3,
    "answers": [
+    "espn_depth_chart",
+    "espn_team_info",
     "nflverse_depth_charts"
    ],
-   "blocked": [
-    "espn_depth_chart",
-    "espn_team_info"
-   ],
+   "blocked": [],
    "no_shape": []
   },
   "expert_ranks": {
@@ -234,10 +229,10 @@
    "name": "espn_scoreboard_odds",
    "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard",
    "shape": "\"odds\"|\"overUnder\"|\"spread\"",
-   "status": 403,
-   "bytes": 0,
-   "error": "HTTP 403",
-   "verdict": "blocked",
+   "status": 200,
+   "bytes": 244300,
+   "error": null,
+   "verdict": "answers",
    "note": null
   },
   {
@@ -257,7 +252,7 @@
    "url": "https://gamma-api.polymarket.com/events?tag=nfl&active=true&limit=50",
    "shape": "\"markets\"|\"outcomePrices\"",
    "status": 200,
-   "bytes": 305081,
+   "bytes": 302523,
    "error": null,
    "verdict": "answers",
    "note": null
@@ -268,9 +263,9 @@
    "url": "https://fantasyfootballcalculator.com/api/v1/adp/half-ppr?teams=10&year=2026",
    "shape": "\"adp\"\\s*:\\s*[\\d.]+",
    "status": 200,
-   "bytes": 43042,
+   "bytes": 168,
    "error": null,
-   "verdict": "answers",
+   "verdict": "reachable_no_shape",
    "note": null
   },
   {
@@ -279,7 +274,7 @@
    "url": "https://api.sleeper.app/v1/players/nfl/trending/add?lookback_hours=168&limit=100",
    "shape": "\"player_id\"",
    "status": 200,
-   "bytes": 3572,
+   "bytes": 3644,
    "error": null,
    "verdict": "answers",
    "note": null
@@ -289,10 +284,10 @@
    "name": "espn_injuries",
    "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/injuries",
    "shape": "\"injuries\"|\"status\"",
-   "status": 403,
-   "bytes": 0,
-   "error": "HTTP 403",
-   "verdict": "blocked",
+   "status": 200,
+   "bytes": 400000,
+   "error": null,
+   "verdict": "answers",
    "note": null
   },
   {
@@ -333,10 +328,10 @@
    "name": "espn_boxscore_sample",
    "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=401671716",
    "shape": "\"boxscore\"|\"players\"",
-   "status": 403,
-   "bytes": 0,
-   "error": "HTTP 403",
-   "verdict": "blocked",
+   "status": 200,
+   "bytes": 399964,
+   "error": null,
+   "verdict": "answers",
    "note": null
   },
   {
@@ -345,7 +340,7 @@
    "url": "https://api.sleeper.app/v1/league/1374848328470102016/rosters",
    "shape": "\"roster_id\"",
    "status": 200,
-   "bytes": 5240,
+   "bytes": 6573,
    "error": null,
    "verdict": "answers",
    "note": null
@@ -355,10 +350,10 @@
    "name": "espn_teams_roster",
    "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/12/roster",
    "shape": "\"athletes\"",
-   "status": 403,
-   "bytes": 0,
-   "error": "HTTP 403",
-   "verdict": "blocked",
+   "status": 200,
+   "bytes": 360044,
+   "error": null,
+   "verdict": "answers",
    "note": null
   },
   {
@@ -366,10 +361,10 @@
    "name": "espn_scoreboard_week",
    "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?seasontype=2&week=1&dates=2026",
    "shape": "\"events\"\\s*:\\s*\\[",
-   "status": 403,
-   "bytes": 0,
-   "error": "HTTP 403",
-   "verdict": "blocked",
+   "status": 200,
+   "bytes": 141211,
+   "error": null,
+   "verdict": "answers",
    "note": null
   },
   {
@@ -389,7 +384,7 @@
    "url": "https://api.open-meteo.com/v1/forecast?latitude=39.9&longitude=-75.17&hourly=temperature_2m,wind_speed_10m,precipitation_probability&forecast_days=7",
    "shape": "\"hourly\"",
    "status": 200,
-   "bytes": 5489,
+   "bytes": 5502,
    "error": null,
    "verdict": "answers",
    "note": null
@@ -421,10 +416,10 @@
    "name": "espn_depth_chart",
    "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/12/depthcharts",
    "shape": "\"depthchart\"|\"positions\"",
-   "status": 403,
-   "bytes": 0,
-   "error": "HTTP 403",
-   "verdict": "blocked",
+   "status": 200,
+   "bytes": 222297,
+   "error": null,
+   "verdict": "answers",
    "note": null
   },
   {
@@ -443,10 +438,10 @@
    "name": "espn_team_info",
    "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/12",
    "shape": "\"team\"",
-   "status": 403,
-   "bytes": 0,
-   "error": "HTTP 403",
-   "verdict": "blocked",
+   "status": 200,
+   "bytes": 23809,
+   "error": null,
+   "verdict": "answers",
    "note": null
   },
   {
@@ -455,7 +450,7 @@
    "url": "https://www.fantasypros.com/nfl/rankings/half-point-ppr-cheatsheets.php",
    "shape": "ecrData|rank_ecr|\"player_name\"",
    "status": 200,
-   "bytes": 399291,
+   "bytes": 399287,
    "error": null,
    "verdict": "answers",
    "note": null
