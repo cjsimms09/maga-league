@@ -21,9 +21,9 @@ construction (n=seasons); where it spans zero the correlation arm carries it._
 
 ## AGREEMENT with the correlation (ranking) arm
 
-- correlation arm: diff 0.065 CI [-0.053, 0.171] -> inconclusive (n=32)
+- correlation arm: diff 0.135 CI [0.048, 0.219] -> beat (n=26)
 - dollar arm: adp-earns-more
-- **ranks_better=False, dollar_verdict=adp-earns-more**
+- **THE INTERESTING RESULT: ranks better but earns same-or-less — the edge is in evaluating players, not in constructing rosters that fit this payout structure. Points at the PORTFOLIO DOCTRINE, not the projections.**
 
 ## Per season
 
@@ -51,7 +51,7 @@ construction (n=seasons); where it spans zero the correlation arm carries it._
 
 _Each deviation priced as if the others did not happen (ignores interaction); the season-level delta above is the primary figure. Beside the correlation arm's per-band hit rate, this says how much money each class of deviation made._
 
-- value(<=0): n=38 (36 deviations) sum $-2050.0 (mean $-53.95)
+- value(<=0): n=37 (34 deviations) sum $-2350.0 (mean $-63.51)
 - near-zero: n=1 (1 deviations) sum $0.0 (mean $0.0)
 - moderate: n=1 (1 deviations) sum $-100.0 (mean $-100.0)
 - large: n=5 (5 deviations) sum $-300.0 (mean $-60.0)
