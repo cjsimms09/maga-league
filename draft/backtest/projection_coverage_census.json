@@ -3,13 +3,15 @@
  "_question": "which players can a three-way weekly grade actually compare?",
  "_limit": "SEASON projections used as the pre-season proxy for the WEEKLY universes. Re-test at week 1 from real weekly snapshots.",
  "measured_from": {
-  "fantasypros": "2026-09-10",
-  "sleeper": "2026-09-10"
+  "fantasypros": "2026-11-02",
+  "sleeper": "2026-11-02",
+  "sleeper_weekly": "2026-11-02"
  },
  "universes": {
-  "fantasypros": 459,
+  "fantasypros": 518,
   "own_weekly_v1": 495,
-  "sleeper": 700
+  "sleeper": 700,
+  "sleeper_weekly": 444
  },
  "silently_dropped_by_price_week": {
   "n": 171,
@@ -42,85 +44,85 @@
     "player_id": "4017",
     "name": "Deshaun Watson",
     "position": "QB",
-    "proj_mean": 155.28,
+    "proj_mean": 156.3,
     "adp": 201.0
    },
    {
     "player_id": "11583",
     "name": "Jonathon Brooks",
     "position": "RB",
-    "proj_mean": 142.6,
+    "proj_mean": 142.5,
     "adp": 82.33
+   },
+   {
+    "player_id": "9502",
+    "name": "Tank Dell",
+    "position": "WR",
+    "proj_mean": 91.2,
+    "adp": 234.5
    },
    {
     "player_id": "11581",
     "name": "MarShawn Lloyd",
     "position": "RB",
-    "proj_mean": 95.67,
+    "proj_mean": 66.4,
     "adp": 84.33
    },
    {
     "player_id": "12467",
     "name": "Jordan James",
     "position": "RB",
-    "proj_mean": 54.2,
+    "proj_mean": 58.1,
     "adp": 245.0
-   },
-   {
-    "player_id": "9502",
-    "name": "Tank Dell",
-    "position": "WR",
-    "proj_mean": 43.4,
-    "adp": 234.5
-   },
-   {
-    "player_id": "12511",
-    "name": "Will Howard",
-    "position": "QB",
-    "proj_mean": 24.5,
-    "adp": 465.0
    },
    {
     "player_id": "2078",
     "name": "Odell Beckham",
     "position": "WR",
-    "proj_mean": 23.0,
+    "proj_mean": 22.5,
     "adp": 476.0
+   },
+   {
+    "player_id": "12511",
+    "name": "Will Howard",
+    "position": "QB",
+    "proj_mean": 14.7,
+    "adp": 465.0
    },
    {
     "player_id": "11292",
     "name": "Tommy DeVito",
     "position": "QB",
-    "proj_mean": 13.38,
+    "proj_mean": 13.7,
     "adp": 521.0
    },
    {
     "player_id": "11569",
     "name": "Jarquez Hunter",
     "position": "RB",
-    "proj_mean": 8.6,
+    "proj_mean": 13.4,
     "adp": 546.0
    },
    {
     "player_id": "13516",
     "name": "Max Bredeson",
     "position": "RB",
-    "proj_mean": 2.8,
+    "proj_mean": 4.3,
     "adp": 640.0
    }
   ]
  },
  "shared_population": {
-  "n": 422,
+  "n": 288,
   "by_position": {
-   "WR": 164,
    "TE": 103,
-   "RB": 93,
-   "QB": 62
+   "WR": 90,
+   "RB": 61,
+   "QB": 34
   },
-  "share_of_sleeper": 0.6029,
-  "share_of_fantasypros": 0.9194,
-  "share_of_ours": 0.8525
+  "share_of_sleeper": 0.4114,
+  "share_of_fantasypros": 0.556,
+  "share_of_ours": 0.5818
  },
  "nesting": {
   "fantasypros_subset_of_sleeper": false,
@@ -136,80 +138,137 @@
    }
   },
   "in_fantasypros_not_ours": {
-   "n": 36,
+   "n": 95,
    "by_position": {
-    "null": 22,
+    "null": 81,
     "RB": 6,
-    "QB": 4,
-    "WR": 4
+    "WR": 4,
+    "QB": 4
    }
   },
   "in_fantasypros_not_sleeper": {
-   "n": 3,
+   "n": 182,
    "by_position": {
-    "QB": 2,
-    "RB": 1
+    "WR": 76,
+    "null": 39,
+    "RB": 35,
+    "QB": 32
    },
    "ids": [
-    "13335",
-    "13423",
-    "13425"
-   ]
+    "10218",
+    "10223",
+    "10225",
+    "10226",
+    "10234",
+    "10235",
+    "10857",
+    "10867",
+    "11034",
+    "11056",
+    "11168",
+    "11199",
+    "11237",
+    "11256",
+    "11292",
+    "11299",
+    "11306",
+    "11320",
+    "11377",
+    "11421",
+    "11435",
+    "11439",
+    "11557",
+    "11562",
+    "11565"
+   ],
+   "value_overlap": {
+    "status": "measured",
+    "matched_median_proj": 98.27,
+    "matched_max_proj": 409.18,
+    "unmatched_median_proj": 15.78,
+    "unmatched_max_proj": 90.8,
+    "n_at_or_above_matched_median": 0,
+    "n_unmatched_with_proj": 182
+   }
   },
   "in_ours_not_sleeper": {
-   "n": 6,
+   "n": 189,
    "by_position": {
-    "QB": 4,
-    "WR": 2
+    "WR": 99,
+    "RB": 49,
+    "QB": 40,
+    "TE": 1
    },
    "ids": [
-    "13295",
-    "13335",
-    "13404",
-    "13412",
-    "13541",
-    "13557"
+    "10217",
+    "10218",
+    "10226",
+    "10235",
+    "10444",
+    "10867",
+    "11034",
+    "11168",
+    "11199",
+    "11237",
+    "11256",
+    "11299",
+    "11320",
+    "11377",
+    "11435",
+    "11439",
+    "11510",
+    "11557",
+    "11562",
+    "11565",
+    "11570",
+    "11571",
+    "11574",
+    "11577",
+    "11579"
    ]
   },
   "in_fantasypros_not_board": {
-   "n": 22,
+   "n": 81,
    "ids": [
+    "10220",
+    "10223",
+    "10225",
+    "10234",
+    "10857",
+    "11056",
+    "11082",
+    "11157",
+    "11306",
+    "11421",
+    "11589",
+    "11592",
+    "11595",
+    "11649",
+    "11802",
+    "11821",
+    "11895",
+    "12045",
+    "12171",
+    "12357",
+    "12412",
+    "12491",
+    "12494",
     "12507",
-    "12527",
-    "3198",
-    "4034",
-    "4866",
-    "4984",
-    "5859",
-    "6786",
-    "6794",
-    "6813",
-    "7547",
-    "7564",
-    "7569",
-    "8112",
-    "8130",
-    "8138",
-    "9221",
-    "9224",
-    "9226",
-    "9488",
-    "9493",
-    "9509"
+    "12527"
    ],
    "why": "FantasyPros projects a player our board does not carry at all \u2014 distinct from a board row with no proj_ownmodel"
   }
  },
  "k_def": {
   "on_board": 79,
-  "sleeper_covers": 76,
+  "sleeper_covers": 39,
   "fantasypros_covers": 0,
   "own_weekly_v1_prices": 0,
   "note": "FantasyPros publishes no K/DEF here, so a THREE-way grade structurally cannot include them. This is not our gap to close; a two-way grade against Sleeper could."
  },
  "recommended_grading_populations": {
   "primary_three_way": {
-   "n": 422,
+   "n": 288,
    "why": "the only set all three sources price; nested, so no partial-overlap adjudication is needed"
   },
   "secondary_two_way_vs_sleeper": {

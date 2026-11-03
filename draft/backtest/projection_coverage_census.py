@@ -72,6 +72,54 @@ def latest_by_source(series: list) -> dict:
     return out
 
 
+def _value_overlap(unmatched: set, matched: set, proj: dict) -> dict:
+    """Did we lose anyone who could MATTER, or only the tail?
+
+    Self-calibrating on purpose: the bar is the MATCHED population's own median
+    projection, so it moves with the provider instead of needing a constant
+    somebody has to remember to update. A count of unmatched players cannot
+    distinguish "the provider added 182 practice-squad bodies in November" from
+    "the crosswalk dropped 182 real players", and on 2026-11-03 that
+    indistinguishability had held the draft board unpublished for 54 days.
+
+    `n_at_or_above_matched_median` is the number that answers it. Zero means
+    everything unmatched is strictly tail. Positive means an unmatched player is
+    worth as much as a typical matched one, which is a real loss whatever the
+    headcount is.
+
+    Returns status 'unmeasurable' rather than a reassuring zero when the
+    projections needed are not there (rule 3e: a null from a probe that cannot
+    see is not a pass).
+    """
+    def val(pid):
+        v = proj.get(pid)
+        try:
+            return float(v) if v is not None else None
+        except (TypeError, ValueError):
+            return None
+
+    mv = sorted(x for x in (val(p) for p in matched) if x is not None)
+    uv = sorted(x for x in (val(p) for p in unmatched) if x is not None)
+    if not mv or (unmatched and not uv):
+        return {"status": "unmeasurable",
+                "why": ("no comparable projections for one side — a count "
+                        "cannot be judged without them, and a zero here would "
+                        "read as 'nothing valuable lost'"),
+                "n_matched_with_proj": len(mv), "n_unmatched_with_proj": len(uv)}
+    median_matched = mv[len(mv) // 2]
+    above = [x for x in uv if x >= median_matched]
+    return {
+        "status": "measured",
+        "matched_median_proj": round(median_matched, 2),
+        "matched_max_proj": round(mv[-1], 2),
+        "unmatched_median_proj": round(uv[len(uv) // 2], 2) if uv else None,
+        "unmatched_max_proj": round(uv[-1], 2) if uv else None,
+        #: THE DISCRIMINATOR. 0 => the unmatched set is strictly the tail.
+        "n_at_or_above_matched_median": len(above),
+        "n_unmatched_with_proj": len(uv),
+    }
+
+
 def measure() -> dict:
     series = json.loads(SERIES.read_text())["series"]
     latest = latest_by_source(series)
@@ -151,9 +199,55 @@ def measure() -> dict:
             # (13404) — are in FantasyPros and not in Sleeper. 3 of 410, 0.73%.
             # Sleeper simply has not published projections for them; that is
             # data, and the reason to measure it rather than assert it away.
+            # ⚠️⚠️ AND ON 2026-11-03 A COUNT ALONE BLOCKED THE DRAFT BOARD FOR
+            # 54 DAYS. The note above says a bare boolean "can only ever mean
+            # 'something changed, magnitude unknown'" — which is right, and the
+            # COUNT turned out to have the same defect one level up. Measured:
+            #
+            #   committed census, 2026-09-10:  fp 459, unmatched   3  (0.7%)
+            #   fresh measure,    2026-11-03:  fp 518, unmatched 182 (35.1%)
+            #
+            # The guard reading this refuses past 5%, so from the first November
+            # capture the nightly board build failed its own acceptance gate and
+            # the published board froze at 2026-09-10 — the same date this
+            # artifact was last written, which is how the two were finally
+            # connected.
+            #
+            # BUT THE 182 ARE THE TAIL, NOT A BREAK, and a count cannot tell the
+            # difference. Their FantasyPros projections: median 15.7, max 90.8,
+            # and NOT ONE above 100 season points — against a matched-population
+            # median of 98.3 and max 409.2. The best unmatched player is worth
+            # less than the MEDIAN matched one. A real crosswalk break would
+            # strand startable players across the value range, not strictly
+            # beneath it.
+            #
+            # ⚠️ AND THE MECHANISM IS SLEEPER, NOT FANTASYPROS — my first write-up
+            # of this said "FantasyPros listing deep and practice-squad players
+            # in November" and that is WRONG, measured against the captures:
+            #   fantasypros 09-10 -> 11-02:  dropped   0, added  59  (459 -> 518)
+            #   sleeper     09-10 -> 11-02:  dropped 286, added 286  (700 -> 700)
+            # FantasyPros never churned; it only grew. SLEEPER REPLACED HALF ITS
+            # UNIVERSE. Splitting the 182 by cause: 140 were in Sleeper on 09-10
+            # and Sleeper DROPPED them (median 17.9, max 82.4, none above 100),
+            # 42 were never there, and only 39 are new FantasyPros rows. So this
+            # is Sleeper re-scoping its SEASON projections once the season is
+            # under way — it stops projecting players it no longer rates — and
+            # the conclusion survives the correction while the story did not.
+            #
+            # So the magnitude that matters is VALUE, not headcount, and
+            # `value_overlap` publishes it self-calibrating against the matched
+            # population rather than against a constant somebody has to maintain:
+            # how many unmatched players are worth at least a TYPICAL matched
+            # player. Today that is 0. If a provider ever strands real players it
+            # goes positive immediately, and the guard keeps its teeth without
+            # firing on the league's own calendar.
             "in_fantasypros_not_sleeper": {
                 "n": len(fp - sleeper), "by_position": by_pos(fp - sleeper),
-                "ids": sorted(fp - sleeper)[:25]},
+                "ids": sorted(fp - sleeper)[:25],
+                "value_overlap": _value_overlap(
+                    fp - sleeper, fp & sleeper,
+                    (latest.get("fantasypros") or {}).get("proj") or {}),
+            },
             "in_ours_not_sleeper": {
                 "n": len(ours - sleeper), "by_position": by_pos(ours - sleeper),
                 "ids": sorted(ours - sleeper)[:25]},

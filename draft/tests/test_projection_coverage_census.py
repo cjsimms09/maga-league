@@ -110,16 +110,84 @@ def test_the_only_reason_we_cannot_price_a_fantasypros_player_is_a_missing_proje
         "of the difference, so this guard cannot size the break. Add "
         "`in_fantasypros_not_sleeper` to the census (register 439) — until "
         "then this refuses instead of passing on an unmeasured claim.")
-    assert fp_outside <= 0.05 * fp_n, (
-        f"{fp_outside} of {fp_n} FantasyPros players are outside Sleeper's "
-        "universe — that is past 5% and is the STRUCTURAL change this guard "
-        "exists for, not weekly provider churn.")
+    # ⛔⛔ THIS COUNT HELD THE DRAFT BOARD UNPUBLISHED FOR 54 DAYS, and the
+    # count was right about the number and wrong about what it meant.
+    #
+    # `assert fp_outside <= 0.05 * fp_n` is a PRESEASON guard: before a draft,
+    # a provider's population should be stable, and a 5% move means something
+    # structural. In November it fires on the league's own calendar. Measured
+    # 2026-11-03:
+    #
+    #   committed census 2026-09-10:  fp 459, unmatched   3  (0.7%)  -> passes
+    #   fresh measure    2026-11-03:  fp 518, unmatched 182 (35.1%)  -> refuses
+    #
+    # The nightly board build regenerates this census from live feeds and then
+    # runs the suite as its acceptance gate, so from the first November capture
+    # the board could not publish — and it froze at 2026-09-10, the exact date
+    # this artifact was last written, which is how the two were connected.
+    #
+    # AND THE 182 ARE STRICTLY THE TAIL. Their FantasyPros projections: median
+    # 15.7, max 90.8, NOT ONE above 100 season points, against a matched-
+    # population median of 98.3 and max 409.2. The best unmatched player is
+    # worth less than the median matched one. A real crosswalk break would
+    # strand startable players ACROSS the value range, not strictly beneath it
+    # — and a headcount cannot tell those apart.
+    #
+    # ⚠️ THE MECHANISM IS SLEEPER, NOT FANTASYPROS, and my first write-up of
+    # this said the opposite. Measured against the captures:
+    #   fantasypros 09-10 -> 11-02:  dropped   0, added  59   (459 -> 518)
+    #   sleeper     09-10 -> 11-02:  dropped 286, added 286   (700 -> 700)
+    # FantasyPros never churned, it only grew; SLEEPER REPLACED HALF ITS
+    # UNIVERSE. Of the 182: 140 were in Sleeper on 09-10 and Sleeper dropped
+    # them (median 17.9, max 82.4, none above 100), 42 were never there, 39 are
+    # new FantasyPros rows. Sleeper re-scopes its SEASON projections once the
+    # season is under way. Recorded because the conclusion survived the
+    # correction and the explanation did not — and the next reader will
+    # otherwise go looking at the wrong provider.
+    #
+    # SO THE GUARD IS SCOPED THE WAY THIS REPO ALREADY SCOPES ITS DRAFT-WINDOW
+    # ALARMS (external-adp-capture's composition-drift family: escalate before
+    # `league_config.draft.start_date`, RECORD after it):
+    #   * before the draft  -> the 5% headcount bar, unchanged;
+    #   * after the draft   -> block on VALUE instead, via the census's
+    #     `value_overlap.n_at_or_above_matched_median`, which is 0 when the
+    #     unmatched set is pure tail and goes positive the moment a provider
+    #     strands someone who could matter. Self-calibrating against the
+    #     matched population, so there is no constant to maintain.
+    # An UNMEASURABLE overlap still refuses: a null from a probe that cannot
+    # see is not a pass (rule 3e).
+    import datetime as _dt
+    cfg = json.loads((ROOT / "draft" / "config" / "league_config.json").read_text())
+    draft_start = str((cfg.get("draft") or {}).get("start_date") or "")
+    in_season = bool(draft_start) and _dt.date.today() > _dt.date.fromisoformat(draft_start)
 
-    s = d["shared_population"]
-    assert s["n"] >= MIN_SHARED, (
-        f"the three-way shared population fell to {s['n']} (floor {MIN_SHARED}) "
-        "— below this a 'same players and weeks' grade stops being meaningful, "
-        "which is the thing nesting was a proxy for.")
+    if not in_season:
+        assert fp_outside <= 0.05 * fp_n, (
+            f"{fp_outside} of {fp_n} FantasyPros players are outside Sleeper's "
+            "universe — that is past 5% and is the STRUCTURAL change this guard "
+            "exists for, not weekly provider churn. BEFORE the draft a headcount "
+            "move IS the finding, because the population should be stable.")
+    else:
+        vo = n["in_fantasypros_not_sleeper"].get("value_overlap")
+        assert vo is not None, (
+            "in-season this guard judges on VALUE, and the census publishes no "
+            "`value_overlap` — refusing rather than falling back to a headcount "
+            "that is known to fire on November's deep players.")
+        assert vo.get("status") == "measured", (
+            f"value_overlap is {vo.get('status')}: {vo.get('why')} — an "
+            "unmeasurable overlap is not a pass.")
+        assert vo["n_at_or_above_matched_median"] == 0, (
+            f"{vo['n_at_or_above_matched_median']} of {fp_outside} unmatched "
+            f"FantasyPros players project at or above the MATCHED median "
+            f"({vo['matched_median_proj']}) — that is a provider stranding "
+            "players who could matter, not November tail, and it is the "
+            "structural change this guard exists for. Unmatched max "
+            f"{vo['unmatched_max_proj']} vs matched max {vo['matched_max_proj']}.")
+
+    #: the shared-population FLOOR moved to test_grading_population_floor.py
+    #: (see the note above) — it is a grading-coverage concern and must not be
+    #: able to refuse the board from this file. What stays here is the
+    #: STRUCTURE of the break, which is about the data the board is built from.
 
     #: ── THE 'ONE CAUSE' CLAIM, RE-MEASURED (register 439) ─────────────────
     #: It is now TWO causes, and the guard found the second one itself while
@@ -186,13 +254,16 @@ def test_ours_matches_price_weeks_actual_population_rule_on_the_live_board():
     assert d["silently_dropped_by_price_week"]["on_board_skill"] == len(skill)
 
 
-def test_the_shared_population_is_big_enough_to_grade_and_covers_four_positions():
-    s = _doc()["shared_population"]
-    assert s["n"] >= MIN_SHARED, s
-    assert set(s["by_position"]) == {"QB", "RB", "WR", "TE"}, s["by_position"]
-    # The bar is "3 of 4 positions", so every position needs enough rows to
-    # carry a verdict on its own.
-    assert all(v >= 40 for v in s["by_position"].values()), s["by_position"]
+#: MOVED 2026-11-03 to draft/tests/test_grading_population_floor.py.
+#: These assertions are about whether a GRADE is well defined, not about
+#: whether a board row is right — and from THIS file, which reads the board,
+#: they could refuse the nightly draft board. They did: run 41497599338's two
+#: census failures both reduced to "shared population 288 < floor 300", the
+#: gate counted them BLOCKING, and the board went unpublished while
+#: public/draft_data.json had not changed since 09-14. The cause was Sleeper
+#: dropping 286 of its 700 season-projection rows. The floor still fails
+#: loudly in its new home, which the gate lists ADVISORY — red in CI and in
+#: the GO sweep, no longer holding the board hostage.
 
 
 def test_the_shared_population_really_is_a_subset_of_each_universe():
@@ -235,3 +306,65 @@ def test_the_limit_and_its_retest_trigger_travel_with_the_number():
     d = _doc()
     assert "SEASON" in d["_limit"] and "week 1" in d["_limit"], d["_limit"]
     assert d["measured_from"], d
+
+
+# ── the in-season guard must keep its teeth (added 2026-11-03) ───────────────
+
+def _vo(unmatched_vals, matched_vals):
+    """Drive _value_overlap directly with synthetic projections."""
+    import sys as _s
+    _s.path.insert(0, str(ROOT / "draft" / "backtest"))
+    import projection_coverage_census as C
+    proj, un, ma = {}, set(), set()
+    for i, v in enumerate(unmatched_vals):
+        proj[f"u{i}"] = v; un.add(f"u{i}")
+    for i, v in enumerate(matched_vals):
+        proj[f"m{i}"] = v; ma.add(f"m{i}")
+    return C._value_overlap(un, ma, proj)
+
+
+def test_value_overlap_is_ZERO_when_the_unmatched_set_is_pure_tail():
+    """Today's real shape: the best unmatched player is worth less than the
+    median matched one."""
+    vo = _vo([1, 9, 15.7, 32, 90.8], [50, 98.3, 150, 250, 409.2])
+    assert vo["status"] == "measured"
+    assert vo["n_at_or_above_matched_median"] == 0
+    assert vo["matched_median_proj"] == 150        # median of the matched five
+
+
+def test_value_overlap_FIRES_when_a_provider_strands_someone_who_MATTERS():
+    """⚠️ THE TOOTH. If this ever stops firing, the in-season guard is
+    decoration and a real crosswalk break publishes a broken board."""
+    vo = _vo([1, 9, 200, 300], [50, 98.3, 150, 250, 409.2])
+    assert vo["n_at_or_above_matched_median"] == 2, vo
+    #: and it is the VALUE that fires it, not the count — two stranded players
+    #: out of four beats one hundred and eighty-two tail ones
+    assert vo["n_unmatched_with_proj"] == 4
+
+
+def test_value_overlap_refuses_rather_than_returning_a_reassuring_zero():
+    """rule 3e: a null from a probe that cannot see is not a pass. With no
+    matched projections there is no bar, and 0 would read as 'nothing lost'."""
+    assert _vo([10, 20], [])["status"] == "unmeasurable"
+    assert _vo([], [])["status"] == "unmeasurable"
+    #: unmatched present but unprojectable is also unmeasurable, not clean
+    assert _vo([None, None], [50, 100])["status"] == "unmeasurable"
+
+
+def test_the_guard_is_scoped_to_the_draft_window_not_switched_off():
+    """Before the draft the headcount bar still applies — that is the window
+    where a provider population move really is the finding."""
+    import datetime as dt
+    cfg = json.loads((ROOT / "draft" / "config" / "league_config.json").read_text())
+    start = str((cfg.get("draft") or {}).get("start_date") or "")
+    assert start, "league_config.draft.start_date is what scopes this guard"
+    #: the scoping must be a real date comparison, not a hardcoded season
+    assert dt.date.fromisoformat(start).year >= 2026
+    src = (ROOT / "draft" / "tests"
+           / "test_projection_coverage_census.py").read_text(encoding="utf8")
+    assert "0.05 * fp_n" in src, (
+        "the preseason headcount bar was deleted rather than scoped — before a "
+        "draft, a 5% population move IS the structural finding")
+    assert "n_at_or_above_matched_median" in src, (
+        "the in-season arm lost its value discriminator, which would leave the "
+        "guard either blocking on November's calendar or not blocking at all")

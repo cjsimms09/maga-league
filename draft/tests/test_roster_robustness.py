@@ -340,3 +340,88 @@ def test_run_is_measurement_not_selection(monkeypatch, dists, wire):
     assert "wire_level.json" in art["measured_inputs"]["wire"]["skill"]["source"]
     assert art["measured_inputs"]["availability"]["n"]["RB"] >= 100
     assert len(art["assumptions"]) == 7
+
+
+# ── A TEAMLESS PLAYER HAS NO BYE (found 2026-11-03) ─────────────────────────
+#
+# `_player` did `int(row["bye"])`, which raised
+# `TypeError: int() argument must be ... not 'NoneType'` on SIX tests in this
+# file. The nightly board gate counts each as a BLOCKING failure, so the player
+# board — the draft tool — could not publish.
+#
+# The data is correct: the board carries 128 rows with `bye: null` and every
+# one is `team: 'FA'`. A free agent has no team, so no bye week. The crash
+# fires only when such a player reaches a constructed roster, and Tyreek Hill
+# is on the board as an FA today, so it is live rather than hypothetical.
+#
+# ⚠️ AND THE OBVIOUS FIX WOULD HAVE BEEN A SILENT WRONG ANSWER. `bye` is used
+# as a week INDEX via `bye - 1`, so defaulting a missing bye to 0 indexes
+# `avail[-1]` — marking every teamless player unavailable in the LAST week of
+# the season, with nothing printed. These tests pin the honest behaviour
+# instead: no week is taken away, and the count is reported.
+
+def _teamless_and_teamed_roster():
+    import json
+    doc = json.loads((HERE.parent.parent / "public" / "draft_data.json").read_text())
+    rows = doc["players"] if isinstance(doc, dict) and "players" in doc else doc
+    fa = next((r for r in rows if r.get("bye") is None
+               and r.get("weekly_sd") is not None), None)
+    teamed = [RR._player(r) for r in rows
+              if r.get("bye") is not None and r.get("weekly_sd") is not None][:14]
+    return fa, teamed
+
+
+def test_a_teamless_player_keeps_bye_None_and_is_not_coerced():
+    fa, _ = _teamless_and_teamed_roster()
+    if fa is None:
+        pytest.skip("no teamless row on the committed board today")
+    p = RR._player(fa)
+    assert p["bye"] is None, (
+        "a missing bye was coerced to a number. Any number in range is a REAL "
+        "week and `bye - 1` will mark it unavailable; 0 marks the last week.")
+
+
+def test_the_bye_mechanic_takes_NO_week_from_a_teamless_player():
+    fa, teamed = _teamless_and_teamed_roster()
+    if fa is None or not teamed:
+        pytest.skip("committed board lacks the rows this needs")
+    roster = teamed + [RR._player(fa)]
+    rng = np.random.default_rng(1)
+    dists = {q: np.array([14, 15, 16, 17]) for q in RR.SKILL}
+    _, avail = RR.draw_season(roster, 50, rng, dists)
+    j = len(roster) - 1
+    never = [w for w in range(RR.WEEKS) if not avail[:, w, j].any()]
+    assert never == [], (
+        f"weeks {never} are never available to a player with no bye — the bye "
+        "mechanic is taking a week it has no basis to take")
+
+
+def test_CONTROL_a_player_WITH_a_bye_still_loses_exactly_that_week():
+    """The other direction, or the test above passes on a no-op."""
+    _, teamed = _teamless_and_teamed_roster()
+    if not teamed:
+        pytest.skip("committed board lacks the rows this needs")
+    rng = np.random.default_rng(1)
+    dists = {q: np.array([14, 15, 16, 17]) for q in RR.SKILL}
+    _, avail = RR.draw_season(teamed, 50, rng, dists)
+    checked = 0
+    for j, p in enumerate(teamed):
+        if p["bye"] is None:
+            continue
+        assert not avail[:, int(p["bye"]) - 1, j].any(), (
+            f"{p['name']} has bye {p['bye']} but is available in it")
+        checked += 1
+    assert checked >= 5, f"only {checked} teamed players checked — too few"
+
+
+def test_the_no_bye_COUNT_rides_with_the_answer_both_ways():
+    """Modelling N teamless players as never-on-bye overstates availability, so
+    the count must be visible rather than swallowed."""
+    fa, teamed = _teamless_and_teamed_roster()
+    if fa is None or not teamed:
+        pytest.skip("committed board lacks the rows this needs")
+    wire = {q: 5.0 for q in ("QB", "RB", "WR", "TE", "K", "DEF")}
+    assert RR.bye_worst_case(teamed + [RR._player(fa)], wire)[
+        "players_with_no_bye"] == 1
+    #: and zero is REPORTED, not omitted — an absent key reads as "not measured"
+    assert RR.bye_worst_case(teamed, wire)["players_with_no_bye"] == 0

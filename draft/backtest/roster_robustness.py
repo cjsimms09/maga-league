@@ -286,11 +286,29 @@ def availability_distributions() -> tuple[dict, dict]:
 # ── roster construction (all derived from committed artifacts) ──────────────
 
 def _player(row: dict) -> dict:
+    """⛔ A TEAMLESS PLAYER HAS NO BYE, AND COERCING THAT CRASHED THE BOARD.
+    Found 2026-11-03: `int(row["bye"])` raised
+    `TypeError: int() argument must be ... not 'NoneType'` on six tests in this
+    file, which the nightly board gate counts as six BLOCKING failures — so the
+    player board could not publish. The committed board carries 128 rows with
+    `bye: null` and every one is `team: 'FA'`: a free agent has no team, so he
+    has no bye week. That is correct data, not a defect, and the crash only
+    fires when such a player reaches a constructed roster (Tyreek Hill is on
+    the board as an FA today, so this is live, not hypothetical).
+
+    ⚠️ AND THE OBVIOUS FIX IS A SILENT WRONG ANSWER. `bye` is used as a week
+    INDEX via `bye - 1`, so defaulting a missing bye to 0 makes `avail[-1]` —
+    marking the player unavailable in the LAST week of the season, for every
+    teamless player, with nothing printed. None is carried through instead and
+    every consumer guards it (see _sim, bye_worst_case, fragile_roster), which
+    means "no scheduled bye" rather than "a bye we guessed".
+    """
+    bye = row.get("bye")
     return {
         "name": row["name"], "pos": row["position"],
         "mu": float(row["proj_mean"]) / WEEKS,
         "sd": float(row["weekly_sd"]),
-        "bye": int(row["bye"]),
+        "bye": int(bye) if bye is not None else None,
         "proj_mean": float(row["proj_mean"]),
     }
 
@@ -381,9 +399,17 @@ def fragile_roster() -> tuple[list, dict]:
     rbs = [p for p in pool if p["position"] == "RB" and p["proj_mean"] >= 80]
     bye_counts = defaultdict(int)
     for p in rbs:
+        #: skip teamless players — `sorted()` on a mix of None and int raises
+        #: TypeError, and a player with no bye cannot be part of a SHARED-bye
+        #: stack, which is the whole point of this fail arm
+        if p.get("bye") is None:
+            continue
         bye_counts[p["bye"]] += 1
+    if not bye_counts:
+        raise RuntimeError("fail arm: no price-feasible RB on the board carries "
+                           "a bye week, so a shared-bye stack cannot be built")
     modal_bye = max(sorted(bye_counts), key=lambda b: bye_counts[b])
-    stack = sorted((p for p in rbs if p["bye"] == modal_bye),
+    stack = sorted((p for p in rbs if p.get("bye") == modal_bye),
                    key=lambda p: -p["proj_mean"])[:5]
     qb = min((p for p in pool if p["position"] == "QB"),
              key=lambda p: abs(p["adp"] - 48))
@@ -465,19 +491,28 @@ def draw_season(roster: list, n: int, rng: np.random.Generator,
     P = len(roster)
     mu = np.array([p["mu"] for p in roster])
     sd = np.array([p["sd"] for p in roster])
-    bye = np.array([p["bye"] for p in roster], dtype=np.int64)
+    #: bye is None for a teamless player — no scheduled bye. Kept out of the
+    #: int64 array entirely rather than sentinel-coded, because every sentinel
+    #: in range is a real week and `bye - 1` would mark it unavailable.
     pts = rng.normal(mu, sd, size=(n, WEEKS, P))
     avail = np.ones((n, WEEKS, P), dtype=bool)
     for j, p in enumerate(roster):
-        avail[:, bye[j] - 1, j] = False
+        b = p["bye"]
+        has_bye = b is not None
+        if has_bye:
+            avail[:, int(b) - 1, j] = False
         if p["pos"] not in SKILL:
             continue
         g = rng.choice(dists[p["pos"]], size=n)
-        m = np.maximum(0, (WEEKS - 1) - g)          # missed non-bye weeks
-        start = np.floor(rng.random(n) * (WEEKS - m)).astype(np.int64)
-        idx = np.arange(WEEKS - 1)                   # non-bye index space
+        #: a player with no bye has a full WEEKS-long season to miss games in,
+        #: so the non-bye space is one week LARGER than for everyone else
+        span = (WEEKS - 1) if has_bye else WEEKS
+        m = np.maximum(0, span - g)                  # missed non-bye weeks
+        start = np.floor(rng.random(n) * (span - m + 1e-9)).astype(np.int64)
+        idx = np.arange(span)                        # non-bye index space
         miss = (idx[None, :] >= start[:, None]) & (idx[None, :] < (start + m)[:, None])
-        nonbye_weeks = np.array([w for w in range(WEEKS) if w != bye[j] - 1])
+        nonbye_weeks = np.array([w for w in range(WEEKS)
+                                 if not has_bye or w != int(b) - 1])
         block = avail[:, nonbye_weeks, j]
         block &= ~miss
         avail[:, nonbye_weeks, j] = block
@@ -541,12 +576,20 @@ def bye_worst_case(roster: list, wire: dict) -> dict:
     P = len(roster)
     pts = np.array([[p["mu"] for p in roster]] * WEEKS)[None, :, :]
     avail = np.ones((1, WEEKS, P), dtype=bool)
+    no_bye = 0
     for j, p in enumerate(roster):
-        avail[0, p["bye"] - 1, j] = False
+        if p["bye"] is None:          # teamless: no scheduled bye to mark
+            no_bye += 1
+            continue
+        avail[0, int(p["bye"]) - 1, j] = False
     res = lineup(pts, avail, roster, wire)
     on_bye = (~avail[0]).sum(axis=1)
     worst_week = int(np.argmin(res["weekly"][0])) + 1
     return {"max_concurrent_byes": int(on_bye.max()),
+            #: VISIBLE, not silent: modelling N teamless players as never on
+            #: bye overstates their availability, so the count rides with the
+            #: answer rather than being swallowed.
+            "players_with_no_bye": no_bye,
             "max_empty_skill_slots_bye_only": int(res["empty_skill"][0].max()),
             "worst_bye_week": worst_week,
             "worst_bye_week_mu_score": round(float(res["weekly"][0].min()), 1)}

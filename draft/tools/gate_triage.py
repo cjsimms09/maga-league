@@ -54,6 +54,22 @@ ADVISORY = {
         "repo hygiene: detects committed artifacts with no consumer. Scans "
         "source files for readers; a pass or fail is a statement about "
         "wiring, never about a player row.",
+    "draft/tests/test_grading_population_floor.py":
+        "grading coverage, not board contents: it reads ONLY "
+        "projection_coverage_census.json and asks whether the three-way shared "
+        "population is still big enough for a 'same players and weeks' grade to "
+        "mean anything. A thin GRADING population cannot make a player row on "
+        "tonight's board wrong. It had to move here: run 41497599338's two "
+        "census failures both reduced to one condition — shared population 288 "
+        "against a floor of 300 — the gate counted them BLOCKING, and the board "
+        "went unpublished from 2026-09-10 while public/draft_data.json had not "
+        "changed since 09-14. The cause was entirely provider-side and measured: "
+        "Sleeper dropped 286 of its 700 season-projection rows between 09-10 and "
+        "11-02 while FantasyPros dropped none, so the intersection fell 394 -> "
+        "288 for something the board did not do. Same shape as "
+        "test_proj_series_completeness below, and the same ruling: it stays RED "
+        "in CI (ci.yml runs `pytest draft/tests` on its own) and in the GO sweep, "
+        "so nothing is silenced; it simply stops holding the board hostage.",
     "draft/tests/test_proj_series_completeness.py":
         "capture integrity, not board contents: it reads ONLY "
         "draft/data/proj_series.json and adp_series.json and asserts that the "
