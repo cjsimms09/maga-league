@@ -199,9 +199,9 @@
     "DEF:LAR"
    ],
    "opponent": "mhagen",
-   "opponent_points": 133.48,
+   "opponent_points": 133.38,
    "result": "L",
-   "margin": -38.66,
+   "margin": -38.56,
    "ceiling_would_flip": false,
    "champion": 71.92,
    "champion_vs_actual": -22.9,
@@ -211,12 +211,42 @@
    "props_vs_actual": 8.9,
    "props_priced": 12,
    "props_would_flip": false
+  },
+  {
+   "week": 8,
+   "actual": 114.88,
+   "ceiling": 126.58,
+   "left_on_bench": 11.7,
+   "starters_actual": [
+    "QB:11560",
+    "RB:3198",
+    "RB:8151",
+    "WR:7564",
+    "WR:9487",
+    "TE:12506",
+    "WR:12501",
+    "K:11792",
+    "DEF:LAR"
+   ],
+   "opponent": "ds7mmet",
+   "opponent_points": 98.6,
+   "result": "W",
+   "margin": 16.28,
+   "ceiling_would_flip": false,
+   "champion": 92.54,
+   "champion_vs_actual": -22.34,
+   "champion_priced": 13,
+   "champion_would_flip": false,
+   "props": 114.88,
+   "props_vs_actual": 0.0,
+   "props_priced": 11,
+   "props_would_flip": false
   }
  ],
  "summary": {
-  "weeks_graded": 7,
-  "left_on_bench_per_week": 10.23,
-  "champion_vs_actual_per_week": -10.9,
-  "props_vs_actual_per_week": 0.32
+  "weeks_graded": 8,
+  "left_on_bench_per_week": 10.41,
+  "champion_vs_actual_per_week": -12.33,
+  "props_vs_actual_per_week": 0.27
  }
 }
