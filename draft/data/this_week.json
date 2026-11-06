@@ -1,6 +1,6 @@
 {
  "_rule": "THE ROSTER RULE: any statement about Cory's roster or matchup cites THIS file (fresh within 3 days) or live Sleeper \u2014 never an older artifact.",
- "generated_at": "2026-11-04T19:36:11+00:00",
+ "generated_at": "2026-11-06T20:00:21+00:00",
  "season": "2026",
  "week": 9,
  "cory": {
@@ -240,7 +240,7 @@
    "pos": "RB",
    "team": "NO",
    "starter": false,
-   "injury": null,
+   "injury": "Questionable",
    "game": "vs CLE (Sun)",
    "home": true,
    "kickoff_utc": "2026-11-08T18:00:00.000Z"
@@ -317,7 +317,7 @@
    "pos": "WR",
    "team": "NYJ",
    "starter": true,
-   "injury": "Questionable",
+   "injury": "Out",
    "game": "at KC (Sun)",
    "home": false,
    "kickoff_utc": "2026-11-08T18:00:00.000Z"
