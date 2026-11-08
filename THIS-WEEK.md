@@ -1,6 +1,6 @@
 # THIS WEEK — coryjsimms, week 9 (2026)
 
-**Generated 2026-11-06T20:00:21+00:00 from LIVE Sleeper. THE ROSTER RULE: any statement about
+**Generated 2026-11-08T17:12:43+00:00 from LIVE Sleeper. THE ROSTER RULE: any statement about
 Cory's roster or matchup cites this file (fresh within 3 days) or live
 Sleeper — a frozen seat plan or tournament artifact is never a source for
 who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
@@ -38,14 +38,14 @@ who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
 |   | Emeka Egbuka | WR | TB | at CHI (Sun) | 20.8 (+6) | Questionable |
 |   | Justin Tucker | K | KC | vs NYJ (Sun) | 28.8 (-10) |  |
 | S | Stefon Diggs | WR | WAS | vs LAR (Sun) | 22.0 (+4.5) |  |
-|   | Alvin Kamara | RB | NO | vs CLE (Sun) | 22.8 (-3) | Questionable |
+| S | Alvin Kamara | RB | NO | vs CLE (Sun) | 22.8 (-3) |  |
 | S | Patrick Mahomes | QB | KC | vs NYJ (Sun) | 28.8 (-10) |  |
 | S | Harrison Butker | K | KC | vs NYJ (Sun) | 28.8 (-10) |  |
 |   | DK Metcalf | WR | PIT | BYE | — |  |
 |   | J.K. Dobbins | RB | DEN | at CAR (Sun) | 23.5 (-2.5) |  |
 | S | Jonathan Taylor | RB | IND | vs DAL (Sun) | 23.0 (+5.5) |  |
 | S | Drake London | WR | ATL | vs CIN (Sun) | 24.8 (+3) |  |
-| S | Garrett Wilson | WR | NYJ | at KC (Sun) | 18.8 (+10) | Out |
+|   | Garrett Wilson | WR | NYJ | at KC (Sun) | 18.8 (+10) | Out |
 | S | Jahmyr Gibbs | RB | DET | at MIA (Sun) | 28.5 (-7) |  |
 | S | Tucker Kraft | TE | GB | at NE (Sun) | 21.2 (+3) |  |
 | S | TB D/ST | DEF | TB | at CHI (Sun) | 20.8 (+6) |  |

@@ -1,6 +1,6 @@
 {
  "_rule": "THE ROSTER RULE: any statement about Cory's roster or matchup cites THIS file (fresh within 3 days) or live Sleeper \u2014 never an older artifact.",
- "generated_at": "2026-11-06T20:00:21+00:00",
+ "generated_at": "2026-11-08T17:12:43+00:00",
  "season": "2026",
  "week": 9,
  "cory": {
@@ -239,8 +239,8 @@
    "name": "Alvin Kamara",
    "pos": "RB",
    "team": "NO",
-   "starter": false,
-   "injury": "Questionable",
+   "starter": true,
+   "injury": null,
    "game": "vs CLE (Sun)",
    "home": true,
    "kickoff_utc": "2026-11-08T18:00:00.000Z"
@@ -316,7 +316,7 @@
    "name": "Garrett Wilson",
    "pos": "WR",
    "team": "NYJ",
-   "starter": true,
+   "starter": false,
    "injury": "Out",
    "game": "at KC (Sun)",
    "home": false,
