@@ -9,9 +9,9 @@ _(a season marked `harvest` had its realized recovered from league_history playe
 
 ## PRIMARY — rank correlation over the available pool
 
-- our ordering: mean rho 0.404 CI (0.33, 0.477)
-- market (ADP): mean rho 0.268 CI (0.201, 0.329)
-- **difference (our - market): 0.135 CI [0.048, 0.219] -> BEAT** over 26 picks
+- our ordering: mean rho 0.405 CI (0.331, 0.478)
+- market (ADP): mean rho 0.268 CI (0.2, 0.329)
+- **difference (our - market): 0.137 CI [0.049, 0.221] -> BEAT** over 26 picks
 
 ## Top-N set value (realized pts, our set vs market set)
 
@@ -55,7 +55,7 @@ _(a season marked `harvest` had its realized recovered from league_history playe
 ## Caveats
 
 - pbp unavailable for [2025, 2026] (NameError); those seasons stay skipped
-- 2026: nflverse realized unavailable (pbp rebuild refused by cross-validation on 2024 — the gate working); RECOVERED from the harvest (league_history players_points, season totals, 219 players; roster-gated so a mid-season drop is truncated).
+- 2026: nflverse realized unavailable (pbp rebuild refused by cross-validation on 2024 — the gate working); RECOVERED from the harvest (league_history players_points, season totals, 228 players; roster-gated so a mid-season drop is truncated).
 - 2025: nflverse realized unavailable (pbp rebuild refused by cross-validation on 2024 — the gate working); RECOVERED from the harvest (league_history players_points, season totals, 254 players; roster-gated so a mid-season drop is truncated).
 
 ## What this does NOT settle
