@@ -84,17 +84,93 @@ MEASURED = [p for p in ART["players"]
 LINEAR = [p for p in MEASURED if 20 <= p["adp"] <= 200]
 
 
+# ── ⛔ FFC IS A DRAFT-SEASON MARKET, AND THIS FILE GRADES AGAINST IT ─────────
+#
+# Every row this file calls MEASURED is tagged `ffc-published`: a dispersion
+# FantasyFootballCalculator computed from MOCK DRAFTS. Mock drafts stop when
+# real drafts stop, so the market this file grades against does not exist
+# out of season. Measured in the per-source archive:
+#
+#     09-10: 187 rows · 09-11: 160 · 09-12: 157 · 09-13: 154 · then nothing
+#
+# It did not break — it wound down. `ffc_adp_probe.py` returns
+# FFC_NO_LONGER_SERVES_2026 and PROVES ITSELF on 2024/2025, so the 2026 null is
+# a finding and not a broken fetch (rule 3e, the right way round). FantasyPros,
+# a year-round RANKING service rather than a draft market, is still publishing
+# 365 rows a day beside it.
+#
+# ⚠️ WHY THIS MATTERS BEYOND THIS FILE: these three controls are the premise
+# "the measurement has arrived", and the nightly board build runs this suite as
+# its acceptance gate. From the first board built after FFC wound down, six
+# failures here counted as BLOCKING and the player board — the draft tool —
+# could not publish. It last published 2026-09-10, three days before FFC's last
+# day, and has been refused every night since (register 546).
+#
+# A CONTROL THAT CANNOT SEE MUST SAY SO, NOT FAIL. Out of season the honest
+# verdict is UNMEASURABLE: there is no market to track, so "our formula does
+# not track the market" is not a statement anyone can make. In season it fails
+# loudly exactly as before — the scope is the fix, NOT a lowered bar, which is
+# what register 538 ruled: "SCOPE when the 150 floor applies; do not lower it."
+def _draft_market_is_live() -> tuple[bool, str]:
+    """(is the ADP market in season, why). Reads the per-source archive rather
+    than the calendar, so a market that comes back early or lingers is believed
+    over a date somebody typed."""
+    try:
+        arch = json.loads(
+            (ROOT / "draft" / "data" / "external_source_prices.json").read_text())
+        ser = arch.get("series") or arch
+        days = sorted({str(e.get("observed_at")) for e in ser
+                       if isinstance(e, dict) and e.get("source") == "ffc"
+                       and (e.get("rows") or {})})
+    except (OSError, ValueError):
+        #: cannot tell => assume live, so a real break still fails. Refusing to
+        #: skip is the safe direction for a guard.
+        return True, "per-source archive unreadable — assuming the market is live"
+    if not days:
+        return False, "the per-source archive holds no FFC day at all"
+    import datetime as _dt
+    last = _dt.date.fromisoformat(days[-1])
+    gap = (_dt.date.today() - last).days
+    #: 21 days with no mock-draft day is a wound-down market, not a blip. A
+    #: live market publishes daily; the longest in-season gap on record is 1.
+    if gap > 21:
+        return False, (f"FFC's last mock-draft day was {days[-1]}, {gap} days "
+                       "ago — the draft market has wound down, which is what it "
+                       "does after drafts finish")
+    return True, f"FFC published {gap} day(s) ago"
+
+
+_LIVE, _WHY = _draft_market_is_live()
+
+#: ⚠️ BOTH CONDITIONS, NOT JUST THE CALENDAR. The committed board still carries
+#: 164 `ffc-published` rows captured during draft season, so this file IS
+#: measurable against it today and skipping on the market alone would throw
+#: away coverage we actually have. It skips only when the premise genuinely
+#: cannot be met: the market has wound down AND the board no longer carries
+#: enough published dispersions to grade. So:
+#:   * committed board, today      -> 164 rows, tests RUN (and pass)
+#:   * a board built after wind-down -> too few rows, tests SKIP with the reason
+#:   * in season, rows missing      -> market live, tests FAIL loudly as before
+_MEASURABLE = len(MEASURED) >= 100
+needs_live_market = pytest.mark.skipif(
+    not _LIVE and not _MEASURABLE,
+    reason=(f"ADP draft market not live and the board carries only "
+            f"{len(MEASURED)} published dispersions: {_WHY}"))
+
+
 def _fitted(adp: float) -> float:
     return K.adp_sd_for(float(adp))
 
 
 # ── CONTROLS. A yardstick with no marks on it grades everything as correct. ──
+@needs_live_market
 def test_CONTROL_the_board_actually_carries_published_dispersions():
     assert len(MEASURED) >= 100, (
         f"only {len(MEASURED)} rows carry a published sd — this file's premise "
         "is that the measurement has arrived, and below ~100 rows it has not")
 
 
+@needs_live_market
 def test_CONTROL_the_measured_rows_reach_the_range_we_draft_in():
     inside = [p for p in MEASURED if p["adp"] <= 150]
     assert len(inside) >= 100, (
@@ -102,6 +178,7 @@ def test_CONTROL_the_measured_rows_reach_the_range_we_draft_in():
         "on the deep pool says nothing about the picks I own")
 
 
+@needs_live_market
 def test_CONTROL_the_measured_sd_is_not_itself_our_formula():
     """If the 'published' sd were our own clamped line wearing a source label,
     every comparison below would be circular. It is not: our rule produces at
@@ -114,6 +191,7 @@ def test_CONTROL_the_measured_sd_is_not_itself_our_formula():
 
 
 # ── THE GRADE ITSELF ────────────────────────────────────────────────────────
+@needs_live_market
 def test_the_rate_the_MARKET_publishes_is_WELL_DETERMINED():
     """Two independent estimators over the linear region. Neither reads a
     constant from our code, so no edit to keepers.py or survival.js can move
@@ -152,6 +230,7 @@ def test_THE_DIVERGENCE_IS_RECORDED_WHERE_THE_CONSTANT_LIVES():
 
 
 @pytest.mark.repo_parity
+@needs_live_market
 @pytest.mark.parametrize("lo,hi", [(1, 25), (25, 50), (50, 100), (100, 150)])
 def test_MEASURE_each_ADP_band_and_hold_the_line_at_todays_error(lo, hi):
     """A RATCHET, NOT AN ENDORSEMENT. Today's rule is wide; these bounds are
@@ -188,6 +267,7 @@ def test_MEASURE_each_ADP_band_and_hold_the_line_at_todays_error(lo, hi):
         "which manufactures urgency that is not in the market.")
 
 
+@needs_live_market
 def test_the_SHIPPED_rate_tracks_the_market_and_the_OLD_one_provably_did_not():
     """INVERTED 2026-08-17, exactly as its own failure message prescribed: the
     measured pair (rate 0.11, floor 2.0) shipped on Cory's ruling ("SHIP,
@@ -219,6 +299,7 @@ def test_the_SHIPPED_rate_tracks_the_market_and_the_OLD_one_provably_did_not():
         "matters more, not less")
 
 
+@needs_live_market
 def test_THIS_FILE_CANNOT_BE_SATISFIED_BY_THE_TWO_SIDES_AGREEING():
     """The defect C named, asserted directly. Parity compares keepers.py to a
     transcription of survival.js; both could be wrong together and it would
@@ -261,6 +342,7 @@ def test_adp_py_does_not_carry_its_OWN_copy_of_the_rate():
         "adp.py must read the one set of constants, not restate them")
 
 
+@needs_live_market
 def test_the_fitted_rule_only_fires_where_nothing_was_published():
     """Blast radius, asserted rather than remembered. A published sd always wins,
     so this change touches the deep pool and almost nothing I draft from."""
