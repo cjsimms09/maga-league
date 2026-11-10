@@ -10,7 +10,7 @@
     "ok": true
    }
   ],
-  "fetched": "2026-11-03",
+  "fetched": "2026-11-10",
   "weeks_span": [
    1,
    18
@@ -30,11 +30,11 @@
    "team"
   ],
   "crosswalk": "nfl_data_py.import_ids() gsis_id -> sleeper_id; unmapped players keyed gsis:<id>, never dropped",
-  "raw_rows": 243,
-  "kept_player_weeks": 243,
-  "players": 36,
-  "sleeper_mapped_players": 33,
-  "unmapped_gsis_players": 3
+  "raw_rows": 274,
+  "kept_player_weeks": 274,
+  "players": 38,
+  "sleeper_mapped_players": 34,
+  "unmapped_gsis_players": 4
  },
  "weeks": [
   {
@@ -1713,6 +1713,223 @@
      "fgm_40_49": 1,
      "fgm_50p": 1,
      "fgmiss": 1,
+     "pos": "K",
+     "team": "WAS",
+     "xpm": 1
+    }
+   }
+  },
+  {
+   "week": 9,
+   "players": {
+    "10937": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "BAL",
+     "xpm": 1
+    },
+    "10955": {
+     "fgm_20_29": 1,
+     "pos": "K",
+     "team": "ARI"
+    },
+    "11261": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "CLE",
+     "xpm": 1
+    },
+    "11533": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "DAL",
+     "xpm": 3
+    },
+    "11539": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgm_40_49": 2,
+     "pos": "K",
+     "team": "DET",
+     "xpm": 1
+    },
+    "11786": {
+     "fgm_30_39": 2,
+     "fgm_40_49": 2,
+     "pos": "K",
+     "team": "JAX",
+     "xpm": 3
+    },
+    "11789": {
+     "pos": "K",
+     "team": "LA"
+    },
+    "11792": {
+     "fgm_40_49": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "MIN"
+    },
+    "12185": {
+     "fgm_40_49": 1,
+     "fgm_50p": 2,
+     "pos": "K",
+     "team": "IND",
+     "xpm": 2
+    },
+    "12713": {
+     "pos": "K",
+     "team": "NE",
+     "xpm": 3
+    },
+    "12961": {
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "CAR",
+     "xpm": 3
+    },
+    "1433": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "LA",
+     "xpm": 2
+    },
+    "2020": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "CHI",
+     "xpm": 3
+    },
+    "2747": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "SEA",
+     "xpm": 2
+    },
+    "3451": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "HOU",
+     "xpm": 5
+    },
+    "3678": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "DEN",
+     "xpm": 2
+    },
+    "4195": {
+     "fgm_40_49": 1,
+     "pos": "K",
+     "team": "PHI"
+    },
+    "4227": {
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "KC",
+     "xpm": 5
+    },
+    "4233": {
+     "fgm_30_39": 2,
+     "fgm_50p": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "MIA"
+    },
+    "5119": {
+     "fgm_20_29": 1,
+     "fgm_40_49": 2,
+     "fgm_50p": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "NYJ"
+    },
+    "5189": {
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "SF",
+     "xpm": 5
+    },
+    "6083": {
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "LV",
+     "xpm": 2
+    },
+    "650": {
+     "fgm_30_39": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "ATL",
+     "xpm": 2
+    },
+    "6650": {
+     "fgm_20_29": 2,
+     "fgm_30_39": 1,
+     "pos": "K",
+     "team": "TB",
+     "xpm": 1
+    },
+    "7042": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "BUF",
+     "xpm": 2
+    },
+    "7839": {
+     "fgm_40_49": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "CIN",
+     "xpm": 4
+    },
+    "8259": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "LAC",
+     "xpm": 1
+    },
+    "gsis:00-0039229": {
+     "fgm_20_29": 1,
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "fgmiss": 1,
+     "pos": "K",
+     "team": "NO",
+     "xpm": 2
+    },
+    "gsis:00-0040899": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "GB",
+     "xpm": 4
+    },
+    "gsis:00-0041145": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 2,
+     "fgm_50p": 1,
+     "pos": "K",
+     "team": "NYG",
+     "xpm": 1
+    },
+    "gsis:00-0041182": {
+     "fgm_30_39": 1,
+     "fgm_40_49": 1,
      "pos": "K",
      "team": "WAS",
      "xpm": 1
