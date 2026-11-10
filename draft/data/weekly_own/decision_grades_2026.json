@@ -241,12 +241,42 @@
    "props_vs_actual": 0.0,
    "props_priced": 11,
    "props_would_flip": false
+  },
+  {
+   "week": 9,
+   "actual": 123.38,
+   "ceiling": 158.36,
+   "left_on_bench": 34.98,
+   "starters_actual": [
+    "QB:3163",
+    "RB:3198",
+    "RB:8151",
+    "WR:7564",
+    "WR:9487",
+    "TE:12506",
+    "WR:10229",
+    "K:11792",
+    "DEF:LAR"
+   ],
+   "opponent": "B8T3S",
+   "opponent_points": 80.48,
+   "result": "W",
+   "margin": 42.9,
+   "ceiling_would_flip": false,
+   "champion": 110.28,
+   "champion_vs_actual": -13.1,
+   "champion_priced": 14,
+   "champion_would_flip": false,
+   "props": 137.1,
+   "props_vs_actual": 13.72,
+   "props_priced": 13,
+   "props_would_flip": false
   }
  ],
  "summary": {
-  "weeks_graded": 8,
-  "left_on_bench_per_week": 10.41,
-  "champion_vs_actual_per_week": -12.33,
-  "props_vs_actual_per_week": 0.27
+  "weeks_graded": 9,
+  "left_on_bench_per_week": 13.14,
+  "champion_vs_actual_per_week": -12.42,
+  "props_vs_actual_per_week": 2.19
  }
 }
