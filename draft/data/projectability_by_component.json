@@ -1,0 +1,208 @@
+{
+ "_territory": "TERRITORY: A \u2014 draft/backtest/projectability_by_component.py",
+ "_what": "per-component between/within variance under THIS league's scoring; projectable share and an optimistic MAE floor",
+ "_blind_folds_excluded": [
+  2023
+ ],
+ "seasons": [
+  2021,
+  2022,
+  2024,
+  2025,
+  2026
+ ],
+ "positions": {
+  "QB": {
+   "n_player_seasons": 206,
+   "components": {
+    "pass_yd": {
+     "mean_pts": 8.108,
+     "between_sd": 2.47,
+     "within_sd": 2.829,
+     "projectable": 0.4326
+    },
+    "pass_td": {
+     "mean_pts": 7.69,
+     "between_sd": 3.554,
+     "within_sd": 5.649,
+     "projectable": 0.2835
+    },
+    "pass_int": {
+     "mean_pts": -1.295,
+     "between_sd": 0.574,
+     "within_sd": 1.487,
+     "projectable": 0.1298
+    },
+    "rush_yd": {
+     "mean_pts": 1.622,
+     "between_sd": 1.381,
+     "within_sd": 1.311,
+     "projectable": 0.526
+    },
+    "rush_td": {
+     "mean_pts": 1.033,
+     "between_sd": 1.172,
+     "within_sd": 1.903,
+     "projectable": 0.2749
+    },
+    "fum_lost": {
+     "mean_pts": -0.347,
+     "between_sd": 0.26,
+     "within_sd": 0.679,
+     "projectable": 0.1279
+    }
+   },
+   "projectable_share": 0.3186,
+   "within_sd_total": 6.923,
+   "optimistic_floor_mae": 5.524,
+   "live_mae_2026": 8.274,
+   "graded_slots_2026": 250,
+   "recoverable_per_week": 2.75,
+   "recoverable_share_of_live_mae": 0.3324,
+   "recoverable_x_slots": 687.6,
+   "_floor_caveat": "normal-variate constant on right-skewed points, so the floor is OPTIMISTIC and the recoverable gap is an UPPER bound, not a target",
+   "share_of_all_recoverable": 0.2022
+  },
+  "RB": {
+   "n_player_seasons": 497,
+   "components": {
+    "rush_yd": {
+     "mean_pts": 3.393,
+     "between_sd": 2.636,
+     "within_sd": 2.174,
+     "projectable": 0.5952
+    },
+    "rush_td": {
+     "mean_pts": 1.504,
+     "between_sd": 1.568,
+     "within_sd": 2.259,
+     "projectable": 0.3251
+    },
+    "rec": {
+     "mean_pts": 0.819,
+     "between_sd": 0.582,
+     "within_sd": 0.63,
+     "projectable": 0.4608
+    },
+    "rec_yd": {
+     "mean_pts": 1.219,
+     "between_sd": 0.957,
+     "within_sd": 1.21,
+     "projectable": 0.3848
+    },
+    "rec_td": {
+     "mean_pts": 0.389,
+     "between_sd": 0.564,
+     "within_sd": 0.934,
+     "projectable": 0.2674
+    },
+    "fum_lost": {
+     "mean_pts": -0.091,
+     "between_sd": 0.141,
+     "within_sd": 0.238,
+     "projectable": 0.2596
+    }
+   },
+   "projectable_share": 0.4657,
+   "within_sd_total": 3.553,
+   "optimistic_floor_mae": 2.835,
+   "live_mae_2026": 4.26,
+   "graded_slots_2026": 599,
+   "recoverable_per_week": 1.425,
+   "recoverable_share_of_live_mae": 0.3346,
+   "recoverable_x_slots": 853.8,
+   "_floor_caveat": "normal-variate constant on right-skewed points, so the floor is OPTIMISTIC and the recoverable gap is an UPPER bound, not a target",
+   "share_of_all_recoverable": 0.251
+  },
+  "WR": {
+   "n_player_seasons": 774,
+   "components": {
+    "rec": {
+     "mean_pts": 1.388,
+     "between_sd": 0.898,
+     "within_sd": 0.789,
+     "projectable": 0.5642
+    },
+    "rec_yd": {
+     "mean_pts": 3.493,
+     "between_sd": 2.345,
+     "within_sd": 2.419,
+     "projectable": 0.4845
+    },
+    "rec_td": {
+     "mean_pts": 1.279,
+     "between_sd": 1.213,
+     "within_sd": 2.123,
+     "projectable": 0.2459
+    },
+    "rush_yd": {
+     "mean_pts": 0.103,
+     "between_sd": 0.211,
+     "within_sd": 0.218,
+     "projectable": 0.4851
+    },
+    "rush_td": {
+     "mean_pts": 0.049,
+     "between_sd": 0.203,
+     "within_sd": 0.139,
+     "projectable": 0.6809
+    },
+    "fum_lost": {
+     "mean_pts": -0.033,
+     "between_sd": 0.078,
+     "within_sd": 0.103,
+     "projectable": 0.3644
+    }
+   },
+   "projectable_share": 0.4157,
+   "within_sd_total": 3.325,
+   "optimistic_floor_mae": 2.653,
+   "live_mae_2026": 3.895,
+   "graded_slots_2026": 978,
+   "recoverable_per_week": 1.242,
+   "recoverable_share_of_live_mae": 0.3189,
+   "recoverable_x_slots": 1214.6,
+   "_floor_caveat": "normal-variate constant on right-skewed points, so the floor is OPTIMISTIC and the recoverable gap is an UPPER bound, not a target",
+   "share_of_all_recoverable": 0.3571
+  },
+  "TE": {
+   "n_player_seasons": 401,
+   "components": {
+    "rec": {
+     "mean_pts": 1.182,
+     "between_sd": 0.721,
+     "within_sd": 0.692,
+     "projectable": 0.5204
+    },
+    "rec_yd": {
+     "mean_pts": 2.428,
+     "between_sd": 1.66,
+     "within_sd": 1.736,
+     "projectable": 0.4776
+    },
+    "rec_td": {
+     "mean_pts": 1.104,
+     "between_sd": 1.044,
+     "within_sd": 2.003,
+     "projectable": 0.2136
+    },
+    "fum_lost": {
+     "mean_pts": -0.032,
+     "between_sd": 0.083,
+     "within_sd": 0.093,
+     "projectable": 0.4414
+    }
+   },
+   "projectable_share": 0.3678,
+   "within_sd_total": 2.741,
+   "optimistic_floor_mae": 2.187,
+   "live_mae_2026": 3.398,
+   "graded_slots_2026": 533,
+   "recoverable_per_week": 1.211,
+   "recoverable_share_of_live_mae": 0.3563,
+   "recoverable_x_slots": 645.4,
+   "_floor_caveat": "normal-variate constant on right-skewed points, so the floor is OPTIMISTIC and the recoverable gap is an UPPER bound, not a target",
+   "share_of_all_recoverable": 0.1897
+  }
+ }
+}
