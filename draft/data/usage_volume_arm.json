@@ -1,0 +1,296 @@
+{
+ "_territory": "TERRITORY: A \u2014 draft/backtest/usage_volume_arm.py",
+ "_what": "walk-forward: does projecting VOLUME and deriving touchdowns from a position rate beat a player's own trailing points?",
+ "_not_live": "this arm is NOT in DEFAULT_ARMS and prices nothing. BLEND-SEARCH-DESIGN \u00a74 requires walk-forward grading and a clean null first; promotion is a separate decision with the best-of-K gate in front of it.",
+ "_blind_folds_excluded": [
+  2023
+ ],
+ "min_trailing_weeks": 3,
+ "per_fold": {
+  "2021": {
+   "QB": {
+    "n": 455,
+    "null_mae": 7.8486,
+    "arm_mae": 7.8826,
+    "arm_advantage": -0.034,
+    "ci95": [
+     -0.2832,
+     0.2153
+    ],
+    "arm_better_share": 0.4879
+   },
+   "RB": {
+    "n": 1015,
+    "null_mae": 4.969,
+    "arm_mae": 4.9389,
+    "arm_advantage": 0.03,
+    "ci95": [
+     -0.0491,
+     0.1092
+    ],
+    "arm_better_share": 0.5064
+   },
+   "WR": {
+    "n": 1563,
+    "null_mae": 4.6317,
+    "arm_mae": 4.6406,
+    "arm_advantage": -0.0089,
+    "ci95": [
+     -0.0632,
+     0.0454
+    ],
+    "arm_better_share": 0.4882
+   },
+   "TE": {
+    "n": 718,
+    "null_mae": 3.5811,
+    "arm_mae": 3.5146,
+    "arm_advantage": 0.0665,
+    "ci95": [
+     -0.0111,
+     0.1441
+    ],
+    "arm_better_share": 0.5139
+   },
+   "ALL": {
+    "n": 3751,
+    "null_mae": 4.9121,
+    "arm_mae": 4.899,
+    "arm_advantage": 0.013,
+    "ci95": [
+     -0.0328,
+     0.0589
+    ],
+    "arm_better_share": 0.498
+   }
+  },
+  "2022": {
+   "QB": {
+    "n": 428,
+    "null_mae": 7.4518,
+    "arm_mae": 7.2706,
+    "arm_advantage": 0.1812,
+    "ci95": [
+     -0.0454,
+     0.4079
+    ],
+    "arm_better_share": 0.5234
+   },
+   "RB": {
+    "n": 1036,
+    "null_mae": 4.8116,
+    "arm_mae": 4.68,
+    "arm_advantage": 0.1316,
+    "ci95": [
+     0.0594,
+     0.2038
+    ],
+    "arm_better_share": 0.528
+   },
+   "WR": {
+    "n": 1518,
+    "null_mae": 4.5132,
+    "arm_mae": 4.4639,
+    "arm_advantage": 0.0493,
+    "ci95": [
+     -0.001,
+     0.0995
+    ],
+    "arm_better_share": 0.5119
+   },
+   "TE": {
+    "n": 752,
+    "null_mae": 3.5358,
+    "arm_mae": 3.4574,
+    "arm_advantage": 0.0784,
+    "ci95": [
+     0.0107,
+     0.146
+    ],
+    "arm_better_share": 0.5226
+   },
+   "ALL": {
+    "n": 3734,
+    "null_mae": 4.736,
+    "arm_mae": 4.6429,
+    "arm_advantage": 0.0931,
+    "ci95": [
+     0.0521,
+     0.1341
+    ],
+    "arm_better_share": 0.5198
+   }
+  },
+  "2024": {
+   "QB": {
+    "n": 452,
+    "null_mae": 8.0705,
+    "arm_mae": 8.1032,
+    "arm_advantage": -0.0327,
+    "ci95": [
+     -0.2606,
+     0.1952
+    ],
+    "arm_better_share": 0.5221
+   },
+   "RB": {
+    "n": 1017,
+    "null_mae": 4.6175,
+    "arm_mae": 4.5506,
+    "arm_advantage": 0.067,
+    "ci95": [
+     -0.0153,
+     0.1492
+    ],
+    "arm_better_share": 0.5133
+   },
+   "WR": {
+    "n": 1523,
+    "null_mae": 4.4622,
+    "arm_mae": 4.4497,
+    "arm_advantage": 0.0125,
+    "ci95": [
+     -0.0415,
+     0.0665
+    ],
+    "arm_better_share": 0.501
+   },
+   "TE": {
+    "n": 762,
+    "null_mae": 3.419,
+    "arm_mae": 3.4222,
+    "arm_advantage": -0.0032,
+    "ci95": [
+     -0.0695,
+     0.0631
+    ],
+    "arm_better_share": 0.5223
+   },
+   "ALL": {
+    "n": 3754,
+    "null_mae": 4.727,
+    "arm_mae": 4.7084,
+    "arm_advantage": 0.0186,
+    "ci95": [
+     -0.0251,
+     0.0623
+    ],
+    "arm_better_share": 0.5112
+   }
+  },
+  "2025": {
+   "QB": {
+    "n": 438,
+    "null_mae": 8.5778,
+    "arm_mae": 8.5032,
+    "arm_advantage": 0.0745,
+    "ci95": [
+     -0.1497,
+     0.2987
+    ],
+    "arm_better_share": 0.5068
+   },
+   "RB": {
+    "n": 1205,
+    "null_mae": 4.224,
+    "arm_mae": 4.202,
+    "arm_advantage": 0.022,
+    "ci95": [
+     -0.0376,
+     0.0816
+    ],
+    "arm_better_share": 0.4647
+   },
+   "WR": {
+    "n": 1826,
+    "null_mae": 3.8722,
+    "arm_mae": 3.8626,
+    "arm_advantage": 0.0096,
+    "ci95": [
+     -0.0383,
+     0.0575
+    ],
+    "arm_better_share": 0.4644
+   },
+   "TE": {
+    "n": 909,
+    "null_mae": 3.2748,
+    "arm_mae": 3.1544,
+    "arm_advantage": 0.1203,
+    "ci95": [
+     0.0522,
+     0.1885
+    ],
+    "arm_better_share": 0.5028
+   },
+   "ALL": {
+    "n": 4378,
+    "null_mae": 4.3158,
+    "arm_mae": 4.2733,
+    "arm_advantage": 0.0425,
+    "ci95": [
+     0.0055,
+     0.0795
+    ],
+    "arm_better_share": 0.4767
+   }
+  }
+ },
+ "pooled": {
+  "QB": {
+   "n": 1773,
+   "null_mae": 7.9895,
+   "arm_mae": 7.9444,
+   "arm_advantage": 0.0451,
+   "ci95": [
+    -0.0712,
+    0.1614
+   ],
+   "arm_better_share": 0.5099
+  },
+  "RB": {
+   "n": 4273,
+   "null_mae": 4.6371,
+   "arm_mae": 4.5759,
+   "arm_advantage": 0.0612,
+   "ci95": [
+    0.0248,
+    0.0976
+   ],
+   "arm_better_share": 0.5015
+  },
+  "WR": {
+   "n": 6430,
+   "null_mae": 4.3479,
+   "arm_mae": 4.3327,
+   "arm_advantage": 0.0152,
+   "ci95": [
+    -0.0106,
+    0.0409
+   ],
+   "arm_better_share": 0.49
+  },
+  "TE": {
+   "n": 3141,
+   "null_mae": 3.4423,
+   "arm_mae": 3.3743,
+   "arm_advantage": 0.068,
+   "ci95": [
+    0.033,
+    0.103
+   ],
+   "arm_better_share": 0.5148
+  },
+  "ALL": {
+   "n": 15617,
+   "null_mae": 4.6583,
+   "arm_mae": 4.6165,
+   "arm_advantage": 0.0418,
+   "ci95": [
+    0.0209,
+    0.0627
+   ],
+   "arm_better_share": 0.5004
+  }
+ }
+}
