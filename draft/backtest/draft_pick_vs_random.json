@@ -2,124 +2,124 @@
  "_territory": "TERRITORY: A \u2014 draft/backtest/draft_pick_vs_random.py",
  "_what": "Decision-null grading of the draft pick: season points delivered vs a random AVAILABLE player at that pick.",
  "_supersedes": "the engine-minus-owner comparison in engine_seat_replay.json / replay_league_table.json, whose estimand carries no null (GRADING-POLICY).",
- "n_picks": 450,
- "mean_percentile": 0.8515,
+ "n_picks": 451,
+ "mean_percentile": 0.8548,
  "null_95": [
-  0.4733,
-  0.5267
+  0.4734,
+  0.5266
  ],
  "controls": {
-  "random_available": 0.4993,
-  "best_available": 0.999,
+  "random_available": 0.499,
+  "best_available": 0.9989,
   "known_negative_band_half_width": 0.0085,
-  "band_derived_from_n": 450
+  "band_derived_from_n": 451
  },
  "seasons_without_points_store": [],
  "n_draws": 400,
  "seed": 20260821,
- "skipped": 84,
+ "skipped": 83,
  "by_owner": {
   "ds7mmet": {
    "n": 46,
-   "mean_pct": 0.808
+   "mean_pct": 0.8224
   },
   "Sadbru": {
    "n": 48,
-   "mean_pct": 0.8466
+   "mean_pct": 0.851
   },
   "cashworth": {
    "n": 46,
-   "mean_pct": 0.8136
+   "mean_pct": 0.8074
   },
   "Jreis": {
    "n": 49,
-   "mean_pct": 0.8481
+   "mean_pct": 0.8557
   },
   "Richard2121": {
    "n": 43,
-   "mean_pct": 0.8729
+   "mean_pct": 0.871
   },
   "coryjsimms": {
-   "n": 44,
-   "mean_pct": 0.8581
+   "n": 45,
+   "mean_pct": 0.8583
   },
   "MarianSaar": {
    "n": 44,
-   "mean_pct": 0.8753
+   "mean_pct": 0.8764
   },
   "Schmelley": {
    "n": 43,
-   "mean_pct": 0.884
+   "mean_pct": 0.8898
   },
   "B8T3S": {
    "n": 44,
-   "mean_pct": 0.8514
+   "mean_pct": 0.8585
   },
   "mhagen": {
    "n": 43,
-   "mean_pct": 0.8628
+   "mean_pct": 0.8627
   }
  },
  "by_round": {
   "1": {
    "n": 13,
-   "mean_pct": 0.9019
+   "mean_pct": 0.9093
   },
   "2": {
    "n": 17,
-   "mean_pct": 0.9045
+   "mean_pct": 0.909
   },
   "3": {
    "n": 24,
-   "mean_pct": 0.8699
+   "mean_pct": 0.8668
   },
   "4": {
    "n": 40,
-   "mean_pct": 0.8609
+   "mean_pct": 0.8652
   },
   "5": {
    "n": 40,
-   "mean_pct": 0.8679
+   "mean_pct": 0.8754
   },
   "6": {
    "n": 40,
-   "mean_pct": 0.8784
+   "mean_pct": 0.8862
   },
   "7": {
    "n": 38,
-   "mean_pct": 0.8559
+   "mean_pct": 0.8519
   },
   "8": {
    "n": 40,
-   "mean_pct": 0.8353
+   "mean_pct": 0.8408
   },
   "9": {
    "n": 39,
-   "mean_pct": 0.8518
+   "mean_pct": 0.8557
   },
   "10": {
    "n": 37,
-   "mean_pct": 0.8423
+   "mean_pct": 0.8453
   },
   "11": {
    "n": 30,
-   "mean_pct": 0.8322
+   "mean_pct": 0.8276
   },
   "12": {
    "n": 30,
-   "mean_pct": 0.8187
+   "mean_pct": 0.8364
   },
   "13": {
-   "n": 15,
-   "mean_pct": 0.7579
+   "n": 16,
+   "mean_pct": 0.744
   },
   "14": {
    "n": 23,
-   "mean_pct": 0.8658
+   "mean_pct": 0.867
   },
   "15": {
    "n": 24,
-   "mean_pct": 0.8235
+   "mean_pct": 0.8317
   }
  }
 }
