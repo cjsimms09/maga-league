@@ -1,0 +1,72 @@
+{
+ "_territory": "TERRITORY: A \u2014 draft/backtest/nflverse_qb_scoring.py main()",
+ "_what": "where the QB-vs-RB/WR crossover pick moves under our 6-point passing TD against a market built on 4",
+ "_blind_folds_excluded": [
+  2023
+ ],
+ "pass_td_ours": 6.0,
+ "pass_td_market": 4.0,
+ "folds": {
+  "2021": {
+   "crossover_ours": 5,
+   "crossover_market": 8,
+   "move": 3,
+   "gap_ours": 76.52,
+   "gap_market": 60.5,
+   "cliff": 16.02,
+   "top_qb": "4984"
+  },
+  "2022": {
+   "crossover_ours": 1,
+   "crossover_market": 6,
+   "move": 5,
+   "gap_ours": 80.22,
+   "gap_market": 86.46,
+   "cliff": -6.24,
+   "top_qb": "Patrick Mahomes"
+  },
+  "2024": {
+   "crossover_ours": 1,
+   "crossover_market": 6,
+   "move": 5,
+   "gap_ours": 73.1,
+   "gap_market": 57.22,
+   "cliff": 15.88,
+   "top_qb": "Lamar Jackson"
+  },
+  "2025": {
+   "crossover_ours": 12,
+   "crossover_market": 16,
+   "move": 4,
+   "gap_ours": 58.62,
+   "gap_market": 49.32,
+   "cliff": 9.3,
+   "top_qb": "Matthew Stafford"
+  }
+ },
+ "crossover_move": {
+  "mean": 4.25,
+  "sd": 0.83,
+  "n": 4,
+  "values": [
+   3,
+   5,
+   5,
+   4
+  ],
+  "reading": "STABLE \u2014 positive in every fold"
+ },
+ "tier_cliff": {
+  "mean": 8.74,
+  "sd": 9.06,
+  "n": 4,
+  "values": [
+   16.02,
+   -6.24,
+   15.88,
+   9.3
+  ],
+  "reading": "NOT ESTABLISHED \u2014 sd exceeds the mean, one fold negative"
+ },
+ "_use": "use the MOVE, never the level: the crossover pick itself swings 1..12 across folds because it depends on who that year's best QB was. Whatever the market says about QB1, he is worth ~4 picks more to us."
+}

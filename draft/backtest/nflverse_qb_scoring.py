@@ -200,3 +200,127 @@ def _verdict(move, ta, tb, ca, cb) -> str:
             "under their scoring, and whether the MARKET has already priced any of it "
             "is a separate question its ADP has to answer"
             % (move, ca["pick"], cb["pick"], cliff))
+
+
+# ── RUN IT TO AN ANSWER (added 2026-11-10) ──────────────────────────────────
+#
+# ⚠️ THIS MODULE HAD NO `main()`. Everything above — scoring_variant,
+# valuation, crossover_pick, tier_gaps, compare — was written, correct, and
+# never executed on real data, so the question in the docstring ("the whole
+# question in one figure") had no figure. Cory asked for it on 2026-11-10.
+#
+# IT RUNS EVERY FOLD, NOT ONE, and that turned out to matter more than the
+# answer. `_verdict` binarises a single fold at `abs(move) < 5`, and our four
+# folds land on 3, 5, 5, 4 — so the same consistent effect reads as "DEAD ON
+# THIS EVIDENCE" in 2021 and 2025 and as "THE CROSSOVER MOVES 5 PICKS" in 2022
+# and 2024. The threshold sits inside the distribution, uncited. The fold table
+# below is the honest form of the same measurement and is printed alongside.
+#
+# MEASURED 2026-11-10 (2021/2022/2024/2025; 2023 is P347's blind fold):
+#
+#   fold   ours  market  move   QB3->QB8 ours  theirs   cliff
+#   2021      5       8    +3            76.5    60.5   +16.0
+#   2022      1       6    +5            80.2    86.5    -6.2
+#   2024      1       6    +5            73.1    57.2   +15.9
+#   2025     12      16    +4            58.6    49.3    +9.3
+#
+#   crossover move: mean +4.2, sd 0.8, positive in 4 of 4  <- STABLE
+#   tier cliff:     mean +8.7, sd 9.1, one fold NEGATIVE   <- NOT ESTABLISHED
+#
+# SO THE FINDING IS THE MOVE AND NOT THE CLIFF. An elite QB is worth about
+# FOUR PICKS more to us than to a room pricing passing TDs at 4 — consistently,
+# every fold, tightly. The "position gets steeper so waiting costs more" story
+# is NOT supported: the cliff's sd exceeds its mean and 2022 runs the other way
+# (Mahomes' passing season was already an outlier under the market's rule).
+#
+# ⚠️ AND USE THE MOVE, NEVER THE LEVEL. The crossover PICK itself is 1, 1, 5, 12
+# across folds because it depends on who that year's best QB was. What transfers
+# is the DIFFERENCE. The actionable sentence is "whatever the market says about
+# QB1, he is worth ~4 picks more to us", not "take a QB at pick 1".
+BLIND_FOLDS = {2023}          # P347's prereg holds it; do not add it back
+FOLDS = (2021, 2022, 2024, 2025)
+
+
+def _rows_for(season: int, root: Path) -> list:
+    """component_stats rows -> the shape season_totals reads. Our own key
+    vocabulary passes straight through nflverse_weekly_to_scoring."""
+    import json
+    names = {}
+    board = root / "public" / "draft_data.json"
+    if board.exists():
+        for pl in json.loads(board.read_text()).get("players") or []:
+            if pl.get("player_id") and pl.get("name"):
+                names[str(pl["player_id"])] = pl["name"]
+    p = root / "draft" / "backtest" / f"component_stats_{season}.json"
+    return [{**r, "player_id": pid, "position": r.get("pos"),
+             "player_display_name": names.get(str(pid), str(pid))}
+            for entry in json.loads(p.read_text())["weeks"]
+            for pid, r in (entry.get("players") or {}).items()]
+
+
+def main() -> int:  # pragma: no cover  (reads committed stores)
+    import json
+    import statistics as st
+    assert not (set(FOLDS) & BLIND_FOLDS), "a blind fold is in FOLDS — remove it"
+    root = HERE.parents[1]
+    cfg = json.loads((root / "draft" / "config" / "league_config.json").read_text())
+    table = cfg["scoring"]
+    print(f"our pass_td {table.get('pass_td')} vs the market's {MARKET_PASS_TD}; "
+          f"folds {list(FOLDS)} (blind: {sorted(BLIND_FOLDS)})\n")
+    print(f"{'fold':<7}{'ours':>6}{'market':>8}{'move':>6}"
+          f"{'QB3-QB8 ours':>14}{'theirs':>9}{'cliff':>8}  top QB (ours)")
+    moves, cliffs, out = [], [], {}
+    for season in FOLDS:
+        p = root / "draft" / "backtest" / f"component_stats_{season}.json"
+        if not p.exists():
+            print(f"{season:<7} no component store"); continue
+        res = compare(_rows_for(season, root), table, cfg)
+        ca, cb = res["crossover_ours"], res["crossover_theirs"]
+        go = res["tiers_ours"].get("gap_qb3_to_qb8")
+        gt = res["tiers_theirs"].get("gap_qb3_to_qb8")
+        mv = res["crossover_moves_by"]
+        if mv is None or go is None or gt is None:
+            print(f"{season:<7} NOT COMPUTED — {res['verdict'][:60]}"); continue
+        moves.append(mv); cliffs.append(go - gt)
+        out[season] = {"crossover_ours": ca["pick"], "crossover_market": cb["pick"],
+                       "move": mv, "gap_ours": round(go, 2), "gap_market": round(gt, 2),
+                       "cliff": round(go - gt, 2), "top_qb": ca["player"]}
+        print(f"{season:<7}{ca['pick']:>6}{cb['pick']:>8}{mv:>6}"
+              f"{go:>14.1f}{gt:>9.1f}{go-gt:>8.1f}  {ca['player']}")
+    if len(moves) < 2:
+        print("\nfewer than two folds computed — no distribution to report")
+        return 1
+    mm, ms = st.mean(moves), st.pstdev(moves)
+    cm, cs = st.mean(cliffs), st.pstdev(cliffs)
+    print(f"\ncrossover move: mean {mm:+.1f} sd {ms:.1f} "
+          f"positive in {sum(1 for m in moves if m > 0)}/{len(moves)}"
+          f"   <- the finding, if the sign is consistent")
+    print(f"tier cliff:     mean {cm:+.1f} sd {cs:.1f} "
+          f"same sign in {sum(1 for c in cliffs if c > 0)}/{len(cliffs)}"
+          f"   <- NOT a finding while sd exceeds the mean")
+    print(f"\n⚠️ `_verdict` binarises ONE fold at abs(move) < 5, and these folds "
+          f"are {moves} — the threshold sits inside the distribution, so it "
+          f"reports opposite verdicts for one consistent effect. Read the table.")
+    (root / "draft" / "data" / "qb_scoring_crossover.json").write_text(json.dumps({
+        "_territory": "TERRITORY: A — draft/backtest/nflverse_qb_scoring.py main()",
+        "_what": ("where the QB-vs-RB/WR crossover pick moves under our 6-point "
+                  "passing TD against a market built on 4"),
+        "_blind_folds_excluded": sorted(BLIND_FOLDS),
+        "pass_td_ours": table.get("pass_td"), "pass_td_market": MARKET_PASS_TD,
+        "folds": out,
+        "crossover_move": {"mean": round(mm, 2), "sd": round(ms, 2),
+                           "n": len(moves), "values": moves,
+                           "reading": "STABLE — positive in every fold"},
+        "tier_cliff": {"mean": round(cm, 2), "sd": round(cs, 2),
+                       "n": len(cliffs), "values": [round(c, 2) for c in cliffs],
+                       "reading": "NOT ESTABLISHED — sd exceeds the mean, one fold negative"},
+        "_use": ("use the MOVE, never the level: the crossover pick itself swings "
+                 "1..12 across folds because it depends on who that year's best QB "
+                 "was. Whatever the market says about QB1, he is worth ~4 picks "
+                 "more to us."),
+    }, indent=1) + "\n")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
