@@ -1,80 +1,57 @@
-# THIS WEEK — coryjsimms, week 9 (2026)
+# THIS WEEK — coryjsimms, week 10 (2026)
 
-**Generated 2026-11-08T17:12:43+00:00 from LIVE Sleeper. THE ROSTER RULE: any statement about
+**Generated 2026-11-10T20:30:58+00:00 from LIVE Sleeper. THE ROSTER RULE: any statement about
 Cory's roster or matchup cites this file (fresh within 3 days) or live
 Sleeper — a frozen seat plan or tournament artifact is never a source for
 who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
 
 **What stuck so far: `WHAT-STUCK.md`** — every closed loop in plain English, and what is still running.
 
-## Opponent: B8T3S
+## Opponent: Richard2121
 
 ## My roster
 
 | st | player | pos | team | game | implied | injury |
 |---|---|---|---|---|---|---|
-| S | Rashee Rice | WR | KC | vs NYJ (Sun) | 28.8 (-10) |  |
-|   | Caleb Williams | QB | CHI | vs TB (Sun) | 26.8 (-6) |  |
-| S | Will Reichard | K | MIN | vs BUF (Mon) | 20.8 (+3.5) |  |
-|   | Matthew Golden | WR | GB | at NE (Sun) | 21.2 (+3) |  |
-| S | Harold Fannin Jr. | TE | CLE | at NO (Sun) | 19.8 (+3) |  |
-|   | Quinshon Judkins | RB | CLE | at NO (Sun) | 19.8 (+3) |  |
-|   | Davante Adams | WR | LAR | at WSH (Sun) | 26.5 (-4.5) | IR |
-| S | Jared Goff | QB | DET | at MIA (Sun) | 28.5 (-7) |  |
-| S | Derrick Henry | RB | BAL | vs JAX (Thu) | 15.0 (+9.5) |  |
-|   | Juwan Johnson | TE | NO | vs CLE (Sun) | 22.8 (-3) |  |
-| S | Ja'Marr Chase | WR | CIN | at ATL (Sun) | 27.8 (-3) |  |
-| S | Kenneth Walker III | RB | KC | vs NYJ (Sun) | 28.8 (-10) |  |
-| S | Parker Washington | WR | JAX | at BAL (Thu) | 24.5 (-9.5) |  |
-|   | Josh Downs | WR | IND | vs DAL (Sun) | 23.0 (+5.5) |  |
-|   | Zach Charbonnet | RB | SEA | vs ARI (Sun) | 24.2 (-9) |  |
-| S | LAR D/ST | DEF | LAR | at WSH (Sun) | 26.5 (-4.5) |  |
+| S | Rashee Rice | WR | KC | at ATL (Sun) | — |  |
+|   | Caleb Williams | QB | CHI | BYE | — |  |
+| S | Will Reichard | K | MIN | at GB (Sun) | — |  |
+|   | Matthew Golden | WR | GB | vs MIN (Sun) | — |  |
+| S | Harold Fannin Jr. | TE | CLE | vs HOU (Sun) | — |  |
+|   | Quinshon Judkins | RB | CLE | vs HOU (Sun) | — |  |
+|   | Davante Adams | WR | LAR | at ARI (Sun) | — | IR |
+| S | Jared Goff | QB | DET | vs NE (Sun) | — |  |
+| S | Derrick Henry | RB | BAL | vs LAC (Mon) | — |  |
+|   | Juwan Johnson | TE | NO | vs CAR (Sun) | — |  |
+| S | Ja'Marr Chase | WR | CIN | vs PIT (Sun) | — |  |
+| S | Kenneth Walker III | RB | KC | at ATL (Sun) | — |  |
+| S | Parker Washington | WR | JAX | at TEN (Sun) | — |  |
+|   | Josh Downs | WR | IND | vs MIA (Sun) | — |  |
+|   | Zach Charbonnet | RB | SEA | at LV (Sun) | — |  |
+| S | LAR D/ST | DEF | LAR | at ARI (Sun) | — |  |
 
 ## Opponent's roster
 
 | st | player | pos | team | game | implied | injury |
 |---|---|---|---|---|---|---|
-|   | Xavier Worthy | WR | KC | vs NYJ (Sun) | 28.8 (-10) |  |
-|   | Emeka Egbuka | WR | TB | at CHI (Sun) | 20.8 (+6) | Questionable |
-|   | Justin Tucker | K | KC | vs NYJ (Sun) | 28.8 (-10) |  |
-| S | Stefon Diggs | WR | WAS | vs LAR (Sun) | 22.0 (+4.5) |  |
-| S | Alvin Kamara | RB | NO | vs CLE (Sun) | 22.8 (-3) |  |
-| S | Patrick Mahomes | QB | KC | vs NYJ (Sun) | 28.8 (-10) |  |
-| S | Harrison Butker | K | KC | vs NYJ (Sun) | 28.8 (-10) |  |
-|   | DK Metcalf | WR | PIT | BYE | — |  |
-|   | J.K. Dobbins | RB | DEN | at CAR (Sun) | 23.5 (-2.5) |  |
-| S | Jonathan Taylor | RB | IND | vs DAL (Sun) | 23.0 (+5.5) |  |
-| S | Drake London | WR | ATL | vs CIN (Sun) | 24.8 (+3) |  |
-|   | Garrett Wilson | WR | NYJ | at KC (Sun) | 18.8 (+10) | Out |
-| S | Jahmyr Gibbs | RB | DET | at MIA (Sun) | 28.5 (-7) |  |
-| S | Tucker Kraft | TE | GB | at NE (Sun) | 21.2 (+3) |  |
-| S | TB D/ST | DEF | TB | at CHI (Sun) | 20.8 (+6) |  |
+| S | Rome Odunze | WR | CHI | BYE | — |  |
+| S | Dak Prescott | QB | DAL | vs SF (Sun) | — |  |
+|   | Chris Godwin Jr. | WR | TB | BYE | — |  |
+|   | Aaron Jones Sr. | RB | MIN | at GB (Sun) | — |  |
+| S | Eddy Pineiro | K | SF | at DAL (Sun) | — |  |
+|   | Jakobi Meyers | WR | JAX | at TEN (Sun) | — |  |
+| S | D'Andre Swift | RB | CHI | BYE | — |  |
+| S | Nico Collins | WR | HOU | at CLE (Sun) | — |  |
+| S | Chuba Hubbard | RB | CAR | at NO (Sun) | — |  |
+|   | Rhamondre Stevenson | RB | NE | at DET (Sun) | — | Out |
+| S | Trey McBride | TE | ARI | vs LAR (Sun) | — |  |
+|   | George Pickens | WR | DAL | vs SF (Sun) | — | Out |
+| S | Bijan Robinson | RB | ATL | vs KC (Sun) | — |  |
+| S | CHI D/ST | DEF | CHI | BYE | — |  |
+|   | PIT D/ST | DEF | PIT | at CIN (Sun) | — |  |
 
 ## Second opinion (props vs champion)
 
-_Read from `draft/data/weekly_own/second_opinion_2026_w9.json` (generated 2026-11-05T20:54:03.738353+00:00; champion arm `v1_pull3`; 13 of 14 rostered skill players carry a line). REPORT ONLY — the props arm is P354's challenger, not the grader's input yet._
-
-| st | player | pos | champion | props | props − champion |
-|---|---|---|---|---|---|
-| S | Rashee Rice | WR | 10.8 | 11.9 | 1.0 |
-|   | Caleb Williams | QB | 21.0 | 19.8 | -1.2 |
-| S | Will Reichard | K | — | — | — |
-|   | Matthew Golden | WR | 10.3 | 12.2 | 1.9 |
-| S | Harold Fannin Jr. | TE | 8.9 | 8.8 | -0.1 |
-|   | Quinshon Judkins | RB | 10.1 | 11.7 | 1.6 |
-|   | Davante Adams | WR | 12.9 | — | — |
-| S | Jared Goff | QB | 23.8 | 24.5 | 0.6 |
-| S | Derrick Henry | RB | 14.7 | 11.4 | -3.3 |
-|   | Juwan Johnson | TE | 7.5 | 6.7 | -0.8 |
-| S | Ja'Marr Chase | WR | 15.6 | 15.1 | -0.6 |
-| S | Kenneth Walker III | RB | 18.7 | 17.9 | -0.7 |
-| S | Parker Washington | WR | 10.3 | 11.6 | 1.3 |
-|   | Josh Downs | WR | 6.8 | 7.0 | 0.2 |
-|   | Zach Charbonnet | RB | 6.6 | 8.6 | 2.0 |
-| S | LAR D/ST | DEF | — | — | — |
-
-**Lineup swaps:** props starts **Quinshon Judkins** where the champion starts Derrick Henry; props starts **Matthew Golden** where the champion starts Rashee Rice.
-
-**Matchup vs B8T3S:** by the champion 105.5 – 100.2 (gap 5.4); by the props blend 103.2 – 101.6 (gap 1.5). each side's best lineup under that opinion; K/DEF unpriced by both, so the gap is skill slots only
+_not written yet for week 10 — `props_second_opinion.py` runs after the Wed/Thu snapshot (own-weekly-proj.yml)._
 
 **Implied column:** each team's implied total this week from our own Bovada capture, with the spread from that side (`draft/data/team_context_2026.json`; — = not priced yet). **Named gaps:** weather/stadium/roof enrichment joins at game week via game_weather.py (open-meteo forecast is only meaningful days out)
