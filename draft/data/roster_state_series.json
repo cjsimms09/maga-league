@@ -656448,7 +656448,7 @@
      "position": "TE"
     },
     "8799": {
-     "team": "FA",
+     "team": "CLE",
      "years_exp": 4,
      "adp": 950.0,
      "position": "TE"
@@ -657553,8 +657553,7 @@
      "position": "TE"
     },
     "12938": {
-     "injury_status": "Out",
-     "team": "DET",
+     "team": "FA",
      "years_exp": 1,
      "adp": 950.0,
      "position": "TE"
@@ -657978,7 +657977,7 @@
      "position": "TE"
     },
     "13827": {
-     "team": "NE",
+     "team": "FA",
      "years_exp": 0,
      "adp": 950.0,
      "position": "TE"
@@ -665662,7 +665661,7 @@
      "position": "QB"
     },
     "13428": {
-     "team": "JAX",
+     "team": "ARI",
      "years_exp": 0,
      "adp": 950.0,
      "position": "QB"
@@ -666675,7 +666674,7 @@
     },
     "650": {
      "depth_chart_order": 1,
-     "team": "ATL",
+     "team": "FA",
      "years_exp": 19,
      "adp": 171.0,
      "position": "K"
@@ -667023,7 +667022,7 @@
      "position": "K"
     },
     "10937": {
-     "team": "BAL",
+     "team": "ATL",
      "years_exp": 3,
      "adp": 950.0,
      "position": "K"

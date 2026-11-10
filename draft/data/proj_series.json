@@ -2040896,9 +2040896,8 @@
     },
     "12938": {
      "adp": 950.0,
-     "injury_status": "Out",
      "position": "TE",
-     "team": "DET",
+     "team": "FA",
      "years_exp": 1
     },
     "12941": {
@@ -2041578,7 +2041577,7 @@
     "13827": {
      "adp": 950.0,
      "position": "TE",
-     "team": "NE",
+     "team": "FA",
      "years_exp": 0
     },
     "13834": {
@@ -2042748,7 +2042747,7 @@
      "adp": 171.0,
      "depth_chart_order": 1,
      "position": "K",
-     "team": "ATL",
+     "team": "FA",
      "years_exp": 19
     },
     "6529": {
@@ -2043857,7 +2043856,7 @@
     "8799": {
      "adp": 950.0,
      "position": "TE",
-     "team": "FA",
+     "team": "CLE",
      "years_exp": 4
     },
     "8800": {
