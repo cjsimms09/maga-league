@@ -54,6 +54,23 @@ ADVISORY = {
         "repo hygiene: detects committed artifacts with no consumer. Scans "
         "source files for readers; a pass or fail is a statement about "
         "wiring, never about a player row.",
+    "draft/tests/test_proj_series_live_store.py":
+        "capture integrity, not board contents: it reads ONLY "
+        "draft/data/proj_series.json and asserts that the frozen projection "
+        "record obeys its own rules. Its sibling test_proj_series_completeness "
+        "is already here for the same reason, and this file is the other half "
+        "of the same store. Nothing it can say is a statement about a player "
+        "row on tonight's board. It mattered because both its failures counted "
+        "BLOCKING while the draft board sat unpublished: one was a WRONG KEY — "
+        "it deduped on (date, source) while the writer uses "
+        "(date, source, week), so six honest rows where a weekly source "
+        "captured two different NFL weeks on one date read as duplicates — and "
+        "the other was that file's own control, whose assertion could only hold "
+        "on an already-clean store and so reported a WORKING detector as broken. "
+        "Both are fixed; what stays red here is the real defect they were "
+        "hiding, a weekly source re-recording one frozen week (34 dated rows, "
+        "one payload), which is capture damage and needs to stay loud. Red in "
+        "CI (ci.yml runs `pytest draft/tests` on its own) and in the GO sweep.",
     "draft/tests/test_grading_population_floor.py":
         "grading coverage, not board contents: it reads ONLY "
         "projection_coverage_census.json and asks whether the three-way shared "
