@@ -1,0 +1,550 @@
+{
+ "_territory": "TERRITORY: A \u2014 produced by draft/tools/props_second_opinion.py",
+ "_what": "REPORT ONLY. The champion weekly projection beside the props-implied points on Cory's live roster, and the lineup each would start. The second lineup uses P357's blend rule (props where a line exists, champion elsewhere) \u2014 its prior art made visible, not the arm entering the grader early.",
+ "season": 2026,
+ "week": 10,
+ "generated": "2026-11-11T17:42:48.843990+00:00",
+ "roster_source": "THIS-WEEK.md generated 2026-11-10T20:30:58+00:00",
+ "champion_source": "committed snapshot own_weekly_2026_w10.json",
+ "champion_arm": "v1_pull3",
+ "props_source": "weekly_props_2026_w10.json (185 players)",
+ "controls": [
+  {
+   "id": "S1",
+   "what": "every rostered skill player resolves to a board id, or is named",
+   "ok": true,
+   "unmatched": []
+  },
+  {
+   "id": "S2",
+   "what": "the props file covers at least one rostered skill player",
+   "ok": true,
+   "covered": 12,
+   "of": 14
+  },
+  {
+   "id": "S3",
+   "what": "THIS-WEEK.md is fresh (<= 3 days) \u2014 the roster rule",
+   "generated": "2026-11-10T20:30:58+00:00",
+   "ok": true
+  }
+ ],
+ "table": [
+  {
+   "st": true,
+   "name": "Rashee Rice",
+   "pos": "WR",
+   "team": "KC",
+   "injury": "\u2014",
+   "player_id": "10229",
+   "champion": 10.12,
+   "blend_prior": 11.71,
+   "props": 10.93,
+   "props_minus_champion": 0.81
+  },
+  {
+   "st": false,
+   "name": "Caleb Williams",
+   "pos": "QB",
+   "team": "CHI",
+   "injury": "\u2014",
+   "player_id": "11560",
+   "champion": null,
+   "blend_prior": null,
+   "props": null,
+   "props_minus_champion": null
+  },
+  {
+   "st": true,
+   "name": "Will Reichard",
+   "pos": "K",
+   "team": "MIN",
+   "injury": "\u2014",
+   "player_id": "11792",
+   "champion": null,
+   "blend_prior": null,
+   "props": null,
+   "props_minus_champion": null
+  },
+  {
+   "st": false,
+   "name": "Matthew Golden",
+   "pos": "WR",
+   "team": "GB",
+   "injury": "\u2014",
+   "player_id": "12501",
+   "champion": 11.73,
+   "blend_prior": 13.42,
+   "props": 12.31,
+   "props_minus_champion": 0.58
+  },
+  {
+   "st": true,
+   "name": "Harold Fannin Jr.",
+   "pos": "TE",
+   "team": "CLE",
+   "injury": "\u2014",
+   "player_id": "12506",
+   "champion": 9.11,
+   "blend_prior": 9.18,
+   "props": 7.15,
+   "props_minus_champion": -1.96
+  },
+  {
+   "st": false,
+   "name": "Quinshon Judkins",
+   "pos": "RB",
+   "team": "CLE",
+   "injury": "\u2014",
+   "player_id": "12512",
+   "champion": 9.55,
+   "blend_prior": 10.13,
+   "props": 8.23,
+   "props_minus_champion": -1.32
+  },
+  {
+   "st": false,
+   "name": "Davante Adams",
+   "pos": "WR",
+   "team": "LAR",
+   "injury": "\u2014",
+   "player_id": "2133",
+   "champion": 13.02,
+   "blend_prior": 13.66,
+   "props": null,
+   "props_minus_champion": null
+  },
+  {
+   "st": true,
+   "name": "Jared Goff",
+   "pos": "QB",
+   "team": "DET",
+   "injury": "\u2014",
+   "player_id": "3163",
+   "champion": 21.6,
+   "blend_prior": 21.73,
+   "props": 18.83,
+   "props_minus_champion": -2.77
+  },
+  {
+   "st": true,
+   "name": "Derrick Henry",
+   "pos": "RB",
+   "team": "BAL",
+   "injury": "\u2014",
+   "player_id": "3198",
+   "champion": 14.32,
+   "blend_prior": 14.95,
+   "props": 9.05,
+   "props_minus_champion": -5.27
+  },
+  {
+   "st": false,
+   "name": "Juwan Johnson",
+   "pos": "TE",
+   "team": "NO",
+   "injury": "\u2014",
+   "player_id": "7002",
+   "champion": 7.73,
+   "blend_prior": 7.82,
+   "props": 5.5,
+   "props_minus_champion": -2.23
+  },
+  {
+   "st": true,
+   "name": "Ja'Marr Chase",
+   "pos": "WR",
+   "team": "CIN",
+   "injury": "\u2014",
+   "player_id": "7564",
+   "champion": 16.4,
+   "blend_prior": 16.72,
+   "props": 17.2,
+   "props_minus_champion": 0.8
+  },
+  {
+   "st": true,
+   "name": "Kenneth Walker III",
+   "pos": "RB",
+   "team": "KC",
+   "injury": "\u2014",
+   "player_id": "8151",
+   "champion": 19.83,
+   "blend_prior": 20.58,
+   "props": 17.48,
+   "props_minus_champion": -2.35
+  },
+  {
+   "st": true,
+   "name": "Parker Washington",
+   "pos": "WR",
+   "team": "JAX",
+   "injury": "\u2014",
+   "player_id": "9487",
+   "champion": 10.71,
+   "blend_prior": 11.45,
+   "props": 12.14,
+   "props_minus_champion": 1.43
+  },
+  {
+   "st": false,
+   "name": "Josh Downs",
+   "pos": "WR",
+   "team": "IND",
+   "injury": "\u2014",
+   "player_id": "9500",
+   "champion": 6.54,
+   "blend_prior": 6.83,
+   "props": 6.22,
+   "props_minus_champion": -0.32
+  },
+  {
+   "st": false,
+   "name": "Zach Charbonnet",
+   "pos": "RB",
+   "team": "SEA",
+   "injury": "\u2014",
+   "player_id": "9753",
+   "champion": 7.2,
+   "blend_prior": 6.57,
+   "props": 11.02,
+   "props_minus_champion": 3.82
+  },
+  {
+   "st": true,
+   "name": "LAR D/ST",
+   "pos": "DEF",
+   "team": "LAR",
+   "injury": "\u2014",
+   "player_id": null,
+   "champion": null,
+   "blend_prior": null,
+   "props": null,
+   "props_minus_champion": null
+  }
+ ],
+ "lineup_champion": [
+  "Jared Goff",
+  "Kenneth Walker III",
+  "Derrick Henry",
+  "Ja'Marr Chase",
+  "Davante Adams",
+  "Harold Fannin Jr.",
+  "Matthew Golden",
+  "Will Reichard",
+  "LAR D/ST"
+ ],
+ "lineup_props_blend": [
+  "Jared Goff",
+  "Kenneth Walker III",
+  "Zach Charbonnet",
+  "Ja'Marr Chase",
+  "Davante Adams",
+  "Harold Fannin Jr.",
+  "Matthew Golden",
+  "Will Reichard",
+  "LAR D/ST"
+ ],
+ "lineup_champion_ids": [
+  "3163",
+  "8151",
+  "3198",
+  "7564",
+  "2133",
+  "12506",
+  "12501",
+  "11792",
+  "LAR D/ST"
+ ],
+ "lineup_props_blend_ids": [
+  "3163",
+  "8151",
+  "9753",
+  "7564",
+  "2133",
+  "12506",
+  "12501",
+  "11792",
+  "LAR D/ST"
+ ],
+ "swaps": [
+  {
+   "props_starts": "Zach Charbonnet",
+   "champion_starts": "Derrick Henry"
+  }
+ ],
+ "valuation": {
+  "champion_lineup": {
+   "by_champion": 106.01,
+   "by_props_blend": 95.04
+  },
+  "props_blend_lineup": {
+   "by_champion": 98.89,
+   "by_props_blend": 97.01
+  }
+ },
+ "skill_players_with_a_props_line": 12,
+ "skill_players_rostered": 14,
+ "opponent": {
+  "name": "Richard2121",
+  "unmatched": [],
+  "table": [
+   {
+    "st": true,
+    "name": "Rome Odunze",
+    "pos": "WR",
+    "team": "CHI",
+    "injury": "\u2014",
+    "player_id": "11620",
+    "champion": null,
+    "blend_prior": null,
+    "props": null,
+    "props_minus_champion": null
+   },
+   {
+    "st": true,
+    "name": "Dak Prescott",
+    "pos": "QB",
+    "team": "DAL",
+    "injury": "\u2014",
+    "player_id": "3294",
+    "champion": 21.04,
+    "blend_prior": 22.18,
+    "props": 19.65,
+    "props_minus_champion": -1.39
+   },
+   {
+    "st": false,
+    "name": "Chris Godwin Jr.",
+    "pos": "WR",
+    "team": "TB",
+    "injury": "\u2014",
+    "player_id": "4037",
+    "champion": null,
+    "blend_prior": null,
+    "props": null,
+    "props_minus_champion": null
+   },
+   {
+    "st": false,
+    "name": "Aaron Jones Sr.",
+    "pos": "RB",
+    "team": "MIN",
+    "injury": "\u2014",
+    "player_id": "4199",
+    "champion": 8.32,
+    "blend_prior": 8.8,
+    "props": 6.3,
+    "props_minus_champion": -2.02
+   },
+   {
+    "st": true,
+    "name": "Eddy Pineiro",
+    "pos": "K",
+    "team": "SF",
+    "injury": "\u2014",
+    "player_id": "5189",
+    "champion": null,
+    "blend_prior": null,
+    "props": null,
+    "props_minus_champion": null
+   },
+   {
+    "st": false,
+    "name": "Jakobi Meyers",
+    "pos": "WR",
+    "team": "JAX",
+    "injury": "\u2014",
+    "player_id": "5947",
+    "champion": 6.4,
+    "blend_prior": 8.24,
+    "props": 8.28,
+    "props_minus_champion": 1.88
+   },
+   {
+    "st": true,
+    "name": "D'Andre Swift",
+    "pos": "RB",
+    "team": "CHI",
+    "injury": "\u2014",
+    "player_id": "6790",
+    "champion": null,
+    "blend_prior": null,
+    "props": null,
+    "props_minus_champion": null
+   },
+   {
+    "st": true,
+    "name": "Nico Collins",
+    "pos": "WR",
+    "team": "HOU",
+    "injury": "\u2014",
+    "player_id": "7569",
+    "champion": 12.05,
+    "blend_prior": 12.64,
+    "props": 10.68,
+    "props_minus_champion": -1.37
+   },
+   {
+    "st": true,
+    "name": "Chuba Hubbard",
+    "pos": "RB",
+    "team": "CAR",
+    "injury": "\u2014",
+    "player_id": "7594",
+    "champion": 14.12,
+    "blend_prior": 14.58,
+    "props": 15.39,
+    "props_minus_champion": 1.27
+   },
+   {
+    "st": false,
+    "name": "Rhamondre Stevenson",
+    "pos": "RB",
+    "team": "NE",
+    "injury": "\u2014",
+    "player_id": "7611",
+    "champion": 10.23,
+    "blend_prior": 11.0,
+    "props": null,
+    "props_minus_champion": null
+   },
+   {
+    "st": true,
+    "name": "Trey McBride",
+    "pos": "TE",
+    "team": "ARI",
+    "injury": "\u2014",
+    "player_id": "8130",
+    "champion": 13.26,
+    "blend_prior": 13.41,
+    "props": 12.25,
+    "props_minus_champion": -1.01
+   },
+   {
+    "st": false,
+    "name": "George Pickens",
+    "pos": "WR",
+    "team": "DAL",
+    "injury": "\u2014",
+    "player_id": "8137",
+    "champion": 11.02,
+    "blend_prior": 11.23,
+    "props": 2.9,
+    "props_minus_champion": -8.12
+   },
+   {
+    "st": true,
+    "name": "Bijan Robinson",
+    "pos": "RB",
+    "team": "ATL",
+    "injury": "\u2014",
+    "player_id": "9509",
+    "champion": 17.7,
+    "blend_prior": 18.32,
+    "props": 18.35,
+    "props_minus_champion": 0.65
+   },
+   {
+    "st": true,
+    "name": "CHI D/ST",
+    "pos": "DEF",
+    "team": "CHI",
+    "injury": "\u2014",
+    "player_id": null,
+    "champion": null,
+    "blend_prior": null,
+    "props": null,
+    "props_minus_champion": null
+   },
+   {
+    "st": false,
+    "name": "PIT D/ST",
+    "pos": "DEF",
+    "team": "PIT",
+    "injury": "\u2014",
+    "player_id": null,
+    "champion": null,
+    "blend_prior": null,
+    "props": null,
+    "props_minus_champion": null
+   }
+  ],
+  "lineup_champion": [
+   "Dak Prescott",
+   "Bijan Robinson",
+   "Chuba Hubbard",
+   "Nico Collins",
+   "George Pickens",
+   "Trey McBride",
+   "Rhamondre Stevenson",
+   "Eddy Pineiro",
+   "CHI D/ST"
+  ],
+  "lineup_props_blend": [
+   "Dak Prescott",
+   "Bijan Robinson",
+   "Chuba Hubbard",
+   "Nico Collins",
+   "Jakobi Meyers",
+   "Trey McBride",
+   "Rhamondre Stevenson",
+   "Eddy Pineiro",
+   "CHI D/ST"
+  ],
+  "lineup_champion_ids": [
+   "3294",
+   "9509",
+   "7594",
+   "7569",
+   "8137",
+   "8130",
+   "7611",
+   "5189",
+   "CHI D/ST"
+  ],
+  "lineup_props_blend_ids": [
+   "3294",
+   "9509",
+   "7594",
+   "7569",
+   "5947",
+   "8130",
+   "7611",
+   "5189",
+   "CHI D/ST"
+  ],
+  "swaps": [
+   {
+    "props_starts": "Jakobi Meyers",
+    "champion_starts": "George Pickens"
+   }
+  ],
+  "valuation": {
+   "champion_lineup": {
+    "by_champion": 99.42,
+    "by_props_blend": 89.45
+   },
+   "props_blend_lineup": {
+    "by_champion": 94.8,
+    "by_props_blend": 94.83
+   }
+  },
+  "skill_players_with_a_props_line": 8,
+  "skill_players_rostered": 12
+ },
+ "matchup": {
+  "opponent": "Richard2121",
+  "by_champion": {
+   "mine": 106.01,
+   "theirs": 99.42,
+   "gap": 6.59
+  },
+  "by_props_blend": {
+   "mine": 97.01,
+   "theirs": 94.83,
+   "gap": 2.18
+  },
+  "note": "each side's best lineup under that opinion; K/DEF unpriced by both, so the gap is skill slots only"
+ }
+}
