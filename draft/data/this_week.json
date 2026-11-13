@@ -1,6 +1,6 @@
 {
  "_rule": "THE ROSTER RULE: any statement about Cory's roster or matchup cites THIS file (fresh within 3 days) or live Sleeper \u2014 never an older artifact.",
- "generated_at": "2026-11-11T19:26:29+00:00",
+ "generated_at": "2026-11-13T20:34:37+00:00",
  "season": "2026",
  "week": 10,
  "cory": {
@@ -62,7 +62,7 @@
    "pos": "TE",
    "team": "CLE",
    "starter": true,
-   "injury": null,
+   "injury": "Questionable",
    "game": "vs HOU (Sun)",
    "home": true,
    "kickoff_utc": "2026-11-15T18:00:00.000Z"
@@ -139,7 +139,7 @@
    "pos": "RB",
    "team": "KC",
    "starter": true,
-   "injury": null,
+   "injury": "Questionable",
    "game": "at ATL (Sun)",
    "home": false,
    "kickoff_utc": "2026-11-15T18:00:00.000Z"
@@ -246,17 +246,6 @@
    "kickoff_utc": "2026-11-15T21:25:00.000Z"
   },
   {
-   "id": "5947",
-   "name": "Jakobi Meyers",
-   "pos": "WR",
-   "team": "JAX",
-   "starter": true,
-   "injury": null,
-   "game": "at TEN (Sun)",
-   "home": false,
-   "kickoff_utc": "2026-11-15T18:00:00.000Z"
-  },
-  {
    "id": "6790",
    "name": "D'Andre Swift",
    "pos": "RB",
@@ -266,6 +255,17 @@
    "game": "BYE",
    "home": null,
    "kickoff_utc": null
+  },
+  {
+   "id": "7562",
+   "name": "Tutu Atwell",
+   "pos": "WR",
+   "team": "LAR",
+   "starter": true,
+   "injury": null,
+   "game": "at ARI (Sun)",
+   "home": false,
+   "kickoff_utc": "2026-11-15T21:05:00.000Z"
   },
   {
    "id": "7569",
@@ -295,7 +295,7 @@
    "pos": "RB",
    "team": "NE",
    "starter": false,
-   "injury": "Doubtful",
+   "injury": "Questionable",
    "game": "at DET (Sun)",
    "home": false,
    "kickoff_utc": "2026-11-15T14:30:00.000Z"
