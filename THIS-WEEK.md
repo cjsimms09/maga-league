@@ -1,6 +1,6 @@
 # THIS WEEK — coryjsimms, week 10 (2026)
 
-**Generated 2026-11-13T20:34:37+00:00 from LIVE Sleeper. THE ROSTER RULE: any statement about
+**Generated 2026-11-15T17:56:12+00:00 from LIVE Sleeper. THE ROSTER RULE: any statement about
 Cory's roster or matchup cites this file (fresh within 3 days) or live
 Sleeper — a frozen seat plan or tournament artifact is never a source for
 who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
@@ -17,17 +17,17 @@ who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
 |   | Caleb Williams | QB | CHI | BYE | — |  |
 | S | Will Reichard | K | MIN | at GB (Sun) | — |  |
 | S | Matthew Golden | WR | GB | vs MIN (Sun) | — |  |
-| S | Harold Fannin Jr. | TE | CLE | vs HOU (Sun) | — | Questionable |
+| S | Harold Fannin Jr. | TE | CLE | vs HOU (Sun) | — |  |
 |   | Quinshon Judkins | RB | CLE | vs HOU (Sun) | — |  |
 |   | Davante Adams | WR | LAR | at ARI (Sun) | — | IR |
 | S | Jared Goff | QB | DET | vs NE (Sun) | — |  |
 | S | Derrick Henry | RB | BAL | vs LAC (Mon) | — |  |
 |   | Juwan Johnson | TE | NO | vs CAR (Sun) | — |  |
 | S | Ja'Marr Chase | WR | CIN | vs PIT (Sun) | — |  |
-| S | Kenneth Walker III | RB | KC | at ATL (Sun) | — | Questionable |
+|   | Kenneth Walker III | RB | KC | at ATL (Sun) | — | Out |
 | S | Parker Washington | WR | JAX | at TEN (Sun) | — |  |
 |   | Josh Downs | WR | KC | at ATL (Sun) | — |  |
-|   | Zach Charbonnet | RB | SEA | at LV (Sun) | — |  |
+| S | Zach Charbonnet | RB | SEA | at LV (Sun) | — |  |
 | S | LAR D/ST | DEF | LAR | at ARI (Sun) | — |  |
 
 ## Opponent's roster
@@ -43,9 +43,9 @@ who he rosters TODAY.** (Cory, 08-31: sessions kept misstating his players.)
 | S | Tutu Atwell | WR | LAR | at ARI (Sun) | — |  |
 | S | Nico Collins | WR | HOU | at CLE (Sun) | — |  |
 | S | Chuba Hubbard | RB | CAR | at NO (Sun) | — |  |
-|   | Rhamondre Stevenson | RB | NE | at DET (Sun) | — | Questionable |
+|   | Rhamondre Stevenson | RB | NE | at DET (Sun) | — |  |
 | S | Trey McBride | TE | ARI | vs LAR (Sun) | — |  |
-| S | George Pickens | WR | DAL | vs SF (Sun) | — | Questionable |
+| S | George Pickens | WR | DAL | vs SF (Sun) | — |  |
 | S | Bijan Robinson | RB | ATL | vs KC (Sun) | — |  |
 |   | CHI D/ST | DEF | CHI | BYE | — |  |
 | S | MIA D/ST | DEF | MIA | at IND (Sun) | — |  |

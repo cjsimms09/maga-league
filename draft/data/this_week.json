@@ -1,6 +1,6 @@
 {
  "_rule": "THE ROSTER RULE: any statement about Cory's roster or matchup cites THIS file (fresh within 3 days) or live Sleeper \u2014 never an older artifact.",
- "generated_at": "2026-11-13T20:34:37+00:00",
+ "generated_at": "2026-11-15T17:56:12+00:00",
  "season": "2026",
  "week": 10,
  "cory": {
@@ -62,7 +62,7 @@
    "pos": "TE",
    "team": "CLE",
    "starter": true,
-   "injury": "Questionable",
+   "injury": null,
    "game": "vs HOU (Sun)",
    "home": true,
    "kickoff_utc": "2026-11-15T18:00:00.000Z"
@@ -138,8 +138,8 @@
    "name": "Kenneth Walker III",
    "pos": "RB",
    "team": "KC",
-   "starter": true,
-   "injury": "Questionable",
+   "starter": false,
+   "injury": "Out",
    "game": "at ATL (Sun)",
    "home": false,
    "kickoff_utc": "2026-11-15T18:00:00.000Z"
@@ -171,7 +171,7 @@
    "name": "Zach Charbonnet",
    "pos": "RB",
    "team": "SEA",
-   "starter": false,
+   "starter": true,
    "injury": null,
    "game": "at LV (Sun)",
    "home": false,
@@ -295,7 +295,7 @@
    "pos": "RB",
    "team": "NE",
    "starter": false,
-   "injury": "Questionable",
+   "injury": null,
    "game": "at DET (Sun)",
    "home": false,
    "kickoff_utc": "2026-11-15T14:30:00.000Z"
@@ -317,7 +317,7 @@
    "pos": "WR",
    "team": "DAL",
    "starter": true,
-   "injury": "Questionable",
+   "injury": null,
    "game": "vs SF (Sun)",
    "home": true,
    "kickoff_utc": "2026-11-15T21:25:00.000Z"
