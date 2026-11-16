@@ -16,18 +16,18 @@ _control: `arch:balanced` · seasons 2023, 2024 · null p95 **$20.00** (200 outc
 | profile:keeper_builder | +0.00 | 2023:+0 · 2024:+0 | 2023:0.0 · 2024:0.0 | parked: edge 0.00 <= null p95 20.00 |
 | profile:need_filler | +0.00 | 2023:+0 · 2024:+0 | 2023:0.5 · 2024:0.6 | parked: edge 0.00 <= null p95 20.00 |
 | profile:scarcity | +0.00 | 2023:+0 · 2024:+0 | 2023:0.1 · 2024:0.6 | parked: edge 0.00 <= null p95 20.00 |
-| profile:upside_late | +0.00 | 2023:+0 · 2024:+0 | 2023:1.1 · 2024:0.7 | parked: edge 0.00 <= null p95 20.00 |
+| profile:upside_late | +0.00 | 2023:+0 · 2024:+0 | 2023:1.1 · 2024:1.4 | parked: edge 0.00 <= null p95 20.00 |
 | arch:late_qb | -5.00 | 2023:+0 · 2024:-10 | 2023:1.1 · 2024:1.1 | parked: edge -5.00 <= null p95 20.00 |
-| profile:tier_hunter | -5.00 | 2023:+0 · 2024:-10 | 2023:0.4 · 2024:1.3 | parked: edge -5.00 <= null p95 20.00 |
-| profile:value_anchor | -5.00 | 2023:+0 · 2024:-10 | 2023:0.7 · 2024:0.5 | parked: edge -5.00 <= null p95 20.00 |
+| profile:tier_hunter | -5.00 | 2023:+0 · 2024:-10 | 2023:0.4 · 2024:1.1 | parked: edge -5.00 <= null p95 20.00 |
+| profile:value_anchor | -5.00 | 2023:+0 · 2024:-10 | 2023:0.7 · 2024:0.4 | parked: edge -5.00 <= null p95 20.00 |
 
 ## Sub-threshold structure (descriptive — verdicts unchanged)
 
 | candidate | pooled $ | null pctile | both seasons + ? | divergent-pick mix | flag |
 |---|---|---|---|---|---|
 | B0 | +70.00 | 100th | YES | 2023:WR×45,QB×41,RB×26 · 2024:WR×66,QB×42,RB×15 | CANDIDATE |
-| arch:zero_rb | +10.00 | 70th | no | 2023:WR×12,QB×8,TE×4 · 2024:QB×7,RB×3,WR×3 | — |
-| arch:hero_rb | +5.00 | 34th | no | 2023:QB×29,WR×12,TE×9 · 2024:QB×16,WR×8,RB×1 | — |
+| arch:zero_rb | +10.00 | 69th | no | 2023:WR×12,QB×8,TE×4 · 2024:QB×7,RB×3,WR×3 | — |
+| arch:hero_rb | +5.00 | 32th | no | 2023:QB×29,WR×12,TE×9 · 2024:QB×16,WR×8,RB×1 | — |
 | B3 | +0.00 | 0th | no | — | — |
 | arch:early_qb | +0.00 | 0th | no | 2023:RB×2,QB×1,WR×1 · 2024:QB×4,RB×3,WR×2 | — |
 | arch:elite_te | +0.00 | 0th | no | 2024:TE×2,RB×1,QB×1 | — |
@@ -37,10 +37,10 @@ _control: `arch:balanced` · seasons 2023, 2024 · null p95 **$20.00** (200 outc
 | profile:keeper_builder | +0.00 | 0th | no | — | — |
 | profile:need_filler | +0.00 | 0th | no | 2023:QB×3,WR×2 · 2024:WR×3,RB×2,QB×1 | — |
 | profile:scarcity | +0.00 | 0th | no | 2023:QB×1 · 2024:RB×3,WR×2,QB×1 | — |
-| profile:upside_late | +0.00 | 0th | no | 2023:RB×7,WR×3,QB×1 · 2024:RB×5,WR×2 | — |
+| profile:upside_late | +0.00 | 0th | no | 2023:RB×7,WR×3,QB×1 · 2024:RB×12,WR×2 | — |
 | arch:late_qb | -5.00 | 0th | no | 2023:QB×4,RB×4,WR×3 · 2024:RB×7,WR×3,TE×1 | — |
-| profile:tier_hunter | -5.00 | 0th | no | 2023:WR×2,QB×1,RB×1 · 2024:QB×6,RB×5,WR×2 | — |
-| profile:value_anchor | -5.00 | 0th | no | 2023:QB×5,RB×1,WR×1 · 2024:WR×3,RB×2 | — |
+| profile:tier_hunter | -5.00 | 0th | no | 2023:WR×2,QB×1,RB×1 · 2024:QB×6,RB×5 | — |
+| profile:value_anchor | -5.00 | 0th | no | 2023:QB×5,WR×1,RB×1 · 2024:WR×2,RB×2 | — |
 
 **WATCH flags (0):** none — a WATCH buys a Phase-H shadow seat, never weights; the live 2026 season is the legitimate tiebreaker for sub-threshold leans (new data, not re-tortured old data). **The install rule is untouched: nothing enters the engine below the pre-registered bar.**
 
