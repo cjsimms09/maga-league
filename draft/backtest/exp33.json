@@ -12,8 +12,8 @@
         "cards": {
           "our_blend": {
             "n": 458,
-            "mae": 57.15,
-            "rank_corr": 0.579,
+            "mae": 57.16,
+            "rank_corr": 0.578,
             "top_decile": {
               "n": 458,
               "k": 46,
@@ -22,8 +22,8 @@
             "by_position": {
               "QB": {
                 "n": 68,
-                "mae": 125.48,
-                "rank_corr": 0.54,
+                "mae": 125.45,
+                "rank_corr": 0.539,
                 "top_decile": {
                   "n": 68,
                   "k": 7,
@@ -32,8 +32,8 @@
               },
               "RB": {
                 "n": 105,
-                "mae": 58.87,
-                "rank_corr": 0.698,
+                "mae": 58.88,
+                "rank_corr": 0.694,
                 "top_decile": {
                   "n": 105,
                   "k": 10,
@@ -42,7 +42,7 @@
               },
               "WR": {
                 "n": 172,
-                "mae": 46.65,
+                "mae": 46.67,
                 "rank_corr": 0.668,
                 "top_decile": {
                   "n": 172,
@@ -52,8 +52,8 @@
               },
               "TE": {
                 "n": 97,
-                "mae": 33.42,
-                "rank_corr": 0.614,
+                "mae": 33.41,
+                "rank_corr": 0.616,
                 "top_decile": {
                   "n": 97,
                   "k": 10,
@@ -116,7 +116,7 @@
               "WR": {
                 "n": 172,
                 "mae": 40.8,
-                "rank_corr": 0.738,
+                "rank_corr": 0.739,
                 "top_decile": {
                   "n": 172,
                   "k": 17,
@@ -126,7 +126,7 @@
               "TE": {
                 "n": 97,
                 "mae": 27.36,
-                "rank_corr": 0.683,
+                "rank_corr": 0.685,
                 "top_decile": {
                   "n": 97,
                   "k": 10,
@@ -271,7 +271,7 @@
           "our_blend": {
             "n": 455,
             "mae": 56.76,
-            "rank_corr": 0.604,
+            "rank_corr": 0.603,
             "top_decile": {
               "n": 455,
               "k": 46,
@@ -280,8 +280,8 @@
             "by_position": {
               "QB": {
                 "n": 66,
-                "mae": 121.67,
-                "rank_corr": 0.615,
+                "mae": 121.64,
+                "rank_corr": 0.616,
                 "top_decile": {
                   "n": 66,
                   "k": 7,
@@ -290,8 +290,8 @@
               },
               "RB": {
                 "n": 112,
-                "mae": 59.99,
-                "rank_corr": 0.525,
+                "mae": 60.02,
+                "rank_corr": 0.524,
                 "top_decile": {
                   "n": 112,
                   "k": 11,
@@ -300,17 +300,17 @@
               },
               "WR": {
                 "n": 164,
-                "mae": 46.96,
+                "mae": 46.98,
                 "rank_corr": 0.753,
                 "top_decile": {
                   "n": 164,
                   "k": 16,
-                  "hit_rate": 0.562
+                  "hit_rate": 0.5
                 }
               },
               "TE": {
                 "n": 91,
-                "mae": 33.66,
+                "mae": 33.62,
                 "rank_corr": 0.643,
                 "top_decile": {
                   "n": 91,
@@ -364,7 +364,7 @@
               "RB": {
                 "n": 112,
                 "mae": 53.01,
-                "rank_corr": 0.588,
+                "rank_corr": 0.587,
                 "top_decile": {
                   "n": 112,
                   "k": 11,
@@ -384,7 +384,7 @@
               "TE": {
                 "n": 91,
                 "mae": 26.97,
-                "rank_corr": 0.723,
+                "rank_corr": 0.724,
                 "top_decile": {
                   "n": 91,
                   "k": 9,
