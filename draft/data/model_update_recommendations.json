@@ -114,21 +114,21 @@
       "sources": {
        "fantasypros": {
         "status": "measured",
-        "n": 50,
+        "n": 53,
         "snapshot_date": "2026-08-22",
-        "mae": 127.86,
-        "bias": 114.67,
-        "mse": 24980.52,
-        "spearman": 0.7113
+        "mae": 114.19,
+        "bias": 99.57,
+        "mse": 21148.85,
+        "spearman": 0.7273
        },
        "sleeper": {
         "status": "measured",
-        "n": 54,
+        "n": 57,
         "snapshot_date": "2026-08-22",
-        "mae": 113.69,
-        "bias": 98.34,
-        "mse": 21044.58,
-        "spearman": 0.7297
+        "mae": 101.28,
+        "bias": 85.69,
+        "mse": 17805.72,
+        "spearman": 0.7396
        },
        "sleeper_weekly": {
         "status": "unmeasurable",
@@ -136,8 +136,8 @@
        }
       },
       "proposed_weights": {
-       "fantasypros": 0.4572,
-       "sleeper": 0.5428
+       "fantasypros": 0.4571,
+       "sleeper": 0.5429
       },
       "weight_rule": "inverse-MSE over measured sources, normalised"
      },
@@ -147,19 +147,19 @@
         "status": "measured",
         "n": 81,
         "snapshot_date": "2026-08-22",
-        "mae": 60.35,
-        "bias": 58.21,
-        "mse": 6041.35,
-        "spearman": 0.6782
+        "mae": 57.51,
+        "bias": 54.04,
+        "mse": 5593.2,
+        "spearman": 0.6556
        },
        "sleeper": {
         "status": "measured",
-        "n": 104,
+        "n": 105,
         "snapshot_date": "2026-08-22",
-        "mae": 41.04,
-        "bias": 35.28,
-        "mse": 3334.71,
-        "spearman": 0.688
+        "mae": 38.2,
+        "bias": 31.51,
+        "mse": 3059.11,
+        "spearman": 0.6926
        },
        "sleeper_weekly": {
         "status": "unmeasurable",
@@ -167,8 +167,8 @@
        }
       },
       "proposed_weights": {
-       "fantasypros": 0.3557,
-       "sleeper": 0.6443
+       "fantasypros": 0.3536,
+       "sleeper": 0.6464
       },
       "weight_rule": "inverse-MSE over measured sources, normalised"
      },
@@ -176,21 +176,21 @@
       "sources": {
        "fantasypros": {
         "status": "measured",
-        "n": 142,
+        "n": 143,
         "snapshot_date": "2026-08-22",
-        "mae": 55.66,
-        "bias": 53.75,
-        "mse": 4875.74,
-        "spearman": 0.7057
+        "mae": 52.73,
+        "bias": 50.07,
+        "mse": 4465.13,
+        "spearman": 0.7003
        },
        "sleeper": {
         "status": "measured",
-        "n": 170,
+        "n": 173,
         "snapshot_date": "2026-08-22",
-        "mae": 45.35,
-        "bias": 42.13,
-        "mse": 3612.86,
-        "spearman": 0.7364
+        "mae": 42.6,
+        "bias": 38.31,
+        "mse": 3273.57,
+        "spearman": 0.7284
        },
        "sleeper_weekly": {
         "status": "unmeasurable",
@@ -198,8 +198,8 @@
        }
       },
       "proposed_weights": {
-       "fantasypros": 0.4256,
-       "sleeper": 0.5744
+       "fantasypros": 0.423,
+       "sleeper": 0.577
       },
       "weight_rule": "inverse-MSE over measured sources, normalised"
      },
@@ -207,21 +207,21 @@
       "sources": {
        "fantasypros": {
         "status": "measured",
-        "n": 86,
+        "n": 87,
         "snapshot_date": "2026-08-22",
-        "mae": 38.24,
-        "bias": 37.47,
-        "mse": 2368.37,
-        "spearman": 0.8153
+        "mae": 35.3,
+        "bias": 34.07,
+        "mse": 2004.08,
+        "spearman": 0.8156
        },
        "sleeper": {
         "status": "measured",
-        "n": 94,
+        "n": 95,
         "snapshot_date": "2026-08-22",
-        "mae": 33.38,
-        "bias": 29.85,
-        "mse": 1992.15,
-        "spearman": 0.7895
+        "mae": 31.01,
+        "bias": 26.79,
+        "mse": 1683.02,
+        "spearman": 0.7936
        },
        "sleeper_weekly": {
         "status": "unmeasurable",
@@ -229,8 +229,8 @@
        }
       },
       "proposed_weights": {
-       "fantasypros": 0.4569,
-       "sleeper": 0.5431
+       "fantasypros": 0.4565,
+       "sleeper": 0.5435
       },
       "weight_rule": "inverse-MSE over measured sources, normalised"
      }
@@ -258,11 +258,11 @@
     }
    },
    "unlock_progress": {
-    "weeks_graded": 8,
+    "weeks_graded": 9,
     "weeks_needed": 17,
     "store": "draft/backtest/nflverse_weekly_points_2026.json",
     "store_exists": true,
-    "line": "REC-2: 8/17 graded 2026 weeks in the committed store \u2014 unlocks ~2027-01",
+    "line": "REC-2: 9/17 graded 2026 weeks in the committed store \u2014 unlocks ~2027-01",
     "checked_by": "draft/tools/weekly_grade_runner.js every Tuesday (GitHub Actions), which also regenerates this artifact"
    },
    "preregistered": "metric, population, cutoff and weight rule fixed 2026-08-15 in learning_loop.py, before any 2026 outcome exists \u2014 see module docstring. The January run cannot be tuned to fit.",
@@ -477,7 +477,7 @@
      }
     },
     "rules_era": "1la32x",
-    "fetched_at": "2026-11-10T19:55:37.587Z",
+    "fetched_at": "2026-11-17T21:14:15.296Z",
     "era_note": "rules_era travels with the weights; a snapshot graded under different money-bearing rules must not steer this era's model"
    },
    "reader_status": "mirror consumed",
