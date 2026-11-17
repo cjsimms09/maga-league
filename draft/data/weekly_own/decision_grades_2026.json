@@ -271,12 +271,42 @@
    "props_vs_actual": 13.72,
    "props_priced": 13,
    "props_would_flip": false
+  },
+  {
+   "week": 10,
+   "actual": 155.72,
+   "ceiling": 164.72,
+   "left_on_bench": 9.0,
+   "starters_actual": [
+    "QB:3163",
+    "RB:3198",
+    "RB:9753",
+    "WR:12501",
+    "WR:9487",
+    "TE:12506",
+    "WR:7564",
+    "K:11792",
+    "DEF:LAR"
+   ],
+   "opponent": "Richard2121",
+   "opponent_points": 179.52,
+   "result": "L",
+   "margin": -23.8,
+   "ceiling_would_flip": false,
+   "champion": 121.62,
+   "champion_vs_actual": -34.1,
+   "champion_priced": 13,
+   "champion_would_flip": false,
+   "props": 146.32,
+   "props_vs_actual": -9.4,
+   "props_priced": 12,
+   "props_would_flip": false
   }
  ],
  "summary": {
-  "weeks_graded": 9,
-  "left_on_bench_per_week": 13.14,
-  "champion_vs_actual_per_week": -12.42,
-  "props_vs_actual_per_week": 2.19
+  "weeks_graded": 10,
+  "left_on_bench_per_week": 12.73,
+  "champion_vs_actual_per_week": -14.58,
+  "props_vs_actual_per_week": 0.74
  }
 }
