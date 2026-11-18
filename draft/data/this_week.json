@@ -1,6 +1,6 @@
 {
  "_rule": "THE ROSTER RULE: any statement about Cory's roster or matchup cites THIS file (fresh within 3 days) or live Sleeper \u2014 never an older artifact.",
- "generated_at": "2026-11-17T21:50:30+00:00",
+ "generated_at": "2026-11-18T20:14:53+00:00",
  "season": "2026",
  "week": 11,
  "cory": {
@@ -139,7 +139,7 @@
    "pos": "RB",
    "team": "KC",
    "starter": true,
-   "injury": "Out",
+   "injury": "Questionable",
    "game": "vs ARI (Sun)",
    "home": true,
    "kickoff_utc": "2026-11-22T18:00:00.000Z"
@@ -213,15 +213,15 @@
    "kickoff_utc": "2026-11-22T18:00:00.000Z"
   },
   {
-   "id": "11628",
-   "name": "Marvin Harrison Jr.",
+   "id": "12492",
+   "name": "Pat Bryant",
    "pos": "WR",
-   "team": "HOU",
+   "team": "DEN",
    "starter": false,
-   "injury": "Out",
-   "game": "vs IND (Thu)",
+   "injury": null,
+   "game": "vs LV (Sun)",
    "home": true,
-   "kickoff_utc": "2026-11-20T01:15:00.000Z"
+   "kickoff_utc": "2026-11-22T21:25:00.000Z"
   },
   {
    "id": "12495",
@@ -290,15 +290,15 @@
    "kickoff_utc": "2026-11-22T18:00:00.000Z"
   },
   {
-   "id": "6083",
-   "name": "Matt Gay",
+   "id": "6650",
+   "name": "Chase McLaughlin",
    "pos": "K",
-   "team": "LV",
+   "team": "TB",
    "starter": true,
    "injury": null,
-   "game": "at DEN (Sun)",
+   "game": "at DET (Sun)",
    "home": false,
-   "kickoff_utc": "2026-11-22T21:25:00.000Z"
+   "kickoff_utc": "2026-11-22T18:00:00.000Z"
   },
   {
    "id": "6770",
