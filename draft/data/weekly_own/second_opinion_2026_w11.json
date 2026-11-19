@@ -3,11 +3,11 @@
  "_what": "REPORT ONLY. The champion weekly projection beside the props-implied points on Cory's live roster, and the lineup each would start. The second lineup uses P357's blend rule (props where a line exists, champion elsewhere) \u2014 its prior art made visible, not the arm entering the grader early.",
  "season": 2026,
  "week": 11,
- "generated": "2026-11-18T18:39:40.508137+00:00",
- "roster_source": "THIS-WEEK.md generated 2026-11-17T21:50:30+00:00",
+ "generated": "2026-11-19T01:47:45.192215+00:00",
+ "roster_source": "THIS-WEEK.md generated 2026-11-18T20:14:53+00:00",
  "champion_source": "committed snapshot own_weekly_2026_w11.json",
  "champion_arm": "v1_pull3",
- "props_source": "weekly_props_2026_w11.json (176 players)",
+ "props_source": "weekly_props_2026_w11.json (180 players)",
  "controls": [
   {
    "id": "S1",
@@ -25,7 +25,7 @@
   {
    "id": "S3",
    "what": "THIS-WEEK.md is fresh (<= 3 days) \u2014 the roster rule",
-   "generated": "2026-11-17T21:50:30+00:00",
+   "generated": "2026-11-18T20:14:53+00:00",
    "ok": true
   }
  ],
@@ -39,8 +39,8 @@
    "player_id": "10229",
    "champion": 10.41,
    "blend_prior": 11.93,
-   "props": 10.31,
-   "props_minus_champion": -0.1
+   "props": 10.28,
+   "props_minus_champion": -0.13
   },
   {
    "st": true,
@@ -183,8 +183,8 @@
    "player_id": "9487",
    "champion": 11.79,
    "blend_prior": 12.43,
-   "props": 11.63,
-   "props_minus_champion": -0.16
+   "props": 11.65,
+   "props_minus_champion": -0.14
   },
   {
    "st": true,
@@ -276,11 +276,11 @@
  "valuation": {
   "champion_lineup": {
    "by_champion": 104.05,
-   "by_props_blend": 94.06
+   "by_props_blend": 94.05
   },
   "props_blend_lineup": {
    "by_champion": 102.78,
-   "by_props_blend": 103.57
+   "by_props_blend": 103.56
   }
  },
  "skill_players_with_a_props_line": 8,
@@ -310,20 +310,20 @@
     "player_id": "10859",
     "champion": 8.25,
     "blend_prior": 8.69,
-    "props": 7.23,
-    "props_minus_champion": -1.02
+    "props": 7.4,
+    "props_minus_champion": -0.85
    },
    {
     "st": false,
-    "name": "Marvin Harrison Jr.",
+    "name": "Pat Bryant",
     "pos": "WR",
-    "team": "HOU",
+    "team": "DEN",
     "injury": "\u2014",
-    "player_id": "11628",
-    "champion": 4.79,
-    "blend_prior": 5.48,
-    "props": null,
-    "props_minus_champion": null
+    "player_id": "12492",
+    "champion": 5.5,
+    "blend_prior": 6.72,
+    "props": 2.07,
+    "props_minus_champion": -3.43
    },
    {
     "st": true,
@@ -334,8 +334,8 @@
     "player_id": "12495",
     "champion": 8.3,
     "blend_prior": 8.54,
-    "props": 11.31,
-    "props_minus_champion": 3.01
+    "props": 11.41,
+    "props_minus_champion": 3.11
    },
    {
     "st": false,
@@ -346,8 +346,8 @@
     "player_id": "12527",
     "champion": 12.99,
     "blend_prior": 12.56,
-    "props": 10.92,
-    "props_minus_champion": -2.07
+    "props": 10.87,
+    "props_minus_champion": -2.12
    },
    {
     "st": false,
@@ -394,16 +394,16 @@
     "player_id": "5967",
     "champion": 12.54,
     "blend_prior": 13.12,
-    "props": 13.61,
-    "props_minus_champion": 1.07
+    "props": 13.69,
+    "props_minus_champion": 1.15
    },
    {
     "st": true,
-    "name": "Matt Gay",
+    "name": "Chase McLaughlin",
     "pos": "K",
-    "team": "LV",
+    "team": "TB",
     "injury": "\u2014",
-    "player_id": "6083",
+    "player_id": "6650",
     "champion": null,
     "blend_prior": null,
     "props": null,
@@ -466,8 +466,8 @@
     "player_id": "9997",
     "champion": 11.93,
     "blend_prior": 12.38,
-    "props": 11.79,
-    "props_minus_champion": -0.14
+    "props": 11.89,
+    "props_minus_champion": -0.04
    },
    {
     "st": true,
@@ -490,7 +490,7 @@
    "Zay Flowers",
    "Sam LaPorta",
    "Chase Brown",
-   "Matt Gay",
+   "Chase McLaughlin",
    "BUF D/ST"
   ],
   "lineup_props_blend": [
@@ -501,7 +501,7 @@
    "Zay Flowers",
    "Sam LaPorta",
    "Ollie Gordon II",
-   "Matt Gay",
+   "Chase McLaughlin",
    "BUF D/ST"
   ],
   "lineup_champion_ids": [
@@ -512,7 +512,7 @@
    "9997",
    "10859",
    "9224",
-   "6083",
+   "6650",
    "BUF D/ST"
   ],
   "lineup_props_blend_ids": [
@@ -523,7 +523,7 @@
    "9997",
    "10859",
    "12495",
-   "6083",
+   "6650",
    "BUF D/ST"
   ],
   "swaps": [
@@ -535,14 +535,14 @@
   "valuation": {
    "champion_lineup": {
     "by_champion": 101.3,
-    "by_props_blend": 97.66
+    "by_props_blend": 97.96
    },
    "props_blend_lineup": {
     "by_champion": 96.61,
-    "by_props_blend": 98.05
+    "by_props_blend": 98.5
    }
   },
-  "skill_players_with_a_props_line": 9,
+  "skill_players_with_a_props_line": 10,
   "skill_players_rostered": 14
  },
  "matchup": {
@@ -553,9 +553,9 @@
    "gap": 2.75
   },
   "by_props_blend": {
-   "mine": 103.57,
-   "theirs": 98.05,
-   "gap": 5.52
+   "mine": 103.56,
+   "theirs": 98.5,
+   "gap": 5.06
   },
   "note": "each side's best lineup under that opinion; K/DEF unpriced by both, so the gap is skill slots only"
  }
