@@ -1,6 +1,6 @@
 {
  "_rule": "THE ROSTER RULE: any statement about Cory's roster or matchup cites THIS file (fresh within 3 days) or live Sleeper \u2014 never an older artifact.",
- "generated_at": "2026-11-18T20:14:53+00:00",
+ "generated_at": "2026-11-20T21:23:54+00:00",
  "season": "2026",
  "week": 11,
  "cory": {
@@ -17,7 +17,7 @@
    "name": "Rashee Rice",
    "pos": "WR",
    "team": "KC",
-   "starter": false,
+   "starter": true,
    "injury": null,
    "game": "vs ARI (Sun)",
    "home": true,
@@ -33,6 +33,17 @@
    "game": "vs NO (Sun)",
    "home": true,
    "kickoff_utc": "2026-11-22T18:00:00.000Z"
+  },
+  {
+   "id": "11576",
+   "name": "Braelon Allen",
+   "pos": "RB",
+   "team": "NYJ",
+   "starter": true,
+   "injury": null,
+   "game": "at LAC (Sun)",
+   "home": false,
+   "kickoff_utc": "2026-11-22T21:05:00.000Z"
   },
   {
    "id": "11792",
@@ -90,17 +101,6 @@
    "kickoff_utc": null
   },
   {
-   "id": "3163",
-   "name": "Jared Goff",
-   "pos": "QB",
-   "team": "DET",
-   "starter": false,
-   "injury": null,
-   "game": "vs TB (Sun)",
-   "home": true,
-   "kickoff_utc": "2026-11-22T18:00:00.000Z"
-  },
-  {
    "id": "3198",
    "name": "Derrick Henry",
    "pos": "RB",
@@ -138,8 +138,8 @@
    "name": "Kenneth Walker III",
    "pos": "RB",
    "team": "KC",
-   "starter": true,
-   "injury": "Questionable",
+   "starter": false,
+   "injury": "Out",
    "game": "vs ARI (Sun)",
    "home": true,
    "kickoff_utc": "2026-11-22T18:00:00.000Z"
@@ -160,7 +160,7 @@
    "name": "Josh Downs",
    "pos": "WR",
    "team": "KC",
-   "starter": true,
+   "starter": false,
    "injury": null,
    "game": "vs ARI (Sun)",
    "home": true,
@@ -178,15 +178,15 @@
    "kickoff_utc": null
   },
   {
-   "id": "LAR",
-   "name": "LAR D/ST",
+   "id": "CAR",
+   "name": "CAR D/ST",
    "pos": "DEF",
-   "team": "LAR",
+   "team": "CAR",
    "starter": true,
    "injury": null,
-   "game": "BYE",
-   "home": null,
-   "kickoff_utc": null
+   "game": "vs BAL (Sun)",
+   "home": true,
+   "kickoff_utc": "2026-11-22T18:00:00.000Z"
   }
  ],
  "opponent_roster": [
