@@ -4,45 +4,45 @@ _control: `arch:balanced` · seasons 2023, 2024 · null p95 **$20.00** (200 outc
 
 | candidate | pooled edge $ | per-season | decisions ≠ control /draft | verdict |
 |---|---|---|---|---|
-| B0 | +70.00 | 2023:+60 · 2024:+80 | 2023:11.2 · 2024:12.3 | CANDIDATE (clears gates — flag for Phase-H shadows) |
-| arch:zero_rb | +10.00 | 2023:+20 · 2024:+0 | 2023:2.4 · 2024:1.5 | parked: edge 10.00 <= null p95 20.00 |
-| arch:hero_rb | +5.00 | 2023:+0 · 2024:+10 | 2023:5.0 · 2024:2.6 | parked: edge 5.00 <= null p95 20.00 |
+| B0 | +75.00 | 2023:+60 · 2024:+90 | 2023:11.2 · 2024:12.3 | CANDIDATE (clears gates — flag for Phase-H shadows) |
+| arch:zero_rb | +12.50 | 2023:+15 · 2024:+10 | 2023:2.3 · 2024:2.1 | parked: edge 12.50 <= null p95 20.00 |
+| arch:hero_rb | +10.00 | 2023:+0 · 2024:+20 | 2023:5.1 · 2024:3.4 | parked: edge 10.00 <= null p95 20.00 |
 | B3 | +0.00 | 2023:+0 · 2024:+0 | 2023:0.0 · 2024:0.0 | parked: edge 0.00 <= null p95 20.00 |
-| arch:early_qb | +0.00 | 2023:+0 · 2024:+0 | 2023:0.4 · 2024:0.9 | parked: edge 0.00 <= null p95 20.00 |
-| arch:elite_te | +0.00 | 2023:+0 · 2024:+0 | 2023:0.0 · 2024:0.4 | parked: edge 0.00 <= null p95 20.00 |
+| arch:early_qb | +0.00 | 2023:+0 · 2024:+0 | 2023:0.6 · 2024:0.8 | parked: edge 0.00 <= null p95 20.00 |
+| arch:elite_te | +0.00 | 2023:+0 · 2024:+0 | 2023:0.0 · 2024:0.5 | parked: edge 0.00 <= null p95 20.00 |
+| arch:late_qb | +0.00 | 2023:+0 · 2024:+0 | 2023:1.1 · 2024:0.7 | parked: edge 0.00 <= null p95 20.00 |
 | arch:robust_rb | +0.00 | 2023:+0 · 2024:+0 | 2023:0.0 · 2024:0.0 | parked: edge 0.00 <= null p95 20.00 |
-| arch:wr_anchor | +0.00 | 2023:+0 · 2024:+0 | 2023:0.9 · 2024:0.5 | parked: edge 0.00 <= null p95 20.00 |
+| arch:wr_anchor | +0.00 | 2023:+0 · 2024:+0 | 2023:0.7 · 2024:1.0 | parked: edge 0.00 <= null p95 20.00 |
 | profile:default | +0.00 | 2023:+0 · 2024:+0 | 2023:0.0 · 2024:0.0 | parked: edge 0.00 <= null p95 20.00 |
 | profile:keeper_builder | +0.00 | 2023:+0 · 2024:+0 | 2023:0.0 · 2024:0.0 | parked: edge 0.00 <= null p95 20.00 |
-| profile:need_filler | +0.00 | 2023:+0 · 2024:+0 | 2023:0.5 · 2024:0.6 | parked: edge 0.00 <= null p95 20.00 |
-| profile:scarcity | +0.00 | 2023:+0 · 2024:+0 | 2023:0.1 · 2024:0.6 | parked: edge 0.00 <= null p95 20.00 |
-| profile:upside_late | +0.00 | 2023:+0 · 2024:+0 | 2023:1.1 · 2024:1.4 | parked: edge 0.00 <= null p95 20.00 |
-| arch:late_qb | -5.00 | 2023:+0 · 2024:-10 | 2023:1.1 · 2024:1.1 | parked: edge -5.00 <= null p95 20.00 |
-| profile:tier_hunter | -5.00 | 2023:+0 · 2024:-10 | 2023:0.4 · 2024:1.1 | parked: edge -5.00 <= null p95 20.00 |
-| profile:value_anchor | -5.00 | 2023:+0 · 2024:-10 | 2023:0.7 · 2024:0.4 | parked: edge -5.00 <= null p95 20.00 |
+| profile:need_filler | +0.00 | 2023:+0 · 2024:+0 | 2023:0.7 · 2024:0.7 | parked: edge 0.00 <= null p95 20.00 |
+| profile:scarcity | +0.00 | 2023:+0 · 2024:+0 | 2023:0.4 · 2024:0.8 | parked: edge 0.00 <= null p95 20.00 |
+| profile:tier_hunter | +0.00 | 2023:+0 · 2024:+0 | 2023:0.2 · 2024:0.7 | parked: edge 0.00 <= null p95 20.00 |
+| profile:upside_late | +0.00 | 2023:+0 · 2024:+0 | 2023:1.0 · 2024:1.7 | parked: edge 0.00 <= null p95 20.00 |
+| profile:value_anchor | +0.00 | 2023:+0 · 2024:+0 | 2023:0.8 · 2024:0.7 | parked: edge 0.00 <= null p95 20.00 |
 
 ## Sub-threshold structure (descriptive — verdicts unchanged)
 
 | candidate | pooled $ | null pctile | both seasons + ? | divergent-pick mix | flag |
 |---|---|---|---|---|---|
-| B0 | +70.00 | 100th | YES | 2023:WR×45,QB×41,RB×26 · 2024:WR×66,QB×42,RB×15 | CANDIDATE |
-| arch:zero_rb | +10.00 | 69th | no | 2023:WR×12,QB×8,TE×4 · 2024:QB×7,RB×3,WR×3 | — |
-| arch:hero_rb | +5.00 | 32th | no | 2023:QB×29,WR×12,TE×9 · 2024:QB×16,WR×8,RB×1 | — |
+| B0 | +75.00 | 100th | YES | 2023:WR×45,QB×41,RB×26 · 2024:WR×66,QB×42,RB×15 | CANDIDATE |
+| arch:zero_rb | +12.50 | 86th | YES | 2023:QB×12,TE×6,WR×5 · 2024:QB×12,WR×6,TE×2 | **WATCH → Phase-H shadows** |
+| arch:hero_rb | +10.00 | 72th | no | 2023:QB×35,TE×11,WR×5 · 2024:QB×17,WR×16,TE×1 | — |
 | B3 | +0.00 | 0th | no | — | — |
-| arch:early_qb | +0.00 | 0th | no | 2023:RB×2,QB×1,WR×1 · 2024:QB×4,RB×3,WR×2 | — |
-| arch:elite_te | +0.00 | 0th | no | 2024:TE×2,RB×1,QB×1 | — |
+| arch:early_qb | +0.00 | 0th | no | 2023:RB×5,QB×1 · 2024:QB×5,WR×2,RB×1 | — |
+| arch:elite_te | +0.00 | 0th | no | 2024:WR×2,TE×2,QB×1 | — |
+| arch:late_qb | +0.00 | 0th | no | 2023:RB×5,QB×4,WR×2 · 2024:WR×3,RB×2,TE×2 | — |
 | arch:robust_rb | +0.00 | 0th | no | — | — |
-| arch:wr_anchor | +0.00 | 0th | no | 2023:WR×8,RB×1 · 2024:WR×4,RB×1 | — |
+| arch:wr_anchor | +0.00 | 0th | no | 2023:WR×7 · 2024:WR×9,RB×1 | — |
 | profile:default | +0.00 | 0th | no | — | — |
 | profile:keeper_builder | +0.00 | 0th | no | — | — |
-| profile:need_filler | +0.00 | 0th | no | 2023:QB×3,WR×2 · 2024:WR×3,RB×2,QB×1 | — |
-| profile:scarcity | +0.00 | 0th | no | 2023:QB×1 · 2024:RB×3,WR×2,QB×1 | — |
-| profile:upside_late | +0.00 | 0th | no | 2023:RB×7,WR×3,QB×1 · 2024:RB×12,WR×2 | — |
-| arch:late_qb | -5.00 | 0th | no | 2023:QB×4,RB×4,WR×3 · 2024:RB×7,WR×3,TE×1 | — |
-| profile:tier_hunter | -5.00 | 0th | no | 2023:WR×2,QB×1,RB×1 · 2024:QB×6,RB×5 | — |
-| profile:value_anchor | -5.00 | 0th | no | 2023:QB×5,WR×1,RB×1 · 2024:WR×2,RB×2 | — |
+| profile:need_filler | +0.00 | 0th | no | 2023:QB×3,WR×2,RB×2 · 2024:RB×4,WR×2,QB×1 | — |
+| profile:scarcity | +0.00 | 0th | no | 2023:WR×3,QB×1 · 2024:WR×3,RB×3,QB×2 | — |
+| profile:tier_hunter | +0.00 | 0th | no | 2023:QB×1,RB×1 · 2024:QB×6,RB×1 | — |
+| profile:upside_late | +0.00 | 0th | no | 2023:RB×6,WR×3,QB×1 · 2024:RB×16,WR×1 | — |
+| profile:value_anchor | +0.00 | 0th | no | 2023:QB×5,WR×2,RB×1 · 2024:WR×6,RB×1 | — |
 
-**WATCH flags (0):** none — a WATCH buys a Phase-H shadow seat, never weights; the live 2026 season is the legitimate tiebreaker for sub-threshold leans (new data, not re-tortured old data). **The install rule is untouched: nothing enters the engine below the pre-registered bar.**
+**WATCH flags (1):** arch:zero_rb — a WATCH buys a Phase-H shadow seat, never weights; the live 2026 season is the legitimate tiebreaker for sub-threshold leans (new data, not re-tortured old data). **The install rule is untouched: nothing enters the engine below the pre-registered bar.**
 
 **Honesty line:** 16 candidates × 2 seasons means ~4 would show both-season-positive sign by PURE CHANCE (independent coin-flip signs under the null → 25% each); several candidates also tie the control exactly (zero divergence), shrinking the effective field. Read the YES column with that base rate.
 
