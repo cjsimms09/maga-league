@@ -11,7 +11,7 @@
    }
   ],
   "schedules_url": "https://github.com/nflverse/nflverse-data/releases/download/schedules/games.parquet",
-  "fetched": "2026-11-17",
+  "fetched": "2026-11-24",
   "weeks_span": [
    1,
    18
@@ -39,8 +39,8 @@
   ],
   "team_code_normalization": "adp._norm_team / adp.TEAM_ALIASES (nflverse -> board vocabulary, e.g. 'LA' -> 'LAR')",
   "points_allowed_source": "games.csv (schedules release), opponent's own final score that game",
-  "raw_rows": 300,
-  "kept_team_weeks": 300,
+  "raw_rows": 326,
+  "kept_team_weeks": 326,
   "teams": 32,
   "unknown_team_codes": 0,
   "missing_points_allowed": 0
@@ -2364,6 +2364,203 @@
      "pos": "DEF",
      "pts_allow_21_27": 1,
      "sack": 1,
+     "team": "WAS"
+    }
+   }
+  },
+  {
+   "week": 11,
+   "players": {
+    "ARI": {
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 1,
+     "team": "ARI"
+    },
+    "BAL": {
+     "def_st_td": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 3,
+     "safe": 1,
+     "team": "BAL"
+    },
+    "BUF": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 2,
+     "team": "BUF"
+    },
+    "CAR": {
+     "ff": 2,
+     "fum_rec": 2,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 2,
+     "team": "CAR"
+    },
+    "CHI": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 6,
+     "safe": 1,
+     "team": "CHI"
+    },
+    "CIN": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "CIN"
+    },
+    "DAL": {
+     "ff": 3,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 5,
+     "team": "DAL"
+    },
+    "DEN": {
+     "def_td": 1,
+     "ff": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 5,
+     "team": "DEN"
+    },
+    "DET": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 4,
+     "team": "DET"
+    },
+    "HOU": {
+     "blk_kick": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_1_6": 1,
+     "sack": 2,
+     "safe": 1,
+     "team": "HOU"
+    },
+    "IND": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "IND"
+    },
+    "JAX": {
+     "ff": 1,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "JAX"
+    },
+    "KC": {
+     "ff": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 3,
+     "team": "KC"
+    },
+    "LAC": {
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 1,
+     "team": "LAC"
+    },
+    "LV": {
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 1,
+     "team": "LV"
+    },
+    "MIA": {
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 3,
+     "team": "MIA"
+    },
+    "MIN": {
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "sack": 1,
+     "team": "MIN"
+    },
+    "NO": {
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 2,
+     "team": "NO"
+    },
+    "NYG": {
+     "int": 2,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "NYG"
+    },
+    "NYJ": {
+     "ff": 2,
+     "pos": "DEF",
+     "pts_allow_21_27": 1,
+     "sack": 6,
+     "team": "NYJ"
+    },
+    "PHI": {
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 5,
+     "team": "PHI"
+    },
+    "PIT": {
+     "ff": 2,
+     "fum_rec": 1,
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
+     "team": "PIT"
+    },
+    "SF": {
+     "def_td": 1,
+     "ff": 1,
+     "fum_rec": 1,
+     "int": 1,
+     "pos": "DEF",
+     "pts_allow_7_13": 1,
+     "sack": 1,
+     "team": "SF"
+    },
+    "TB": {
+     "pos": "DEF",
+     "pts_allow_28_34": 1,
+     "sack": 1,
+     "team": "TB"
+    },
+    "TEN": {
+     "pos": "DEF",
+     "pts_allow_35p": 1,
+     "team": "TEN"
+    },
+    "WAS": {
+     "pos": "DEF",
+     "pts_allow_14_20": 1,
+     "sack": 3,
      "team": "WAS"
     }
    }
