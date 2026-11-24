@@ -833793,7 +833793,7 @@
     },
     "8142": {
      "injury_status": "IR",
-     "depth_chart_order": 9,
+     "depth_chart_order": 8,
      "team": "IND",
      "years_exp": 4,
      "adp": 95.33,
@@ -834680,7 +834680,7 @@
     },
     "13342": {
      "injury_status": "IR",
-     "depth_chart_order": 5,
+     "depth_chart_order": 7,
      "team": "KC",
      "years_exp": 0,
      "adp": 950.0,
@@ -834688,7 +834688,7 @@
     },
     "11592": {
      "injury_status": "IR",
-     "depth_chart_order": 5,
+     "depth_chart_order": 6,
      "team": "CIN",
      "years_exp": 2,
      "adp": 950.0,
@@ -835118,8 +835118,7 @@
      "position": "TE"
     },
     "6964": {
-     "injury_status": "Questionable",
-     "team": "FA",
+     "team": "IND",
      "years_exp": 6,
      "adp": 950.0,
      "position": "TE"
@@ -835495,7 +835494,7 @@
     },
     "11595": {
      "injury_status": "IR",
-     "depth_chart_order": 4,
+     "depth_chart_order": 6,
      "team": "KC",
      "years_exp": 2,
      "adp": 950.0,
@@ -835577,7 +835576,7 @@
     },
     "12062": {
      "injury_status": "Out",
-     "depth_chart_order": 6,
+     "depth_chart_order": 4,
      "team": "CIN",
      "years_exp": 2,
      "adp": 950.0,
@@ -835847,7 +835846,7 @@
     },
     "13407": {
      "injury_status": "IR",
-     "depth_chart_order": 7,
+     "depth_chart_order": 6,
      "team": "IND",
      "years_exp": 0,
      "adp": 950.0,
@@ -835928,7 +835927,7 @@
     },
     "12521": {
      "injury_status": "IR",
-     "depth_chart_order": 5,
+     "depth_chart_order": 4,
      "team": "SEA",
      "years_exp": 1,
      "adp": 950.0,
@@ -835970,7 +835969,7 @@
     },
     "5008": {
      "injury_status": "IR",
-     "depth_chart_order": 5,
+     "depth_chart_order": 4,
      "team": "BAL",
      "years_exp": 8,
      "adp": 950.0,
@@ -836495,7 +836494,7 @@
     },
     "5409": {
      "injury_status": "IR",
-     "depth_chart_order": 4,
+     "depth_chart_order": 5,
      "team": "CIN",
      "years_exp": 8,
      "adp": 950.0,
@@ -836628,7 +836627,7 @@
      "position": "WR"
     },
     "8180": {
-     "depth_chart_order": 2,
+     "depth_chart_order": 3,
      "team": "LV",
      "years_exp": 4,
      "adp": 176.0,
@@ -836710,7 +836709,7 @@
     },
     "13276": {
      "injury_status": "Out",
-     "depth_chart_order": 3,
+     "depth_chart_order": 2,
      "team": "NYJ",
      "years_exp": 0,
      "adp": 196.0,
@@ -836817,7 +836816,7 @@
      "position": "QB"
     },
     "11625": {
-     "depth_chart_order": 2,
+     "depth_chart_order": 3,
      "team": "NYJ",
      "years_exp": 2,
      "adp": 215.5,
@@ -837030,7 +837029,7 @@
     },
     "13424": {
      "injury_status": "Out",
-     "depth_chart_order": 4,
+     "depth_chart_order": 3,
      "team": "IND",
      "years_exp": 0,
      "adp": 256.0,
@@ -837111,7 +837110,7 @@
      "position": "WR"
     },
     "12483": {
-     "depth_chart_order": 3,
+     "depth_chart_order": 2,
      "team": "LV",
      "years_exp": 1,
      "adp": 292.0,
@@ -837286,7 +837285,6 @@
      "position": "WR"
     },
     "12699": {
-     "depth_chart_order": 5,
      "team": "BAL",
      "years_exp": 1,
      "adp": 950.0,
@@ -837660,7 +837658,7 @@
     },
     "13268": {
      "injury_status": "Out",
-     "depth_chart_order": 7,
+     "depth_chart_order": 5,
      "team": "BAL",
      "years_exp": 0,
      "adp": 950.0,
@@ -837772,7 +837770,7 @@
      "position": "WR"
     },
     "7496": {
-     "depth_chart_order": 5,
+     "depth_chart_order": 6,
      "team": "IND",
      "years_exp": 6,
      "adp": 950.0,
@@ -837922,7 +837920,7 @@
     },
     "13173": {
      "injury_status": "IR",
-     "depth_chart_order": 8,
+     "depth_chart_order": 9,
      "team": "KC",
      "years_exp": 1,
      "adp": 950.0,
@@ -838894,7 +838892,7 @@
     },
     "13392": {
      "injury_status": "IR",
-     "depth_chart_order": 9,
+     "depth_chart_order": 10,
      "team": "KC",
      "years_exp": 0,
      "adp": 950.0,
@@ -840195,7 +840193,7 @@
      "position": "WR"
     },
     "13477": {
-     "depth_chart_order": 5,
+     "depth_chart_order": 4,
      "team": "CIN",
      "years_exp": 0,
      "adp": 950.0,
@@ -840287,7 +840285,7 @@
     },
     "6453": {
      "injury_status": "IR",
-     "depth_chart_order": 8,
+     "depth_chart_order": 7,
      "team": "IND",
      "years_exp": 7,
      "adp": 950.0,
@@ -840374,7 +840372,7 @@
      "position": "WR"
     },
     "11762": {
-     "depth_chart_order": 3,
+     "depth_chart_order": 4,
      "team": "IND",
      "years_exp": 2,
      "adp": 950.0,
@@ -840960,7 +840958,7 @@
      "position": "WR"
     },
     "7865": {
-     "team": "FA",
+     "team": "PIT",
      "years_exp": 5,
      "adp": 950.0,
      "position": "WR"
@@ -841162,7 +841160,7 @@
      "position": "WR"
     },
     "11068": {
-     "depth_chart_order": 4,
+     "depth_chart_order": 5,
      "team": "CIN",
      "years_exp": 3,
      "adp": 950.0,
@@ -841248,7 +841246,7 @@
      "position": "WR"
     },
     "13333": {
-     "depth_chart_order": 4,
+     "depth_chart_order": 3,
      "team": "IND",
      "years_exp": 0,
      "adp": 950.0,
@@ -841323,7 +841321,7 @@
     },
     "8188": {
      "injury_status": "IR",
-     "depth_chart_order": 7,
+     "depth_chart_order": 8,
      "team": "KC",
      "years_exp": 4,
      "adp": 950.0,
@@ -841374,7 +841372,7 @@
     },
     "13412": {
      "injury_status": "IR",
-     "depth_chart_order": 9,
+     "depth_chart_order": 7,
      "team": "DET",
      "years_exp": 0,
      "adp": 950.0,
@@ -841652,7 +841650,7 @@
     },
     "11579": {
      "injury_status": "Out",
-     "depth_chart_order": 4,
+     "depth_chart_order": 3,
      "team": "NO",
      "years_exp": 2,
      "adp": 950.0,
@@ -841684,7 +841682,7 @@
     },
     "13418": {
      "injury_status": "Out",
-     "depth_chart_order": 7,
+     "depth_chart_order": 4,
      "team": "WAS",
      "years_exp": 0,
      "adp": 950.0,
@@ -841752,7 +841750,7 @@
     },
     "13047": {
      "injury_status": "Out",
-     "depth_chart_order": 8,
+     "depth_chart_order": 7,
      "team": "SEA",
      "years_exp": 1,
      "adp": 950.0,
@@ -841826,7 +841824,7 @@
      "position": "RB"
     },
     "11273": {
-     "injury_status": "Questionable",
+     "injury_status": "IR",
      "depth_chart_order": 4,
      "team": "KC",
      "years_exp": 3,
@@ -842005,7 +842003,7 @@
     },
     "4219": {
      "injury_status": "IR",
-     "depth_chart_order": 4,
+     "depth_chart_order": 5,
      "team": "WAS",
      "years_exp": 9,
      "adp": 950.0,
@@ -842321,7 +842319,7 @@
     },
     "12656": {
      "injury_status": "IR",
-     "depth_chart_order": 7,
+     "depth_chart_order": 6,
      "team": "SEA",
      "years_exp": 1,
      "adp": 950.0,
@@ -842475,7 +842473,7 @@
      "position": "RB"
     },
     "13277": {
-     "depth_chart_order": 3,
+     "depth_chart_order": 4,
      "team": "NO",
      "years_exp": 0,
      "adp": 950.0,
@@ -842898,7 +842896,7 @@
      "position": "RB"
     },
     "12939": {
-     "depth_chart_order": 3,
+     "depth_chart_order": 4,
      "team": "CAR",
      "years_exp": 1,
      "adp": 950.0,
@@ -843756,7 +843754,7 @@
     },
     "6828": {
      "injury_status": "Out",
-     "depth_chart_order": 4,
+     "depth_chart_order": 3,
      "team": "CAR",
      "years_exp": 6,
      "adp": 950.0,
@@ -844229,7 +844227,7 @@
     },
     "8206": {
      "injury_status": "IR",
-     "depth_chart_order": 5,
+     "depth_chart_order": 4,
      "team": "BAL",
      "years_exp": 4,
      "adp": 950.0,
@@ -844392,7 +844390,7 @@
     },
     "12470": {
      "injury_status": "Out",
-     "depth_chart_order": 2,
+     "depth_chart_order": 3,
      "team": "IND",
      "years_exp": 1,
      "adp": 950.0,
@@ -844440,7 +844438,8 @@
      "position": "QB"
     },
     "8002": {
-     "team": "BUF",
+     "depth_chart_order": 2,
+     "team": "IND",
      "years_exp": 5,
      "adp": 950.0,
      "position": "QB"
@@ -844984,7 +844983,7 @@
      "position": "QB"
     },
     "12510": {
-     "depth_chart_order": 4,
+     "depth_chart_order": 3,
      "team": "SEA",
      "years_exp": 1,
      "adp": 950.0,
@@ -845043,7 +845042,7 @@
      "position": "QB"
     },
     "13350": {
-     "depth_chart_order": 6,
+     "depth_chart_order": 5,
      "team": "BAL",
      "years_exp": 0,
      "adp": 950.0,
