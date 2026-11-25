@@ -301,12 +301,42 @@
    "props_vs_actual": -9.4,
    "props_priced": 12,
    "props_would_flip": false
+  },
+  {
+   "week": 11,
+   "actual": 81.54,
+   "ceiling": 83.84,
+   "left_on_bench": 2.3,
+   "starters_actual": [
+    "QB:11560",
+    "RB:3198",
+    "RB:11576",
+    "WR:10229",
+    "WR:9487",
+    "TE:7002",
+    "WR:7564",
+    "K:11792",
+    "DEF:CAR"
+   ],
+   "opponent": "cashworth",
+   "opponent_points": 91.1,
+   "result": "L",
+   "margin": -9.56,
+   "ceiling_would_flip": false,
+   "champion": 72.64,
+   "champion_vs_actual": -8.9,
+   "champion_priced": 9,
+   "champion_would_flip": false,
+   "props": 81.54,
+   "props_vs_actual": 0.0,
+   "props_priced": 7,
+   "props_would_flip": false
   }
  ],
  "summary": {
-  "weeks_graded": 10,
-  "left_on_bench_per_week": 12.73,
-  "champion_vs_actual_per_week": -14.58,
-  "props_vs_actual_per_week": 0.74
+  "weeks_graded": 11,
+  "left_on_bench_per_week": 11.78,
+  "champion_vs_actual_per_week": -14.07,
+  "props_vs_actual_per_week": 0.66
  }
 }
