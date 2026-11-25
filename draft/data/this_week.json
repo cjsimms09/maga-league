@@ -1,6 +1,6 @@
 {
  "_rule": "THE ROSTER RULE: any statement about Cory's roster or matchup cites THIS file (fresh within 3 days) or live Sleeper \u2014 never an older artifact.",
- "generated_at": "2026-11-24T23:08:31+00:00",
+ "generated_at": "2026-11-25T21:27:09+00:00",
  "season": "2026",
  "week": 12,
  "cory": {
@@ -35,26 +35,15 @@
    "kickoff_utc": "2026-11-26T18:00:00.000Z"
   },
   {
-   "id": "11576",
-   "name": "Braelon Allen",
-   "pos": "RB",
-   "team": "NYJ",
-   "starter": false,
-   "injury": null,
-   "game": "at MIA (Sun)",
-   "home": false,
-   "kickoff_utc": "2026-11-29T18:00:00.000Z"
-  },
-  {
-   "id": "11792",
-   "name": "Will Reichard",
+   "id": "11786",
+   "name": "Cam Little",
    "pos": "K",
-   "team": "MIN",
+   "team": "JAX",
    "starter": true,
    "injury": null,
-   "game": "vs ATL (Sun)",
+   "game": "vs TEN (Sun)",
    "home": true,
-   "kickoff_utc": "2026-11-29T18:00:00.000Z"
+   "kickoff_utc": "2026-11-29T21:05:00.000Z"
   },
   {
    "id": "12501",
@@ -83,7 +72,7 @@
    "name": "Quinshon Judkins",
    "pos": "RB",
    "team": "CLE",
-   "starter": false,
+   "starter": true,
    "injury": null,
    "game": "vs LV (Sun)",
    "home": true,
@@ -99,6 +88,17 @@
    "game": "vs GB (Wed)",
    "home": true,
    "kickoff_utc": "2026-11-26T01:00:00.000Z"
+  },
+  {
+   "id": "3163",
+   "name": "Jared Goff",
+   "pos": "QB",
+   "team": "DET",
+   "starter": false,
+   "injury": null,
+   "game": "vs CHI (Thu)",
+   "home": true,
+   "kickoff_utc": "2026-11-26T18:00:00.000Z"
   },
   {
    "id": "3198",
@@ -138,7 +138,7 @@
    "name": "Kenneth Walker III",
    "pos": "RB",
    "team": "KC",
-   "starter": true,
+   "starter": false,
    "injury": "Out",
    "game": "at BUF (Thu)",
    "home": false,
@@ -178,14 +178,14 @@
    "kickoff_utc": "2026-11-29T21:25:00.000Z"
   },
   {
-   "id": "CAR",
-   "name": "CAR D/ST",
+   "id": "TB",
+   "name": "TB D/ST",
    "pos": "DEF",
-   "team": "CAR",
+   "team": "TB",
    "starter": true,
    "injury": null,
-   "game": "at TB (Mon)",
-   "home": false,
+   "game": "vs CAR (Mon)",
+   "home": true,
    "kickoff_utc": "2026-12-01T01:15:00.000Z"
   }
  ],
@@ -217,8 +217,8 @@
    "name": "Jalen Coker",
    "pos": "WR",
    "team": "CAR",
-   "starter": true,
-   "injury": "Questionable",
+   "starter": false,
+   "injury": null,
    "game": "at TB (Mon)",
    "home": false,
    "kickoff_utc": "2026-12-01T01:15:00.000Z"
@@ -239,11 +239,22 @@
    "name": "Carnell Tate",
    "pos": "WR",
    "team": "TEN",
-   "starter": true,
+   "starter": false,
    "injury": null,
    "game": "at JAX (Sun)",
    "home": false,
    "kickoff_utc": "2026-11-29T21:05:00.000Z"
+  },
+  {
+   "id": "13301",
+   "name": "Antonio Williams",
+   "pos": "WR",
+   "team": "WAS",
+   "starter": true,
+   "injury": null,
+   "game": "at ARI (Sun)",
+   "home": false,
+   "kickoff_utc": "2026-11-29T21:25:00.000Z"
   },
   {
    "id": "13337",
@@ -338,29 +349,18 @@
    "name": "Jaxon Smith-Njigba",
    "pos": "WR",
    "team": "SEA",
-   "starter": false,
+   "starter": true,
    "injury": null,
    "game": "at SF (Sun)",
    "home": false,
    "kickoff_utc": "2026-11-29T21:25:00.000Z"
   },
   {
-   "id": "DET",
-   "name": "DET D/ST",
-   "pos": "DEF",
-   "team": "DET",
-   "starter": true,
-   "injury": null,
-   "game": "vs CHI (Thu)",
-   "home": true,
-   "kickoff_utc": "2026-11-26T18:00:00.000Z"
-  },
-  {
    "id": "SEA",
    "name": "SEA D/ST",
    "pos": "DEF",
    "team": "SEA",
-   "starter": false,
+   "starter": true,
    "injury": null,
    "game": "at SF (Sun)",
    "home": false,
