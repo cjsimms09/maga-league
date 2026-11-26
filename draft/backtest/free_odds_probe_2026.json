@@ -1,30 +1,30 @@
 {
  "_territory": "relay probe; C consumes; results are the free-odds census",
  "_ask": "Cory 2026-08-21: Explore free Vegas odds we can get",
- "captured_at": "2026-11-19T20:51:26.928815Z",
+ "captured_at": "2026-11-26T21:47:19.381481Z",
  "sources": {
   "espn": {
    "status": 200,
-   "bytes": 236504,
-   "events": 13,
+   "bytes": 268303,
+   "events": 16,
    "known_positive": [
     {
-     "game": "IND @ HOU",
-     "provider": "DraftKings",
-     "spread": -12.5,
-     "total": 44.5
+     "game": "KC @ BUF",
+     "provider": "Draft Kings",
+     "spread": -3.0,
+     "total": 45.5
     },
     {
-     "game": "MIA @ BUF",
-     "provider": "DraftKings",
-     "spread": -16.5,
-     "total": 44.5
+     "game": "DEN @ PIT",
+     "provider": "Draft Kings",
+     "spread": 4.5,
+     "total": 36.5
     },
     {
-     "game": "NO @ CHI",
-     "provider": "DraftKings",
-     "spread": -11.5,
-     "total": 48.5
+     "game": "NO @ CIN",
+     "provider": "Draft Kings",
+     "spread": -10.0,
+     "total": 49.5
     }
    ],
    "games_with_lines": 13,
@@ -32,99 +32,89 @@
   },
   "bovada": {
    "status": 200,
-   "bytes": 3335402,
+   "bytes": 4030262,
    "known_positive": [
     {
-     "game": "Indianapolis Colts @ Houston Texans",
+     "game": "Philadelphia Eagles @ Dallas Cowboys",
      "market": "Moneyline",
      "handicap": null
     },
     {
-     "game": "Indianapolis Colts @ Houston Texans",
+     "game": "Philadelphia Eagles @ Dallas Cowboys",
      "market": "Point Spread",
-     "handicap": "12.5"
+     "handicap": "8.5"
     },
     {
-     "game": "Indianapolis Colts @ Houston Texans",
+     "game": "Philadelphia Eagles @ Dallas Cowboys",
      "market": "Total",
-     "handicap": "44.0"
+     "handicap": "49.5"
     }
    ],
-   "markets_seen": 195,
-   "prop_mentions": 4108,
+   "markets_seen": 192,
+   "prop_mentions": 5092,
    "verdict": "POSITIVE \u2014 real lines on real games"
   },
   "bovada_event_props": {
    "status": 200,
-   "bytes": 3335402,
-   "event_link": "/football/nfl/indianapolis-colts-houston-texans-202611192015",
+   "bytes": 4030262,
+   "event_link": "/football/nfl/philadelphia-eagles-dallas-cowboys-202611261630",
    "event_status": 200,
-   "event_bytes": 469397,
-   "prop_markets": 40,
-   "anytime_td_mentions": 8,
-   "known_positive": [
-    {
-     "prop": "Total Passing Touchdowns - C.J. Stroud (HOU)"
-    },
-    {
-     "prop": "Total Passing Touchdowns - Daniel Jones (IND)"
-    },
-    {
-     "prop": "Total Passing Yards - C.J. Stroud (HOU)"
-    }
-   ],
-   "verdict": "POSITIVE \u2014 real lines on real games"
+   "event_bytes": 2,
+   "prop_markets": 0,
+   "anytime_td_mentions": 0,
+   "known_positive": [],
+   "verdict": "REACHABLE-NO-POSITIVE (status 200) \u2014 treat as untested, not as no"
   },
   "bovada_census": {
    "status": 200,
-   "bytes": 3335402,
+   "bytes": 4030262,
    "display_groups": {
-    "Game Lines": 13,
-    "Alternate Lines": 13,
-    "TD Scorer Props": 13,
-    "First Drive Props": 1,
-    "Passing Props": 13,
-    "Passing Yards": 13,
-    "Rushing Props": 13,
-    "Rushing Yards": 13,
-    "Receiving Props": 12,
-    "Receiving Yards": 12,
-    "Kicking Props": 1,
-    "Touchdown Props": 13,
-    "Def & ST Props": 1,
-    "Score Props": 13,
-    "Game Props": 13,
-    "Combined Yards": 12,
-    "Correct Score": 13,
-    "Specials": 1,
-    "Squares": 1
+    "Game Lines": 14,
+    "Alternate Lines": 14,
+    "TD Scorer Props": 14,
+    "Passing Props": 14,
+    "Passing Yards": 14,
+    "Rushing Props": 14,
+    "Rushing Yards": 14,
+    "Receiving Props": 14,
+    "Receiving Yards": 14,
+    "Touchdown Props": 14,
+    "Score Props": 14,
+    "Game Props": 14,
+    "Combined Yards": 13,
+    "Correct Score": 14,
+    "Specials": 3,
+    "Squares": 3,
+    "First Drive Props": 2,
+    "Kicking Props": 2,
+    "Def & ST Props": 2
    },
    "market_types": {
-    "Moneyline": 65,
-    "Point Spread": 65,
-    "Total": 65,
+    "Moneyline": 64,
+    "Point Spread": 64,
+    "Total": 64,
+    "Both teams to score 10 or more points?": 40,
+    "Dynamic Winning Margin": 40,
+    "Total Points Range": 40,
+    "To Win and Allow 0 Points": 40,
+    "Odd/Even Total Points": 40,
     "Anytime Touchdown Scorer": 39,
-    "Winning Margin": 39,
-    "Dynamic Winning Margin": 39,
-    "Total Points Range": 39,
-    "To Win and Allow 0 Points": 39,
-    "Odd/Even Total Points": 39,
     "Correct Score Range": 39,
-    "Both teams to score 10 or more points?": 38,
-    "Spread": 26,
-    "Total Points": 26,
-    "Total Touchdowns": 26,
+    "Winning Margin": 38,
+    "Spread": 27,
+    "Total Points": 27,
+    "Both teams to score 14 or more points?": 27,
+    "Both teams to score 17 or more points?": 27,
     "Both Teams To Score": 26,
-    "Both teams to score 14 or more points?": 26,
-    "Both teams to score 17 or more points?": 26,
     "Both teams to score 7 or more points?": 26,
     "Double Chance": 26,
-    "First Touchdown Scorer": 13,
-    "Player to Score 2 or More Touchdowns": 13,
-    "Player to Score 3 or More Touchdowns": 13,
-    "First Team To Score": 13,
-    "Both teams to score 13 or more points?": 13,
-    "Both teams to score 21 or more points?": 13
+    "Total Touchdowns": 25,
+    "Player to Score 2 or More Touchdowns": 14,
+    "Both teams to score 13 or more points?": 14,
+    "Both teams to score 21 or more points?": 14,
+    "Both teams to score 24 or more points?": 14,
+    "Both teams to score 27 or more points?": 14,
+    "Both teams to score 30 or more points?": 14
    },
    "known_positive": [
     {
@@ -137,7 +127,7 @@
   },
   "polymarket": {
    "status": 200,
-   "bytes": 1066944,
+   "bytes": 1072296,
    "events": 20,
    "known_positive": [
     {
