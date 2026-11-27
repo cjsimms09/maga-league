@@ -1,6 +1,6 @@
 {
  "_rule": "THE ROSTER RULE: any statement about Cory's roster or matchup cites THIS file (fresh within 3 days) or live Sleeper \u2014 never an older artifact.",
- "generated_at": "2026-11-25T21:27:09+00:00",
+ "generated_at": "2026-11-27T22:11:47+00:00",
  "season": "2026",
  "week": 12,
  "cory": {
@@ -29,7 +29,7 @@
    "pos": "QB",
    "team": "CHI",
    "starter": true,
-   "injury": null,
+   "injury": "Questionable",
    "game": "at DET (Thu)",
    "home": false,
    "kickoff_utc": "2026-11-26T18:00:00.000Z"
@@ -106,7 +106,7 @@
    "pos": "RB",
    "team": "BAL",
    "starter": true,
-   "injury": "Questionable",
+   "injury": null,
    "game": "at HOU (Sun)",
    "home": false,
    "kickoff_utc": "2026-11-29T18:00:00.000Z"
@@ -117,7 +117,7 @@
    "pos": "TE",
    "team": "NO",
    "starter": false,
-   "injury": "Questionable",
+   "injury": "Out",
    "game": "at CIN (Sun)",
    "home": false,
    "kickoff_utc": "2026-11-29T18:00:00.000Z"
@@ -150,7 +150,7 @@
    "pos": "WR",
    "team": "JAX",
    "starter": true,
-   "injury": null,
+   "injury": "Out",
    "game": "vs TEN (Sun)",
    "home": true,
    "kickoff_utc": "2026-11-29T21:05:00.000Z"
@@ -279,17 +279,6 @@
    "kickoff_utc": "2026-11-29T21:25:00.000Z"
   },
   {
-   "id": "13424",
-   "name": "Seth McGowan",
-   "pos": "RB",
-   "team": "IND",
-   "starter": false,
-   "injury": "Out",
-   "game": "vs NYG (Sun)",
-   "home": true,
-   "kickoff_utc": "2026-11-29T18:00:00.000Z"
-  },
-  {
    "id": "4993",
    "name": "Mike Gesicki",
    "pos": "TE",
@@ -356,11 +345,22 @@
    "kickoff_utc": "2026-11-29T21:25:00.000Z"
   },
   {
+   "id": "CLE",
+   "name": "CLE D/ST",
+   "pos": "DEF",
+   "team": "CLE",
+   "starter": true,
+   "injury": null,
+   "game": "vs LV (Sun)",
+   "home": true,
+   "kickoff_utc": "2026-11-29T18:00:00.000Z"
+  },
+  {
    "id": "SEA",
    "name": "SEA D/ST",
    "pos": "DEF",
    "team": "SEA",
-   "starter": true,
+   "starter": false,
    "injury": null,
    "game": "at SF (Sun)",
    "home": false,
